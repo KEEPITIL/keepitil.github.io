@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KEEP IT IL — Underground Music. Events. Culture.</title>
+  <meta name="description" content="Your source for underground EDM, artist features, music events, and electronic music culture in Illinois and beyond."/>
+  <meta property="og:title" content="KEEP IT IL"/>
+  <meta property="og:description" content="Underground music. Events. Culture."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://keepitil.com"/>
+
+  <!-- Google Analytics — replace G-XXXXXXXXXX -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0b0b0b; --dark:#111; --dark2:#181818; --dark3:#222;
+      --blue:#00b4ff; --blue-dim:#0088cc; --blue-glow:rgba(0,180,255,.35);
+      --blue-glow2:rgba(0,180,255,.15); --white:#f0f0f0; --grey:#888;
+      --font-head:'Bebas Neue',sans-serif; --font-body:'Space Grotesk',sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{max-width:100%;display:block;}
+    .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+    .neon-text{color:var(--blue);text-shadow:0 0 8px var(--blue),0 0 20px var(--blue-glow);}
+
+    /* ── Scroll Reveal ── */
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    .reveal-left{opacity:0;transform:translateX(-32px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal-left.visible{opacity:1;transform:none;}
+    .reveal-right{opacity:0;transform:translateX(32px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal-right.visible{opacity:1;transform:none;}
+
+    /* ── Buttons ── */
+    .btn{display:inline-block;padding:12px 28px;border-radius:2px;font-family:var(--font-body);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s ease;border:none;}
+    .btn-primary{background:var(--blue);color:var(--black);box-shadow:0 0 18px var(--blue-glow);}
+    .btn-primary:hover{background:#33c3ff;box-shadow:0 0 32px var(--blue);transform:translateY(-2px);}
+    .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--blue);box-shadow:0 0 10px var(--blue-glow);}
+    .btn-outline:hover{background:var(--blue);color:var(--black);box-shadow:0 0 24px var(--blue);transform:translateY(-2px);}
+
+    /* ── Nav ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(11,11,11,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,255,.1);height:68px;display:flex;align-items:center;transition:box-shadow .3s;}
+    nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+    .nav-logo-svg{width:36px;height:36px;filter:drop-shadow(0 0 8px #00b4ff) drop-shadow(0 0 20px rgba(0,180,255,.4));}
+    .nav-logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.15em;color:var(--blue);text-shadow:0 0 10px var(--blue),0 0 28px var(--blue-glow);}
+    .nav-links{display:flex;gap:32px;list-style:none;align-items:center;}
+    .nav-links a{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);transition:color .2s;position:relative;padding-bottom:2px;}
+    .nav-links a::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--blue);box-shadow:0 0 6px var(--blue);transform:scaleX(0);transition:transform .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--blue);}
+    .nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
+    .nav-cta{background:var(--blue) !important;color:var(--black) !important;padding:8px 18px !important;border-radius:2px;font-weight:700 !important;box-shadow:0 0 14px var(--blue-glow);}
+    .nav-cta::after{display:none !important;}
+    .nav-cta:hover{background:#33c3ff !important;box-shadow:0 0 26px var(--blue) !important;}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+    .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;box-shadow:0 0 6px var(--blue);transition:all .3s;}
+    .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .nav-hamburger.open span:nth-child(2){opacity:0;}
+    .nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+    /* ── Mobile Menu ── */
+    .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:rgba(11,11,11,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+    .mobile-menu.open{display:flex;}
+    .mobile-menu a{font-family:var(--font-head);font-size:44px;letter-spacing:.08em;color:var(--white);transition:color .2s,text-shadow .2s;}
+    .mobile-menu a:hover{color:var(--blue);text-shadow:0 0 20px var(--blue);}
+
+    /* ── Hero ── */
+    .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:68px;}
+    #hero-canvas{position:absolute;inset:0;z-index:0;}
+    .hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 70% 50%,rgba(0,180,255,.06) 0%,transparent 70%),linear-gradient(180deg,rgba(11,11,11,0) 60%,var(--black) 100%);z-index:1;}
+    .hero-content{position:relative;z-index:2;max-width:800px;}
+    .hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.35);padding:5px 14px;border-radius:2px;margin-bottom:28px;box-shadow:0 0 12px var(--blue-glow);}
+    .hero h1{font-family:var(--font-head);font-size:clamp(60px,10vw,130px);line-height:.9;letter-spacing:.02em;color:var(--white);margin-bottom:24px;}
+    .hero h1 .accent{color:var(--blue);text-shadow:0 0 24px var(--blue),0 0 60px var(--blue-glow);}
+    .hero h1 .typewriter{border-right:3px solid var(--blue);padding-right:4px;animation:blink .7s step-end infinite;}
+    @keyframes blink{0%,100%{border-color:var(--blue);}50%{border-color:transparent;}}
+    .hero-sub{font-size:18px;color:var(--grey);max-width:520px;margin-bottom:40px;line-height:1.7;}
+    .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:56px;}
+    .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
+    .stat{text-align:left;}
+    .stat-num{font-family:var(--font-head);font-size:42px;letter-spacing:.04em;color:var(--blue);text-shadow:0 0 12px var(--blue-glow);line-height:1;}
+    .stat-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
+    .live-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pulse 1.8s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+
+    /* ── Logo Hero ── */
+    .hero-logo-wrap{position:absolute;right:-40px;top:50%;transform:translateY(-50%);z-index:2;opacity:.12;pointer-events:none;}
+    .hero-logo-wrap svg{width:min(500px,55vw);filter:drop-shadow(0 0 40px #00b4ff);}
+
+    /* ── Promo Banner ── */
+    .promo{background:var(--blue);padding:14px 0;cursor:pointer;transition:background .2s;}
+    .promo:hover{background:#33c3ff;}
+    .promo-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;}
+    .promo p{font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--black);text-transform:uppercase;}
+    .promo strong{font-weight:800;}
+    .promo a{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--black);text-decoration:underline;white-space:nowrap;}
+
+    /* ── Section Base ── */
+    section{padding:96px 0;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+    .section-title{font-family:var(--font-head);font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin-bottom:48px;}
+
+    /* ── Filter Tabs ── */
+    .filter-tabs{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap;}
+    .filter-tab{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:8px 16px;border:1px solid rgba(0,180,255,.2);color:var(--grey);cursor:pointer;border-radius:2px;transition:all .2s;background:transparent;}
+    .filter-tab:hover{border-color:rgba(0,180,255,.5);color:var(--blue);}
+    .filter-tab.active{background:var(--blue);color:var(--black);border-color:var(--blue);box-shadow:0 0 14px var(--blue-glow);}
+
+    /* ── Featured ── */
+    .featured{background:var(--dark);}
+    .featured-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+    .featured-main{position:relative;overflow:hidden;background:var(--dark2);min-height:520px;display:flex;flex-direction:column;justify-content:flex-end;padding:40px;cursor:pointer;transition:all .3s;}
+    .featured-main:hover{transform:scale(1.005);}
+    .featured-main:hover .fm-overlay{opacity:1;}
+    .fm-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0d1520 0%,#090909 100%);}
+    .fm-overlay{position:absolute;inset:0;border:2px solid rgba(0,180,255,.3);opacity:0;transition:opacity .3s;pointer-events:none;}
+    .fm-waveform{position:absolute;top:0;left:0;right:0;height:100%;overflow:hidden;opacity:.06;}
+    .fm-waveform svg{width:100%;height:100%;}
+    .fm-content{position:relative;z-index:2;}
+    .article-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+    .featured-main h2{font-family:var(--font-head);font-size:42px;letter-spacing:.03em;color:var(--white);line-height:1.05;margin-bottom:14px;}
+    .featured-main p{font-size:14px;color:var(--grey);margin-bottom:20px;}
+    .article-meta{font-size:12px;color:var(--grey);display:flex;gap:12px;align-items:center;}
+    .article-meta span{opacity:.5;}
+    .featured-side{display:flex;flex-direction:column;gap:2px;}
+    .side-article{background:var(--dark2);padding:28px 32px;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;justify-content:space-between;flex:1;border-left:2px solid transparent;}
+    .side-article:hover{background:#1c1c1c;border-left-color:var(--blue);}
+    .side-article h3{font-family:var(--font-head);font-size:22px;letter-spacing:.03em;color:var(--white);margin:8px 0 10px;line-height:1.1;}
+    .side-article p{font-size:13px;color:var(--grey);line-height:1.6;flex-grow:1;}
+    .read-more{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-top:14px;display:inline-flex;align-items:center;gap:6px;transition:gap .2s;}
+    .read-more:hover{gap:12px;}
+
+    /* ── Events ── */
+    .events{background:var(--black);}
+    .events-list{display:flex;flex-direction:column;gap:2px;}
+    .event-item{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:28px;padding:24px 28px;background:var(--dark2);border-left:3px solid transparent;transition:all .25s;cursor:pointer;}
+    .event-item:hover{background:#181818;border-left-color:var(--blue);transform:translateX(4px);}
+    .event-item.hidden{display:none;}
+    .event-date .day{font-family:var(--font-head);font-size:42px;color:var(--blue);line-height:1;text-shadow:0 0 14px var(--blue-glow);}
+    .event-date .month{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);}
+    .event-info h4{font-family:var(--font-head);font-size:22px;letter-spacing:.04em;color:var(--white);margin-bottom:6px;}
+    .event-info .meta{font-size:13px;color:var(--grey);display:flex;gap:20px;flex-wrap:wrap;}
+    .event-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+    .tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(0,180,255,.3);color:var(--blue);border-radius:2px;}
+    .tag-filled{background:var(--blue);color:var(--black);border-color:var(--blue);box-shadow:0 0 8px var(--blue-glow);}
+
+    /* ── Artists ── */
+    .artists{background:var(--dark);}
+    .artists-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+    .artist-card{background:var(--dark2);padding:36px 24px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+    .artist-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 100%,rgba(0,180,255,.08) 0%,transparent 70%);opacity:0;transition:opacity .3s;}
+    .artist-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--blue);box-shadow:0 0 10px var(--blue);transform:scaleX(0);transition:transform .3s;}
+    .artist-card:hover{background:#1c1c1c;transform:translateY(-4px);}
+    .artist-card:hover::before,.artist-card:hover::after{opacity:1;transform:scaleX(1);}
+    .artist-avatar{width:80px;height:80px;border-radius:50%;background:var(--dark3);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:26px;color:var(--blue);border:2px solid rgba(0,180,255,.3);box-shadow:0 0 18px var(--blue-glow);transition:all .3s;}
+    .artist-card:hover .artist-avatar{border-color:var(--blue);box-shadow:0 0 28px var(--blue);}
+    .artist-card h4{font-family:var(--font-head);font-size:18px;letter-spacing:.1em;color:var(--white);margin-bottom:6px;}
+    .artist-card p{font-size:12px;color:var(--grey);margin-bottom:14px;}
+
+    /* ── Blog ── */
+    .blog{background:var(--black);}
+    .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+    .blog-card{background:var(--dark2);padding:32px;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;border-bottom:2px solid transparent;}
+    .blog-card:hover{background:#181818;border-bottom-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.5);}
+    .blog-card.hidden{display:none;}
+    .blog-card h3{font-family:var(--font-head);font-size:22px;letter-spacing:.03em;line-height:1.1;color:var(--white);margin:10px 0 12px;}
+    .blog-card p{font-size:13px;color:var(--grey);line-height:1.7;flex-grow:1;margin-bottom:20px;}
+    .blog-card .article-meta{margin-top:auto;}
+
+    /* ── Subscribe ── */
+    .subscribe{background:var(--dark);position:relative;overflow:hidden;}
+    .subscribe-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 50%,rgba(0,180,255,.07) 0%,transparent 70%);}
+    .subscribe-inner{position:relative;z-index:2;text-align:center;max-width:600px;margin:0 auto;}
+    .subscribe h2{font-family:var(--font-head);font-size:clamp(40px,6vw,70px);letter-spacing:.04em;color:var(--white);margin-bottom:16px;}
+    .subscribe p{font-size:16px;color:var(--grey);margin-bottom:40px;}
+    .subscribe-form{display:flex;max-width:480px;margin:0 auto;}
+    .subscribe-form input{flex:1;padding:14px 20px;background:var(--dark3);border:1px solid rgba(0,180,255,.2);border-right:none;color:var(--white);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;border-radius:2px 0 0 2px;}
+    .subscribe-form input:focus{border-color:rgba(0,180,255,.6);box-shadow:0 0 0 3px var(--blue-glow2);}
+    .subscribe-form input::placeholder{color:#555;}
+    .subscribe-form button{padding:14px 28px;background:var(--blue);color:var(--black);border:none;font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:0 2px 2px 0;box-shadow:0 0 20px var(--blue-glow);transition:all .2s;}
+    .subscribe-form button:hover{background:#33c3ff;box-shadow:0 0 32px var(--blue);}
+    .subscribe-note{font-size:12px;color:#444;margin-top:14px;}
+
+    /* ── Modal ── */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);}
+    .modal-backdrop.open{display:flex;}
+    .modal{background:var(--dark2);max-width:680px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid rgba(0,180,255,.2);box-shadow:0 0 60px rgba(0,180,255,.1);position:relative;border-radius:2px;}
+    .modal-close{position:sticky;top:0;float:right;z-index:10;background:var(--dark2);border:none;color:var(--grey);font-size:24px;cursor:pointer;padding:20px 24px;line-height:1;transition:color .2s;}
+    .modal-close:hover{color:var(--blue);}
+    .modal-body{padding:40px;padding-top:0;}
+    .modal-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+    .modal-title{font-family:var(--font-head);font-size:clamp(28px,5vw,44px);letter-spacing:.03em;color:var(--white);margin-bottom:20px;line-height:1.1;}
+    .modal-meta{font-size:12px;color:var(--grey);margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.06);}
+    .modal-text{font-size:15px;color:#aaa;line-height:1.8;}
+    .modal-text p{margin-bottom:16px;}
+
+    /* ── Footer ── */
+    footer{background:var(--dark);border-top:1px solid rgba(0,180,255,.08);padding:64px 0 32px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
+    .footer-brand .logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .footer-brand .logo-svg{width:40px;height:40px;filter:drop-shadow(0 0 10px #00b4ff) drop-shadow(0 0 24px rgba(0,180,255,.4));}
+    .footer-brand .logo-text{font-family:var(--font-head);font-size:26px;letter-spacing:.12em;color:var(--blue);text-shadow:0 0 10px var(--blue);}
+    .footer-brand p{font-size:14px;color:var(--grey);line-height:1.7;max-width:280px;}
+    .footer-social{display:flex;gap:10px;margin-top:24px;}
+    .social-link{width:38px;height:38px;border:1px solid rgba(0,180,255,.2);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:12px;font-weight:700;letter-spacing:.05em;transition:all .2s;}
+    .social-link:hover{border-color:var(--blue);color:var(--blue);box-shadow:0 0 12px var(--blue-glow);transform:translateY(-2px);}
+    .footer-col h5{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--white);margin-bottom:20px;}
+    .footer-col ul{list-style:none;}
+    .footer-col ul li{margin-bottom:12px;}
+    .footer-col ul a{font-size:14px;color:var(--grey);transition:color .2s;}
+    .footer-col ul a:hover{color:var(--blue);}
+    .footer-bottom{padding-top:28px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;gap:24px;}
+    .footer-bottom p{font-size:12px;color:#444;}
+    .footer-bottom a{color:var(--blue);}
+
+    /* ── Scroll to Top ── */
+    .scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;background:var(--blue);color:var(--black);border:none;border-radius:2px;cursor:pointer;font-size:18px;z-index:500;opacity:0;transform:translateY(20px);transition:all .3s;box-shadow:0 0 20px var(--blue-glow);display:flex;align-items:center;justify-content:center;}
+    .scroll-top.visible{opacity:1;transform:none;}
+    .scroll-top:hover{background:#33c3ff;box-shadow:0 0 30px var(--blue);transform:translateY(-2px);}
+
+    /* ── Responsive ── */
+    @media(max-width:1024px){.artists-grid{grid-template-columns:repeat(2,1fr);}.blog-grid{grid-template-columns:repeat(2,1fr);}.footer-grid{grid-template-columns:1fr 1fr;gap:40px;}}
+    @media(max-width:768px){
+      .nav-links{display:none;}.nav-hamburger{display:flex;}
+      .featured-grid{grid-template-columns:1fr;}
+      .event-item{grid-template-columns:70px 1fr;}.event-tags{display:none;}
+      .blog-grid{grid-template-columns:1fr;}
+      .hero-logo-wrap{display:none;}
+      .subscribe-form{flex-direction:column;}.subscribe-form input{border-right:1px solid rgba(0,180,255,.2);border-radius:2px;margin-bottom:8px;}.subscribe-form button{border-radius:2px;}
+      .footer-grid{grid-template-columns:1fr;gap:32px;}
+      .footer-bottom{flex-direction:column;text-align:center;}
+      .promo-inner{flex-direction:column;text-align:center;}
+      .hero-stats{gap:24px;}
+    }
+    @media(max-width:480px){.artists-grid{grid-template-columns:1fr 1fr;}.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
+
+    /* custom scrollbar */
+    ::-webkit-scrollbar{width:6px;}.​::-webkit-scrollbar-track{background:var(--dark);}.​::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+  </style>
+</head>
+<body>
+
+  <!-- Promo Banner -->
+  <div class="promo" onclick="document.querySelector('#events').scrollIntoView({behavior:'smooth'})">
+    <div class="container">
+      <div class="promo-inner">
+        <p>🎉 <strong>Summer 2025 Lineup Dropped</strong> — Midwest's biggest underground season is here</p>
+        <a onclick="event.stopPropagation()">See Events →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav id="main-nav">
+    <div class="container nav-inner">
+      <a href="#home" class="nav-logo">
+        <!-- Keep It IL Logo SVG — inline for crispness + glow -->
+        <svg class="nav-logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 8 L78 30 L65 30 L65 52 L80 52 L58 80 L58 65 L42 65 L42 80 L20 52 L35 52 L35 30 L22 30 Z" fill="black" stroke="#00b4ff" stroke-width="3.5" stroke-linejoin="round"/>
+          <path d="M58 72 Q70 78 72 88 Q68 82 60 82" fill="none" stroke="#00b4ff" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <span class="nav-logo-text">KEEP IT IL</span>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#featured" data-section="featured">Features</a></li>
+        <li><a href="#events" data-section="events">Events</a></li>
+        <li><a href="#artists" data-section="artists">Artists</a></li>
+        <li><a href="#blog" data-section="blog">Blog</a></li>
+        <li><a href="#subscribe" class="nav-cta">Subscribe</a></li>
+      </ul>
+      <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#featured" onclick="toggleMenu()">Features</a>
+    <a href="#events" onclick="toggleMenu()">Events</a>
+    <a href="#artists" onclick="toggleMenu()">Artists</a>
+    <a href="#blog" onclick="toggleMenu()">Blog</a>
+    <a href="#subscribe" onclick="toggleMenu()" style="color:var(--blue)">Subscribe</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay"></div>
+
+    <!-- Big background logo watermark -->
+    <div class="hero-logo-wrap">
+      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 16 L156 60 L130 60 L130 104 L160 104 L116 160 L116 130 L84 130 L84 160 L40 104 L70 104 L70 60 L44 60 Z" fill="black" stroke="#00b4ff" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M116 144 Q140 156 144 176 Q136 164 120 164" fill="none" stroke="#00b4ff" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="container">
+      <div class="hero-content">
+        <div class="live-badge"><span class="live-dot"></span> Live Coverage Active</div>
+        <div class="hero-tag">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#00b4ff"/></svg>
+          Underground Music &amp; Events — Illinois
+        </div>
+        <h1>
+          THE <span class="accent"><span class="typewriter" id="typewriter">UNDERGROUND</span></span><br/>STARTS HERE
+        </h1>
+        <p class="hero-sub">Artist features, event coverage, and culture from the heart of the Illinois EDM underground. No compromise.</p>
+        <div class="hero-actions">
+          <a href="#featured" class="btn btn-primary">Read the Latest</a>
+          <a href="#events" class="btn btn-outline">Upcoming Events</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><div class="stat-num" data-count="2400">0</div><div class="stat-label">Subscribers</div></div>
+          <div class="stat"><div class="stat-num" data-count="180">0</div><div class="stat-label">Events Covered</div></div>
+          <div class="stat"><div class="stat-num" data-count="340">0</div><div class="stat-label">Artist Features</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured -->
+  <section class="featured" id="featured">
+    <div class="container">
+      <div class="section-label reveal">Featured</div>
+      <h2 class="section-title reveal">FRESH DROPS</h2>
+      <div class="featured-grid">
+        <div class="featured-main reveal-left" onclick="openModal('feature1')">
+          <div class="fm-bg"></div>
+          <div class="fm-overlay"></div>
+          <div class="fm-waveform">
+            <svg viewBox="0 0 800 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="0,250 40,180 80,300 120,150 160,320 200,100 240,280 280,200 320,350 360,120 400,260 440,180 480,310 520,140 560,290 600,170 640,330 680,110 720,270 760,200 800,250" fill="none" stroke="#00b4ff" stroke-width="2.5"/>
+              <polyline points="0,270 40,220 80,320 120,190 160,340 200,150 240,300 280,230 320,370 360,150 400,280 440,220 480,330 520,170 560,310 600,205 640,345 680,145 720,295 760,240 800,270" fill="none" stroke="#00b4ff" stroke-width="1.2" opacity=".4"/>
+            </svg>
+          </div>
+          <div class="fm-content">
+            <span class="article-tag">🎵 Artist Feature</span>
+            <h2>The Rise of Chicago's Acid House Revival</h2>
+            <p>How a new generation is breathing life into the sounds that defined a city.</p>
+            <div class="article-meta"><span>June 8, 2025</span><span>·</span><span>8 min read</span></div>
+            <a class="read-more" style="margin-top:18px">Read Article →</a>
+          </div>
+        </div>
+        <div class="featured-side">
+          <div class="side-article reveal-right" onclick="openModal('feature2')" style="transition-delay:.1s">
+            <div><span class="article-tag">🎤 Interview</span><h3>DJ Phantom on Playing B2B Sets Without Rehearsal</h3><p>The elusive Chicago selector breaks down spontaneous collaboration and reading the room at 3am.</p></div>
+            <a class="read-more">Read More →</a>
+          </div>
+          <div class="side-article reveal-right" onclick="openModal('feature3')" style="transition-delay:.2s">
+            <div><span class="article-tag">🎛️ Gear</span><h3>Best Budget Setups for Bedroom Producers in 2025</h3><p>You don't need a $10k studio. We tested 12 setups under $500.</p></div>
+            <a class="read-more">Read More →</a>
+          </div>
+          <div class="side-article reveal-right" onclick="openModal('feature4')" style="transition-delay:.3s">
+            <div><span class="article-tag">📸 Event Recap</span><h3>Movement Detroit: What the IL Crew Brought Home</h3><p>Photos, moments, and lessons from the midwest pilgrimage to Detroit's annual festival.</p></div>
+            <a class="read-more">Read More →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Events -->
+  <section class="events" id="events">
+    <div class="container">
+      <div class="section-label reveal">What's On</div>
+      <h2 class="section-title reveal">UPCOMING EVENTS</h2>
+      <div class="filter-tabs reveal">
+        <div class="filter-tab active" onclick="filterEvents('all',this)">All</div>
+        <div class="filter-tab" onclick="filterEvents('techno',this)">Techno</div>
+        <div class="filter-tab" onclick="filterEvents('house',this)">House</div>
+        <div class="filter-tab" onclick="filterEvents('trance',this)">Trance</div>
+        <div class="filter-tab" onclick="filterEvents('dnb',this)">DNB</div>
+        <div class="filter-tab" onclick="filterEvents('keepitil',this)">Keep It IL</div>
+      </div>
+      <div class="events-list">
+        <div class="event-item reveal" data-genres="techno acid">
+          <div class="event-date"><div class="day">21</div><div class="month">Jun</div></div>
+          <div class="event-info"><h4>Subterranean Sessions Vol. 12</h4><div class="meta"><span>Subterranean, Chicago IL</span><span>10PM–4AM</span><span>21+</span></div></div>
+          <div class="event-tags"><span class="tag">Techno</span><span class="tag">Acid</span></div>
+        </div>
+        <div class="event-item reveal" data-genres="house trance dnb" style="transition-delay:.1s">
+          <div class="event-date"><div class="day">28</div><div class="month">Jun</div></div>
+          <div class="event-info"><h4>Midwest Rave Alliance — Summer Burn</h4><div class="meta"><span>Undisclosed Warehouse, Pilsen</span><span>11PM–6AM</span><span>18+</span></div></div>
+          <div class="event-tags"><span class="tag">House</span><span class="tag">Trance</span><span class="tag">DNB</span></div>
+        </div>
+        <div class="event-item reveal" data-genres="keepitil" style="transition-delay:.2s">
+          <div class="event-date"><div class="day">05</div><div class="month">Jul</div></div>
+          <div class="event-info"><h4>Keep It IL Presents: FREQUENCY</h4><div class="meta"><span>Smartbar, Chicago IL</span><span>9PM–5AM</span><span>21+</span></div></div>
+          <div class="event-tags"><span class="tag tag-filled">Keep It IL</span><span class="tag">All Genres</span></div>
+        </div>
+        <div class="event-item reveal" data-genres="house techno" style="transition-delay:.3s">
+          <div class="event-date"><div class="day">19</div><div class="month">Jul</div></div>
+          <div class="event-info"><h4>Underground Frequencies Open Air</h4><div class="meta"><span>Promontory Point, Chicago IL</span><span>4PM–12AM</span><span>All Ages</span></div></div>
+          <div class="event-tags"><span class="tag">Outdoor</span><span class="tag">House</span></div>
+        </div>
+        <div class="event-item reveal" data-genres="dnb" style="transition-delay:.4s">
+          <div class="event-date"><div class="day">02</div><div class="month">Aug</div></div>
+          <div class="event-info"><h4>Jungle Warfare: DNB All Night</h4><div class="meta"><span>Bottom Lounge, Chicago IL</span><span>9PM–4AM</span><span>21+</span></div></div>
+          <div class="event-tags"><span class="tag">DNB</span><span class="tag">Jungle</span></div>
+        </div>
+      </div>
+      <div class="reveal" style="text-align:center;margin-top:40px">
+        <a href="#" class="btn btn-outline">View Full Calendar</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Artists -->
+  <section class="artists" id="artists">
+    <div class="container">
+      <div class="section-label reveal">Spotlight</div>
+      <h2 class="section-title reveal">ARTISTS TO WATCH</h2>
+      <div class="artists-grid">
+        <div class="artist-card reveal" style="transition-delay:.0s" onclick="openModal('artist1')">
+          <div class="artist-avatar">PH</div><h4>PHNTM</h4><p>Chicago Techno / Acid</p><span class="tag">Featured</span>
+        </div>
+        <div class="artist-card reveal" style="transition-delay:.1s" onclick="openModal('artist2')">
+          <div class="artist-avatar">VX</div><h4>VORTEX</h4><p>Hard Trance / Rave</p><span class="tag">Rising</span>
+        </div>
+        <div class="artist-card reveal" style="transition-delay:.2s" onclick="openModal('artist3')">
+          <div class="artist-avatar">KL</div><h4>KLRFLD</h4><p>Deep House / Garage</p><span class="tag">Local</span>
+        </div>
+        <div class="artist-card reveal" style="transition-delay:.3s" onclick="openModal('artist4')">
+          <div class="artist-avatar">NX</div><h4>NEXUS</h4><p>Drum &amp; Bass / Jungle</p><span class="tag">New</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog -->
+  <section class="blog" id="blog">
+    <div class="container">
+      <div class="section-label reveal">Culture</div>
+      <h2 class="section-title reveal">FROM THE BLOG</h2>
+      <div class="filter-tabs reveal">
+        <div class="filter-tab active" onclick="filterBlog('all',this)">All</div>
+        <div class="filter-tab" onclick="filterBlog('music',this)">Music</div>
+        <div class="filter-tab" onclick="filterBlog('culture',this)">Culture</div>
+        <div class="filter-tab" onclick="filterBlog('production',this)">Production</div>
+        <div class="filter-tab" onclick="filterBlog('tips',this)">Tips</div>
+      </div>
+      <div class="blog-grid">
+        <div class="blog-card reveal" data-category="music" onclick="openModal('blog1')">
+          <span class="article-tag">🎶 Music</span><h3>10 Tracks That Define the New Chicago Sound</h3>
+          <p>From acid-laced warehouse jams to polished club cuts — the records shaping what's next.</p>
+          <div class="article-meta"><span>Jun 5</span><span>·</span><span>5 min</span></div>
+        </div>
+        <div class="blog-card reveal" data-category="culture" style="transition-delay:.1s" onclick="openModal('blog2')">
+          <span class="article-tag">📖 Culture</span><h3>Why Rave Culture Is More Important Than Ever</h3>
+          <p>Community, escapism, and the dance floor as protest — why going out still matters in 2025.</p>
+          <div class="article-meta"><span>Jun 2</span><span>·</span><span>7 min</span></div>
+        </div>
+        <div class="blog-card reveal" data-category="production" style="transition-delay:.2s" onclick="openModal('blog3')">
+          <span class="article-tag">🛠️ Production</span><h3>Making Acid Basslines: A Beginner's Guide</h3>
+          <p>Everything you need to know about programming the iconic TB-303 squelch.</p>
+          <div class="article-meta"><span>May 28</span><span>·</span><span>10 min</span></div>
+        </div>
+        <div class="blog-card reveal" data-category="tips" style="transition-delay:.1s" onclick="openModal('blog4')">
+          <span class="article-tag">💡 Tips</span><h3>How to Pitch Your Event to Underground Music Blogs</h3>
+          <p>What editors want, how to write a pitch that doesn't get ignored, and follow-up etiquette.</p>
+          <div class="article-meta"><span>May 20</span><span>·</span><span>4 min</span></div>
+        </div>
+        <div class="blog-card reveal" data-category="culture" style="transition-delay:.2s" onclick="openModal('blog5')">
+          <span class="article-tag">🗺️ Travel</span><h3>The Midwest Rave Trail: Best Venues Outside Chicago</h3>
+          <p>Milwaukee, Detroit, Indianapolis — underground scenes within a day's drive.</p>
+          <div class="article-meta"><span>May 15</span><span>·</span><span>6 min</span></div>
+        </div>
+        <div class="blog-card reveal" data-category="music" style="transition-delay:.3s" onclick="openModal('blog6')">
+          <span class="article-tag">🎧 Mix Review</span><h3>The 5 Best Free DJ Mix Downloads This Month</h3>
+          <p>Recorded sets from local and international selectors — all free, all worth your time.</p>
+          <div class="article-meta"><span>May 10</span><span>·</span><span>3 min</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Subscribe -->
+  <section class="subscribe" id="subscribe">
+    <div class="subscribe-bg"></div>
+    <div class="container">
+      <div class="subscribe-inner reveal">
+        <div class="section-label" style="text-align:center">Stay Locked In</div>
+        <h2>GET THE DROP<br/><span class="neon-text">BEFORE ANYONE ELSE</span></h2>
+        <p>Events, exclusive mixes, artist interviews, and IL underground intel — straight to your inbox. No spam.</p>
+        <form class="subscribe-form" onsubmit="handleSubscribe(event)">
+          <input type="email" placeholder="your@email.com" id="email-input" required/>
+          <button type="submit">Subscribe</button>
+        </form>
+        <p class="subscribe-note" id="subscribe-msg">Join 2,400+ subscribers. Unsubscribe anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">
+            <svg class="logo-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 8 L78 30 L65 30 L65 52 L80 52 L58 80 L58 65 L42 65 L42 80 L20 52 L35 52 L35 30 L22 30 Z" fill="black" stroke="#00b4ff" stroke-width="3.5" stroke-linejoin="round"/>
+              <path d="M58 72 Q70 78 72 88 Q68 82 60 82" fill="none" stroke="#00b4ff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <span class="logo-text">KEEP IT IL</span>
+          </div>
+          <p>Underground music coverage, event listings, and artist spotlights from Illinois and the broader Midwest rave scene.</p>
+          <div class="footer-social">
+            <a href="#" class="social-link" title="Instagram">IG</a>
+            <a href="#" class="social-link" title="SoundCloud">SC</a>
+            <a href="#" class="social-link" title="Spotify">SP</a>
+            <a href="#" class="social-link" title="YouTube">YT</a>
+            <a href="#" class="social-link" title="TikTok">TT</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Content</h5>
+          <ul>
+            <li><a href="#featured">Features</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#artists">Artists</a></li>
+            <li><a href="#">Mix Reviews</a></li>
+            <li><a href="#">Gear</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Events</h5>
+          <ul>
+            <li><a href="#events">Upcoming</a></li>
+            <li><a href="#">Recaps</a></li>
+            <li><a href="#">Submit an Event</a></li>
+            <li><a href="#">Promoters</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Advertise</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Keep It IL — <a href="https://keepitil.com">keepitil.com</a>. All rights reserved.</p>
+        <p>Built for the underground. 🎶</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll to Top -->
+  <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- Article / Artist Modals -->
+  <div class="modal-backdrop" id="modal" onclick="closeModal(event)">
+    <div class="modal" id="modal-content">
+      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+  /* ── HERO CANVAS — Particle Waveform ─────────────── */
+  (function(){
+    const canvas = document.getElementById('hero-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], animId;
+
+    function resize(){
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Particles
+    for(let i=0;i<120;i++) particles.push({
+      x: Math.random()*2000,
+      y: Math.random()*1200,
+      r: Math.random()*1.5+.3,
+      vx: (Math.random()-.5)*.4,
+      vy: (Math.random()-.5)*.2,
+      a: Math.random()*.6+.1
+    });
+
+    let t=0;
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      t += .008;
+
+      // waveform lines
+      for(let l=0;l<3;l++){
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(0,180,255,${.04-.01*l})`;
+        ctx.lineWidth = 1.5-l*.4;
+        for(let x=0;x<=W;x+=3){
+          const y = H*.5
+            + Math.sin(x*.006+t+l*.8)*60
+            + Math.sin(x*.012-t*.7+l)*30
+            + Math.sin(x*.003+t*.5)*40;
+          l===0&&x===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
+
+      // particles
+      particles.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+        if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(0,180,255,${p.a*.5})`;
+        ctx.fill();
+      });
+
+      animId = requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  /* ── TYPEWRITER ────────────────────────────────── */
+  (function(){
+    const words = ['UNDERGROUND','MOVEMENT','CULTURE','SOUND','SCENE'];
+    const el = document.getElementById('typewriter');
+    let wi=0, ci=0, deleting=false;
+    function type(){
+      const word = words[wi];
+      if(!deleting){
+        el.textContent = word.slice(0,++ci);
+        if(ci===word.length){ deleting=true; setTimeout(type,2000); return; }
+      } else {
+        el.textContent = word.slice(0,--ci);
+        if(ci===0){ deleting=false; wi=(wi+1)%words.length; }
+      }
+      setTimeout(type, deleting?60:100);
+    }
+    setTimeout(type,1200);
+  })();
+
+  /* ── COUNT-UP STATS ────────────────────────────── */
+  function countUp(el, target){
+    let start=0, dur=2000, step=16;
+    const inc = target/(dur/step);
+    const timer = setInterval(()=>{
+      start=Math.min(start+inc,target);
+      el.textContent = Math.floor(start).toLocaleString();
+      if(start>=target) clearInterval(timer);
+    },step);
+  }
+
+  /* ── SCROLL REVEAL + ACTIVE NAV + STATS ─────────── */
+  const revealEls = document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
+  const statEls = document.querySelectorAll('[data-count]');
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+  let statsTriggered = false;
+
+  const observer = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  },{threshold:.12});
+  revealEls.forEach(el=>observer.observe(el));
+
+  const statsObserver = new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting && !statsTriggered){
+      statsTriggered=true;
+      statEls.forEach(el=>countUp(el, parseInt(el.dataset.count)));
+    }
+  },{threshold:.5});
+  const statsSection = document.querySelector('.hero-stats');
+  if(statsSection) statsObserver.observe(statsSection);
+
+  // Active nav
+  const sectionObserver = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        navLinks.forEach(a=>{
+          a.classList.toggle('active', a.dataset.section===e.target.id);
+        });
+      }
+    });
+  },{rootMargin:'-30% 0px -60% 0px'});
+  sections.forEach(s=>sectionObserver.observe(s));
+
+  /* ── SCROLL EVENTS ─────────────────────────────── */
+  const nav = document.getElementById('main-nav');
+  const scrollTopBtn = document.getElementById('scroll-top');
+  window.addEventListener('scroll',()=>{
+    nav.classList.toggle('scrolled', window.scrollY>20);
+    scrollTopBtn.classList.toggle('visible', window.scrollY>400);
+  });
+
+  /* ── MOBILE MENU ───────────────────────────────── */
+  function toggleMenu(){
+    const menu = document.getElementById('mobile-menu');
+    const ham = document.getElementById('hamburger');
+    menu.classList.toggle('open');
+    ham.classList.toggle('open');
+    document.body.style.overflow = menu.classList.contains('open')?'hidden':'';
+  }
+
+  /* ── EVENT FILTER ──────────────────────────────── */
+  function filterEvents(genre, tab){
+    document.querySelectorAll('.filter-tabs .filter-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.event-item').forEach(item=>{
+      const genres = item.dataset.genres||'';
+      item.classList.toggle('hidden', genre!=='all' && !genres.includes(genre));
+    });
+  }
+
+  /* ── BLOG FILTER ───────────────────────────────── */
+  function filterBlog(cat, tab){
+    tab.closest('.filter-tabs').querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.blog-card').forEach(card=>{
+      card.classList.toggle('hidden', cat!=='all' && card.dataset.category!==cat);
+    });
+  }
+
+  /* ── MODAL CONTENT ─────────────────────────────── */
+  const modalData = {
+    feature1:{tag:'🎵 Artist Feature',title:"The Rise of Chicago's Acid House Revival",meta:'June 8, 2025 · 8 min read',body:`<p>Something powerful is happening beneath the surface of Chicago's music scene. A new generation of producers and DJs, many of them under 30, are reaching back to the city's most iconic sonic legacy — acid house — and forging it into something entirely new.</p><p>The TB-303, long considered a vintage curiosity, is back in force. Not just as a nostalgic prop, but as a core instrument in sets at Smartbar, Subterranean, and a dozen unnamed warehouses across the South and West sides.</p><p>"It's not just retro," says one producer who performs as Phosphene. "It's the foundation. You have to understand where you came from." For this generation, understanding where they came from means wrestling with a legacy that includes Larry Heard, Frankie Knuckles, and Jesse Saunders — giants who cast long shadows.</p><p>What's remarkable is how little nostalgia actually drives it. The new Chicago acid sound is colder, more minimal, often darker. Where the originals were euphoric and gospel-tinged, today's version is nocturnal, almost confrontational.</p>`},
+    feature2:{tag:'🎤 Interview',title:'DJ Phantom on Playing B2B Sets Without Rehearsal',meta:'June 3, 2025 · 6 min read',body:`<p>If you've spent any time in Chicago's underground club circuit, you've probably heard of Phantom — or more likely, you've heard them play without knowing who was behind the decks. That anonymity is intentional.</p><p>"I don't want people watching me," they explain over coffee in Logan Square. "I want them listening." It's a philosophy that extends to their approach to B2B sets — back-to-backs with other DJs, entirely unrehearsed.</p><p>"The magic happens when neither person knows what's coming. You have to be completely in the room, completely in the music. It forces you to be humble." This approach has made Phantom one of the most sought-after collaborators on the Chicago circuit.</p>`},
+    feature3:{tag:'🎛️ Gear',title:'Best Budget Setups for Bedroom Producers in 2025',meta:'May 30, 2025 · 12 min read',body:`<p>The myth that you need a professional studio to make professional music has never been more thoroughly debunked. Over the past three months, we tested 12 complete production setups, each under $500, to find out what actually delivers.</p><p><strong>Under $200 — The Essentials</strong><br/>A used laptop running Ableton Lite, a $30 audio interface, and a pair of studio headphones. Paired with free plugins like Vital and LABS, this setup can produce release-quality electronic music.</p><p><strong>$200–$350 — The Step Up</strong><br/>Add a MIDI controller and a budget condenser microphone. The Arturia MiniLab is our pick for value. Combined with a subscription to Splice, you unlock unlimited sample libraries.</p><p><strong>$350–$500 — The Near-Pro</strong><br/>At this tier, invest in studio monitors. The Yamaha HS5 can often be found used for under $150 a pair. The sonic improvement for mixing is enormous.</p>`},
+    feature4:{tag:'📸 Event Recap',title:'Movement Detroit: What the IL Crew Brought Home',meta:'May 27, 2025 · 5 min read',body:`<p>Every Memorial Day weekend, a caravan of Chicago heads makes the four-hour drive to Detroit for Movement — the annual electronic music festival that doubles as a pilgrimage for Midwest ravers.</p><p>This year's edition felt different. More intentional. More local. The festival's curation has always tilted toward Detroit's deep house and techno roots, but 2025 felt like a recommitment to that identity after years of creeping mainstreaming.</p><p>The Keep It IL crew landed in time for an early set from a local Detroit producer playing purely analog hardware. What followed was three days of education, inspiration, and plenty of late nights.</p>`},
+    artist1:{tag:'🎤 Artist',title:'PHNTM',meta:'Chicago, IL · Techno / Acid',body:`<p>PHNTM is one of Chicago's most distinctive selectors. Operating at the intersection of acid techno and industrial rave, their sets tend to start somewhere around 130 BPM and only climb from there.</p><p>Active since 2019, PHNTM has built a reputation for technically precise mixing and a willingness to go dark and deep when the crowd demands it. Resident at Subterranean's monthly Inversion night.</p><p><strong>Listen:</strong> SoundCloud · Mixcloud<br/><strong>Book:</strong> bookings@keepitil.com</p>`},
+    artist2:{tag:'🎤 Artist',title:'VORTEX',meta:'Chicago, IL · Hard Trance / Rave',body:`<p>VORTEX brings the energy of 90s rave culture into 2025 with no apologies. Uplifting, hard-driving trance built for festival main stages and sweaty basements alike.</p><p>Rising fast through the Midwest circuit, VORTEX has played every major regional event in the past 18 months and is currently working on their debut EP.</p>`},
+    artist3:{tag:'🎤 Artist',title:'KLRFLD',meta:'Chicago, IL · Deep House / Garage',body:`<p>KLRFLD (pronounced "Clearfield") is the alias of a Chicago-born producer whose deep house productions carry the warmth of classic Chicago soul filtered through a modern bass-heavy lens.</p><p>Their Bandcamp releases have quietly built a cult following, and their live sets at smaller venues around Wicker Park and Pilsen have become essential viewing for heads who prefer substance over spectacle.</p>`},
+    artist4:{tag:'🎤 Artist',title:'NEXUS',meta:'Chicago, IL · Drum & Bass / Jungle',body:`<p>The newest name on this list, NEXUS emerged from Chicago's small but dedicated D&B scene with a sound that prioritizes dancefloor function over genre purity. Rolling subs, chopped breaks, and occasional forays into proper jungle territory.</p><p>Watch this space — NEXUS is one of the most exciting new voices in Midwest electronic music right now.</p>`},
+    blog1:{tag:'🎶 Music',title:'10 Tracks That Define the New Chicago Sound',meta:'Jun 5, 2025 · 5 min read',body:`<p>Defining a "sound" is always a moving target, but these 10 tracks capture something real about what's happening in Chicago's underground clubs and studios right now.</p><p><strong>1. Phosphene — "Acid Protocol"</strong> — Pure 303-driven propulsion with a West Side soul sample buried underneath. Perfect at 128 BPM.</p><p><strong>2. KLRFLD — "Lawrence Ave"</strong> — Named after the street, this deep cut channels the melancholy of late-night Chicago better than anything else released this year.</p><p><strong>3. Midnight Collective — "24-Hour Party"</strong> — Chicago house tradition meeting modern production aesthetics. The piano riff will be in your head for a week.</p><p>And seven more that you need in your rotation immediately...</p>`},
+    blog2:{tag:'📖 Culture',title:'Why Rave Culture Is More Important Than Ever',meta:'Jun 2, 2025 · 7 min read',body:`<p>There's a version of this argument that's been made so many times it's become almost meaningless: the dance floor as radical space, the rave as protest, the DJ as community builder. We've all heard it.</p><p>But here, in the specific context of the Illinois underground in 2025, it feels urgent again. Not because of any single political event, but because of an accumulation — of isolation, of digital mediation, of the relentless gamification of social connection.</p><p>People are hungry for something real. And the underground — chaotic, sweaty, sometimes uncomfortable — is delivering it.</p>`},
+    blog3:{tag:'🛠️ Production',title:"Making Acid Basslines: A Beginner's Guide to the TB-303",meta:'May 28, 2025 · 10 min read',body:`<p>The Roland TB-303 Bass Line was a commercial failure when it launched in 1981. Designed to simulate bass guitar for practicing guitarists, it was too weird, too complex, and too expensive to catch on.</p><p>Then, in mid-80s Chicago, producers started playing with discarded units, cranking the cutoff, cranking the resonance, and discovering that the machine could make sounds nothing else could make.</p><p><strong>The fundamentals:</strong> A 303 pattern is built on pitch, accent, slide, and gate length. The interaction between these four elements, run through a resonant filter with envelope modulation, creates the signature "squelch."</p><p><strong>Plugin alternatives:</strong> Phoscyon 2, ABL3, and the free Tal-BassLine all get surprisingly close. Start with Phoscyon if budget allows.</p>`},
+    blog4:{tag:'💡 Tips',title:'How to Pitch Your Event to Underground Music Blogs',meta:'May 20, 2025 · 4 min read',body:`<p>We receive dozens of event pitches every week at Keep It IL. Most of them don't get a response. Here's what separates the ones that do.</p><p><strong>Lead with the lineup, not the venue.</strong> We know the venues. What we don't know is why this specific combination of artists on this specific night is worth covering.</p><p><strong>Include a press image.</strong> Not a flyer. A high-resolution photo of at least one of the headliners. Every time.</p><p><strong>Pitch 2–3 weeks in advance.</strong> Same-week pitches almost never get covered. Give editorial enough time to actually write something.</p><p><strong>Follow up once.</strong> One follow-up email, one week after the initial pitch, is appropriate. More than that is spam.</p>`},
+    blog5:{tag:'🗺️ Travel',title:'The Midwest Rave Trail: Best Venues Outside Chicago',meta:'May 15, 2025 · 6 min read',body:`<p>Chicago gets most of the attention, but the broader Midwest has a quietly remarkable underground scene. Here are the venues worth the drive.</p><p><strong>Detroit, MI — TV Lounge / DIME</strong> — The spiritual home of techno. If you haven't made the pilgrimage, stop reading and book a weekend.</p><p><strong>Milwaukee, WI — X-Ray Arcade</strong> — An all-ages venue doing genuinely interesting programming. The best small room in the region.</p><p><strong>Indianapolis, IN — Black Circle</strong> — Consistently underrated. The monthly residencies here rival anything in Chicago for quality of selection.</p>`},
+    blog6:{tag:'🎧 Mix Review',title:'The 5 Best Free DJ Mix Downloads This Month',meta:'May 10, 2025 · 3 min read',body:`<p>Every month we round up the best free mixes floating around SoundCloud, Mixcloud, and assorted corners of the internet. This month's selections lean hard into peak-time material.</p><p><strong>1. PHNTM — "Late Set, Early Morning" (SoundCloud)</strong> — 90 minutes of acid and techno from their most recent Subterranean closing set. Absolutely essential.</p><p><strong>2. Midwest Mix Series Vol. 47 (Mixcloud)</strong> — Rotating local selectors, this month featuring KLRFLD going deep for two hours.</p><p><strong>3. Detroit Transmissions 088 (Podcast)</strong> — The long-running Detroit mix series is still one of the best windows into what's happening at the source.</p>`}
+  };
+
+  function openModal(id){
+    const d = modalData[id]; if(!d) return;
+    const body = document.getElementById('modal-body');
+    body.innerHTML = `
+      <span class="modal-tag">${d.tag}</span>
+      <h2 class="modal-title">${d.title}</h2>
+      <div class="modal-meta">${d.meta}</div>
+      <div class="modal-text">${d.body}</div>
+    `;
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+
+  function closeModal(e){
+    if(e.target.id==='modal'){
+      document.getElementById('modal').classList.remove('open');
+      document.body.style.overflow='';
+    }
+  }
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      document.getElementById('modal').classList.remove('open');
+      document.getElementById('mobile-menu').classList.remove('open');
+      document.getElementById('hamburger').classList.remove('open');
+      document.body.style.overflow='';
+    }
+  });
+
+  /* ── EMAIL SUBSCRIBE ───────────────────────────── */
+  function handleSubscribe(e){
+    e.preventDefault();
+    const input = document.getElementById('email-input');
+    const msg = document.getElementById('subscribe-msg');
+    if(input.value){
+      msg.textContent = "🎉 You're in! Check your inbox to confirm.";
+      msg.style.color='#00b4ff';
+      input.value='';
+      // TODO: POST to your email API endpoint
+      // fetch('/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:input.value})})
+    }
+  }
+  </script>
+</body>
+</html>
