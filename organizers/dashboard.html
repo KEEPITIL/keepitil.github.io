@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Organizer Dashboard — KEEP IT IL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0b0b0b;--dark:#111;--dark2:#181818;--dark3:#222;
+      --blue:#00b4ff;--blue-dim:#0088cc;--blue-glow:rgba(0,180,255,.35);
+      --white:#f0f0f0;--grey:#888;--green:#00d97e;--orange:#ff9500;--red:#ff3b30;
+      --font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;
+    }
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh;}
+    a{color:inherit;text-decoration:none;}
+    input,textarea,select{background:var(--dark2);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.9rem;padding:.7rem 1rem;width:100%;outline:none;transition:border-color .2s;}
+    input:focus,textarea:focus,select:focus{border-color:var(--blue);}
+    select option{background:var(--dark2);}
+    label{display:block;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--grey);margin-bottom:.4rem;}
+    .form-group{margin-bottom:1.25rem;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    @media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.5rem;border-radius:6px;font-family:var(--font-body);font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;}
+    .btn-primary{background:var(--blue);color:#000;}
+    .btn-primary:hover{box-shadow:0 0 20px var(--blue-glow);}
+    .btn-outline{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.2);}
+    .btn-outline:hover{border-color:var(--blue);color:var(--blue);}
+    .btn-danger{background:transparent;color:var(--red);border:1px solid rgba(255,59,48,.3);}
+    .btn-sm{padding:.4rem .9rem;font-size:.8rem;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+    .auth-box{background:var(--dark);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:2.5rem;width:100%;max-width:420px;}
+    .auth-logo{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.1em;margin-bottom:.5rem;}
+    .auth-logo span{color:var(--blue);}
+    .auth-tabs{display:flex;gap:.5rem;margin-bottom:2rem;margin-top:1.5rem;}
+    .auth-tab{flex:1;padding:.6rem;text-align:center;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:500;border:1px solid rgba(255,255,255,.1);color:var(--grey);transition:all .2s;}
+    .auth-tab.active{background:var(--blue);color:#000;border-color:var(--blue);}
+    .auth-msg{font-size:.85rem;padding:.75rem 1rem;border-radius:6px;margin-bottom:1rem;display:none;}
+    .auth-msg.error{background:rgba(255,59,48,.1);border:1px solid rgba(255,59,48,.3);color:#ff6b63;display:block;}
+    .auth-msg.success{background:rgba(0,217,126,.1);border:1px solid rgba(0,217,126,.3);color:var(--green);display:block;}
+    #dashboard-screen{display:none;min-height:100vh;}
+    .top-bar{background:var(--dark);border-bottom:1px solid rgba(255,255,255,.06);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .top-logo{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.1em;}
+    .top-logo span{color:var(--blue);}
+    .top-right{display:flex;align-items:center;gap:1rem;}
+    .top-user{font-size:.85rem;color:var(--grey);}
+    .dash-body{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 57px);}
+    @media(max-width:768px){.dash-body{grid-template-columns:1fr;}}
+    .sidebar{background:var(--dark2);border-right:1px solid rgba(255,255,255,.06);padding:1.5rem 0;}
+    .sidebar-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.5rem;cursor:pointer;font-size:.9rem;color:var(--grey);transition:all .2s;border-left:3px solid transparent;}
+    .sidebar-item:hover{color:var(--white);background:rgba(255,255,255,.04);}
+    .sidebar-item.active{color:var(--blue);border-left-color:var(--blue);background:rgba(0,180,255,.06);}
+    .sidebar-item .icon{font-size:1.1rem;}
+    .main-panel{padding:2rem;overflow-y:auto;}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    .card{background:var(--dark);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1.5rem;margin-bottom:1rem;}
+    .card-title{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.05em;margin-bottom:1rem;}
+    .section-heading{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.05em;margin-bottom:.5rem;}
+    .section-sub{color:var(--grey);font-size:.85rem;margin-bottom:1.5rem;}
+    .badge{display:inline-block;padding:.25rem .65rem;border-radius:20px;font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+    .badge-pending{background:rgba(255,149,0,.15);color:var(--orange);}
+    .badge-approved{background:rgba(0,217,126,.15);color:var(--green);}
+    .badge-live{background:rgba(0,180,255,.15);color:var(--blue);}
+    .badge-rejected{background:rgba(255,59,48,.15);color:var(--red);}
+    .event-card{background:var(--dark2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:1.25rem;margin-bottom:.75rem;display:grid;grid-template-columns:1fr auto;align-items:start;gap:1rem;}
+    .event-name{font-weight:600;margin-bottom:.25rem;}
+    .event-meta{font-size:.82rem;color:var(--grey);}
+    .event-actions{display:flex;gap:.5rem;align-items:center;}
+    .marketing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-top:.75rem;}
+    .mkt-channel{background:var(--dark3);border-radius:8px;padding:1rem;text-align:center;border:1px solid rgba(255,255,255,.06);}
+    .mkt-channel .mkt-icon{font-size:1.4rem;margin-bottom:.4rem;}
+    .mkt-channel .mkt-label{font-size:.75rem;color:var(--grey);margin-bottom:.35rem;}
+    .mkt-channel .mkt-status{font-size:.75rem;font-weight:600;}
+    .mkt-done{color:var(--green);}
+    .mkt-pending{color:var(--orange);}
+    #profile-banner{background:linear-gradient(135deg,rgba(0,180,255,.12),rgba(0,180,255,.04));border:1px solid rgba(0,180,255,.25);border-radius:10px;padding:1.25rem;margin-bottom:1.5rem;display:none;}
+    #profile-banner p{font-size:.9rem;margin-bottom:.75rem;}
+    .tier-row{display:flex;gap:.75rem;align-items:center;margin-bottom:.5rem;}
+    .tier-row input{flex:1;}
+    .tier-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:1.2rem;padding:.2rem;}
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2rem;}
+    .stat-box{background:var(--dark);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:1.25rem;text-align:center;}
+    .stat-box .num{font-family:var(--font-head);font-size:2rem;color:var(--blue);}
+    .stat-box .lbl{font-size:.75rem;color:var(--grey);text-transform:uppercase;letter-spacing:.06em;}
+    .alert{padding:.85rem 1.1rem;border-radius:6px;font-size:.85rem;margin-bottom:1rem;}
+    .alert-info{background:rgba(0,180,255,.08);border:1px solid rgba(0,180,255,.2);color:#7dd5f5;}
+    .alert-success{background:rgba(0,217,126,.08);border:1px solid rgba(0,217,126,.2);color:var(--green);}
+    .alert-error{background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.2);color:#ff6b63;}
+    .divider{border:none;border-top:1px solid rgba(255,255,255,.07);margin:1.5rem 0;}
+  </style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <a href="./" class="auth-logo">KEEP IT <span>IL</span></a>
+    <p style="color:var(--grey);font-size:.85rem;margin-top:.25rem;">Organizer Portal</p>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Log In</div>
+      <div class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+    <div class="auth-msg" id="auth-msg"></div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">Log In</button>
+      <p style="text-align:center;font-size:.8rem;color:var(--grey);margin-top:1rem;"><a href="#" onclick="showReset()" style="color:var(--blue);">Forgot password?</a></p>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signup-form" style="display:none;">
+      <div class="alert alert-info">You're applying to be a KEEPITIL partner organizer. We'll review your account within 48 hours.</div>
+      <div class="form-group"><label>Email</label><input type="email" id="signup-email" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="signup-pass" placeholder="Min 8 characters"/></div>
+      <div class="form-group">
+        <label><input type="checkbox" id="terms-check" style="width:auto;margin-right:.5rem;"/>I agree to the <a href="./#pricing" target="_blank" style="color:var(--blue);">20% platform terms</a></label>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="doSignup()">Create Account</button>
+    </div>
+
+    <!-- RESET -->
+    <div id="reset-form" style="display:none;">
+      <div class="form-group"><label>Email</label><input type="email" id="reset-email" placeholder="you@example.com"/></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="doReset()">Send Reset Link</button>
+      <p style="text-align:center;font-size:.8rem;margin-top:1rem;"><a href="#" onclick="showLogin()" style="color:var(--blue);">← Back to login</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen">
+  <div class="top-bar">
+    <div class="top-logo">KEEP IT <span>IL</span> <span style="color:var(--grey);font-size:.8rem;font-family:var(--font-body);font-weight:400;">Organizer</span></div>
+    <div class="top-right">
+      <span class="top-user" id="top-user-email"></span>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+    <div class="sidebar">
+      <div class="sidebar-item active" onclick="showTab('overview')" data-tab="overview"><span class="icon">📊</span> Overview</div>
+      <div class="sidebar-item" onclick="showTab('events')" data-tab="events"><span class="icon">🎵</span> My Events</div>
+      <div class="sidebar-item" onclick="showTab('submit')" data-tab="submit"><span class="icon">➕</span> Submit Event</div>
+      <div class="sidebar-item" onclick="showTab('marketing')" data-tab="marketing"><span class="icon">📣</span> Marketing</div>
+      <div class="sidebar-item" onclick="showTab('profile')" data-tab="profile"><span class="icon">👤</span> Profile</div>
+    </div>
+
+    <div class="main-panel">
+      <div id="profile-banner">
+        <p>⚠️ Complete your organizer profile before submitting events — we need your org name, bio, and contact info.</p>
+        <button class="btn btn-primary btn-sm" onclick="showTab('profile')">Complete Profile →</button>
+      </div>
+
+      <!-- OVERVIEW TAB -->
+      <div class="tab-panel active" id="tab-overview">
+        <div class="section-heading">OVERVIEW</div>
+        <div class="section-sub" id="overview-welcome">Welcome back.</div>
+        <div class="stats-row">
+          <div class="stat-box"><div class="num" id="stat-total">0</div><div class="lbl">Events Submitted</div></div>
+          <div class="stat-box"><div class="num" id="stat-live">0</div><div class="lbl">Live Events</div></div>
+          <div class="stat-box"><div class="num" id="stat-pending">0</div><div class="lbl">Pending Review</div></div>
+          <div class="stat-box"><div class="num" id="stat-blasted">0</div><div class="lbl">Posh Blasts Sent</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">ACCOUNT STATUS</div>
+          <p style="font-size:.85rem;color:var(--grey);margin-bottom:.75rem;">Your organizer account status determines whether you can submit events.</p>
+          <div id="account-status-display"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">RECENT EVENTS</div>
+          <div id="recent-events-list"><p style="color:var(--grey);font-size:.85rem;">No events yet. <a href="#" onclick="showTab('submit')" style="color:var(--blue);">Submit your first event →</a></p></div>
+        </div>
+      </div>
+
+      <!-- EVENTS TAB -->
+      <div class="tab-panel" id="tab-events">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+          <div>
+            <div class="section-heading">MY EVENTS</div>
+            <div class="section-sub">All events you've submitted to KEEPITIL.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showTab('submit')">+ Submit Event</button>
+        </div>
+        <div id="events-list"><p style="color:var(--grey);font-size:.85rem;">No events submitted yet.</p></div>
+      </div>
+
+      <!-- SUBMIT EVENT TAB -->
+      <div class="tab-panel" id="tab-submit">
+        <div class="section-heading">SUBMIT EVENT</div>
+        <div class="section-sub">Fill in your event details. We'll review within 48 hours.</div>
+        <div id="submit-alert"></div>
+        <div class="card">
+          <div class="card-title">EVENT DETAILS</div>
+          <div class="form-row">
+            <div class="form-group"><label>Event Name *</label><input type="text" id="ev-name" placeholder="e.g. KEEP IT TECHNO ft. KRISTYLE"/></div>
+            <div class="form-group"><label>Genre *</label>
+              <select id="ev-genre"><option value="">Select genre</option><option value="techno">Techno</option><option value="house">House</option><option value="bass">Bass</option><option value="dnb">Drum &amp; Bass</option><option value="trance">Trance</option><option value="other">Other Electronic</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Event Date *</label><input type="date" id="ev-date"/></div>
+            <div class="form-group"><label>Age Restriction</label><select id="ev-age"><option value="21+">21+</option><option value="18+">18+</option><option value="All Ages">All Ages</option></select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Doors / Start Time</label><input type="time" id="ev-start"/></div>
+            <div class="form-group"><label>End Time</label><input type="time" id="ev-end"/></div>
+          </div>
+          <div class="form-group"><label>Description</label><textarea id="ev-desc" rows="3" placeholder="Tell us about the event, lineup, vibe..."></textarea></div>
+        </div>
+        <div class="card">
+          <div class="card-title">VENUE</div>
+          <div class="form-group"><label>Venue Name *</label><input type="text" id="ev-venue" placeholder="e.g. Bleu Nightclub OC"/></div>
+          <div class="form-group"><label>Address</label><input type="text" id="ev-address" placeholder="14160 Beach Blvd"/></div>
+          <div class="form-row">
+            <div class="form-group"><label>City *</label><input type="text" id="ev-city" placeholder="Westminster"/></div>
+            <div class="form-group"><label>County</label><select id="ev-county"><option value="OC">Orange County</option><option value="LA">LA County</option></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">TICKETS</div>
+          <div class="form-row">
+            <div class="form-group"><label>Eventbrite Link</label><input type="url" id="ev-eb" placeholder="https://eventbrite.com/e/..."/></div>
+            <div class="form-group"><label>Posh Link</label><input type="url" id="ev-posh" placeholder="https://posh.vip/e/..."/></div>
+          </div>
+          <div class="form-group"><label>Flyer Image URL</label><input type="url" id="ev-flyer" placeholder="Direct link to flyer image (optional)"/></div>
+          <div class="form-group">
+            <label>Ticket Tiers</label>
+            <div id="tiers-container"><div class="tier-row"><input type="text" placeholder="Tier name (e.g. Early Bird)" class="tier-name" style="flex:2;"/><input type="number" placeholder="Price $" class="tier-price" style="flex:1;"/><button class="tier-remove" onclick="removeTier(this)">×</button></div></div>
+            <button class="btn btn-outline btn-sm" onclick="addTier()" style="margin-top:.5rem;">+ Add Tier</button>
+          </div>
+        </div>
+        <div class="card" style="background:rgba(0,180,255,.04);border-color:rgba(0,180,255,.2);">
+          <p style="font-size:.85rem;">By submitting, you agree that KEEP IT IL will receive <strong>20% of ticket revenue</strong> from this event in exchange for the full marketing package.</p>
+        </div>
+        <button class="btn btn-primary" onclick="submitEvent()" id="submit-btn" style="width:100%;padding:1rem;">Submit Event for Review</button>
+      </div>
+
+      <!-- MARKETING TAB -->
+      <div class="tab-panel" id="tab-marketing">
+        <div class="section-heading">MARKETING STATUS</div>
+        <div class="section-sub">Track which promotional channels have been activated for each event.</div>
+        <div id="marketing-list"><p style="color:var(--grey);font-size:.85rem;">No events with marketing data yet.</p></div>
+      </div>
+
+      <!-- PROFILE TAB -->
+      <div class="tab-panel" id="tab-profile">
+        <div class="section-heading">YOUR PROFILE</div>
+        <div class="section-sub">This information appears on your organizer listing.</div>
+        <div id="profile-alert"></div>
+        <div class="card">
+          <div class="card-title">ORGANIZER INFO</div>
+          <div class="form-group"><label>Organization / Promoter Name *</label><input type="text" id="p-name" placeholder="e.g. NEXVS Events"/></div>
+          <div class="form-group"><label>Bio (250 chars max)</label><textarea id="p-bio" rows="3" maxlength="250" placeholder="Tell the OC scene who you are..."></textarea></div>
+          <div class="form-group"><label>Logo URL</label><input type="url" id="p-logo" placeholder="Direct link to your logo image"/></div>
+        </div>
+        <div class="card">
+          <div class="card-title">SOCIALS</div>
+          <div class="form-row">
+            <div class="form-group"><label>Instagram</label><input type="text" id="p-ig" placeholder="@yourhandle"/></div>
+            <div class="form-group"><label>SoundCloud</label><input type="url" id="p-sc" placeholder="soundcloud.com/you"/></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Spotify</label><input type="url" id="p-sp" placeholder="open.spotify.com/..."/></div>
+            <div class="form-group"><label>Website</label><input type="url" id="p-web" placeholder="yoursite.com"/></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">CONTACT</div>
+          <div class="form-row">
+            <div class="form-group"><label>Contact Email *</label><input type="email" id="p-email" placeholder="bookings@you.com"/></div>
+            <div class="form-group"><label>Phone (optional)</label><input type="tel" id="p-phone" placeholder="+1 (555) 000-0000"/></div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()" style="width:100%;padding:.9rem;">Save Profile</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE CONFIG ──────────────────────────────────────────────────────────
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let organizerProfile = null;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) { currentUser = session.user; showDashboard(); }
+  else { document.getElementById('auth-screen').style.display = 'flex'; }
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') { currentUser = session.user; showDashboard(); }
+    if (event === 'SIGNED_OUT') { currentUser = null; location.reload(); }
+  });
+})();
+
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'?i===0:i===1)));
+  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('reset-form').style.display = 'none';
+  clearMsg();
+}
+function showReset() { document.getElementById('login-form').style.display='none'; document.getElementById('reset-form').style.display='block'; }
+function showLogin() { document.getElementById('reset-form').style.display='none'; document.getElementById('login-form').style.display='block'; }
+function showMsg(msg, type='error') { const el=document.getElementById('auth-msg'); el.textContent=msg; el.className='auth-msg '+type; }
+function clearMsg() { document.getElementById('auth-msg').className='auth-msg'; }
+
+async function doLogin() {
+  const email=document.getElementById('login-email').value;
+  const pass=document.getElementById('login-pass').value;
+  if (!email||!pass) return showMsg('Please fill in all fields.');
+  const {error}=await sb.auth.signInWithPassword({email,password:pass});
+  if (error) showMsg(error.message);
+}
+async function doSignup() {
+  const email=document.getElementById('signup-email').value;
+  const pass=document.getElementById('signup-pass').value;
+  if (!document.getElementById('terms-check').checked) return showMsg('Please agree to the platform terms.');
+  if (!email||!pass) return showMsg('Please fill in all fields.');
+  if (pass.length<8) return showMsg('Password must be at least 8 characters.');
+  const {error}=await sb.auth.signUp({email,password:pass});
+  if (error) showMsg(error.message);
+  else showMsg('Check your email to confirm your account, then log in.','success');
+}
+async function doReset() {
+  const email=document.getElementById('reset-email').value;
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:window.location.href});
+  if (error) showMsg(error.message);
+  else showMsg('Password reset link sent to your email.','success');
+}
+async function doLogout() { await sb.auth.signOut(); }
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+async function showDashboard() {
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('dashboard-screen').style.display='block';
+  document.getElementById('top-user-email').textContent=currentUser.email;
+  await loadProfile();
+  await loadOverview();
+}
+
+async function loadProfile() {
+  const {data}=await sb.from('organizer_profiles').select('*').eq('user_id',currentUser.id).single();
+  organizerProfile=data;
+  if (data) {
+    document.getElementById('p-name').value=data.org_name||'';
+    document.getElementById('p-bio').value=data.bio||'';
+    document.getElementById('p-logo').value=data.logo_url||'';
+    document.getElementById('p-ig').value=data.instagram||'';
+    document.getElementById('p-sc').value=data.soundcloud||'';
+    document.getElementById('p-sp').value=data.spotify||'';
+    document.getElementById('p-web').value=data.website||'';
+    document.getElementById('p-email').value=data.contact_email||'';
+    document.getElementById('p-phone').value=data.contact_phone||'';
+    if (!data.org_name||!data.contact_email) document.getElementById('profile-banner').style.display='block';
+  } else { document.getElementById('profile-banner').style.display='block'; }
+}
+
+async function loadOverview() {
+  const profile=organizerProfile;
+  const statusEl=document.getElementById('account-status-display');
+  if (!profile) {
+    document.getElementById('overview-welcome').textContent='Welcome! Complete your profile to get started.';
+    statusEl.innerHTML='<span class="badge badge-pending">Profile Incomplete</span> — Fill out your profile before submitting events.';
+  } else {
+    document.getElementById('overview-welcome').textContent='Welcome back, '+(profile.org_name||'Organizer')+'.';
+    const statusMap={pending:'<span class="badge badge-pending">Under Review</span> — Your account is being reviewed. You\'ll receive an email within 48 hours.',approved:'<span class="badge badge-approved">Approved</span> — You can submit events and receive the full marketing package.',suspended:'<span class="badge badge-rejected">Suspended</span> — Contact keepitil for more info.'};
+    statusEl.innerHTML=statusMap[profile.status]||statusMap.pending;
+  }
+  if (!profile) return;
+  const {data:events}=await sb.from('submitted_events').select('id,status').eq('organizer_id',profile.id);
+  if (events) {
+    document.getElementById('stat-total').textContent=events.length;
+    document.getElementById('stat-live').textContent=events.filter(e=>e.status==='live').length;
+    document.getElementById('stat-pending').textContent=events.filter(e=>e.status==='pending').length;
+    const {data:mkt}=await sb.from('marketing_status').select('posh_blast').in('event_id',events.map(e=>e.id));
+    document.getElementById('stat-blasted').textContent=mkt?mkt.filter(m=>m.posh_blast).length:0;
+    const recentEl=document.getElementById('recent-events-list');
+    if (events.length===0){recentEl.innerHTML='<p style="color:var(--grey);font-size:.85rem;">No events yet. <a href="#" onclick="showTab(\'submit\')" style="color:var(--blue);">Submit your first event →</a></p>';return;}
+    const {data:fullEvents}=await sb.from('submitted_events').select('*').eq('organizer_id',profile.id).order('created_at',{ascending:false}).limit(3);
+    recentEl.innerHTML=fullEvents.map(ev=>eventCardHTML(ev)).join('');
+  }
+}
+
+// ─── EVENTS ──────────────────────────────────────────────────────────────────
+function eventCardHTML(ev) {
+  const statusClass={pending:'badge-pending',approved:'badge-approved',live:'badge-live',rejected:'badge-rejected'};
+  return '<div class="event-card"><div><div class="event-name">'+ev.event_name+'</div><div class="event-meta">'+(ev.event_date||'')+' · '+(ev.venue_name||'')+' · '+(ev.city||'')+'</div></div><div class="event-actions"><span class="badge '+(statusClass[ev.status]||'badge-pending')+'">'+ev.status+'</span></div></div>';
+}
+
+async function loadEvents() {
+  if (!organizerProfile) return;
+  const {data}=await sb.from('submitted_events').select('*').eq('organizer_id',organizerProfile.id).order('event_date',{ascending:true});
+  const el=document.getElementById('events-list');
+  if (!data||data.length===0){el.innerHTML='<p style="color:var(--grey);font-size:.85rem;">No events submitted yet.</p>';return;}
+  el.innerHTML=data.map(ev=>eventCardHTML(ev)).join('');
+}
+
+async function loadMarketing() {
+  if (!organizerProfile) return;
+  const {data:events}=await sb.from('submitted_events').select('id,event_name,event_date').eq('organizer_id',organizerProfile.id).in('status',['approved','live']);
+  const el=document.getElementById('marketing-list');
+  if (!events||events.length===0){el.innerHTML='<p style="color:var(--grey);font-size:.85rem;">No approved events yet. Marketing campaigns activate after your event is approved.</p>';return;}
+  const {data:mktData}=await sb.from('marketing_status').select('*').in('event_id',events.map(e=>e.id));
+  const mktMap={};
+  if (mktData) mktData.forEach(m=>mktMap[m.event_id]=m);
+  el.innerHTML=events.map(ev=>{
+    const m=mktMap[ev.id]||{};
+    const channels=[
+      {icon:'📲',label:'Posh Blast',done:m.posh_blast,date:m.posh_blast_at,reach:m.posh_followers_reached?m.posh_followers_reached+' reached':''},
+      {icon:'📧',label:'EB Email',done:m.email_campaign,date:m.email_campaign_at,reach:m.emails_sent?m.emails_sent+' sent':''},
+      {icon:'📸',label:'IG Collab',done:m.ig_collab,date:m.ig_collab_at,reach:m.ig_post_url?'<a href="'+m.ig_post_url+'" target="_blank" style="color:var(--blue);">View post</a>':''},
+      {icon:'🗺',label:'Explore',done:m.explore_featured,date:m.explore_featured_at,reach:''},
+    ];
+    return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;"><div class="card-title" style="margin:0;">'+ev.event_name+'</div><span style="font-size:.8rem;color:var(--grey);">'+ev.event_date+'</span></div><div class="marketing-grid">'+channels.map(c=>'<div class="mkt-channel"><div class="mkt-icon">'+c.icon+'</div><div class="mkt-label">'+c.label+'</div><div class="mkt-status '+(c.done?'mkt-done':'mkt-pending')+'">'+(c.done?'✓ Done':'Pending')+'</div>'+(c.done&&c.date?'<div style="font-size:.7rem;color:var(--grey);margin-top:.2rem;">'+new Date(c.date).toLocaleDateString()+'</div>':'')+(c.reach?'<div style="font-size:.7rem;margin-top:.2rem;">'+c.reach+'</div>':'')+'</div>').join('')+'</div></div>';
+  }).join('');
+}
+
+// ─── SUBMIT ───────────────────────────────────────────────────────────────────
+function addTier() {
+  const row=document.createElement('div'); row.className='tier-row';
+  row.innerHTML='<input type="text" placeholder="Tier name" class="tier-name" style="flex:2;"\/><input type="number" placeholder="Price $" class="tier-price" style="flex:1;"\/><button class="tier-remove" onclick="removeTier(this)">×</button>';
+  document.getElementById('tiers-container').appendChild(row);
+}
+function removeTier(btn){btn.parentElement.remove();}
+
+async function submitEvent() {
+  if (!organizerProfile||organizerProfile.status!=='approved') { showAlert('submit-alert','Your organizer account must be approved before submitting events.','error'); return; }
+  const name=document.getElementById('ev-name').value.trim();
+  const date=document.getElementById('ev-date').value;
+  const venue=document.getElementById('ev-venue').value.trim();
+  const city=document.getElementById('ev-city').value.trim();
+  if (!name||!date||!venue||!city){showAlert('submit-alert','Please fill in all required fields (marked *).','error');return;}
+  const tiers=[...document.querySelectorAll('.tier-row')].map(r=>({name:r.querySelector('.tier-name').value,price:parseFloat(r.querySelector('.tier-price').value)||0})).filter(t=>t.name);
+  const btn=document.getElementById('submit-btn'); btn.disabled=true; btn.textContent='Submitting...';
+  const {error}=await sb.from('submitted_events').insert({organizer_id:organizerProfile.id,event_name:name,event_date:date,start_time:document.getElementById('ev-start').value,end_time:document.getElementById('ev-end').value,venue_name:venue,address:document.getElementById('ev-address').value,city:city,county:document.getElementById('ev-county').value,genre:document.getElementById('ev-genre').value,description:document.getElementById('ev-desc').value,age_restriction:document.getElementById('ev-age').value,flyer_url:document.getElementById('ev-flyer').value,ticket_url:document.getElementById('ev-eb').value||document.getElementById('ev-posh').value,ticket_tiers:tiers,status:'pending'});
+  btn.disabled=false; btn.textContent='Submit Event for Review';
+  if (error){showAlert('submit-alert','Error: '+error.message,'error');return;}
+  showAlert('submit-alert','✓ Event submitted! We\'ll review within 48 hours.','success');
+  ['ev-name','ev-date','ev-venue','ev-address','ev-city','ev-desc','ev-eb','ev-posh','ev-flyer'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ─── PROFILE ──────────────────────────────────────────────────────────────────
+async function saveProfile() {
+  const name=document.getElementById('p-name').value.trim();
+  const email=document.getElementById('p-email').value.trim();
+  if (!name||!email){showAlert('profile-alert','Organization name and contact email are required.','error');return;}
+  const payload={user_id:currentUser.id,org_name:name,bio:document.getElementById('p-bio').value,logo_url:document.getElementById('p-logo').value,instagram:document.getElementById('p-ig').value,soundcloud:document.getElementById('p-sc').value,spotify:document.getElementById('p-sp').value,website:document.getElementById('p-web').value,contact_email:email,contact_phone:document.getElementById('p-phone').value,updated_at:new Date().toISOString()};
+  const {error}=organizerProfile?await sb.from('organizer_profiles').update(payload).eq('id',organizerProfile.id):await sb.from('organizer_profiles').insert({...payload,status:'pending'});
+  if (error){showAlert('profile-alert','Error: '+error.message,'error');return;}
+  showAlert('profile-alert','✓ Profile saved! Your account is pending review.','success');
+  document.getElementById('profile-banner').style.display='none';
+  await loadProfile();
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelector('[data-tab="'+tab+'"]').classList.add('active');
+  if (tab==='events') loadEvents();
+  if (tab==='marketing') loadMarketing();
+  if (tab==='overview') loadOverview();
+}
+
+// ─── UTIL ─────────────────────────────────────────────────────────────────────
+function showAlert(id,msg,type) {
+  const el=document.getElementById(id);
+  el.className='alert alert-'+type; el.textContent=msg; el.style.display='block';
+  setTimeout(()=>{el.style.display='none';},6000);
+}
+</script>
+</body>
+</html>
