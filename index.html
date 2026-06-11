@@ -628,14 +628,13 @@
   <script>
   /* ── EXPLORE EVENTS DATA ──────────────────────────── */
   const exploreEvents = [
-    {id:'e1',county:'oc',genre:'techno',date:'Jun 12',name:'KEEP IT TECHNO feat. KRISTYLE',venue:'Bleu Nightclub OC',location:'Westminster, OC',tags:['Techno','18+'],eb:'https://www.eventbrite.com/e/keep-it-techno-tickets-1989638104129',posh:'https://posh.vip/'},
-    {id:'e2',county:'oc',genre:'house',date:'Jun 12',name:'Summer Kickoff — The Circle OC',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Tech','Minimal'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/summer-kickoff-57'},
-    {id:'e3',county:'oc',genre:'bass',date:'Jun 13',name:'BASS TILL DAWN (AFTERS OC)',venue:'Cube World Media',location:'Huntington Beach, OC',tags:['Bass','Afters','21+'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/bass-till-dawn-afters-oc-1'},
-    {id:'e4',county:'oc',genre:'house',date:'Jun 13',name:'GROOVE GARDEN: S5 E4 Day Party',venue:'Beales Texas BBQ',location:'Orange County, CA',tags:['House','Techno','21+'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/groove-garden-s5-e4-day-party'},
-    {id:'e5',county:'oc',genre:'house',date:'Jun 14',name:'AZURE Day Party w/ LEVI',venue:'The Bungalow HB',location:'Huntington Beach, OC',tags:['Deep House','Day Party'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/azure-day-party-huntington-beach-2026-10-11-22-30'},
-    {id:'e6',county:'oc',genre:'house',date:'Jun 19',name:'SUMMER SOLSTICE feat. Annie Sollange',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Free Entry'],eb:'https://www.eventbrite.com/e/summer-solstice-tickets-1986954186459',posh:'https://posh.vip/'},
+    {id:'e1',county:'oc',genre:'techno',date:'Jun 12',name:'KEEP IT TECHNO feat. KRISTYLE',venue:'Bleu Nightclub OC',location:'Westminster, OC',tags:['Techno','18+'],img:'',eb:'https://www.eventbrite.com/e/keep-it-techno-tickets-1989638104129',posh:'https://posh.vip/'},
+    {id:'e2',county:'oc',genre:'house',date:'Jun 12',name:'Summer Kickoff — The Circle OC',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Tech','Minimal'],img:'https://images.posh.vip/originals/6a271f363f4165004bb6e51d',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/summer-kickoff-57'},
+    {id:'e3',county:'oc',genre:'bass',date:'Jun 13',name:'BASS TILL DAWN (AFTERS OC)',venue:'Cube World Media',location:'Huntington Beach, OC',tags:['Bass','Afters','21+'],img:'https://images.posh.vip/originals/6a288ea5488d51f1579410bc',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/bass-till-dawn-afters-oc-1'},
+    {id:'e4',county:'oc',genre:'house',date:'Jun 13',name:'GROOVE GARDEN: S5 E4 Day Party',venue:'Beales Texas BBQ',location:'Orange County, CA',tags:['House','Techno','21+'],img:'https://images.posh.vip/originals/6a24a72ae13b8088b0542a8d',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/groove-garden-s5-e4-day-party'},
+    {id:'e5',county:'oc',genre:'house',date:'Jun 14',name:'AZURE Day Party w/ LEVI',venue:'The Bungalow HB',location:'Huntington Beach, OC',tags:['Deep House','Day Party'],img:'https://images.posh.vip/originals/69aefe853ef8acce9db7a325',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/azure-day-party-huntington-beach-2026-10-11-22-30'},
+    {id:'e6',county:'oc',genre:'house',date:'Jun 19',name:'SUMMER SOLSTICE feat. Annie Sollange',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Free Entry'],img:'',eb:'https://www.eventbrite.com/e/summer-solstice-tickets-1986954186459',posh:'https://posh.vip/'},
   ];
-
   function renderExploreCards(filter='all'){
     const grid = document.getElementById('explore-grid');
     const empty = document.getElementById('explore-empty');
@@ -643,11 +642,15 @@
     grid.innerHTML='';
     if(!filtered.length){empty.style.display='block';return;}
     empty.style.display='none';
+    const genreGrad={techno:'linear-gradient(135deg,#1a0a2e 0%,#2d0050 50%,#0b0b0b 100%)',house:'linear-gradient(135deg,#001a2e 0%,#003355 50%,#0b0b0b 100%)',bass:'linear-gradient(135deg,#1a1a00 0%,#2d2d00 50%,#0b0b0b 100%)',dnb:'linear-gradient(135deg,#1a0000 0%,#3d0000 50%,#0b0b0b 100%)',trance:'linear-gradient(135deg,#001a1a 0%,#003333 50%,#0b0b0b 100%)'};
     filtered.forEach(ev=>{
       const card = document.createElement('div');
       card.className='explore-card';
-      card.innerHTML=`
-        <div class="explore-card-top">
+      const imgHTML = ev.img
+        ? `<div class="explore-card-img" style="background-image:url('${ev.img}');background-size:cover;background-position:center;height:180px;border-radius:8px 8px 0 0;"></div>`
+        : `<div class="explore-card-img" style="background:${genreGrad[ev.genre]||'linear-gradient(135deg,#111 0%,#0b0b0b 100%)'};height:180px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:rgba(0,180,255,.5);letter-spacing:.15em;">${ev.genre.toUpperCase()}</span></div>`;
+      card.innerHTML=imgHTML+`
+        <div class="explore-card-top" style="border-radius:0 0 8px 8px;">
           <div class="explore-card-county">${ev.county==='la'?'📍 LA County':'📍 Orange County'}</div>
           <div class="explore-card-date">${ev.date}</div>
           <h3>${ev.name}</h3>
@@ -660,13 +663,12 @@
         </div>`;
       grid.appendChild(card);
     });
-    // Trigger reveal animation
     grid.querySelectorAll('.explore-card').forEach((c,i)=>{
       c.style.opacity='0';c.style.transform='translateY(20px)';c.style.transition=`opacity .4s ease ${i*.06}s, transform .4s ease ${i*.06}s`;
       setTimeout(()=>{c.style.opacity='1';c.style.transform='none';},50);
     });
   }
-
+  
   function filterExplore(filter, tab){
     document.querySelectorAll('#explore .filter-tab').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
