@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — KEEP IT IL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--black:#0b0b0b;--dark:#111;--dark2:#181818;--dark3:#222;--blue:#00b4ff;--white:#f0f0f0;--grey:#888;--green:#00d97e;--orange:#ff9500;--red:#ff3b30;--font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh;}
+    a{color:var(--blue);text-decoration:none;}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:6px;font-family:var(--font-body);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;}
+    .btn-approve{background:rgba(0,217,126,.15);color:var(--green);border:1px solid rgba(0,217,126,.3);}
+    .btn-approve:hover{background:rgba(0,217,126,.25);}
+    .btn-reject{background:rgba(255,59,48,.12);color:var(--red);border:1px solid rgba(255,59,48,.25);}
+    .btn-reject:hover{background:rgba(255,59,48,.22);}
+    .btn-primary{background:var(--blue);color:#000;}
+    .btn-outline{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,.2);}
+    .btn-mkt{background:rgba(0,180,255,.1);color:var(--blue);border:1px solid rgba(0,180,255,.2);}
+    .btn-mkt:hover{background:rgba(0,180,255,.2);}
+    .btn-mkt.done{background:rgba(0,217,126,.1);color:var(--green);border-color:rgba(0,217,126,.25);}
+    input,textarea{background:var(--dark2);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.88rem;padding:.55rem .9rem;outline:none;}
+    input:focus,textarea:focus{border-color:var(--blue);}
+    #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+    .auth-box{background:var(--dark);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:2rem;width:360px;}
+    .auth-box h2{font-family:var(--font-head);font-size:1.6rem;margin-bottom:1.25rem;}
+    .form-group{margin-bottom:1rem;}
+    .form-group label{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--grey);margin-bottom:.35rem;}
+    .form-group input{width:100%;}
+    .auth-msg{font-size:.82rem;padding:.6rem .9rem;border-radius:6px;margin-bottom:.75rem;display:none;}
+    .auth-msg.error{background:rgba(255,59,48,.1);color:#ff6b63;display:block;}
+    #admin-screen{display:none;min-height:100vh;}
+    .top-bar{background:var(--dark);border-bottom:1px solid rgba(255,255,255,.06);padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .top-logo{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.1em;}
+    .top-logo span{color:var(--red);}
+    .dash-body{display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 53px);}
+    .sidebar{background:var(--dark2);border-right:1px solid rgba(255,255,255,.06);padding:1.25rem 0;}
+    .sidebar-item{display:flex;align-items:center;gap:.6rem;padding:.7rem 1.25rem;cursor:pointer;font-size:.85rem;color:var(--grey);border-left:3px solid transparent;transition:all .2s;}
+    .sidebar-item:hover{color:var(--white);}
+    .sidebar-item.active{color:var(--blue);border-left-color:var(--blue);background:rgba(0,180,255,.06);}
+    .main-panel{padding:2rem;overflow-y:auto;}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    .section-heading{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;margin-bottom:.4rem;}
+    .section-sub{color:var(--grey);font-size:.82rem;margin-bottom:1.5rem;}
+    .badge{display:inline-block;padding:.2rem .55rem;border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+    .badge-pending{background:rgba(255,149,0,.15);color:var(--orange);}
+    .badge-approved{background:rgba(0,217,126,.15);color:var(--green);}
+    .badge-live{background:rgba(0,180,255,.15);color:var(--blue);}
+    .badge-rejected{background:rgba(255,59,48,.15);color:var(--red);}
+    .card{background:var(--dark);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:1.25rem;margin-bottom:.75rem;}
+    .card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.75rem;}
+    .card-title{font-weight:600;font-size:.95rem;}
+    .card-meta{font-size:.8rem;color:var(--grey);margin-top:.25rem;}
+    .card-actions{display:flex;gap:.5rem;flex-wrap:wrap;}
+    .card-detail{font-size:.82rem;color:var(--grey);line-height:1.6;}
+    .mkt-row{display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid rgba(255,255,255,.05);}
+    .mkt-row:last-child{border-bottom:none;}
+    .mkt-left{display:flex;align-items:center;gap:.65rem;font-size:.85rem;}
+    .mkt-icon{font-size:1.1rem;}
+    .mkt-info{font-size:.78rem;color:var(--grey);}
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;margin-bottom:2rem;}
+    .stat-box{background:var(--dark);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:1.1rem;text-align:center;}
+    .stat-box .num{font-family:var(--font-head);font-size:1.8rem;color:var(--blue);}
+    .stat-box .lbl{font-size:.7rem;color:var(--grey);text-transform:uppercase;letter-spacing:.06em;}
+    .empty-state{color:var(--grey);font-size:.85rem;padding:1.5rem;text-align:center;background:var(--dark);border-radius:8px;}
+    #toast{position:fixed;bottom:2rem;right:2rem;background:var(--dark2);border:1px solid rgba(0,180,255,.3);border-radius:8px;padding:.85rem 1.25rem;font-size:.85rem;color:var(--blue);opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:999;}
+    #toast.show{opacity:1;transform:translateY(0);}
+  </style>
+</head>
+<body>
+<div id="toast"></div>
+<div id="auth-screen">
+  <div class="auth-box">
+    <h2>KEEP IT IL <span style="color:var(--red);font-family:var(--font-head);">ADMIN</span></h2>
+    <div class="auth-msg" id="auth-msg"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="admin@keepitil.com"/></div>
+    <div class="form-group"><label>Password</label><input type="password" id="login-pass"/></div>
+    <button class="btn btn-primary" onclick="doLogin()" style="width:100%;padding:.75rem;">Log In</button>
+  </div>
+</div>
+<div id="admin-screen">
+  <div class="top-bar">
+    <div class="top-logo">KEEP IT IL <span>ADMIN</span></div>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <span style="font-size:.8rem;color:var(--grey);" id="admin-email"></span>
+      <button class="btn btn-outline" onclick="doLogout()" style="font-size:.78rem;padding:.4rem .85rem;">Log Out</button>
+    </div>
+  </div>
+  <div class="dash-body">
+    <div class="sidebar">
+      <div class="sidebar-item active" onclick="showTab('overview')" data-tab="overview">📊 Overview</div>
+      <div class="sidebar-item" onclick="showTab('organizers')" data-tab="organizers">👥 Organizers</div>
+      <div class="sidebar-item" onclick="showTab('events')" data-tab="events">🎵 Events</div>
+      <div class="sidebar-item" onclick="showTab('marketing')" data-tab="marketing">📣 Marketing</div>
+    </div>
+    <div class="main-panel">
+      <div class="tab-panel active" id="tab-overview">
+        <div class="section-heading">ADMIN OVERVIEW</div>
+        <div class="section-sub">Platform health at a glance.</div>
+        <div class="stats-row">
+          <div class="stat-box"><div class="num" id="s-orgs">—</div><div class="lbl">Organizers</div></div>
+          <div class="stat-box"><div class="num" id="s-pending-orgs">—</div><div class="lbl">Pending Apps</div></div>
+          <div class="stat-box"><div class="num" id="s-events">—</div><div class="lbl">Events</div></div>
+          <div class="stat-box"><div class="num" id="s-pending-events">—</div><div class="lbl">Pending Events</div></div>
+          <div class="stat-box"><div class="num" id="s-live">—</div><div class="lbl">Live Events</div></div>
+          <div class="stat-box"><div class="num" id="s-blasts">—</div><div class="lbl">Blasts Sent</div></div>
+        </div>
+        <div class="card">
+          <div style="font-weight:600;margin-bottom:.75rem;">Quick Actions</div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="showTab('organizers')">Review Organizer Applications</button>
+            <button class="btn btn-outline" onclick="showTab('events')">Review Pending Events</button>
+            <button class="btn btn-outline" onclick="showTab('marketing')">Update Marketing Campaigns</button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-panel" id="tab-organizers">
+        <div class="section-heading">ORGANIZER APPLICATIONS</div>
+        <div class="section-sub">Approve or reject organizer accounts.</div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;">
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadOrganizers('pending')">Pending</button>
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadOrganizers('approved')">Approved</button>
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadOrganizers('all')">All</button>
+        </div>
+        <div id="organizers-list"><div class="empty-state">Loading...</div></div>
+      </div>
+      <div class="tab-panel" id="tab-events">
+        <div class="section-heading">EVENT SUBMISSIONS</div>
+        <div class="section-sub">Review and approve events before they go live.</div>
+        <div style="display:flex;gap:.5rem;margin-bottom:1rem;">
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadEvents('pending')">Pending</button>
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadEvents('approved')">Approved</button>
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadEvents('live')">Live</button>
+          <button class="btn btn-outline" style="font-size:.78rem;" onclick="loadEvents('all')">All</button>
+        </div>
+        <div id="events-list"><div class="empty-state">Loading...</div></div>
+      </div>
+      <div class="tab-panel" id="tab-marketing">
+        <div class="section-heading">MARKETING CAMPAIGNS</div>
+        <div class="section-sub">Mark each promotional channel as complete for approved events.</div>
+        <div id="marketing-list"><div class="empty-state">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const ADMIN_EMAIL = 'YOUR_ADMIN_EMAIL';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user.email === ADMIN_EMAIL) { currentUser = session.user; showAdmin(); }
+  else if (session) { document.getElementById('auth-msg').textContent = 'Access denied — admin only.'; document.getElementById('auth-msg').className = 'auth-msg error'; await sb.auth.signOut(); }
+})();
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { document.getElementById('auth-msg').textContent = error.message; document.getElementById('auth-msg').className = 'auth-msg error'; return; }
+  if (data.user.email !== ADMIN_EMAIL) { document.getElementById('auth-msg').textContent = 'Access denied — admin only.'; document.getElementById('auth-msg').className = 'auth-msg error'; await sb.auth.signOut(); return; }
+  currentUser = data.user; showAdmin();
+}
+async function doLogout() { await sb.auth.signOut(); location.reload(); }
+
+async function showAdmin() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('admin-screen').style.display = 'block';
+  document.getElementById('admin-email').textContent = currentUser.email;
+  await loadOverview();
+}
+
+async function loadOverview() {
+  const [orgs, events, mkt] = await Promise.all([sb.from('organizer_profiles').select('id,status'),sb.from('submitted_events').select('id,status'),sb.from('marketing_status').select('posh_blast')]);
+  if (orgs.data) { document.getElementById('s-orgs').textContent = orgs.data.length; document.getElementById('s-pending-orgs').textContent = orgs.data.filter(o=>o.status==='pending').length; }
+  if (events.data) { document.getElementById('s-events').textContent = events.data.length; document.getElementById('s-pending-events').textContent = events.data.filter(e=>e.status==='pending').length; document.getElementById('s-live').textContent = events.data.filter(e=>e.status==='live').length; }
+  if (mkt.data) document.getElementById('s-blasts').textContent = mkt.data.filter(m=>m.posh_blast).length;
+}
+
+async function loadOrganizers(filter='pending') {
+  let query = sb.from('organizer_profiles').select('*').order('created_at',{ascending:false});
+  if (filter !== 'all') query = query.eq('status', filter);
+  const { data, error } = await query;
+  const el = document.getElementById('organizers-list');
+  if (error || !data || data.length === 0) { el.innerHTML = '<div class="empty-state">No organizers found.</div>'; return; }
+  el.innerHTML = data.map(org => '<div class="card"><div class="card-header"><div><div class="card-title">'+(org.org_name||'(Unnamed)')+' <span class="badge badge-'+org.status+'">'+org.status+'</span></div><div class="card-meta">'+(org.contact_email||'')+' · Applied '+new Date(org.created_at).toLocaleDateString()+'</div>'+(org.instagram?'<div class="card-meta">IG: '+org.instagram+'</div>':'')+'</div><div class="card-actions">'+(org.status!=='approved'?'<button class="btn btn-approve" onclick="updateOrgStatus(\''+org.id+'\',\'approved\')">✓ Approve</button>':'')+(org.status!=='suspended'?'<button class="btn btn-reject" onclick="updateOrgStatus(\''+org.id+'\',\'suspended\')">✗ Suspend</button>':'')+'</div></div>'+(org.bio?'<div class="card-detail">'+org.bio+'</div>':'')+'</div>').join('');
+}
+
+async function updateOrgStatus(id, status) {
+  const { error } = await sb.from('organizer_profiles').update({ status }).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  toast('Organizer ' + (status === 'approved' ? 'approved ✓' : 'suspended'));
+  loadOrganizers('pending'); loadOverview();
+}
+
+async function loadEvents(filter='pending') {
+  let query = sb.from('submitted_events').select('*, organizer_profiles(org_name,contact_email)').order('created_at',{ascending:false});
+  if (filter !== 'all') query = query.eq('status', filter);
+  const { data, error } = await query;
+  const el = document.getElementById('events-list');
+  if (error || !data || data.length === 0) { el.innerHTML = '<div class="empty-state">No events found.</div>'; return; }
+  el.innerHTML = data.map(ev => '<div class="card"><div class="card-header"><div><div class="card-title">'+ev.event_name+' <span class="badge badge-'+ev.status+'">'+ev.status+'</span></div><div class="card-meta">'+(ev.event_date||'')+' · '+(ev.venue_name||'')+' · '+(ev.city||'')+', '+(ev.county||'OC')+' · '+(ev.genre||'')+' · '+(ev.age_restriction||'')+'</div><div class="card-meta">By: '+(ev.organizer_profiles?.org_name||'Unknown')+'</div>'+(ev.ticket_url?'<div class="card-meta"><a href="'+ev.ticket_url+'" target="_blank">🎟 Ticket link</a></div>':'')+'</div><div class="card-actions">'+(ev.status==='pending'||ev.status==='rejected'?'<button class="btn btn-approve" onclick="updateEventStatus(\''+ev.id+'\',\'approved\')">✓ Approve</button>':'')+(ev.status==='approved'?'<button class="btn btn-approve" onclick="updateEventStatus(\''+ev.id+'\',\'live\')">🔴 Go Live</button>':'')+(ev.status!=='rejected'?'<button class="btn btn-reject" onclick="updateEventStatus(\''+ev.id+'\',\'rejected\')">✗ Reject</button>':'')+'</div></div>'+(ev.description?'<div class="card-detail" style="margin-bottom:.75rem;">'+ev.description+'</div>':'')+'<textarea id="notes-'+ev.id+'" style="width:100%;margin-top:.5rem;" placeholder="Admin notes..." rows="2">'+(ev.admin_notes||'')+'</textarea><button class="btn btn-outline" style="font-size:.75rem;margin-top:.4rem;" onclick="saveNotes(\''+ev.id+'\')" >Save Notes</button></div>').join('');
+}
+
+async function updateEventStatus(id, status) {
+  const { error } = await sb.from('submitted_events').update({ status }).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  if (status === 'approved') { const { data: ex } = await sb.from('marketing_status').select('id').eq('event_id', id).single(); if (!ex) await sb.from('marketing_status').insert({ event_id: id }); }
+  toast('Event ' + (status === 'live' ? 'is now LIVE 🔴' : status + ' ✓'));
+  loadEvents('pending'); loadOverview();
+}
+
+async function saveNotes(id) {
+  const notes = document.getElementById('notes-' + id).value;
+  await sb.from('submitted_events').update({ admin_notes: notes }).eq('id', id);
+  toast('Notes saved ✓');
+}
+
+async function loadMarketing() {
+  const { data: events } = await sb.from('submitted_events').select('id,event_name,event_date,organizer_profiles(org_name)').in('status',['approved','live']).order('event_date',{ascending:true});
+  const el = document.getElementById('marketing-list');
+  if (!events || events.length === 0) { el.innerHTML = '<div class="empty-state">No approved events yet.</div>'; return; }
+  const { data: mktData } = await sb.from('marketing_status').select('*').in('event_id', events.map(e=>e.id));
+  const mktMap = {};
+  if (mktData) mktData.forEach(m => mktMap[m.event_id] = m);
+  el.innerHTML = events.map(ev => {
+    const m = mktMap[ev.id] || {};
+    const mktId = m.id || '';
+    const channels = [
+      { key:'posh_blast', icon:'📲', label:'Posh Text Blast', done:m.posh_blast, inputId:'posh-reach-'+ev.id, inputHtml:'<input type="number" placeholder="Followers reached" id="posh-reach-'+ev.id+'" value="'+(m.posh_followers_reached||'')+'" style="width:130px;font-size:.78rem;padding:.3rem .6rem;"/>' },
+      { key:'email_campaign', icon:'📧', label:'Eventbrite Email', done:m.email_campaign, inputId:'email-reach-'+ev.id, inputHtml:'<input type="number" placeholder="Emails sent" id="email-reach-'+ev.id+'" value="'+(m.emails_sent||'')+'" style="width:130px;font-size:.78rem;padding:.3rem .6rem;"/>' },
+      { key:'ig_collab', icon:'📸', label:'Instagram Collab', done:m.ig_collab, inputId:'ig-url-'+ev.id, inputHtml:'<input type="url" placeholder="IG post URL" id="ig-url-'+ev.id+'" value="'+(m.ig_post_url||'')+'" style="width:180px;font-size:.78rem;padding:.3rem .6rem;"/>' },
+      { key:'explore_featured', icon:'🗺', label:'Explore Featured', done:m.explore_featured, inputId:'', inputHtml:'' },
+    ];
+    return '<div class="card" style="margin-bottom:1.25rem;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;"><div><div style="font-weight:600;">'+ev.event_name+'</div><div style="font-size:.78rem;color:var(--grey);">'+ev.event_date+' · '+(ev.organizer_profiles?.org_name||'')+'</div></div></div>'+channels.map(c=>'<div class="mkt-row"><div class="mkt-left"><span class="mkt-icon">'+c.icon+'</span><div><div style="font-size:.85rem;">'+c.label+'</div><div class="mkt-info">'+(c.done?'✓ Completed':'Not done yet')+'</div></div></div><div style="display:flex;align-items:center;gap:.5rem;">'+c.inputHtml+'<button class="btn btn-mkt '+(c.done?'done':'')+'" onclick="toggleMarketing(\''+mktId+'\',\''+ev.id+'\',\''+c.key+'\','+(c.done?'false':'true')+',this)">'+(c.done?'✓ Done':'Mark Done')+'</button></div></div>').join('')+'</div>';
+  }).join('');
+}
+
+async function toggleMarketing(mktId, eventId, key, value, btn) {
+  let id = mktId;
+  const extras = {};
+  const poshEl = document.getElementById('posh-reach-'+eventId);
+  const emailEl = document.getElementById('email-reach-'+eventId);
+  const igEl = document.getElementById('ig-url-'+eventId);
+  if (key === 'posh_blast' && poshEl) extras.posh_followers_reached = parseInt(poshEl.value)||null;
+  if (key === 'email_campaign' && emailEl) extras.emails_sent = parseInt(emailEl.value)||null;
+  if (key === 'ig_collab' && igEl) extras.ig_post_url = igEl.value||null;
+  const val = value === 'true' || value === true;
+  const payload = { [key]: val, ...(val ? {[key+'_at']: new Date().toISOString()} : {}), ...extras };
+  if (!id) {
+    const { data } = await sb.from('marketing_status').insert({ event_id: eventId, ...payload }).select().single();
+    id = data?.id;
+  } else {
+    await sb.from('marketing_status').update(payload).eq('id', id);
+  }
+  toast(val ? key.replace(/_/g,' ') + ' marked done ✓' : 'Marked as pending');
+  loadMarketing();
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelector('[data-tab="'+tab+'"]')?.classList.add('active');
+  if (tab === 'organizers') loadOrganizers('pending');
+  if (tab === 'events') loadEvents('pending');
+  if (tab === 'marketing') loadMarketing();
+  if (tab === 'overview') loadOverview();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
