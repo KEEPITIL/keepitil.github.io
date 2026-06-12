@@ -11,7 +11,8 @@
   <meta property="og:url" content="https://keepitil.com"/>
 
   <!-- Google Analytics — replace G-XXXXXXXXXX -->
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX">  document.addEventListener('DOMContentLoaded', () => { loadStats(); });
+</script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -262,6 +263,7 @@
     @media(max-width:480px){.artists-grid{grid-template-columns:1fr 1fr;}.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
     ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
   </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -304,6 +306,8 @@
     <a href="#events" onclick="toggleMenu()">Events</a>
     <a href="#artists" onclick="toggleMenu()">Artists</a>
     <a href="#blog" onclick="toggleMenu()">Blog</a>
+    <a href="organizers/index.html" onclick="toggleMenu()">List Event</a>
+    <a href="#djs" onclick="toggleMenu()">Book DJ</a>
     <a href="#subscribe" onclick="toggleMenu()" style="color:var(--blue)">Subscribe</a>
   </div>
 
@@ -501,6 +505,28 @@
     </div>
   </section>
 
+  
+  <!-- DJ Booking Section -->
+  <section class="dj-booking" id="djs">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">DJ Roster</p>
+        <h2 class="section-title">BOOK A DJ FOR YOUR EVENT</h2>
+        <p class="section-sub">Browse available DJs in OC &amp; LA. Message directly and book through Keep It IL.</p>
+      </div>
+      <div class="dj-grid" id="dj-grid">
+        <!-- Populated from Supabase -->
+        <div class="dj-card"><div class="dj-avatar">K</div><div class="dj-name">KRISTYLE</div><span class="dj-badge featured">Featured</span><div class="dj-genres">Techno · Industrial</div><div class="dj-location">Westminster, OC</div><a href="mailto:booking@keepitil.com?subject=Book KRISTYLE" class="dj-book-btn">BOOK NOW</a></div>
+        <div class="dj-card"><div class="dj-avatar">A</div><div class="dj-name">ANNIE SOLLANGE</div><span class="dj-badge rising">Rising</span><div class="dj-genres">Deep House · Afro House</div><div class="dj-location">Huntington Beach, OC</div><a href="mailto:booking@keepitil.com?subject=Book Annie Sollange" class="dj-book-btn">BOOK NOW</a></div>
+        <div class="dj-card"><div class="dj-avatar">V</div><div class="dj-name">VORTEX</div><span class="dj-badge local">Local</span><div class="dj-genres">Hard Trance · Rave</div><div class="dj-location">Anaheim, OC</div><a href="mailto:booking@keepitil.com?subject=Book VORTEX" class="dj-book-btn">BOOK NOW</a></div>
+        <div class="dj-card"><div class="dj-avatar">S</div><div class="dj-name">SLVR</div><span class="dj-badge rising">Rising</span><div class="dj-genres">Deep House · UK Garage</div><div class="dj-location">Long Beach, LA</div><a href="mailto:booking@keepitil.com?subject=Book SLVR" class="dj-book-btn">BOOK NOW</a></div>
+      </div>
+      <div class="dj-browse-wrap">
+        <a href="organizers/index.html" class="btn-primary">BROWSE ALL DJs &amp; LIST YOUR EVENT →</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Blog -->
   <section class="blog" id="blog">
     <div class="container">
@@ -558,9 +584,10 @@
         <p>OC &amp; LA events, exclusive mixes, artist interviews, and underground intel — straight to your inbox. No spam.</p>
         <form class="subscribe-form" onsubmit="handleSubscribe(event)">
           <input type="email" placeholder="your@email.com" id="email-input" required/>
+          <input type="tel" placeholder="phone (optional)" id="phone-input" style="margin-top:8px;width:100%;padding:12px 16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:var(--white);font-size:.95rem;"/>
           <button type="submit">Subscribe</button>
         </form>
-        <p class="subscribe-note" id="subscribe-msg">Join 3,800+ subscribers. Unsubscribe anytime.</p>
+        <p class="subscribe-note" id="subscribe-msg">Get early access to tickets before public sale. No spam.</p>
       </div>
     </div>
   </section>
@@ -630,15 +657,78 @@
   </div>
 
   <script>
+  /* ── SUPABASE ─────────────────────────────────────── */
+  const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  async function loadStats() {
+    try {
+      const [subRes, evRes, djRes] = await Promise.all([
+        supa.from('subscribers').select('*', {count:'exact', head:true}),
+        supa.from('submitted_events').select('*', {count:'exact', head:true}).eq('status','live'),
+        supa.from('dj_profiles').select('*', {count:'exact', head:true}).eq('status','active')
+      ]);
+      const counts = {subscribers: subRes.count||0, events: evRes.count||0, djs: djRes.count||0};
+      document.querySelectorAll('[data-count]').forEach(el => {
+        if (el.dataset.count === 'subscribers') el.dataset.target = counts.subscribers;
+        else if (el.dataset.count === 'events') el.dataset.target = counts.events;
+        else if (el.dataset.count === 'djs') el.dataset.target = counts.djs;
+      });
+      animateCounters();
+    } catch(e) { animateCounters(); }
+  }
+
+  function animateCounters() {
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const target = parseInt(el.dataset.target || el.dataset.count) || 0;
+      let start=0, dur=2000, step=16;
+      const inc = target/(dur/step);
+      const timer = setInterval(() => {
+        start = Math.min(start+inc, target);
+        el.textContent = Math.floor(start).toLocaleString();
+        if(start>=target) clearInterval(timer);
+      }, step);
+    });
+  }
+
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    const email = document.getElementById('email-input').value.trim();
+    const phoneEl = document.getElementById('phone-input');
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    if (!email) return;
+    const btn = e.target.querySelector('button[type=submit]') || e.target.querySelector('button');
+    if (btn) btn.disabled = true;
+    const { error } = await supa.from('subscribers').insert({ email, phone: phone||null, source: 'website' });
+    if (btn) btn.disabled = false;
+    const note = document.querySelector('.subscribe-note');
+    if (error) {
+      if (error.code === '23505') {
+        if (note) { note.textContent = "You're already on the list!"; note.style.color = 'var(--blue)'; }
+      } else {
+        if (note) { note.textContent = 'Something went wrong. Try again.'; note.style.color = '#ff4444'; }
+      }
+    } else {
+      if (note) { note.textContent = "🎉 You're in! Watch your inbox."; note.style.color = '#00ff88'; }
+      e.target.reset();
+    }
+    setTimeout(() => { if (note) { note.textContent = 'Get early access to tickets before public sale. No spam.'; note.style.color = ''; } }, 4000);
+  }
+
   /* ── EXPLORE EVENTS DATA ──────────────────────────── */
   const exploreEvents = [
-    {id:'e1',county:'oc',genre:'techno',date:'Jun 12',name:'KEEP IT TECHNO feat. KRISTYLE',venue:'Bleu Nightclub OC',location:'Westminster, OC',tags:['Techno','18+'],img:'',eb:'https://www.eventbrite.com/e/keep-it-techno-tickets-1989638104129',posh:'https://posh.vip/'},
-    {id:'e2',county:'oc',genre:'house',date:'Jun 12',name:'Summer Kickoff — The Circle OC',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Tech','Minimal'],img:'https://images.posh.vip/originals/6a271f363f4165004bb6e51d',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/summer-kickoff-57'},
-    {id:'e3',county:'oc',genre:'bass',date:'Jun 13',name:'BASS TILL DAWN (AFTERS OC)',venue:'Cube World Media',location:'Huntington Beach, OC',tags:['Bass','Afters','21+'],img:'https://images.posh.vip/originals/6a288ea5488d51f1579410bc',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/bass-till-dawn-afters-oc-1'},
-    {id:'e4',county:'oc',genre:'house',date:'Jun 13',name:'GROOVE GARDEN: S5 E4 Day Party',venue:'Beales Texas BBQ',location:'Orange County, CA',tags:['House','Techno','21+'],img:'https://images.posh.vip/originals/6a24a72ae13b8088b0542a8d',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/groove-garden-s5-e4-day-party'},
-    {id:'e5',county:'oc',genre:'house',date:'Jun 14',name:'AZURE Day Party w/ LEVI',venue:'The Bungalow HB',location:'Huntington Beach, OC',tags:['Deep House','Day Party'],img:'https://images.posh.vip/originals/69aefe853ef8acce9db7a325',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/azure-day-party-huntington-beach-2026-10-11-22-30'},
-    {id:'e6',county:'oc',genre:'house',date:'Jun 19',name:'SUMMER SOLSTICE feat. Annie Sollange',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Free Entry'],img:'',eb:'https://www.eventbrite.com/e/summer-solstice-tickets-1986954186459',posh:'https://posh.vip/'},
+    {id:'e1',county:'la',genre:'techno',date:'Jun 20',name:'Exchange LA — Friday Residents',venue:'Exchange LA',location:'Downtown LA, CA',tags:['Techno','Underground'],eb:'https://www.eventbrite.com/d/ca--los-angeles/techno/',posh:'https://posh.vip/'},
+    {id:'e2',county:'la',genre:'house',date:'Jun 27',name:'Factory 93 — Warehouse Series',venue:'Undisclosed Warehouse',location:'DTLA, CA',tags:['House','All Night'],eb:'https://www.eventbrite.com/d/ca--los-angeles/house/',posh:'https://posh.vip/'},
+    {id:'e3',county:'oc',genre:'dnb',date:'Jul 12',name:'Jungle Warfare — DNB All Night',venue:'The Observatory',location:'Santa Ana, OC',tags:['DNB','Jungle'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-events/',posh:'https://posh.vip/'},
+    {id:'e4',county:'la',genre:'trance',date:'Jul 4',name:'Skyline Sessions — Independence',venue:'Catch One',location:'DTLA, CA',tags:['Trance','Progressive'],eb:'https://www.eventbrite.com/d/ca--los-angeles/trance/',posh:'https://posh.vip/'},
+    {id:'e5',county:'la',genre:'techno',date:'Jul 19',name:'Avalon Hollywood — Open Format',venue:'Avalon Hollywood',location:'Hollywood, CA',tags:['Techno','House'],eb:'https://www.eventbrite.com/d/ca--los-angeles/edm-events/',posh:'https://posh.vip/'},
+    {id:'e6',county:'oc',genre:'house',date:'Jul 26',name:'M3 Live — Summer Deep House',venue:'M3 Live Anaheim',location:'Anaheim, OC',tags:['Deep House','Garage'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-events/',posh:'https://posh.vip/'},
+    {id:'e7',county:'la',genre:'techno',date:'Aug 2',name:'Sound Nightclub — Techno Saturday',venue:'Sound Nightclub',location:'Hollywood, CA',tags:['Techno','Industrial'],eb:'https://www.eventbrite.com/d/ca--los-angeles/techno/',posh:'https://posh.vip/'},
+    {id:'e8',county:'la',genre:'house',date:'Aug 9',name:'1720 Warehouse — Open Air Series',venue:'1720 Warehouse',location:'Los Angeles, CA',tags:['House','Afro'],eb:'https://www.eventbrite.com/d/ca--los-angeles/edm-events/',posh:'https://posh.vip/'},
+    {id:'e9',county:'oc',genre:'trance',date:'Aug 16',name:'Trance Saturdays @ The Vortex',venue:'The Vortex Room',location:'Anaheim, OC',tags:['Trance','Psy'],eb:'https://www.eventbrite.com/d/ca--orange-county/edm-events/',posh:'https://posh.vip/'},
   ];
+
   function renderExploreCards(filter='all'){
     const grid = document.getElementById('explore-grid');
     const empty = document.getElementById('explore-empty');
@@ -646,35 +736,30 @@
     grid.innerHTML='';
     if(!filtered.length){empty.style.display='block';return;}
     empty.style.display='none';
-    const genreGrad={techno:'linear-gradient(135deg,#1a0a2e 0%,#2d0050 50%,#0b0b0b 100%)',house:'linear-gradient(135deg,#001a2e 0%,#003355 50%,#0b0b0b 100%)',bass:'linear-gradient(135deg,#1a1a00 0%,#2d2d00 50%,#0b0b0b 100%)',dnb:'linear-gradient(135deg,#1a0000 0%,#3d0000 50%,#0b0b0b 100%)',trance:'linear-gradient(135deg,#001a1a 0%,#003333 50%,#0b0b0b 100%)'};
     filtered.forEach(ev=>{
       const card = document.createElement('div');
       card.className='explore-card';
-      const imgHTML = ev.img
-        ? `<div class="explore-card-img" style="background-image:url('${ev.img}');background-size:cover;background-position:center;height:180px;border-radius:8px 8px 0 0;"></div>`
-        : `<div class="explore-card-img" style="background:${genreGrad[ev.genre]||'linear-gradient(135deg,#111 0%,#0b0b0b 100%)'};height:180px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;"><span style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:rgba(0,180,255,.5);letter-spacing:.15em;">${ev.genre.toUpperCase()}</span></div>`;
-      card.innerHTML=imgHTML+`
-        <div class="explore-card-top" style="border-radius:0 0 8px 8px;">
-          <div class="explore-card-county">${ev.county==='la'?'📍 LA County':'📍 Orange County'}</div>
-          <div class="explore-card-date">${ev.date}</div>
-          <h3>${ev.name}</h3>
-          <div class="explore-card-venue">${ev.venue} · ${ev.location}</div>
-          <div class="explore-card-tags">${ev.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
-        </div>
-        <div class="explore-card-bottom">
-          <a href="${ev.eb}" target="_blank" rel="noopener" class="ticket-btn ticket-btn-eb" onclick="event.stopPropagation()">🎟 Eventbrite</a>
-          <a href="${ev.posh}" target="_blank" rel="noopener" class="ticket-btn ticket-btn-posh" onclick="event.stopPropagation()">✨ Posh</a>
-        </div>`;
+      card.innerHTML='<div class="explore-card-top">'
+        +'<div class="explore-card-county">'+(ev.county==='la'?'📍 LA County':'📍 Orange County')+'</div>'
+        +'<div class="explore-card-date">'+ev.date+'</div>'
+        +'<h3>'+ev.name+'</h3>'
+        +'<div class="explore-card-venue">'+ev.venue+' · '+ev.location+'</div>'
+        +'<div class="explore-card-tags">'+ev.tags.map(function(t){return '<span class="tag">'+t+'</span>';}).join('')+'</div>'
+        +'</div>'
+        +'<div class="explore-card-bottom">'
+        +'<a href="'+ev.eb+'" target="_blank" rel="noopener" class="ticket-btn ticket-btn-eb" onclick="event.stopPropagation()">🎫 Eventbrite</a>'
+        +'<a href="'+ev.posh+'" target="_blank" rel="noopener" class="ticket-btn ticket-btn-posh" onclick="event.stopPropagation()">✨ Posh</a>'
+        +'</div>';
       grid.appendChild(card);
     });
-    grid.querySelectorAll('.explore-card').forEach((c,i)=>{
-      c.style.opacity='0';c.style.transform='translateY(20px)';c.style.transition=`opacity .4s ease ${i*.06}s, transform .4s ease ${i*.06}s`;
-      setTimeout(()=>{c.style.opacity='1';c.style.transform='none';},50);
+    grid.querySelectorAll('.explore-card').forEach(function(c,i){
+      c.style.opacity='0';c.style.transform='translateY(20px)';c.style.transition='opacity .4s ease '+i*.06+'s, transform .4s ease '+i*.06+'s';
+      setTimeout(function(){c.style.opacity='1';c.style.transform='none';},50);
     });
   }
-  
+
   function filterExplore(filter, tab){
-    document.querySelectorAll('#explore .filter-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('#explore .filter-tab').forEach(function(t){t.classList.remove('active');});
     tab.classList.add('active');
     renderExploreCards(filter);
   }
@@ -684,28 +769,29 @@
   /* ── HERO CANVAS ─────────────────────────────────── */
   (function(){
     const canvas = document.getElementById('hero-canvas');
+    if(!canvas) return;
     const ctx = canvas.getContext('2d');
     let W, H, particles = [];
     function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;}
     resize();
     window.addEventListener('resize', resize);
-    for(let i=0;i<120;i++) particles.push({x:Math.random()*2000,y:Math.random()*1200,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.2,a:Math.random()*.6+.1});
-    let t=0;
+    for(var i=0;i<120;i++) particles.push({x:Math.random()*2000,y:Math.random()*1200,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.2,a:Math.random()*.6+.1});
+    var t=0;
     function draw(){
       ctx.clearRect(0,0,W,H); t+=.008;
-      for(let l=0;l<3;l++){
-        ctx.beginPath();ctx.strokeStyle=`rgba(0,180,255,${.04-.01*l})`;ctx.lineWidth=1.5-l*.4;
-        for(let x=0;x<=W;x+=3){
-          const y=H*.5+Math.sin(x*.006+t+l*.8)*60+Math.sin(x*.012-t*.7+l)*30+Math.sin(x*.003+t*.5)*40;
-          l===0&&x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      for(var l=0;l<3;l++){
+        ctx.beginPath();ctx.strokeStyle='rgba(0,180,255,'+((.04-.01*l))+')';ctx.lineWidth=1.5-l*.4;
+        for(var x=0;x<=W;x+=3){
+          var y=H*.5+Math.sin(x*.006+t+l*.8)*60+Math.sin(x*.012-t*.7+l)*30+Math.sin(x*.003+t*.5)*40;
+          (l===0&&x===0)?ctx.moveTo(x,y):ctx.lineTo(x,y);
         }
         ctx.stroke();
       }
-      particles.forEach(p=>{
+      particles.forEach(function(p){
         p.x+=p.vx;p.y+=p.vy;
         if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
         ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle=`rgba(0,180,255,${p.a*.5})`;ctx.fill();
+        ctx.fillStyle='rgba(0,180,255,'+(p.a*.5)+')';ctx.fill();
       });
       requestAnimationFrame(draw);
     }
@@ -716,9 +802,10 @@
   (function(){
     const words=['UNDERGROUND','MOVEMENT','CULTURE','SOUND','SCENE','FUTURE'];
     const el=document.getElementById('typewriter');
-    let wi=0,ci=0,deleting=false;
+    if(!el) return;
+    var wi=0,ci=0,deleting=false;
     function type(){
-      const word=words[wi];
+      var word=words[wi];
       if(!deleting){el.textContent=word.slice(0,++ci);if(ci===word.length){deleting=true;setTimeout(type,2000);return;}}
       else{el.textContent=word.slice(0,--ci);if(ci===0){deleting=false;wi=(wi+1)%words.length;}}
       setTimeout(type,deleting?60:100);
@@ -726,71 +813,67 @@
     setTimeout(type,1200);
   })();
 
-  /* ── COUNT-UP STATS ───────────────────────────────── */
-  function countUp(el,target){
-    let start=0,dur=2000,step=16;
-    const inc=target/(dur/step);
-    const timer=setInterval(()=>{start=Math.min(start+inc,target);el.textContent=Math.floor(start).toLocaleString();if(start>=target)clearInterval(timer);},step);
-  }
-
-  /* ── SCROLL REVEAL + NAV + STATS ──────────────────── */
-  const revealEls=document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
-  const statEls=document.querySelectorAll('[data-count]');
-  const sections=document.querySelectorAll('section[id]');
-  const navLinks=document.querySelectorAll('.nav-links a[data-section]');
-  let statsTriggered=false;
-  const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:.12});
-  revealEls.forEach(el=>observer.observe(el));
-  const statsObserver=new IntersectionObserver(entries=>{if(entries[0].isIntersecting&&!statsTriggered){statsTriggered=true;statEls.forEach(el=>countUp(el,parseInt(el.dataset.count)));}}  ,{threshold:.5});
-  const statsSection=document.querySelector('.hero-stats');
+  /* ── SCROLL REVEAL + NAV + STATS ─────────────────── */
+  var revealEls=document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
+  var statEls=document.querySelectorAll('[data-count]');
+  var sections=document.querySelectorAll('section[id]');
+  var navLinks=document.querySelectorAll('.nav-links a[data-section]');
+  var statsTriggered=false;
+  var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:.12});
+  revealEls.forEach(function(el){observer.observe(el);});
+  var statsObserver=new IntersectionObserver(function(entries){if(entries[0].isIntersecting&&!statsTriggered){statsTriggered=true;loadStats();}},{threshold:.5});
+  var statsSection=document.querySelector('.hero-stats');
   if(statsSection)statsObserver.observe(statsSection);
-  const sectionObserver=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){navLinks.forEach(a=>{a.classList.toggle('active',a.dataset.section===e.target.id);});}});},{rootMargin:'-30% 0px -60% 0px'});
-  sections.forEach(s=>sectionObserver.observe(s));
+  var sectionObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){navLinks.forEach(function(a){a.classList.toggle('active',a.dataset.section===e.target.id);});}});},{rootMargin:'-30% 0px -60% 0px'});
+  sections.forEach(function(s){sectionObserver.observe(s);});
 
-  /* ── SCROLL EVENTS ────────────────────────────────── */
-  const nav=document.getElementById('main-nav');
-  const scrollTopBtn=document.getElementById('scroll-top');
-  window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>20);scrollTopBtn.classList.toggle('visible',window.scrollY>400);});
+  /* ── SCROLL EVENTS ───────────────────────────────── */
+  var navEl=document.getElementById('main-nav');
+  var scrollTopBtn=document.getElementById('scroll-top');
+  window.addEventListener('scroll',function(){
+    if(navEl)navEl.classList.toggle('scrolled',window.scrollY>20);
+    if(scrollTopBtn)scrollTopBtn.classList.toggle('visible',window.scrollY>400);
+  });
 
-  /* ── MOBILE MENU ──────────────────────────────────── */
-  function toggleMenu(){const menu=document.getElementById('mobile-menu');const ham=document.getElementById('hamburger');menu.classList.toggle('open');ham.classList.toggle('open');document.body.style.overflow=menu.classList.contains('open')?'hidden':'';}
+  /* ── MOBILE MENU ─────────────────────────────────── */
+  function toggleMenu(){var menu=document.getElementById('mobile-menu');var ham=document.getElementById('hamburger');menu.classList.toggle('open');ham.classList.toggle('open');document.body.style.overflow=menu.classList.contains('open')?'hidden':'';}
 
-  /* ── EVENT FILTER ─────────────────────────────────── */
+  /* ── EVENT FILTER ───────────────────────────────── */
   function filterEvents(genre,tab){
-    document.querySelectorAll('.events .filter-tabs .filter-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.events .filter-tabs .filter-tab').forEach(function(t){t.classList.remove('active');});
     tab.classList.add('active');
-    document.querySelectorAll('.event-item').forEach(item=>{const genres=item.dataset.genres||'';item.classList.toggle('hidden',genre!=='all'&&!genres.includes(genre));});
+    document.querySelectorAll('.event-item').forEach(function(item){var genres=item.dataset.genres||'';item.classList.toggle('hidden',genre!=='all'&&!genres.includes(genre));});
   }
 
-  /* ── BLOG FILTER ──────────────────────────────────── */
+  /* ── BLOG FILTER ─────────────────────────────────── */
   function filterBlog(cat,tab){
-    tab.closest('.filter-tabs').querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+    tab.closest('.filter-tabs').querySelectorAll('.filter-tab').forEach(function(t){t.classList.remove('active');});
     tab.classList.add('active');
-    document.querySelectorAll('.blog-card').forEach(card=>{card.classList.toggle('hidden',cat!=='all'&&card.dataset.category!==cat);});
+    document.querySelectorAll('.blog-card').forEach(function(card){card.classList.toggle('hidden',cat!=='all'&&card.dataset.category!==cat);});
   }
 
-  /* ── MODAL CONTENT ────────────────────────────────── */
-  const modalData={
-    feature1:{tag:'🎵 Artist Feature',title:'Exchange LA: The Heartbeat of SoCal Techno',meta:'June 5, 2026 · 8 min read',body:`<p>For over a decade, Exchange LA has been the anchor of Downtown Los Angeles's underground dance music scene. Located in the heart of DTLA, it has hosted nearly every significant techno and house act to pass through Southern California.</p><p>What sets Exchange apart isn't just its booking — it's the architecture of the room itself. Three distinct levels, a dance floor that prioritizes function over spectacle, and a sound system that remains one of the best in North America. The crowd knows it. They come to dance, not to be seen.</p><p>"Exchange represents something real about LA," says one longtime regular. "It's not about the influencer selfies. It's about the music, the people, the experience." As the broader club scene trends toward spectacle, Exchange doubles down on craft.</p>`},
-    feature2:{tag:'🎤 Interview',title:'Factory 93 and the Rise of LA\'s Warehouse Scene',meta:'June 1, 2026 · 6 min read',body:`<p>Insomniac's underground imprint Factory 93 has become the defining force behind LA's warehouse rave renaissance. Since launching, it has transformed empty industrial spaces across DTLA into temporary cathedrals of underground dance music.</p><p>"We wanted to create experiences that felt genuinely different from a festival main stage," explains the creative team behind the imprint. "Smaller, more intentional, more connected to the actual underground."</p><p>With bookings ranging from Detroit legends to emerging local talent, Factory 93 has earned a reputation for curation that rivals any boutique European club. The 2026 summer season may be their most ambitious yet.</p>`},
-    feature3:{tag:'🎛️ Gear',title:'Best Budget Setups for Bedroom Producers in 2026',meta:'May 30, 2026 · 12 min read',body:`<p>The myth that you need a professional studio to make professional music has never been more thoroughly debunked. Over the past three months, we tested 12 complete production setups, each under $500, to find out what actually delivers.</p><p><strong>Under $200 — The Essentials</strong><br/>A used laptop running Ableton Lite, a $30 audio interface, and a pair of studio headphones. Paired with free plugins like Vital and LABS, this setup can produce release-quality electronic music.</p><p><strong>$200–$350 — The Step Up</strong><br/>Add a MIDI controller and a budget condenser microphone. The Arturia MiniLab is our pick for value. Combined with a subscription to Splice, you unlock unlimited sample libraries.</p><p><strong>$350–$500 — The Near-Pro</strong><br/>At this tier, invest in studio monitors. The Yamaha HS5 can often be found used for under $150 a pair. The sonic improvement for mixing is enormous.</p>`},
-    feature4:{tag:'📸 Event Recap',title:'EDC Las Vegas 2026: What the OC Crew Brought Back',meta:'May 27, 2026 · 5 min read',body:`<p>Every Memorial Day weekend, a caravan of OC and LA heads makes the four-hour drive to Las Vegas for EDC — the world's largest electronic music festival. 2026 felt like a recommitment to the music after years of visual spectacle dominating the conversation.</p><p>The Keep It IL crew landed in time for an early set from a local OC producer playing purely analog hardware on the Circuit Grounds stage. What followed was three nights of education, inspiration, and connection.</p><p>The standout moments came from the smaller stages — the Art Cars, the Neon Garden. Where the underground truly lives within the festival, and where the SoCal contingent felt most at home.</p>`},
-    artist1:{tag:'🎤 Artist',title:'NEXVS',meta:'Los Angeles, CA · Techno / Acid',body:`<p>NEXVS is one of Los Angeles's most distinctive selectors. Operating at the intersection of acid techno and industrial rave, their sets tend to start somewhere around 132 BPM and only climb from there.</p><p>Active since 2021, NEXVS has built a reputation for technically precise mixing and a willingness to go dark and deep when the crowd demands it. Resident at Exchange LA's monthly Subterrain night.</p><p><strong>Listen:</strong> SoundCloud · Mixcloud<br/><strong>Book:</strong> bookings@keepitil.com</p>`},
-    artist2:{tag:'🎤 Artist',title:'VORTEX',meta:'Anaheim OC, CA · Hard Trance / Rave',body:`<p>VORTEX brings the energy of 90s rave culture into 2026 with no apologies. Uplifting, hard-driving trance built for festival main stages and sweaty basements alike.</p><p>Rising fast through the SoCal circuit, VORTEX has played every major regional event in the past 18 months and is currently working on their debut EP for a summer release.</p>`},
-    artist3:{tag:'🎤 Artist',title:'SLVR',meta:'Long Beach, CA · Deep House / Garage',body:`<p>SLVR is the alias of a Long Beach-born producer whose deep house productions carry the warmth of classic Chicago soul filtered through a modern bass-heavy lens.</p><p>Their Bandcamp releases have quietly built a cult following, and their live sets at smaller venues around DTLA and Long Beach have become essential viewing for heads who prefer substance over spectacle.</p>`},
-    artist4:{tag:'🎤 Artist',title:'PHXNTOM',meta:'Los Angeles, CA · Drum & Bass / Jungle',body:`<p>The newest name on this list, PHXNTOM emerged from LA's small but dedicated D&B scene with a sound that prioritizes dancefloor function over genre purity. Rolling subs, chopped breaks, and occasional forays into proper jungle territory.</p><p>Watch this space — PHXNTOM is one of the most exciting new voices in Southern California electronic music right now.</p>`},
-    blog1:{tag:'🎶 Music',title:'10 Tracks That Define the New LA Sound',meta:'Jun 5, 2026 · 5 min read',body:`<p>Defining a "sound" is always a moving target, but these 10 tracks capture something real about what's happening in LA's underground clubs and studios right now.</p><p><strong>1. NEXVS — "Acid Protocol"</strong> — Pure 303-driven propulsion with a West Coast sample buried underneath. Perfect at 130 BPM.</p><p><strong>2. SLVR — "Sepulveda"</strong> — Named after the boulevard, this deep cut channels the melancholy of late-night LA better than anything else released this year.</p><p><strong>3. Factory Floor — "24-Hour Party (Rework)"</strong> — Chicago house tradition meeting modern production aesthetics. The piano riff will be in your head for a week.</p><p>And seven more that you need in your rotation immediately...</p>`},
-    blog2:{tag:'📖 Culture',title:'Why Rave Culture Is More Important Than Ever',meta:'Jun 2, 2026 · 7 min read',body:`<p>There's a version of this argument that's been made so many times it's almost meaningless: the dance floor as radical space, the rave as protest, the DJ as community builder. We've all heard it.</p><p>But here, in the specific context of the LA underground in 2026, it feels urgent again. Not because of any single political event, but because of an accumulation — of isolation, of digital mediation, of the relentless gamification of social connection.</p><p>People are hungry for something real. And the underground — chaotic, sweaty, sometimes uncomfortable — is delivering it.</p>`},
-    blog3:{tag:'🛠️ Production',title:"Making Acid Basslines: A Beginner's Guide to the TB-303",meta:'May 28, 2026 · 10 min read',body:`<p>The Roland TB-303 Bass Line was a commercial failure when it launched in 1981. Designed to simulate bass guitar for practicing guitarists, it was too weird, too complex, and too expensive to catch on.</p><p>Then, in mid-80s Chicago, producers started playing with discarded units, cranking the cutoff, cranking the resonance, and discovering that the machine could make sounds nothing else could make.</p><p><strong>Plugin alternatives:</strong> Phoscyon 2, ABL3, and the free Tal-BassLine all get surprisingly close. Start with Phoscyon if budget allows.</p>`},
-    blog4:{tag:'💡 Tips',title:'How to Pitch Your Event to Underground Music Blogs',meta:'May 20, 2026 · 4 min read',body:`<p>We receive dozens of event pitches every week at Keep It IL. Most of them don't get a response. Here's what separates the ones that do.</p><p><strong>Lead with the lineup, not the venue.</strong> We know the venues. What we don't know is why this specific combination of artists on this specific night is worth covering.</p><p><strong>Include a press image.</strong> Not a flyer. A high-resolution photo of at least one of the headliners. Every time.</p><p><strong>Pitch 2–3 weeks in advance.</strong> Same-week pitches almost never get covered.</p>`},
-    blog5:{tag:'🗺️ Travel',title:'The SoCal Rave Trail: Best Underground Venues in OC & LA',meta:'May 15, 2026 · 6 min read',body:`<p>LA and OC have a quietly remarkable underground scene. Here are the venues every head needs to know.</p><p><strong>Exchange LA — DTLA</strong> — The spiritual home of LA techno. Three floors, world-class sound, zero pretension. Mandatory.</p><p><strong>1720 Warehouse — Los Angeles</strong> — The best warehouse space in the city. The lack of fixed décor means every event feels completely different.</p><p><strong>The Observatory — Santa Ana, OC</strong> — Consistently underrated. The monthly residencies here rival anything in LA for quality of selection.</p><p><strong>The Vortex Room — Anaheim, OC</strong> — Small, sweaty, and perfectly suited for underground techno and D&B nights.</p>`},
-    blog6:{tag:'🎧 Mix Review',title:'The 5 Best Free DJ Mix Downloads This Month',meta:'May 10, 2026 · 3 min read',body:`<p>Every month we round up the best free mixes floating around SoundCloud, Mixcloud, and assorted corners of the internet. This month's selections lean hard into peak-time material.</p><p><strong>1. NEXVS — "Late Set, Early Morning" (SoundCloud)</strong> — 90 minutes of acid and techno from their most recent Exchange closing set. Absolutely essential.</p><p><strong>2. SoCal Mix Series Vol. 22 (Mixcloud)</strong> — Rotating local selectors, this month featuring SLVR going deep for two hours.</p><p><strong>3. Factory 93 Podcast 077 (Podcast)</strong> — The long-running Factory series is still one of the best windows into what's happening in LA right now.</p>`}
+  /* ── MODAL ───────────────────────────────────────── */
+  var modalData={
+    feature1:{tag:'🎵 Artist Feature',title:'Exchange LA: The Heartbeat of SoCal Techno',meta:'June 5, 2026 · 8 min read',body:'<p>For over a decade, Exchange LA has been the anchor of Downtown Los Angeles\'s underground dance music scene. Located in the heart of DTLA, it has hosted nearly every significant techno and house act to pass through Southern California.</p><p>What sets Exchange apart isn\'t just its booking — it\'s the architecture of the room itself. Three distinct levels, a dance floor that prioritizes function over spectacle, and a sound system that remains one of the best in North America. The crowd knows it. They come to dance, not to be seen.</p>'},
+    feature2:{tag:'🎤 Interview',title:'Factory 93 and the Rise of LA\'s Warehouse Scene',meta:'June 1, 2026 · 6 min read',body:'<p>Insomniac\'s underground imprint Factory 93 has become the defining force behind LA\'s warehouse rave renaissance.</p>'},
+    feature3:{tag:'🎛️ Gear',title:'Best Budget Setups for Bedroom Producers in 2026',meta:'May 30, 2026 · 12 min read',body:'<p>The myth that you need a professional studio to make professional music has never been more thoroughly debunked.</p>'},
+    feature4:{tag:'📸 Event Recap',title:'EDC Las Vegas 2026: What the OC Crew Brought Back',meta:'May 27, 2026 · 5 min read',body:'<p>Every Memorial Day weekend, a caravan of OC and LA heads makes the four-hour drive to Las Vegas for EDC.</p>'},
+    artist1:{tag:'🎤 Artist',title:'NEXVS',meta:'Los Angeles, CA · Techno / Acid',body:'<p>NEXVS is one of Los Angeles\'s most distinctive selectors. Operating at the intersection of acid techno and industrial rave.</p>'},
+    artist2:{tag:'🎤 Artist',title:'VORTEX',meta:'Anaheim OC, CA · Hard Trance / Rave',body:'<p>VORTEX brings the energy of 90s rave culture into 2026 with no apologies.</p>'},
+    artist3:{tag:'🎤 Artist',title:'SLVR',meta:'Long Beach, CA · Deep House / Garage',body:'<p>SLVR is the alias of a Long Beach-born producer whose deep house productions carry the warmth of classic Chicago soul.</p>'},
+    artist4:{tag:'🎤 Artist',title:'PHXNTOM',meta:'Los Angeles, CA · Drum & Bass / Jungle',body:'<p>The newest name on this list, PHXNTOM emerged from LA\'s small but dedicated D&B scene.</p>'},
+    blog1:{tag:'🎶 Music',title:'10 Tracks That Define the New LA Sound',meta:'Jun 5, 2026 · 5 min read',body:'<p>Defining a "sound" is always a moving target, but these 10 tracks capture something real about what\'s happening in LA\'s underground clubs.</p>'},
+    blog2:{tag:'📖 Culture',title:'Why Rave Culture Is More Important Than Ever',meta:'Jun 2, 2026 · 7 min read',body:'<p>There\'s a version of this argument that\'s been made so many times it\'s almost meaningless.</p>'},
+    blog3:{tag:'🛠️ Production',title:"Making Acid Basslines: A Beginner's Guide to the TB-303",meta:'May 28, 2026 · 10 min read',body:'<p>The Roland TB-303 Bass Line was a commercial failure when it launched in 1981.</p>'},
+    blog4:{tag:'💡 Tips',title:'How to Pitch Your Event to Underground Music Blogs',meta:'May 20, 2026 · 4 min read',body:'<p>We receive dozens of event pitches every week at Keep It IL. Most of them don\'t get a response.</p>'},
+    blog5:{tag:'🗺️ Travel',title:'The SoCal Rave Trail: Best Underground Venues in OC & LA',meta:'May 15, 2026 · 6 min read',body:'<p>LA and OC have a quietly remarkable underground scene. Here are the venues every head needs to know.</p>'},
+    blog6:{tag:'🎧 Mix Review',title:'The 5 Best Free DJ Mix Downloads This Month',meta:'May 10, 2026 · 3 min read',body:'<p>Every month we round up the best free mixes floating around SoundCloud, Mixcloud, and assorted corners of the internet.</p>'}
   };
 
   function openModal(id){
-    const d=modalData[id];if(!d)return;
-    const body=document.getElementById('modal-body');
-    body.innerHTML=`<span class="modal-tag">${d.tag}</span><h2 class="modal-title">${d.title}</h2><div class="modal-meta">${d.meta}</div><div class="modal-text">${d.body}</div>`;
+    var d=modalData[id];if(!d)return;
+    var body=document.getElementById('modal-body');
+    body.innerHTML='<span class="modal-tag">'+d.tag+'</span><h2 class="modal-title">'+d.title+'</h2><div class="modal-meta">'+d.meta+'</div><div class="modal-text">'+d.body+'</div>';
     document.getElementById('modal').classList.add('open');
     document.body.style.overflow='hidden';
   }
@@ -799,22 +882,19 @@
     if(e.target.id==='modal'){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
   }
 
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){document.getElementById('modal').classList.remove('open');document.getElementById('mobile-menu').classList.remove('open');document.getElementById('hamburger').classList.remove('open');document.body.style.overflow='';}
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      var modal=document.getElementById('modal');var menu=document.getElementById('mobile-menu');var ham=document.getElementById('hamburger');
+      if(modal)modal.classList.remove('open');
+      if(menu)menu.classList.remove('open');
+      if(ham)ham.classList.remove('open');
+      document.body.style.overflow='';
+    }
   });
 
-  /* ── EMAIL SUBSCRIBE ──────────────────────────────── */
-  function handleSubscribe(e){
-    e.preventDefault();
-    const input=document.getElementById('email-input');
-    const msg=document.getElementById('subscribe-msg');
-    if(input.value){
-      msg.textContent="🎉 You're in! Check your inbox to confirm.";
-      msg.style.color='#00b4ff';
-      input.value='';
-      // TODO: POST to your email API endpoint (Mailchimp/ConvertKit)
-    }
-  }
-  </script>
+  document.addEventListener('DOMContentLoaded', function(){
+    loadStats();
+  });
+</script>
 </body>
 </html>
