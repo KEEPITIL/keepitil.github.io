@@ -1,198 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DJ Roster â KEEPITIL | California Underground DJs</title>
-  <meta name="description" content="Browse California's top underground DJs. Filter by city, county, genre. OC & LA EDM scene."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    :root{
-      --black:#0b0b0b;--dark:#111;--dark2:#181818;--dark3:#222;
-      --blue:#00b4ff;--blue-dim:#0088cc;--blue-glow:rgba(0,180,255,.15);
-      --purple:#b400ff;--purple-dim:#8800cc;--purple-glow:rgba(180,0,255,.15);
-      --white:#f0f0f0;--grey:#888;
-      --font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;
-    }
-    html{scroll-behavior:smooth;overflow-x:hidden;}
-    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DJ Roster — KEEPITIL | Top California DJs</title>
+<meta name="description" content="Top 100 California DJs — OC, LA, San Diego, Bay Area. Browse, filter, book."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0b0b0b;--dark:#111;--dark2:#181818;--dark3:#222;
+  --blue:#00b4ff;--purple:#b400ff;--green:#00ff88;--orange:#ff6600;--pink:#ff0080;--gold:#ffb400;
+  --blue-glow:rgba(0,180,255,.35);--white:#f0f0f0;--grey:#888;
+  --font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
 
-    /* NAV */
-    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,255,.12);padding:0 24px;}
-    .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
-    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
-    .nav-logo img{height:36px;}
-    .logo-text{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;color:var(--white);}
-    .nav-links{display:flex;align-items:center;gap:24px;}
-    .nav-links a{color:var(--grey);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;}
-    .nav-links a:hover,.nav-links a.active{color:var(--blue);}
-    .nav-cta{background:var(--blue);color:#000!important;padding:8px 18px;border-radius:4px;font-weight:700!important;}
-    .nav-cta:hover{background:#00d4ff!important;color:#000!important;}
+/* ── SEASONAL GRADIENT BG ── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,120,0,.08) 0%, transparent 60%),
+             radial-gradient(ellipse 60% 40% at 100% 100%, rgba(0,180,255,.06) 0%, transparent 60%);
+  pointer-events:none;
+}
 
-    /* PAGE HEADER */
-    .page-header{padding:80px 24px 48px;text-align:center;background:radial-gradient(ellipse at top,rgba(0,180,255,.08) 0%,transparent 70%);}
-    .page-header .eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.2em;color:var(--blue);text-transform:uppercase;margin-bottom:12px;}
-    .page-header h1{font-family:var(--font-head);font-size:clamp(3rem,8vw,6rem);letter-spacing:.04em;line-height:1;margin-bottom:16px;}
-    .page-header h1 span{color:var(--blue);}
-    .page-header p{font-size:1rem;color:var(--grey);max-width:520px;margin:0 auto 32px;}
-    .apply-hero-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--blue);color:var(--blue);padding:12px 28px;border-radius:4px;font-weight:700;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all .2s;}
-    .apply-hero-btn:hover{background:var(--blue);color:#000;}
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.nav-logo{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.12em;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--blue);}
+.nav-links{display:flex;gap:24px;list-style:none;}
+.nav-links a{color:var(--grey);text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:var(--blue);}
+.nav-back{color:var(--blue);text-decoration:none;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+.nav-back:hover{opacity:.7;}
 
-    /* STATS BAR */
-    .stats-bar{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:20px 24px;}
-    .stats-inner{max-width:1280px;margin:0 auto;display:flex;gap:40px;justify-content:center;flex-wrap:wrap;}
-    .stat{text-align:center;}
-    .stat-num{font-family:var(--font-head);font-size:2rem;color:var(--blue);display:block;}
-    .stat-label{font-size:.75rem;color:var(--grey);letter-spacing:.1em;text-transform:uppercase;}
+/* ── HERO ── */
+.page-hero{padding:80px 24px 48px;text-align:center;position:relative;}
+.page-hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--blue),transparent);}
+.eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;}
+.page-hero h1{font-family:var(--font-head);font-size:clamp(2.8rem,7vw,5.5rem);line-height:1;letter-spacing:.05em;margin-bottom:16px;}
+.page-hero h1 span{color:var(--blue);text-shadow:0 0 40px var(--blue-glow);}
+.page-hero p{color:var(--grey);max-width:560px;margin:0 auto 8px;font-size:.95rem;}
 
-    /* FILTER + SEARCH */
-    .controls{background:var(--dark2);border-bottom:1px solid rgba(255,255,255,.06);padding:20px 24px;position:sticky;top:64px;z-index:50;}
-    .controls-inner{max-width:1280px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
-    .search-wrap{position:relative;flex:1;min-width:200px;}
-    .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--grey);width:16px;height:16px;}
-    #search{width:100%;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:10px 12px 10px 36px;color:var(--white);font-family:var(--font-body);font-size:.88rem;outline:none;transition:border-color .2s;}
-    #search:focus{border-color:var(--blue);}
-    #search::placeholder{color:var(--grey);}
-    .filter-group{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-    .filter-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);white-space:nowrap;}
-    select.filter-sel{background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.82rem;padding:9px 28px 9px 12px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .2s;}
-    select.filter-sel:focus,select.filter-sel:hover{border-color:var(--blue);}
-    .sort-tabs{display:flex;gap:4px;}
-    .sort-tab{background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--grey);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;cursor:pointer;transition:all .2s;}
-    .sort-tab.active,.sort-tab:hover{background:var(--blue);border-color:var(--blue);color:#000;}
-    .results-count{font-size:.78rem;color:var(--grey);margin-left:auto;white-space:nowrap;}
+/* ── SEASONAL BADGE ── */
+.season-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,rgba(255,120,0,.15),rgba(255,180,0,.1));border:1px solid rgba(255,150,0,.3);border-radius:20px;padding:6px 16px;font-size:.78rem;font-weight:600;letter-spacing:.08em;color:#ffb400;margin-bottom:24px;}
 
-    /* GRID */
-    .roster-section{max-width:1280px;margin:0 auto;padding:40px 24px 80px;}
-    .alpha-group{margin-bottom:48px;}
-    .alpha-label{font-family:var(--font-head);font-size:3rem;color:rgba(0,180,255,.2);border-bottom:1px solid rgba(0,180,255,.1);padding-bottom:8px;margin-bottom:24px;letter-spacing:.06em;}
-    .dj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;}
+/* ── CONTROLS ── */
+.controls{max-width:1400px;margin:0 auto;padding:32px 24px 0;}
+.controls-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+.search-wrap{flex:1;min-width:240px;position:relative;}
+.search-wrap input{width:100%;padding:12px 16px 12px 44px;background:var(--dark2);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.9rem;outline:none;transition:border-color .2s;}
+.search-wrap input:focus{border-color:var(--blue);}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.4;}
+select{padding:12px 16px;background:var(--dark2);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.85rem;outline:none;cursor:pointer;transition:border-color .2s;}
+select:focus{border-color:var(--blue);}
+.sort-tabs{display:flex;gap:4px;background:var(--dark2);padding:4px;border-radius:6px;border:1px solid rgba(255,255,255,.08);}
+.sort-tab{padding:8px 18px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;color:var(--grey);}
+.sort-tab.active{background:var(--blue);color:var(--black);}
+.results-count{font-size:.8rem;color:var(--grey);padding:0 24px;max-width:1400px;margin:0 auto 24px;}
+.results-count span{color:var(--blue);font-weight:700;}
 
-    /* DJ CARD */
-    .dj-card{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;group:true;transition:transform .25s,box-shadow .25s;}
-    .dj-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.6);}
-    .dj-card-img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s;}
-    .dj-card:hover .dj-card-img{transform:scale(1.05);}
-    .dj-card-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;transition:transform .35s;}
-    .dj-card:hover .dj-card-placeholder{transform:scale(1.05);}
-    .dj-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.45) 45%,rgba(0,0,0,.1) 100%);}
-    .dj-card-body{position:absolute;bottom:0;left:0;right:0;padding:16px 14px 14px;}
-    .dj-genre-tag{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .dj-name{font-family:var(--font-head);font-size:1.5rem;line-height:1;letter-spacing:.04em;margin-bottom:10px;text-shadow:0 2px 8px rgba(0,0,0,.8);}
-    .dj-location{font-size:.7rem;color:rgba(255,255,255,.55);margin-bottom:10px;display:block;}
-    .dj-card-btn{display:inline-block;background:var(--blue);color:#000;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:3px;text-decoration:none;transition:background .2s;}
-    .dj-card-btn:hover{background:#00d4ff;}
+/* ── GRID ── */
+.roster-section{max-width:1400px;margin:0 auto;padding:0 24px 80px;}
+.roster-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:20px;
+}
+@media(max-width:1100px){.roster-grid{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:800px){.roster-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:500px){.roster-grid{grid-template-columns:repeat(2,1fr);}}
 
-    /* NO RESULTS */
-    .no-results{text-align:center;padding:80px 24px;color:var(--grey);}
-    .no-results h3{font-family:var(--font-head);font-size:2rem;color:rgba(255,255,255,.2);margin-bottom:8px;}
+/* ── DJ CARD ── */
+.dj-card{
+  position:relative;cursor:pointer;border-radius:8px;overflow:hidden;
+  background:var(--dark2);border:1px solid rgba(255,255,255,.06);
+  transition:transform .25s,border-color .25s,box-shadow .25s;
+  display:flex;flex-direction:column;
+}
+.dj-card:hover{
+  transform:translateY(-6px) scale(1.02);
+  border-color:var(--card-color,var(--blue));
+  box-shadow:0 12px 40px rgba(0,0,0,.5), 0 0 24px var(--card-glow,var(--blue-glow));
+}
+.card-img{
+  width:100%;aspect-ratio:1/1;
+  background-size:cover;background-position:center top;
+  position:relative;overflow:hidden;
+}
+.card-img::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.85) 100%);
+  opacity:0;transition:opacity .25s;
+}
+.dj-card:hover .card-img::after{opacity:1;}
+.card-img .initials{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:3.5rem;letter-spacing:.05em;
+  opacity:.6;
+}
+.keepitil-badge{
+  position:absolute;top:10px;right:10px;z-index:2;
+  background:var(--blue);color:var(--black);font-size:.65rem;font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;
+}
+.card-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:4px;}
+.card-name{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.06em;line-height:1;}
+.card-sub{font-size:.72rem;color:var(--grey);line-height:1.3;}
+.card-genre{font-size:.7rem;font-weight:600;letter-spacing:.06em;color:var(--blue);margin-top:4px;}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.card-ig{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--grey);font-size:.72rem;text-decoration:none;
+  transition:color .2s;
+}
+.card-ig:hover{color:var(--blue);}
+.card-ig svg{width:13px;height:13px;fill:currentColor;}
 
-    /* APPLY SECTION */
-    .apply-section{background:linear-gradient(135deg,rgba(0,180,255,.06),rgba(180,0,255,.06));border-top:1px solid rgba(0,180,255,.1);border-bottom:1px solid rgba(180,0,255,.1);padding:80px 24px;text-align:center;}
-    .apply-section .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;}
-    .apply-section h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,4rem);margin-bottom:16px;letter-spacing:.04em;}
-    .apply-section p{color:var(--grey);max-width:500px;margin:0 auto 32px;font-size:.95rem;}
-    .apply-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
-    .btn-primary-apply{background:var(--blue);color:#000;font-weight:800;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 32px;border-radius:4px;text-decoration:none;transition:background .2s;}
-    .btn-primary-apply:hover{background:#00d4ff;}
-    .btn-outline-apply{background:transparent;border:1.5px solid var(--purple);color:var(--purple);font-weight:700;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 32px;border-radius:4px;text-decoration:none;transition:all .2s;}
-    .btn-outline-apply:hover{background:var(--purple);color:#fff;}
+/* Hover overlay with IG link */
+.card-overlay{
+  position:absolute;top:0;left:0;right:0;
+  aspect-ratio:1/1;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.6);opacity:0;transition:opacity .25s;z-index:3;
+}
+.dj-card:hover .card-overlay{opacity:1;}
+.card-overlay a{
+  color:var(--white);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--white);padding:8px 18px;border-radius:4px;text-decoration:none;
+  transition:background .2s,color .2s;
+}
+.card-overlay a:hover{background:var(--white);color:var(--black);}
 
-    /* FOOTER */
-    footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);padding:40px 24px;text-align:center;}
-    footer p{color:var(--grey);font-size:.82rem;}
-    footer a{color:var(--blue);text-decoration:none;}
+/* ── APPLY SECTION ── */
+.apply-section{
+  text-align:center;padding:64px 24px;
+  background:linear-gradient(180deg,transparent,var(--dark));
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.apply-section .eyebrow{margin-bottom:12px;}
+.apply-section h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.05em;margin-bottom:16px;}
+.apply-section p{color:var(--grey);max-width:520px;margin:0 auto 32px;font-size:.95rem;}
+.apply-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.btn-primary-apply{
+  padding:14px 32px;background:var(--blue);color:var(--black);
+  font-weight:800;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;
+  border-radius:4px;text-decoration:none;transition:box-shadow .2s,transform .15s;
+}
+.btn-primary-apply:hover{box-shadow:0 0 24px var(--blue-glow);transform:translateY(-2px);}
+.btn-outline-apply{
+  padding:14px 32px;border:1px solid rgba(255,255,255,.2);color:var(--white);
+  font-weight:700;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;
+  border-radius:4px;text-decoration:none;transition:border-color .2s;
+}
+.btn-outline-apply:hover{border-color:var(--blue);}
 
-    /* MOBILE */
-    @media(max-width:640px){
-      .dj-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
-      .controls-inner{gap:8px;}
-      .nav-links{display:none;}
-    }
-    @media(max-width:400px){
-      .dj-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
-    }
-  </style>
+footer{text-align:center;padding:32px;color:var(--grey);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06);}
+footer a{color:var(--blue);text-decoration:none;}
+
+.no-results{grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--grey);}
+.no-results h3{font-family:var(--font-head);font-size:2rem;letter-spacing:.05em;margin-bottom:8px;}
+</style>
 </head>
 <body>
 
 <nav>
   <div class="nav-inner">
-    <a href="https://keepitil.com" target="_blank" class="nav-logo">
-      <img src="logo-neon-nav.png" alt="KEEPITIL"/>
-      <span class="logo-text">KEEP IT IL</span>
-    </a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="roster.html" class="active">DJs</a>
-      <a href="vendors.html">Vendors</a>
-      <a href="organizers-directory.html">Organizers</a>
-      <a href="index.html#events">Events</a>
-      <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="nav-cta">Apply</a>
-    </div>
+    <a class="nav-logo" href="index.html">KEEP<span>IT</span>IL</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="roster.html" class="active">DJs</a></li>
+      <li><a href="vendors.html">Vendors</a></li>
+      <li><a href="organizers-directory.html">Organizers</a></li>
+    </ul>
   </div>
 </nav>
 
-<div class="page-header">
-  <div class="eyebrow">California Underground</div>
-  <h1>DJ <span>Roster</span></h1>
-  <p>Browse California's top underground DJs â OC, LA, SF, SD and beyond. Filter by county, city, or genre.</p>
-  <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="apply-hero-btn">&#43; Submit Your Profile</a>
-</div>
-
-<div class="stats-bar">
-  <div class="stats-inner">
-    <div class="stat"><span class="stat-num" id="stat-total">â</span><span class="stat-label">DJs Listed</span></div>
-    <div class="stat"><span class="stat-num" id="stat-cities">â</span><span class="stat-label">Cities</span></div>
-    <div class="stat"><span class="stat-num" id="stat-counties">â</span><span class="stat-label">Counties</span></div>
-    <div class="stat"><span class="stat-num" id="stat-genres">â</span><span class="stat-label">Genres</span></div>
-  </div>
-</div>
+<section class="page-hero">
+  <div class="season-badge">☀️ Summer 2026 — OC &amp; LA Season</div>
+  <div class="eyebrow">KEEPITIL Presents</div>
+  <h1>California <span>DJ</span> Roster</h1>
+  <p>Top 100 DJs across OC, LA, San Diego, Bay Area &amp; beyond — filtered, searchable, and bookable.</p>
+</section>
 
 <div class="controls">
-  <div class="controls-inner">
-    <!-- Search -->
+  <div class="controls-row">
     <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="search" placeholder="Search by name, genre, city, countyâ¦" autocomplete="off"/>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search-input" placeholder="Search DJ, genre, city, county…" oninput="onSearch(this.value)"/>
     </div>
-    <!-- Sort -->
-    <div class="filter-group">
-      <span class="filter-label">Sort:</span>
-      <div class="sort-tabs">
-        <button class="sort-tab active" data-sort="az">AâZ</button>
-        <button class="sort-tab" data-sort="za">ZâA</button>
-      </div>
+    <div class="sort-tabs">
+      <div class="sort-tab active" id="tab-az" onclick="setSort('az')">A → Z</div>
+      <div class="sort-tab" id="tab-za" onclick="setSort('za')">Z → A</div>
     </div>
-    <!-- County filter -->
-    <div class="filter-group">
-      <span class="filter-label">County:</span>
-      <select class="filter-sel" id="filter-county">
-        <option value="">All Counties</option>
-      </select>
-    </div>
-    <!-- City filter -->
-    <div class="filter-group">
-      <span class="filter-label">City:</span>
-      <select class="filter-sel" id="filter-city">
-        <option value="">All Cities</option>
-      </select>
-    </div>
-    <!-- Genre filter -->
-    <div class="filter-group">
-      <span class="filter-label">Genre:</span>
-      <select class="filter-sel" id="filter-genre">
-        <option value="">All Genres</option>
-      </select>
-    </div>
-    <span class="results-count" id="results-count"></span>
+    <select id="county-select" onchange="onCounty(this.value)">
+      <option value="">All Counties</option>
+      <option>Orange County</option>
+      <option>Los Angeles County</option>
+      <option>San Diego County</option>
+      <option>San Francisco County</option>
+      <option>Riverside County</option>
+      <option>Ventura County</option>
+      <option>Sacramento County</option>
+      <option>Fresno County</option>
+    </select>
+    <select id="city-select" onchange="onCity(this.value)">
+      <option value="">All Cities</option>
+    </select>
+    <select id="genre-select" onchange="onGenre(this.value)">
+      <option value="">All Genres</option>
+      <option>Tech House</option>
+      <option>Bass House</option>
+      <option>Dubstep</option>
+      <option>Techno</option>
+      <option>Trance</option>
+      <option>DnB</option>
+      <option>Latin House</option>
+      <option>Deep House</option>
+      <option>Trap</option>
+      <option>Hip-Hop</option>
+    </select>
   </div>
 </div>
+<div class="results-count" id="results-count"><span id="count-num">—</span> DJs found</div>
 
-<div class="roster-section" id="roster-output"></div>
+<section class="roster-section">
+  <div class="roster-grid" id="roster-output"></div>
+</section>
 
 <div class="apply-section">
   <div class="eyebrow">Join the Roster</div>
@@ -205,243 +243,132 @@
 </div>
 
 <footer>
-  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> â OC &amp; LA Underground EDM</p>
+  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> — OC &amp; LA Underground EDM</p>
 </footer>
 
 <script>
-// âââ DJ DATA (Top California DJs â max 100) âââââââââââââââââââââââââââââââââââ
 const DJS = [
-  // === KEEPITIL ROSTER ===
-  {name:'RAB3L',          city:'Torrance',        county:'Los Angeles County',  genre:'Bass House / UKG',            ig:'dj_rab3l_r3mix',       img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp',   color:'#00b4ff'},
-  {name:'Groove Trooper', city:'Garden Grove',    county:'Orange County',       genre:'Latin House / Tech House',    ig:'Groove_Trooper',        img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg',    color:'#b400ff'},
-  {name:'Lvnky Bonez',   city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / DnB',               ig:'__lvnky.bonez__',       img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png', color:'#ff0080'},
-  {name:'SWERVE',        city:'Santa Ana',       county:'Orange County',       genre:'Tech House / Techno',         ig:'you_vs_you_only',       img:'',                                                                                                                               color:'#ffb400'},
-
-  // === LA COUNTY ===
-  {name:'Skrillex',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Electronic',        ig:'skrillex',             img:'',  color:'#00b4ff'},
-  {name:'Diplo',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Trap / Bass / Electronic',    ig:'diplo',                img:'',  color:'#ff6600'},
-  {name:'Chris Lake',    city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                  ig:'chrislake',            img:'',  color:'#00b4ff'},
-  {name:'Dr. Fresch',    city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Open Format',    ig:'drfresch',             img:'',  color:'#b400ff'},
-  {name:'Valentino Khan',city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Trap',           ig:'valentinokhan',        img:'',  color:'#ff0080'},
-  {name:'Getter',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',        ig:'getter',               img:'',  color:'#00ff88'},
-  {name:'NGHTMRE',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',        ig:'nghtmre',              img:'',  color:'#ff0080'},
-  {name:'Slander',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Melodic Bass',      ig:'slanderofficial',      img:'',  color:'#b400ff'},
-  {name:'Tokimonsta',    city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Future Bass',    ig:'tokimonsta',           img:'',  color:'#00b4ff'},
-  {name:'Gaslamp Killer',city:'Los Angeles',     county:'Los Angeles County',  genre:'Beat Music / Experimental',   ig:'gaslampkiller',        img:'',  color:'#ff6600'},
-  {name:'Destructo',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',        ig:'destructo',            img:'',  color:'#00b4ff'},
-  {name:'Anna Lunoe',    city:'Los Angeles',     county:'Los Angeles County',  genre:'House / Bass House',          ig:'annalunoe',            img:'',  color:'#ff0080'},
-  {name:'Goldroom',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Disco',          ig:'goldroom',             img:'',  color:'#ffb400'},
-  {name:'Nosaj Thing',   city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Ambient',        ig:'nosaj_thing',          img:'',  color:'#b400ff'},
-  {name:'The Glitch Mob',city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Glitch Hop',     ig:'theglitchmob',         img:'',  color:'#00ff88'},
-  {name:'Steve Aoki',    city:'Los Angeles',     county:'Los Angeles County',  genre:'Big Room House / EDM',        ig:'steveaoki',            img:'',  color:'#ff6600'},
-  {name:'AC Slater',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',        ig:'acslatermusic',        img:'',  color:'#00b4ff'},
-  {name:'Kaskade',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Progressive House',           ig:'kaskade',              img:'',  color:'#b400ff'},
-  {name:'Deorro',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Electro House / Latin',       ig:'deorro',               img:'',  color:'#ff6600'},
-  {name:'DJ Mustard',    city:'Los Angeles',     county:'Los Angeles County',  genre:'Hip-Hop / Open Format',       ig:'djmustard',            img:'',  color:'#ffb400'},
-  {name:'Louis The Child',city:'Los Angeles',    county:'Los Angeles County',  genre:'Future Bass / Indie Electronic',ig:'louisthechild',      img:'',  color:'#00ff88'},
-  {name:'Wax Motif',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                  ig:'waxmotif',             img:'',  color:'#00b4ff'},
-  {name:'Bijou',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                  ig:'heybijou',             img:'',  color:'#b400ff'},
-  {name:'Cid',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                  ig:'cidmusic',             img:'',  color:'#ff0080'},
-  {name:'MK',            city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Soulful House',  ig:'markkinchen',          img:'',  color:'#ffb400'},
-  {name:'Mija',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Techno / Experimental',       ig:'mijamusic',            img:'',  color:'#00ff88'},
-
-  // === ORANGE COUNTY ===
-  {name:'Ferry Corsten',  city:'Irvine',         county:'Orange County',       genre:'Trance / Progressive',        ig:'ferrycorsten',         img:'',  color:'#00b4ff'},
-  {name:'Sultan + Shepard',city:'Huntington Beach',county:'Orange County',     genre:'Progressive House',           ig:'sultanshepard',        img:'',  color:'#b400ff'},
-  {name:'Chuckie',       city:'Anaheim',         county:'Orange County',       genre:'Electro House / Dutch',       ig:'djchuckie',            img:'',  color:'#ff6600'},
-  {name:'Gammer',        city:'Anaheim',         county:'Orange County',       genre:'Hardstyle / Happy Hardcore',  ig:'gammerofficial',       img:'',  color:'#ff0080'},
-
-  // === SAN DIEGO COUNTY ===
-  {name:'Crizzly',       city:'San Diego',       county:'San Diego County',    genre:'Trap / Bass Music',           ig:'crizzly',              img:'',  color:'#00b4ff'},
-  {name:'Mayhem',        city:'San Diego',       county:'San Diego County',    genre:'Dubstep / Bass Music',        ig:'mayhemofficial',       img:'',  color:'#ff0080'},
-  {name:'Statik',        city:'San Diego',       county:'San Diego County',    genre:'Tech House / Techno',         ig:'djstatik',             img:'',  color:'#b400ff'},
-  {name:'DJ Styles',     city:'San Diego',       county:'San Diego County',    genre:'Open Format / Hip-Hop',       ig:'djstylessd',           img:'',  color:'#ffb400'},
-  {name:'Proper Villains',city:'San Diego',      county:'San Diego County',    genre:'Bass House / Tech House',     ig:'propervillains',       img:'',  color:'#00ff88'},
-
-  // === SAN FRANCISCO / BAY AREA ===
-  {name:'Mark Farina',   city:'San Francisco',   county:'San Francisco County',genre:'Mushroom Jazz / Deep House',  ig:'markfarinamusic',      img:'',  color:'#b400ff'},
-  {name:'DJ Shadow',     city:'San Francisco',   county:'San Francisco County',genre:'Turntablism / Electronic',    ig:'djshadow',             img:'',  color:'#00b4ff'},
-  {name:'Claude VonStroke',city:'San Francisco', county:'San Francisco County',genre:'Tech House',                  ig:'claudevonstroke',      img:'',  color:'#ff6600'},
-  {name:'Justin Martin', city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',     ig:'justinmartin',         img:'',  color:'#00b4ff'},
-  {name:'Doc Martin',    city:'San Francisco',   county:'San Francisco County',genre:'Techno / House',              ig:'docmartindj',          img:'',  color:'#b400ff'},
-  {name:'Chrissy',       city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Disco',          ig:'dj_chrissy',           img:'',  color:'#ff0080'},
-  {name:'Honey Dijon',   city:'San Francisco',   county:'San Francisco County',genre:'House / Disco / Techno',      ig:'honeydijon',           img:'',  color:'#ffb400'},
-  {name:'Joeski',        city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',     ig:'joeskimusic',          img:'',  color:'#00ff88'},
-
-  // === RIVERSIDE / INLAND EMPIRE ===
-  {name:'Dirtyphonics',  city:'Riverside',       county:'Riverside County',    genre:'Drumstep / Dubstep',          ig:'dirtyphonics',         img:'',  color:'#ff0080'},
-  {name:'Subfiltronik',  city:'Corona',          county:'Riverside County',    genre:'Riddim / Dubstep',            ig:'subfiltronik',         img:'',  color:'#00b4ff'},
-  {name:'Level Up',      city:'Moreno Valley',   county:'Riverside County',    genre:'Bass Music / Open Format',    ig:'djlevelup',            img:'',  color:'#b400ff'},
-
-  // === VENTURA COUNTY ===
-  {name:'King Deco',     city:'Oxnard',          county:'Ventura County',      genre:'Tech House / Deep House',     ig:'kingdeco',             img:'',  color:'#00b4ff'},
-  {name:'Neon Steve',    city:'Thousand Oaks',   county:'Ventura County',      genre:'Electro / Bass House',        ig:'neonstevedj',          img:'',  color:'#ff6600'},
-
-  // === SACRAMENTO ===
-  {name:'G-Eazy',        city:'Sacramento',      county:'Sacramento County',   genre:'Hip-Hop / Open Format',       ig:'g_eazy',               img:'',  color:'#ffb400'},
-
-  // === FRESNO ===
-  {name:'Bass Kleph',    city:'Fresno',          county:'Fresno County',       genre:'Tech House / Electro',        ig:'basskleph',            img:'',  color:'#00b4ff'},
+  {name:'RAB3L',           city:'Torrance',        county:'Los Angeles County',  genre:'Bass House / UKG',              ig:'dj_rab3l_r3mix',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp',    keepitil:true, color:'#00b4ff'},
+  {name:'Groove Trooper',  city:'Garden Grove',    county:'Orange County',       genre:'Latin House / Tech House',      ig:'Groove_Trooper',       img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg',     keepitil:true, color:'#b400ff'},
+  {name:'Lvnki Bonez',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / DnB',                 ig:'__lvnki.bonez__',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png',keepitil:true, color:'#ff0080'},
+  {name:'SWERVE',          city:'Santa Ana',       county:'Orange County',       genre:'Tech House / Techno',           ig:'you_vs_you_only',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg',                                                   keepitil:true, color:'#ffb400'},
+  {name:'AC Slater',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',          ig:'acslatermusic',        img:'', color:'#00b4ff'},
+  {name:'Anna Lunoe',      city:'Los Angeles',     county:'Los Angeles County',  genre:'House / Bass House',            ig:'annalunoe',            img:'', color:'#ff0080'},
+  {name:'Bass Kleph',      city:'Fresno',          county:'Fresno County',       genre:'Tech House / Electro',          ig:'basskleph',            img:'', color:'#00b4ff'},
+  {name:'Bijou',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'heybijou',             img:'', color:'#b400ff'},
+  {name:'Chris Lake',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'chrislake',            img:'', color:'#00b4ff'},
+  {name:'Chrissy',         city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Disco',            ig:'dj_chrissy',           img:'', color:'#ff0080'},
+  {name:'Chuckie',         city:'Anaheim',         county:'Orange County',       genre:'Electro House / Dutch',         ig:'djchuckie',            img:'', color:'#ff6600'},
+  {name:'Cid',             city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'cidmusic',             img:'', color:'#ff0080'},
+  {name:'Claude VonStroke',city:'San Francisco',   county:'San Francisco County',genre:'Tech House',                    ig:'claudevonstroke',      img:'', color:'#ff6600'},
+  {name:'Crizzly',         city:'San Diego',       county:'San Diego County',    genre:'Trap / Bass Music',             ig:'crizzly',              img:'', color:'#00b4ff'},
+  {name:'Deorro',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Electro House / Latin',         ig:'deorro',               img:'', color:'#ff6600'},
+  {name:'Destructo',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',          ig:'destructo',            img:'', color:'#00b4ff'},
+  {name:'Diplo',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Trap / Bass / Electronic',      ig:'diplo',                img:'', color:'#ff6600'},
+  {name:'Dirtyphonics',    city:'Riverside',       county:'Riverside County',    genre:'Drumstep / Dubstep',            ig:'dirtyphonics',         img:'', color:'#ff0080'},
+  {name:'DJ Mustard',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Hip-Hop / Open Format',         ig:'djmustard',            img:'', color:'#ffb400'},
+  {name:'DJ Shadow',       city:'San Francisco',   county:'San Francisco County',genre:'Turntablism / Electronic',      ig:'djshadow',             img:'', color:'#00b4ff'},
+  {name:'DJ Styles',       city:'San Diego',       county:'San Diego County',    genre:'Open Format / Hip-Hop',         ig:'djstylessd',           img:'', color:'#ffb400'},
+  {name:'Doc Martin',      city:'San Francisco',   county:'San Francisco County',genre:'Techno / House',                ig:'docmartindj',          img:'', color:'#b400ff'},
+  {name:'Dr. Fresch',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Open Format',      ig:'drfresch',             img:'', color:'#b400ff'},
+  {name:'Ferry Corsten',   city:'Irvine',          county:'Orange County',       genre:'Trance / Progressive',          ig:'ferrycorsten',         img:'', color:'#00b4ff'},
+  {name:'G-Eazy',          city:'Sacramento',      county:'Sacramento County',   genre:'Hip-Hop / Open Format',         ig:'g_eazy',               img:'', color:'#ffb400'},
+  {name:'Gammer',          city:'Anaheim',         county:'Orange County',       genre:'Hardstyle / Happy Hardcore',    ig:'gammerofficial',       img:'', color:'#ff0080'},
+  {name:'Gaslamp Killer',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Beat Music / Experimental',    ig:'gaslampkiller',        img:'', color:'#ff6600'},
+  {name:'Getter',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',          ig:'getter',               img:'', color:'#00ff88'},
+  {name:'Goldroom',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Disco',            ig:'goldroom',             img:'', color:'#ffb400'},
+  {name:'Honey Dijon',     city:'San Francisco',   county:'San Francisco County',genre:'House / Disco / Techno',        ig:'honeydijon',           img:'', color:'#ffb400'},
+  {name:'Joeski',          city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',       ig:'joeskimusic',          img:'', color:'#00ff88'},
+  {name:'Justin Martin',   city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',       ig:'justinmartin',         img:'', color:'#00b4ff'},
+  {name:'Kaskade',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Progressive House',             ig:'kaskade',              img:'', color:'#b400ff'},
+  {name:'King Deco',       city:'Oxnard',          county:'Ventura County',      genre:'Tech House / Deep House',       ig:'kingdeco',             img:'', color:'#00b4ff'},
+  {name:'Level Up',        city:'Moreno Valley',   county:'Riverside County',    genre:'Bass Music / Open Format',      ig:'djlevelup',            img:'', color:'#b400ff'},
+  {name:'Louis The Child', city:'Los Angeles',     county:'Los Angeles County',  genre:'Future Bass / Indie Electronic',ig:'louisthechild',        img:'', color:'#00ff88'},
+  {name:'Mark Farina',     city:'San Francisco',   county:'San Francisco County',genre:'Mushroom Jazz / Deep House',   ig:'markfarinamusic',      img:'', color:'#b400ff'},
+  {name:'Mayhem',          city:'San Diego',       county:'San Diego County',    genre:'Dubstep / Bass Music',          ig:'mayhemofficial',       img:'', color:'#ff0080'},
+  {name:'Mija',            city:'Los Angeles',     county:'Los Angeles County',  genre:'Techno / Experimental',         ig:'mijamusic',            img:'', color:'#00ff88'},
+  {name:'MK',              city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Soulful House',    ig:'markkinchen',          img:'', color:'#ffb400'},
+  {name:'Neon Steve',      city:'Thousand Oaks',   county:'Ventura County',      genre:'Electro / Bass House',          ig:'neonstevedj',          img:'', color:'#ff6600'},
+  {name:'NGHTMRE',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',          ig:'nghtmre',              img:'', color:'#ff0080'},
+  {name:'Nosaj Thing',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Ambient',          ig:'nosaj_thing',          img:'', color:'#b400ff'},
+  {name:'Proper Villains', city:'San Diego',       county:'San Diego County',    genre:'Bass House / Tech House',       ig:'propervillains',       img:'', color:'#00ff88'},
+  {name:'Skrillex',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Electronic',          ig:'skrillex',             img:'', color:'#00b4ff'},
+  {name:'Slander',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Melodic Bass',        ig:'slanderofficial',      img:'', color:'#b400ff'},
+  {name:'Statik',          city:'San Diego',       county:'San Diego County',    genre:'Tech House / Techno',           ig:'djstatik',             img:'', color:'#b400ff'},
+  {name:'Steve Aoki',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Big Room House / EDM',          ig:'steveaoki',            img:'', color:'#ff6600'},
+  {name:'Subfiltronik',    city:'Corona',          county:'Riverside County',    genre:'Riddim / Dubstep',              ig:'subfiltronik',         img:'', color:'#00b4ff'},
+  {name:'Sultan + Shepard',city:'Huntington Beach',county:'Orange County',       genre:'Progressive House',             ig:'sultanshepard',        img:'', color:'#b400ff'},
+  {name:'The Glitch Mob',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Glitch Hop',       ig:'theglitchmob',         img:'', color:'#00ff88'},
+  {name:'Tokimonsta',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Future Bass',      ig:'tokimonsta',           img:'', color:'#00b4ff'},
+  {name:'Valentino Khan',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Trap',             ig:'valentinokhan',        img:'', color:'#ff0080'},
+  {name:'Wax Motif',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'waxmotif',             img:'', color:'#00b4ff'},
 ];
 
-// âââ PALETTE GRADIENTS for no-image DJs ââââââââââââââââââââââââââââââââââââââ
-function gradientBg(color, name) {
-  const darker = color + '33';
-  return `background:linear-gradient(135deg, ${color}22 0%, #0b0b0b 100%);`;
-}
+let currentSort='az', currentCounty='', currentCity='', currentGenre='', currentSearch='';
 
-// âââ RENDER âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-let currentSort = 'az';
-let currentCounty = '';
-let currentCity = '';
-let currentGenre = '';
-let currentSearch = '';
-
-function getInitial(dj) {
-  return dj.name.charAt(0).toUpperCase();
-}
-
-function filterAndSort() {
-  let list = [...DJS];
-
-  // Search
-  if (currentSearch) {
-    const q = currentSearch.toLowerCase();
-    list = list.filter(d =>
-      d.name.toLowerCase().includes(q) ||
-      d.genre.toLowerCase().includes(q) ||
-      d.city.toLowerCase().includes(q) ||
-      d.county.toLowerCase().includes(q)
-    );
-  }
-
-  // County
-  if (currentCounty) list = list.filter(d => d.county === currentCounty);
-  // City
-  if (currentCity) list = list.filter(d => d.city === currentCity);
-  // Genre (partial match)
-  if (currentGenre) list = list.filter(d => d.genre.toLowerCase().includes(currentGenre.toLowerCase()));
-
-  // Sort
-  list.sort((a, b) => {
-    const na = a.name.toUpperCase(), nb = b.name.toUpperCase();
-    return currentSort === 'az' ? na.localeCompare(nb) : nb.localeCompare(na);
-  });
-
+function filterAndSort(){
+  let list=[...DJS];
+  if(currentSearch){const q=currentSearch.toLowerCase();list=list.filter(d=>d.name.toLowerCase().includes(q)||d.genre.toLowerCase().includes(q)||d.city.toLowerCase().includes(q)||d.county.toLowerCase().includes(q));}
+  if(currentCounty) list=list.filter(d=>d.county===currentCounty);
+  if(currentCity)   list=list.filter(d=>d.city===currentCity);
+  if(currentGenre)  list=list.filter(d=>d.genre.toLowerCase().includes(currentGenre.toLowerCase()));
+  list.sort((a,b)=>currentSort==='az'?a.name.localeCompare(b.name):b.name.localeCompare(a.name));
   return list;
 }
 
-function renderCard(dj) {
-  const igUrl = `https://instagram.com/${dj.ig}`;
-  const imgHtml = dj.img
-    ? `<img class="dj-card-img" src="${dj.img}" alt="${dj.name}" loading="lazy"/>`
-    : `<div class="dj-card-placeholder" style="${gradientBg(dj.color, dj.name)}"><span style="font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);color:${dj.color};text-shadow:0 0 30px ${dj.color};text-align:center;padding:16px;line-height:1;">${dj.name}</span></div>`;
-  return `
-    <div class="dj-card" onclick="window.open('${igUrl}','_blank')">
-      ${imgHtml}
-      <div class="dj-card-overlay"></div>
-      <div class="dj-card-body">
-        <span class="dj-genre-tag">${dj.genre}</span>
-        <div class="dj-name">${dj.name}</div>
-        <span class="dj-location">ð ${dj.city}</span>
-        <a class="dj-card-btn" href="${igUrl}" target="_blank" onclick="event.stopPropagation()">LEARN MORE</a>
-      </div>
-    </div>`;
-}
+function hexToRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
 
-function render() {
-  const list = filterAndSort();
-  const out = document.getElementById('roster-output');
+function render(){
+  const list=filterAndSort();
+  const out=document.getElementById('roster-output');
+  document.getElementById('count-num').textContent=list.length;
 
-  if (!list.length) {
-    out.innerHTML = `<div class="no-results"><h3>No DJs Found</h3><p>Try adjusting your filters or search term.</p></div>`;
-    document.getElementById('results-count').textContent = '0 results';
+  if(!list.length){
+    out.innerHTML<`<div class="no-results"><h3>No DJs found</h3><p>Try adjusting your filters</p></div>`;
     return;
   }
 
-  document.getElementById('results-count').textContent = `${list.length} DJ${list.length !== 1 ? 's' : ''}`;
-
-  // Group alphabetically
-  const groups = {};
-  list.forEach(dj => {
-    const letter = dj.name.charAt(0).toUpperCase();
-    if (!groups[letter]) groups[letter] = [];
-    groups[letter].push(dj);
-  });
-
-  const letters = Object.keys(groups).sort(
-    currentSort === 'za' ? (a, b) => b.localeCompare(a) : (a, b) => a.localeCompare(b)
-  );
-
-  out.innerHTML = letters.map(letter => `
-    <div class="alpha-group">
-      <div class="alpha-label">${letter}</div>
-      <div class="dj-grid">${groups[letter].map(renderCard).join('')}</div>
-    </div>
-  `).join('');
+  out.innerHTML=list.map(d=>{
+    const initials=d.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+    const bg=d.img?`background-image:url('${d.img}');background-size:cover;background-position:center top;`
+      :`background:linear-gradient(135deg,${hexToRgba(d.color,.2)} 0%,#111 100%);`;
+    const glow=hexToRgba(d.color,.3);
+    return `<div class="dj-card" style="--card-color:${d.color};--card-glow:${glow};">
+      <div class="card-img" style="${bg}">
+        ${!d.img?`<div class="initials" style="color:${d.color};">${initials}</div>`:''}
+        ${d.keepitil?'<div class="keepitil-badge">KEEPITIL</div>':''}
+        <div class="card-overlay">
+          <a href="https://instagram.com/${d.ig}" target="_blank">View Profile</a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-name" style="color:${d.keepitil?d.color:'var(--white)'};">${d.name}</div>
+        <div class="card-sub">${d.city} · ${d.county.replace(' County','')}</div>
+        <div class="card-genre">${d.genre}</div>
+        <div class="card-footer">
+          <a class="card-ig" href="https://instagram.com/${d.ig}" target="_blank">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            @${d.ig}
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// âââ POPULATE FILTERS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-function populateFilters() {
-  const counties = [...new Set(DJS.map(d => d.county))].sort();
-  const cities = [...new Set(DJS.map(d => d.city))].sort();
-  const genres = [...new Set(DJS.flatMap(d => d.genre.split(' / ')))].sort();
-
-  const countyEl = document.getElementById('filter-county');
-  counties.forEach(c => countyEl.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
-
-  const cityEl = document.getElementById('filter-city');
-  cities.forEach(c => cityEl.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
-
-  const genreEl = document.getElementById('filter-genre');
-  genres.forEach(g => genreEl.insertAdjacentHTML('beforeend', `<option value="${g}">${g}</option>`));
-
-  // Stats
-  document.getElementById('stat-total').textContent = DJS.length;
-  document.getElementById('stat-cities').textContent = new Set(DJS.map(d=>d.city)).size;
-  document.getElementById('stat-counties').textContent = new Set(DJS.map(d=>d.county)).size;
-  document.getElementById('stat-genres').textContent = new Set(DJS.flatMap(d=>d.genre.split(' / '))).size;
+function populateCities(){
+  const cities=[...new Set(DJS.map(d=>d.city))].sort();
+  const sel=document.getElementById('city-select');
+  cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
 }
 
-// âââ EVENTS ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-document.getElementById('search').addEventListener('input', e => {
-  currentSearch = e.target.value.trim();
-  render();
-});
+function setSort(s){currentSort=s;document.getElementById('tab-az').classList.toggle('active',s==='az');document.getElementById('tab-za').classList.toggle('active',s==='za');render();}
+function onSearch(v){currentSearch=v;render();}
+function onCounty(v){currentCounty=v;render();}
+function onCity(v){currentCity=v;render();}
+function onGenre(v){currentGenre=v;render();}
 
-document.getElementById('filter-county').addEventListener('change', e => {
-  currentCounty = e.target.value;
-  // Reset city filter options to match county
-  const cityEl = document.getElementById('filter-city');
-  const filtered = currentCounty ? DJS.filter(d => d.county === currentCounty) : DJS;
-  const cities = [...new Set(filtered.map(d => d.city))].sort();
-  cityEl.innerHTML = '<option value="">All Cities</option>';
-  cities.forEach(c => cityEl.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`));
-  currentCity = '';
-  render();
-});
-
-document.getElementById('filter-city').addEventListener('change', e => {
-  currentCity = e.target.value;
-  render();
-});
-
-document.getElementById('filter-genre').addEventListener('change', e => {
-  currentGenre = e.target.value;
-  render();
-});
-
-document.querySelectorAll('.sort-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.sort-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentSort = btn.dataset.sort;
-    render();
-  });
-});
-
-// âââ INIT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-populateFilters();
+populateCities();
 render();
 </script>
 </body>
