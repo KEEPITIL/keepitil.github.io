@@ -262,7 +262,30 @@
     }
     @media(max-width:480px){.artists-grid{grid-template-columns:1fr 1fr;}.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
     ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
-  </style>
+  
+/* === DJ SPOTLIGHT CIRCLES === */
+.dj-spotlight{background:linear-gradient(180deg,#0d0d0d,#111);padding:80px 0;text-align:center;}
+.dj-spotlight .spot-badge{display:inline-block;background:linear-gradient(135deg,#00b4ff,#b400ff);color:#000;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
+.dj-spotlight h2.spot-title{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 6px;}
+.dj-spotlight .spot-sub{color:#888;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;margin:0 0 48px;}
+.dj-circle-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:28px 16px;max-width:1100px;margin:0 auto 52px;}
+.dj-ci{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+.dj-ci-wrap{position:relative;width:130px;height:130px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
+.dj-ci-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:#fff;z-index:0;}
+.dj-ci-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;}
+.dj-ci:hover .dj-ci-wrap{transform:translateY(-8px) scale(1.06);}
+.dj-ci.kil .dj-ci-wrap{border-color:#00b4ff;border-width:3px;}
+.dj-ci.kil:hover .dj-ci-wrap{box-shadow:0 0 32px rgba(0,180,255,.65);}
+.dj-ci:not(.kil):hover .dj-ci-wrap{box-shadow:0 0 28px rgba(180,0,255,.5);}
+.dj-ci-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;color:#f0f0f0;text-align:center;line-height:1.2;}
+.dj-ci-tag{font-size:.68rem;letter-spacing:.06em;color:#888;}
+.dj-ci.kil .dj-ci-tag{color:#00b4ff;}
+.dj-more-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#00b4ff,#b400ff);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;padding:14px 40px;border-radius:50px;text-decoration:none;font-weight:700;transition:transform .25s,box-shadow .25s;}
+.dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
+@media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:95px;height:95px;}}
+@media(max-width:380px){.dj-circle-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="canonical" href="https://keepitil.github.io/" />
   <meta name="robots" content="index, follow" />
@@ -610,25 +633,28 @@
 
   
   <!-- DJ Booking Section -->
-  <section class="dj-booking" id="djs">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-label">DJ Roster</p>
-        <h2 class="section-title">BOOK A DJ FOR YOUR EVENT</h2>
-        <p class="section-sub">Browse available DJs in OC &amp; LA. Message directly and book through Keep It IL.</p>
-      </div>
-      <div class="dj-grid" id="dj-grid">
-        <!-- Populated from Supabase -->
-        <div class="dj-card"><div class="dj-avatar">K</div><div class="dj-name">KRISTYLE</div><span class="dj-badge featured">Featured</span><div class="dj-genres">Techno · Industrial</div><div class="dj-location">Westminster, OC</div><a href="mailto:booking@keepitil.com?subject=Book KRISTYLE" class="dj-book-btn">BOOK NOW</a></div>
-        <div class="dj-card"><div class="dj-avatar">A</div><div class="dj-name">ANNIE SOLLANGE</div><span class="dj-badge rising">Rising</span><div class="dj-genres">Deep House · Afro House</div><div class="dj-location">Huntington Beach, OC</div><a href="mailto:booking@keepitil.com?subject=Book Annie Sollange" class="dj-book-btn">BOOK NOW</a></div>
-        <div class="dj-card"><div class="dj-avatar">V</div><div class="dj-name">VORTEX</div><span class="dj-badge local">Local</span><div class="dj-genres">Hard Trance · Rave</div><div class="dj-location">Anaheim, OC</div><a href="mailto:booking@keepitil.com?subject=Book VORTEX" class="dj-book-btn">BOOK NOW</a></div>
-        <div class="dj-card"><div class="dj-avatar">S</div><div class="dj-name">SLVR</div><span class="dj-badge rising">Rising</span><div class="dj-genres">Deep House · UK Garage</div><div class="dj-location">Long Beach, LA</div><a href="mailto:booking@keepitil.com?subject=Book SLVR" class="dj-book-btn">BOOK NOW</a></div>
-      </div>
-      <div class="dj-browse-wrap">
-        <a href="organizers/index.html" class="btn-primary">BROWSE ALL DJs &amp; LIST YOUR EVENT →</a>
-      </div>
+  <section class="dj-spotlight">
+  <div class="container">
+    <span class="spot-badge">☀️ SUMMER 2026</span>
+    <h2 class="spot-title">DJ ROSTER</h2>
+    <p class="spot-sub">Book a DJ for your event</p>
+    <div class="dj-circle-grid">
+      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044aa)">RB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp" alt="RAB3L" onerror="this.style.display='none'"></div><span class="dj-ci-name">RAB3L</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'"></div><span class="dj-ci-name">GROOVE TROOPER</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg" alt="SWERVE" onerror="this.style.display='none'"></div><span class="dj-ci-name">SWERVE</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png" alt="LVNKY BONEZ" onerror="this.style.display='none'"></div><span class="dj-ci-name">LVNKY BONEZ</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#ffcc00)">MU</div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/DJ_Mustard_2015.jpg/440px-DJ_Mustard_2015.jpg" alt="DJ MUSTARD" onerror="this.style.display='none'"></div><span class="dj-ci-name">DJ MUSTARD</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#ff0066)">VK</div></div><span class="dj-ci-name">VALENTINO KHAN</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#cc0000)">DE</div></div><span class="dj-ci-name">DESTRUCTO</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">TM</div></div><span class="dj-ci-name">TOKiMONSTA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044cc)">CL</div></div><span class="dj-ci-name">CHRIS LAKE</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">CV</div></div><span class="dj-ci-name">CLAUDE VONSTROKE</span><span class="dj-ci-tag">SAN FRANCISCO</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#b400ff)">LU</div></div><span class="dj-ci-name">LUBELSKI</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00ff88)">GC</div></div><span class="dj-ci-name">GOLF CLAP</span><span class="dj-ci-tag">CALIFORNIA</span></a>
     </div>
-  </section>
+    <a href="roster.html" class="dj-more-btn">SEARCH FOR MORE DJs →</a>
+  </div>
+</section>
 
   <!-- Blog -->
   <section class="blog" id="blog">
