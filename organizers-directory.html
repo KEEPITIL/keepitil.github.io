@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Event Organizers â KEEPITIL | California Underground Scene</title>
+  <title>Event Organizers — KEEPITIL | California Underground Scene</title>
   <meta name="description" content="Browse California underground event organizers and promoters. Filter by city, county, type."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -62,11 +62,9 @@
     .results-count{font-size:.78rem;color:var(--grey);margin-left:auto;white-space:nowrap;}
 
     .roster-section{max-width:1280px;margin:0 auto;padding:40px 24px 80px;}
-    .alpha-group{margin-bottom:48px;}
-    .alpha-label{font-family:var(--font-head);font-size:3rem;color:rgba(255,102,0,.2);border-bottom:1px solid rgba(255,102,0,.1);padding-bottom:8px;margin-bottom:24px;letter-spacing:.06em;}
-    .org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+    .org-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;}
 
-    /* ORGANIZER CARD â 1:1 */
+    /* ORGANIZER CARD — 1:1 */
     .org-card{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s;}
     .org-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.6);}
     .org-card-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:transform .35s;}
@@ -121,16 +119,16 @@
 <div class="page-header">
   <div class="eyebrow">California Underground</div>
   <h1>Event <span>Organizers</span></h1>
-  <p>The promoters, collectives, and crews building the OC &amp; LA underground scene â concerts, afterparties, festivals, and warehouse raves.</p>
+  <p>The promoters, collectives, and crews building the OC &amp; LA underground scene — concerts, afterparties, festivals, and warehouse raves.</p>
   <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="apply-hero-btn">&#43; List Your Crew</a>
 </div>
 
 <div class="stats-bar">
   <div class="stats-inner">
-    <div class="stat"><span class="stat-num" id="stat-total">â</span><span class="stat-label">Organizers</span></div>
-    <div class="stat"><span class="stat-num" id="stat-cities">â</span><span class="stat-label">Cities</span></div>
-    <div class="stat"><span class="stat-num" id="stat-counties">â</span><span class="stat-label">Counties</span></div>
-    <div class="stat"><span class="stat-num" id="stat-types">â</span><span class="stat-label">Types</span></div>
+    <div class="stat"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Organizers</span></div>
+    <div class="stat"><span class="stat-num" id="stat-cities">—</span><span class="stat-label">Cities</span></div>
+    <div class="stat"><span class="stat-num" id="stat-counties">—</span><span class="stat-label">Counties</span></div>
+    <div class="stat"><span class="stat-num" id="stat-types">—</span><span class="stat-label">Types</span></div>
   </div>
 </div>
 
@@ -138,13 +136,13 @@
   <div class="controls-inner">
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="search" placeholder="Search organizer, type, city, countyâ¦" autocomplete="off"/>
+      <input type="text" id="search" placeholder="Search organizer, type, city, county…" autocomplete="off"/>
     </div>
     <div class="filter-group">
       <span class="filter-label">Sort:</span>
       <div class="sort-tabs">
-        <button class="sort-tab active" data-sort="az">AâZ</button>
-        <button class="sort-tab" data-sort="za">ZâA</button>
+        <button class="sort-tab active" data-sort="az">A–Z</button>
+        <button class="sort-tab" data-sort="za">Z–A</button>
       </div>
     </div>
     <div class="filter-group">
@@ -176,7 +174,7 @@
 </div>
 
 <footer>
-  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> â OC &amp; LA Underground EDM</p>
+  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> — OC &amp; LA Underground EDM</p>
 </footer>
 
 <script>
@@ -241,14 +239,14 @@ function renderCard(o){
   return `
     <div class="org-card" onclick="window.open('${igUrl}','_blank')">
       <div class="org-card-placeholder" style="background:linear-gradient(135deg,${o.color}22 0%,#0b0b0b 100%);">
-        <span style="font-size:2.5rem;">ðª</span>
+        <span style="font-size:2.5rem;">🎪</span>
         <span style="font-family:var(--font-head);font-size:clamp(1rem,3vw,1.5rem);color:${o.color};text-align:center;padding:0 12px;line-height:1.1;">${o.name}</span>
       </div>
       <div class="org-card-overlay"></div>
       <div class="org-card-body">
         <span class="org-type-tag">${o.type}</span>
         <div class="org-name">${o.name}</div>
-        <span class="org-location">ð ${o.city}</span>
+        <span class="org-location">📍 ${o.city}</span>
         <a class="org-card-btn" href="${igUrl}" target="_blank" onclick="event.stopPropagation()">LEARN MORE</a>
       </div>
     </div>`;
@@ -258,9 +256,7 @@ function render(){
   const list=filterAndSort();const out=document.getElementById('roster-output');
   if(!list.length){out.innerHTML='<div class="no-results"><h3>No Organizers Found</h3><p>Try adjusting your filters.</p></div>';document.getElementById('results-count').textContent='0 results';return;}
   document.getElementById('results-count').textContent=`${list.length} organizer${list.length!==1?'s':''}`;
-  const groups={};list.forEach(o=>{const l=o.name.charAt(0).toUpperCase();if(!groups[l])groups[l]=[];groups[l].push(o);});
-  const letters=Object.keys(groups).sort(currentSort==='za'?(a,b)=>b.localeCompare(a):(a,b)=>a.localeCompare(b));
-  out.innerHTML=letters.map(l=>`<div class="alpha-group"><div class="alpha-label">${l}</div><div class="org-grid">${groups[l].map(renderCard).join('')}</div></div>`).join('');
+  out.innerHTML=`<div class="org-grid">${list.map(renderCard).join('')}</div>`;
 }
 
 function populateFilters(){
