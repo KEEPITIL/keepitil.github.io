@@ -285,6 +285,32 @@
 @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
 @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:95px;height:95px;}}
 @media(max-width:380px){.dj-circle-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* === FEATURED FRESH DROP SPOTLIGHT === */
+.fresh-spotlight{background:linear-gradient(180deg,#0d0d0d,#131313);padding:80px 0;}
+.fresh-spotlight .spot-hdr{text-align:center;margin-bottom:52px;}
+.fresh-spotlight .spot-badge2{display:inline-block;background:linear-gradient(135deg,#00b4ff,#b400ff);color:#000;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
+.spot-h2{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 8px;}
+.spot-subtext{color:#888;font-size:.9rem;letter-spacing:.06em;margin:0;}
+.spot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1100px;margin:0 auto;}
+.spot-card{background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;transition:transform .3s,box-shadow .3s;text-decoration:none;color:inherit;display:block;}
+.spot-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,180,255,.22);}
+.spot-img-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;}
+.spot-img-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:#fff;z-index:0;}
+.spot-img-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.spot-card:hover .spot-img-wrap img{transform:scale(1.06);}
+.spot-body{padding:18px 16px 20px;}
+.spot-kil-tag2{display:inline-block;background:rgba(0,180,255,.12);color:#00b4ff;font-size:.65rem;letter-spacing:.1em;padding:3px 9px;border-radius:4px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;}
+.spot-name2{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.06em;color:#f0f0f0;margin:0 0 3px;}
+.spot-genre2{font-size:.7rem;color:#888;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px;}
+.spot-bio2{font-size:.82rem;color:#aaa;line-height:1.6;margin:0 0 16px;}
+.spot-links2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.spot-btn-profile{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#000;background:linear-gradient(135deg,#00b4ff,#b400ff);padding:8px 14px;border-radius:6px;text-decoration:none;transition:opacity .2s;}
+.spot-btn-profile:hover{opacity:.85;}
+.spot-btn-ig{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:6px;text-decoration:none;transition:color .2s,border-color .2s;font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;}
+.spot-btn-ig:hover{color:#f0f0f0;border-color:rgba(255,255,255,.4);}
+@media(max-width:900px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.spot-grid{grid-template-columns:1fr;}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="canonical" href="https://keepitil.github.io/" />
@@ -441,110 +467,24 @@
   </section>
 
   <!-- Featured -->
-  <section class="featured" id="featured">
-    <div class="container">
-      <div class="section-label reveal">Featured</div>
-      <h2 class="section-title reveal">FRESH DROPS</h2>
-      <div class="featured-grid">
-        <!-- Artist of the Day: populated by AotD script at bottom of page -->
-        <div class="featured-main reveal-left" id="aotd-main" style="background:linear-gradient(135deg,#0d1520,#1a0a30);background-size:cover;background-position:center;position:relative;">
-          <div class="fm-overlay" style="background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.3) 60%,transparent 100%);position:absolute;inset:0;"></div>
-          <div class="fm-content" style="position:relative;z-index:2;display:flex;flex-direction:column;height:100%;justify-content:flex-end;padding:32px;">
-            <span class="article-tag" style="margin-bottom:12px;">&#127911; Artist of the Day</span>
-            <h2 id="aotd-name" style="font-size:clamp(1.6rem,4vw,2.8rem);margin:0 0 12px;line-height:1.1;">&mdash;</h2>
-            <p id="aotd-bio" style="font-size:.9rem;line-height:1.6;margin-bottom:14px;opacity:.88;">Loading artist...</p>
-            <div class="article-meta" style="margin-bottom:18px;font-size:.8rem;">
-              <span id="aotd-genre" style="color:#00b4ff;font-weight:600;"></span>
-              <span style="opacity:.4;">&middot;</span>
-              <span id="aotd-city"></span>
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <a id="aotd-read" href="https://keepitil.com/artist" target="_blank" class="btn btn-primary" style="font-size:.78rem;padding:9px 16px;">Read Feature &#8594;</a>
-              <a id="aotd-sc" href="https://soundcloud.com" target="_blank" class="btn btn-outline" style="font-size:.78rem;padding:9px 16px;">&#127925; Listen</a>
-              <a id="aotd-ig" href="https://instagram.com" target="_blank" class="btn btn-outline" style="font-size:.78rem;padding:9px 16px;">&#128247; IG</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3 Upcoming KEEPITIL Events -->
-        <div class="featured-side">
-          <div class="side-article reveal-right" onclick="window.open('https://keepitil.com','_blank')" style="cursor:pointer;">
-            <div>
-              <span class="article-tag">&#128293; KEEPITIL EVENT</span>
-              <h3>KEEP IT TECHNO</h3>
-              <p>Underground techno and hard vibes. OC's premier KEEPITIL night &mdash; doors at 9PM, rage till 2AM. Find it on the map.</p>
-            </div>
-            <div class="article-meta"><span>Jun 12&ndash;13</span><span>&middot;</span><span>Orange County</span><a class="read-more" href="https://keepitil.com" target="_blank" onclick="event.stopPropagation()">Tickets &#8594;</a></div>
-          </div>
-          <div class="side-article reveal-right" onclick="window.open('https://keepitil.com','_blank')" style="cursor:pointer;">
-            <div>
-              <span class="article-tag">&#127754; KEEPITIL AFTERS</span>
-              <h3>BASS TILL DAWN</h3>
-              <p>The afters don't stop &mdash; CUBE WORLD MEDIA Huntington Beach. You know how we move.</p>
-            </div>
-            <div class="article-meta"><span>Jun 13</span><span>&middot;</span><span>Huntington Beach</span><a class="read-more" href="https://keepitil.com" target="_blank" onclick="event.stopPropagation()">Get On &#8594;</a></div>
-          </div>
-          <div class="side-article reveal-right" onclick="window.open('https://keepitil.com','_blank')" style="cursor:pointer;">
-            <div>
-              <span class="article-tag">&#128197; UPCOMING</span>
-              <h3>MORE SHOWS DROPPING</h3>
-              <p>Summer 2026 is loading. New KEEPITIL events weekly across OC and LA. Stay tapped in.</p>
-            </div>
-            <div class="article-meta"><span>Summer 2026</span><span>&middot;</span><span>OC &amp; LA</span><a class="read-more" href="https://keepitil.com" target="_blank" onclick="event.stopPropagation()">View All &#8594;</a></div>
-          </div>
-        </div>
-      
+  <section class="fresh-spotlight">
+  <div class="container">
+    <div class="spot-hdr">
+      <span class="spot-badge2">☀️ FEATURED FRESH DROP</span>
+      <h2 class="spot-h2">SPOTLIGHT ARTISTS</h2>
+      <p class="spot-subtext">Curated underground talent from OC &amp; LA — straight from the scene</p>
     </div>
-  </section>
+    <div class="spot-grid">
+      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#00b4ff,#0044aa)">RB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp" alt="RAB3L" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">RAB3L</h3><span class="spot-genre2">Techno · House · OC / LA</span><p class="spot-bio2">OC-based DJ and producer pushing underground techno and dark house. KEEPITIL resident known for high-energy, no-filter sets across the SoCal circuit.</p><div class="spot-links2"><a href="roster.html" class="spot-btn-profile">VIEW PROFILE →</a><a href="https://www.instagram.com/rab3l_music/" class="spot-btn-ig" target="_blank" rel="noopener">📷 @rab3l_music</a></div></div></div>
+      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">GROOVE TROOPER</h3><span class="spot-genre2">House · Tech House · LA</span><p class="spot-bio2">LA-based DJ laying down deep house and tech house with soulful roots. Groove Trooper has been a staple of the SoCal underground scene for years.</p><div class="spot-links2"><a href="roster.html" class="spot-btn-profile">VIEW PROFILE →</a><a href="https://www.instagram.com/groovetrooper/" class="spot-btn-ig" target="_blank" rel="noopener">📷 @groovetrooper</a></div></div></div>
+      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg" alt="SWERVE" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">SWERVE</h3><span class="spot-genre2">Dark Techno · Industrial · OC</span><p class="spot-bio2">SWERVE delivers relentless dark techno and industrial-influenced sets. A KEEPITIL staple who never fails to move the crowd into uncharted underground territory.</p><div class="spot-links2"><a href="roster.html" class="spot-btn-profile">VIEW PROFILE →</a><a href="https://www.instagram.com/djswerve_oc/" class="spot-btn-ig" target="_blank" rel="noopener">📷 @djswerve_oc</a></div></div></div>
+      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png" alt="LVNKY BONEZ" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">LVNKY BONEZ</h3><span class="spot-genre2">Bass House · Underground · CA</span><p class="spot-bio2">California-based LVNKY BONEZ brings heavy bass and underground energy to every performance. Dynamic crowd-controlled sets that blend genres without compromise.</p><div class="spot-links2"><a href="roster.html" class="spot-btn-profile">VIEW PROFILE →</a><a href="https://www.instagram.com/lvnkybonez/" class="spot-btn-ig" target="_blank" rel="noopener">📷 @lvnkybonez</a></div></div></div>
+    </div>
+  </div>
+</section>
 
   <!-- Explore Events -->
-  <section class="explore" id="explore">
-    <div class="container">
-      <div class="explore-header">
-        <div>
-          <div class="section-label reveal">Live Listings</div>
-          <h2 class="section-title reveal" style="margin-bottom:0">EXPLORE EVENTS</h2>
-        </div>
-        <div class="explore-actions reveal">
-          <div class="filter-tabs" style="margin-bottom:0;">
-            <div class="filter-tab active" onclick="filterExplore('all',this)">All</div>
-            <div class="filter-tab" onclick="filterExplore('oc',this)">OC</div>
-            <div class="filter-tab" onclick="filterExplore('techno',this)">Techno</div>
-            <div class="filter-tab" onclick="filterExplore('house',this)">House</div>
-            <div class="filter-tab" onclick="filterExplore('bass',this)">Bass</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="explore-grid" id="explore-grid">
-        <!-- Cards injected by JS -->
-      </div>
-      <div class="explore-empty" id="explore-empty">
-        <p style="font-size:15px;color:var(--grey)">No events match this filter right now. Check back soon.</p>
-      </div>
-
-      <div class="explore-ctas reveal">
-        <div class="explore-cta-card">
-          <div class="platform-icon">🎟️</div>
-          <h4>EVENTBRITE</h4>
-          <p>Thousands of OC &amp; LA underground events. Buy tickets directly.</p>
-          <a href="https://www.eventbrite.com/d/ca--los-angeles/edm-events/" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Browse Eventbrite →</a>
-        </div>
-        <div class="explore-cta-card">
-          <div class="platform-icon">✨</div>
-          <h4>POSH</h4>
-          <p>Discover exclusive underground parties and private events near you.</p>
-          <a href="https://posh.vip/" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Browse Posh →</a>
-        </div>
-        <div class="explore-cta-card">
-          <div class="platform-icon">🚂</div>
-          <h4>EDM TRAIN</h4>
-          <p>The most comprehensive EDM event calendar for LA and Southern California.</p>
-          <a href="https://edmtrain.com/los-angeles-ca" target="_blank" rel="noopener" class="btn btn-outline btn-sm">Browse EDMTrain →</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- AdSense: Responsive Banner (auto) -->
   <div class="ad-container ad-banner" data-ad-placement="between-sections" style="text-align:center;padding:12px 0;min-height:90px;background:transparent;">
@@ -553,55 +493,7 @@
   </div>
 
   <!-- Curated Upcoming Events -->
-  <section class="events" id="events">
-    <div class="container">
-      <div class="section-label reveal">What's On</div>
-      <h2 class="section-title reveal">CURATED PICKS</h2>
-      <div class="filter-tabs reveal">
-        <div class="filter-tab active" onclick="filterEvents('all',this)">All</div>
-        <div class="filter-tab" onclick="filterEvents('techno',this)">Techno</div>
-        <div class="filter-tab" onclick="filterEvents('house',this)">House</div>
-        <div class="filter-tab" onclick="filterEvents('trance',this)">Trance</div>
-        <div class="filter-tab" onclick="filterEvents('dnb',this)">DNB</div>
-        <div class="filter-tab" onclick="filterEvents('keepitil',this)">Keep It IL</div>
-      </div>
-      <div class="events-list">
-        <div class="event-item reveal" data-genres="techno" onclick="window.open('https://www.eventbrite.com/e/keep-it-techno-tickets-1989638104129','_blank')">
-          <div class="event-date"><div class="day">12</div><div class="month">Jun</div></div>
-          <div class="event-info"><h4>KEEP IT TECHNO feat. KRISTYLE</h4><div class="meta"><span>Bleu Nightclub OC, Westminster OC</span><span>9PM–2AM</span><span>18+</span></div></div>
-          <div class="event-tags"><span class="tag tag-filled">KEEPITIL Event</span><span class="tag">Techno</span></div>
-        </div>
-        <div class="event-item reveal" data-genres="house techno" style="transition-delay:.1s" onclick="window.open('https://posh.vip/e/summer-kickoff-57','_blank')">
-          <div class="event-date"><div class="day">12</div><div class="month">Jun</div></div>
-          <div class="event-info"><h4>Summer Kickoff — The Circle OC</h4><div class="meta"><span>The Circle OC, Huntington Beach</span><span>9PM–2AM</span><span>18+</span></div></div>
-          <div class="event-tags"><span class="tag">House</span><span class="tag">Tech</span><span class="tag">Minimal</span></div>
-        </div>
-        <div class="event-item reveal" data-genres="techno bass" style="transition-delay:.2s" onclick="window.open('https://posh.vip/e/bass-till-dawn-afters-oc-1','_blank')">
-          <div class="event-date"><div class="day">13</div><div class="month">Jun</div></div>
-          <div class="event-info"><h4>BASS TILL DAWN (AFTERS OC)</h4><div class="meta"><span>Cube World Media, Huntington Beach</span><span>11:55PM–5AM</span><span>21+</span></div></div>
-          <div class="event-tags"><span class="tag">Bass</span><span class="tag">Afters</span></div>
-        </div>
-        <div class="event-item reveal" data-genres="house techno" style="transition-delay:.3s" onclick="window.open('https://posh.vip/e/groove-garden-s5-e4-day-party','_blank')">
-          <div class="event-date"><div class="day">13</div><div class="month">Jun</div></div>
-          <div class="event-info"><h4>GROOVE GARDEN: S5 E4 Day Party</h4><div class="meta"><span>Beales Texas BBQ, Orange County</span><span>4PM–2AM</span><span>21+</span></div></div>
-          <div class="event-tags"><span class="tag">House</span><span class="tag">Techno</span></div>
-        </div>
-        <div class="event-item reveal" data-genres="house" style="transition-delay:.4s" onclick="window.open('https://posh.vip/e/azure-day-party-huntington-beach-2026-10-11-22-30','_blank')">
-          <div class="event-date"><div class="day">14</div><div class="month">Jun</div></div>
-          <div class="event-info"><h4>AZURE Day Party w/ LEVI</h4><div class="meta"><span>The Bungalow, Huntington Beach</span><span>2PM–9PM</span><span>All Ages</span></div></div>
-          <div class="event-tags"><span class="tag">Deep House</span><span class="tag">Day Party</span></div>
-        </div>
-        <div class="event-item reveal" data-genres="house" style="transition-delay:.0s" onclick="window.open('https://www.eventbrite.com/e/summer-solstice-tickets-1986954186459','_blank')">
-          <div class="event-date"><div class="day">19</div><div class="month">Jun</div></div>
-          <div class="event-info"><h4>SUMMER SOLSTICE feat. Annie Sollange</h4><div class="meta"><span>The Circle OC, Huntington Beach</span><span>8:30PM–2AM</span><span>Free</span></div></div>
-          <div class="event-tags"><span class="tag">House</span><span class="tag">Free Entry</span></div>
-        </div>
-      </div>
-      <div class="reveal" style="text-align:center;margin-top:40px">
-        <a href="https://www.eventbrite.com/d/ca--los-angeles/edm-events/" target="_blank" rel="noopener" class="btn btn-outline">View All on Eventbrite →</a>
-      </div>
-    </div>
-  </section>
+  
 
   <!-- AdSense: Below Events (responsive) -->
   <div class="ad-container ad-responsive" data-ad-placement="below-events" style="text-align:center;padding:12px 0;min-height:90px;background:transparent;">
@@ -643,14 +535,14 @@
       <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'"></div><span class="dj-ci-name">GROOVE TROOPER</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
       <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg" alt="SWERVE" onerror="this.style.display='none'"></div><span class="dj-ci-name">SWERVE</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
       <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png" alt="LVNKY BONEZ" onerror="this.style.display='none'"></div><span class="dj-ci-name">LVNKY BONEZ</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#ffcc00)">MU</div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/DJ_Mustard_2015.jpg/440px-DJ_Mustard_2015.jpg" alt="DJ MUSTARD" onerror="this.style.display='none'"></div><span class="dj-ci-name">DJ MUSTARD</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#ff0066)">VK</div></div><span class="dj-ci-name">VALENTINO KHAN</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#cc0000)">DE</div></div><span class="dj-ci-name">DESTRUCTO</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">TM</div></div><span class="dj-ci-name">TOKiMONSTA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044cc)">CL</div></div><span class="dj-ci-name">CHRIS LAKE</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">CV</div></div><span class="dj-ci-name">CLAUDE VONSTROKE</span><span class="dj-ci-tag">SAN FRANCISCO</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#b400ff)">LU</div></div><span class="dj-ci-name">LUBELSKI</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00ff88)">GC</div></div><span class="dj-ci-name">GOLF CLAP</span><span class="dj-ci-tag">CALIFORNIA</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/djmustard/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#ffcc00)">MU</div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/DJ_Mustard_2015.jpg/440px-DJ_Mustard_2015.jpg" alt="DJ MUSTARD" onerror="this.style.display='none'"></div><span class="dj-ci-name">DJ MUSTARD</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/valentinokhan/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#ff0066)">VK</div></div><span class="dj-ci-name">VALENTINO KHAN</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/destructo/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#cc0000)">DE</div></div><span class="dj-ci-name">DESTRUCTO</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/tokimonsta/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">TM</div></div><span class="dj-ci-name">TOKiMONSTA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/chrislake/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044cc)">CL</div></div><span class="dj-ci-name">CHRIS LAKE</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/claudevonstroke/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">CV</div></div><span class="dj-ci-name">CLAUDE VONSTROKE</span><span class="dj-ci-tag">SAN FRANCISCO</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/lubelski/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#b400ff)">LU</div></div><span class="dj-ci-name">LUBELSKI</span><span class="dj-ci-tag">LOS ANGELES</span></a>
+      <a class="dj-ci" href="https://www.instagram.com/golfclapmusic/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00ff88)">GC</div></div><span class="dj-ci-name">GOLF CLAP</span><span class="dj-ci-tag">CALIFORNIA</span></a>
     </div>
     <a href="roster.html" class="dj-more-btn">SEARCH FOR MORE DJs →</a>
   </div>
