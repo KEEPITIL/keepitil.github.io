@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>DJ Roster — KEEPITIL | Top California DJs</title>
-<meta name="description" content="Top 100 California DJs — OC, LA, San Diego, Bay Area. Browse, filter, book."/>
+<title>Artist Roster — KEEPITIL | Top California Artists</title>
+<meta name="description" content="Top 100 California Artists — OC, LA, San Diego, Bay Area. Browse, filter, book."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
@@ -173,7 +173,7 @@ footer a{color:var(--blue);text-decoration:none;}
     <a class="nav-logo" href="index.html">KEEP<span>IT</span>IL</a>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
-      <li><a href="roster.html" class="active">DJs</a></li>
+      <li><a href="roster.html" class="active">Artists</a></li>
       <li><a href="vendors.html">Vendors</a></li>
       <li><a href="organizers-directory.html">Organizers</a></li>
     </ul>
@@ -183,15 +183,15 @@ footer a{color:var(--blue);text-decoration:none;}
 <section class="page-hero">
   <div class="season-badge">☀️ Summer 2026 — OC &amp; LA Season</div>
   <div class="eyebrow">KEEPITIL Presents</div>
-  <h1>California <span>DJ</span> Roster</h1>
-  <p>Top 100 DJs across OC, LA, San Diego, Bay Area &amp; beyond — filtered, searchable, and bookable.</p>
+  <h1>California <span id="roster-type-label">ARTIST</span> Roster</h1>
+  <p>Top 100 Artists across OC, LA, San Diego, Bay Area &amp; beyond — filtered, searchable, and bookable.</p>
 </section>
 
 <div class="controls">
   <div class="controls-row">
     <div class="search-wrap">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="search-input" placeholder="Search DJ, genre, city, county…" oninput="onSearch(this.value)"/>
+      <input type="text" id="search-input" placeholder="Search artist, genre, city, county…" oninput="onSearch(this.value)"/>
     </div>
     <div class="sort-tabs">
       <div class="sort-tab active" id="tab-az" onclick="setSort('az')">A → Z</div>
@@ -226,7 +226,7 @@ footer a{color:var(--blue);text-decoration:none;}
     </select>
   </div>
 </div>
-<div class="results-count" id="results-count"><span id="count-num">—</span> DJs found</div>
+<div class="results-count" id="results-count"><span id="count-num">—</span> <span id="type-label-count">Artists</span> found</div>
 
 <section class="roster-section">
   <div class="roster-grid" id="roster-output"></div>
@@ -235,7 +235,7 @@ footer a{color:var(--blue);text-decoration:none;}
 <div class="apply-section">
   <div class="eyebrow">Join the Roster</div>
   <h2>Are You Next?</h2>
-  <p>We list the top 100 DJs in California. If you're an underground DJ ready to be featured on KEEPITIL, apply now.</p>
+  <p>We list the top 100 Artists in California. If you're an underground artist ready to be featured on KEEPITIL, apply now.</p>
   <div class="apply-btns">
     <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="btn-primary-apply">Apply to Join</a>
     <a href="index.html" class="btn-outline-apply">Back to Home</a>
@@ -248,63 +248,63 @@ footer a{color:var(--blue);text-decoration:none;}
 
 <script>
 const DJS = [
-  {name:'RAB3L',           city:'Torrance',        county:'Los Angeles County',  genre:'Bass House / UKG',              ig:'dj_rab3l_r3mix',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp',    keepitil:true, color:'#00b4ff'},
-  {name:'Groove Trooper',  city:'Garden Grove',    county:'Orange County',       genre:'Latin House / Tech House',      ig:'Groove_Trooper',       img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg',     keepitil:true, color:'#b400ff'},
-  {name:'Lvnki Bonez',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / DnB',                 ig:'__lvnki.bonez__',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png',keepitil:true, color:'#ff0080'},
-  {name:'SWERVE',          city:'Santa Ana',       county:'Orange County',       genre:'Tech House / Techno',           ig:'you_vs_you_only',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg',                                                   keepitil:true, color:'#ffb400'},
-  {name:'AC Slater',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',          ig:'acslatermusic',        img:'', color:'#00b4ff'},
-  {name:'Anna Lunoe',      city:'Los Angeles',     county:'Los Angeles County',  genre:'House / Bass House',            ig:'annalunoe',            img:'', color:'#ff0080'},
-  {name:'Bass Kleph',      city:'Fresno',          county:'Fresno County',       genre:'Tech House / Electro',          ig:'basskleph',            img:'', color:'#00b4ff'},
-  {name:'Bijou',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'heybijou',             img:'', color:'#b400ff'},
-  {name:'Chris Lake',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'chrislake',            img:'', color:'#00b4ff'},
-  {name:'Chrissy',         city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Disco',            ig:'dj_chrissy',           img:'', color:'#ff0080'},
-  {name:'Chuckie',         city:'Anaheim',         county:'Orange County',       genre:'Electro House / Dutch',         ig:'djchuckie',            img:'', color:'#ff6600'},
-  {name:'Cid',             city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'cidmusic',             img:'', color:'#ff0080'},
-  {name:'Claude VonStroke',city:'San Francisco',   county:'San Francisco County',genre:'Tech House',                    ig:'claudevonstroke',      img:'', color:'#ff6600'},
-  {name:'Crizzly',         city:'San Diego',       county:'San Diego County',    genre:'Trap / Bass Music',             ig:'crizzly',              img:'', color:'#00b4ff'},
-  {name:'Deorro',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Electro House / Latin',         ig:'deorro',               img:'', color:'#ff6600'},
-  {name:'Destructo',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',          ig:'destructo',            img:'', color:'#00b4ff'},
-  {name:'Diplo',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Trap / Bass / Electronic',      ig:'diplo',                img:'', color:'#ff6600'},
-  {name:'Dirtyphonics',    city:'Riverside',       county:'Riverside County',    genre:'Drumstep / Dubstep',            ig:'dirtyphonics',         img:'', color:'#ff0080'},
-  {name:'DJ Mustard',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Hip-Hop / Open Format',         ig:'djmustard',            img:'', color:'#ffb400'},
-  {name:'DJ Shadow',       city:'San Francisco',   county:'San Francisco County',genre:'Turntablism / Electronic',      ig:'djshadow',             img:'', color:'#00b4ff'},
-  {name:'DJ Styles',       city:'San Diego',       county:'San Diego County',    genre:'Open Format / Hip-Hop',         ig:'djstylessd',           img:'', color:'#ffb400'},
-  {name:'Doc Martin',      city:'San Francisco',   county:'San Francisco County',genre:'Techno / House',                ig:'docmartindj',          img:'', color:'#b400ff'},
-  {name:'Dr. Fresch',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Open Format',      ig:'drfresch',             img:'', color:'#b400ff'},
-  {name:'Ferry Corsten',   city:'Irvine',          county:'Orange County',       genre:'Trance / Progressive',          ig:'ferrycorsten',         img:'', color:'#00b4ff'},
-  {name:'G-Eazy',          city:'Sacramento',      county:'Sacramento County',   genre:'Hip-Hop / Open Format',         ig:'g_eazy',               img:'', color:'#ffb400'},
-  {name:'Gammer',          city:'Anaheim',         county:'Orange County',       genre:'Hardstyle / Happy Hardcore',    ig:'gammerofficial',       img:'', color:'#ff0080'},
-  {name:'Gaslamp Killer',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Beat Music / Experimental',    ig:'gaslampkiller',        img:'', color:'#ff6600'},
-  {name:'Getter',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',          ig:'getter',               img:'', color:'#00ff88'},
-  {name:'Goldroom',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Disco',            ig:'goldroom',             img:'', color:'#ffb400'},
-  {name:'Honey Dijon',     city:'San Francisco',   county:'San Francisco County',genre:'House / Disco / Techno',        ig:'honeydijon',           img:'', color:'#ffb400'},
-  {name:'Joeski',          city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',       ig:'joeskimusic',          img:'', color:'#00ff88'},
-  {name:'Justin Martin',   city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',       ig:'justinmartin',         img:'', color:'#00b4ff'},
-  {name:'Kaskade',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Progressive House',             ig:'kaskade',              img:'', color:'#b400ff'},
-  {name:'King Deco',       city:'Oxnard',          county:'Ventura County',      genre:'Tech House / Deep House',       ig:'kingdeco',             img:'', color:'#00b4ff'},
-  {name:'Level Up',        city:'Moreno Valley',   county:'Riverside County',    genre:'Bass Music / Open Format',      ig:'djlevelup',            img:'', color:'#b400ff'},
-  {name:'Louis The Child', city:'Los Angeles',     county:'Los Angeles County',  genre:'Future Bass / Indie Electronic',ig:'louisthechild',        img:'', color:'#00ff88'},
-  {name:'Mark Farina',     city:'San Francisco',   county:'San Francisco County',genre:'Mushroom Jazz / Deep House',   ig:'markfarinamusic',      img:'', color:'#b400ff'},
-  {name:'Mayhem',          city:'San Diego',       county:'San Diego County',    genre:'Dubstep / Bass Music',          ig:'mayhemofficial',       img:'', color:'#ff0080'},
-  {name:'Mija',            city:'Los Angeles',     county:'Los Angeles County',  genre:'Techno / Experimental',         ig:'mijamusic',            img:'', color:'#00ff88'},
-  {name:'MK',              city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Soulful House',    ig:'markkinchen',          img:'', color:'#ffb400'},
-  {name:'Neon Steve',      city:'Thousand Oaks',   county:'Ventura County',      genre:'Electro / Bass House',          ig:'neonstevedj',          img:'', color:'#ff6600'},
-  {name:'NGHTMRE',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',          ig:'nghtmre',              img:'', color:'#ff0080'},
-  {name:'Nosaj Thing',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Ambient',          ig:'nosaj_thing',          img:'', color:'#b400ff'},
-  {name:'Proper Villains', city:'San Diego',       county:'San Diego County',    genre:'Bass House / Tech House',       ig:'propervillains',       img:'', color:'#00ff88'},
-  {name:'Skrillex',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Electronic',          ig:'skrillex',             img:'', color:'#00b4ff'},
-  {name:'Slander',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Melodic Bass',        ig:'slanderofficial',      img:'', color:'#b400ff'},
-  {name:'Statik',          city:'San Diego',       county:'San Diego County',    genre:'Tech House / Techno',           ig:'djstatik',             img:'', color:'#b400ff'},
-  {name:'Steve Aoki',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Big Room House / EDM',          ig:'steveaoki',            img:'', color:'#ff6600'},
-  {name:'Subfiltronik',    city:'Corona',          county:'Riverside County',    genre:'Riddim / Dubstep',              ig:'subfiltronik',         img:'', color:'#00b4ff'},
-  {name:'Sultan + Shepard',city:'Huntington Beach',county:'Orange County',       genre:'Progressive House',             ig:'sultanshepard',        img:'', color:'#b400ff'},
-  {name:'The Glitch Mob',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Glitch Hop',       ig:'theglitchmob',         img:'', color:'#00ff88'},
-  {name:'Tokimonsta',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Future Bass',      ig:'tokimonsta',           img:'', color:'#00b4ff'},
-  {name:'Valentino Khan',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Trap',             ig:'valentinokhan',        img:'', color:'#ff0080'},
-  {name:'Wax Motif',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'waxmotif',             img:'', color:'#00b4ff'},
+  {name:'RAB3L',           city:'Torrance',        county:'Los Angeles County',  genre:'Bass House / UKG',              ig:'dj_rab3l_r3mix',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp',    keepitil:true, type:'DJ', color:'#00b4ff'},
+  {name:'Groove Trooper',  city:'Garden Grove',    county:'Orange County',       genre:'Latin House / Tech House',      ig:'Groove_Trooper',       img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg',     keepitil:true, type:'DJ', color:'#b400ff'},
+  {name:'Lvnki Bonez',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / DnB',                 ig:'__lvnki.bonez__',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png',keepitil:true, type:'DJ', color:'#ff0080'},
+  {name:'SWERVE',          city:'Santa Ana',       county:'Orange County',       genre:'Tech House / Techno',           ig:'you_vs_you_only',      img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg',                                                   keepitil:true, type:'DJ', color:'#ffb400'},
+  {name:'AC Slater',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',          ig:'acslatermusic',        img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Anna Lunoe',      city:'Los Angeles',     county:'Los Angeles County',  genre:'House / Bass House',            ig:'annalunoe',            img:'', type:'DJ', color:'#ff0080'},
+  {name:'Bass Kleph',      city:'Fresno',          county:'Fresno County',       genre:'Tech House / Electro',          ig:'basskleph',            img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Bijou',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'heybijou',             img:'', type:'DJ', color:'#b400ff'},
+  {name:'Chris Lake',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'chrislake',            img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Chrissy',         city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Disco',            ig:'dj_chrissy',           img:'', type:'DJ', color:'#ff0080'},
+  {name:'Chuckie',         city:'Anaheim',         county:'Orange County',       genre:'Electro House / Dutch',         ig:'djchuckie',            img:'', type:'DJ', color:'#ff6600'},
+  {name:'Cid',             city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'cidmusic',             img:'', type:'DJ', color:'#ff0080'},
+  {name:'Claude VonStroke',city:'San Francisco',   county:'San Francisco County',genre:'Tech House',                    ig:'claudevonstroke',      img:'', type:'DJ', color:'#ff6600'},
+  {name:'Crizzly',         city:'San Diego',       county:'San Diego County',    genre:'Trap / Bass Music',             ig:'crizzly',              img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Deorro',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Electro House / Latin',         ig:'deorro',               img:'', type:'DJ', color:'#ff6600'},
+  {name:'Destructo',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House / G-House',          ig:'destructo',            img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Diplo',           city:'Los Angeles',     county:'Los Angeles County',  genre:'Trap / Bass / Electronic',      ig:'diplo',                img:'', type:'DJ', color:'#ff6600'},
+  {name:'Dirtyphonics',    city:'Riverside',       county:'Riverside County',    genre:'Drumstep / Dubstep',            ig:'dirtyphonics',         img:'', type:'DJ', color:'#ff0080'},
+  {name:'DJ Mustard',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Hip-Hop / Open Format',         ig:'djmustard',            img:'', type:'DJ', color:'#ffb400'},
+  {name:'DJ Shadow',       city:'San Francisco',   county:'San Francisco County',genre:'Turntablism / Electronic',      ig:'djshadow',             img:'', type:'DJ', color:'#00b4ff'},
+  {name:'DJ Styles',       city:'San Diego',       county:'San Diego County',    genre:'Open Format / Hip-Hop',         ig:'djstylessd',           img:'', type:'DJ', color:'#ffb400'},
+  {name:'Doc Martin',      city:'San Francisco',   county:'San Francisco County',genre:'Techno / House',                ig:'docmartindj',          img:'', type:'DJ', color:'#b400ff'},
+  {name:'Dr. Fresch',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Open Format',      ig:'drfresch',             img:'', type:'DJ', color:'#b400ff'},
+  {name:'Ferry Corsten',   city:'Irvine',          county:'Orange County',       genre:'Trance / Progressive',          ig:'ferrycorsten',         img:'', type:'DJ', color:'#00b4ff'},
+  {name:'G-Eazy',          city:'Sacramento',      county:'Sacramento County',   genre:'Hip-Hop / Open Format',         ig:'g_eazy',               img:'', type:'DJ', color:'#ffb400'},
+  {name:'Gammer',          city:'Anaheim',         county:'Orange County',       genre:'Hardstyle / Happy Hardcore',    ig:'gammerofficial',       img:'', type:'DJ', color:'#ff0080'},
+  {name:'Gaslamp Killer',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Beat Music / Experimental',    ig:'gaslampkiller',        img:'', type:'DJ', color:'#ff6600'},
+  {name:'Getter',          city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',          ig:'getter',               img:'', type:'DJ', color:'#00ff88'},
+  {name:'Goldroom',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Disco',            ig:'goldroom',             img:'', type:'DJ', color:'#ffb400'},
+  {name:'Honey Dijon',     city:'San Francisco',   county:'San Francisco County',genre:'House / Disco / Techno',        ig:'honeydijon',           img:'', type:'DJ', color:'#ffb400'},
+  {name:'Joeski',          city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',       ig:'joeskimusic',          img:'', type:'DJ', color:'#00ff88'},
+  {name:'Justin Martin',   city:'San Francisco',   county:'San Francisco County',genre:'Tech House / Deep House',       ig:'justinmartin',         img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Kaskade',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Progressive House',             ig:'kaskade',              img:'', type:'DJ', color:'#b400ff'},
+  {name:'King Deco',       city:'Oxnard',          county:'Ventura County',      genre:'Tech House / Deep House',       ig:'kingdeco',             img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Level Up',        city:'Moreno Valley',   county:'Riverside County',    genre:'Bass Music / Open Format',      ig:'djlevelup',            img:'', type:'DJ', color:'#b400ff'},
+  {name:'Louis The Child', city:'Los Angeles',     county:'Los Angeles County',  genre:'Future Bass / Indie Electronic',ig:'louisthechild',        img:'', type:'DJ', color:'#00ff88'},
+  {name:'Mark Farina',     city:'San Francisco',   county:'San Francisco County',genre:'Mushroom Jazz / Deep House',   ig:'markfarinamusic',      img:'', type:'DJ', color:'#b400ff'},
+  {name:'Mayhem',          city:'San Diego',       county:'San Diego County',    genre:'Dubstep / Bass Music',          ig:'mayhemofficial',       img:'', type:'DJ', color:'#ff0080'},
+  {name:'Mija',            city:'Los Angeles',     county:'Los Angeles County',  genre:'Techno / Experimental',         ig:'mijamusic',            img:'', type:'DJ', color:'#00ff88'},
+  {name:'MK',              city:'Los Angeles',     county:'Los Angeles County',  genre:'Deep House / Soulful House',    ig:'markkinchen',          img:'', type:'DJ', color:'#ffb400'},
+  {name:'Neon Steve',      city:'Thousand Oaks',   county:'Ventura County',      genre:'Electro / Bass House',          ig:'neonstevedj',          img:'', type:'DJ', color:'#ff6600'},
+  {name:'NGHTMRE',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Bass Music',          ig:'nghtmre',              img:'', type:'DJ', color:'#ff0080'},
+  {name:'Nosaj Thing',     city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Ambient',          ig:'nosaj_thing',          img:'', type:'DJ', color:'#b400ff'},
+  {name:'Proper Villains', city:'San Diego',       county:'San Diego County',    genre:'Bass House / Tech House',       ig:'propervillains',       img:'', type:'DJ', color:'#00ff88'},
+  {name:'Skrillex',        city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Electronic',          ig:'skrillex',             img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Slander',         city:'Los Angeles',     county:'Los Angeles County',  genre:'Dubstep / Melodic Bass',        ig:'slanderofficial',      img:'', type:'DJ', color:'#b400ff'},
+  {name:'Statik',          city:'San Diego',       county:'San Diego County',    genre:'Tech House / Techno',           ig:'djstatik',             img:'', type:'DJ', color:'#b400ff'},
+  {name:'Steve Aoki',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Big Room House / EDM',          ig:'steveaoki',            img:'', type:'DJ', color:'#ff6600'},
+  {name:'Subfiltronik',    city:'Corona',          county:'Riverside County',    genre:'Riddim / Dubstep',              ig:'subfiltronik',         img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Sultan + Shepard',city:'Huntington Beach',county:'Orange County',       genre:'Progressive House',             ig:'sultanshepard',        img:'', type:'DJ', color:'#b400ff'},
+  {name:'The Glitch Mob',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Glitch Hop',       ig:'theglitchmob',         img:'', type:'DJ', color:'#00ff88'},
+  {name:'Tokimonsta',      city:'Los Angeles',     county:'Los Angeles County',  genre:'Electronic / Future Bass',      ig:'tokimonsta',           img:'', type:'DJ', color:'#00b4ff'},
+  {name:'Valentino Khan',  city:'Los Angeles',     county:'Los Angeles County',  genre:'Bass House / Trap',             ig:'valentinokhan',        img:'', type:'DJ', color:'#ff0080'},
+  {name:'Wax Motif',       city:'Los Angeles',     county:'Los Angeles County',  genre:'Tech House',                    ig:'waxmotif',             img:'', type:'DJ', color:'#00b4ff'},
 ];
 
-let currentSort='az', currentCounty='', currentCity='', currentGenre='', currentSearch='';
+let currentSort='az', currentCounty='', currentCity='', currentGenre='', currentSearch='', currentType='';
 
 function filterAndSort(){
   let list=[...DJS];
@@ -324,7 +324,7 @@ function render(){
   document.getElementById('count-num').textContent=list.length;
 
   if(!list.length){
-    out.innerHTML<`<div class="no-results"><h3>No DJs found</h3><p>Try adjusting your filters</p></div>`;
+    out.innerHTML<`<div class="no-results"><h3>No Artists found</h3><p>Try adjusting your filters</p></div>`;
     return;
   }
 
@@ -356,6 +356,7 @@ function render(){
   }).join('');
 }
 
+function onType(v){currentType=v;render();}
 function populateCities(){
   const cities=[...new Set(DJS.map(d=>d.city))].sort();
   const sel=document.getElementById('city-select');
