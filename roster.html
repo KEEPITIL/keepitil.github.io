@@ -61,6 +61,11 @@ select:focus{border-color:var(--blue);}
 .sort-tabs{display:flex;gap:4px;background:var(--dark2);padding:4px;border-radius:6px;border:1px solid rgba(255,255,255,.08);}
 .sort-tab{padding:8px 18px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;color:var(--grey);}
 .sort-tab.active{background:var(--blue);color:var(--black);}
+.type-tabs-row{padding:0 24px 12px;max-width:1400px;margin:0 auto;}
+.type-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+.type-tab{padding:8px 22px;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;color:var(--grey);background:var(--dark2);border:1px solid rgba(255,255,255,.08);}
+.type-tab.active{background:var(--blue);color:var(--black);border-color:var(--blue);}
+.type-tab:hover:not(.active){color:var(--blue);}
 .results-count{font-size:.8rem;color:var(--grey);padding:0 24px;max-width:1400px;margin:0 auto 24px;}
 .results-count span{color:var(--blue);font-weight:700;}
 
@@ -226,6 +231,15 @@ footer a{color:var(--blue);text-decoration:none;}
       <option>Hip-Hop</option>
     </select>
   </div>
+  <div class="type-tabs-row">
+    <div class="type-tabs">
+      <div class="type-tab active" id="type-all" onclick="onType('')">ALL ARTISTS</div>
+      <div class="type-tab" id="type-dj" onclick="onType('DJ')">DJ</div>
+      <div class="type-tab" id="type-painter" onclick="onType('Painter')">PAINTERS</div>
+      <div class="type-tab" id="type-singer" onclick="onType('Singer')">SINGER</div>
+      <div class="type-tab" id="type-band" onclick="onType('Band')">BAND</div>
+    </div>
+  </div>
 </div>
 <div class="results-count" id="results-count"><span id="count-num">—</span> <span id="type-label-count">Artists</span> found</div>
 
@@ -323,6 +337,10 @@ function render(){
   const list=filterAndSort();
   const out=document.getElementById('roster-output');
   document.getElementById('count-num').textContent=list.length;
+const _lmap={'':'ARTIST','DJ':'DJ','Painter':'PAINTERS','Singer':'SINGER','Band':'BAND'};
+const _tlabel=_lmap[currentType]||currentType.toUpperCase();
+const _h1s=document.getElementById('roster-type-label');if(_h1s)_h1s.textContent=_tlabel;
+const _cl=document.getElementById('type-label-count');if(_cl)_cl.textContent=_tlabel==='ARTIST'?'Artists':_tlabel;
 
   if(!list.length){
     out.innerHTML<`<div class="no-results"><h3>No Artists found</h3><p>Try adjusting your filters</p></div>`;
@@ -357,7 +375,7 @@ function render(){
   }).join('');
 }
 
-function onType(v){currentType=v;render();}
+function onType(v){currentType=v;document.querySelectorAll('.type-tab').forEach(t=>t.classList.remove('active'));const ids={'':'type-all','DJ':'type-dj','Painter':'type-painter','Singer':'type-singer','Band':'type-band'};if(ids[v]!==undefined){const el=document.getElementById(ids[v]);if(el)el.classList.add('active');}render();}
 function populateCities(){
   const cities=[...new Set(DJS.map(d=>d.city))].sort();
   const sel=document.getElementById('city-select');
