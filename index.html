@@ -479,6 +479,7 @@
         <li><a href="#brands" data-section="brands">Brands</a></li>
         <li><a href="#organizers" data-section="organizers">Organizers</a></li>
         <li><a href="#culture" data-section="culture">Culture</a></li>
+        <li><a href="signup.html" style="background:var(--blue);color:#000;padding:5px 14px;border-radius:4px;font-weight:700;font-size:11px;letter-spacing:.12em">JOIN</a></li>
         <a href="#subscribe" class="nav-cta">Subscribe</a>
       </ul>
       <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
@@ -836,7 +837,8 @@
     if (!email) return;
     const btn = e.target.querySelector('button[type=submit]') || e.target.querySelector('button');
     if (btn) btn.disabled = true;
-    const { error } = await supa.from('subscribers').insert({ email, phone: phone||null, source: 'website' });
+    const { error } = await supa.from('subscribers').insert({ email, source: 'website' });
+    if(window._GAS_URL&&window._GAS_URL!=='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'){try{fetch(window._GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'subscriber',email,submitted:new Date().toISOString()})})}catch(e){}}
     if (btn) btn.disabled = false;
     const note = document.querySelector('.subscribe-note');
     if (error) {
