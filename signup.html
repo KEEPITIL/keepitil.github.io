@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Join KEEPITIL â Artist, Brand & Organizer Signup</title>
+  <title>Join KEEPITIL — Artist, Brand & Organizer Signup</title>
   <meta name="description" content="Apply to be featured on KEEPITIL. Sign up as an artist, brand, or organizer in the SOCAL underground scene."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -22,17 +22,19 @@
     img{max-width:100%;display:block}
 
     /* NAV */
-    nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(11,11,11,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.12);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}
-    .nav-logo{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.1em;color:var(--white)}
-    .nav-logo span{color:var(--blue)}
-    .nav-links{display:flex;gap:24px;align-items:center}
-    .nav-links a{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);transition:color .2s}
-    .nav-links a:hover{color:var(--white)}
-    .nav-links .nav-cta{background:var(--blue);color:#000;padding:7px 16px;border-radius:4px;font-weight:700;font-size:.75rem;letter-spacing:.1em}
-    .nav-links .nav-cta:hover{background:#fff;color:#000}
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06);padding:0 24px;}
+    .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .nav-logo img{height:36px;}
+    .logo-text{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;color:var(--white);}
+    .nav-links{display:flex;align-items:center;gap:24px;}
+    .nav-links a{color:var(--grey);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--white);}
+    .nav-cta{background:var(--blue);color:#000!important;padding:8px 18px;border-radius:4px;font-weight:700!important;}
+    .nav-cta:hover{background:#00d4ff!important;color:#000!important;}
 
     /* HERO */
-    .hero{padding:140px 24px 80px;text-align:center;position:relative;overflow:hidden}
+    .hero{padding:80px 24px 60px;text-align:center;position:relative;overflow:hidden}
     .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,180,255,.12) 0%,transparent 70%);pointer-events:none}
     .hero-eyebrow{font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;font-weight:700}
     .hero-title{font-family:var(--font-head);font-size:clamp(3rem,8vw,7rem);letter-spacing:.05em;line-height:1;color:var(--white);margin-bottom:20px}
@@ -117,32 +119,39 @@
 <body>
 
   <nav>
-    <a href="index.html" class="nav-logo">KEEP<span>IT</span>IL</a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="roster.html">Artists</a>
-      <a href="vendors.html">Brands</a>
-      <a href="organizers-directory.html">Organizers</a>
-      <a href="signup.html" class="nav-cta">Join</a>
+    <div class="nav-inner">
+      <a href="https://keepitil.com" target="_blank" class="nav-logo">
+        <img src="logo-neon-nav.png" alt="KEEPITIL"/>
+        <span class="logo-text">KEEP IT IL</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="roster.html">DJs</a>
+        <a href="vendors.html">Vendors</a>
+        <a href="organizers-directory.html">Organizers</a>
+        <a href="culture.html">Culture</a>
+        <a href="index.html#events">Events</a>
+        <a href="signup.html" class="nav-cta active">Apply</a>
+      </div>
     </div>
   </nav>
 
   <section class="hero">
     <p class="hero-eyebrow">Get On The Map</p>
     <h1 class="hero-title">JOIN <span>KEEPITIL</span></h1>
-    <p class="hero-sub">Artists, brands, and event crews â apply to be featured across our platform and community.</p>
+    <p class="hero-sub">Artists, brands, and event crews — apply to be featured across our platform and community.</p>
   </section>
 
   <!-- TYPE SELECTOR -->
   <div class="type-selector">
     <button class="type-btn active" data-type="artist" onclick="switchForm('artist')">
-      <span class="type-icon">ð§</span>Artist
+      <span class="type-icon">🎧</span>Artist
     </button>
     <button class="type-btn" data-type="brand" onclick="switchForm('brand')">
-      <span class="type-icon">ð·ï¸</span>Brand
+      <span class="type-icon">🏷️</span>Brand
     </button>
     <button class="type-btn" data-type="organizer" onclick="switchForm('organizer')">
-      <span class="type-icon">ðª</span>Organizer
+      <span class="type-icon">🎪</span>Organizer
     </button>
   </div>
 
@@ -152,7 +161,7 @@
     <div class="form-panel active" id="panel-artist">
       <div class="form-card">
         <h2>Artist Profile</h2>
-        <p class="form-desc">DJs, singers, bands, painters, photographers â if you create, you belong here. Get featured on the roster and connected to the community.</p>
+        <p class="form-desc">DJs, singers, bands, painters, photographers — if you create, you belong here. Get featured on the roster and connected to the community.</p>
 
         <form id="form-artist" novalidate>
           <div class="field-row">
@@ -171,7 +180,7 @@
             <div class="field-group">
               <label>Artist Type *</label>
               <select name="artist_type" required>
-                <option value="">Select typeâ¦</option>
+                <option value="">Select type…</option>
                 <option>DJ</option>
                 <option>Singer / Vocalist</option>
                 <option>Producer</option>
@@ -187,7 +196,7 @@
             <div class="field-group">
               <label>Primary Genre *</label>
               <select name="genre" required>
-                <option value="">Select genreâ¦</option>
+                <option value="">Select genre…</option>
                 <option>House</option>
                 <option>Techno</option>
                 <option>Drum & Bass</option>
@@ -215,7 +224,7 @@
             <div class="field-group">
               <label>County</label>
               <select name="county">
-                <option value="">Selectâ¦</option>
+                <option value="">Select…</option>
                 <option>Orange County</option>
                 <option>Los Angeles</option>
                 <option>San Diego</option>
@@ -243,24 +252,24 @@
           <div class="field-group">
             <label>Email Address *</label>
             <input type="email" name="email" placeholder="you@email.com" required/>
-            <span class="field-error">Required â enter a valid email</span>
+            <span class="field-error">Required — enter a valid email</span>
           </div>
 
           <div class="field-group">
             <label>Bio (optional)</label>
-            <textarea name="bio" placeholder="Tell us about your sound, your sets, your storyâ¦"></textarea>
+            <textarea name="bio" placeholder="Tell us about your sound, your sets, your story…"></textarea>
           </div>
 
           <hr class="divider"/>
 
           <div id="success-artist" class="success-msg">
-            <div class="check">â</div>
+            <div class="check">✅</div>
             <h3>You're in the system.</h3>
             <p>We received your application and will review it within a few days. Once approved, your profile goes live on the <a href="roster.html">artist roster</a>.</p>
           </div>
 
           <button type="submit" class="submit-btn" id="btn-artist">SUBMIT APPLICATION</button>
-          <p class="form-note">We review every application manually. Expect to hear back within 3â5 days.</p>
+          <p class="form-note">We review every application manually. Expect to hear back within 3–5 days.</p>
         </form>
       </div>
 
@@ -277,7 +286,7 @@
     <div class="form-panel" id="panel-brand">
       <div class="form-card">
         <h2>Brand Profile</h2>
-        <p class="form-desc">Clothing, gear, drinks, lifestyle â if your brand moves with the underground, get featured on the brands page and reach our community directly.</p>
+        <p class="form-desc">Clothing, gear, drinks, lifestyle — if your brand moves with the underground, get featured on the brands page and reach our community directly.</p>
 
         <form id="form-brand" novalidate>
           <div class="field-group">
@@ -290,7 +299,7 @@
             <div class="field-group">
               <label>Category *</label>
               <select name="category" required>
-                <option value="">Selectâ¦</option>
+                <option value="">Select…</option>
                 <option>Clothing / Streetwear</option>
                 <option>Event Gear / Equipment</option>
                 <option>Beverages / Drinks</option>
@@ -344,7 +353,7 @@
           <div class="field-group">
             <label>Partnership Interest</label>
             <select name="partnership">
-              <option value="">Selectâ¦</option>
+              <option value="">Select…</option>
               <option>Directory listing only</option>
               <option>Event sponsorship</option>
               <option>Artist collaboration</option>
@@ -356,7 +365,7 @@
           <hr class="divider"/>
 
           <div id="success-brand" class="success-msg">
-            <div class="check">â</div>
+            <div class="check">✅</div>
             <h3>Application received.</h3>
             <p>We'll review your brand and be in touch within a few days. Once approved, you'll be listed on our <a href="vendors.html">brands page</a>.</p>
           </div>
@@ -368,7 +377,7 @@
 
       <div class="next-steps">
         <h3>WHAT HAPPENS NEXT</h3>
-        <div class="step-item"><div class="step-num">1</div><span>We review your brand fit within 3â5 days</span></div>
+        <div class="step-item"><div class="step-num">1</div><span>We review your brand fit within 3–5 days</span></div>
         <div class="step-item"><div class="step-num">2</div><span>Approved brands go live on the <a href="vendors.html" style="color:var(--blue)">brands directory</a></span></div>
         <div class="step-item"><div class="step-num">3</div><span>Access to artist and event partnership opportunities</span></div>
         <div class="step-item"><div class="step-num">4</div><span>Community exposure to our OC & LA underground audience</span></div>
@@ -404,7 +413,7 @@
             <div class="field-group">
               <label>County / Region</label>
               <select name="county">
-                <option value="">Selectâ¦</option>
+                <option value="">Select…</option>
                 <option>Orange County</option>
                 <option>Los Angeles</option>
                 <option>San Diego</option>
@@ -439,7 +448,7 @@
           <div class="field-group">
             <label>Event Types *</label>
             <select name="event_types" required>
-              <option value="">Select primary event typeâ¦</option>
+              <option value="">Select primary event type…</option>
               <option>Warehouse / Underground</option>
               <option>Club Night</option>
               <option>Rooftop / Outdoor</option>
@@ -454,18 +463,18 @@
 
           <div class="field-group">
             <label>About Your Events</label>
-            <textarea name="bio" placeholder="Tell us about your crew, the events you run, and what makes your nights differentâ¦"></textarea>
+            <textarea name="bio" placeholder="Tell us about your crew, the events you run, and what makes your nights different…"></textarea>
           </div>
 
           <div class="field-group">
             <label>List an Upcoming Event (optional)</label>
-            <input type="text" name="next_event" placeholder="Event name â Date â Venue"/>
+            <input type="text" name="next_event" placeholder="Event name — Date — Venue"/>
           </div>
 
           <hr class="divider"/>
 
           <div id="success-organizer" class="success-msg">
-            <div class="check">â</div>
+            <div class="check">✅</div>
             <h3>Application received.</h3>
             <p>We'll review your crew and get back to you within a few days. Once approved, you'll be listed in the <a href="organizers-directory.html">organizer directory</a>.</p>
           </div>
@@ -477,7 +486,7 @@
 
       <div class="next-steps">
         <h3>WHAT HAPPENS NEXT</h3>
-        <div class="step-item"><div class="step-num">1</div><span>We review your crew profile within 3â5 days</span></div>
+        <div class="step-item"><div class="step-num">1</div><span>We review your crew profile within 3–5 days</span></div>
         <div class="step-item"><div class="step-num">2</div><span>Approved organizers go live on the <a href="organizers-directory.html" style="color:var(--blue)">organizer directory</a></span></div>
         <div class="step-item"><div class="step-num">3</div><span>Your events get promoted to the KEEPITIL community</span></div>
         <div class="step-item"><div class="step-num">4</div><span>Access to our artist roster for booking and collaboration</span></div>
@@ -493,14 +502,14 @@
     <a href="organizers-directory.html">Organizers</a>
     <a href="culture.html">Culture</a>
     <br/><br/>
-    Â© 2025 KEEPITIL. Underground SOCAL.
+    © 2025 KEEPITIL. Underground SOCAL.
   </footer>
 
   <script>
-    // ââ Google Apps Script endpoint ââââââââââââââââââââââââââââââââââââââââââ
+    // ── Google Apps Script endpoint ──────────────────────────────────────────
     // After deploying the GAS script (see gas-keepitil.js), paste the URL here:
     const GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-    // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ─────────────────────────────────────────────────────────────────────────
 
     function switchForm(type) {
       document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
@@ -543,7 +552,7 @@
         if (!validateForm(form)) return;
 
         btn.disabled = true;
-        btn.textContent = 'SENDINGâ¦';
+        btn.textContent = 'SENDING…';
 
         const payload = collectData(form, type);
 
