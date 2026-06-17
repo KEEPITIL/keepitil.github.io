@@ -10,383 +10,248 @@
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://keepitil.com"/>
 
-  <!-- Google Analytics — replace G-XXXXXXXXXX -->
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX">  document.addEventListener('DOMContentLoaded', () => { loadStats(); });
-</script
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
-
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --black:#0b0b0b; --dark:#111; --dark2:#181818; --dark3:#222;
-      --blue:#00b4ff; --blue-dim:#0088cc; --blue-glow:rgba(0,180,255,.35);
+      --black:#0f0f1a; --dark:#111; --dark2:#181818; --dark3:#222;
+      --orange:#ff6600; --blue:#00b4ff; --blue-dim:#0088cc; --blue-glow:rgba(0,180,255,.35);
       --blue-glow2:rgba(0,180,255,.15); --white:#f0f0f0; --grey:#888;
-      --font-head:'Bebas Neue',sans-serif; --font-body:'Space Grotesk',sans-serif;
+      --font-head:'Bebas Neue',sans-serif; --font-body:'Inter',sans-serif;
     }
     html{scroll-behavior:smooth;overflow-x:hidden;}
     body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
     a{color:inherit;text-decoration:none;}
     img{max-width:100%;display:block;}
     .container{max-width:1180px;margin:0 auto;padding:0 24px;}
-    .neon-text{color:var(--blue);text-shadow:0 0 8px var(--blue),0 0 20px var(--blue-glow);}
+    .neon-text{color:var(--orange);text-shadow:0 0 8px var(--orange),0 0 20px rgba(255,102,0,.4);}
 
-    .reveal{opacity:1;transform:translateY(0);transition:opacity .6s ease,transform .6s ease;}
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease;}
     .reveal.visible{opacity:1;transform:none;}
-    .reveal-left{opacity:1;transform:translateX(0);transition:opacity .6s ease,transform .6s ease;}
+    .reveal-left{opacity:0;transform:translateX(-32px);transition:opacity .6s ease,transform .6s ease;}
     .reveal-left.visible{opacity:1;transform:none;}
-    .reveal-right{opacity:1;transform:translateX(0);transition:opacity .6s ease,transform .6s ease;}
+    .reveal-right{opacity:0;transform:translateX(32px);transition:opacity .6s ease,transform .6s ease;}
     .reveal-right.visible{opacity:1;transform:none;}
 
     .btn{display:inline-block;padding:12px 28px;border-radius:2px;font-family:var(--font-body);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s ease;border:none;}
-    .btn-primary{background:var(--blue);color:var(--black);box-shadow:0 0 18px var(--blue-glow);}
-    .btn-primary:hover{background:#33c3ff;box-shadow:0 0 32px var(--blue);transform:translateY(-2px);}
-    .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--blue);box-shadow:0 0 10px var(--blue-glow);}
-    .btn-outline:hover{background:var(--blue);color:var(--black);box-shadow:0 0 24px var(--blue);transform:translateY(-2px);}
+    .btn-primary{background:var(--orange);color:#fff;box-shadow:0 0 18px rgba(255,102,0,.4);}
+    .btn-primary:hover{background:#ff8533;box-shadow:0 0 32px var(--orange);transform:translateY(-2px);}
+    .btn-outline{background:transparent;color:var(--orange);border:1px solid var(--orange);box-shadow:0 0 10px rgba(255,102,0,.2);}
+    .btn-outline:hover{background:var(--orange);color:#fff;box-shadow:0 0 24px var(--orange);transform:translateY(-2px);}
     .btn-sm{padding:8px 16px;font-size:11px;}
 
-    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(11,11,11,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,255,.12);height:72px;display:flex;align-items:center;transition:box-shadow .3s;}
+    /* ── NAV ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(15,15,26,.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,102,0,.12);height:64px;display:flex;align-items:center;transition:box-shadow .3s;}
     nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1180px;margin:0 auto;padding:0 24px;}
     .nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
-    .nav-logo-img{width:44px;height:auto;filter:drop-shadow(0 0 8px #00b4ff) drop-shadow(0 0 20px rgba(0,180,255,.4));object-fit:contain;}
-    .nav-logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.15em;color:var(--blue);text-shadow:0 0 10px var(--blue),0 0 28px var(--blue-glow);}
-    .nav-links{display:flex;gap:42px;list-style:none;align-items:center;}
+    .nav-logo-img{width:40px;height:auto;filter:drop-shadow(0 0 8px #ff6600);object-fit:contain;}
+    .nav-logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.15em;color:var(--orange);text-shadow:0 0 10px rgba(255,102,0,.5);}
+    .nav-links{display:flex;gap:32px;list-style:none;align-items:center;}
     .nav-links a{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);transition:color .2s;position:relative;padding-bottom:2px;}
-    .nav-links a::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--blue);box-shadow:0 0 6px var(--blue);transform:scaleX(0);transition:transform .2s;}
-    .nav-links a:hover,.nav-links a.active{color:var(--blue);}
+    .nav-links a::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--orange);transform:scaleX(0);transition:transform .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--white);}
     .nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
-    .nav-cta{background:var(--blue) !important;color:var(--black) !important;padding:8px 18px !important;border-radius:2px;font-weight:700 !important;box-shadow:0 0 14px var(--blue-glow);}
+    .nav-cta{background:var(--orange) !important;color:#fff !important;padding:7px 16px !important;border-radius:4px;font-weight:700 !important;}
     .nav-cta::after{display:none !important;}
-    .nav-cta:hover{background:#33c3ff !important;box-shadow:0 0 26px var(--blue) !important;}
+    .nav-cta:hover{opacity:.88 !important;color:#fff !important;}
     .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
-    .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;box-shadow:0 0 6px var(--blue);transition:all .3s;}
+    .nav-hamburger span{display:block;width:24px;height:2px;background:var(--orange);border-radius:2px;transition:all .3s;}
     .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
     .nav-hamburger.open span:nth-child(2){opacity:0;}
     .nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
-
-    .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;bottom:0;background:rgba(11,11,11,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(15,15,26,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
     .mobile-menu.open{display:flex;}
-    .mobile-menu a{font-family:var(--font-head);font-size:44px;letter-spacing:.08em;color:var(--white);transition:color .2s,text-shadow .2s;}
-    .mobile-menu a:hover{color:var(--blue);text-shadow:0 0 20px var(--blue);}
+    .mobile-menu a{font-family:var(--font-head);font-size:40px;letter-spacing:.08em;color:var(--white);transition:color .2s;}
+    .mobile-menu a:hover{color:var(--orange);}
+    .mobile-menu .nav-cta{background:var(--orange) !important;color:#fff !important;padding:12px 32px !important;border-radius:4px;font-size:28px !important;}
 
-    .hero {min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:68px;  background-image: url('logo-bg.jpg');
-  background-size: cover;
-  background-position: center;
-}
-    #hero-canvas{position:absolute;inset:0;z-index:0;}
-    .hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 70% 50%,rgba(0,180,255,.06) 0%,transparent 70%),linear-gradient(180deg,rgba(11,11,11,0) 60%,var(--black) 100%);z-index:1;}
-    .hero-content{position:relative;z-index:2;max-width:800px;}
-    .hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.35);padding:5px 14px;border-radius:2px;margin-bottom:28px;box-shadow:0 0 12px var(--blue-glow);}
-    .hero h1{font-family:var(--font-head);font-size:clamp(60px,10vw,130px);line-height:.9;letter-spacing:.02em;color:var(--white);margin-bottom:24px;}
-    .hero h1 .accent{color:var(--blue);text-shadow:0 0 24px var(--blue),0 0 60px var(--blue-glow);}
-    .hero h1 .typewriter{border-right:3px solid var(--blue);padding-right:4px;animation:blink .7s step-end infinite;}
-    @keyframes blink{0%,100%{border-color:var(--blue);}50%{border-color:transparent;}}
-    .hero-sub{font-size:18px;color:var(--grey);max-width:520px;margin-bottom:40px;line-height:1.7;}
-    .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:56px;}
-    .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
-    .stat{text-align:left;}
-    .stat-num{font-family:var(--font-head);font-size:42px;letter-spacing:.04em;color:var(--blue);text-shadow:0 0 12px var(--blue-glow);line-height:1;}
-    .stat-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
-    .live-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;}
-    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pulse 1.8s ease-in-out infinite;}
-    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
-
-    .hero-logo-wrap{position:absolute;right:-40px;top:50%;transform:translateY(-50%);z-index:2;opacity:.07;pointer-events:none;}
-    .hero-logo-wrap img{width:min(520px,55vw);filter:drop-shadow(0 0 40px #00b4ff);}
-
-    .promo{background:var(--blue);padding:14px 0;cursor:pointer;transition:background .2s;}
-    .promo:hover{background:#33c3ff;}
+    /* ── PROMO / JUNETEENTH BARS ── */
+    .promo{background:var(--orange);padding:12px 0;cursor:pointer;transition:background .2s;}
+    .promo:hover{background:#ff8533;}
     .promo-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;}
-    .promo p{font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--black);text-transform:uppercase;}
+    .promo p{font-size:13px;font-weight:600;letter-spacing:.06em;color:#fff;text-transform:uppercase;}
     .promo strong{font-weight:800;}
-    .promo a{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--black);text-decoration:underline;white-space:nowrap;}
+    .promo a{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;text-decoration:underline;white-space:nowrap;}
 
-    section{padding:24px 0;}
-    .section-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
-    .section-title{font-family:var(--font-head);font-size:clamp(2rem,3.5vw,2.8rem);letter-spacing:.05em;text-align:center;color:var(--white);margin-bottom:20px;}
-
-    .filter-tabs{display:flex;gap:4px;margin-bottom:36px;flex-wrap:wrap;}
-    .filter-tab{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:8px 16px;border:1px solid rgba(0,180,255,.2);color:var(--grey);cursor:pointer;border-radius:2px;transition:all .2s;background:transparent;}
-    .filter-tab:hover{border-color:rgba(0,180,255,.5);color:var(--blue);}
-    .filter-tab.active{background:var(--blue);color:var(--black);border-color:var(--blue);box-shadow:0 0 14px var(--blue-glow);}
-
-    .featured{background:var(--dark);}
-    .featured-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
-    .featured-main{position:relative;overflow:hidden;background:var(--dark2);min-height:520px;display:flex;flex-direction:column;justify-content:flex-end;padding:40px;cursor:pointer;transition:all .3s;}
-    .featured-main:hover{transform:scale(1.005);}
-    .featured-main:hover .fm-overlay{opacity:1;}
-    .fm-bg{position:absolute;inset:0;background:linear-gradient(135deg,#0d1520 0%,#090909 100%);}
-    .fm-overlay{position:absolute;inset:0;border:2px solid rgba(0,180,255,.3);opacity:0;transition:opacity .3s;pointer-events:none;}
-    .fm-waveform{position:absolute;top:0;left:0;right:0;height:100%;overflow:hidden;opacity:.06;}
-    .fm-waveform svg{width:100%;height:100%;}
-    .fm-content{position:relative;z-index:2;}
-    .article-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
-    .featured-main h2{font-family:var(--font-head);font-size:42px;letter-spacing:.03em;color:var(--white);line-height:1.05;margin-bottom:14px;}
-    .featured-main p{font-size:14px;color:var(--grey);margin-bottom:20px;}
-    .article-meta{font-size:12px;color:var(--grey);display:flex;gap:12px;align-items:center;}
-    .article-meta span{opacity:.5;}
-    .featured-side{display:flex;flex-direction:column;gap:2px;}
-    .side-article{background:var(--dark2);padding:28px 32px;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;justify-content:space-between;flex:1;border-left:2px solid transparent;}
-    .side-article:hover{background:#1c1c1c;border-left-color:var(--blue);}
-    .side-article h3{font-family:var(--font-head);font-size:22px;letter-spacing:.03em;color:var(--white);margin:8px 0 10px;line-height:1.1;}
-    .side-article p{font-size:13px;color:var(--grey);line-height:1.6;flex-grow:1;}
-    .read-more{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-top:14px;display:inline-flex;align-items:center;gap:6px;transition:gap .2s;}
-    .read-more:hover{gap:12px;}
-
-    .events{background:var(--black);}
-    .events-list{display:flex;flex-direction:column;gap:2px;}
-    .event-item{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:28px;padding:24px 28px;background:var(--dark2);border-left:3px solid transparent;transition:all .25s;cursor:pointer;}
-    .event-item:hover{background:#181818;border-left-color:var(--blue);transform:translateX(4px);}
-    .event-item.hidden{display:none;}
-    .event-date .day{font-family:var(--font-head);font-size:42px;color:var(--blue);line-height:1;text-shadow:0 0 14px var(--blue-glow);}
-    .event-date .month{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);}
-    .event-info h4{font-family:var(--font-head);font-size:22px;letter-spacing:.04em;color:var(--white);margin-bottom:6px;}
-    .event-info .meta{font-size:13px;color:var(--grey);display:flex;gap:20px;flex-wrap:wrap;}
-    .event-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
-    .tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(0,180,255,.3);color:var(--blue);border-radius:2px;}
-    .tag-filled{background:var(--blue);color:var(--black);border-color:var(--blue);box-shadow:0 0 8px var(--blue-glow);}
-
-    /* ── Explore Events ── */
-    .explore{background:var(--dark);}
-    .explore-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:40px;gap:24px;flex-wrap:wrap;}
-    .explore-actions{display:flex;gap:10px;flex-wrap:wrap;}
-    .explore-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-    .explore-card{background:var(--dark2);border:1px solid rgba(0,180,255,.08);border-radius:3px;overflow:hidden;transition:all .3s;cursor:pointer;display:flex;flex-direction:column;}
-    .explore-card:hover{border-color:rgba(0,180,255,.4);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,180,255,.1);}
-    .explore-card-top{padding:20px 20px 14px;flex:1;}
-    .explore-card-county{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
-    .explore-card-date{font-family:var(--font-head);font-size:13px;letter-spacing:.08em;color:var(--grey);margin-bottom:6px;}
-    .explore-card h3{font-family:var(--font-head);font-size:20px;letter-spacing:.04em;color:var(--white);line-height:1.1;margin-bottom:8px;}
-    .explore-card-venue{font-size:13px;color:var(--grey);margin-bottom:12px;}
-    .explore-card-tags{display:flex;gap:4px;flex-wrap:wrap;}
-    .explore-card-bottom{padding:14px 20px;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:8px;}
-    .ticket-btn{flex:1;padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:2px;text-align:center;transition:all .2s;cursor:pointer;}
-    .ticket-btn-eb{background:rgba(255,101,20,.15);color:#ff6514;border:1px solid rgba(255,101,20,.3);}
-    .ticket-btn-eb:hover{background:rgba(255,101,20,.25);border-color:#ff6514;}
-    .ticket-btn-posh{background:rgba(0,180,255,.1);color:var(--blue);border:1px solid rgba(0,180,255,.25);}
-    .ticket-btn-posh:hover{background:rgba(0,180,255,.2);border-color:var(--blue);}
-    .explore-empty{display:none;grid-column:1/-1;text-align:center;padding:64px 24px;color:var(--grey);}
-    .explore-ctas{display:flex;gap:16px;justify-content:center;margin-top:48px;flex-wrap:wrap;}
-    .explore-cta-card{background:var(--dark2);border:1px solid rgba(0,180,255,.15);border-radius:3px;padding:28px 36px;text-align:center;flex:1;max-width:320px;transition:all .3s;}
-    .explore-cta-card:hover{border-color:rgba(0,180,255,.4);transform:translateY(-3px);}
-    .explore-cta-card .platform-icon{font-size:32px;margin-bottom:12px;}
-    .explore-cta-card h4{font-family:var(--font-head);font-size:20px;letter-spacing:.06em;color:var(--white);margin-bottom:8px;}
-    .explore-cta-card p{font-size:13px;color:var(--grey);margin-bottom:20px;}
-
-    .artists{background:var(--black);}
-    .artists-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
-    .artist-card{background:var(--dark2);padding:36px 24px;text-align:center;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
-    .artist-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 100%,rgba(0,180,255,.08) 0%,transparent 70%);opacity:0;transition:opacity .3s;}
-    .artist-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--blue);box-shadow:0 0 10px var(--blue);transform:scaleX(0);transition:transform .3s;}
-    .artist-card:hover{background:#1c1c1c;transform:translateY(-4px);}
-    .artist-card:hover::before,.artist-card:hover::after{opacity:1;transform:scaleX(1);}
-    .artist-avatar{width:80px;height:80px;border-radius:50%;background:var(--dark3);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:26px;color:var(--blue);border:2px solid rgba(0,180,255,.3);box-shadow:0 0 18px var(--blue-glow);transition:all .3s;}
-    .artist-card:hover .artist-avatar{border-color:var(--blue);box-shadow:0 0 28px var(--blue);}
-    .artist-card h4{font-family:var(--font-head);font-size:18px;letter-spacing:.1em;color:var(--white);margin-bottom:6px;}
-    .artist-card p{font-size:12px;color:var(--grey);margin-bottom:14px;}
-
-    .blog{background:var(--dark);}
-    .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
-    .blog-card{background:var(--dark2);padding:32px;cursor:pointer;transition:all .25px;display:flex;flex-direction:column;border-bottom:2px solid transparent;}
-    .blog-card:hover{background:#181818;border-bottom-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.5);}
-    .blog-card.hidden{display:none;}
-    .blog-card h3{font-family:var(--font-head);font-size:22px;letter-spacing:.03em;line-height:1.1;color:var(--white);margin:10px 0 12px;}
-    .blog-card p{font-size:13px;color:var(--grey);line-height:1.7;flex-grow:1;margin-bottom:20px;}
-    .blog-card .article-meta{margin-top:auto;}
-
-    .subscribe{background:var(--black);position:relative;overflow:hidden;}
-    .subscribe-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 50%,rgba(0,180,255,.07) 0%,transparent 70%);}
-    .subscribe-inner{position:relative;z-index:2;text-align:center;max-width:480px;margin:0 auto;}
-    .subscribe h2{font-family:var(--font-head);font-size:clamp(40px,6vw,70px);letter-spacing:.04em;color:var(--white);margin-bottom:16px;}
-    .subscribe p{font-size:16px;color:var(--grey);margin-bottom:40px;}
-    .subscribe-form{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto;}
-    .subscribe-form input{padding:14px 20px;background:var(--dark3);border:1px solid rgba(0,180,255,.2);color:var(--white);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;border-radius:4px;width:100%;}
-    .subscribe-form input:focus{border-color:rgba(0,180,255,.6);box-shadow:0 0 0 3px var(--blue-glow2);}
-    .subscribe-form input::placeholder{color:#555;}
-    .subscribe-form button{padding:14px 28px;background:var(--blue);color:var(--black);border:none;font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;box-shadow:0 0 20px var(--blue-glow);transition:all .2s;width:100%;}
-    .subscribe-form button:hover{background:#33c3ff;box-shadow:0 0 32px var(--blue);}
-    .subscribe-note{font-size:12px;color:#444;margin-top:14px;}
-
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px);}
-    .modal-backdrop.open{display:flex;}
-    .modal{background:var(--dark2);max-width:680px;width:100%;max-height:85vh;overflow-y:auto;border:1px solid rgba(0,180,255,.2);box-shadow:0 0 60px rgba(0,180,255,.1);position:relative;border-radius:2px;}
-    .modal-close{position:sticky;top:0;float:right;z-index:10;background:var(--dark2);border:none;color:var(--grey);font-size:24px;cursor:pointer;padding:20px 24px;line-height:1;transition:color .2s;}
-    .modal-close:hover{color:var(--blue);}
-    .modal-body{padding:40px;padding-top:0;}
-    .modal-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
-    .modal-title{font-family:var(--font-head);font-size:clamp(28px,5vw,44px);letter-spacing:.03em;color:var(--white);margin-bottom:20px;line-height:1.1;}
-    .modal-meta{font-size:12px;color:var(--grey);margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.06);}
-    .modal-text{font-size:15px;color:#aaa;line-height:1.8;}
-    .modal-text p{margin-bottom:16px;}
-
-    footer{background:var(--dark);border-top:1px solid rgba(0,180,255,.08);padding:32px 0 24px;}
-    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
-    .footer-brand .logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
-    .footer-brand .logo-img{width:46px;height:auto;filter:drop-shadow(0 0 10px #00b4ff) drop-shadow(0 0 24px rgba(0,180,255,.4));object-fit:contain;}
-    .footer-brand .logo-text{font-family:var(--font-head);font-size:26px;letter-spacing:.12em;color:var(--blue);text-shadow:0 0 10px var(--blue);}
-    .footer-brand p{font-size:14px;color:var(--grey);line-height:1.7;max-width:280px;}
-    .footer-social{display:flex;gap:10px;margin-top:24px;}
-    .social-link{width:38px;height:38px;border:1px solid rgba(0,180,255,.2);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:12px;font-weight:700;letter-spacing:.05em;transition:all .2s;}
-    .social-link:hover{border-color:var(--blue);color:var(--blue);box-shadow:0 0 12px var(--blue-glow);transform:translateY(-2px);}
-    .footer-col h5{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--white);margin-bottom:20px;}
-    .footer-col ul{list-style:none;}
-    .footer-col ul li{margin-bottom:12px;}
-    .footer-col ul a{font-size:14px;color:var(--grey);transition:color .2s;}
-    .footer-col ul a:hover{color:var(--blue);}
-    .footer-bottom{padding-top:28px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;gap:24px;}
-    .footer-bottom p{font-size:12px;color:#444;}
-    .footer-bottom a{color:var(--blue);}
-
-    .scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;background:var(--blue);color:var(--black);border:none;border-radius:2px;cursor:pointer;font-size:18px;z-index:500;opacity:0;transform:translateY(20px);transition:all .3s;box-shadow:0 0 20px var(--blue-glow);display:flex;align-items:center;justify-content:center;}
-    .scroll-top.visible{opacity:1;transform:none;}
-    .scroll-top:hover{background:#33c3ff;box-shadow:0 0 30px var(--blue);transform:translateY(-2px);}
-
-    @media(max-width:1024px){.artists-grid{grid-template-columns:repeat(2,1fr);}.blog-grid{grid-template-columns:repeat(2,1fr);}.footer-grid{grid-template-columns:1fr 1fr;gap:40px;}.explore-grid{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:768px){
-      .nav-links{display:none;}.nav-hamburger{display:flex;}
-      .featured-grid{grid-template-columns:1fr;}
-      .event-item{grid-template-columns:70px 1fr;}.event-tags{display:none;}
-      .blog-grid{grid-template-columns:1fr;}
-      .explore-grid{grid-template-columns:1fr;}
-      .hero-logo-wrap{display:none;}
-      
-      .footer-grid{grid-template-columns:1fr;gap:32px;}
-      .footer-bottom{flex-direction:column;text-align:center;}
-      .promo-inner{flex-direction:column;text-align:center;}
-      .hero-stats{gap:24px;}
-      .explore-header{flex-direction:column;align-items:flex-start;}
-    }
-    @media(max-width:480px){.artists-grid{grid-template-columns:1fr 1fr;}.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
-    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
-  
-/* === DJ SPOTLIGHT CIRCLES === */
-.dj-spotlight{background:linear-gradient(180deg,#0d0d0d,#111);padding:32px 0;text-align:center;}
-.dj-spotlight .spot-badge{display:inline-block;background:linear-gradient(135deg,#00b4ff,#b400ff);color:#000;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
-.dj-spotlight h2.spot-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,3.5vw,2.8rem);letter-spacing:.05em;color:#f0f0f0;margin:0 0 8px;}
-.dj-spotlight .spot-sub{color:#888;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;margin:0 0 48px;}
-.dj-circle-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:28px 16px;max-width:1100px;margin:0 auto 20px;}
-.dj-ci{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
-.dj-ci-wrap{position:relative;width:130px;height:130px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
-.dj-ci-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:#fff;z-index:0;}
-.dj-ci-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;}
-.dj-ci:hover .dj-ci-wrap{transform:translateY(-8px) scale(1.06);}
-.dj-ci.kil .dj-ci-wrap{border-color:#00b4ff;border-width:3px;}
-.dj-ci.kil:hover .dj-ci-wrap{box-shadow:0 0 32px rgba(0,180,255,.65);}
-.dj-ci:not(.kil):hover .dj-ci-wrap{box-shadow:0 0 28px rgba(180,0,255,.5);}
-.dj-ci-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;color:#f0f0f0;text-align:center;line-height:1.2;}
-.dj-ci-tag{font-size:.68rem;letter-spacing:.06em;color:#888;}
-.dj-ci.kil .dj-ci-tag{color:#00b4ff;}
-.dj-more-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#00b4ff,#b400ff);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;padding:14px 40px;border-radius:50px;text-decoration:none;font-weight:700;transition:transform .25s,box-shadow .25s;}
-.dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
-@media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
-@media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:95px;height:95px;}}
-@media(max-width:380px){.dj-circle-grid{grid-template-columns:repeat(2,1fr);}}
-
-/* === FEATURED FRESH DROP SPOTLIGHT === */
-.fresh-spotlight{background:linear-gradient(180deg,#0d0d0d,#131313);padding:32px 0;}
-.fresh-spotlight .spot-hdr{text-align:center;margin-bottom:16px;}
-.fresh-spotlight .spot-badge2{display:inline-block;background:linear-gradient(135deg,#00b4ff,#b400ff);color:#000;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
-.spot-h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,3.5vw,2.8rem);letter-spacing:.05em;color:#f0f0f0;margin:0 0 8px;}
-.spot-subtext{color:#888;font-size:.9rem;letter-spacing:.06em;margin:0;}
-.spot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1100px;margin:0 auto;}
-.spot-card{background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;transition:transform .3s,box-shadow .3s;text-decoration:none;color:inherit;display:block;}
-.spot-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,180,255,.22);}
-.spot-img-wrap{position:relative;width:100%;aspect-ratio:3/2;overflow:hidden;}
-.spot-img-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:#fff;z-index:0;}
-.spot-img-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
-.spot-card:hover .spot-img-wrap img{transform:scale(1.06);}
-.spot-body{padding:18px 16px 20px;}
-.spot-kil-tag2{display:inline-block;background:rgba(0,180,255,.12);color:#00b4ff;font-size:.65rem;letter-spacing:.1em;padding:3px 9px;border-radius:4px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;}
-.spot-name2{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.06em;color:#f0f0f0;margin:0 0 3px;}
-.spot-genre2{font-size:.7rem;color:#888;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px;}
-.spot-bio2{font-size:.82rem;color:#aaa;line-height:1.6;margin:0 0 16px;}
-.spot-links2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.spot-btn-profile{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#000;background:linear-gradient(135deg,#00b4ff,#b400ff);padding:8px 14px;border-radius:6px;text-decoration:none;transition:opacity .2s;}
-.spot-btn-profile:hover{opacity:.85;}
-.spot-btn-ig{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:6px;text-decoration:none;transition:color .2s,border-color .2s;font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;}
-.spot-btn-ig:hover{color:#f0f0f0;border-color:rgba(255,255,255,.4);}
-@media(max-width:900px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.spot-grid{grid-template-columns:1fr;}}
-
-    /* ─ Juneteenth 2026 Banner ─ */
     .june-bar{background:linear-gradient(90deg,#0d3b0d,#6b0000,#0d3b0d);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);}
     .june-bar-inner{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;}
     .june-badge{font-size:9px;font-weight:800;letter-spacing:.18em;color:#90ee90;background:rgba(0,0,0,.3);padding:3px 10px;border-radius:2px;text-transform:uppercase;border:1px solid rgba(144,238,144,.25);}
     .june-bar p{font-size:12px;font-weight:600;color:#f0f0f0;letter-spacing:.03em;margin:0;}
     .june-bar a{font-size:10px;font-weight:700;letter-spacing:.1em;color:#90ee90;text-decoration:underline;text-transform:uppercase;white-space:nowrap;transition:color .2s;}
     .june-bar a:hover{color:#fff;}
-    /* ─ Summer Section Backgrounds ─ */
-    .featured{background:linear-gradient(180deg,#0a0e09 0%,#111 60%,#0e0d0d 100%) !important;position:relative;overflow:hidden;}
-    .featured::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 10% 90%,rgba(255,100,0,.04) 0%,transparent 60%),radial-gradient(ellipse 50% 45% at 90% 10%,rgba(0,180,255,.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
-    .featured-grid{position:relative;z-index:1;}
-    .events{position:relative;}
-    .events::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#145214,#444,#8B0000,#444,#145214);}
-    .explore{background:linear-gradient(180deg,#0c0c13 0%,#0f0f16 100%) !important;}
-    .blog{background:linear-gradient(180deg,#100e0b 0%,#111 100%) !important;position:relative;overflow:hidden;}
-    .blog::after{content:'';position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(0deg,rgba(255,90,0,.03) 0%,transparent 100%);pointer-events:none;z-index:0;}
-    .blog-grid{position:relative;z-index:1;}
-    /* ─ For Organizers CTA ─ */
-    .org-cta{background:linear-gradient(135deg,#0d0d1a 0%,#111 50%,#0a120a 100%);border-top:1px solid rgba(0,180,255,.08);border-bottom:1px solid rgba(0,180,255,.08);padding:32px 0;}
+
+    /* ── HERO ── */
+    section{padding:40px 0;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+    .section-title{font-family:var(--font-head);font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin-bottom:24px;}
+
+    .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:64px;background-image:url('logo-bg.jpg');background-size:cover;background-position:center;}
+    #hero-canvas{position:absolute;inset:0;z-index:0;}
+    .hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 70% 50%,rgba(255,102,0,.04) 0%,transparent 70%),linear-gradient(180deg,rgba(15,15,26,0) 60%,var(--black) 100%);z-index:1;}
+    .hero-logo-wrap{position:absolute;right:-40px;top:50%;transform:translateY(-50%);z-index:2;opacity:.07;pointer-events:none;}
+    .hero-logo-wrap img{width:min(520px,55vw);filter:drop-shadow(0 0 40px #ff6600);}
+    .hero-content{position:relative;z-index:2;max-width:800px;}
+    .hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);border:1px solid rgba(255,102,0,.35);padding:5px 14px;border-radius:2px;margin-bottom:28px;}
+    .hero h1{font-family:var(--font-head);font-size:clamp(60px,10vw,130px);line-height:.9;letter-spacing:.02em;color:var(--white);margin-bottom:24px;}
+    .hero h1 .accent{color:var(--orange);text-shadow:0 0 24px var(--orange),0 0 60px rgba(255,102,0,.4);}
+    .hero h1 .typewriter{border-right:3px solid var(--orange);padding-right:4px;animation:blink .7s step-end infinite;}
+    @keyframes blink{0%,100%{border-color:var(--orange);}50%{border-color:transparent;}}
+    .hero-sub{font-size:18px;color:var(--grey);max-width:520px;margin-bottom:40px;line-height:1.7;}
+    .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px;}
+    .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
+    .stat{text-align:left;}
+    .stat-num{font-family:var(--font-head);font-size:42px;letter-spacing:.04em;color:var(--orange);text-shadow:0 0 12px rgba(255,102,0,.4);line-height:1;}
+    .stat-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
+    .live-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:20px;}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 8px var(--orange);animation:pulse 1.8s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+
+    /* ── FEATURED SPOTLIGHT ── */
+    .fresh-spotlight{background:linear-gradient(180deg,#0d0d0d,#131313);padding:40px 0;}
+    .fresh-spotlight .spot-hdr{text-align:center;margin-bottom:32px;}
+    .fresh-spotlight .spot-badge2{display:inline-block;background:linear-gradient(135deg,var(--orange),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
+    .spot-h2{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 8px;}
+    .spot-subtext{color:#888;font-size:.9rem;letter-spacing:.06em;margin:0;}
+    .spot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;max-width:1100px;margin:0 auto;}
+    .spot-card{background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;transition:transform .3s,box-shadow .3s;}
+    .spot-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(255,102,0,.22);}
+    .spot-img-wrap{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;}
+    .spot-img-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:#fff;z-index:0;}
+    .spot-img-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+    .spot-card:hover .spot-img-wrap img{transform:scale(1.06);}
+    .spot-body{padding:18px 16px 20px;}
+    .spot-kil-tag2{display:inline-block;background:rgba(255,102,0,.12);color:var(--orange);font-size:.65rem;letter-spacing:.1em;padding:3px 9px;border-radius:4px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;}
+    .spot-name2{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.06em;color:#f0f0f0;margin:0 0 3px;}
+    .spot-genre2{font-size:.7rem;color:#888;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px;}
+    .spot-bio2{font-size:.82rem;color:#aaa;line-height:1.6;margin:0 0 16px;}
+    .spot-links2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .spot-btn-profile{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--orange);padding:8px 14px;border-radius:6px;text-decoration:none;transition:opacity .2s;display:inline-block;}
+    .spot-btn-profile:hover{opacity:.85;}
+    .spot-btn-ig{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:6px;text-decoration:none;transition:color .2s,border-color .2s;font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;}
+    .spot-btn-ig:hover{color:#f0f0f0;border-color:rgba(255,255,255,.4);}
+    .spot-sc{margin:0 0 14px;border-radius:8px;overflow:hidden;background:#111;}
+    .spot-sc iframe{width:100%;height:80px;border:0;display:block;}
+    @media(max-width:900px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.spot-grid{grid-template-columns:1fr;}}
+
+    /* ── DJ CIRCLES ── */
+    .dj-spotlight{background:linear-gradient(180deg,#0d0d0d,#111);padding:40px 0;text-align:center;}
+    .dj-spotlight .spot-badge{display:inline-block;background:linear-gradient(135deg,var(--orange),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
+    .dj-spotlight h2.spot-title{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 6px;}
+    .dj-spotlight .spot-sub{color:#888;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;margin:0 0 32px;}
+    .dj-circle-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:28px 16px;max-width:1100px;margin:0 auto 36px;}
+    .dj-ci{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+    .dj-ci-wrap{position:relative;width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
+    .dj-ci-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:#fff;z-index:0;}
+    .dj-ci-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;}
+    .dj-ci:hover .dj-ci-wrap{transform:translateY(-8px) scale(1.06);}
+    .dj-ci.kil .dj-ci-wrap{border-color:var(--orange);border-width:3px;}
+    .dj-ci.kil:hover .dj-ci-wrap{box-shadow:0 0 32px rgba(255,102,0,.65);}
+    .dj-ci:not(.kil):hover .dj-ci-wrap{box-shadow:0 0 28px rgba(180,0,255,.5);}
+    .dj-ci-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;color:#f0f0f0;text-align:center;line-height:1.2;}
+    .dj-ci-tag{font-size:.68rem;letter-spacing:.06em;color:#888;}
+    .dj-ci.kil .dj-ci-tag{color:var(--orange);}
+    .dj-more-btn{display:inline-flex;align-items:center;gap:10px;background:var(--orange);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;padding:14px 40px;border-radius:4px;text-decoration:none;font-weight:700;transition:transform .25s,box-shadow .25s;}
+    .dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(255,102,0,.45);}
+    @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
+    @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:90px;height:90px;}}
+
+    /* ── BLOG / CULTURE ── */
+    .blog{background:linear-gradient(180deg,#100e0b 0%,#111 100%);position:relative;overflow:hidden;}
+    .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;position:relative;z-index:1;}
+    .blog-card{background:var(--dark2);padding:32px;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;border-bottom:2px solid transparent;}
+    .blog-card:hover{background:#181818;border-bottom-color:var(--orange);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.5);}
+    .blog-card h3{font-family:var(--font-head);font-size:22px;letter-spacing:.03em;line-height:1.1;color:var(--white);margin:10px 0 12px;}
+    .blog-card p{font-size:13px;color:var(--grey);line-height:1.7;flex-grow:1;margin-bottom:20px;}
+    .blog-card .article-meta{margin-top:auto;font-size:12px;color:var(--grey);display:flex;gap:12px;align-items:center;}
+    .article-meta span{opacity:.5;}
+
+    /* ── ORG CTA ── */
+    .org-cta{background:linear-gradient(135deg,#0d0d1a 0%,#111 50%,#0a120a 100%);border-top:1px solid rgba(255,102,0,.08);border-bottom:1px solid rgba(255,102,0,.08);padding:52px 0;}
     .org-cta-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:center;}
     .org-cta-text p{font-size:15px;color:#888;line-height:1.7;margin-bottom:0;max-width:480px;}
     .org-cta-btns{display:flex;gap:16px;flex-wrap:wrap;margin-top:32px;}
     .org-stats{display:flex;flex-direction:column;gap:14px;}
-    .org-stat{background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.12);border-radius:8px;padding:18px 24px;display:flex;align-items:center;gap:16px;}
-    .org-stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#00b4ff;line-height:1;text-shadow:0 0 12px rgba(0,180,255,.3);}
+    .org-stat{background:rgba(255,102,0,.05);border:1px solid rgba(255,102,0,.12);border-radius:8px;padding:18px 24px;display:flex;align-items:center;gap:16px;}
+    .org-stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--orange);line-height:1;text-shadow:0 0 12px rgba(255,102,0,.3);}
     .org-stat-lbl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#555;}
     @media(max-width:900px){.org-cta-grid{grid-template-columns:1fr;}.org-stats{display:none;}}
-    /* ─ Listen Modal ─ */
-    .listen-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
-    .listen-overlay.open{display:flex;}
-    .listen-box{background:#111;border:1px solid rgba(0,180,255,.22);border-radius:14px;padding:24px;max-width:640px;width:100%;box-shadow:0 0 50px rgba(0,180,255,.1);}
-    .listen-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
-    .listen-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;color:#00b4ff;}
-    .listen-sub{font-size:11px;color:#555;margin-top:2px;}
-    .listen-close{background:none;border:none;color:#555;font-size:20px;cursor:pointer;padding:2px 8px;transition:color .2s;line-height:1;}
-    .listen-close:hover{color:#fff;}
-    .listen-sc{border-radius:8px;overflow:hidden;background:#0a0a0a;}
-    /* ─ Bio Modal ─ */
-    .bio-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
-    .bio-overlay.open{display:flex;}
-    .bio-box{background:#131313;border:1px solid rgba(180,0,255,.18);border-radius:14px;padding:36px;max-width:580px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 0 50px rgba(180,0,255,.08);}
-    .bio-close{float:right;background:none;border:none;color:#555;font-size:20px;cursor:pointer;margin-top:-8px;transition:color .2s;}
-    .bio-close:hover{color:#fff;}
-    .bio-kil-tag{font-size:9px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#b400ff;margin-bottom:10px;display:block;}
-    .bio-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,44px);letter-spacing:.04em;color:#fff;margin:0 0 6px;}
-    .bio-genre-lbl{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#00b4ff;margin-bottom:20px;display:block;}
-    .bio-text{font-size:14px;color:#999;line-height:1.8;margin-bottom:26px;}
-    .bio-actions{display:flex;gap:12px;flex-wrap:wrap;}
-    .bio-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:none;text-decoration:none;}
-    .bio-btn-ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
-    .bio-btn-ig:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(253,29,29,.3);}
-    .bio-btn-listen{background:rgba(0,180,255,.1);color:#00b4ff;border:1px solid rgba(0,180,255,.25);}
-    .bio-btn-listen:hover{background:rgba(0,180,255,.2);transform:translateY(-1px);}
-    /* ─ Spot Card Updates ─ */
-    .spot-btn-profile{background:none;border:none;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
-    .spot-btn-listen{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;background:rgba(0,180,255,.08);color:#00b4ff;border:1px solid rgba(0,180,255,.2);transition:all .2s;}
-    .spot-btn-listen:hover{background:rgba(0,180,255,.18);transform:translateY(-1px);}
-    .spot-links2{display:flex;gap:10px;flex-wrap:wrap;}
-    /* ─ DJ Circle Actions ─ */
-    .dj-act-wrap{display:flex;flex-direction:column;align-items:center;}
-    .dj-ci-acts{display:flex;gap:6px;justify-content:center;margin-top:8px;opacity:0;transform:translateY(4px);transition:opacity .25s,transform .25s;}
-    .dj-act-wrap:hover .dj-ci-acts{opacity:1;transform:none;}
-    .dj-act-btn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.55);cursor:pointer;transition:all .2s;color:#ccc;text-decoration:none;}
-    .dj-act-ig:hover{background:linear-gradient(135deg,rgba(131,58,180,.7),rgba(253,29,29,.7));border-color:transparent;}
-    .dj-act-listen:hover{background:rgba(0,180,255,.35);border-color:#00b4ff;color:#fff;}
 
+    /* ── EVENTS TEASER ── */
+    .events-teaser{padding:72px 0;background:linear-gradient(180deg,#0a0a16 0%,#0f0f1a 100%);}
+    .events-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:16px;}
+    .events-header .section-label{margin-bottom:8px;}
+    .events-see-all{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .events-see-all:hover{opacity:1;}
+    .events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+    @media(max-width:900px){.events-grid{grid-template-columns:1fr;}}
+    .ev-card{background:rgba(255,102,0,.04);border:1px solid rgba(255,102,0,.12);border-radius:10px;padding:22px 24px;transition:border-color .2s,transform .2s;text-decoration:none;display:block;}
+    .ev-card:hover{border-color:rgba(255,102,0,.35);transform:translateY(-3px);}
+    .ev-date-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,102,0,.1);border:1px solid rgba(255,102,0,.2);border-radius:4px;padding:4px 10px;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+    .ev-card h3{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.04em;color:var(--white);margin-bottom:8px;line-height:1.1;}
+    .ev-card .ev-venue{font-size:.82rem;color:#888;margin-bottom:10px;}
+    .ev-card .ev-acts{font-size:.8rem;color:#666;line-height:1.5;}
 
-    /* — Subscribe header redesign — */
-    .sub-overline{font-family:var(--font-head);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;font-weight:700;}
-    .sub-title{font-size:clamp(2rem,3.5vw,2.8rem);font-family:var(--font-head);line-height:1.1;letter-spacing:.02em;margin-bottom:8px;}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    /* ── SUBSCRIBE ── */
+    .subscribe{background:var(--black);position:relative;overflow:hidden;}
+    .subscribe-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 50%,rgba(255,102,0,.07) 0%,transparent 70%);}
+    .subscribe-inner{position:relative;z-index:2;text-align:center;max-width:600px;margin:0 auto;}
+    .subscribe h2{font-family:var(--font-head);font-size:clamp(40px,6vw,70px);letter-spacing:.04em;color:var(--white);margin-bottom:16px;}
+    .subscribe p{font-size:16px;color:var(--grey);margin-bottom:40px;}
+    .subscribe-form{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto;}
+    .subscribe-form input{padding:14px 20px;background:var(--dark3);border:1px solid rgba(255,102,0,.2);color:var(--white);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s;border-radius:4px;width:100%;}
+    .subscribe-form input:focus{border-color:rgba(255,102,0,.6);}
+    .subscribe-form input::placeholder{color:#555;}
+    .subscribe-form button{padding:14px 28px;background:var(--orange);color:#fff;border:none;font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;width:100%;}
+    .subscribe-form button:hover{background:#ff8533;transform:translateY(-1px);}
+    .subscribe-join{display:block;width:100%;max-width:480px;margin:10px auto 0;padding:14px 28px;background:transparent;border:1px solid rgba(255,102,0,.45);color:var(--orange);font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;text-align:center;transition:all .2s;}
+    .subscribe-join:hover{background:rgba(255,102,0,.1);border-color:var(--orange);}
+    .subscribe-note{font-size:12px;color:#444;margin-top:14px;}
+
+    /* ── FOOTER ── */
+    footer{background:var(--dark);border-top:1px solid rgba(255,102,0,.08);padding:64px 0 32px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
+    .footer-brand .logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .footer-brand .logo-img{width:40px;height:auto;filter:drop-shadow(0 0 10px #ff6600);object-fit:contain;}
+    .footer-brand .logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.12em;color:var(--orange);}
+    .footer-brand p{font-size:14px;color:var(--grey);line-height:1.7;max-width:280px;}
+    .footer-social{display:flex;gap:10px;margin-top:24px;}
+    .social-link{width:38px;height:38px;border:1px solid rgba(255,102,0,.2);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:12px;font-weight:700;transition:all .2s;}
+    .social-link:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-2px);}
+    .footer-col h5{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--white);margin-bottom:20px;}
+    .footer-col ul{list-style:none;}
+    .footer-col ul li{margin-bottom:12px;}
+    .footer-col ul a{font-size:14px;color:var(--grey);transition:color .2s;}
+    .footer-col ul a:hover{color:var(--orange);}
+    .footer-bottom{padding-top:28px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;gap:24px;}
+    .footer-bottom p{font-size:12px;color:#444;}
+    .footer-bottom a{color:var(--orange);}
+    .scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;background:var(--orange);color:#fff;border:none;border-radius:2px;cursor:pointer;font-size:18px;z-index:500;opacity:0;transform:translateY(20px);transition:all .3s;display:flex;align-items:center;justify-content:center;}
+    .scroll-top.visible{opacity:1;transform:none;}
+    .scroll-top:hover{background:#ff8533;transform:translateY(-2px);}
+
+    @media(max-width:1024px){.blog-grid{grid-template-columns:repeat(2,1fr);}.footer-grid{grid-template-columns:1fr 1fr;gap:40px;}}
+    @media(max-width:768px){
+      .nav-links{display:none;}.nav-hamburger{display:flex;}
+      .blog-grid{grid-template-columns:1fr;}
+      .hero-logo-wrap{display:none;}
+      .footer-grid{grid-template-columns:1fr;gap:32px;}
+      .footer-bottom{flex-direction:column;text-align:center;}
+      .promo-inner{flex-direction:column;text-align:center;}
+      .hero-stats{gap:24px;}
+    }
+    @media(max-width:480px){.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(255,102,0,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--orange);}
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="canonical" href="https://keepitil.github.io/" />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#00b4ff" />
+  <meta name="theme-color" content="#ff6600" />
   <meta property="og:image" content="https://keepitil.github.io/logo-bg.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -397,90 +262,42 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://keepitil.github.io/#organization",
-        "name": "Keep It IL",
-        "url": "https://keepitil.github.io/",
-        "logo": "https://keepitil.github.io/logo-neon-nav.png",
-        "sameAs": [],
-        "description": "Underground EDM events, DJ features, and music culture for Orange County and Los Angeles."
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://keepitil.github.io/#website",
-        "url": "https://keepitil.github.io/",
-        "name": "Keep It IL",
-        "publisher": {"@id": "https://keepitil.github.io/#organization"},
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://keepitil.github.io/?s={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
-        "@type": "WebPage",
-        "@id": "https://keepitil.github.io/#webpage",
-        "url": "https://keepitil.github.io/",
-        "name": "KEEP IT IL — Underground EDM. OC & LA Events. Culture.",
-        "description": "Your source for underground EDM, artist features, music events, and electronic music culture in Orange County and LA.",
-        "isPartOf": {"@id": "https://keepitil.github.io/#website"},
-        "about": {"@id": "https://keepitil.github.io/#organization"}
-      },
-      {
-        "@type": "MusicEvent",
-        "name": "Exchange LA — Friday Residents",
-        "startDate": "2026-06-20",
-        "location": {"@type": "Place", "name": "Exchange LA", "address": {"@type": "PostalAddress", "addressLocality": "Los Angeles", "addressRegion": "CA"}},
-        "description": "Underground techno and house at Exchange LA, Downtown LA.",
-        "genre": ["Techno", "Underground House"],
-        "url": "https://www.eventbrite.com/d/ca--los-angeles/techno/"
-      },
-      {
-        "@type": "MusicEvent",
-        "name": "Factory 93 — Warehouse Series",
-        "startDate": "2026-06-27",
-        "location": {"@type": "Place", "name": "Undisclosed Warehouse", "address": {"@type": "PostalAddress", "addressLocality": "Los Angeles", "addressRegion": "CA"}},
-        "description": "Factory 93 warehouse rave series in DTLA.",
-        "genre": ["House", "Techno"],
-        "url": "https://www.eventbrite.com/d/ca--los-angeles/house/"
-      },
-      {
-        "@type": "MusicEvent",
-        "name": "Jungle Warfare — DNB All Night",
-        "startDate": "2026-07-12",
-        "location": {"@type": "Place", "name": "The Observatory", "address": {"@type": "PostalAddress", "addressLocality": "Santa Ana", "addressRegion": "CA"}},
-        "description": "Drum and bass all night at The Observatory, Santa Ana OC.",
-        "genre": ["Drum and Bass", "Jungle"],
-        "url": "https://www.eventbrite.com/d/ca--orange-county/edm-events/"
-      }
-    ]
+    "@type": "Organization",
+    "@id": "https://keepitil.github.io/#organization",
+    "name": "Keep It IL",
+    "url": "https://keepitil.github.io/",
+    "logo": "https://keepitil.github.io/logo-neon-nav.png",
+    "description": "Underground EDM events, DJ features, and music culture for Orange County and Los Angeles."
   }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>(function(){if(typeof emailjs!=='undefined'){emailjs.init({publicKey:'YOUR_EMAILJS_PUBLIC_KEY'});}}());</script>
 </head>
 <body>
 
   <!-- Promo Banner -->
-  
+  <div class="promo" onclick="document.querySelector('#subscribe').scrollIntoView({behavior:'smooth'})">
+    <div class="container">
+      <div class="promo-inner">
+        <p>🔥 <strong>Summer 2026 Season is Live</strong> — OC &amp; LA's hottest underground events dropping weekly</p>
+        <a onclick="event.stopPropagation()">Explore Artists →</a>
+      </div>
+    </div>
+  </div>
 
-  <!-- Nav -->
+  <!-- Nav — STANDARD: Home | Artists | Brands | Organizers | Culture | Apply -->
   <nav id="main-nav">
-    <div class="container nav-inner">
-      <a href="https://keepitil.com" target="_blank" class="nav-logo">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
         <img class="nav-logo-img" src="logo-neon-nav.png" alt="Keep It IL Logo"/>
-        <span class="nav-logo-text">KEEP IT IL</span>
+        <span class="nav-logo-text">KEEP<span style="color:#fff">IT</span>IL</span>
       </a>
       <ul class="nav-links" id="nav-links">
-        <li><a href="#featured" data-section="featured">Spotlight</a></li>
-        <li><a href="#events" data-section="events">Artist</a></li>
-        <li><a href="#brands" data-section="brands">Brands</a></li>
-        <li><a href="#organizers" data-section="organizers">Organizers</a></li>
-        <li><a href="#culture" data-section="culture">Culture</a></li>
-        <li><a href="signup.html" style="background:var(--blue);color:#000;padding:5px 14px;border-radius:4px;font-weight:700;font-size:11px;letter-spacing:.12em">JOIN</a></li>
-        <a href="#subscribe" class="nav-cta">Subscribe</a>
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="roster.html">Artists</a></li>
+        <li><a href="vendors.html">Brands</a></li>
+        <li><a href="organizers-directory.html">Organizers</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="culture.html">Culture</a></li>
+        <li><a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="nav-cta">Apply</a></li>
       </ul>
       <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
         <span></span><span></span><span></span>
@@ -490,18 +307,26 @@
 
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobile-menu">
-    <a href="#featured" onclick="toggleMenu()">Features</a>
-    <a href="#explore" onclick="toggleMenu()">Explore</a>
-    <a href="#events" onclick="toggleMenu()">Events</a>
-    <a href="#artists" onclick="toggleMenu()">Artists</a>
-    <a href="#blog" onclick="toggleMenu()">Blog</a>
-    <a href="organizers/index.html" onclick="toggleMenu()">List Event</a>
-    <a href="#djs" onclick="toggleMenu()">Book DJ</a>
-    <a href="#subscribe" onclick="toggleMenu()" style="color:var(--blue)">Subscribe</a>
+    <a href="index.html" onclick="toggleMenu()">Home</a>
+    <a href="roster.html" onclick="toggleMenu()">Artists</a>
+    <a href="vendors.html" onclick="toggleMenu()">Brands</a>
+    <a href="organizers-directory.html" onclick="toggleMenu()">Organizers</a>
+    <a href="events.html" onclick="toggleMenu()">Events</a>
+    <a href="culture.html" onclick="toggleMenu()">Culture</a>
+    <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="nav-cta" onclick="toggleMenu()">Apply</a>
   </div>
 
-  <!-- Juneteenth 2026 -->
-  
+  <!-- Juneteenth 2026 Banner -->
+  <div class="june-bar">
+    <div class="container">
+      <div class="june-bar-inner">
+        <span class="june-badge">JUNE 19 · JUNETEENTH 2026</span>
+        <p>🕊️ <strong>Celebrating Freedom Through Music &amp; Culture</strong></p>
+        <a href="culture.html">Find Juneteenth Events →</a>
+      </div>
+    </div>
+  </div>
+
   <!-- Hero -->
   <section class="hero" id="home">
     <canvas id="hero-canvas"></canvas>
@@ -511,190 +336,221 @@
     </div>
     <div class="container">
       <div class="hero-content">
-        
-        
+        <div class="live-badge"><span class="live-dot"></span> Straight from the underground</div>
+        <div class="hero-tag">
+          <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#ff6600"/></svg>
+          OC &amp; LA — DJ Features · Events · Culture
+        </div>
         <h1>
           THE <span class="accent"><span class="typewriter" id="typewriter">UNDERGROUND</span></span><br/>STARTS HERE
         </h1>
-        
+        <p class="hero-sub">Artist features, event coverage, and culture from the heart of Southern California's underground EDM scene. No compromise.</p>
+        <div class="hero-actions">
+          <a href="roster.html" class="btn btn-primary">Browse Artists</a>
+          <a href="culture.html" class="btn btn-outline">Read the Latest</a>
+        </div>
+        <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
         <div class="hero-stats">
+          <div class="stat"><div class="stat-num">32</div><div class="stat-label">Artists</div></div>
+          <div class="stat"><div class="stat-num">30</div><div class="stat-label">Organizers</div></div>
+          <div class="stat"><div class="stat-num">18</div><div class="stat-label">Brands</div></div>
           <div class="stat"><div class="stat-num">3,800+</div><div class="stat-label">Subscribers</div></div>
-          <div class="stat"><div class="stat-num">100+</div><div class="stat-label">Events Covered</div></div>
-          <div class="stat"><div class="stat-num">4</div><div class="stat-label">Artist Features</div></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Featured -->
+  <!-- Featured Artists Spotlight -->
   <section class="fresh-spotlight" id="featured">
-  <div class="container">
-    <div class="spot-hdr">
-            <h2 class="spot-h2">SPOTLIGHT</h2>
-      <p class="spot-subtext">Curated talent in SOCAL — straight from california</p>
-    </div>
-    <div class="spot-grid">
-      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#00b4ff,#0044aa)">RB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp" alt="RAB3L" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">RAB3L</h3><span class="spot-genre2">Techno · House · OC / LA</span><p class="spot-bio2">OC-based DJ and producer pushing underground techno and dark house. KEEPITIL resident known for high-energy, no-filter sets across the SoCal circuit.</p><div class="spot-links2"><button class="spot-btn-profile" onclick="openBioModal('RAB3L')">READ BIO →</button><a href="https://www.instagram.com/rab3l_music/" class="spot-btn-ig" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> @rab3l_music</a><a class="spot-btn-listen" href="https://www.instagram.com/rab3l_music/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> LEARN MORE</a></div></div></div>
-      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">GROOVE TROOPER</h3><span class="spot-genre2">House · Tech House · LA</span><p class="spot-bio2">LA-based DJ laying down deep house and tech house with soulful roots. Groove Trooper has been a staple of the SoCal underground scene for years.</p><div class="spot-links2"><button class="spot-btn-profile" onclick="openBioModal('GROOVE TROOPER')">READ BIO →</button><a href="https://www.instagram.com/groovetrooper/" class="spot-btn-ig" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> @groovetrooper</a><a class="spot-btn-listen" href="https://www.instagram.com/groovetrooper/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> LEARN MORE</a></div></div></div>
-      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg" alt="SWERVE" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">SWERVE</h3><span class="spot-genre2">Dark Techno · Industrial · OC</span><p class="spot-bio2">SWERVE delivers relentless dark techno and industrial-influenced sets. A KEEPITIL staple who never fails to move the crowd into uncharted underground territory.</p><div class="spot-links2"><button class="spot-btn-profile" onclick="openBioModal('SWERVE')">READ BIO →</button><a href="https://www.instagram.com/djswerve_oc/" class="spot-btn-ig" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> @djswerve_oc</a><a class="spot-btn-listen" href="https://www.instagram.com/djswerve_oc/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> LEARN MORE</a></div></div></div>
-      <div class="spot-card"><div class="spot-img-wrap"><div class="spot-img-fb" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png" alt="LVNKY BONEZ" onerror="this.style.display='none'"></div><div class="spot-body"><span class="spot-kil-tag2">★ KEEPITIL ARTIST</span><h3 class="spot-name2">LVNKY BONEZ</h3><span class="spot-genre2">Bass House · Underground · CA</span><p class="spot-bio2">California-based LVNKY BONEZ brings heavy bass and underground energy to every performance. Dynamic crowd-controlled sets that blend genres without compromise.</p><div class="spot-links2"><button class="spot-btn-profile" onclick="openBioModal('LVNKY BONEZ')">READ BIO →</button><a href="https://www.instagram.com/lvnkybonez/" class="spot-btn-ig" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> @lvnkybonez</a><a class="spot-btn-listen" href="https://www.instagram.com/lvnkybonez/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg> LEARN MORE</a></div></div></div>
-    </div>
-  </div>
-</section>
-
-  <!-- Explore Events -->
-  
-
-  <!-- AdSense: Responsive Banner (auto) -->
-  <div class="ad-container ad-banner" data-ad-placement="between-sections" style="display:none;">
-    <!-- INSERT ADSENSE TAG HERE AFTER APPROVAL -->
-    <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
-  </div>
-
-  <!-- Curated Upcoming Events -->
-  
-
-  <!-- AdSense: Below Events (responsive) -->
-  <div class="ad-container ad-responsive" data-ad-placement="below-events" style="display:none;">
-    <!-- INSERT ADSENSE TAG HERE AFTER APPROVAL -->
-    <!-- <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins> -->
-  </div>
-
-  <!-- Artists -->
-  
-
-  
-  <!-- DJ Booking Section -->
-  <section class="dj-spotlight" id="events">
-  <div class="container">
-        <h2 class="spot-title">ARTIST</h2>
-    <p class="spot-sub">Book an artist for your event</p>
-    <div class="dj-circle-grid">
-      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044aa)">RB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp" alt="RAB3L" onerror="this.style.display='none'"></div><span class="dj-ci-name">RAB3L</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'"></div><span class="dj-ci-name">GROOVE TROOPER</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg" alt="SWERVE" onerror="this.style.display='none'"></div><span class="dj-ci-name">SWERVE</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci kil" href="roster.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png" alt="LVNKY BONEZ" onerror="this.style.display='none'"></div><span class="dj-ci-name">LVNKY BONEZ</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/djmustard/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#ffcc00)">MU</div><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/DJ_Mustard_2015.jpg/440px-DJ_Mustard_2015.jpg" alt="DJ MUSTARD" onerror="this.style.display='none'"></div><span class="dj-ci-name">DJ MUSTARD</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/valentinokhan/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#ff0066)">VK</div></div><span class="dj-ci-name">VALENTINO KHAN</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/destructo/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#cc0000)">DE</div></div><span class="dj-ci-name">DESTRUCTO</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/tokimonsta/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">TM</div></div><span class="dj-ci-name">TOKiMONSTA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/chrislake/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044cc)">CL</div></div><span class="dj-ci-name">CHRIS LAKE</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/claudevonstroke/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">CV</div></div><span class="dj-ci-name">CLAUDE VONSTROKE</span><span class="dj-ci-tag">SAN FRANCISCO</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/lubelski/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#b400ff)">LU</div></div><span class="dj-ci-name">LUBELSKI</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/golfclapmusic/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00ff88)">GC</div></div><span class="dj-ci-name">GOLF CLAP</span><span class="dj-ci-tag">CALIFORNIA</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/fisherfisherfisher/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#ff6600)">FI</div></div><span class="dj-ci-name">FISHER</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/domdolla/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00ff88)">DD</div></div><span class="dj-ci-name">DOM DOLLA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="https://www.instagram.com/shibaofficial/" target="_blank" rel="noopener"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff0080,#b400ff)">SH</div></div><span class="dj-ci-name">SHIBA SAN</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-    </div>
-    <a href="roster.html" class="dj-more-btn">SEARCH MORE →</a>
-  </div>
-</section>
-
-  <!-- Brands -->
-  <section class="dj-spotlight" id="brands">
-  <div class="container">
-        <h2 class="spot-title">BRANDS</h2>
-    <p class="spot-sub">Top brands powering the underground</p>
-    <div class="dj-circle-grid">
-      <a class="dj-ci kil" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#00ff88)">AC</div></div><span class="dj-ci-name">AC ENTERTAINMENT</span><span class="dj-ci-tag">PRODUCTION</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#ff0080)">AL</div></div><span class="dj-ci-name">ANNA LUNOE MERCH</span><span class="dj-ci-tag">APPAREL</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">AH</div></div><span class="dj-ci-name">AVALON HOLLYWOOD</span><span class="dj-ci-tag">VENUE</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00b4ff)">BA</div></div><span class="dj-ci-name">BASS APPAREL OC</span><span class="dj-ci-tag">APPAREL</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#ff6600)">BH</div></div><span class="dj-ci-name">BASS HEAD APPAREL</span><span class="dj-ci-tag">APPAREL</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">CP</div></div><span class="dj-ci-name">CHUCKIE PRODUCTIONS</span><span class="dj-ci-tag">PRODUCTION</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">CM</div></div><span class="dj-ci-name">CREATE MUSIC GROUP</span><span class="dj-ci-tag">MARKETING</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00ff88)">CW</div></div><span class="dj-ci-name">CUBE WORLD MEDIA</span><span class="dj-ci-tag">VENUE</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#ff0080)">CY</div></div><span class="dj-ci-name">CYGNUS EVENTS</span><span class="dj-ci-tag">PRODUCTION</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#cc0000)">DR</div></div><span class="dj-ci-name">DIRTYBIRD RECORDS</span><span class="dj-ci-tag">RECORD LABEL</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ffb400,#ff6600)">GV</div></div><span class="dj-ci-name">GOLDENVOICE</span><span class="dj-ci-tag">PRODUCTION</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#cc0000,#ff6600)">HA</div></div><span class="dj-ci-name">HARD EVENTS</span><span class="dj-ci-tag">PRODUCTION</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">IE</div></div><span class="dj-ci-name">IE RAVE NATION</span><span class="dj-ci-tag">PRODUCTION</span></a>
-      <a class="dj-ci kil" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">IN</div></div><span class="dj-ci-name">INSOMNIAC EVENTS</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci" href="vendors.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">LV</div></div><span class="dj-ci-name">LA VISUALS</span><span class="dj-ci-tag">PHOTO & VIDEO</span></a>
-    </div>
-    <a href="vendors.html" class="dj-more-btn">SEARCH MORE →</a>
-  </div>
-</section>
-
-  <!-- Organizers -->
-  <section class="dj-spotlight" id="organizers">
-  <div class="container">
-        <h2 class="spot-title">ORGANIZERS</h2>
-    <p class="spot-sub">The crews behind the culture</p>
-    <div class="dj-circle-grid">
-      <a class="dj-ci kil" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#00ff88)">KI</div></div><span class="dj-ci-name">KEEPITIL</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#00ff88)">CW</div></div><span class="dj-ci-name">CUBE WORLD MEDIA</span><span class="dj-ci-tag">OC / LA</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">MM</div></div><span class="dj-ci-name">MERGE THE MUSIC</span><span class="dj-ci-tag">OC / LA</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#00ff88)">OC</div></div><span class="dj-ci-name">OC RAVE COLLECTIVE</span><span class="dj-ci-tag">ORANGE COUNTY</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#b400ff)">BM</div></div><span class="dj-ci-name">BASS MAFIA OC</span><span class="dj-ci-tag">ORANGE COUNTY</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#0044aa,#b400ff)">UO</div></div><span class="dj-ci-name">UNDERGROUND OC</span><span class="dj-ci-tag">ORANGE COUNTY</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">IN</div></div><span class="dj-ci-name">INSOMNIAC EVENTS</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#cc0000,#ff6600)">HA</div></div><span class="dj-ci-name">HARD EVENTS</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ffb400,#ff6600)">GV</div></div><span class="dj-ci-name">GOLDENVOICE</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">NW</div></div><span class="dj-ci-name">NOCTURNAL WONDERLAND</span><span class="dj-ci-tag">SAN BERNARDINO</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#ffb400)">BL</div></div><span class="dj-ci-name">BROWNIES & LEMONADE</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">DL</div></div><span class="dj-ci-name">DO LAB</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#aaaaaa)">EX</div></div><span class="dj-ci-name">EXCHANGE LA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#00b4ff)">AC</div></div><span class="dj-ci-name">ACADEMY LA</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-      <a class="dj-ci" href="organizers-directory.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#00ff88)">SN</div></div><span class="dj-ci-name">SOUND NIGHTCLUB</span><span class="dj-ci-tag">LOS ANGELES</span></a>
-    </div>
-    <a href="organizers-directory.html" class="dj-more-btn">SEARCH MORE →</a>
-  </div>
-</section>
-
-  <!-- Blog -->
-  <section class="blog" id="culture">
     <div class="container">
-            <h2 class="section-title reveal">CULTURE</h2>
-      <div class="blog-grid">
-          <a class="blog-card reveal" href="blog-rab3l.html" style="text-decoration:none;display:flex;flex-direction:column;">
-            <div style="aspect-ratio:16/9;height:auto;background:url('https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;"></div>
-            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">&#127911; Artist Feature</span>
-            <h3 style="margin:8px 0 10px;">RAB3L &mdash; Built from the Booth, Raised by Sound</h3>
-            <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Torrance-bred bass selector bringing UKG, tech house, and bassline to the underground. Started DJing at 8. Read the full KEEPITIL feature on keepitil.com.</p>
-            <div class="article-meta" style="margin-top:12px;"><span>Torrance, CA</span><span>&middot;</span><span>Bass House &middot; UKG</span></div>
-          </a>
-          <a class="blog-card reveal" href="blog-groove-trooper.html" style="text-decoration:none;display:flex;flex-direction:column;">
-            <div style="aspect-ratio:16/9;height:auto;background:url('https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #b400ff;"></div>
-            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">&#127744; Artist Feature</span>
-            <h3 style="margin:8px 0 10px;">Groove Trooper &mdash; Rhythm, Roots &amp; the Power of Movement</h3>
-            <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Garden Grove's Latin tech house force. Tribal drums, Guatemalan roots, and a stage presence clocked at Groove Cruise Miami and Avalon LA.</p>
-            <div class="article-meta" style="margin-top:12px;"><span>Garden Grove, CA</span><span>&middot;</span><span>Latin House &middot; Tech House</span></div>
-          </a>
-          <a class="blog-card reveal" href="blog-lvnky-bonez.html" style="text-decoration:none;display:flex;flex-direction:column;">
-            <div style="aspect-ratio:16/9;height:auto;background:url('https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #ff0080;"></div>
-            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff0080;text-transform:uppercase;">&#128266; Artist Feature</span>
-            <h3 style="margin:8px 0 10px;">Lvnky Bonez &mdash; Turning Raw Energy into Movements</h3>
-            <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">LA dubstep and DnB producer making noise on SoundCloud. Influenced by Excision, deadmau5, and Knife Party &mdash; his original track Captain Crunch is already shaking rooms.</p>
-            <div class="article-meta" style="margin-top:12px;"><span>Los Angeles, CA</span><span>&middot;</span><span>Dubstep &middot; DnB</span></div>
-          </a>
-          <a class="blog-card reveal" href="blog-swerve.html" style="text-decoration:none;display:flex;flex-direction:column;">
-            <div style="aspect-ratio:16/9;height:auto;background:url('https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/17.jpg') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #ffb400;"></div>
-            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#ffb400;text-transform:uppercase;">&#127931; Artist Feature</span>
-            <h3 style="margin:8px 0 10px;">SWERVE &mdash; Controlled Chaos on the Decks Since 13</h3>
-            <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">OC &amp; LA tech house veteran who started on vinyl, played Arena LA at 15. Decades of controlled chaos &mdash; the kind that turns rooms into memories.</p>
-            <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA</span><span>&middot;</span><span>Tech House &middot; Techno</span></div>
-          </a>
-          <a class="blog-card reveal" href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;">
-            <div style="aspect-ratio:16/9;height:auto;background:linear-gradient(135deg,#0b1a0b,#0d2010);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;"><span style="font-size:32px;font-weight:900;color:#00ff88;text-shadow:0 0 20px #00ff88;letter-spacing:.05em;">KEEPITIL</span><span style="font-size:11px;color:#888;letter-spacing:.15em;text-transform:uppercase;">Artist Roster</span></div>
-            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00ff88;text-transform:uppercase;">&#127908; Submit Now</span>
-            <h3 style="margin:8px 0 10px;">Are You Next? Apply for Artist Highlight</h3>
-            <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">OC or LA DJ/producer ready to be featured on KEEPITIL? Submit your Artist Highlight form and join the underground roster.</p>
-            <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>&middot;</span><span style="color:#00ff88;">Apply &#8594;</span></div>
-          </a>
-          <a class="blog-card reveal" href="https://keepitil.com" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;">
-            <div style="aspect-ratio:16/9;height:auto;background:linear-gradient(135deg,#0a0015,#0d1520);margin:-32px -32px 20px;border-bottom:2px solid #b400ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:20px;font-weight:900;color:#b400ff;text-shadow:0 0 20px #b400ff;text-align:center;padding:0 16px;line-height:1.4;">CREATE LOUD.<br>LIVE LOUDER.</span></div>
-            <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">&#127760; keepitil.com</span>
-            <h3 style="margin:8px 0 10px;">The KEEPITIL Movement &mdash; From Events to Community</h3>
-            <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">More than a promoter. KEEPITIL is building a movement &mdash; connecting DJs, fans, and venues across the OC and LA underground scene.</p>
-            <div class="article-meta" style="margin-top:12px;"><span>keepitil.com</span><span>&middot;</span><span>OC &amp; LA Underground</span></div>
-          </a>
+      <div class="spot-hdr">
+        <span class="spot-badge2">☀️ FEATURED FRESH DROP</span>
+        <h2 class="spot-h2">SPOTLIGHT ARTISTS</h2>
+        <p class="spot-subtext">Curated underground talent from OC &amp; LA — straight from the scene</p>
+      </div>
+      <div class="spot-grid">
+        <!-- RAB3L -->
+        <div class="spot-card">
+          <div class="spot-img-wrap">
+            <div class="spot-img-fb" style="background:linear-gradient(135deg,#6600ff,#0044aa)">RB</div>
+            <img src="https://unavatar.io/instagram/dj_rab3l_r3mix" alt="RAB3L" onerror="this.style.display='none'">
+          </div>
+          <div class="spot-body">
+            <span class="spot-kil-tag2">★ KEEPITIL ARTIST</span>
+            <h3 class="spot-name2">RAB3L</h3>
+            <span class="spot-genre2">Bass House · Tech House · UKG</span>
+            <p class="spot-bio2">Torrance-bred bass selector pushing UKG, tech house, and bassline to the underground. Started DJing at 8. KEEPITIL's first featured artist.</p>
+            <div class="spot-sc">
+              <iframe scrolling="no" frameborder="no" allow="autoplay"
+                src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/dj-rab3l-171821351/rab3l-uk-garage-mix/s-SizuV9poirQ&color=%23ff6600&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>
+            </div>
+            <div class="spot-links2">
+              <a class="spot-btn-profile" href="blog-rab3l.html">READ BIO →</a>
+              <a href="https://instagram.com/dj_rab3l_r3mix" class="spot-btn-ig" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                @dj_rab3l_r3mix
+              </a>
+            </div>
+          </div>
         </div>
+        <!-- GROOVE TROOPER -->
+        <div class="spot-card">
+          <div class="spot-img-wrap">
+            <div class="spot-img-fb" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div>
+            <img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'">
+          </div>
+          <div class="spot-body">
+            <span class="spot-kil-tag2">★ KEEPITIL ARTIST</span>
+            <h3 class="spot-name2">GROOVE TROOPER</h3>
+            <span class="spot-genre2">Latin House · Tech House · LA</span>
+            <p class="spot-bio2">Garden Grove's Latin tech house force. Tribal drums, Guatemalan roots, and a stage presence clocked at Groove Cruise Miami and Avalon LA.</p>
+            <div class="spot-sc">
+              <iframe scrolling="no" frameborder="no" allow="autoplay"
+                src="https://w.soundcloud.com/player/?url=https%3A//on.soundcloud.com/mSGGX5UHsrqxNEsRIj&color=%23ff6600&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>
+            </div>
+            <div class="spot-links2">
+              <a class="spot-btn-profile" href="blog-groove-trooper.html">READ BIO →</a>
+              <a href="https://instagram.com/Groove_Trooper" class="spot-btn-ig" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                @Groove_Trooper
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- SWERVE -->
+        <div class="spot-card">
+          <div class="spot-img-wrap">
+            <div class="spot-img-fb" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div>
+            <img src="https://unavatar.io/instagram/SWERVE.2.THEBEAT" alt="SWERVE" onerror="this.style.display='none'">
+          </div>
+          <div class="spot-body">
+            <span class="spot-kil-tag2">★ KEEPITIL ARTIST</span>
+            <h3 class="spot-name2">SWERVE</h3>
+            <span class="spot-genre2">Tech House · Bass House · Techno</span>
+            <p class="spot-bio2">OC &amp; LA tech house veteran who started on vinyl, played Arena LA at 15. Decades of controlled chaos — the kind that turns rooms into memories.</p>
+            <div class="spot-sc">
+              <iframe scrolling="no" frameborder="no" allow="autoplay"
+                src="https://w.soundcloud.com/player/?url=https%3A//on.soundcloud.com/aD06JxU8XG846HQQ9a&color=%23ff6600&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>
+            </div>
+            <div class="spot-links2">
+              <a class="spot-btn-profile" href="blog-swerve.html">READ BIO →</a>
+              <a href="https://instagram.com/SWERVE.2.THEBEAT" class="spot-btn-ig" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                @SWERVE.2.THEBEAT
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- LVNKY BONEZ -->
+        <div class="spot-card">
+          <div class="spot-img-wrap">
+            <div class="spot-img-fb" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div>
+            <img src="https://unavatar.io/instagram/__lvnky.bonez__" alt="LVNKY BONEZ" onerror="this.style.display='none'">
+          </div>
+          <div class="spot-body">
+            <span class="spot-kil-tag2">★ KEEPITIL ARTIST</span>
+            <h3 class="spot-name2">LVNKY BONEZ</h3>
+            <span class="spot-genre2">Dubstep · DnB · Bass House</span>
+            <p class="spot-bio2">LA dubstep and DnB producer making noise on SoundCloud. Influenced by Excision, deadmau5, and Knife Party — his original track Captain Crunch is already shaking rooms.</p>
+            <div class="spot-sc">
+              <iframe scrolling="no" frameborder="no" allow="autoplay"
+                src="https://w.soundcloud.com/player/?url=https%3A//on.soundcloud.com/YZ3dGpImLPe00y9rID&color=%23ff6600&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false"></iframe>
+            </div>
+            <div class="spot-links2">
+              <a class="spot-btn-profile" href="blog-lvnky-bonez.html">READ BIO →</a>
+              <a href="https://instagram.com/__lvnky.bonez__" class="spot-btn-ig" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                @__lvnky.bonez__
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Subscribe -->
-    <!-- For Organizers CTA -->
+  <!-- DJ Booking Section -->
+  <section class="dj-spotlight" id="artist">
+    <div class="container">
+      <span class="spot-badge">☀️ SUMMER 2026</span>
+      <h2 class="spot-title">ARTIST ROSTER</h2>
+      <p class="spot-sub">32 artists across OC, LA &amp; SoCal — browse, filter, book</p>
+      <div class="dj-circle-grid">
+        <a class="dj-ci kil" href="blog-rab3l.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#6600ff,#0044aa)">RB</div><img src="https://unavatar.io/instagram/dj_rab3l_r3mix" alt="RAB3L" onerror="this.style.display='none'"></div><span class="dj-ci-name">RAB3L</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+        <a class="dj-ci kil" href="blog-groove-trooper.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#b400ff)">GT</div><img src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="GROOVE TROOPER" onerror="this.style.display='none'"></div><span class="dj-ci-name">GROOVE TROOPER</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+        <a class="dj-ci kil" href="blog-swerve.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00ff88,#00b4ff)">SW</div><img src="https://unavatar.io/instagram/SWERVE.2.THEBEAT" alt="SWERVE" onerror="this.style.display='none'"></div><span class="dj-ci-name">SWERVE</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+        <a class="dj-ci kil" href="blog-lvnky-bonez.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff6600,#b400ff)">LB</div><img src="https://unavatar.io/instagram/__lvnky.bonez__" alt="LVNKY BONEZ" onerror="this.style.display='none'"></div><span class="dj-ci-name">LVNKY BONEZ</span><span class="dj-ci-tag">★ KEEPITIL</span></a>
+        <a class="dj-ci kil" href="blog-chlophonic.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#6600ff,#ff0080)">CH</div><img src="https://unavatar.io/instagram/Chlophonic" alt="Chlophonic" onerror="this.style.display='none'"></div><span class="dj-ci-name">CHLOPHONIC</span><span class="dj-ci-tag">OC</span></a>
+        <a class="dj-ci kil" href="blog-pyprr.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff2200,#660000)">PY</div><img src="https://unavatar.io/instagram/_pyprr" alt="PYPRR" onerror="this.style.display='none'"></div><span class="dj-ci-name">PYPRR</span><span class="dj-ci-tag">LA</span></a>
+        <a class="dj-ci kil" href="blog-rex-elvis.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff2200,#660000)">RE</div><img src="https://unavatar.io/instagram/rex.elvis_" alt="Rex Elvis" onerror="this.style.display='none'"></div><span class="dj-ci-name">REX ELVIS</span><span class="dj-ci-tag">OC</span></a>
+        <a class="dj-ci kil" href="blog-galacticgumby.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#b400ff,#6600ff)">GG</div><img src="https://unavatar.io/instagram/Galactic_Gumby" alt="GalacticGumby" onerror="this.style.display='none'"></div><span class="dj-ci-name">GALACTICGUMBY</span><span class="dj-ci-tag">RIVERSIDE</span></a>
+        <a class="dj-ci kil" href="blog-xeodin.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#6600ff,#330066)">XE</div><img src="https://unavatar.io/instagram/xeodindubz" alt="XEODIN" onerror="this.style.display='none'"></div><span class="dj-ci-name">XEODIN</span><span class="dj-ci-tag">SAN DIEGO</span></a>
+        <a class="dj-ci kil" href="blog-tranceone.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#ff2200,#ff6600)">TR</div><img src="https://unavatar.io/instagram/Tranceonemusic" alt="TranceOne" onerror="this.style.display='none'"></div><span class="dj-ci-name">TRANCEONE</span><span class="dj-ci-tag">LA</span></a>
+        <a class="dj-ci kil" href="blog-crooki3.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#0044ff)">CR</div><img src="https://unavatar.io/instagram/crooki3official" alt="crooki3" onerror="this.style.display='none'"></div><span class="dj-ci-name">CROOKI3</span><span class="dj-ci-tag">RIVERSIDE</span></a>
+        <a class="dj-ci kil" href="blog-smoke.html"><div class="dj-ci-wrap"><div class="dj-ci-av" style="background:linear-gradient(135deg,#00b4ff,#006688)">SM</div><img src="https://unavatar.io/instagram/Allsmokeverything" alt="Smoke" onerror="this.style.display='none'"></div><span class="dj-ci-name">SMOKE</span><span class="dj-ci-tag">OC</span></a>
+      </div>
+      <a href="roster.html" class="dj-more-btn">SEE ALL 32 ARTISTS →</a>
+    </div>
+  </section>
+
+  <!-- Culture / Blog -->
+  <section class="blog" id="blog">
+    <div class="container">
+      <div class="section-label reveal">Culture</div>
+      <h2 class="section-title reveal">FROM THE BLOG</h2>
+      <div class="blog-grid">
+        <a class="blog-card reveal" href="blog-rab3l.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:url('https://unavatar.io/instagram/dj_rab3l_r3mix') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #6600ff;"></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#6600ff;text-transform:uppercase;">🎧 Artist Feature</span>
+          <h3 style="margin:8px 0 10px;">RAB3L — Built from the Booth, Raised by Sound</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Torrance-bred bass selector bringing UKG, tech house, and bassline to the underground. Started DJing at 8.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>Torrance, CA</span><span>·</span><span>Bass House · UKG</span></div>
+        </a>
+        <a class="blog-card reveal" href="blog-groove-trooper.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:url('https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #b400ff;"></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">🌀 Artist Feature</span>
+          <h3 style="margin:8px 0 10px;">Groove Trooper — Rhythm, Roots &amp; the Power of Movement</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Garden Grove's Latin tech house force. Tribal drums, Guatemalan roots, Groove Cruise Miami, Avalon LA.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>Garden Grove, CA</span><span>·</span><span>Latin House · Tech House</span></div>
+        </a>
+        <a class="blog-card reveal" href="blog-lvnky-bonez.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:url('https://unavatar.io/instagram/__lvnky.bonez__') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #ff0080;"></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff0080;text-transform:uppercase;">🔊 Artist Feature</span>
+          <h3 style="margin:8px 0 10px;">Lvnky Bonez — Turning Raw Energy into Movements</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">LA dubstep and DnB producer making noise on SoundCloud. Captain Crunch is already shaking rooms.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>Los Angeles, CA</span><span>·</span><span>Dubstep · DnB</span></div>
+        </a>
+        <a class="blog-card reveal" href="blog-swerve.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:url('https://unavatar.io/instagram/SWERVE.2.THEBEAT') center/cover no-repeat;margin:-32px -32px 20px;border-bottom:2px solid #ff6600;"></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#ff6600;text-transform:uppercase;">🎛️ Artist Feature</span>
+          <h3 style="margin:8px 0 10px;">SWERVE — Controlled Chaos on the Decks Since 13</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">OC &amp; LA tech house veteran who started on vinyl, played Arena LA at 15. Decades of controlled chaos.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA</span><span>·</span><span>Tech House · Techno</span></div>
+        </a>
+        <a class="blog-card reveal" href="roster.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0b1a0b,#0d2010);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">
+            <span style="font-size:32px;font-weight:900;color:#ff6600;text-shadow:0 0 20px #ff6600;letter-spacing:.05em;">KEEPITIL</span>
+            <span style="font-size:11px;color:#888;letter-spacing:.15em;text-transform:uppercase;">32 Artists · OC &amp; LA</span>
+          </div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00ff88;text-transform:uppercase;">🎤 Join The Roster</span>
+          <h3 style="margin:8px 0 10px;">Are You Next? Apply for Artist Highlight</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">OC or LA DJ/producer ready to be featured on KEEPITIL? Submit your Artist Highlight form and join the underground roster.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span style="color:#00ff88;">Apply →</span></div>
+        </a>
+        <a class="blog-card reveal" href="culture.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0015,#0d1520);margin:-32px -32px 20px;border-bottom:2px solid #b400ff;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:20px;font-weight:900;color:#b400ff;text-shadow:0 0 20px #b400ff;text-align:center;padding:0 16px;line-height:1.4;">CREATE LOUD.<br>LIVE LOUDER.</span>
+          </div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">🌐 Culture</span>
+          <h3 style="margin:8px 0 10px;">The KEEPITIL Movement — From Events to Community</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">More than a promoter. KEEPITIL is building a movement — connecting DJs, fans, and venues across the OC and LA underground scene.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span>Read More →</span></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Organizers CTA -->
   <section class="org-cta" id="organizers">
     <div class="container">
       <div class="org-cta-grid">
@@ -708,26 +564,61 @@
           </div>
         </div>
         <div class="org-stats reveal-right">
-          <div class="org-stat"><div><div class="org-stat-num">29+</div><div class="org-stat-lbl">Active Organizers</div></div></div>
-          <div class="org-stat"><div><div class="org-stat-num">100+</div><div class="org-stat-lbl">Events Listed</div></div></div>
+          <div class="org-stat"><div><div class="org-stat-num">30</div><div class="org-stat-lbl">Active Organizers</div></div></div>
+          <div class="org-stat"><div><div class="org-stat-num">18</div><div class="org-stat-lbl">Brand Partners</div></div></div>
           <div class="org-stat"><div><div class="org-stat-num">OC · LA</div><div class="org-stat-lbl">Coverage Region</div></div></div>
         </div>
       </div>
     </div>
   </section>
 
-<section class="subscribe" id="subscribe">
+  <!-- Events Teaser -->
+  <section class="events-teaser" id="events">
+    <div class="container">
+      <div class="events-header reveal">
+        <div>
+          <div class="section-label">📅 Upcoming Events</div>
+          <h2 class="section-title">WHAT'S POPPIN IN <span class="neon-text">OC &amp; LA</span></h2>
+        </div>
+        <a href="events.html" class="events-see-all">See All Events →</a>
+      </div>
+      <div class="events-grid">
+        <a href="events.html" class="ev-card reveal">
+          <div class="ev-date-badge">🧟 Jun 19–20</div>
+          <h3>ZOMBIE APOCALYPSE</h3>
+          <div class="ev-venue">📍 Queen Mary Waterfront — Long Beach, CA</div>
+          <div class="ev-acts">Excision + Wooli B2B · Borgore · Pendulum · Sullivan King · Mersiv</div>
+        </a>
+        <a href="events.html" class="ev-card reveal">
+          <div class="ev-date-badge">☀️ Jun 27</div>
+          <h3>DAY TRIP</h3>
+          <div class="ev-venue">📍 SoCal — TBA</div>
+          <div class="ev-acts">Lineup TBA — underground house &amp; techno day party</div>
+        </a>
+        <a href="events.html" class="ev-card reveal">
+          <div class="ev-date-badge">🌙 Jun 27</div>
+          <h3>LOST IN DREAMS</h3>
+          <div class="ev-venue">📍 SoCal — TBA</div>
+          <div class="ev-acts">Electronic music showcase — full lineup dropping soon</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Subscribe -->
+  <section class="subscribe" id="subscribe">
     <div class="subscribe-bg"></div>
     <div class="container">
       <div class="subscribe-inner reveal">
-        <p class="sub-overline">STAY LOCKED IN</p>
-        <h2 class="sub-title">GET THE DROP <span class="neon-text">BEFORE ANYONE ELSE</span></h2>
+        <div class="section-label" style="text-align:center">Stay Locked In</div>
+        <h2>GET THE DROP<br/><span class="neon-text">BEFORE ANYONE ELSE</span></h2>
         <p>OC &amp; LA events, exclusive mixes, artist interviews, and underground intel — straight to your inbox. No spam.</p>
         <form class="subscribe-form" onsubmit="handleSubscribe(event)">
           <input type="email" placeholder="your@email.com" id="email-input" required/>
-          
+          <input type="tel" placeholder="Phone number (optional)" id="phone-input"/>
           <button type="submit">Subscribe — Get Early Access</button>
         </form>
+        <a href="signup.html" class="subscribe-join">Join the Roster →</a>
         <p class="subscribe-note" id="subscribe-msg">Get early access to tickets before public sale. No spam.</p>
       </div>
     </div>
@@ -738,7 +629,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a class="logo" href="https://keepitil.com" target="_blank" style="text-decoration:none;color:inherit;">
+          <a class="logo" href="index.html" style="text-decoration:none;color:inherit;">
             <img class="logo-img" src="logo-neon-nav.png" alt="Keep It IL Logo"/>
             <span class="logo-text">KEEP IT IL</span>
           </a>
@@ -752,22 +643,21 @@
           </div>
         </div>
         <div class="footer-col">
-          <h5>Content</h5>
+          <h5>Artists &amp; Culture</h5>
           <ul>
-            <li><a href="#featured">Features</a></li>
-            <li><a href="#blog">Blog</a></li>
-            <li><a href="#artists">Artists</a></li>
-            <li><a href="roster.html">DJ Roster</a></li>
+            <li><a href="roster.html">Artist Roster</a></li>
+            <li><a href="culture.html">Culture Blog</a></li>
+            <li><a href="blog-rab3l.html">RAB3L</a></li>
+            <li><a href="blog-groove-trooper.html">Groove Trooper</a></li>
           </ul>
         </div>
         <div class="footer-col">
-          <h5>Events</h5>
+          <h5>Scene</h5>
           <ul>
-            <li><a href="#explore">Explore Events</a></li>
-            <li><a href="#events">Curated Picks</a></li>
-            <li><a href="https://keepitil.com/contact" target="_blank">Submit an Event</a></li>
             <li><a href="organizers-directory.html">Organizers</a></li>
-            <li><a href="https://www.eventbrite.com/d/ca--los-angeles/edm-events/" target="_blank" rel="noopener">Eventbrite LA</a></li>
+            <li><a href="vendors.html">Brands</a></li>
+            <li><a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank">Apply to Join</a></li>
+            <li><a href="signup.html">Sign Up</a></li>
           </ul>
         </div>
         <div class="footer-col">
@@ -788,332 +678,76 @@
 
   <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-  <div class="modal-backdrop" id="modal" onclick="closeModal(event)">
-    <div class="modal" id="modal-content">
-      <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">✕</button>
-      <div class="modal-body" id="modal-body"></div>
-    </div>
-  </div>
-
   <script>
-  /* ── SUPABASE ─────────────────────────────────────── */
+  /* ── SUPABASE ── */
   const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
   const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
   const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-  async function loadStats() {
-    try {
-      const [subRes, evRes, djRes] = await Promise.all([
-        supa.from('subscribers').select('*', {count:'exact', head:true}),
-        supa.from('submitted_events').select('*', {count:'exact', head:true}).eq('status','live'),
-        supa.from('dj_profiles').select('*', {count:'exact', head:true}).eq('status','active')
-      ]);
-      const counts = {subscribers: subRes.count||0, events: evRes.count||0, djs: djRes.count||0};
-      document.querySelectorAll('[data-count]').forEach(el => {
-        if (el.dataset.count === 'subscribers') el.dataset.target = counts.subscribers;
-        else if (el.dataset.count === 'events') el.dataset.target = counts.events;
-        else if (el.dataset.count === 'djs') el.dataset.target = counts.djs;
-      });
-      animateCounters();
-    } catch(e) { animateCounters(); }
-  }
-
-  function animateCounters() {
-    document.querySelectorAll('[data-count]').forEach(el => {
-      const target = parseInt(el.dataset.target || el.dataset.count) || 0;
-      let start=0, dur=2000, step=16;
-      const inc = target/(dur/step);
-      const timer = setInterval(() => {
-        start = Math.min(start+inc, target);
-        el.textContent = Math.floor(start).toLocaleString();
-        if(start>=target) clearInterval(timer);
-      }, step);
-    });
-  }
-
+  /* Stats are hardcoded — Supabase data not reliable for artist/org/brand counts */
+  /* Subscribe form uses Supabase */
   async function handleSubscribe(e) {
     e.preventDefault();
     const email = document.getElementById('email-input').value.trim();
+    const phoneEl = document.getElementById('phone-input');
+    const phone = phoneEl ? phoneEl.value.trim() : '';
     if (!email) return;
-    const btn = e.target.querySelector('button[type=submit]') || e.target.querySelector('button');
+    const btn = e.target.querySelector('button[type=submit]');
     if (btn) btn.disabled = true;
-    const { error } = await supa.from('subscribers').insert({ email, source: 'website' });
-    if(window._GAS_URL&&window._GAS_URL!=='YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'){try{fetch(window._GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'subscriber',email,submitted:new Date().toISOString()})})}catch(e){}}
+    const { error } = await supa.from('subscribers').insert({ email, phone: phone||null, source: 'website' });
     if (btn) btn.disabled = false;
     const note = document.querySelector('.subscribe-note');
     if (error) {
       if (error.code === '23505') {
-        if (note) { note.textContent = "You're already on the list!"; note.style.color = 'var(--blue)'; }
+        if (note) { note.textContent = "You're already on the list!"; note.style.color = 'var(--orange)'; }
       } else {
         if (note) { note.textContent = 'Something went wrong. Try again.'; note.style.color = '#ff4444'; }
       }
     } else {
       if (note) { note.textContent = "🎉 You're in! Watch your inbox."; note.style.color = '#00ff88'; }
       e.target.reset();
-      try{if(typeof emailjs!=='undefined'&&emailjs._options){await emailjs.send('YOUR_EMAILJS_SERVICE_ID','keepitil_welcome',{to_email:email,to_name:email.split('@')[0],reply_to:'info@keepitil.com',profile_url:'https://keepitil.com/profile',upgrade_url:'https://keepitil.com/upgrade'});}}catch(ex){console.log('Email skipped:',ex);}
     }
     setTimeout(() => { if (note) { note.textContent = 'Get early access to tickets before public sale. No spam.'; note.style.color = ''; } }, 4000);
   }
 
-  /* ── EXPLORE EVENTS DATA ──────────────────────────── */
-  const exploreEvents = [
-    {id:'e1',county:'oc',genre:'bass',date:'Jun 19',name:'BASS RESURGENCE: The Signal Returns',venue:'BLEU',location:'Westminster, OC',tags:['Bass','DNB'],img:'https://images.posh.vip/originals/6a2f1d7133f64f9f3c349b60',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/keep-it-bass'},
-    {id:'e2',county:'oc',genre:'techno',date:'Jun 20',name:'TECHNO & MATCHA',venue:'La Santa',location:'Orange County, OC',tags:['Techno','Day Rave'],img:'https://images.posh.vip/alts/68ffc5007d631d5b53d4f988/600x600.webp',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/techno-matcha-11'},
-    {id:'e3',county:'oc',genre:'house',date:'Jun 20',name:'MATCHA & HOUSE',venue:'VIVOT CRAFT CAFE',location:'Orange County, OC',tags:['House','Day Rave'],img:'https://images.posh.vip/alts/67dde894ae04da6d4fd93a88/602x600.webp',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/matcha-house'},
-    {id:'e4',county:'oc',genre:'techno',date:'Jun 20',name:'SXTCY x WASTED: BLURRED MOVEMENT + TORSTEN',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['Techno','House'],img:'https://images.posh.vip/postreact/images/6b65e3b5-f1f2-46d2-b2ef-cb7ed38a9b7d.jpg',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/sxtcy-x-wasted-present-blurred-movement-torsten'},
-    {id:'e5',county:'oc',genre:'house',date:'Jun 21',name:'AZURE Huntington Beach w/ESSE',venue:'The Bungalow',location:'Huntington Beach, OC',tags:['House','Day Party'],img:'https://images.posh.vip/alts/696ef142fea641dc250593bf/600x600.webp',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/azure-day-party-huntington-beach-2026-10-18-22-30'},
-    {id:'e6',county:'oc',genre:'house',date:'Jun 21',name:"Rave & Brew: Father's Day Edition",venue:'Noble Ale Works',location:'Orange County, OC',tags:['House','Techno'],img:'https://images.posh.vip/alts/69ae2ce4bafb11ea387c3a94/600x600.png',eb:'https://www.eventbrite.com/d/ca--orange-county/edm-electronic-music/',posh:'https://posh.vip/e/rave-brew-fathers-day-edition-coffee-beer-seltzers-in-the-sun'},
-    {id:'e7',county:'oc',genre:'house',date:'Jun 26',name:'Karlsn Presents: Velocity 2.0',venue:'The Circle OC',location:'Huntington Beach, OC',tags:['House','Techno'],img:'',eb:'https://www.eventbrite.com/e/karlsn-presents-velocity-20-tickets-1989155955008',posh:'https://posh.vip/'},
-    {id:'e8',county:'oc',genre:'house',date:'Jun 27',name:'YOST SATURDAYS: Experience Club XO',venue:'Yost Theater',location:'Santa Ana, OC',tags:['House','EDM'],img:'',eb:'https://www.eventbrite.com/e/yost-saturdays-experience-club-xo-tickets-1986588142612',posh:'https://posh.vip/'}
-  ]
-
-  function renderExploreCards(filter='all'){
-    const grid = document.getElementById('explore-grid');
-    const empty = document.getElementById('explore-empty');
-    const filtered = filter==='all' ? exploreEvents : exploreEvents.filter(e=>e.county===filter||e.genre===filter);
-    grid.innerHTML='';
-    if(!filtered.length){empty.style.display='block';return;}
-    empty.style.display='none';
-    filtered.forEach(ev=>{
-      const card = document.createElement('div');
-      card.className='explore-card';
-      card.innerHTML='<div class="explore-card-top">'
-        +'<div class="explore-card-county">'+(ev.county==='la'?'📍 LA County':'📍 Orange County')+'</div>'
-        +'<div class="explore-card-date">'+ev.date+'</div>'
-        +'<h3>'+ev.name+'</h3>'
-        +'<div class="explore-card-venue">'+ev.venue+' · '+ev.location+'</div>'
-        +'<div class="explore-card-tags">'+ev.tags.map(function(t){return '<span class="tag">'+t+'</span>';}).join('')+'</div>'
-        +'</div>'
-        +'<div class="explore-card-bottom">'
-        +'<a href="'+ev.eb+'" target="_blank" rel="noopener" class="ticket-btn ticket-btn-eb" onclick="event.stopPropagation()">🎫 Eventbrite</a>'
-        +'<a href="'+ev.posh+'" target="_blank" rel="noopener" class="ticket-btn ticket-btn-posh" onclick="event.stopPropagation()">✨ Posh</a>'
-        +'</div>';
-      grid.appendChild(card);
-    });
-    grid.querySelectorAll('.explore-card').forEach(function(c,i){
-      c.style.opacity='0';c.style.transform='translateY(20px)';c.style.transition='opacity .4s ease '+i*.06+'s, transform .4s ease '+i*.06+'s';
-      setTimeout(function(){c.style.opacity='1';c.style.transform='none';},50);
-    });
-  }
-
-  function filterExplore(filter, tab){
-    document.querySelectorAll('#explore .filter-tab').forEach(function(t){t.classList.remove('active');});
-    tab.classList.add('active');
-    renderExploreCards(filter);
-  }
-
-  renderExploreCards('all');
-
-  /* ── HERO CANVAS ─────────────────────────────────── */
-  (function(){
-    const canvas = document.getElementById('hero-canvas');
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let W, H, particles = [];
-    function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;}
-    resize();
-    window.addEventListener('resize', resize);
-    for(var i=0;i<120;i++) particles.push({x:Math.random()*2000,y:Math.random()*1200,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.2,a:Math.random()*.6+.1});
-    var t=0;
-    function draw(){
-      ctx.clearRect(0,0,W,H); t+=.008;
-      for(var l=0;l<3;l++){
-        ctx.beginPath();ctx.strokeStyle='rgba(0,180,255,'+((.04-.01*l))+')';ctx.lineWidth=1.5-l*.4;
-        for(var x=0;x<=W;x+=3){
-          var y=H*.5+Math.sin(x*.006+t+l*.8)*60+Math.sin(x*.012-t*.7+l)*30+Math.sin(x*.003+t*.5)*40;
-          (l===0&&x===0)?ctx.moveTo(x,y):ctx.lineTo(x,y);
-        }
-        ctx.stroke();
-      }
-      particles.forEach(function(p){
-        p.x+=p.vx;p.y+=p.vy;
-        if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        ctx.fillStyle='rgba(0,180,255,'+(p.a*.5)+')';ctx.fill();
-      });
-      requestAnimationFrame(draw);
-    }
-    draw();
-  })();
-
-  /* ── TYPEWRITER ───────────────────────────────────── */
-  (function(){
-    const words=['UNDERGROUND','MOVEMENT','CULTURE','SOUND','SCENE','FUTURE'];
-    const el=document.getElementById('typewriter');
-    if(!el) return;
-    var wi=0,ci=0,deleting=false;
-    function type(){
-      var word=words[wi];
-      if(!deleting){el.textContent=word.slice(0,++ci);if(ci===word.length){deleting=true;setTimeout(type,2000);return;}}
-      else{el.textContent=word.slice(0,--ci);if(ci===0){deleting=false;wi=(wi+1)%words.length;}}
-      setTimeout(type,deleting?60:100);
-    }
-    setTimeout(type,1200);
-  })();
-
-  /* ── SCROLL REVEAL + NAV + STATS ─────────────────── */
-  var revealEls=document.querySelectorAll('.reveal,.reveal-left,.reveal-right');
-  var statEls=document.querySelectorAll('[data-count]');
-  var sections=document.querySelectorAll('section[id]');
-  var navLinks=document.querySelectorAll('.nav-links a[data-section]');
-  var statsTriggered=false;
-  var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:.12});
-  revealEls.forEach(function(el){observer.observe(el);});
-  var statsObserver=new IntersectionObserver(function(entries){if(entries[0].isIntersecting&&!statsTriggered){statsTriggered=true;loadStats();}},{threshold:.5});
-  var statsSection=document.querySelector('.hero-stats');
-  if(statsSection)statsObserver.observe(statsSection);
-  var sectionObserver=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){navLinks.forEach(function(a){a.classList.toggle('active',a.dataset.section===e.target.id);});}});},{rootMargin:'-30% 0px -60% 0px'});
-  sections.forEach(function(s){sectionObserver.observe(s);});
-
-  /* ── SCROLL EVENTS ───────────────────────────────── */
-  var navEl=document.getElementById('main-nav');
-  var scrollTopBtn=document.getElementById('scroll-top');
-  window.addEventListener('scroll',function(){
-    if(navEl)navEl.classList.toggle('scrolled',window.scrollY>20);
-    if(scrollTopBtn)scrollTopBtn.classList.toggle('visible',window.scrollY>400);
+  /* ── NAV SCROLL ── */
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    const scrollBtn = document.getElementById('scroll-top');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 20);
+    if (scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 400);
   });
 
-  /* ── MOBILE MENU ─────────────────────────────────── */
-  function toggleMenu(){var menu=document.getElementById('mobile-menu');var ham=document.getElementById('hamburger');menu.classList.toggle('open');ham.classList.toggle('open');document.body.style.overflow=menu.classList.contains('open')?'hidden':'';}
-
-  /* ── EVENT FILTER ───────────────────────────────── */
-  function filterEvents(genre,tab){
-    document.querySelectorAll('.events .filter-tabs .filter-tab').forEach(function(t){t.classList.remove('active');});
-    tab.classList.add('active');
-    document.querySelectorAll('.event-item').forEach(function(item){var genres=item.dataset.genres||'';item.classList.toggle('hidden',genre!=='all'&&!genres.includes(genre));});
+  function toggleMenu() {
+    const h = document.getElementById('hamburger');
+    const m = document.getElementById('mobile-menu');
+    if (h) h.classList.toggle('open');
+    if (m) m.classList.toggle('open');
   }
 
-  /* ── BLOG FILTER ─────────────────────────────────── */
-  function filterBlog(cat,tab){
-    tab.closest('.filter-tabs').querySelectorAll('.filter-tab').forEach(function(t){t.classList.remove('active');});
-    tab.classList.add('active');
-    document.querySelectorAll('.blog-card').forEach(function(card){card.classList.toggle('hidden',cat!=='all'&&card.dataset.category!==cat);});
-  }
-
-  /* ── MODAL ───────────────────────────────────────── */
-  var modalData={
-    feature1:{tag:'🎵 Artist Feature',title:'Exchange LA: The Heartbeat of SoCal Techno',meta:'June 5, 2026 · 8 min read',body:'<p>For over a decade, Exchange LA has been the anchor of Downtown Los Angeles\'s underground dance music scene. Located in the heart of DTLA, it has hosted nearly every significant techno and house act to pass through Southern California.</p><p>What sets Exchange apart isn\'t just its booking — it\'s the architecture of the room itself. Three distinct levels, a dance floor that prioritizes function over spectacle, and a sound system that remains one of the best in North America. The crowd knows it. They come to dance, not to be seen.</p>'},
-    feature2:{tag:'🎤 Interview',title:'Factory 93 and the Rise of LA\'s Warehouse Scene',meta:'June 1, 2026 · 6 min read',body:'<p>Insomniac\'s underground imprint Factory 93 has become the defining force behind LA\'s warehouse rave renaissance.</p>'},
-    feature3:{tag:'🎛️ Gear',title:'Best Budget Setups for Bedroom Producers in 2026',meta:'May 30, 2026 · 12 min read',body:'<p>The myth that you need a professional studio to make professional music has never been more thoroughly debunked.</p>'},
-    feature4:{tag:'📸 Event Recap',title:'EDC Las Vegas 2026: What the OC Crew Brought Back',meta:'May 27, 2026 · 5 min read',body:'<p>Every Memorial Day weekend, a caravan of OC and LA heads makes the four-hour drive to Las Vegas for EDC.</p>'},
-    artist1:{tag:'🎤 Artist',title:'NEXVS',meta:'Los Angeles, CA · Techno / Acid',body:'<p>NEXVS is one of Los Angeles\'s most distinctive selectors. Operating at the intersection of acid techno and industrial rave.</p>'},
-    artist2:{tag:'🎤 Artist',title:'VORTEX',meta:'Anaheim OC, CA · Hard Trance / Rave',body:'<p>VORTEX brings the energy of 90s rave culture into 2026 with no apologies.</p>'},
-    artist3:{tag:'🎤 Artist',title:'SLVR',meta:'Long Beach, CA · Deep House / Garage',body:'<p>SLVR is the alias of a Long Beach-born producer whose deep house productions carry the warmth of classic Chicago soul.</p>'},
-    artist4:{tag:'🎤 Artist',title:'PHXNTOM',meta:'Los Angeles, CA · Drum & Bass / Jungle',body:'<p>The newest name on this list, PHXNTOM emerged from LA\'s small but dedicated D&B scene.</p>'},
-    blog1:{tag:'🎶 Music',title:'10 Tracks That Define the New LA Sound',meta:'Jun 5, 2026 · 5 min read',body:'<p>Defining a "sound" is always a moving target, but these 10 tracks capture something real about what\'s happening in LA\'s underground clubs.</p>'},
-    blog2:{tag:'📖 Culture',title:'Why Rave Culture Is More Important Than Ever',meta:'Jun 2, 2026 · 7 min read',body:'<p>There\'s a version of this argument that\'s been made so many times it\'s almost meaningless.</p>'},
-    blog3:{tag:'🛠️ Production',title:"Making Acid Basslines: A Beginner's Guide to the TB-303",meta:'May 28, 2026 · 10 min read',body:'<p>The Roland TB-303 Bass Line was a commercial failure when it launched in 1981.</p>'},
-    blog4:{tag:'💡 Tips',title:'How to Pitch Your Event to Underground Music Blogs',meta:'May 20, 2026 · 4 min read',body:'<p>We receive dozens of event pitches every week at Keep It IL. Most of them don\'t get a response.</p>'},
-    blog5:{tag:'🗺️ Travel',title:'The SoCal Rave Trail: Best Underground Venues in OC & LA',meta:'May 15, 2026 · 6 min read',body:'<p>LA and OC have a quietly remarkable underground scene. Here are the venues every head needs to know.</p>'},
-    blog6:{tag:'🎧 Mix Review',title:'The 5 Best Free DJ Mix Downloads This Month',meta:'May 10, 2026 · 3 min read',body:'<p>Every month we round up the best free mixes floating around SoundCloud, Mixcloud, and assorted corners of the internet.</p>'}
-  };
-
-  function openModal(id){
-    var d=modalData[id];if(!d)return;
-    var body=document.getElementById('modal-body');
-    body.innerHTML='<span class="modal-tag">'+d.tag+'</span><h2 class="modal-title">'+d.title+'</h2><div class="modal-meta">'+d.meta+'</div><div class="modal-text">'+d.body+'</div>';
-    document.getElementById('modal').classList.add('open');
-    document.body.style.overflow='hidden';
-  }
-
-  function closeModal(e){
-    if(e.target.id==='modal'){document.getElementById('modal').classList.remove('open');document.body.style.overflow='';}
-  }
-
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){
-      var modal=document.getElementById('modal');var menu=document.getElementById('mobile-menu');var ham=document.getElementById('hamburger');
-      if(modal)modal.classList.remove('open');
-      if(menu)menu.classList.remove('open');
-      if(ham)ham.classList.remove('open');
-      document.body.style.overflow='';
+  /* ── TYPEWRITER ── */
+  const words = ['UNDERGROUND', 'SCENE', 'CULTURE', 'MOVEMENT'];
+  let wi = 0, ci = 0, deleting = false;
+  function typeLoop() {
+    const el = document.getElementById('typewriter');
+    if (!el) return;
+    const word = words[wi];
+    if (!deleting) {
+      el.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; setTimeout(typeLoop, 1800); return; }
+    } else {
+      el.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
     }
-  });
-
-  document.addEventListener('DOMContentLoaded', function(){
-    loadStats();
-  });
-</script>
-<script src="blog-loader.js"></script>
-<script>
-(function(){
-  var artists=[
-    {name:'RAB3L',genre:'Bass House / UKG / Bassline',city:'Torrance, CA',ig:'dj_rab3l_r3mix',sc:'https://soundcloud.com/dj-rab3l-171821351/rab3l-uk-garage-mix/',bio:'Born into the craft at age 8, RAB3L brings years of experience and deep genre knowledge to every set. Bouncy, festival-level euphoria from Torrance\'s underground rising star.',url:'https://keepitil.com/rab3l',img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp'},
-    {name:'LVNKY BONEZ',genre:'Dubstep / DnB',city:'Los Angeles, CA',ig:'__lvnky.bonez__',sc:'https://on.soundcloud.com/YZ3dGpImLPe00y9rID',bio:'LA-based bass monster bringing heavy Excision-inspired energy. Sets that engage from the very first drop. His original track Captain Crunch is already shaking rooms.',url:'https://keepitil.com/lvnky-bonez',img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/ChatGPT%20Image%20Apr%202%2C%202026%2C%2012_56_06%20AM.png'},
-    {name:'GROOVE TROOPER',genre:'Latin House / Tech House',city:'Garden Grove, CA',ig:'Groove_Trooper',sc:'https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj',bio:'Guatemalan roots run deep in every set. Tribal drums, Latin grooves, and a stage presence that commands every room. Groove Cruise and Avalon LA veteran.',url:'https://keepitil.com/groove-trooper',img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg'},
-    {name:'SWERVE',genre:'Tech House / Latin House / Techno',city:'OC & LA',ig:'you_vs_you_only',sc:'https://on.soundcloud.com/aD06JxU8XG846HQQ9a',bio:'Started on vinyl at 13. Decades of controlled chaos across OC and LA — the kind that turns rooms into memories.',url:'https://keepitil.com/artist',img:''}
-  ];
-  var idx=Math.floor(Date.now()/86400000)%artists.length;
-  var a=artists[idx];
-  var el=document.getElementById('aotd-main');
-  if(el){
-    if(a.img)el.style.backgroundImage='url('+a.img+')';
-    el.style.cursor='pointer';
-    el.onclick=function(){window.open(a.url,'_blank');};
-    document.getElementById('aotd-name').textContent=a.name;
-    document.getElementById('aotd-bio').textContent=a.bio;
-    document.getElementById('aotd-genre').textContent=a.genre;
-    document.getElementById('aotd-city').textContent=a.city;
-    document.getElementById('aotd-read').href=a.url;
-    document.getElementById('aotd-sc').href=a.sc;
-    document.getElementById('aotd-ig').href='https://instagram.com/'+a.ig;
+    setTimeout(typeLoop, deleting ? 60 : 100);
   }
-})();
-</script>
+  typeLoop();
 
-  <!-- Listen Modal -->
-  <div class="listen-overlay" id="listen-modal" onclick="if(event.target===this)closeListenModal()">
-    <div class="listen-box">
-      <div class="listen-head">
-        <div><div class="listen-title" id="listen-title">ARTIST</div><div class="listen-sub">SoundCloud</div></div>
-        <button class="listen-close" onclick="closeListenModal()">✕</button>
-      </div>
-      <div class="listen-sc"><iframe id="listen-iframe" width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay" src="about:blank"></iframe></div>
-    </div>
-  </div>
-
-  <!-- Bio Modal -->
-  <div class="bio-overlay" id="bio-modal" onclick="if(event.target===this)closeBioModal()">
-    <div class="bio-box">
-      <button class="bio-close" onclick="closeBioModal()">✕</button>
-      <span class="bio-kil-tag">★ KEEPITIL ARTIST</span>
-      <h2 class="bio-name" id="bio-modal-name"></h2>
-      <span class="bio-genre-lbl" id="bio-modal-genre"></span>
-      <p class="bio-text" id="bio-modal-bio"></p>
-      <div class="bio-actions">
-        <a href="#" class="bio-btn bio-btn-ig" id="bio-modal-ig" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" style="flex-shrink:0"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> Instagram</a>
-        <button class="bio-btn bio-btn-listen" id="bio-modal-listen"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg> Listen on SoundCloud</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  var _bios={RAB3L:{name:'RAB3L',genre:'Techno · House · OC / LA',ig:'dj_rab3l_r3mix',sc:'https://soundcloud.com/dj-rab3l-171821351/rab3l-uk-garage-mix/',bio:'RAB3L is an OC-based DJ and producer pushing underground techno and dark house into the California circuit. With a sound rooted in the Berlin underground and shaped by years performing across Orange County and Los Angeles, RAB3L delivers driving, hypnotic sets that blend raw industrial textures with melodic depth. A KEEPITIL resident and one of the defining voices of the OC underground.'},'GROOVE TROOPER':{name:'GROOVE TROOPER',genre:'House · Tech House · LA',ig:'Groove_Trooper',sc:'https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj',bio:'Groove Trooper is a Los Angeles-based DJ and producer known for infectious house grooves and tech house energy that keeps dance floors locked in. Blending classic Chicago soul with modern LA underground aesthetics, Groove Trooper has become a cornerstone of Southern California\'s house music scene. A KEEPITIL resident known for warm, groove-heavy selections.'},SWERVE:{name:'SWERVE',genre:'Dark Techno · Industrial · OC',ig:'you_vs_you_only',sc:'https://on.soundcloud.com/aD06JxU8XG846HQQ9a',bio:'SWERVE is Orange County\'s dark techno and industrial heavyweight, delivering relentless, hypnotic sets that push the boundaries of the underground. Drawing from industrial, dark techno, and noise traditions, SWERVE crafts immersive sonic journeys that challenge and captivate in equal measure.'},'LVNKY BONEZ':{name:'LVNKY BONEZ',genre:'Bass House · Underground · CA',ig:'__lvnky.bonez__',sc:'https://on.soundcloud.com/YZ3dGpImLPe00y9rID',bio:'LVNKY BONEZ brings chaotic bass-heavy energy to California\'s underground circuit, blending bass house with hard-hitting club music and fearless genre-bending. Known for high-energy performances, LVNKY BONEZ represents the next generation of Southern California underground producers pushing the bass music frontier.'}};
-  function openBioModal(k){var a=_bios[k];if(!a)return;document.getElementById('bio-modal-name').textContent=a.name;document.getElementById('bio-modal-genre').textContent=a.genre;document.getElementById('bio-modal-bio').textContent=a.bio;document.getElementById('bio-modal-ig').href='https://www.instagram.com/'+a.ig+'/';document.getElementById('bio-modal-listen').onclick=function(){closeBioModal();openListenModal(a.name,a.sc);};document.getElementById('bio-modal').classList.add('open');document.body.style.overflow='hidden';}
-  function closeBioModal(){document.getElementById('bio-modal').classList.remove('open');document.body.style.overflow='';}
-  function openListenModal(name,sc){document.getElementById('listen-title').textContent=name;var _u=sc.indexOf('http')===0?encodeURIComponent(sc):'https%3A//soundcloud.com/'+sc;document.getElementById('listen-iframe').src='https://w.soundcloud.com/player/?url='+_u+'&color=%2300b4ff&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=true';document.getElementById('listen-modal').classList.add('open');document.body.style.overflow='hidden';}
-  function closeListenModal(){document.getElementById('listen-modal').classList.remove('open');document.getElementById('listen-iframe').src='about:blank';document.body.style.overflow='';}
-  var _djD={'RAB3L':{ig:'dj_rab3l_r3mix',sc:'https://soundcloud.com/dj-rab3l-171821351/rab3l-uk-garage-mix/'},'GROOVE TROOPER':{ig:'Groove_Trooper',sc:'https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj'},'SWERVE':{ig:'you_vs_you_only',sc:'https://on.soundcloud.com/aD06JxU8XG846HQQ9a'},'LVNKY BONEZ':{ig:'__lvnky.bonez__',sc:'https://on.soundcloud.com/YZ3dGpImLPe00y9rID'},'DJ MUSTARD':{ig:'djmustard',sc:'djmustard'},'VALENTINO KHAN':{ig:'valentinokhan',sc:'valentinokhan'},'DESTRUCTO':{ig:'destructo',sc:'destructo'},'TOKiMONSTA':{ig:'tokimonsta',sc:'tokimonsta'},'CHRIS LAKE':{ig:'chrislake',sc:'chris-lake'},'CLAUDE VONSTROKE':{ig:'claudevonstroke',sc:'claude-vonstroke'},'LUBELSKI':{ig:'lubelski',sc:'lubelski'},'GOLF CLAP':{ig:'golfclapmusic',sc:'golf-clap'}};
-  var _igS='<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>';
-  var _lsS='<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>';
-  function _initDJ(){document.querySelectorAll('.dj-ci').forEach(function(el){var p=el.parentElement;if(p&&p.classList.contains('dj-act-wrap'))return;var ne=el.querySelector('.dj-ci-name');if(!ne)return;var nm=ne.textContent.trim().toUpperCase();var d=_djD[nm];if(!d)return;var ow=document.createElement('div');ow.className='dj-act-wrap';el.parentNode.insertBefore(ow,el);ow.appendChild(el);var ac=document.createElement('div');ac.className='dj-ci-acts';ac.innerHTML='<a href="https://www.instagram.com/'+d.ig+'/" class="dj-act-btn dj-act-ig" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="@'+d.ig+'">'+_igS+'</a><button class="dj-act-btn dj-act-listen" onclick="event.stopPropagation();openListenModal(''+nm+'',''+d.sc+'')" title="Listen">'+_lsS+'</button>';ow.appendChild(ac);});}
-  document.addEventListener('DOMContentLoaded',_initDJ);
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
   </script>
-
-    <script>
-(function(){
-  var words=['UNDERGROUND','CULTURE','ARTISTS','EVENTS','VIBES','SCENE'];
-  var idx=0;
-  var el=document.getElementById('typewriter');
-  if(!el)return;
-  var spd=90,era=50,pause=1800,gap=300;
-  function type(word,cb){var i=0;el.textContent='';(function t(){if(i<word.length){el.textContent=word.slice(0,++i);setTimeout(t,spd);}else{setTimeout(cb,pause);}})();}
-  function erase(cb){var w=el.textContent,i=w.length;(function e(){if(i>0){el.textContent=w.slice(0,--i);setTimeout(e,era);}else{setTimeout(cb,gap);}})();}
-  function cycle(){type(words[idx],function(){erase(function(){idx=(idx+1)%words.length;cycle();});});}
-  cycle();
-})();
-</script>
-    </script>
-
 </body>
 </html>
