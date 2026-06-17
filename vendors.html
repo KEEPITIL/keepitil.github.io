@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendors & Brands — KEEPITIL | California Underground Scene</title>
+  <meta name="description" content="Browse California brands and vendors in the underground EDM scene. Filter by city, county, category."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0b0b0b;--dark:#111;--dark2:#181818;--dark3:#222;
+      --blue:#00b4ff;--purple:#b400ff;--green:#00ff88;--orange:#ff6600;
+      --white:#f0f0f0;--grey:#888;
+      --font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;
+    }
+    html{scroll-behavior:smooth;overflow-x:hidden;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,255,136,.12);padding:0 24px;}
+    .nav-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .nav-logo img{height:36px;}
+    .logo-text{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;color:var(--white);}
+    .nav-links{display:flex;align-items:center;gap:24px;}
+    .nav-links a{color:var(--grey);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--green);}
+    .nav-cta{background:var(--green);color:#000!important;padding:8px 18px;border-radius:4px;font-weight:700!important;}
+    .nav-cta:hover{background:#00ffaa!important;color:#000!important;}
+
+    .page-header{padding:80px 24px 48px;text-align:center;background:radial-gradient(ellipse at top,rgba(0,255,136,.06) 0%,transparent 70%);}
+    .page-header .eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.2em;color:var(--green);text-transform:uppercase;margin-bottom:12px;}
+    .page-header h1{font-family:var(--font-head);font-size:clamp(3rem,8vw,6rem);letter-spacing:.04em;line-height:1;margin-bottom:16px;}
+    .page-header h1 span{color:var(--green);}
+    .page-header p{font-size:1rem;color:var(--grey);max-width:520px;margin:0 auto 32px;}
+    .apply-hero-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--green);color:var(--green);padding:12px 28px;border-radius:4px;font-weight:700;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all .2s;}
+    .apply-hero-btn:hover{background:var(--green);color:#000;}
+
+    .stats-bar{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);padding:20px 24px;}
+    .stats-inner{max-width:1280px;margin:0 auto;display:flex;gap:40px;justify-content:center;flex-wrap:wrap;}
+    .stat{text-align:center;}
+    .stat-num{font-family:var(--font-head);font-size:2rem;color:var(--green);display:block;}
+    .stat-label{font-size:.75rem;color:var(--grey);letter-spacing:.1em;text-transform:uppercase;}
+
+    .controls{background:var(--dark2);border-bottom:1px solid rgba(255,255,255,.06);padding:20px 24px;position:sticky;top:64px;z-index:50;}
+    .controls-inner{max-width:1280px;margin:0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+    .search-wrap{position:relative;flex:1;min-width:200px;}
+    .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--grey);width:16px;height:16px;}
+    #search{width:100%;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:10px 12px 10px 36px;color:var(--white);font-family:var(--font-body);font-size:.88rem;outline:none;transition:border-color .2s;}
+    #search:focus{border-color:var(--green);}
+    #search::placeholder{color:var(--grey);}
+    .filter-group{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .filter-label{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);white-space:nowrap;}
+    select.filter-sel{background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.82rem;padding:9px 28px 9px 12px;outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .2s;}
+    select.filter-sel:focus,select.filter-sel:hover{border-color:var(--green);}
+    .sort-tabs{display:flex;gap:4px;}
+    .sort-tab{background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:4px;color:var(--grey);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;cursor:pointer;transition:all .2s;}
+    .sort-tab.active,.sort-tab:hover{background:var(--green);border-color:var(--green);color:#000;}
+    .results-count{font-size:.78rem;color:var(--grey);margin-left:auto;white-space:nowrap;}
+
+    .roster-section{max-width:1280px;margin:0 auto;padding:40px 24px 80px;}
+    .alpha-group{margin-bottom:48px;}
+    .alpha-label{font-family:var(--font-head);font-size:3rem;color:rgba(0,255,136,.2);border-bottom:1px solid rgba(0,255,136,.1);padding-bottom:8px;margin-bottom:24px;letter-spacing:.06em;}
+    .vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+
+    /* VENDOR CARD — 1:1 */
+    .vendor-card{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s;}
+    .vendor-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.6);}
+    .vendor-card-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:transform .35s;}
+    .vendor-card:hover .vendor-card-placeholder{transform:scale(1.05);}
+    .vendor-card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.45) 45%,rgba(0,0,0,.1) 100%);}
+    .vendor-card-body{position:absolute;bottom:0;left:0;right:0;padding:16px 14px 14px;}
+    .vendor-cat-tag{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:6px;display:block;}
+    .vendor-name{font-family:var(--font-head);font-size:1.4rem;line-height:1;letter-spacing:.04em;margin-bottom:6px;}
+    .vendor-location{font-size:.7rem;color:rgba(255,255,255,.55);margin-bottom:10px;display:block;}
+    .vendor-card-btn{display:inline-block;background:var(--green);color:#000;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:3px;text-decoration:none;transition:background .2s;}
+    .vendor-card-btn:hover{background:#00ffaa;}
+
+    .no-results{text-align:center;padding:80px 24px;color:var(--grey);}
+    .no-results h3{font-family:var(--font-head);font-size:2rem;color:rgba(255,255,255,.2);margin-bottom:8px;}
+
+    .apply-section{background:linear-gradient(135deg,rgba(0,255,136,.06),rgba(0,180,255,.06));border-top:1px solid rgba(0,255,136,.1);border-bottom:1px solid rgba(0,180,255,.1);padding:80px 24px;text-align:center;}
+    .apply-section .eyebrow{font-size:.7rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:12px;}
+    .apply-section h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,4rem);margin-bottom:16px;}
+    .apply-section p{color:var(--grey);max-width:500px;margin:0 auto 32px;font-size:.95rem;}
+    .apply-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+    .btn-primary-apply{background:var(--green);color:#000;font-weight:800;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 32px;border-radius:4px;text-decoration:none;transition:background .2s;}
+    .btn-primary-apply:hover{background:#00ffaa;}
+    .btn-outline-apply{background:transparent;border:1.5px solid var(--green);color:var(--green);font-weight:700;font-size:.88rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 32px;border-radius:4px;text-decoration:none;transition:all .2s;}
+    .btn-outline-apply:hover{background:var(--green);color:#000;}
+
+    footer{background:var(--dark);border-top:1px solid rgba(255,255,255,.06);padding:40px 24px;text-align:center;}
+    footer p{color:var(--grey);font-size:.82rem;}
+    footer a{color:var(--green);text-decoration:none;}
+
+    @media(max-width:640px){.vendor-grid{grid-template-columns:repeat(2,1fr);gap:12px;}.nav-links{display:none;}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="https://keepitil.com" target="_blank" class="nav-logo">
+      <img src="logo-neon-nav.png" alt="KEEPITIL"/>
+      <span class="logo-text">KEEP IT IL</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="roster.html">Artists</a>
+      <a href="vendors.html" class="active">Brands</a>
+      <a href="organizers-directory.html">Organizers</a>
+      <a href="events.html">Events</a>
+      <a href="culture.html">Culture</a>
+      <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="nav-cta">Apply</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="eyebrow">California Underground</div>
+  <h1>Brands &amp; <span>Vendors</span></h1>
+  <p>Lighting, sound, merch, photography, video, and more — the brands powering OC &amp; LA underground events.</p>
+  <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="apply-hero-btn">&#43; List Your Brand</a>
+</div>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Brands Listed</span></div>
+    <div class="stat"><span class="stat-num" id="stat-cities">—</span><span class="stat-label">Cities</span></div>
+    <div class="stat"><span class="stat-num" id="stat-counties">—</span><span class="stat-label">Counties</span></div>
+    <div class="stat"><span class="stat-num" id="stat-cats">—</span><span class="stat-label">Categories</span></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Search brand name, category, city, county…" autocomplete="off"/>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Sort:</span>
+      <div class="sort-tabs">
+        <button class="sort-tab active" data-sort="az">A–Z</button>
+        <button class="sort-tab" data-sort="za">Z–A</button>
+      </div>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">County:</span>
+      <select class="filter-sel" id="filter-county"><option value="">All Counties</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">City:</span>
+      <select class="filter-sel" id="filter-city"><option value="">All Cities</option></select>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">Category:</span>
+      <select class="filter-sel" id="filter-cat"><option value="">All Categories</option></select>
+    </div>
+    <span class="results-count" id="results-count"></span>
+  </div>
+</div>
+
+<div class="roster-section" id="roster-output"></div>
+
+<div class="apply-section">
+  <div class="eyebrow">Get Listed</div>
+  <h2>List Your Brand</h2>
+  <p>KEEPITIL connects brands and vendors with the OC &amp; LA underground community. Apply to be featured in our directory.</p>
+  <div class="apply-btns">
+    <a href="https://forms.gle/LKfC5auz53UC6sVN7" target="_blank" class="btn-primary-apply">Apply to Join</a>
+    <a href="index.html" class="btn-outline-apply">Back to Home</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> — OC &amp; LA Underground EDM</p>
+</footer>
+
+<script>
+const VENDORS = [
+  // === OC ===
+  {name:'Cube World Media',     city:'Huntington Beach', county:'Orange County',       category:'Event Production / Venue',  ig:'cubeworldmedia',      color:'#00ff88', blog:'blog-org-cube-world-media.html'},
+  {name:'Neon District Lights', city:'Anaheim',          county:'Orange County',       category:'Lighting & Visual Effects', ig:'neondistrictoc',      color:'#00b4ff', blog:'blog-brand-neon-district.html'},
+  {name:'Underground Sound Co', city:'Santa Ana',        county:'Orange County',       category:'Sound & PA Systems',        ig:'undergroundsoundco',  color:'#b400ff', blog:'blog-brand-underground-sound.html'},
+  {name:'OC Rave Supply',       city:'Costa Mesa',       county:'Orange County',       category:'Merch & Apparel',           ig:'ocravesupply',        color:'#ff6600', blog:'blog-brand-oc-rave-supply.html'},
+  {name:'Wristband Nation',     city:'Irvine',           county:'Orange County',       category:'Event Wristbands & RFID',   ig:'wristbandnation',     color:'#ff0080', blog:'blog-brand-wristband-nation.html'},
+  {name:'The Photo Booth Co',   city:'Orange',           county:'Orange County',       category:'Photography & Video',       ig:'thephotoboothco',     color:'#ffb400', blog:'blog-brand-photo-booth-co.html'},
+  {name:'Bass Apparel OC',      city:'Fullerton',        county:'Orange County',       category:'Merch & Apparel',           ig:'bassappareloc',       color:'#00ff88', blog:'blog-brand-bass-apparel-oc.html'},
+  {name:'SoCal LED Rentals',    city:'Garden Grove',     county:'Orange County',       category:'Lighting & Visual Effects', ig:'socalledrentals',     color:'#00b4ff', blog:'blog-brand-socal-led.html'},
+
+  // === LA COUNTY ===
+  {name:'Insomniac Events',     city:'Los Angeles',      county:'Los Angeles County',  category:'Event Production / Promoter',ig:'insomniacevents',    color:'#b400ff', blog:'blog-org-insomniac.html'},
+  {name:'Create Music Group',   city:'Los Angeles',      county:'Los Angeles County',  category:'Music Marketing & PR',      ig:'createmusicgroup',    color:'#ff0080', blog:'blog-brand-create-music-group.html'},
+  {name:'HARD Events',          city:'Los Angeles',      county:'Los Angeles County',  category:'Event Production / Promoter',ig:'hardfest',           color:'#ff6600', blog:'blog-org-hard-events.html'},
+  {name:'Goldenvoice',          city:'Los Angeles',      county:'Los Angeles County',  category:'Event Production / Promoter',ig:'goldenvoice',        color:'#ffb400', blog:'blog-org-goldenvoice.html'},
+  {name:'ProDJ Supply',         city:'Los Angeles',      county:'Los Angeles County',  category:'DJ Equipment & Gear',       ig:'prodjsupply',         color:'#00ff88', blog:'blog-brand-prodj-supply.html'},
+  {name:'Avalon Hollywood',     city:'Hollywood',        county:'Los Angeles County',  category:'Event Production / Venue',  ig:'avalonhollywood',     color:'#00b4ff', blog:'blog-org-avalon-hollywood.html'},
+  {name:'Bass Head Apparel',    city:'Los Angeles',      county:'Los Angeles County',  category:'Merch & Apparel',           ig:'bassheadapparel',     color:'#b400ff', blog:'blog-brand-basshead-apparel.html'},
+  {name:'LA Visuals',           city:'Los Angeles',      county:'Los Angeles County',  category:'Photography & Video',       ig:'lavisuals',           color:'#ff0080', blog:'blog-brand-la-visuals.html'},
+  {name:'Rave Clothing Co',     city:'Burbank',          county:'Los Angeles County',  category:'Merch & Apparel',           ig:'raveclothingco',      color:'#ff6600', blog:'blog-brand-rave-clothing-co.html'},
+  {name:'Sound Strike Audio',   city:'Long Beach',       county:'Los Angeles County',  category:'Sound & PA Systems',        ig:'soundstrike',         color:'#ffb400', blog:'blog-brand-sound-strike.html'},
+  {name:'Nightlife Security LA',city:'Los Angeles',      county:'Los Angeles County',  category:'Event Security',            ig:'nightlifesecurityla', color:'#00ff88', blog:'blog-brand-nightlife-security.html'},
+  {name:'Subculture Agency',    city:'Los Angeles',      county:'Los Angeles County',  category:'Artist Booking & Mgmt',     ig:'subcultureagency',    color:'#00b4ff', blog:'blog-brand-subculture-agency.html'},
+
+  // === SAN DIEGO ===
+  {name:'Whet Foundation',      city:'San Diego',        county:'San Diego County',    category:'Event Production / Promoter',ig:'whetfoundation',     color:'#b400ff', blog:'blog-org-whet-foundation.html'},
+  {name:'Cygnus Events',        city:'San Diego',        county:'San Diego County',    category:'Event Production / Promoter',ig:'cygnusevents',       color:'#ff0080', blog:'blog-org-cygnus-events.html'},
+  {name:'SD Photo Collective',  city:'San Diego',        county:'San Diego County',    category:'Photography & Video',       ig:'sdphotocollective',   color:'#ff6600', blog:'blog-brand-sd-photo.html'},
+
+  // === SF / BAY AREA ===
+  {name:'DIRTYBIRD Records',    city:'San Francisco',    county:'San Francisco County',category:'Record Label / Events',     ig:'dirtybirdrecords',    color:'#ffb400', blog:'blog-brand-dirtybird.html'},
+  {name:'Public Works SF',      city:'San Francisco',    county:'San Francisco County',category:'Event Production / Venue',  ig:'publicworkssf',       color:'#00ff88', blog:'blog-org-public-works-sf.html'},
+  {name:'Spun Productions',     city:'San Francisco',    county:'San Francisco County',category:'Event Production / Promoter',ig:'spunproductions',    color:'#00b4ff', blog:'blog-brand-spun-productions.html'},
+  {name:'Symbiosis Gathering',  city:'San Francisco',    county:'San Francisco County',category:'Festival Production',       ig:'symbiosisgathering',  color:'#b400ff', blog:'blog-org-symbiosis.html'},
+
+  // === RIVERSIDE ===
+  {name:'IE Rave Nation',       city:'Riverside',        county:'Riverside County',    category:'Event Production / Promoter',ig:'ieravenation',       color:'#ff0080', blog:'blog-org-ie-rave-nation.html'},
+];
+
+let currentSort = 'az', currentCounty = '', currentCity = '', currentCat = '', currentSearch = '';
+
+function filterAndSort() {
+  let list = [...VENDORS];
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    list = list.filter(d => d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q) || d.city.toLowerCase().includes(q) || d.county.toLowerCase().includes(q));
+  }
+  if (currentCounty) list = list.filter(d => d.county === currentCounty);
+  if (currentCity) list = list.filter(d => d.city === currentCity);
+  if (currentCat) list = list.filter(d => d.category.toLowerCase().includes(currentCat.toLowerCase()));
+  list.sort((a,b) => currentSort === 'az' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+  return list;
+}
+
+function renderCard(v) {
+  const igUrl = `https://instagram.com/${v.ig}`;
+  const profileUrl = v.blog ? v.blog : igUrl;
+  const profileTarget = v.blog ? '_self' : '_blank';
+  return `
+    <div class="vendor-card" onclick="window.location='${profileUrl}'">
+      <div class="vendor-card-placeholder" style="background:linear-gradient(135deg,${v.color}22 0%,#0b0b0b 100%);">
+        <img src="https://unavatar.io/instagram/${v.ig}" alt="${v.name}" style="width:64px;height:64px;border-radius:10px;object-fit:cover;border:2px solid ${v.color};margin-bottom:8px;" loading="lazy" onerror="this.style.display='none'"/>
+        <span style="font-family:var(--font-head);font-size:clamp(1.1rem,3vw,1.6rem);color:${v.color};text-align:center;padding:0 12px;line-height:1.1;">${v.name}</span>
+      </div>
+      <div class="vendor-card-overlay"></div>
+      <div class="vendor-card-body">
+        <span class="vendor-cat-tag">${v.category}</span>
+        <div class="vendor-name">${v.name}</div>
+        <span class="vendor-location">📍 ${v.city}</span>
+        <a class="vendor-card-btn" href="${profileUrl}" target="${profileTarget}" onclick="event.stopPropagation()">VIEW PROFILE</a>
+      </div>
+    </div>`;
+}
+
+function render() {
+  const list = filterAndSort();
+  const out = document.getElementById('roster-output');
+  if (!list.length) { out.innerHTML = '<div class="no-results"><h3>No Vendors Found</h3><p>Try adjusting your filters.</p></div>'; document.getElementById('results-count').textContent='0 results'; return; }
+  document.getElementById('results-count').textContent = `${list.length} brand${list.length!==1?'s':''}`;
+  const groups = {};
+  list.forEach(v => { const l=v.name.charAt(0).toUpperCase(); if(!groups[l])groups[l]=[]; groups[l].push(v); });
+  const letters = Object.keys(groups).sort(currentSort==='za'?(a,b)=>b.localeCompare(a):(a,b)=>a.localeCompare(b));
+  out.innerHTML = letters.map(l=>`<div class="alpha-group"><div class="alpha-label">${l}</div><div class="vendor-grid">${groups[l].map(renderCard).join('')}</div></div>`).join('');
+}
+
+function populateFilters() {
+  const counties = [...new Set(VENDORS.map(d=>d.county))].sort();
+  const cities = [...new Set(VENDORS.map(d=>d.city))].sort();
+  const cats = [...new Set(VENDORS.map(d=>d.category))].sort();
+  const cEl=document.getElementById('filter-county'); counties.forEach(c=>cEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
+  const citEl=document.getElementById('filter-city'); cities.forEach(c=>citEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
+  const catEl=document.getElementById('filter-cat'); cats.forEach(c=>catEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
+  document.getElementById('stat-total').textContent=VENDORS.length;
+  document.getElementById('stat-cities').textContent=new Set(VENDORS.map(d=>d.city)).size;
+  document.getElementById('stat-counties').textContent=new Set(VENDORS.map(d=>d.county)).size;
+  document.getElementById('stat-cats').textContent=new Set(VENDORS.map(d=>d.category)).size;
+}
+
+document.getElementById('search').addEventListener('input',e=>{currentSearch=e.target.value.trim();render();});
+document.getElementById('filter-county').addEventListener('change',e=>{currentCounty=e.target.value;const cf=currentCounty?VENDORS.filter(d=>d.county===currentCounty):VENDORS;const cities=[...new Set(cf.map(d=>d.city))].sort();const citEl=document.getElementById('filter-city');citEl.innerHTML='<option value="">All Cities</option>';cities.forEach(c=>citEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));currentCity='';render();});
+document.getElementById('filter-city').addEventListener('change',e=>{currentCity=e.target.value;render();});
+document.getElementById('filter-cat').addEventListener('change',e=>{currentCat=e.target.value;render();});
+document.querySelectorAll('.sort-tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.sort-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentSort=btn.dataset.sort;render();}));
+
+populateFilters();
+render();
+</script>
+</body>
+</html>
