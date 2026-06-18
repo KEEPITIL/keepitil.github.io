@@ -89,6 +89,7 @@ select:focus{border-color:var(--blue);}
 .card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.85) 100%);opacity:0;transition:opacity .25s;}
 .dj-card:hover .card-img::after{opacity:1;}
 .card-img .initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:3.5rem;letter-spacing:.05em;opacity:.6;}
+.card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;}
 .keepitil-badge{position:absolute;top:10px;right:10px;z-index:2;background:var(--blue);color:var(--black);font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
 .card-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:4px;}
 .card-name{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.06em;line-height:1;}
@@ -288,14 +289,13 @@ function render(){
   out.innerHTML=list.map(function(d){
     var color=d.color||'#00b4ff';
     var initials=d.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
-    var bg=d.img?'background-image:url(\''+d.img+'\');background-size:cover;background-position:center top;'
-      :'background:linear-gradient(135deg,'+hexToRgba(color,.2)+' 0%,#111 100%);';
     var glow=hexToRgba(color,.3);
     var overlayHref=d.blog?d.blog:'https://instagram.com/'+d.ig;
     var overlayTarget=d.blog?'':'target="_blank"';
     return '<div class="dj-card" style="--card-color:'+color+';--card-glow:'+glow+';">'
-      +'<div class="card-img" style="'+bg+'">'
-      +(!d.img?'<div class="initials" style="color:'+color+';">'+initials+'</div>':'')
+      +'<div class="card-img" style="background:linear-gradient(135deg,'+hexToRgba(color,.25)+' 0%,#111 100%);">'
+      +'<div class="initials" style="color:'+color+';">'+initials+'</div>'
+      +(d.img?'<img class="card-photo" src="'+d.img+'" alt="'+d.name+'" onerror="this.style.display=\'none\'" loading="lazy"/>':'')
       +(d.keepitil?'<div class="keepitil-badge">KEEPITIL</div>':'')
       +'<div class="card-overlay"><a href="'+overlayHref+'" '+overlayTarget+'>View Profile</a></div>'
       +'</div>'
