@@ -926,8 +926,10 @@ function getFiltered() {
 function render() {
   const filtered = getFiltered();
   const allCount = ORIGINALS.length + externalArticles.length;
-  document.getElementById('total-count').textContent   = allCount;
-  document.getElementById('results-count').textContent = filtered.length;
+  const totalEl = document.getElementById('total-count');
+  if (totalEl) totalEl.textContent = allCount;
+  const countEl = document.getElementById('results-count');
+  if (countEl) countEl.textContent = filtered.length;
 
   const grid = document.getElementById('articles-grid');
   if (!filtered.length) {
