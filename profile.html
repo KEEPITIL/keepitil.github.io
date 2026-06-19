@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile — KEEPITIL</title>
+  <link rel="icon" type="image/png" href="logo-blue-nav.png"/>
+  <meta name="description" content="A KEEPITIL underground profile — music, images, and links from the OC & LA scene."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0f0f1a; --dark:#111; --dark2:#181818;
+      --blue:#00b4ff; --blue-dim:#0088cc; --white:#f0f0f0; --grey:#888;
+      --accent:#00b4ff; /* recolored per profile by the management agent */
+      --font-head:'Bebas Neue',sans-serif; --font-body:'Inter',sans-serif;
+    }
+    html{scroll-behavior:smooth;overflow-x:hidden;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{max-width:100%;display:block;}
+    .container{max-width:980px;margin:0 auto;padding:0 24px;}
+
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(15,15,26,.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,255,.12);height:64px;display:flex;align-items:center;}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1180px;margin:0 auto;padding:0 24px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;}
+    .nav-logo-img{width:40px;height:auto;filter:drop-shadow(0 0 8px #00b4ff);}
+    .nav-logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.15em;color:var(--blue);text-shadow:0 0 10px rgba(0,180,255,.5);}
+    .nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
+    .nav-links a{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
+    .nav-links a:hover{color:var(--white);}
+    .nav-cta{background:var(--blue) !important;color:#fff !important;padding:7px 16px !important;border-radius:4px;font-weight:700 !important;}
+    @media(max-width:780px){.nav-links li:not(.cta-li){display:none;}}
+
+    /* ── PROFILE ── */
+    .p-hero{position:relative;padding:120px 0 36px;}
+    .p-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 30% 0%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%);z-index:0;}
+    .p-hero-inner{position:relative;z-index:1;display:flex;gap:32px;align-items:flex-end;flex-wrap:wrap;}
+    .p-avatar{width:180px;height:180px;border-radius:14px;object-fit:cover;background:#0c0c16;border:1px solid color-mix(in srgb,var(--accent) 40%,#2a2a3a);box-shadow:0 0 40px color-mix(in srgb,var(--accent) 30%,transparent);flex:0 0 auto;}
+    .p-id{flex:1;min-width:240px;}
+    .p-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+    .badge{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 12px;border-radius:30px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:var(--accent);}
+    .badge.solid{background:var(--accent);color:#06121a;border-color:var(--accent);}
+    .p-name{font-family:var(--font-head);font-size:clamp(48px,8vw,92px);line-height:.9;letter-spacing:.02em;margin-bottom:8px;}
+    .p-meta{color:var(--grey);font-size:15px;}
+    .p-meta b{color:#fff;}
+
+    section.block{padding:30px 0;border-top:1px solid rgba(255,255,255,.06);}
+    .block h2{font-family:var(--font-head);font-size:30px;letter-spacing:.05em;margin-bottom:16px;color:#fff;}
+    .bio{font-size:18px;color:#cfd2da;max-width:680px;line-height:1.75;}
+
+    .links{display:flex;gap:12px;flex-wrap:wrap;}
+    .link-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;border:1px solid color-mix(in srgb,var(--accent) 35%,#2a2a3a);font-weight:600;font-size:14px;color:#fff;transition:all .2s;}
+    .link-btn:hover{border-color:var(--accent);box-shadow:0 0 18px color-mix(in srgb,var(--accent) 30%,transparent);transform:translateY(-2px);}
+
+    .music-embed iframe{width:100%;border:0;border-radius:12px;}
+    .event-card{background:linear-gradient(180deg,var(--dark2),var(--dark));border:1px solid color-mix(in srgb,var(--accent) 22%,transparent);border-radius:12px;padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;}
+    .event-card .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:4px;}
+    .event-card .v{font-size:17px;color:#fff;font-weight:600;}
+
+    .state{padding:160px 24px;text-align:center;color:var(--grey);}
+    .state h1{font-family:var(--font-head);font-size:54px;color:#fff;letter-spacing:.04em;margin-bottom:10px;}
+
+    footer{border-top:1px solid rgba(0,180,255,.12);padding:36px 0;color:var(--grey);font-size:13px;text-align:center;margin-top:30px;}
+    footer a{color:var(--blue);}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img class="nav-logo-img" src="logo-blue-nav.png" alt="KEEPITIL Logo"/>
+        <span class="nav-logo-text">KEEP<span style="color:#fff">IT</span>IL</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="roster.html">Artists</a></li>
+        <li><a href="vendors.html">Brands</a></li>
+        <li><a href="organizers-directory.html">Organizers</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li class="cta-li"><a href="apply.html" class="nav-cta">Apply</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="profile-root">
+    <div class="state" id="loading"><div class="container"><h1>Loading…</h1><p>Pulling this profile from the underground.</p></div></div>
+  </main>
+
+  <footer>
+    <div class="container">
+      © 2026 KEEPITIL — <a href="https://keepitil.com">keepitil.com</a> · <a href="apply.html">Create your own profile →</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    // SUPABASE CONFIG — same values as apply.html (see SUPABASE-SETUP.md)
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const TABLE = 'profiles'; // published profiles view/table
+
+    const ACCENT = {artist:'#b400ff', brand:'#ff6600', organizer:'#00ff88', event:'#00e5ff'};
+    const params = new URLSearchParams(location.search);
+    const slug = params.get('slug') || params.get('id');
+    const root = document.getElementById('profile-root');
+
+    const esc = s => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    function musicEmbed(url){
+      if(!url) return '';
+      try{
+        if(url.includes('open.spotify.com')){
+          const m = url.match(/open\.spotify\.com\/(track|album|playlist|artist)\/([A-Za-z0-9]+)/);
+          if(m) return `<iframe style="height:${m[1]==='track'?152:352}px" src="https://open.spotify.com/embed/${m[1]}/${m[2]}" loading="lazy" allow="encrypted-media"></iframe>`;
+        }
+        if(url.includes('soundcloud.com')){
+          return `<iframe style="height:166px" scrolling="no" allow="autoplay" loading="lazy" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%2300b4ff&inverse=false&auto_play=false&show_user=true"></iframe>`;
+        }
+      }catch(e){}
+      return `<a class="link-btn" href="${esc(url)}" target="_blank" rel="noopener">🎵 Listen</a>`;
+    }
+
+    function render(p){
+      document.documentElement.style.setProperty('--accent', ACCENT[p.type] || '#00b4ff');
+      document.title = `${p.name} — KEEPITIL`;
+      const links = [];
+      if(p.website) links.push(`<a class="link-btn" href="${esc(p.website)}" target="_blank" rel="noopener">🌐 Website</a>`);
+      if(p.instagram){ const h=p.instagram.replace('@',''); links.push(`<a class="link-btn" href="https://instagram.com/${esc(h)}" target="_blank" rel="noopener">◈ Instagram</a>`); }
+      if(p.music && !/spotify|soundcloud/.test(p.music)) links.push(`<a class="link-btn" href="${esc(p.music)}" target="_blank" rel="noopener">🎵 Music</a>`);
+
+      const isEvent = p.type === 'event';
+      root.innerHTML = `
+      <header class="p-hero"><div class="container"><div class="p-hero-inner">
+        ${p.image_url ? `<img class="p-avatar" src="${esc(p.image_url)}" alt="${esc(p.name)}"/>` : `<div class="p-avatar"></div>`}
+        <div class="p-id">
+          <div class="p-badges">
+            <span class="badge solid">${esc(p.type)}</span>
+            ${p.genre?`<span class="badge">${esc(p.genre)}</span>`:''}
+            ${p.city?`<span class="badge">${esc(p.city)}</span>`:''}
+          </div>
+          <h1 class="p-name">${esc(p.name)}</h1>
+          ${p.city?`<p class="p-meta">📍 <b>${esc(p.city)}</b></p>`:''}
+        </div>
+      </div></div></header>
+
+      ${p.bio?`<section class="block"><div class="container"><h2>About</h2><p class="bio">${esc(p.bio)}</p></div></section>`:''}
+
+      ${isEvent && (p.event_name||p.event_date)?`<section class="block"><div class="container"><h2>Event</h2>
+        <div class="event-card">
+          ${p.event_name?`<div><div class="k">Event</div><div class="v">${esc(p.event_name)}</div></div>`:''}
+          ${p.event_date?`<div><div class="k">Date</div><div class="v">${esc(p.event_date)}</div></div>`:''}
+          ${p.event_venue?`<div><div class="k">Venue</div><div class="v">${esc(p.event_venue)}</div></div>`:''}
+          ${p.event_tickets?`<div><div class="k">Tickets</div><div class="v"><a class="link-btn" href="${esc(p.event_tickets)}" target="_blank" rel="noopener">Get tickets →</a></div></div>`:''}
+        </div></div></section>`:''}
+
+      ${p.music && /spotify|soundcloud/.test(p.music)?`<section class="block"><div class="container"><h2>Listen</h2><div class="music-embed">${musicEmbed(p.music)}</div></div></section>`:''}
+
+      ${links.length?`<section class="block"><div class="container"><h2>Links</h2><div class="links">${links.join('')}</div></div></section>`:''}
+
+      <section class="block"><div class="container"><div class="links"><a class="link-btn" href="apply.html">＋ Apply / claim your own profile</a></div></div></section>`;
+    }
+
+    function notFound(extra){
+      root.innerHTML = `<div class="state"><div class="container"><h1>Profile not found</h1><p>${extra||'This profile may still be in review.'}</p><p style="margin-top:18px;"><a class="link-btn" href="apply.html">Apply to get listed →</a></p></div></div>`;
+    }
+
+    (async () => {
+      if(!slug){ notFound('No profile specified.'); return; }
+      const configured = !SUPABASE_URL.startsWith('YOUR_') && !SUPABASE_ANON_KEY.startsWith('YOUR_');
+      if(!configured){
+        // Demo render so the layout is reviewable before backend is connected
+        render({type:'artist', name:slug.replace(/-/g,' ').toUpperCase(), genre:'Techno', city:'Los Angeles',
+          bio:'Backend not connected yet — this is a live preview of the profile layout. Once Supabase keys are added, real profiles load here automatically.',
+          website:'https://keepitil.com', instagram:'@keepitil', music:''});
+        return;
+      }
+      try{
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await supabase.from(TABLE).select('*').eq('slug', slug).single();
+        if(error || !data){ notFound(); return; }
+        render(data);
+      }catch(e){ notFound(e.message); }
+    })();
+  </script>
+</body>
+</html>
