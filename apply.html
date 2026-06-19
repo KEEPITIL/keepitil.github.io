@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Apply — Join KEEPITIL | Underground EDM OC &amp; LA</title>
+  <link rel="icon" type="image/png" href="logo-blue-nav.png"/>
+  <meta name="description" content="Apply to join KEEPITIL. Create your free underground profile — artist, brand, organizer, or event. Upload your image, add your music and links, get listed across the OC & LA scene."/>
+  <meta property="og:title" content="Apply — Join KEEPITIL"/>
+  <meta property="og:description" content="Create your free underground profile. Get listed across the OC & LA scene."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://keepitil.github.io/apply.html"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0f0f1a; --dark:#111; --dark2:#181818; --dark3:#222;
+      --blue:#00b4ff; --blue-dim:#0088cc; --white:#f0f0f0; --grey:#888;
+      --font-head:'Bebas Neue',sans-serif; --font-body:'Inter',sans-serif;
+    }
+    html{scroll-behavior:smooth;overflow-x:hidden;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+    img{max-width:100%;display:block;}
+    .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+    .btn{display:inline-block;padding:12px 28px;border-radius:2px;font-family:var(--font-body);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s ease;border:none;}
+    .btn-primary{background:var(--blue);color:#fff;box-shadow:0 0 18px rgba(0,180,255,.4);}
+    .btn-primary:hover{background:#0088cc;box-shadow:0 0 32px var(--blue);transform:translateY(-2px);}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+    /* ── NAV (matches site) ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(15,15,26,.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,255,.12);height:64px;display:flex;align-items:center;}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1180px;margin:0 auto;padding:0 24px;}
+    .nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+    .nav-logo-img{width:40px;height:auto;filter:drop-shadow(0 0 8px #00b4ff);object-fit:contain;}
+    .nav-logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.15em;color:var(--blue);text-shadow:0 0 10px rgba(0,180,255,.5);}
+    .nav-links{display:flex;gap:32px;list-style:none;align-items:center;}
+    .nav-links a{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--white);}
+    .nav-cta{background:var(--blue) !important;color:#fff !important;padding:7px 16px !important;border-radius:4px;font-weight:700 !important;}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+    .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;}
+    @media(max-width:860px){.nav-links{display:none;}.nav-hamburger{display:flex;}}
+
+    /* ── PAGE ── */
+    .apply-head{padding:120px 0 24px;text-align:center;}
+    .apply-head .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.35);padding:5px 14px;border-radius:2px;margin-bottom:20px;}
+    .apply-head h1{font-family:var(--font-head);font-size:clamp(44px,8vw,86px);line-height:.92;letter-spacing:.02em;margin-bottom:16px;}
+    .apply-head h1 .accent{color:var(--blue);text-shadow:0 0 24px var(--blue);}
+    .apply-head p{color:var(--grey);max-width:560px;margin:0 auto;font-size:17px;}
+
+    .layout{display:grid;grid-template-columns:1fr 320px;gap:40px;align-items:start;padding:32px 0 90px;}
+    @media(max-width:900px){.layout{grid-template-columns:1fr;}}
+
+    .card{background:linear-gradient(180deg,var(--dark2),var(--dark));border:1px solid rgba(0,180,255,.14);border-radius:10px;padding:32px;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .form-grid .full{grid-column:1/-1;}
+    @media(max-width:620px){.form-grid{grid-template-columns:1fr;}}
+    label{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:7px;}
+    label .req{color:var(--blue);}
+    input,select,textarea{width:100%;background:#0c0c16;border:1px solid #2a2a3a;border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:15px;padding:12px 14px;transition:border .2s,box-shadow .2s;}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,180,255,.15);}
+    textarea{resize:vertical;min-height:96px;}
+    .hint{font-size:12px;color:#666;margin-top:5px;}
+
+    .type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+    @media(max-width:620px){.type-grid{grid-template-columns:repeat(2,1fr);}}
+    .type-opt{position:relative;}
+    .type-opt input{position:absolute;opacity:0;inset:0;cursor:pointer;}
+    .type-opt span{display:block;text-align:center;padding:14px 6px;border:1px solid #2a2a3a;border-radius:8px;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;color:var(--grey);}
+    .type-opt input:checked + span{border-color:var(--blue);color:#fff;background:rgba(0,180,255,.12);box-shadow:0 0 16px rgba(0,180,255,.25);}
+
+    .event-fields{display:none;}
+    .event-fields.show{display:block;}
+
+    .imgdrop{display:flex;align-items:center;gap:18px;border:1px dashed #333;border-radius:8px;padding:16px;}
+    .imgdrop .preview{width:84px;height:84px;border-radius:8px;background:#0c0c16 center/cover no-repeat;border:1px solid #2a2a3a;flex:0 0 auto;}
+    .imgdrop .pick{flex:1;}
+
+    .submit-row{display:flex;align-items:center;gap:18px;margin-top:26px;flex-wrap:wrap;}
+    .msg{padding:14px 16px;border-radius:8px;font-size:14px;display:none;margin-top:18px;}
+    .msg.show{display:block;}
+    .msg.ok{background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.4);color:#7dffc0;}
+    .msg.err{background:rgba(255,60,90,.1);border:1px solid rgba(255,60,90,.4);color:#ff9bab;}
+    .msg.info{background:rgba(0,180,255,.08);border:1px solid rgba(0,180,255,.3);color:#9bd9ff;}
+
+    /* sidebar */
+    .side h3{font-family:var(--font-head);font-size:26px;letter-spacing:.04em;margin-bottom:14px;}
+    .perk{display:flex;gap:12px;margin-bottom:16px;}
+    .perk .dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 10px var(--blue);margin-top:8px;}
+    .perk b{display:block;font-size:14px;color:#fff;}
+    .perk p{font-size:13px;color:var(--grey);margin:0;}
+    .side-card{background:linear-gradient(180deg,var(--dark2),var(--dark));border:1px solid rgba(0,180,255,.14);border-radius:10px;padding:24px;margin-bottom:20px;}
+
+    footer{border-top:1px solid rgba(0,180,255,.12);padding:36px 0;color:var(--grey);font-size:13px;text-align:center;}
+    footer a{color:var(--blue);}
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img class="nav-logo-img" src="logo-blue-nav.png" alt="KEEPITIL Logo"/>
+        <span class="nav-logo-text">KEEP<span style="color:#fff">IT</span>IL</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="roster.html">Artists</a></li>
+        <li><a href="vendors.html">Brands</a></li>
+        <li><a href="organizers-directory.html">Organizers</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="culture.html">Culture</a></li>
+        <li><a href="apply.html" class="nav-cta active">Apply</a></li>
+      </ul>
+      <div class="nav-hamburger"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <header class="apply-head">
+    <div class="container">
+      <div class="tag">★ Straight from the underground</div>
+      <h1>JOIN THE <span class="accent">UNDERGROUND</span></h1>
+      <p>Create your free KEEPITIL profile. Get listed across the OC &amp; LA scene with your image, music, and links — and we keep it polished for you.</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="layout">
+      <!-- FORM -->
+      <div class="card">
+        <form id="apply-form" novalidate>
+          <div class="form-grid">
+            <div class="full">
+              <label>I'm applying as <span class="req">*</span></label>
+              <div class="type-grid">
+                <label class="type-opt"><input type="radio" name="type" value="artist" checked/><span>Artist</span></label>
+                <label class="type-opt"><input type="radio" name="type" value="brand"/><span>Brand</span></label>
+                <label class="type-opt"><input type="radio" name="type" value="organizer"/><span>Organizer</span></label>
+                <label class="type-opt"><input type="radio" name="type" value="event"/><span>Event</span></label>
+              </div>
+            </div>
+
+            <div class="full">
+              <label for="name">Display name <span class="req">*</span></label>
+              <input id="name" name="name" type="text" placeholder="e.g. CLAWZ, Neon District, 6AM Group" required/>
+            </div>
+
+            <div>
+              <label for="genre">Genre / category</label>
+              <input id="genre" name="genre" type="text" list="genres" placeholder="Techno, Bass, House…"/>
+              <datalist id="genres">
+                <option>Techno</option><option>House</option><option>Tech House</option>
+                <option>Bass</option><option>Dubstep</option><option>Drum &amp; Bass</option>
+                <option>Trance</option><option>Hard Techno</option><option>Garage</option>
+                <option>Melodic Techno</option><option>Experimental</option>
+              </datalist>
+            </div>
+            <div>
+              <label for="city">City / County</label>
+              <input id="city" name="city" type="text" placeholder="Los Angeles, Orange County…"/>
+            </div>
+
+            <div class="full">
+              <label for="bio">Short bio</label>
+              <textarea id="bio" name="bio" maxlength="400" placeholder="A couple sentences about you, your sound, or your project. (Max 400 characters — keep it tight.)"></textarea>
+            </div>
+
+            <div>
+              <label for="website">Website</label>
+              <input id="website" name="website" type="url" placeholder="https://…"/>
+            </div>
+            <div>
+              <label for="instagram">Instagram</label>
+              <input id="instagram" name="instagram" type="text" placeholder="@yourhandle"/>
+            </div>
+            <div>
+              <label for="music">Music link (Spotify / SoundCloud / Apple)</label>
+              <input id="music" name="music" type="url" placeholder="https://soundcloud.com/… or open.spotify.com/…"/>
+              <div class="hint">Paste a track, playlist, or artist link — it becomes your profile's music player.</div>
+            </div>
+            <div>
+              <label for="email">Contact email <span class="req">*</span></label>
+              <input id="email" name="email" type="email" placeholder="you@email.com" required/>
+              <div class="hint">Private — used to confirm and manage your profile. Never published.</div>
+            </div>
+
+            <!-- EVENT-ONLY -->
+            <div class="full event-fields" id="event-fields">
+              <div class="form-grid" style="gap:18px;">
+                <div class="full"><label for="event_name">Event name</label>
+                  <input id="event_name" name="event_name" type="text" placeholder="e.g. EDM Train, Warehouse 213…"/></div>
+                <div><label for="event_date">Date</label><input id="event_date" name="event_date" type="date"/></div>
+                <div><label for="event_venue">Venue / location</label><input id="event_venue" name="event_venue" type="text" placeholder="DTLA, Santa Ana…"/></div>
+                <div class="full"><label for="event_tickets">Ticket link</label><input id="event_tickets" name="event_tickets" type="url" placeholder="https://…"/></div>
+              </div>
+            </div>
+
+            <div class="full">
+              <label>Profile image</label>
+              <div class="imgdrop">
+                <div class="preview" id="img-preview"></div>
+                <div class="pick">
+                  <input id="image" name="image" type="file" accept="image/*"/>
+                  <div class="hint">Square works best (min 600×600). JPG or PNG, up to 5MB.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="submit-row">
+            <button type="submit" class="btn btn-primary" id="submit-btn">Create my profile →</button>
+            <span class="hint" style="margin:0;">Free. Takes ~60 seconds.</span>
+          </div>
+          <div class="msg" id="form-msg"></div>
+        </form>
+      </div>
+
+      <!-- SIDEBAR -->
+      <aside class="side">
+        <div class="side-card">
+          <h3>What you get</h3>
+          <div class="perk"><span class="dot"></span><div><b>Your own landing page</b><p>A polished profile with your music, images, and links.</p></div></div>
+          <div class="perk"><span class="dot"></span><div><b>Listed in the directory</b><p>Added to the Artists, Brands, Organizers, or Events page automatically.</p></div></div>
+          <div class="perk"><span class="dot"></span><div><b>Featured rotation</b><p>A shot at Artist of the Day and homepage spotlights.</p></div></div>
+          <div class="perk"><span class="dot"></span><div><b>We keep it fresh</b><p>Our team polishes and updates your profile so it always looks sharp.</p></div></div>
+        </div>
+        <div class="side-card">
+          <h3>Already applied?</h3>
+          <p style="font-size:13px;color:var(--grey);margin:0;">Want to update your photo, links, or bio? Email <a href="mailto:hello@keepitil.com" style="color:var(--blue);">hello@keepitil.com</a> with your changes and we'll refresh your page.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      © 2026 KEEPITIL — <a href="https://keepitil.com">keepitil.com</a>. Straight from the underground. 🎶<br/>
+      <a href="index.html">Home</a> · <a href="roster.html">Artists</a> · <a href="vendors.html">Brands</a> · <a href="organizers-directory.html">Organizers</a> · <a href="events.html">Events</a> · <a href="privacy.html">Privacy</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    // ─────────────────────────────────────────────────────────────
+    //  SUPABASE CONFIG  —  fill these in (see SUPABASE-SETUP.md)
+    //  The anon key is a public, client-safe key. Do NOT paste a
+    //  service_role / secret key here.
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';        // e.g. https://abcd.supabase.co
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const STORAGE_BUCKET = 'profile-images';
+    const TABLE = 'applications';
+    // ─────────────────────────────────────────────────────────────
+
+    const form = document.getElementById('apply-form');
+    const msg = document.getElementById('form-msg');
+    const btn = document.getElementById('submit-btn');
+    const imgInput = document.getElementById('image');
+    const preview = document.getElementById('img-preview');
+    const eventFields = document.getElementById('event-fields');
+
+    // show/hide event fields
+    form.querySelectorAll('input[name="type"]').forEach(r =>
+      r.addEventListener('change', () => {
+        eventFields.classList.toggle('show', form.type.value === 'event');
+      }));
+
+    // image preview
+    imgInput.addEventListener('change', () => {
+      const f = imgInput.files[0];
+      if (f) preview.style.backgroundImage = `url(${URL.createObjectURL(f)})`;
+    });
+
+    const configured = !SUPABASE_URL.startsWith('YOUR_') && !SUPABASE_ANON_KEY.startsWith('YOUR_');
+    if (!configured) {
+      show('info', 'Heads up: the backend keys aren’t connected yet, so submissions won’t save. Add them in apply.html (see SUPABASE-SETUP.md). The form is otherwise live.');
+    }
+
+    let supabase = null;
+    if (configured) {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    function show(kind, text){ msg.className = 'msg show ' + kind; msg.innerHTML = text; }
+    function slugify(s){ return (s||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,48); }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      if (!name || !email){ show('err', 'Please add your display name and a contact email.'); return; }
+      if (!configured){ show('info', 'Backend not connected yet — your entry can’t be saved. Once Supabase keys are added, this will submit instantly.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Submitting…';
+      try {
+        const slug = slugify(name) + '-' + Math.random().toString(36).slice(2,6);
+        let image_url = null;
+        const file = imgInput.files[0];
+        if (file) {
+          if (file.size > 5*1024*1024) throw new Error('Image is over 5MB — please pick a smaller one.');
+          const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
+          const path = `${slug}.${ext}`;
+          const up = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, { upsert:true, cacheControl:'3600' });
+          if (up.error) throw up.error;
+          image_url = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+        const row = {
+          slug, status:'pending', type: form.type.value, name,
+          genre: form.genre.value.trim() || null,
+          city: form.city.value.trim() || null,
+          bio: form.bio.value.trim() || null,
+          website: form.website.value.trim() || null,
+          instagram: form.instagram.value.trim() || null,
+          music: form.music.value.trim() || null,
+          email,
+          event_name: form.event_name.value.trim() || null,
+          event_date: form.event_date.value || null,
+          event_venue: form.event_venue.value.trim() || null,
+          event_tickets: form.event_tickets.value.trim() || null,
+          image_url
+        };
+        const ins = await supabase.from(TABLE).insert(row);
+        if (ins.error) throw ins.error;
+        form.reset(); preview.style.backgroundImage=''; eventFields.classList.remove('show');
+        show('ok', `<b>You’re in! 🎉</b> Your profile is being created and will appear on the ${row.type} page shortly. Check your email — we’ll confirm and keep it polished for you.`);
+      } catch (err) {
+        show('err', 'Something went wrong: ' + (err.message||err) + '. Please try again or email hello@keepitil.com.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Create my profile →';
+      }
+    });
+  </script>
+</body>
+</html>
