@@ -155,6 +155,8 @@
     .dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
     @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
     @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:90px;height:90px;}}
+    .spot-row{grid-template-columns:repeat(4,1fr)!important;}
+    @media(max-width:600px){.spot-row{grid-template-columns:repeat(2,1fr)!important;}}
 
     /* ── BLOG / CULTURE — Summer 2026 ── */
     .blog{background:linear-gradient(180deg,#100e06 0%,#0d0a02 40%,#0e0e0e 100%);position:relative;overflow:hidden;}
@@ -388,7 +390,6 @@
       <div class="spotlight-block">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title">ARTIST SPOTLIGHT</h3>
-          <a href="roster.html" class="spotlight-view-all">VIEW ALL ARTISTS →</a>
         </div>
         <div class="dj-circle-grid spot-row" id="artist-row"></div>
       </div>
@@ -397,7 +398,6 @@
       <div class="spotlight-block" style="margin-top:40px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
-          <a href="vendors.html" class="spotlight-view-all" style="color:#00ff88;border-color:#00ff88;">VIEW ALL BRANDS →</a>
         </div>
         <div class="dj-circle-grid spot-row" id="brand-row"></div>
       </div>
@@ -406,7 +406,6 @@
       <div class="spotlight-block" style="margin-top:40px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#b400ff;">ORGANIZERS</h3>
-          <a href="organizers-directory.html" class="spotlight-view-all" style="color:#b400ff;border-color:#b400ff;">VIEW ALL ORGANIZERS →</a>
         </div>
         <div class="dj-circle-grid spot-row" id="org-row"></div>
       </div>
@@ -425,13 +424,12 @@
       return 1+Math.round(((d-w)/86400000-3+((w.getDay()+6)%7))/7);
     }
 
-    function pick5(arr){
+    function pick4(arr){
       var w=getWeek();
-      var groups=Math.ceil(arr.length/5);
-      var start=(w%groups)*5;
-      var slice=arr.slice(start,start+5);
-      // pad to 5 if near end
-      if(slice.length<5) slice=slice.concat(arr.slice(0,5-slice.length));
+      var groups=Math.ceil(arr.length/4);
+      var start=(w%groups)*4;
+      var slice=arr.slice(start,start+4);
+      if(slice.length<4) slice=slice.concat(arr.slice(0,4-slice.length));
       return slice;
     }
 
@@ -449,7 +447,7 @@
     function renderRow(id,arr){
       var el=document.getElementById(id);
       if(!el) return;
-      el.innerHTML=pick5(arr).map(circle).join('');
+      el.innerHTML=pick4(arr).map(circle).join('');
     }
 
     renderRow('artist-row',ARTISTS);
@@ -462,7 +460,6 @@
     <!-- Culture / Blog -->
   <section class="blog" id="blog">
     <div class="container">
-      <div class="section-label reveal">Culture</div>
       <h2 class="section-title reveal">CULTURE</h2>
       <div class="blog-grid">
         <a class="blog-card reveal" href="blog-summer-2026-events-guide.html" style="text-decoration:none;display:flex;flex-direction:column;">
@@ -521,8 +518,7 @@
     <div class="container">
       <div class="events-header reveal">
         <div>
-          <div class="section-label">KEEPITIL EVENTS</div>
-          <h2 class="section-title">WHAT'S POPPIN IN <span class="neon-text">OC &amp; LA</span></h2>
+          <h2 class="section-title">KEEPITIL EVENTS</h2>
         </div>
         <a href="events.html" class="events-see-all">See All 40+ Events →</a>
       </div>
