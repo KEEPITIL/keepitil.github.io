@@ -292,10 +292,10 @@ function populateFilters() {
   const cEl=document.getElementById('filter-county'); counties.forEach(c=>cEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
   const citEl=document.getElementById('filter-city'); cities.forEach(c=>citEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
   const catEl=document.getElementById('filter-cat'); cats.forEach(c=>catEl.insertAdjacentHTML('beforeend',`<option value="${c}">${c}</option>`));
-  document.getElementById('stat-total').textContent=VENDORS.length;
-  document.getElementById('stat-cities').textContent=new Set(VENDORS.map(d=>d.city)).size;
-  document.getElementById('stat-counties').textContent=new Set(VENDORS.map(d=>d.county)).size;
-  document.getElementById('stat-cats').textContent=new Set(VENDORS.map(d=>d.category)).size;
+  const _st=document.getElementById('stat-total'); if(_st)_st.textContent=VENDORS.length;
+  const _sc=document.getElementById('stat-cities'); if(_sc)_sc.textContent=new Set(VENDORS.map(d=>d.city)).size;
+  const _sco=document.getElementById('stat-counties'); if(_sco)_sco.textContent=new Set(VENDORS.map(d=>d.county)).size;
+  const _sca=document.getElementById('stat-cats'); if(_sca)_sca.textContent=new Set(VENDORS.map(d=>d.category)).size;
 }
 
 document.getElementById('search').addEventListener('input',e=>{currentSearch=e.target.value.trim();render();});
