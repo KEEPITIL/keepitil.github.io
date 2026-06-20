@@ -155,8 +155,13 @@
     .dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
     @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
     @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:90px;height:90px;}}
-    .spot-row{grid-template-columns:repeat(4,1fr)!important;}
+    .spot-row{grid-template-columns:repeat(5,1fr)!important;}
+    @media(max-width:900px){.spot-row{grid-template-columns:repeat(3,1fr)!important;}}
     @media(max-width:600px){.spot-row{grid-template-columns:repeat(2,1fr)!important;}}
+    .spotlight-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+    .spotlight-block-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin:0;}
+    .spot-find-more{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.12em;color:var(--blue);border:1px solid rgba(0,180,255,.35);padding:6px 18px;border-radius:4px;text-decoration:none;transition:all .2s;white-space:nowrap;}
+    .spot-find-more:hover{background:rgba(0,180,255,.1);color:#fff;}
 
     /* ── BLOG / CULTURE — Summer 2026 ── */
     .blog{background:linear-gradient(180deg,#100e06 0%,#0d0a02 40%,#0e0e0e 100%);position:relative;overflow:hidden;}
@@ -366,47 +371,37 @@
   <!-- SPOTLIGHT — Artist / Brand / Organizer rotating rows -->
   <section class="fresh-spotlight" id="featured" style="padding:48px 0 56px;">
     <div class="container">
-      <div class="spot-hdr" style="margin-bottom:40px;">
-        <h2 class="spot-h2" style="font-size:3.2rem;letter-spacing:.08em;">SPOTLIGHT</h2>
+      <div class="spot-hdr" style="margin-bottom:40px;text-align:center;">
+        <h2 class="section-title" style="margin-bottom:8px;">SPOTLIGHT</h2>
+        <p class="spot-subtext">Curated weekly from the OC &amp; LA underground</p>
       </div>
 
-      <!-- TODAY'S PICK — Artist of the Day (rotated daily by AGENT 5) -->
-      <div class="todays-pick" style="max-width:760px;margin:0 auto 44px;background:linear-gradient(135deg,#141414,#181028);border:1px solid rgba(0,180,255,.25);border-radius:14px;padding:22px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;box-shadow:0 10px 40px rgba(0,180,255,.08);">
-        <div style="position:relative;width:104px;height:104px;border-radius:12px;overflow:hidden;flex-shrink:0;border:2px solid #6600ff;">
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:#fff;background:linear-gradient(135deg,#6600ff66,#6600ff22);z-index:0;">BS</div>
-          <img src="https://unavatar.io/instagram/bb.shaine" alt="BB Shaine" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
-        </div>
-        <div style="flex:1;min-width:220px;">
-          <span style="display:inline-block;background:linear-gradient(135deg,var(--blue),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.68rem;letter-spacing:.14em;padding:4px 12px;border-radius:20px;margin-bottom:10px;">★ ARTIST OF THE DAY</span>
-          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 4px;">BB SHAINE</h3>
-          <div style="font-size:.72rem;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;">Bass / Techno / Electro / UKG / Jungle · Los Angeles</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <a href="blog-bb-shaine.html" style="font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--blue);padding:8px 16px;border-radius:6px;text-decoration:none;">READ BIO →</a>
-            <a href="https://instagram.com/bb.shaine" target="_blank" rel="noopener" style="font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.08em;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 14px;border-radius:6px;text-decoration:none;">@bb.shaine</a>
-          </div>
-        </div>
-      </div>
+      <!-- 4 FEATURED SPOTLIGHT CARDS -->
+      <div class="spot-grid" id="spotlight-grid" style="margin-bottom:56px;"></div>
 
-      <!-- ARTIST SPOTLIGHT -->
-      <div class="spotlight-block">
+      <!-- ARTISTS -->
+      <div class="spotlight-block" style="margin-bottom:44px;">
         <div class="spotlight-block-hdr">
-          <h3 class="spotlight-block-title">ARTIST</h3>
+          <h3 class="spotlight-block-title">ARTISTS</h3>
+          <a href="/artist" class="spot-find-more">Find More →</a>
         </div>
         <div class="dj-circle-grid spot-row" id="artist-row"></div>
       </div>
 
       <!-- BRANDS -->
-      <div class="spotlight-block" style="margin-top:40px;">
+      <div class="spotlight-block" style="margin-bottom:44px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
+          <a href="/brand" class="spot-find-more">Find More →</a>
         </div>
         <div class="dj-circle-grid spot-row" id="brand-row"></div>
       </div>
 
       <!-- ORGANIZERS -->
-      <div class="spotlight-block" style="margin-top:40px;">
+      <div class="spotlight-block">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#b400ff;">ORGANIZERS</h3>
+          <a href="/organizer" class="spot-find-more">Find More →</a>
         </div>
         <div class="dj-circle-grid spot-row" id="org-row"></div>
       </div>
@@ -425,13 +420,30 @@
       return 1+Math.round(((d-w)/86400000-3+((w.getDay()+6)%7))/7);
     }
 
-    function pick4(arr){
+    function pickN(arr,n){
       var w=getWeek();
-      var groups=Math.ceil(arr.length/4);
-      var start=(w%groups)*4;
-      var slice=arr.slice(start,start+4);
-      if(slice.length<4) slice=slice.concat(arr.slice(0,4-slice.length));
+      var groups=Math.ceil(arr.length/n);
+      var start=(w%groups)*n;
+      var slice=arr.slice(start,start+n);
+      if(slice.length<n) slice=slice.concat(arr.slice(0,n-slice.length));
       return slice;
+    }
+
+    function spotCard(it,isAotd){
+      var igHandle=it.i.replace(/.*\//,'');
+      return '<a class="spot-card" href="'+it.b+'">'
+        +'<div class="spot-img-wrap" style="background:linear-gradient(135deg,'+it.c+'66,'+it.c+'22);">'
+        +'<div class="spot-img-fb">'+it.a+'</div>'
+        +'<img src="'+it.i+'" alt="'+it.n+'" loading="lazy" onerror="this.style.opacity=0">'
+        +'</div>'
+        +'<div class="spot-body">'
+        +'<span class="spot-kil-tag2">'+(isAotd?'\u2605 Artist of the Day':'SPOTLIGHT')+'</span>'
+        +'<div class="spot-name2">'+it.n+'</div>'
+        +'<span class="spot-genre2">'+it.g+'</span>'
+        +'<div class="spot-links2">'
+        +'<a href="'+it.b+'" class="spot-btn-profile" onclick="event.stopPropagation()">Read Bio \u2192</a>'
+        +'<a href="https://instagram.com/'+igHandle+'" target="_blank" rel="noopener" class="spot-btn-ig" onclick="event.stopPropagation()">@'+igHandle+'</a>'
+        +'</div></div></a>';
     }
 
     function circle(it){
@@ -448,7 +460,13 @@
     function renderRow(id,arr){
       var el=document.getElementById(id);
       if(!el) return;
-      el.innerHTML=pick4(arr).map(circle).join('');
+      el.innerHTML=pickN(arr,5).map(circle).join('');
+    }
+
+    // 4-card spotlight grid
+    var sgEl=document.getElementById('spotlight-grid');
+    if(sgEl){
+      sgEl.innerHTML=pickN(ARTISTS,4).map(function(it,i){return spotCard(it,i===0);}).join('');
     }
 
     renderRow('artist-row',ARTISTS);
@@ -457,6 +475,59 @@
   })();
   </script>
 
+
+
+  <!-- Events Teaser -->
+  <section class="events-teaser" id="events">
+    <div class="container">
+      <div class="events-header reveal">
+        <div>
+          <h2 class="section-title">EVENTS</h2>
+        </div>
+        <a href="/events" class="events-see-all">See All 40+ Events →</a>
+      </div>
+
+      <!-- HERO: Summer of the Living Dead -->
+      <a href="blog-summer-living-dead-2026.html" class="ev-hero reveal">
+        <div class="ev-hero-inner">
+          <span class="ev-hero-kil">⚡ KEEPITIL PICK · THIS WEEKEND</span>
+          <h3>SUMMER OF THE LIVING DEAD</h3>
+          <div class="ev-sub">Bassrush presents · Bass Music &amp; DnB · 18+ · Queen Mary Long Beach</div>
+          <div class="ev-hero-meta">
+            <span>📅 June 19–20, 2026</span>
+            <span>📍 Queen Mary Waterfront, Long Beach CA</span>
+            <span>🎟️ 18+ · From $89</span>
+          </div>
+          <div class="ev-acts-hero">
+            <strong>Borgore · Pendulum · Bear Grillz · Caspa · Peekaboo · Sullivan King · Mersiv · Hybrid Minds · Tisoki · Liquid Stranger</strong>
+          </div>
+          <span class="ev-hero-cta">Get Tickets &amp; Full Info →</span>
+        </div>
+      </a>
+
+      <!-- Supporting events grid -->
+      <div class="events-grid">
+        <a href="/events" class="ev-card reveal">
+          <div class="ev-date-badge">☀️ Jun 27–28</div>
+          <h3>DAY TRIP FESTIVAL</h3>
+          <div class="ev-venue">📍 Queen Mary Waterfront — Long Beach, CA</div>
+          <div class="ev-acts">Cloonee · Odd Mob · GORDO · Green Velvet B2B Josh Baker · Adam Beyer · HI-LO · Purple Disco Machine</div>
+        </a>
+        <a href="blog-lost-in-dreams-2026.html" class="ev-card reveal">
+          <div class="ev-date-badge">🌊 Jul 11–12</div>
+          <h3>LOST IN DREAMS FESTIVAL</h3>
+          <div class="ev-venue">📍 LA State Historic Park — Los Angeles, CA</div>
+          <div class="ev-acts">Future bass &amp; melodic dubstep · 18+ · Two days at LA's most iconic outdoor venue</div>
+        </a>
+        <a href="/events" class="ev-card reveal">
+          <div class="ev-date-badge">🔥 Aug 1–2</div>
+          <h3>HARD SUMMER</h3>
+          <div class="ev-venue">📍 Hollywood Park — Inglewood, CA</div>
+          <div class="ev-acts">Zedd B2B Knock2 · RL Grime · DJ Snake · Charlotte de Witte · Amelie Lens · Mau P · Vintage Culture</div>
+        </a>
+      </div>
+    </div>
+  </section>
 
     <!-- Culture / Blog -->
   <section class="blog" id="blog">
@@ -509,58 +580,6 @@
           <h3 style="margin:8px 0 10px;">The KEEPITIL Movement — From Events to Community</h3>
           <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">More than a promoter. KEEPITIL is building a movement — connecting DJs, fans, and venues across the OC and LA underground scene.</p>
           <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span>Read More →</span></div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Events Teaser -->
-  <section class="events-teaser" id="events">
-    <div class="container">
-      <div class="events-header reveal">
-        <div>
-          <h2 class="section-title">KEEPITIL EVENTS</h2>
-        </div>
-        <a href="/events" class="events-see-all">See All 40+ Events →</a>
-      </div>
-
-      <!-- HERO: Summer of the Living Dead -->
-      <a href="blog-summer-living-dead-2026.html" class="ev-hero reveal">
-        <div class="ev-hero-inner">
-          <span class="ev-hero-kil">⚡ KEEPITIL PICK · THIS WEEKEND</span>
-          <h3>SUMMER OF THE LIVING DEAD</h3>
-          <div class="ev-sub">Bassrush presents · Bass Music &amp; DnB · 18+ · Queen Mary Long Beach</div>
-          <div class="ev-hero-meta">
-            <span>📅 June 19–20, 2026</span>
-            <span>📍 Queen Mary Waterfront, Long Beach CA</span>
-            <span>🎟️ 18+ · From $89</span>
-          </div>
-          <div class="ev-acts-hero">
-            <strong>Borgore · Pendulum · Bear Grillz · Caspa · Peekaboo · Sullivan King · Mersiv · Hybrid Minds · Tisoki · Liquid Stranger</strong>
-          </div>
-          <span class="ev-hero-cta">Get Tickets &amp; Full Info →</span>
-        </div>
-      </a>
-
-      <!-- Supporting events grid -->
-      <div class="events-grid">
-        <a href="/events" class="ev-card reveal">
-          <div class="ev-date-badge">☀️ Jun 27–28</div>
-          <h3>DAY TRIP FESTIVAL</h3>
-          <div class="ev-venue">📍 Queen Mary Waterfront — Long Beach, CA</div>
-          <div class="ev-acts">Cloonee · Odd Mob · GORDO · Green Velvet B2B Josh Baker · Adam Beyer · HI-LO · Purple Disco Machine</div>
-        </a>
-        <a href="blog-lost-in-dreams-2026.html" class="ev-card reveal">
-          <div class="ev-date-badge">🌊 Jul 11–12</div>
-          <h3>LOST IN DREAMS FESTIVAL</h3>
-          <div class="ev-venue">📍 LA State Historic Park — Los Angeles, CA</div>
-          <div class="ev-acts">Future bass &amp; melodic dubstep · 18+ · Two days at LA's most iconic outdoor venue</div>
-        </a>
-        <a href="/events" class="ev-card reveal">
-          <div class="ev-date-badge">🔥 Aug 1–2</div>
-          <h3>HARD SUMMER</h3>
-          <div class="ev-venue">📍 Hollywood Park — Inglewood, CA</div>
-          <div class="ev-acts">Zedd B2B Knock2 · RL Grime · DJ Snake · Charlotte de Witte · Amelie Lens · Mau P · Vintage Culture</div>
         </a>
       </div>
     </div>
