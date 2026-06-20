@@ -45,20 +45,9 @@
     .btn-sm{padding:8px 16px;font-size:11px;}
 
     /* ── NAV ── */
-    nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(15,15,26,.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,180,255,.12);height:64px;display:flex;align-items:center;transition:box-shadow .3s;}
     nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
-    .nav-inner{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:1180px;margin:0 auto;padding:0 24px;}
-    .nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
-    .nav-logo-img{width:40px;height:auto;filter:drop-shadow(0 0 8px #00b4ff);object-fit:contain;}
-    .nav-logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.15em;color:var(--blue);text-shadow:0 0 10px rgba(0,180,255,.5);}
-    .nav-links{display:flex;gap:32px;list-style:none;align-items:center;}
-    .nav-links a{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);transition:color .2s;position:relative;padding-bottom:2px;}
     .nav-links a::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--blue);transform:scaleX(0);transition:transform .2s;}
-    .nav-links a:hover,.nav-links a.active{color:var(--white);}
-    .nav-links a:hover::after,.nav-links a.active::after{transform:scaleX(1);}
-    .nav-cta{background:var(--blue) !important;color:#fff !important;padding:7px 16px !important;border-radius:4px;font-weight:700 !important;}
     .nav-cta::after{display:none !important;}
-    .nav-cta:hover{opacity:.88 !important;color:#fff !important;}
     .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
     .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;transition:all .3s;}
     .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
@@ -68,8 +57,7 @@
     .mobile-menu.open{display:flex;}
     .mobile-menu a{font-family:var(--font-head);font-size:40px;letter-spacing:.08em;color:var(--white);transition:color .2s;}
     .mobile-menu a:hover{color:var(--blue);}
-    .mobile-menu .nav-cta{background:var(--blue) !important;color:#fff !important;padding:12px 32px !important;border-radius:4px;font-size:28px !important;}
-
+    .mobile-menu
     /* ── PROMO BAR ── */
     .promo{background:var(--blue);padding:12px 0;cursor:pointer;transition:background .2s;}
     .promo:hover{background:#0088cc;}
@@ -252,7 +240,7 @@
 
     @media(max-width:1024px){.blog-grid{grid-template-columns:repeat(2,1fr);}.footer-grid{grid-template-columns:1fr 1fr;gap:40px;}}
     @media(max-width:768px){
-      .nav-links{display:none;}.nav-hamburger{display:flex;}
+.nav-hamburger{display:flex;}
       .blog-grid{grid-template-columns:1fr;}
       .hero-logo-wrap{display:none;}
       .footer-grid{grid-template-columns:1fr;gap:32px;}
@@ -262,6 +250,18 @@
     }
     @media(max-width:480px){.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
     ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+  
+    /* NAV-STD */
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+    .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+    .nav-logo{flex-shrink:0;text-decoration:none;}
+    .nav-links{display:flex;flex:1;justify-content:space-between;align-items:center;list-style:none;padding-left:32px;}
+    .nav-links a{color:var(--grey);text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:#00b4ff;}
+    .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 16px;border-radius:4px;}
+    .nav-cta:hover{opacity:.85;}
+    @media(max-width:768px){.nav-links{display:none;}}
+
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -300,27 +300,23 @@
   </div>
 
   <!-- Nav — STANDARD: Home | Artists | Brands | Organizers | Culture | Apply -->
-  <nav id="main-nav">
-    <div class="nav-inner">
-      <a href="https://keepitil.com/" class="nav-logo">
-        <img class="nav-logo-img" src="logo-blue-nav.png" alt="Keep It IL Logo"/>
-        <span class="nav-logo-text">KEEP<span style="color:#fff">IT</span>IL</span>
-      </a>
-      <ul class="nav-links" id="nav-links">
-        <li><a href="https://keepitil.com/">Home</a></li>
-        <li><a href="/spotlight">Spotlight</a></li>
-        <li><a href="/artist">Artists</a></li>
-        <li><a href="/brand">Brands</a></li>
-        <li><a href="/organizer">Organizers</a></li>
-        <li><a href="/events">Events</a></li>
-        <li><a href="/culture">Culture</a></li>
-        <li><a href="/apply.html" class="nav-cta">Apply</a></li>
-      </ul>
-      <div class="nav-hamburger" id="hamburger" onclick="toggleMenu()">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-  </nav>
+  <nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://keepitil.com/">
+      <img src="logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);">
+    </a>
+    <ul class="nav-links">
+      <li><a href="https://keepitil.com/">Home</a></li>
+      <li><a href="/spotlight" class="active">Spotlight</a></li>
+      <li><a href="/artist">Artists</a></li>
+      <li><a href="/brand">Brands</a></li>
+      <li><a href="/organizer">Organizers</a></li>
+      <li><a href="/events">Events</a></li>
+      <li><a href="/culture">Culture</a></li>
+      <li><a href="/apply.html" class="nav-cta">Apply</a></li>
+    </ul>
+  </div>
+</nav>
 
   <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobile-menu">
