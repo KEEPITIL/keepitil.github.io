@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Culture — KEEPITIL | California Underground Scene</title>
+<link rel="icon" type="image/png" href="/logo-pink-nav.png"/>
+  <meta name="description" content="Artist features, scene deep-dives, event recaps and underground culture from OC & LA — powered by KEEPITIL."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- ══════════════════════════════════════════════════════
+       GOOGLE ADSENSE — replace ca-pub-XXXXXXXXXXXXXXXX
+       with your AdSense Publisher ID once approved
+  ══════════════════════════════════════════════════════ -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0f0f1a;--dark:#111;--dark2:#181818;--dark3:#222;--dark4:#2a2a2a;
+      --blue:#00b4ff;--purple:#9933ff;--green:#00ff88;--orange:#9933ff;--pink:#ff0080;--gold:#ffb400;--red:#9933ff;
+      --blue-glow:rgba(0,180,255,.35);--red-glow:rgba(153,51,255,.35);
+      --white:#f0f0f0;--grey:#888;
+      --font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;
+    }
+    html{scroll-behavior:smooth;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+
+    /* ── SEASONAL BG ── */
+    body::before{
+      content:'';position:fixed;inset:0;z-index:-1;
+      background:radial-gradient(ellipse 80% 50% at 50% -10%, rgba(153,51,255,.07) 0%, transparent 60%),
+                 radial-gradient(ellipse 60% 40% at 100% 100%, rgba(153,51,255,.04) 0%, transparent 60%),
+                 radial-gradient(ellipse 40% 30% at 0% 60%, rgba(180,0,255,.04) 0%, transparent 50%);
+      pointer-events:none;
+    }
+
+    /* ── NAV ── */
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(153,51,255,.15);padding:0 24px;}
+    .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px;}
+    .nav-logo{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.12em;color:var(--white);text-decoration:none;}
+    .nav-logo span{color:var(--red);}
+    .nav-links{display:flex;gap:24px;list-style:none;}
+    .nav-links a{color:var(--grey);text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:var(--orange);}
+    .nav-cta{background:var(--orange)!important;color:#fff!important;padding:7px 16px;border-radius:4px;}
+    .nav-cta:hover{background:#aa44ff!important;color:#fff!important;}
+
+    /* ── HERO ── */
+    .page-hero{padding:32px 24px 16px;text-align:center;position:relative;}
+    .page-hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);}
+    .eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--red);margin-bottom:14px;}
+    .season-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(153,51,255,.1);border:1px solid rgba(153,51,255,.28);border-radius:20px;padding:6px 18px;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--orange);margin-bottom:20px;}
+    .page-hero h1{font-family:var(--font-head);font-size:clamp(2.8rem,7vw,5.5rem);line-height:1;letter-spacing:.05em;margin-bottom:16px;}
+    .page-hero h1 span{color:var(--red);text-shadow:0 0 40px var(--red-glow);}
+    .page-hero p{font-size:.95rem;color:var(--grey);max-width:580px;margin:0 auto;}
+
+    /* ── AD SLOTS ── */.ad-leaderboard{min-height:0;}
+    .ad-placeholder{background:linear-gradient(135deg,var(--dark2),var(--dark3));border:1px dashed rgba(255,255,255,.08);border-radius:6px;color:var(--grey);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;min-height:90px;opacity:.5;}
+
+    /* ── STATS ── */
+    .stats-bar{display:flex;justify-content:center;gap:0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);}
+    .stat{text-align:center;padding:20px 48px;border-right:1px solid rgba(255,255,255,.06);}
+    .stat:last-child{border-right:none;}
+    .stat-num{font-family:var(--font-head);font-size:2rem;color:var(--red);line-height:1;}
+    .stat-label{font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);margin-top:2px;}
+
+    /* ── CONTROLS ── */
+    .controls{padding:16px 24px 4px;max-width:1400px;margin:0 auto;}
+    .controls-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+    .search-wrap{position:relative;flex:1;min-width:220px;}
+    .search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--grey);pointer-events:none;}
+    input.search{width:100%;padding:11px 14px 11px 44px;background:var(--dark2);border:1px solid rgba(255,255,255,.08);border-radius:6px;color:var(--white);font-family:var(--font-body);font-size:.9rem;outline:none;transition:border .2s;}
+    input.search::placeholder{color:var(--grey);}
+    input.search:focus{border-color:var(--red);}
+    .sort-tabs{display:flex;gap:8px;flex-shrink:0;}
+    .sort-tab{padding:11px 20px;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;color:var(--grey);background:var(--dark2);border:1px solid rgba(255,255,255,.08);}
+    .sort-tab.active{background:var(--red);color:var(--white);border-color:var(--red);}
+    .sort-tab:hover:not(.active){color:var(--red);}
+
+    /* ── CATEGORY FILTER ── */
+    .cat-row{padding:16px 24px 0;max-width:1400px;margin:0 auto;}
+    .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+    .cat-tab{padding:8px 20px;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:20px;transition:all .2s;color:var(--grey);background:transparent;border:1px solid rgba(255,255,255,.1);}
+    .cat-tab.active{background:var(--red);color:var(--white);border-color:var(--red);}
+    .cat-tab:hover:not(.active){color:var(--red);border-color:rgba(153,51,255,.4);}
+
+    /* ── RESULTS ── */
+    .results-bar{padding:14px 24px 8px;max-width:1400px;margin:0 auto;font-size:.78rem;color:var(--grey);}
+    .results-bar strong{color:var(--red);}
+    .results-bar .loading-pill{display:inline-flex;align-items:center;gap:6px;color:var(--red);}
+    .dot-pulse{display:inline-flex;gap:3px;}
+    .dot-pulse span{width:4px;height:4px;border-radius:50%;background:var(--red);animation:pulse 1.2s infinite;}
+    .dot-pulse span:nth-child(2){animation-delay:.2s;}
+    .dot-pulse span:nth-child(3){animation-delay:.4s;}
+    @keyframes pulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+    /* ── ARTICLE GRID ── */
+    .articles-wrap{padding:12px 24px 60px;max-width:1400px;margin:0 auto;}
+    .articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px;}
+
+    .article-card{background:var(--dark2);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.06);transition:transform .25s,border-color .25s,box-shadow .25s;display:flex;flex-direction:column;cursor:pointer;}
+    .article-card:hover{transform:translateY(-5px);border-color:rgba(153,51,255,.3);box-shadow:0 12px 40px rgba(0,0,0,.4);}
+
+    /* featured card — full width, two-column at tablet+ */
+    .article-card.featured{grid-column:1/-1;}
+    @media(min-width:768px){
+      .article-card.featured{display:grid;grid-template-columns:1.5fr 1fr;min-height:340px;}
+      .article-card.featured .card-img-wrap{aspect-ratio:unset;}
+      .article-card.featured .card-img-wrap img{height:100%;width:100%;object-fit:cover;}
+      .article-card.featured .card-title{font-size:2.4rem;}
+      .article-card.featured .card-excerpt{-webkit-line-clamp:5;}
+    }
+
+    .card-img-wrap{position:relative;overflow:hidden;flex-shrink:0;}
+    .card-img-wrap img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;transition:transform .35s;}
+    .article-card:hover .card-img-wrap img{transform:scale(1.05);}
+    .card-img-placeholder{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,var(--dark3),var(--dark4));display:flex;align-items:center;justify-content:center;}
+    .card-img-placeholder svg{opacity:.2;}
+
+    .card-source{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);border-radius:4px;padding:4px 10px;font-size:.63rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+    .source-keepitil{color:var(--red);border:1px solid rgba(153,51,255,.3);}
+    .source-external{color:var(--orange);border:1px solid rgba(153,51,255,.3);}
+    .source-ra{color:var(--purple);border:1px solid rgba(180,0,255,.3);}
+
+    .card-body{padding:22px;flex:1;display:flex;flex-direction:column;}
+    .card-cat{font-size:.68rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+    .card-title{font-family:var(--font-head);font-size:1.55rem;line-height:1.08;letter-spacing:.03em;margin-bottom:10px;color:var(--white);}
+    .card-excerpt{font-size:.84rem;color:var(--grey);line-height:1.65;flex:1;margin-bottom:16px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+    .card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid rgba(255,255,255,.05);margin-top:auto;}
+    .card-date{font-size:.72rem;color:var(--grey);letter-spacing:.05em;}
+    .card-read{color:var(--red);font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:opacity .2s;flex-shrink:0;}
+    .card-read:hover{opacity:.7;}
+
+    /* ── MID-CONTENT AD ── */
+    .ad-inline-wrap{padding:4px 24px 28px;max-width:1400px;margin:0 auto;}
+    .ad-inline-placeholder{background:linear-gradient(135deg,var(--dark2),var(--dark3));border:1px dashed rgba(255,255,255,.07);border-radius:6px;display:flex;align-items:center;justify-content:center;min-height:280px;color:var(--grey);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;opacity:.5;}
+
+    /* ── EXTERNAL FEED NOTICE ── */
+    .feed-notice{text-align:center;padding:20px 24px 0;max-width:1400px;margin:0 auto;font-size:.75rem;color:var(--grey);}
+    .feed-notice a{color:var(--red);text-decoration:none;}
+
+    /* ── NO RESULTS ── */
+    .no-results{grid-column:1/-1;text-align:center;padding:80px 0;color:var(--grey);}
+    .no-results p{margin-top:12px;font-size:.9rem;}
+
+    /* ── FOOTER ── */
+    footer{border-top:1px solid rgba(255,255,255,.06);padding:36px 24px;text-align:center;}
+    .footer-logo{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.12em;margin-bottom:12px;}
+    .footer-logo span{color:var(--red);}
+    .footer-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:16px;}
+    .footer-links a{color:var(--grey);text-decoration:none;font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+    .footer-links a:hover{color:var(--red);}
+    .footer-copy{font-size:.74rem;color:var(--grey);opacity:.6;}
+
+    @media(max-width:640px){
+      .articles-grid{grid-template-columns:1fr;}
+      .stats-bar{flex-wrap:wrap;}
+      .stat{padding:16px 24px;flex:1;min-width:120px;}
+      .sort-tabs{display:none;}
+    }
+  </style>
+
+<link rel="canonical" href="https://keepitil.com/culture"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Culture — KEEPITIL | California Underground EDM Scene"/>
+<meta property="og:description" content="Artist features, music history, scene guides, tips and underground culture from OC and LA — 130+ original articles powered by KEEPITIL."/>
+<meta property="og:image" content="https://keepitil.com/logo-bg.jpg"/>
+<meta property="og:url" content="https://keepitil.com/culture.html"/>
+<meta property="og:site_name" content="KEEPITIL"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Culture — KEEPITIL | California Underground EDM Scene"/>
+<meta name="twitter:description" content="Artist features, music history, scene guides, tips and underground culture from OC and LA — 130+ original articles powered by KEEPITIL."/>
+<meta name="twitter:image" content="https://keepitil.com/logo-bg.jpg"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "KEEPITIL Culture",
+  "url": "https://keepitil.com/culture.html",
+  "publisher": {
+    "@type": "Organization",
+    "name": "KEEPITIL",
+    "url": "https://keepitil.com"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="https://keepitil.com/"><img src="/logo-pink-nav.png" alt="KEEPITIL" style="height:30px;width:auto;vertical-align:middle;margin-right:9px;filter:drop-shadow(0 0 6px #ff0080);"/>KEEP<span style="color:#ff0080">IT</span>IL</a>
+    <ul class="nav-links">
+      <li><a href="https://keepitil.com/">Home</a></li>
+        <li><a href="/spotlight">Spotlight</a></li>
+      <li><a href="/artist">Artists</a></li>
+      <li><a href="/brand">Brands</a></li>
+      <li><a href="/organizer">Organizers</a></li>
+      <li><a href="/events">Events</a></li>
+      <li><a href="/culture" class="active">Culture</a></li>
+      <li><a href="/apply.html" class="nav-cta">Apply</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="page-hero">
+  <h1>CALIFORNIA <span>CULTURE</span></h1>
+</section>
+
+<!-- ── AD SLOT: LEADERBOARD TOP ── -->
+<!-- Once your AdSense account is approved, replace the comment block below with:
+<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+  data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+-->
+<div class="ad-slot ad-leaderboard">
+  <div class="ad-placeholder" style="max-width:728px;margin:0 auto;display:none;">AD · 728×90 Leaderboard — AdSense goes here</div>
+</div>
+
+
+<!-- ── CONTROLS ── -->
+<div class="controls">
+  <div class="controls-row">
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" class="search" id="search-input" placeholder="Search artists, topics, events…"/>
+    </div>
+    <div class="sort-tabs">
+      <div class="sort-tab active" data-sort="new">NEWEST</div>
+      <div class="sort-tab" data-sort="old">OLDEST</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CATEGORY FILTER ── -->
+<div class="cat-row">
+  <div class="cat-tabs">
+    <div class="cat-tab active" data-cat="">ALL</div>
+    <div class="cat-tab" data-cat="feature">ARTIST FEATURES</div>
+    <div class="cat-tab" data-cat="scene">SCENE</div>
+    <div class="cat-tab" data-cat="events">EVENT RECAPS</div>
+    <div class="cat-tab" data-cat="tips">TIPS &amp; GUIDES</div>
+    <div class="cat-tab" data-cat="news">NEWS</div>
+  </div>
+</div>
+
+<div class="results-bar">
+  <strong id="results-count">0</strong> articles
+  <span id="loading-indicator" class="loading-pill" style="display:none;">
+    &nbsp;· loading more
+    <span class="dot-pulse"><span></span><span></span><span></span></span>
+  </span>
+</div>
+
+<!-- ── ARTICLE GRID ── -->
+<div class="articles-wrap">
+  <div class="articles-grid" id="articles-grid">
+    <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--grey);">Loading culture feed…</div>
+  </div>
+</div>
+
+<!-- ── AD SLOT: IN-CONTENT (mid-page) ── -->
+<!-- Once approved, replace with an in-article AdSense unit:
+<ins class="adsbygoogle" style="display:block;text-align:center"
+  data-ad-format="fluid" data-ad-layout="in-article"
+  data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+-->
+<div class="ad-inline-wrap">
+  <div class="ad-inline-placeholder" style="display:none;">AD · In-Article Unit — AdSense goes here</div>
+</div>
+
+<!-- ── AD SLOT: LEADERBOARD BOTTOM ── -->
+<div class="ad-slot ad-leaderboard" style="margin-bottom:32px;">
+  <div class="ad-placeholder" style="max-width:728px;margin:0 auto;display:none;">AD · 728×90 Leaderboard — AdSense goes here</div>
+</div>
+
+<div class="feed-notice">
+  External articles sourced from <a href="https://dancingastronaut.com" target="_blank" rel="noopener">Dancing Astronaut</a>,
+  <a href="https://insomniac.com/magazine" target="_blank" rel="noopener">Insomniac Magazine</a> &amp;
+  <a href="https://www.youredm.com" target="_blank" rel="noopener">YourEDM</a> via live RSS feed.
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">KEEP<span style="color:#ff0080">IT</span>IL</div>
+  <div class="footer-links">
+    <a href="https://keepitil.com/">Home</a>
+    <a href="/artist">Artists</a>
+    <a href="/brand">Brands</a>
+    <a href="/organizer">Organizers</a>
+    <a href="/culture">Culture</a>
+    <a href="https://keepitil.com" target="_blank" rel="noopener">keepitil.com</a>
+  </div>
+  <div class="footer-copy">© 2026 KEEPITIL · California Underground · OC &amp; LA
+    <a href="/privacy.html">Privacy Policy</a></div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════
+// KEEPITIL CULTURE — Article Data & Logic
+// ════════════════════════════════════════════════════
+
+// ── HARDCODED KEEPITIL ORIGINALS ──
+const ORIGINALS = [
+  {
+    id: 15,
+    title: 'B&L Shuts Down a Block: DNBNL LA Hits Mateo Warehouse Sept 12',
+    excerpt: 'Brownies & Lemonade takes its drum & bass series into the street with the first-ever DNBNL LA Block Party — a two-stage, day-to-night DnB rave at Mateo Warehouse in the DTLA Arts District on September 12. Five years into the DNBNL banner, the homegrown LA crew is shutting down a block, indoor to outdoor, sundown to last call. Lineup TBA, but the format alone is the statement: drum & bass is done playing the back room.',
+    category: 'news',
+    source: 'KEEPITIL',
+    link: 'blog-news-dnbnl-la-block-party-20260619.html',
+    img: 'https://images.unsplash.com/photo-1493676304819-0d7a8d026dcf?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-19',
+    featured: true
+  },
+  {
+    id: 14,
+    title: 'The Underground Goes Mainstage: De Witte & Lens Top HARD Summer 2026',
+    excerpt: 'HARD Summer returns to Inglewood\'s Hollywood Park August 1–2 with techno titans Charlotte de Witte and Amelie Lens at the very top of the bill — not a back-tent afterthought, but the headline. Maceo Plex, Brutalismus 3000, VTSS and a stacked underground contingent share the poster with RL Grime and Knock2 b2b Zedd. Proof the SoCal warehouse sound has graduated to the main event.',
+    category: 'news',
+    source: 'KEEPITIL',
+    link: 'blog-news-hard-summer-techno-2026-20260618.html',
+    img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-18',
+    featured: true
+  },
+  {
+    id: 13,
+    title: 'Day Trip Drops Anchor Again: House & Techno Take the Queen Mary June 27–28',
+    excerpt: 'Insomniac and Day Trip bring house, disco and techno back to Long Beach\'s Queen Mary Waterfront on June 27–28 — two days on the water, 21+ all weekend, with a new 11,000-capacity amphitheater. Cloonee, Odd Mob and DJ Gordo anchor a 50+ artist bill that doubles as a snapshot of where the SoCal underground sits in 2026.',
+    category: 'news',
+    source: 'KEEPITIL',
+    link: 'blog-news-day-trip-festival-2026-20260617.html',
+    img: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: true
+  },
+  {
+    id: 1,
+    title: 'RAB3L — Built From The Booth, Raised By Sound',
+    excerpt: 'Hailing from Torrance, California, Bryan Ricardo Mentado has been immersed in DJ culture since the age of eight. His sets move seamlessly between bass house, tech house, UKG and bassline with an instinct that separates him from the wave of emerging talent flooding the Southern California scene. Performances at Avalon Hollywood and Academy LA have cemented his reputation as one to watch.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-rab3l.html',
+    img: 'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/651510783_1251872653804627_438125194348028342.webp',
+    date: '2026-04-15',
+    featured: true
+  },
+  {
+    id: 2,
+    title: 'Groove Trooper — Rhythm, Roots & The Power of Movement',
+    excerpt: 'Representing Garden Grove with deep cultural roots tied to Guatemala, Emilio Orrego brings more than music to a space — he brings identity, rhythm and a sense of purpose that translates directly to the dance floor. From Groove Cruise Miami 2020 to packing Avalon Hollywood with 2,500+ people in 2023, his radio show "Rhythm & Villainy Radio" continues building his reach far beyond California.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-groove-trooper.html',
+    img: 'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg',
+    date: '2026-05-02',
+    featured: false
+  },
+  {
+    id: 3,
+    title: 'LVNKY BONES — The Underground\'s Best Kept Secret',
+    excerpt: 'Dark, hypnotic and unrelenting. LVNKY BONES has been carving out space in the California underground with sets that lean deep techno and minimal — building tension with surgical precision and releasing it at exactly the right moment. If you haven\'t caught them live yet, that\'s about to change.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-lvnky-bonez.html',
+    img: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-20',
+    featured: false
+  },
+  {
+    id: 4,
+    title: 'SWERVE — When Energy Becomes Identity',
+    excerpt: 'Some artists play a genre. SWERVE plays the room. Known for high-octane sets that bridge bass music and club culture, SWERVE has become a fixture in the OC underground — the kind of artist you come back for, every single time. Their ability to read a crowd and shift energy mid-set is what separates the good from the unforgettable.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-swerve.html',
+    img: 'https://images.unsplash.com/photo-1508854710000-5b0bf2c40f85?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-01',
+    featured: false
+  },
+  {
+    id: 5,
+    title: 'The OC Underground: A 2026 Deep Dive',
+    excerpt: 'From Anaheim warehouses to Hollywood rooftops — the Southern California underground is evolving faster than ever in 2026. We break down the venues, the collectives, the sounds and the unwritten rules shaping a scene that refuses to go mainstream.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-oc-underground-venue-guide.html',
+    img: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-10',
+    featured: false
+  },
+  {
+    id: 6,
+    title: 'Avalon Hollywood: Inside One of LA\'s Most Important Stages',
+    excerpt: 'For artists in the Southern California scene, a slot at Avalon Hollywood represents a milestone. We look at what makes this venue a benchmark for emerging talent, who\'s held it down, and what it actually takes to earn your place on that stage.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-avalon-hollywood.html',
+    img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80&auto=format&fit=crop',
+    date: '2026-04-05',
+    featured: false
+  },
+  {
+    id: 7,
+    title: 'How to Get Booked: A DJ\'s Practical 2026 Guide',
+    excerpt: 'You have the skills. You have the mixes. You have the vision. Now what? We talk to promoters, bookers and established artists working the California circuit about what it actually takes to go from the bedroom to the booth — and what most new artists get wrong.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-how-to-get-booked-dj.html',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80&auto=format&fit=crop',
+    date: '2026-03-18',
+    featured: false
+  },
+  {
+    id: 8,
+    title: 'Juneteenth in the Underground: Culture, Community & Sound',
+    excerpt: 'The underground dance scene has always been rooted in Black musical traditions — house, techno, garage and beyond. This summer, California collectives are honoring those roots through events that push culture forward while celebrating where it all came from.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-juneteenth-underground-2026.html',
+    img: 'https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-19',
+    featured: false
+  },
+  {
+    id: 9,
+    title: 'Tech House vs Bass House: What You\'re Actually Walking Into',
+    excerpt: 'Two of the most dominant sounds in the SoCal underground right now — but what separates them in the booth, in the studio and on the dance floor? We break down the key differences in production, tempo, crowd energy and culture so you know what you\'re walking into before the night starts.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-house-techno-guide-2026.html',
+    img: 'https://images.unsplash.com/photo-1571974599782-87624638275b?w=600&q=80&auto=format&fit=crop',
+    date: '2026-02-14',
+    featured: false
+  },
+  {
+    id: 10,
+    title: 'Academy LA: The Room That Changes Careers',
+    excerpt: 'Artists who play Academy LA tend to arrive as rising talent and leave as scene fixtures. We explore the history, the culture and the influence of one of LA\'s most respected underground venues — and what it really means to hold a slot there.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-academy-la.html',
+    img: 'https://images.unsplash.com/photo-1540039155733-5bb30b4a8913?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-11',
+    featured: false
+  },
+  {
+    id: 11,
+    title: 'Building Your Brand as an Independent Artist in 2026',
+    excerpt: 'The path to building a sustainable music career has never been more accessible — or more competitive. From social media strategy to EPK essentials, visual identity to community building, we lay out what actually moves the needle for independent artists in the California underground right now.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-building-your-brand-2026.html',
+    img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format&fit=crop',
+    date: '2026-01-28',
+    featured: false
+  },
+  {
+    id: 12,
+    title: 'Summer 2026: The Parties You Cannot Miss in OC & LA',
+    excerpt: 'Warm nights, open-air venues, rooftop series and warehouse events loading up the calendar. We\'ve compiled the essential parties and showcases hitting OC and LA this summer — from intimate underground shows to massive outdoor productions.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-summer-parties-oc-la-2026.html',
+    img: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-14',
+    featured: false
+  },
+  {
+    id: 14,
+    title: 'Summer of the Living Dead 2026: Bassrush Takes Over the Queen Mary',
+    excerpt: 'Bassrush\'s Summer of the Living Dead returns June 19–20, 2026 to the Queen Mary Waterfront in Long Beach — two days of dubstep, riddim, drum & bass and heavy bass from one of SoCal\'s most cinematic outdoor venues. Why this is the bass music event of the summer.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-summer-living-dead-2026.html',
+    img: 'https://images.unsplash.com/photo-1501386761578-edf6a4e1b847?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: true
+  },
+  {
+    id: 15,
+    title: 'Lost in Dreams 2026: The Future Bass Festival LA Has Been Waiting For',
+    excerpt: 'Lost in Dreams Festival returns July 11–12, 2026 to LA State Historic Park — two evenings of future bass, melodic dubstep and vocal-driven dance music in the heart of Los Angeles. Hours, tickets, what to expect and why the genre matters.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-lost-in-dreams-2026.html',
+    img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 16,
+    title: 'Factory 93: How LA\'s Techno Underground Found Its Permanent Home',
+    excerpt: 'Factory 93 — Insomniac\'s dedicated techno and house brand — has become the institutional backbone of LA\'s underground over the past decade. We trace the brand\'s history, its relationship with Exchange LA, and what it means for the California scene.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-factory-93-la-techno.html',
+    img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 17,
+    title: 'Rave Safety in 2026: A No-BS Guide to Looking Out for Yourself and Your Crew',
+    excerpt: 'Practical, direct harm reduction and rave safety advice for California\'s electronic music scene — from heat and hydration to recognizing distress in others. Everything you should know before walking through the gates.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-rave-safety-guide-2026.html',
+    img: 'https://images.unsplash.com/photo-1574027542338-98e75acfd385?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 18,
+    title: 'The Underground Venue Guide: Where OC\'s Electronic Scene Actually Lives',
+    excerpt: 'Orange County\'s electronic music scene doesn\'t happen at obvious venues — it happens in industrial parks, arts spaces, and pop-up sites that most people have never heard of. A guide to the rooms and spaces defining the OC underground in 2026.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-oc-underground-venue-guide.html',
+    img: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 19,
+    title: 'Bass Music 101: From Dubstep to Riddim, Hybrid Trap to Future Bass',
+    excerpt: '"Bass music" covers more sonic territory than almost any other genre label. This guide maps the key subgenres — BPM ranges, characteristic sounds, scene culture and key artists — so you know exactly what you\'re walking into before the night starts.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-bass-music-101.html',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 20,
+    title: 'Day Trip: How a Roaming Festival Found Its Home in LA\'s Parks',
+    excerpt: 'Day Trip started as small, carefully curated daytime parties and grew into one of SoCal\'s most beloved event brands. Here\'s the story of how house and techno found its most unlikely and perfect venue: the public park.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-day-trip-festival-parks.html',
+    img: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 21,
+    title: 'Brownies & Lemonade: How a College Party Became LA\'s Biggest Electronic Brand',
+    excerpt: 'B&L went from a UCLA dorm room concept to booking Doja Cat, Skrillex and Diplo in the span of a decade. The story of LA\'s most influential independent concert brand — and what it means for anyone trying to build something in this scene.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-brownies-lemonade-rise.html',
+    img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 22,
+    title: 'From Bedroom to Booth: How to Actually Get Booked as a DJ in 2026',
+    excerpt: 'Getting booked in 2026 requires more than talent — it requires strategy, infrastructure and relationships. From building your mix to reading a room, from EPKs to networking: a practical, no-nonsense guide from the SoCal scene.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-how-to-get-booked-dj.html',
+    img: 'https://images.unsplash.com/photo-1508854710000-5b0bf2c40f85?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 23,
+    title: 'The Anatomy of a SoCal Rave: What Happens When the Lights Go Down',
+    excerpt: 'From flyer drop to 4AM load-out — a complete look at what goes into a Southern California underground event, from the months of planning the crowd never sees to the crowd moments that make it worth it.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-anatomy-of-a-socal-rave.html',
+    img: 'https://images.unsplash.com/photo-1526478806334-5fd488fcaabc?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 24,
+    title: 'House vs Techno vs Tech House: The SoCal Listener\'s Definitive Guide',
+    excerpt: 'Deep house, peak-time techno, melodic house — these labels mean something specific, and knowing the difference changes how you experience any event. A practical genre breakdown for the SoCal electronic music listener.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-house-techno-guide-2026.html',
+    img: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 25,
+    title: 'The Visual Language of Rave Flyers: Why Design Tells You Everything About the Night',
+    excerpt: 'Before you read the lineup, you read the design. Rave flyer aesthetics are a coded language — and learning to read it tells you more about an event than the artist list does. A guide to decoding what you\'re looking at.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-rave-flyer-culture.html',
+    img: 'https://images.unsplash.com/photo-1540039256-1b2a9de08060?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 26,
+    title: 'The Future of California\'s Electronic Scene: What\'s Coming in 2026 and Beyond',
+    excerpt: 'The California underground is at an inflection point. More artists, more events, better infrastructure — and a scene that\'s actively defining what comes next. KEEPITIL\'s analysis of the trends shaping the next chapter.',
+    category: 'news',
+    source: 'KEEPITIL',
+    link: 'blog-socal-scene-future-2026.html',
+    img: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 27,
+    title: 'How to Find Underground Raves in LA & OC',
+    excerpt: 'Underground raves don\'t advertise on billboards — that\'s intentional. A practical guide to finding warehouse parties and underground events in Los Angeles and Orange County through trusted sources, real community connections, and safe practices.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-how-to-find-underground-raves.html',
+    img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-18',
+    featured: false
+  },
+  {
+    id: 28,
+    title: 'Rave Etiquette: The Unwritten Rules of the Underground',
+    excerpt: 'The unwritten rules that keep underground events safe, inclusive, and worth coming back to — from dance floor dynamics and photography to supporting venues and treating artists like people.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-rave-etiquette-guide.html',
+    img: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-17',
+    featured: false
+  },
+  {
+    id: 29,
+    title: 'DJ Equipment Guide 2026: What You Actually Need to Start',
+    excerpt: 'A no-nonsense breakdown of DJ equipment for beginners — what to buy, what to skip, and how to set up a first practice rig without spending thousands before you know what you\'re doing.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-dj-equipment-guide-2026.html',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-16',
+    featured: false
+  },
+  {
+    id: 30,
+    title: 'The History of House Music: From Chicago to California',
+    excerpt: 'How house music was born in Chicago\'s Black and gay clubs in the 1980s and traveled to define California\'s underground scene four decades later. The Warehouse, Frankie Knuckles, and why it still matters at 2AM in Orange County.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-history-of-house-music.html',
+    img: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-15',
+    featured: false
+  },
+  {
+    id: 31,
+    title: 'Techno Music: From Detroit Roots to the SoCal Underground',
+    excerpt: 'The true history of techno — from the Belleville Three in Detroit to Berlin\'s industrial clubs and the underground warehouses of Los Angeles and Orange County. Why it still sounds like the future forty years later.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-history-of-techno.html',
+    img: 'https://images.unsplash.com/photo-1501386761578-eaa54b5ea0d1?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-14',
+    featured: false
+  },
+  {
+    id: 32,
+    title: 'UK Garage & UKG: The Sound That Crossed the Atlantic',
+    excerpt: 'The history of UK Garage — from pirate radio in South London to the SoCal underground, and how UKG became one of the defining sounds of the OC scene through artists like RAB3L.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-history-of-uk-garage.html',
+    img: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-13',
+    featured: false
+  },
+  {
+    id: 33,
+    title: 'Drum & Bass: 30 Years of Rhythmic Revolution',
+    excerpt: 'The complete history of drum and bass — from the Jungle pirate radio raves of 1990s London to its current evolution in the SoCal underground. How a genre born in Black British clubs became a global force.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-history-of-drum-and-bass.html',
+    img: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-12',
+    featured: false
+  },
+  {
+    id: 34,
+    title: 'The History of Rave Culture in California: From PLUR to the Present',
+    excerpt: 'How California\'s rave scene was born in the early 1990s, survived the anti-rave laws of the 2000s, and evolved into today\'s OC and LA underground. A 35-year timeline of the scene we\'re in right now.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-rave-culture-california-history.html',
+    img: 'https://images.unsplash.com/photo-1504680177321-2e6a879aac86?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-11',
+    featured: false
+  },
+  {
+    id: 35,
+    title: 'LA Underground Music Guide 2026: Venues, Scenes & What to Expect',
+    excerpt: 'A practical guide to Los Angeles\'s underground electronic music scene — where it lives, which neighborhoods matter, how the event calendar works, and what\'s actually happening in 2026.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-la-underground-music-guide.html',
+    img: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-10',
+    featured: false
+  },
+  {
+    id: 36,
+    title: 'Orange County Underground: The Complete Scene Guide 2026',
+    excerpt: 'Everything you need to know about Orange County\'s underground electronic music scene — who\'s running it, where events happen, the OC sound, and what sets OC apart from LA.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-oc-underground-guide.html',
+    img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-09',
+    featured: false
+  },
+  {
+    id: 37,
+    title: 'Inland Empire Underground: The IE\'s Hidden Electronic Music Scene',
+    excerpt: 'San Bernardino, Riverside, and the Inland Empire have a legitimate underground electronic music scene that most SoCal ravers never hear about. Artists like AZTEKAN prove the IE is building something real.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-inland-empire-underground-scene.html',
+    img: 'https://images.unsplash.com/photo-1566737236500-f3daa3906bea?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-08',
+    featured: false
+  },
+  {
+    id: 38,
+    title: 'Women in the Underground: OC & LA\'s Female DJs and Producers',
+    excerpt: 'Highlighting the women shaping OC and LA\'s underground electronic music scene — as DJs, producers, promoters, and community builders. Who\'s doing the work and why the scene needs to do better at recognizing it.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-women-in-underground-music.html',
+    img: 'https://images.unsplash.com/photo-1508973379184-7517410fb0bc?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-07',
+    featured: false
+  },
+  {
+    id: 39,
+    title: '10 Rising SoCal Artists to Watch in 2026',
+    excerpt: 'Ten underground artists from Orange County, Los Angeles, and the Inland Empire who are building real careers in 2026 — RAB3L, AZTEKAN, LVNKY BONEZ, GROOVE TROOPER, and six more who deserve your attention.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-rising-artists-socal-2026.html',
+    img: 'https://images.unsplash.com/photo-1571266752459-e3e6b59ff8af?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-06',
+    featured: false
+  },
+  {
+    id: 40,
+    title: 'Warehouse Raves in LA 2026: What\'s Happening and How to Find Them',
+    excerpt: 'A guide to LA\'s warehouse rave circuit in 2026 — the neighborhoods, the promoters, how events are permitted (or not), and how to get connected to events that don\'t advertise publicly.',
+    category: 'news',
+    source: 'KEEPITIL',
+    link: 'blog-warehouse-raves-la-2026.html',
+    img: 'https://images.unsplash.com/photo-1504680177321-2e6a879aac86?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-05',
+    featured: false
+  },
+  {
+    id: 41,
+    title: 'Afterparty Culture in LA: Where the Real Party Starts at 2AM',
+    excerpt: 'California\'s 2AM last-call problem and the afterparty culture it created — the underground sessions that keep going when the clubs close, and why the best musical moments of any night often happen after 3AM.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-afterparty-culture-la.html',
+    img: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-04',
+    featured: false
+  },
+  {
+    id: 42,
+    title: 'Festival vs Club Night: Two Sides of the SoCal Underground',
+    excerpt: 'What\'s the real difference between a 40,000-person festival and a 300-person underground club night? Why both matter, what each does better, and how to decide which experience you\'re looking for.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-festival-vs-club-night-guide.html',
+    img: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-03',
+    featured: false
+  },
+  {
+    id: 43,
+    title: 'Producer Spotlight: The Beat Makers Behind SoCal\'s Underground Sound',
+    excerpt: 'Profiling the producers and beat makers building original music in OC, LA, and the IE in 2026 — from bedroom producers on SoundCloud to artists crossing into festival-stage territory.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-producer-spotlight-socal-2026.html',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-02',
+    featured: false
+  },
+  {
+    id: 44,
+    title: 'Summer 2026 OC & LA Events Guide: The Underground Calendar',
+    excerpt: 'The complete underground and festival events guide for Summer 2026 — from Summer of the Living Dead and Day Trip to Hard Summer, Lost in Dreams, and the warehouse nights happening every weekend in between.',
+    category: 'events',
+    source: 'KEEPITIL',
+    link: 'blog-summer-2026-events-guide.html',
+    img: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80&auto=format&fit=crop',
+    date: '2026-06-01',
+    featured: false
+  },
+  {
+    id: 45,
+    title: 'How to Promote an Underground Event in OC & LA',
+    excerpt: 'A practical guide to promoting underground electronic music events in Southern California — from building your promoter identity and designing flyers to budgeting, Instagram strategy, and night-of execution.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-how-to-promote-your-event-oc-la.html',
+    img: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-30',
+    featured: false
+  },
+  {
+    id: 46,
+    title: 'Mixing Techniques for Beginners: From Bedroom to Booth',
+    excerpt: 'A practical guide to the fundamental DJ mixing techniques — beatmatching, EQ mixing, phrasing, and reading the room. What separates a good mix from a mediocre one, explained without unnecessary jargon.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-mixing-techniques-beginners.html',
+    img: 'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-28',
+    featured: false
+  },
+  {
+    id: 47,
+    title: 'How to Book Underground DJs: A Guide for Event Organizers',
+    excerpt: 'A practical guide to booking underground electronic music artists in OC and LA — rates, logistics, rider expectations, how to build a local artist network, and why the balance between local and touring talent matters.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-booking-underground-djs-guide.html',
+    img: 'https://images.unsplash.com/photo-1563841930606-67e2bce48b78?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-26',
+    featured: false
+  },
+  {
+    id: 48,
+    title: 'San Diego Underground: The Scene You Might Be Missing',
+    excerpt: 'San Diego\'s underground electronic music scene in 2026 — what\'s happening, the Tijuana cross-border influence, who\'s running it, and how it connects to OC and LA in ways that most coverage misses.',
+    category: 'scene',
+    source: 'KEEPITIL',
+    link: 'blog-san-diego-underground-scene.html',
+    img: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-24',
+    featured: false
+  },
+  {
+    id: 49,
+    title: 'Rave Photography Guide 2026: Shooting Underground Events Respectfully',
+    excerpt: 'How to photograph underground electronic music events — the technical side (shooting in near-total darkness), the ethical side (consent and community norms), and how to build legitimate access through promoter relationships.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-rave-photography-guide-2026.html',
+    img: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-22',
+    featured: false
+  },
+  {
+    id: 50,
+    title: 'Bedroom Producer Guide 2026: Making Electronic Music in SoCal',
+    excerpt: 'A practical guide for aspiring electronic music producers in OC, LA, and the IE — DAW selection, minimum viable studio setup, learning resources, and how to release music and connect with the SoCal underground.',
+    category: 'tips',
+    source: 'KEEPITIL',
+    link: 'blog-bedroom-producer-guide-2026.html',
+    img: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-20',
+    featured: false
+  },
+  {
+    id: 51,
+    title: 'Local vs Touring DJs: Why the Underground Needs Both',
+    excerpt: 'The ongoing debate about local versus touring talent — why both serve the scene, what gets lost when promoters prioritize one over the other, and what good booking looks like in OC and LA in 2026.',
+    category: 'feature',
+    source: 'KEEPITIL',
+    link: 'blog-local-vs-touring-djs-underground.html',
+    img: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=600&q=80&auto=format&fit=crop',
+    date: '2026-05-18',
+    featured: false
+  }
+];
+
+// ── STATE ──
+let currentCat  = '';
+let currentSort = 'new';
+let searchQuery = '';
+let externalArticles = [];
+let feedsLoaded = false;
+
+// ── UTILS ──
+function fmtDate(d) {
+  try {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch(e) { return d; }
+}
+const CAT_LABELS = {
+  feature: 'Artist Feature',
+  scene:   'Scene',
+  events:  'Event Recap',
+  tips:    'Tips & Guides',
+  news:    'News'
+};
+function catLabel(c) { return CAT_LABELS[c] || c || 'Article'; }
+
+// ── FILTER ──
+function getFiltered() {
+  let arr = [...ORIGINALS, ...externalArticles];
+  if (currentCat)  arr = arr.filter(a => a.category === currentCat);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    arr = arr.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.excerpt.toLowerCase().includes(q) ||
+      (a.source || '').toLowerCase().includes(q)
+    );
+  }
+  arr.sort((a, b) => currentSort === 'new'
+    ? new Date(b.date) - new Date(a.date)
+    : new Date(a.date) - new Date(b.date)
+  );
+  return arr;
+}
+
+// ── RENDER ──
+function render() {
+  const filtered = getFiltered();
+  const allCount = ORIGINALS.length + externalArticles.length;
+  const totalEl = document.getElementById('total-count');
+  if (totalEl) totalEl.textContent = allCount;
+  const countEl = document.getElementById('results-count');
+  if (countEl) countEl.textContent = filtered.length;
+
+  const grid = document.getElementById('articles-grid');
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="no-results">
+      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <p>No articles match your filters.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((a, i) => {
+    const isFirst  = i === 0 && !searchQuery && !currentCat && currentSort === 'new';
+    const srcClass = a.source === 'KEEPITIL' ? 'source-keepitil' : (a.source === 'RA' ? 'source-ra' : 'source-external');
+    const imgBlock = a.img
+      ? `<div class="card-img-wrap">
+           <img src="/${escHtml(a.img)}" alt="${escHtml(a.title)}" loading="lazy"/>
+           <span class="card-source ${srcClass}">${escHtml(a.source)}</span>
+         </div>`
+      : `<div class="card-img-wrap">
+           <div class="card-img-placeholder">
+             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+               <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+             </svg>
+           </div>
+           <span class="card-source ${srcClass}">${escHtml(a.source)}</span>
+         </div>`;
+
+    return `<article class="article-card${isFirst ? ' featured' : ''}" onclick="openArticle('${escHtml(a.link)}')">
+      ${imgBlock}
+      <div class="card-body">
+        <div class="card-cat">${catLabel(a.category)}</div>
+        <h2 class="card-title">${escHtml(a.title)}</h2>
+        <p class="card-excerpt">${escHtml(a.excerpt)}</p>
+        <div class="card-footer">
+          <span class="card-date">${fmtDate(a.date)}</span>
+          <a class="card-read" href="/${escHtml(a.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Read More →</a>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function openArticle(url) {
+  if (url) window.open(url, '_blank', 'noopener');
+}
+
+// ── CONTROLS ──
+document.querySelectorAll('.sort-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentSort = btn.dataset.sort;
+    document.querySelectorAll('.sort-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentCat = btn.dataset.cat;
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+let searchTimer;
+document.getElementById('search-input').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { searchQuery = e.target.value.trim(); render(); }, 280);
+});
+
+// ── EXTERNAL RSS FEEDS via rss2json.com ──
+// Pulls live articles from scene/EDM media so the page stays fresh automatically
+async function loadExternalFeeds() {
+  const API = 'https://api.rss2json.com/v1/api.json?count=6&rss_url=';
+  const feeds = [
+    { url: 'https://dancingastronaut.com/feed/',       label: 'DANCING ASTRONAUT', cat: 'news'   },
+    { url: 'https://insomniac.com/magazine/feed/',     label: 'INSOMNIAC',          cat: 'events' },
+    { url: 'https://www.youredm.com/feed/',            label: 'YOUR EDM',           cat: 'news'   },
+    { url: 'https://edmtunes.com/feed/',               label: 'EDM TUNES',          cat: 'news'   },
+  ];
+
+  document.getElementById('loading-indicator').style.display = 'inline-flex';
+
+  const results = await Promise.allSettled(
+    feeds.map(f =>
+      fetch(API + encodeURIComponent(f.url))
+        .then(r => r.ok ? r.json() : null)
+        .then(d => ({ feed: f, data: d }))
+        .catch(() => null)
+    )
+  );
+
+  let id = 1000;
+  results.forEach(r => {
+    if (r.status !== 'fulfilled' || !r.value?.data?.items) return;
+    const { feed, data } = r.value;
+    if (data.status !== 'ok') return;
+    (data.items || []).forEach(item => {
+      const raw  = item.description || item.content || '';
+      const text = raw.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      const excerpt = text.length > 220 ? text.substring(0, 220) + '…' : text;
+      const img = item.thumbnail || item.enclosure?.link || null;
+      if (!item.title || !item.link) return;
+      externalArticles.push({
+        id: id++,
+        title: item.title,
+        excerpt: excerpt || 'Click to read the full article.',
+        category: feed.cat,
+        source: feed.label,
+        link: item.link,
+        img: img,
+        date: (item.pubDate || '').split(' ')[0] || new Date().toISOString().split('T')[0],
+        featured: false
+      });
+    });
+  });
+
+  feedsLoaded = true;
+  document.getElementById('loading-indicator').style.display = 'none';
+  render();
+}
+
+// ── INIT ──
+render();
+loadExternalFeeds();
+</script>
+
+</body>
+</html>
