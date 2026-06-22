@@ -508,11 +508,11 @@
   
     <a href="/privacy.html">Privacy Policy</a></footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
-    // ── Google Apps Script endpoint ──────────────────────────────────────────
-    // After deploying the GAS script (see gas-keepitil.js), paste the URL here:
-    const GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-    // ─────────────────────────────────────────────────────────────────────────
+    const SUPABASE_URL  = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
     function switchForm(type) {
       document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
@@ -540,14 +540,14 @@
     }
 
     function collectData(form, type) {
-      const data = {type, submitted: new Date().toISOString()};
-      new FormData(form).forEach((v, k) => { data[k] = v; });
+      const data = {type, submitted_at: new Date().toISOString(), source: 'signup'};
+      new FormData(form).forEach((v, k) => { data[k] = v.trim(); });
       return data;
     }
 
     function submitForm(formId, btnId, successId, type) {
       const form = document.getElementById(formId);
-      const btn = document.getElementById(btnId);
+      const btn  = document.getElementById(btnId);
       const successEl = document.getElementById(successId);
 
       form.addEventListener('submit', async function(e) {
@@ -557,29 +557,19 @@
         btn.disabled = true;
         btn.textContent = 'SENDING…';
 
-        const payload = collectData(form, type);
+        const row = collectData(form, type);
 
         try {
-          if (GAS_URL && GAS_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-            await fetch(GAS_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify(payload)
-            });
-          } else {
-            // Dev mode: log to console
-            console.log('SIGNUP SUBMISSION (no GAS URL set):', payload);
-            await new Promise(r => setTimeout(r, 800));
-          }
-          // Show success
+          const { error } = await db.from('applications').insert(row);
+          if (error) throw error;
           form.style.display = 'none';
           successEl.style.display = 'block';
           btn.style.display = 'none';
         } catch(err) {
+          console.error('Submission error:', err);
           btn.disabled = false;
           btn.textContent = 'SUBMIT APPLICATION';
-          alert('Something went wrong. Please try again or DM us on Instagram.');
+          alert('Something went wrong. Please try again or DM us on Instagram @keepitil.');
         }
       });
     }
