@@ -20,7 +20,7 @@
 :root{--blue:#00b4ff;--bg:#050505;--card:#111;--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
 html,body{background:var(--bg);min-height:100vh;font-family:var(--font-body);color:#fff;overflow-x:hidden;}
 
-/* NAV */
+/* ── NAV ── */
 nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
 .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
@@ -30,34 +30,99 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
 .nav-links a:hover,.nav-links a.active{color:#00b4ff;}
 .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
 .nav-cta:hover{opacity:.85;}
-@media(max-width:768px){.nav-links{display:none;}}
 
-/* PAGE HEADER */
-.page-header{padding:48px 24px 28px;max-width:1400px;margin:0 auto;}
-.page-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
-.page-title{font-family:var(--font-head);font-size:clamp(2.4rem,5vw,4rem);letter-spacing:.06em;color:#fff;line-height:1;}
-.page-sub{color:var(--grey);font-size:.85rem;margin-top:8px;letter-spacing:.04em;}
+/* ── HAMBURGER ── */
+.hamburger{display:none;flex-direction:column;justify-content:space-between;width:22px;height:16px;background:none;border:none;cursor:pointer;padding:0;margin-left:auto;flex-shrink:0;}
+.hamburger span{display:block;height:2px;width:100%;background:#ccc;border-radius:2px;transition:transform .28s ease,opacity .2s ease;}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0);}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
-/* GALLERY */
-.gallery{max-width:1400px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+/* ── MOBILE NAV ── */
+.mobile-nav{position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,5,5,.98);z-index:99;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;}
+.mobile-nav.open{transform:translateX(0);}
+.mobile-nav ul{list-style:none;padding:8px 0 0;}
+.mobile-nav li a{display:block;color:#777;text-decoration:none;font-size:.88rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:18px 28px;border-bottom:1px solid rgba(255,255,255,.05);transition:color .2s,background .2s;}
+.mobile-nav li a:hover,.mobile-nav li a.active{color:var(--blue);}
+.mobile-nav li:last-child a{margin:20px 28px 28px;display:block;background:var(--blue);color:#fff!important;border-radius:4px;text-align:center;border:none;padding:14px 0;}
+
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .hamburger{display:flex;}
+}
+
+/* ── HERO ── */
+.hero{position:relative;padding:56px 24px 36px;max-width:1400px;margin:0 auto;overflow:hidden;}
+.hero-glow{position:absolute;top:-40px;left:40%;width:600px;height:280px;background:radial-gradient(ellipse,rgba(0,180,255,.11) 0%,transparent 70%);pointer-events:none;transform:translateX(-50%);}
+.hero-label{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;}
+.hero-title{font-family:var(--font-head);font-size:clamp(3rem,8vw,5.5rem);letter-spacing:.06em;line-height:.95;color:#fff;margin-bottom:18px;}
+.hero-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.hero-sub{color:var(--grey);font-size:.85rem;letter-spacing:.04em;}
+.hero-pill{font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--blue);background:rgba(0,180,255,.08);border:1px solid rgba(0,180,255,.2);padding:4px 12px;border-radius:20px;white-space:nowrap;}
+
+/* ── FILTERS ── */
+.filters{max-width:1400px;margin:0 auto;padding:0 24px 24px;display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{background:transparent;border:1px solid rgba(255,255,255,.12);color:#777;font-family:var(--font-body);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border-radius:20px;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
+.filter-btn:hover{border-color:var(--blue);color:var(--blue);}
+.filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+
+/* ── GALLERY ── */
+.gallery{max-width:1400px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
 @media(max-width:600px){.gallery{padding:0 12px 60px;gap:12px;grid-template-columns:repeat(2,1fr);}}
 @media(max-width:380px){.gallery{grid-template-columns:1fr;}}
 
-/* EVENT CARD */
+/* ── BASE CARD ── */
 .card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s;}
 .card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(0,180,255,.18);}
-.card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#1a1a1a;}
+.card.hidden{display:none;}
+
+/* image wrap + overlay */
+.card-img-wrap{position:relative;overflow:hidden;flex-shrink:0;}
+.card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#1a1a1a;transition:transform .4s ease;}
+.card:hover .card-img{transform:scale(1.05);}
+.card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 55%);opacity:0;transition:opacity .28s;display:flex;align-items:flex-end;padding:14px;}
+.card:hover .card-overlay{opacity:1;}
+.card-overlay-cta{font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#fff;border:1px solid rgba(255,255,255,.5);padding:6px 14px;border-radius:3px;}
+
+/* card body */
 .card-body{padding:13px 15px 14px;display:flex;flex-direction:column;flex:1;}
+.card-badge{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:var(--blue);color:#fff;padding:3px 8px;border-radius:3px;margin-bottom:10px;}
 .card-date{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;}
 .card-name{font-family:var(--font-head);font-size:1.1rem;letter-spacing:.04em;line-height:1.15;color:#fff;margin-bottom:5px;}
 .card-venue{font-size:.78rem;color:var(--grey);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;}
 .tag{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.3);padding:2px 7px;border-radius:20px;}
-.card-footer{padding:9px 15px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;}
+
+/* card footer */
+.card-footer{padding:9px 15px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .card-source{font-size:.68rem;color:#444;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
 .card-arrow{font-size:.72rem;color:var(--blue);font-weight:700;letter-spacing:.04em;}
 
-/* FOOTER */
+/* ── FEATURED CARD ── */
+.card.card-featured{grid-column:span 2;flex-direction:row;border-color:rgba(0,180,255,.22);min-height:280px;}
+.card.card-featured .card-img-wrap{width:52%;flex-shrink:0;}
+.card.card-featured .card-img{aspect-ratio:auto;height:100%;min-height:280px;}
+.card.card-featured .card-right{display:flex;flex-direction:column;flex:1;min-width:0;}
+.card.card-featured .card-body{padding:24px 24px 16px;flex:1;}
+.card.card-featured .card-name{font-size:clamp(1.4rem,2.5vw,2rem);}
+.card.card-featured .card-footer{padding:12px 24px;}
+
+@media(max-width:768px){
+  .card.card-featured{grid-column:span 2;flex-direction:column;min-height:auto;}
+  .card.card-featured .card-img-wrap{width:100%;}
+  .card.card-featured .card-img{aspect-ratio:16/9;height:auto;min-height:auto;}
+  .card.card-featured .card-body{padding:16px 16px 12px;}
+  .card.card-featured .card-footer{padding:10px 16px;}
+}
+@media(max-width:600px){
+  .card.card-featured{grid-column:span 2;}
+}
+
+/* ── NO RESULTS ── */
+.no-results{display:none;grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--grey);font-size:.9rem;}
+.no-results.show{display:block;}
+
+/* ── FOOTER ── */
 .site-footer{text-align:center;padding:36px 24px;border-top:1px solid rgba(0,180,255,.08);color:#444;font-size:.78rem;letter-spacing:.04em;}
 .site-footer a{color:var(--blue);text-decoration:none;}
 .site-footer a:hover{text-decoration:underline;}
@@ -65,6 +130,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
 </head>
 <body>
 
+<!-- ── NAV ── -->
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="/">
@@ -80,35 +146,77 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
       <li><a href="/culture">Culture</a></li>
       <li><a href="/apply.html" class="nav-cta">Apply</a></li>
     </ul>
+    <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
 
-<div class="page-header">
-  <div class="page-label">OC &amp; LA Underground</div>
-  <h1 class="page-title">PAST EVENTS</h1>
-  <p class="page-sub">Curated from the LA underground scene · via Resident Advisor</p>
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobileNav" aria-hidden="true">
+  <ul>
+    <li><a href="/" class="active">Home</a></li>
+    <li><a href="/spotlight">Spotlight</a></li>
+    <li><a href="/artist">Artists</a></li>
+    <li><a href="/brand">Brands</a></li>
+    <li><a href="/organizer">Organizers</a></li>
+    <li><a href="/events">Events</a></li>
+    <li><a href="/culture">Culture</a></li>
+    <li><a href="/apply.html">Apply</a></li>
+  </ul>
 </div>
 
-<div class="gallery">
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-label">OC &amp; LA Underground</div>
+  <h1 class="hero-title">PAST EVENTS</h1>
+  <div class="hero-row">
+    <p class="hero-sub">June 12–14, 2026 · via Resident Advisor</p>
+    <span class="hero-pill" id="eventCount">10 events</span>
+  </div>
+</div>
 
-  <a class="card" href="https://ra.co/events/2339406" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vOWNlNmQ4OTFiNmExNjJjZmVhZmNlNDc2OWJlNTc1MDAwMjI1MzM3Ni5qcGc=" alt="Ostbahnhof XL Music Festival 2026" loading="lazy">
-    <div class="card-body">
-      <div class="card-date">Jun 13, 2026</div>
-      <div class="card-name">Ostbahnhof XL Music Festival 2026</div>
-      <div class="card-venue">Secret Location · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Techno</span><span class="tag">House</span></div>
+<!-- ── FILTERS ── -->
+<div class="filters">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="techno">Techno</button>
+  <button class="filter-btn" data-filter="house">House</button>
+  <button class="filter-btn" data-filter="disco">Disco</button>
+</div>
+
+<!-- ── GALLERY ── -->
+<div class="gallery" id="gallery">
+
+  <!-- FEATURED -->
+  <a class="card card-featured" href="https://ra.co/events/2339406" target="_blank" rel="noopener" data-genre="techno house">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vOWNlNmQ4OTFiNmExNjJjZmVhZmNlNDc2OWJlNTc1MDAwMjI1MzM3Ni5qcGc=" alt="Ostbahnhof XL Music Festival 2026" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
     </div>
-    <div class="card-footer">
-      <span class="card-source">RA Pick</span>
-      <span class="card-arrow">View on RA →</span>
+    <div class="card-right">
+      <div class="card-body">
+        <span class="card-badge">RA Pick · Featured</span>
+        <div class="card-date">Fri, Jun 13, 2026</div>
+        <div class="card-name">Ostbahnhof XL Music Festival 2026</div>
+        <div class="card-venue">Secret Location · Los Angeles</div>
+        <div class="card-tags"><span class="tag">Techno</span><span class="tag">House</span></div>
+      </div>
+      <div class="card-footer">
+        <span class="card-source">RA Pick</span>
+        <span class="card-arrow">View on RA →</span>
+      </div>
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2396710" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNzRhZjI5ZjkxODRlNDA2ZGFhYzhhMTE4YmEwYWZlOGRhNjJhMzA2MS5qcGc=" alt="SET: Hernan Cattaneo & Armen Miran" loading="lazy">
+  <!-- CARD 2 -->
+  <a class="card" href="https://ra.co/events/2396710" target="_blank" rel="noopener" data-genre="house">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNzRhZjI5ZjkxODRlNDA2ZGFhYzhhMTE4YmEwYWZlOGRhNjJhMzA2MS5qcGc=" alt="SET: Hernan Cattaneo & Armen Miran" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-date">Thu, Jun 12, 2026</div>
       <div class="card-name">SET: Hernan Cattaneo &amp; Armen Miran</div>
       <div class="card-venue">Warehouse · Los Angeles</div>
       <div class="card-tags"><span class="tag">Progressive House</span><span class="tag">Deep House</span></div>
@@ -119,10 +227,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2410568" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZTAzMzQyYmQ5MzY3Y2E3ODAzMjU5MDk1YTVjYWQ0NDk4YTVjYTZiNS5wbmc=" alt="WAXXX Society: Bloody Mary & Anika Kunst" loading="lazy">
+  <!-- CARD 3 -->
+  <a class="card" href="https://ra.co/events/2410568" target="_blank" rel="noopener" data-genre="techno">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZTAzMzQyYmQ5MzY3Y2E3ODAzMjU5MDk1YTVjYWQ0NDk4YTVjYTZiNS5wbmc=" alt="WAXXX Society: Bloody Mary & Anika Kunst" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-date">Fri, Jun 13, 2026</div>
       <div class="card-name">WAXXX Society: Bloody Mary &amp; Anika Kunst</div>
       <div class="card-venue">Warehouse · Los Angeles</div>
       <div class="card-tags"><span class="tag">Techno</span><span class="tag">Acid</span></div>
@@ -133,10 +245,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2430955" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODVmNjJjMmJmNDljM2ZkNjUxYWNhZmZlODEyOTdkZmI0MWU3MDZlYS5qcGc=" alt="Bodyshop Anniversary with MCMLXXXV" loading="lazy">
+  <!-- CARD 4 -->
+  <a class="card" href="https://ra.co/events/2430955" target="_blank" rel="noopener" data-genre="techno">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODVmNjJjMmJmNDljM2ZkNjUxYWNhZmZlODEyOTdkZmI0MWU3MDZlYS5qcGc=" alt="Bodyshop Anniversary with MCMLXXXV" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-date">Thu, Jun 12, 2026</div>
       <div class="card-name">Bodyshop Anniversary with MCMLXXXV</div>
       <div class="card-venue">TBA · Los Angeles</div>
       <div class="card-tags"><span class="tag">Techno</span></div>
@@ -147,10 +263,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2455894" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjIyMWU1ZTQ2NjAwM2I1ZThiYzc0OTFmYWZlODIxYWRjODg0ZGMwNS5wbmc=" alt="Bears In Space with DJ Harvey" loading="lazy">
+  <!-- CARD 5 -->
+  <a class="card" href="https://ra.co/events/2455894" target="_blank" rel="noopener" data-genre="house disco">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjIyMWU1ZTQ2NjAwM2I1ZThiYzc0OTFmYWZlODIxYWRjODg0ZGMwNS5wbmc=" alt="Bears In Space with DJ Harvey" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 14, 2026</div>
+      <div class="card-date">Sat, Jun 14, 2026</div>
       <div class="card-name">Bears In Space with DJ Harvey</div>
       <div class="card-venue">Akbar · Los Angeles</div>
       <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
@@ -161,10 +281,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2440579" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODMzMDk0YzNkMTUzYjM0MzhkYzg1MTk0MTkzNWRmZjYxZTdlNjI4ZS5qcGc=" alt="AXIS: Aten 2 Year Anniversary" loading="lazy">
+  <!-- CARD 6 -->
+  <a class="card" href="https://ra.co/events/2440579" target="_blank" rel="noopener" data-genre="house">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODMzMDk0YzNkMTUzYjM0MzhkYzg1MTk0MTkzNWRmZjYxZTdlNjI4ZS5qcGc=" alt="AXIS: Aten 2 Year Anniversary" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-date">Fri, Jun 13, 2026</div>
       <div class="card-name">AXIS: Aten — 2 Year Anniversary</div>
       <div class="card-venue">TBA · Los Angeles</div>
       <div class="card-tags"><span class="tag">Deep House</span><span class="tag">Afro House</span></div>
@@ -175,10 +299,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2414335" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMjZjODI0OGI0OWMwNWMzYmU1ODNiNjRjNGNiZWY1ZDNkNWRmMGMwMS5qcGc=" alt="Stereo Punks: Derrick Does Disco" loading="lazy">
+  <!-- CARD 7 -->
+  <a class="card" href="https://ra.co/events/2414335" target="_blank" rel="noopener" data-genre="house disco">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMjZjODI0OGI0OWMwNWMzYmU1ODNiNjRjNGNiZWY1ZDNkNWRmMGMwMS5qcGc=" alt="Stereo Punks: Derrick Does Disco" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-date">Thu, Jun 12, 2026</div>
       <div class="card-name">Stereo Punks: Derrick Does Disco</div>
       <div class="card-venue">6th St Bridge · Los Angeles</div>
       <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
@@ -189,10 +317,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2430858" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjM4NDY4ODM0OTIzY2RlODVlY2IzZGI5M2IwMDk0M2JmZGFlNjJkMy5wbmc=" alt="Marmalade Jams: H-Foundation & Sinead" loading="lazy">
+  <!-- CARD 8 -->
+  <a class="card" href="https://ra.co/events/2430858" target="_blank" rel="noopener" data-genre="house">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjM4NDY4ODM0OTIzY2RlODVlY2IzZGI5M2IwMDk0M2JmZGFlNjJkMy5wbmc=" alt="Marmalade Jams: H-Foundation & Sinead" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-date">Fri, Jun 13, 2026</div>
       <div class="card-name">Marmalade Jams: H-Foundation &amp; Sin&eacute;ad</div>
       <div class="card-venue">TBA · Los Angeles</div>
       <div class="card-tags"><span class="tag">House</span><span class="tag">Downtempo</span></div>
@@ -203,10 +335,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2444604" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vY2E4ZDYyNzk4OWNmNGQyYmYxMTY4NjNhYWZkMGIwODQ1ZDViM2JjNS5wbmc=" alt="CLOSER: THERMAL with Aleroj & ELLA" loading="lazy">
+  <!-- CARD 9 -->
+  <a class="card" href="https://ra.co/events/2444604" target="_blank" rel="noopener" data-genre="techno">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vY2E4ZDYyNzk4OWNmNGQyYmYxMTY4NjNhYWZkMGIwODQ1ZDViM2JjNS5wbmc=" alt="CLOSER: THERMAL with Aleroj & ELLA" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-date">Fri, Jun 13, 2026</div>
       <div class="card-name">CLOSER: THERMAL with Aleroj &amp; ELLA</div>
       <div class="card-venue">DTLA · Los Angeles</div>
       <div class="card-tags"><span class="tag">Techno</span><span class="tag">Guaracha</span></div>
@@ -217,10 +353,14 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
-  <a class="card" href="https://ra.co/events/2441695" target="_blank" rel="noopener">
-    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2M0NmJmOWRhYjJlYjU4ZGQzM2M1MjdjODE4Yjc3YjgzZmYwYTA2ZS5qcGc=" alt="NAACH x Third Eye Lover: Pippi Ciez" loading="lazy">
+  <!-- CARD 10 -->
+  <a class="card" href="https://ra.co/events/2441695" target="_blank" rel="noopener" data-genre="house">
+    <div class="card-img-wrap">
+      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2M0NmJmOWRhYjJlYjU4ZGQzM2M1MjdjODE4Yjc3YjgzZmYwYTA2ZS5qcGc=" alt="NAACH x Third Eye Lover: Pippi Ciez" loading="lazy">
+      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
+    </div>
     <div class="card-body">
-      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-date">Thu, Jun 12, 2026</div>
       <div class="card-name">NAACH x Third Eye Lover: Pippi Ciez</div>
       <div class="card-venue">Baja Cantina · Marina Del Rey</div>
       <div class="card-tags"><span class="tag">Progressive House</span><span class="tag">Afro House</span></div>
@@ -231,12 +371,63 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     </div>
   </a>
 
+  <p class="no-results" id="noResults">No events match this filter.</p>
+
 </div>
 
 <footer class="site-footer">
   Event data sourced from <a href="https://ra.co/events/us/losangeles" target="_blank" rel="noopener">Resident Advisor</a> &nbsp;&middot;&nbsp;
   <a href="/events">Upcoming Events →</a>
 </footer>
+
+<script>
+// ── Mobile nav ──
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobileNav');
+
+hamburger.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  hamburger.classList.toggle('open', open);
+  hamburger.setAttribute('aria-expanded', open);
+  mobileNav.setAttribute('aria-hidden', !open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+
+mobileNav.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    mobileNav.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  });
+});
+
+// ── Genre filter ──
+const filterBtns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.card');
+const countEl = document.getElementById('eventCount');
+const noResults = document.getElementById('noResults');
+
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const filter = btn.dataset.filter;
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    let visible = 0;
+    cards.forEach(card => {
+      const genres = (card.dataset.genre || '').split(' ');
+      const match = filter === 'all' || genres.includes(filter);
+      card.classList.toggle('hidden', !match);
+      if (match) visible++;
+    });
+
+    countEl.textContent = `${visible} event${visible !== 1 ? 's' : ''}`;
+    noResults.classList.toggle('show', visible === 0);
+  });
+});
+</script>
 
 </body>
 </html>
