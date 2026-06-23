@@ -3,47 +3,240 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KEEPITIL</title>
+<title>KEEPITIL — OC &amp; LA Underground Events</title>
+<link rel="icon" type="image/png" href="/logo-blue-nav.png"/>
+<meta name="description" content="Curated gallery of underground electronic music events in OC &amp; LA. Artists, brands, organizers and nightlife from the Southern California underground scene."/>
+<meta property="og:title" content="KEEPITIL — OC &amp; LA Underground"/>
+<meta property="og:description" content="Curated underground electronic music events from OC &amp; LA."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://keepitil.com/"/>
+<meta property="og:image" content="https://imgproxy.ra.co/_/rt:fill/h:630/w:1200/quality:50/aHR0cHM6Ly9pbWFnZXMucmEuY28vOWNlNmQ4OTFiNmExNjJjZmVhZmNlNDc2OWJlNTc1MDAwMjI1MzM3Ni5qcGc="/>
+<link rel="canonical" href="https://keepitil.com/"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:#050505;min-height:100vh;}
+:root{--blue:#00b4ff;--bg:#050505;--card:#111;--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
+html,body{background:var(--bg);min-height:100vh;font-family:var(--font-body);color:#fff;overflow-x:hidden;}
+
+/* NAV */
 nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
 .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
-.nav-brand{color:#fff;font-family:"Bebas Neue",sans-serif;font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+.nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
 .nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
 .nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
 .nav-links a:hover,.nav-links a.active{color:#00b4ff;}
 .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
 .nav-cta:hover{opacity:.85;}
 @media(max-width:768px){.nav-links{display:none;}}
-.home-stage{display:flex;align-items:center;justify-content:center;height:calc(100vh - 60px);}
-.mark{width:min(52vw,52vh);height:min(52vw,52vh);object-fit:contain;display:block;}
+
+/* PAGE HEADER */
+.page-header{padding:48px 24px 28px;max-width:1400px;margin:0 auto;}
+.page-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+.page-title{font-family:var(--font-head);font-size:clamp(2.4rem,5vw,4rem);letter-spacing:.06em;color:#fff;line-height:1;}
+.page-sub{color:var(--grey);font-size:.85rem;margin-top:8px;letter-spacing:.04em;}
+
+/* GALLERY */
+.gallery{max-width:1400px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+@media(max-width:600px){.gallery{padding:0 12px 60px;gap:12px;grid-template-columns:repeat(2,1fr);}}
+@media(max-width:380px){.gallery{grid-template-columns:1fr;}}
+
+/* EVENT CARD */
+.card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s;}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(0,180,255,.18);}
+.card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#1a1a1a;}
+.card-body{padding:13px 15px 14px;display:flex;flex-direction:column;flex:1;}
+.card-date{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;}
+.card-name{font-family:var(--font-head);font-size:1.1rem;letter-spacing:.04em;line-height:1.15;color:#fff;margin-bottom:5px;}
+.card-venue{font-size:.78rem;color:var(--grey);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;}
+.tag{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.3);padding:2px 7px;border-radius:20px;}
+.card-footer{padding:9px 15px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;}
+.card-source{font-size:.68rem;color:#444;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.card-arrow{font-size:.72rem;color:var(--blue);font-weight:700;letter-spacing:.04em;}
+
+/* FOOTER */
+.site-footer{text-align:center;padding:36px 24px;border-top:1px solid rgba(0,180,255,.08);color:#444;font-size:.78rem;letter-spacing:.04em;}
+.site-footer a{color:var(--blue);text-decoration:none;}
+.site-footer a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
+
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="/">
       <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
-      <li><a href="/" class="active">HOME</a></li>
-      <li><a href="/spotlight">SPOTLIGHT</a></li>
-      <li><a href="/artist">ARTISTS</a></li>
-      <li><a href="/brand/">BRANDS</a></li>
-      <li><a href="/organizer/">ORGANIZERS</a></li>
-      <li><a href="/events">EVENTS</a></li>
-      <li><a href="/culture">CULTURE</a></li>
-      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
+      <li><a href="/" class="active">Home</a></li>
+      <li><a href="/spotlight">Spotlight</a></li>
+      <li><a href="/artist">Artists</a></li>
+      <li><a href="/brand">Brands</a></li>
+      <li><a href="/organizer">Organizers</a></li>
+      <li><a href="/events">Events</a></li>
+      <li><a href="/culture">Culture</a></li>
+      <li><a href="/apply.html" class="nav-cta">Apply</a></li>
     </ul>
   </div>
 </nav>
-<div class="home-stage">
-  <img class="mark" src="/keepitil-mark.png" alt="KEEPITIL">
+
+<div class="page-header">
+  <div class="page-label">OC &amp; LA Underground</div>
+  <h1 class="page-title">PAST EVENTS</h1>
+  <p class="page-sub">Curated from the LA underground scene · via Resident Advisor</p>
 </div>
+
+<div class="gallery">
+
+  <a class="card" href="https://ra.co/events/2339406" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vOWNlNmQ4OTFiNmExNjJjZmVhZmNlNDc2OWJlNTc1MDAwMjI1MzM3Ni5qcGc=" alt="Ostbahnhof XL Music Festival 2026" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-name">Ostbahnhof XL Music Festival 2026</div>
+      <div class="card-venue">Secret Location · Los Angeles</div>
+      <div class="card-tags"><span class="tag">Techno</span><span class="tag">House</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">RA Pick</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2396710" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNzRhZjI5ZjkxODRlNDA2ZGFhYzhhMTE4YmEwYWZlOGRhNjJhMzA2MS5qcGc=" alt="SET: Hernan Cattaneo & Armen Miran" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-name">SET: Hernan Cattaneo &amp; Armen Miran</div>
+      <div class="card-venue">Warehouse · Los Angeles</div>
+      <div class="card-tags"><span class="tag">Progressive House</span><span class="tag">Deep House</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">via RA</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2410568" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZTAzMzQyYmQ5MzY3Y2E3ODAzMjU5MDk1YTVjYWQ0NDk4YTVjYTZiNS5wbmc=" alt="WAXXX Society: Bloody Mary & Anika Kunst" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-name">WAXXX Society: Bloody Mary &amp; Anika Kunst</div>
+      <div class="card-venue">Warehouse · Los Angeles</div>
+      <div class="card-tags"><span class="tag">Techno</span><span class="tag">Acid</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">RA Pick</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2430955" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODVmNjJjMmJmNDljM2ZkNjUxYWNhZmZlODEyOTdkZmI0MWU3MDZlYS5qcGc=" alt="Bodyshop Anniversary with MCMLXXXV" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-name">Bodyshop Anniversary with MCMLXXXV</div>
+      <div class="card-venue">TBA · Los Angeles</div>
+      <div class="card-tags"><span class="tag">Techno</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">RA Pick</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2455894" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjIyMWU1ZTQ2NjAwM2I1ZThiYzc0OTFmYWZlODIxYWRjODg0ZGMwNS5wbmc=" alt="Bears In Space with DJ Harvey" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 14, 2026</div>
+      <div class="card-name">Bears In Space with DJ Harvey</div>
+      <div class="card-venue">Akbar · Los Angeles</div>
+      <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">RA Pick</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2440579" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODMzMDk0YzNkMTUzYjM0MzhkYzg1MTk0MTkzNWRmZjYxZTdlNjI4ZS5qcGc=" alt="AXIS: Aten 2 Year Anniversary" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-name">AXIS: Aten — 2 Year Anniversary</div>
+      <div class="card-venue">TBA · Los Angeles</div>
+      <div class="card-tags"><span class="tag">Deep House</span><span class="tag">Afro House</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">via RA</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2414335" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMjZjODI0OGI0OWMwNWMzYmU1ODNiNjRjNGNiZWY1ZDNkNWRmMGMwMS5qcGc=" alt="Stereo Punks: Derrick Does Disco" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-name">Stereo Punks: Derrick Does Disco</div>
+      <div class="card-venue">6th St Bridge · Los Angeles</div>
+      <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">RA Pick</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2430858" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjM4NDY4ODM0OTIzY2RlODVlY2IzZGI5M2IwMDk0M2JmZGFlNjJkMy5wbmc=" alt="Marmalade Jams: H-Foundation & Sinead" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-name">Marmalade Jams: H-Foundation &amp; Sin&eacute;ad</div>
+      <div class="card-venue">TBA · Los Angeles</div>
+      <div class="card-tags"><span class="tag">House</span><span class="tag">Downtempo</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">via RA</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2444604" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vY2E4ZDYyNzk4OWNmNGQyYmYxMTY4NjNhYWZkMGIwODQ1ZDViM2JjNS5wbmc=" alt="CLOSER: THERMAL with Aleroj & ELLA" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 13, 2026</div>
+      <div class="card-name">CLOSER: THERMAL with Aleroj &amp; ELLA</div>
+      <div class="card-venue">DTLA · Los Angeles</div>
+      <div class="card-tags"><span class="tag">Techno</span><span class="tag">Guaracha</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">via RA</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+  <a class="card" href="https://ra.co/events/2441695" target="_blank" rel="noopener">
+    <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2M0NmJmOWRhYjJlYjU4ZGQzM2M1MjdjODE4Yjc3YjgzZmYwYTA2ZS5qcGc=" alt="NAACH x Third Eye Lover: Pippi Ciez" loading="lazy">
+    <div class="card-body">
+      <div class="card-date">Jun 12, 2026</div>
+      <div class="card-name">NAACH x Third Eye Lover: Pippi Ciez</div>
+      <div class="card-venue">Baja Cantina · Marina Del Rey</div>
+      <div class="card-tags"><span class="tag">Progressive House</span><span class="tag">Afro House</span></div>
+    </div>
+    <div class="card-footer">
+      <span class="card-source">via RA</span>
+      <span class="card-arrow">View on RA →</span>
+    </div>
+  </a>
+
+</div>
+
+<footer class="site-footer">
+  Event data sourced from <a href="https://ra.co/events/us/losangeles" target="_blank" rel="noopener">Resident Advisor</a> &nbsp;&middot;&nbsp;
+  <a href="/events">Upcoming Events →</a>
+</footer>
+
 </body>
 </html>
