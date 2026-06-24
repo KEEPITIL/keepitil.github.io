@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Merge the Music &mdash; Building OC&rsquo;s Underground Community One Event at a Time | KEEPITIL</title>
-  <link rel="icon" type="image/png" href="https://keepitil.github.io/logo-blue-nav.png"/>
+  <link rel="icon" type="image/png" href="/logo-blue-nav.png"/>
   <meta name="description" content="Merge the Music is one of Orange County's most respected underground collectives, running events that prioritize sound quality, artist development, and genuine community."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -75,7 +75,7 @@
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img src="https://keepitil.github.io/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
+      <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
@@ -99,40 +99,7 @@
   <div class="article-header">
     <a class="back-link" href="/culture">&larr; Back to Culture</a>
 
-<div style="margin:24px 0 8px;"><a href="https://fonts.googleapis.com" target="_blank" rel="noopener" class="soc-btn web">Website</a></div>
-<div class="org-bk-section" id="org-book-merge_the_music">
-  <div class="org-bk-title">Inquire / Get Info</div>
-  <div class="org-bk-sub">Drop your email — we'll connect you directly. No spam, ever.</div>
-  <div id="org-form-merge_the_music">
-    <form onsubmit="submitOrgBooking(event,'','Merge the Music &mdash; Building OC&rsquo;s Underground Community One Event at a Time','merge_the_music')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="Message — event inquiry, booking question, general info..."></textarea>
-      <label class="sub-row2"><input type="checkbox" name="bsub" checked/> Get KEEPITIL event updates &amp; picks</label>
-      <button type="submit" class="org-bk-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="org-ok-merge_the_music" class="org-bk-success" style="display:none">
-    <p>&#10003; Sent! Connect with Merge the Music &mdash; Building OC&rsquo;s Underground Community One Event at a Time directly:</p>
-    
-  </div>
-</div>
-<script>
-async function submitOrgBooking(e,ig,org,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:org,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'org_booking',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=org-form]').style.display='none';
-  document.getElementById('org-ok-'+slug).style.display='block';
-}
-</script><br/>
+<br/>
     <span class="kil-tag">KEEPITIL</span><span class="cat-tag">Organizers</span>
     <h1 class="article-title">Merge the Music &mdash; Building OC&rsquo;s Underground Community One Event at a Time</h1>
     <div class="article-meta">
