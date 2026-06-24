@@ -280,7 +280,7 @@ function filterAndSort(){
 
 function renderCard(o){
   const igUrl=`https://instagram.com/${o.ig}`;
-  const profileUrl = o.blog ? o.blog : igUrl;
+  const profileUrl = o.blog ? 'https://keepitil.com/'+o.blog : igUrl;
   const profileTarget = o.blog ? '_self' : '_blank';
   return `
     <div class="org-card" onclick="window.location='${profileUrl}'">
@@ -292,7 +292,7 @@ function renderCard(o){
         <span class="org-type-tag">${o.type}</span>
         <div class="org-name">${o.name}</div>
         <span class="org-location">📍 ${o.city}</span>
-        <a class="org-card-btn" href="https://keepitil.github.io/${profileUrl}" target="${profileTarget}" onclick="event.stopPropagation()">VIEW PROFILE</a>
+        <a class="org-card-btn" href="${profileUrl}" target="${profileTarget}" onclick="event.stopPropagation()">VIEW PROFILE</a>
       </div>
     </div>`;
 }
