@@ -78,6 +78,13 @@ a{color:inherit;text-decoration:none;}
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
+      <li><a href="/spotlight">SPOTLIGHT</a></li>
+      <li><a href="/artist">ARTISTS</a></li>
+      <li><a href="/brand/">BRANDS</a></li>
+      <li><a href="/organizer/" class="active">ORGANIZERS</a></li>
+      <li><a href="/events">EVENTS</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
     </ul>
   </div>
 </nav>
@@ -115,41 +122,8 @@ a{color:inherit;text-decoration:none;}
   <div class="qa-item"><div class="pc-label" style="margin-bottom:8px;">How do you handle the logistics of events in three different markets?</div><p class="about-text">With a permanent team in each city plus a shared event infrastructure. Each city team handles local relationships — venues, artists, promotion. The shared infrastructure handles things like sound system rental networks, liability coverage, and the regional communication that keeps the circuit coherent.</p></div>
 </div>
 
-<div style="margin:24px 0 8px;"><a href="https://instagram.com/pacific.underground.events" target="_blank" rel="noopener" class="soc-btn ig">Follow on Instagram</a><a href="https://fonts.googleapis.com" target="_blank" rel="noopener" class="soc-btn web">Website</a></div>
-<div class="org-bk-section" id="org-book-pacific_underground">
-  <div class="org-bk-title">Inquire / Get Info</div>
-  <div class="org-bk-sub">Drop your email — we'll connect you directly. No spam, ever.</div>
-  <div id="org-form-pacific_underground">
-    <form onsubmit="submitOrgBooking(event,'pacific.underground.events','Pacific Underground','pacific_underground')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="Message — event inquiry, booking question, general info..."></textarea>
-      <label class="sub-row2"><input type="checkbox" name="bsub" checked/> Get KEEPITIL event updates &amp; picks</label>
-      <button type="submit" class="org-bk-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="org-ok-pacific_underground" class="org-bk-success" style="display:none">
-    <p>&#10003; Sent! Connect with Pacific Underground directly:</p>
-    <a href="https://instagram.com/pacific.underground.events" target="_blank" rel="noopener" class="soc-btn ig">Instagram @pacific.underground.events &rarr;</a>
-  </div>
-</div>
-<script>
-async function submitOrgBooking(e,ig,org,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:org,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'org_booking',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=org-form]').style.display='none';
-  document.getElementById('org-ok-'+slug).style.display='block';
-}
-</script>
+<div style="margin:24px 0 8px;"><a href="https://instagram.com/pacific.underground.events" target="_blank" rel="noopener" class="soc-btn ig">Follow on Instagram</a></div>
 
-<footer><p>&copy; 2026 KEEPITIL &middot; <a href="https://keepitil.com/">Home</a> &middot; <a href="https://keepitil.com/artist">Artists</a> &middot; <a href="https://keepitil.com/brand/">Brands</a> &middot; <a href="https://keepitil.com/culture">Culture</a> &middot; <a href="https://keepitil.github.io/about.html">About</a> &middot; <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p></footer>
+<footer><p>&copy; 2026 KEEPITIL &middot; <a href="https://keepitil.com/">Home</a> &middot; <a href="https://keepitil.com/artist">Artists</a> &middot; <a href="https://keepitil.com/brand/">Brands</a> &middot; <a href="https://keepitil.com/culture">Culture</a> &middot; <a href="https://keepitil.com/about.html">About</a> &middot; <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p></footer>
 </body>
 </html>
