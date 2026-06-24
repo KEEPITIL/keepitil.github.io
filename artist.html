@@ -378,5 +378,129 @@ function onGenre(v){currentGenre=v;render();}
 populateCities();
 render();
 </script>
+
+<!-- ♬ KEEPITIL Background Music Player -->
+<style>
+#kil-bg-player{
+  position:fixed;bottom:20px;right:20px;z-index:9998;
+  background:rgba(8,8,8,.96);
+  border:1px solid rgba(0,255,136,.35);
+  border-radius:10px;
+  box-shadow:0 4px 32px rgba(0,0,0,.6),0 0 24px rgba(0,255,136,.08);
+  backdrop-filter:blur(16px);
+  font-family:'Space Grotesk','Inter',sans-serif;
+  transition:all .3s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+#kil-bg-player.kil-mini{
+  width:42px!important;height:42px!important;
+  min-width:0!important;border-radius:50%;cursor:pointer;
+}
+#kil-bg-player.kil-mini #kil-player-inner{display:none!important;}
+#kil-bg-player.kil-mini #kil-mini-icon{display:flex!important;}
+#kil-mini-icon{
+  display:none;width:42px;height:42px;align-items:center;justify-content:center;
+  color:#00ff88;font-size:1.1rem;
+}
+#kil-player-inner{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 13px;min-width:220px;
+}
+#kil-label{
+  font-size:.62rem;font-weight:800;letter-spacing:.18em;
+  text-transform:uppercase;color:#00ff88;flex-shrink:0;
+}
+#kil-track{
+  font-size:.68rem;color:rgba(255,255,255,.5);
+  flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:110px;
+}
+.kil-btn{
+  background:none;border:none;cursor:pointer;color:#00ff88;
+  font-size:.95rem;line-height:1;padding:3px 2px;
+  transition:opacity .2s;flex-shrink:0;
+}
+.kil-btn:hover{opacity:.65;}
+/* iframe hidden off-screen */
+#kil-sc-frame{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}
+</style>
+
+<div id="kil-bg-player">
+  <div id="kil-mini-icon" title="Expand player">♬</div>
+  <div id="kil-player-inner">
+    <span id="kil-label">♬ KIL</span>
+    <span id="kil-track">Loading&hellip;</span>
+    <button class="kil-btn" id="kil-play-btn" title="Play / Pause">▶</button>
+    <button class="kil-btn" id="kil-min-btn" title="Minimize" style="font-size:.75rem;opacity:.6;">—</button>
+  </div>
+</div>
+<iframe id="kil-sc-frame" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/keepitil&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true"
+  scrolling="no" frameborder="no"></iframe>
+<script>
+(function(){
+  var player   = document.getElementById('kil-bg-player');
+  var inner    = document.getElementById('kil-player-inner');
+  var miniIcon = document.getElementById('kil-mini-icon');
+  var trackEl  = document.getElementById('kil-track');
+  var playBtn  = document.getElementById('kil-play-btn');
+  var minBtn   = document.getElementById('kil-min-btn');
+  var frame    = document.getElementById('kil-sc-frame');
+  var playing  = false;
+  var widget   = null;
+  var mini     = false;
+
+  function initWidget(){
+    if(!window.SC){return;}
+    widget = SC.Widget(frame);
+    widget.bind(SC.Widget.Events.READY, function(){
+      widget.setVolume(20);
+      widget.play();
+    });
+    widget.bind(SC.Widget.Events.PLAY, function(){
+      playing = true;
+      playBtn.textContent = '⏸';
+      widget.getCurrentSound(function(s){
+        if(s && s.title) trackEl.textContent = s.title;
+      });
+    });
+    widget.bind(SC.Widget.Events.PAUSE, function(){
+      playing = false;
+      playBtn.textContent = '▶';
+    });
+    widget.bind(SC.Widget.Events.FINISH, function(){
+      widget.next();
+    });
+  }
+
+  // Load SC Widget API
+  var sc = document.createElement('script');
+  sc.src = 'https://w.soundcloud.com/player/api.js';
+  sc.onload = initWidget;
+  document.head.appendChild(sc);
+
+  // Play / pause
+  playBtn.addEventListener('click', function(){
+    if(!widget){return;}
+    if(playing) widget.pause(); else widget.play();
+  });
+
+  // Minimize
+  minBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    mini = true;
+    player.classList.add('kil-mini');
+  });
+  miniIcon.addEventListener('click', function(){
+    mini = false;
+    player.classList.remove('kil-mini');
+  });
+  player.addEventListener('click', function(){
+    if(mini){mini=false;player.classList.remove('kil-mini');}
+  });
+})();
+</script>
+<!-- end KEEPITIL music player -->
+
 </body>
 </html>
