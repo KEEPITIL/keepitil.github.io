@@ -62,6 +62,24 @@ a{color:inherit;text-decoration:none;}
 .back-link:hover{color:#00ff88;}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 24px;text-align:center;color:var(--grey);font-size:.78rem;margin-top:40px;}
 footer a{color:#00ff88;}
+
+.brand-cta-section{background:rgba(255,255,255,.03);border:1px solid rgba(0,180,255,.15);border-radius:8px;padding:28px 28px 24px;margin:32px 0 16px;}
+.brand-cta-title{font-weight:700;font-size:1.05rem;letter-spacing:.04em;margin-bottom:6px;color:var(--blue,#00b4ff);}
+.brand-cta-sub{font-size:.84rem;color:rgba(240,240,240,.5);margin-bottom:18px;}
+.brand-cta-section input[type=text],.brand-cta-section input[type=email],.brand-cta-section textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:11px 14px;color:#fff;font-size:.88rem;margin-bottom:11px;font-family:inherit;box-sizing:border-box;outline:none;}
+.brand-cta-section input:focus,.brand-cta-section textarea:focus{border-color:rgba(0,180,255,.5);}
+.brand-cta-section textarea{height:80px;resize:vertical;}
+.brand-cta-section input::placeholder,.brand-cta-section textarea::placeholder{color:rgba(255,255,255,.28);}
+.sub-row3{display:flex;align-items:center;gap:9px;font-size:.8rem;color:rgba(240,240,240,.55);margin-bottom:16px;cursor:pointer;}
+.sub-row3 input{width:auto;margin-bottom:0;}
+.brand-cta-btn{background:#00b4ff;color:#000;border:none;padding:13px 24px;font-size:.84rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;width:100%;transition:opacity .2s;}
+.brand-cta-btn:hover{opacity:.85;}
+.brand-ok{text-align:center;padding:16px 0 8px;}
+.brand-ok p{font-size:.95rem;color:rgba(240,240,240,.8);margin-bottom:16px;}
+.soc-btn-b{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:opacity .2s;margin-right:8px;}
+.soc-btn-b:hover{opacity:.8;}
+.soc-btn-b.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
+.soc-btn-b.web{background:rgba(255,255,255,.12);color:#fff;}
 </style>
 </head>
 <body>
@@ -109,6 +127,41 @@ footer a{color:#00ff88;}
     <div class="qa-item"><div class="qa-q">Do you sell at events?</div><div class="qa-a">Yes — Rave Clothing Co runs pop-up shops at underground events and festivals throughout SoCal.</div></div><div class="qa-item"><div class="qa-q">Can you do custom pieces?</div><div class="qa-a">Yes — custom rave outfits and accessories are available via DM on Instagram.</div></div>
   </div>
   <a href="https://keepitil.com/brand/" class="back-link">← Back to Brands</a>
+
+<div style="margin:28px 0 8px;"><a href="https://instagram.com/raveclothingco" target="_blank" rel="noopener" class="soc-btn-b ig">@raveclothingco on Instagram</a></div>
+<div class="brand-cta-section" id="brand-book-rave_clothing_co">
+  <div class="brand-cta-title">Connect / Work Together</div>
+  <div class="brand-cta-sub">Submit your info — we'll share their direct contact details with you.</div>
+  <div id="brand-form-rave_clothing_co">
+    <form onsubmit="submitBrandContact(event,'raveclothingco','Rave Clothing Co','rave_clothing_co')">
+      <input type="text" name="bname" placeholder="Your Name" required/>
+      <input type="email" name="bemail" placeholder="Your Email" required/>
+      <textarea name="bmsg" placeholder="What are you looking for? Collab, product, booking..."></textarea>
+      <label class="sub-row3"><input type="checkbox" name="bsub" checked/> Get KEEPITIL brand spotlights &amp; drops</label>
+      <button type="submit" class="brand-cta-btn">Send &amp; Get Contact Info &rarr;</button>
+    </form>
+  </div>
+  <div id="brand-ok-rave_clothing_co" class="brand-ok" style="display:none">
+    <p>&#10003; Sent! Connect with Rave Clothing Co directly:</p>
+    <a href="https://instagram.com/raveclothingco" target="_blank" rel="noopener" class="soc-btn-b ig">@raveclothingco on Instagram</a>
+  </div>
+</div>
+<script>
+async function submitBrandContact(e,ig,brand,slug){
+  e.preventDefault();
+  const f=e.target;
+  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
+  f.querySelector('button').textContent='Sending...';
+  try{
+    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+    await sb.from('inquiries').insert({name,email,message:msg,profile_name:brand,profile_slug:slug,subscribe:sub});
+    if(sub)await sb.from('subscribers').upsert({email,name,source:'brand_contact',profile:slug},{onConflict:'email'});
+  }catch(err){console.warn(err);}
+  f.closest('[id^=brand-form]').style.display='none';
+  document.getElementById('brand-ok-'+slug).style.display='block';
+}
+</script>
 </div>
 <footer>
   <p>© 2026 KEEPITIL · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/organizer/">Organizers</a> · <a href="https://keepitil.com/brand/">Brands</a> · <a href="https://keepitil.github.io/about.html">About</a> · <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p>
