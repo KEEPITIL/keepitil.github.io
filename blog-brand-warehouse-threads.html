@@ -51,6 +51,24 @@ a{color:inherit;text-decoration:none;}
 .service-item{background:var(--dark2);border:1px solid rgba(255,0,128,.2);border-radius:6px;padding:12px 16px;font-size:.88rem;color:rgba(240,240,240,.8);}
 .service-item::before{content:'✦  ';color:#ff0080;}
 .ig-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;background:#ff0080;color:#000;font-weight:700;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;padding:10px 20px;border-radius:4px;}footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 24px;text-align:center;color:var(--grey);font-size:.78rem;margin-top:40px;}
+
+.brand-cta-section{background:rgba(255,255,255,.03);border:1px solid rgba(0,180,255,.15);border-radius:8px;padding:28px 28px 24px;margin:32px 0 16px;}
+.brand-cta-title{font-weight:700;font-size:1.05rem;letter-spacing:.04em;margin-bottom:6px;color:var(--blue,#00b4ff);}
+.brand-cta-sub{font-size:.84rem;color:rgba(240,240,240,.5);margin-bottom:18px;}
+.brand-cta-section input[type=text],.brand-cta-section input[type=email],.brand-cta-section textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:11px 14px;color:#fff;font-size:.88rem;margin-bottom:11px;font-family:inherit;box-sizing:border-box;outline:none;}
+.brand-cta-section input:focus,.brand-cta-section textarea:focus{border-color:rgba(0,180,255,.5);}
+.brand-cta-section textarea{height:80px;resize:vertical;}
+.brand-cta-section input::placeholder,.brand-cta-section textarea::placeholder{color:rgba(255,255,255,.28);}
+.sub-row3{display:flex;align-items:center;gap:9px;font-size:.8rem;color:rgba(240,240,240,.55);margin-bottom:16px;cursor:pointer;}
+.sub-row3 input{width:auto;margin-bottom:0;}
+.brand-cta-btn{background:#00b4ff;color:#000;border:none;padding:13px 24px;font-size:.84rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;width:100%;transition:opacity .2s;}
+.brand-cta-btn:hover{opacity:.85;}
+.brand-ok{text-align:center;padding:16px 0 8px;}
+.brand-ok p{font-size:.95rem;color:rgba(240,240,240,.8);margin-bottom:16px;}
+.soc-btn-b{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:opacity .2s;margin-right:8px;}
+.soc-btn-b:hover{opacity:.8;}
+.soc-btn-b.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
+.soc-btn-b.web{background:rgba(255,255,255,.12);color:#fff;}
 </style>
 </head>
 <body>
@@ -98,6 +116,42 @@ a{color:inherit;text-decoration:none;}
   <div class="qa-item"><div class="qa-q">Why DTLA specifically as a base for this brand?</div><p class="qa-a">DTLA is where the warehouse scene lives in LA, and we're embedded in it. Our HQ is walking distance from several of the venues where the events we care about happen. That proximity isn't accidental — we want to be part of the community we're making clothes for, not a brand that observes it from outside.</p></div>
   <div class="qa-item"><div class="qa-q">How does the event photography background inform the design?</div><p class="qa-a">Spending years photographing events means I know exactly what people look for in practical terms — what fabrics move well, what silhouettes look good under event lighting, what holds up through a 10-hour night of dancing and crowd movement. That observation went directly into every design decision.</p></div>
 </div>
+
+<div style="margin:28px 0 8px;"><a href="https://instagram.com/warehousethreads.la" target="_blank" rel="noopener" class="soc-btn-b ig">@warehousethreads.la on Instagram</a></div>
+<div class="brand-cta-section" id="brand-book-warehouse_threads">
+  <div class="brand-cta-title">Connect / Work Together</div>
+  <div class="brand-cta-sub">Submit your info — we'll share their direct contact details with you.</div>
+  <div id="brand-form-warehouse_threads">
+    <form onsubmit="submitBrandContact(event,'warehousethreads.la','Warehouse Threads','warehouse_threads')">
+      <input type="text" name="bname" placeholder="Your Name" required/>
+      <input type="email" name="bemail" placeholder="Your Email" required/>
+      <textarea name="bmsg" placeholder="What are you looking for? Collab, product, booking..."></textarea>
+      <label class="sub-row3"><input type="checkbox" name="bsub" checked/> Get KEEPITIL brand spotlights &amp; drops</label>
+      <button type="submit" class="brand-cta-btn">Send &amp; Get Contact Info &rarr;</button>
+    </form>
+  </div>
+  <div id="brand-ok-warehouse_threads" class="brand-ok" style="display:none">
+    <p>&#10003; Sent! Connect with Warehouse Threads directly:</p>
+    <a href="https://instagram.com/warehousethreads.la" target="_blank" rel="noopener" class="soc-btn-b ig">@warehousethreads.la on Instagram</a>
+  </div>
+</div>
+<script>
+async function submitBrandContact(e,ig,brand,slug){
+  e.preventDefault();
+  const f=e.target;
+  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
+  f.querySelector('button').textContent='Sending...';
+  try{
+    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+    await sb.from('inquiries').insert({name,email,message:msg,profile_name:brand,profile_slug:slug,subscribe:sub});
+    if(sub)await sb.from('subscribers').upsert({email,name,source:'brand_contact',profile:slug},{onConflict:'email'});
+  }catch(err){console.warn(err);}
+  f.closest('[id^=brand-form]').style.display='none';
+  document.getElementById('brand-ok-'+slug).style.display='block';
+}
+</script>
+
 <footer><p>&copy; 2026 KEEPITIL &middot; <a href="https://keepitil.com/">Home</a> &middot; <a href="https://keepitil.com/artist">Artists</a> &middot; <a href="https://keepitil.com/brand/">Brands</a> &middot; <a href="https://keepitil.com/culture">Culture</a> &middot; <a href="https://keepitil.github.io/about.html">About</a> &middot; <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p></footer>
 </body>
 </html>
