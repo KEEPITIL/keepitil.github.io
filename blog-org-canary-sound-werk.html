@@ -103,6 +103,13 @@ footer a{color:#ffb400;}
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
+      <li><a href="/spotlight">SPOTLIGHT</a></li>
+      <li><a href="/artist">ARTISTS</a></li>
+      <li><a href="/brand/">BRANDS</a></li>
+      <li><a href="/organizer/" class="active">ORGANIZERS</a></li>
+      <li><a href="/events">EVENTS</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
     </ul>
   </div>
 </nav>
@@ -159,44 +166,11 @@ footer a{color:#ffb400;}
 
   <a href="https://keepitil.com/organizer/" class="back-link">← Back to Organizers</a>
 
-<div style="margin:24px 0 8px;"><a href="https://instagram.com/canarytest" target="_blank" rel="noopener" class="soc-btn ig">Follow on Instagram</a><a href="https://fonts.googleapis.com" target="_blank" rel="noopener" class="soc-btn web">Website</a></div>
-<div class="org-bk-section" id="org-book-canary_sound_werk">
-  <div class="org-bk-title">Inquire / Get Info</div>
-  <div class="org-bk-sub">Drop your email — we'll connect you directly. No spam, ever.</div>
-  <div id="org-form-canary_sound_werk">
-    <form onsubmit="submitOrgBooking(event,'canarytest','Canary Sound Werk','canary_sound_werk')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="Message — event inquiry, booking question, general info..."></textarea>
-      <label class="sub-row2"><input type="checkbox" name="bsub" checked/> Get KEEPITIL event updates &amp; picks</label>
-      <button type="submit" class="org-bk-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="org-ok-canary_sound_werk" class="org-bk-success" style="display:none">
-    <p>&#10003; Sent! Connect with Canary Sound Werk directly:</p>
-    <a href="https://instagram.com/canarytest" target="_blank" rel="noopener" class="soc-btn ig">Instagram @canarytest &rarr;</a>
-  </div>
-</div>
-<script>
-async function submitOrgBooking(e,ig,org,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:org,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'org_booking',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=org-form]').style.display='none';
-  document.getElementById('org-ok-'+slug).style.display='block';
-}
-</script>
+<div style="margin:24px 0 8px;"><a href="https://instagram.com/canarytest" target="_blank" rel="noopener" class="soc-btn ig">Follow on Instagram</a></div>
 </div>
 
 <footer>
-  <p>© 2026 KEEPITIL · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/organizer/">Organizers</a> · <a href="https://keepitil.com/brand/">Brands</a> · <a href="https://keepitil.github.io/about.html">About</a> · <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p>
+  <p>© 2026 KEEPITIL · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/organizer/">Organizers</a> · <a href="https://keepitil.com/brand/">Brands</a> · <a href="https://keepitil.com/about.html">About</a> · <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p>
 </footer>
 </body>
 </html>
