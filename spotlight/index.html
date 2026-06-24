@@ -132,7 +132,7 @@
     .dj-spotlight .spot-sub{color:#888;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;margin:0 0 32px;}
     .dj-circle-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:28px 16px;max-width:1100px;margin:0 auto 36px;}
     .dj-ci{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
-    .dj-ci-wrap{position:relative;width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
+    .dj-ci-wrap{position:relative;width:150px;height:150px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
     .dj-ci-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:#fff;z-index:0;}
     .dj-ci-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;}
     .dj-ci:hover .dj-ci-wrap{transform:translateY(-8px) scale(1.06);}
@@ -145,7 +145,7 @@
     .dj-more-btn{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;padding:14px 40px;border-radius:4px;text-decoration:none;font-weight:700;transition:transform .25s,box-shadow .25s;}
     .dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
     @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
-    @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:90px;height:90px;}}
+    @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:100px;height:100px;}}
     .spot-row{grid-template-columns:repeat(4,1fr)!important;}
     @media(max-width:600px){.spot-row{grid-template-columns:repeat(2,1fr)!important;}}
 
@@ -383,23 +383,23 @@
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title">ARTIST</h3>
         </div>
-        <div class="dj-circle-grid spot-row" id="artist-row"></div>
+        <div class="spot-grid" id="artist-row"></div>
       </div>
 
       <!-- BRANDS -->
-      <div class="spotlight-block" style="margin-top:40px;">
+      <div class="spotlight-block" style="margin-top:48px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
         </div>
-        <div class="dj-circle-grid spot-row" id="brand-row"></div>
+        <div class="spot-grid" id="brand-row"></div>
       </div>
 
       <!-- ORGANIZERS -->
-      <div class="spotlight-block" style="margin-top:40px;">
+      <div class="spotlight-block" style="margin-top:48px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#b400ff;">ORGANIZERS</h3>
         </div>
-        <div class="dj-circle-grid spot-row" id="org-row"></div>
+        <div class="spot-grid" id="org-row"></div>
       </div>
     </div>
   </section>
@@ -416,35 +416,70 @@
       return 1+Math.round(((d-w)/86400000-3+((w.getDay()+6)%7))/7);
     }
 
-    function pick4(arr){
-      var w=getWeek();
-      var groups=Math.ceil(arr.length/4);
-      var start=(w%groups)*4;
-      var slice=arr.slice(start,start+4);
-      if(slice.length<4) slice=slice.concat(arr.slice(0,4-slice.length));
-      return slice;
+    // Test if an image URL returns a real photo (not a generic fallback icon)
+    function testImg(url){
+      return new Promise(function(resolve){
+        if(!url||url.indexOf('http')!==0){resolve(false);return;}
+        var img=new Image();
+        var t=setTimeout(function(){img.src='';resolve(false);},4000);
+        img.onload=function(){
+          clearTimeout(t);
+          // Reject tiny images — likely placeholder/fallback icons
+          resolve(img.naturalWidth>50&&img.naturalHeight>50);
+        };
+        img.onerror=function(){clearTimeout(t);resolve(false);};
+        img.src=url;
+      });
     }
 
-    function circle(it){
-      return '<a class="dj-ci" href="https://keepitil.github.io/'+it.b+'">'
-        +'<div class="dj-ci-wrap" style="border-color:'+it.c+'">'
-        +'<div class="dj-ci-av" style="background:linear-gradient(135deg,'+it.c+'66,'+it.c+'22)">'+it.a+'</div>'
-        +'<img src="/'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0">'
+    // Render a full profile card (replaces small circle)
+    function spotCard(it,type){
+      var handle='';
+      if(it.i&&it.i.indexOf('instagram/')!==-1) handle=it.i.split('instagram/').pop();
+      var igUrl=handle?'https://instagram.com/'+handle:'';
+      return '<a class="spot-card" href="https://keepitil.com/'+it.b+'" style="text-decoration:none;">'
+        +'<div class="spot-img-wrap">'
+        +'<div class="spot-img-fb" style="background:linear-gradient(135deg,'+it.c+'66,'+it.c+'22)">'+it.a+'</div>'
+        +'<img src="'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;">'
         +'</div>'
-        +'<span class="dj-ci-name">'+it.n+'</span>'
-        +'<span class="dj-ci-tag">'+it.g+'</span>'
+        +'<div class="spot-body">'
+        +'<span class="spot-kil-tag2">'+(type||'KEEPITIL')+'</span>'
+        +'<div class="spot-name2">'+it.n+'</div>'
+        +'<span class="spot-genre2">'+it.g+'</span>'
+        +'<div class="spot-links2" style="margin-top:14px;">'
+        +'<a href="https://keepitil.com/'+it.b+'" class="spot-btn-profile" onclick="event.stopPropagation()">View Profile</a>'
+        +(igUrl?'<a href="'+igUrl+'" target="_blank" rel="noopener" class="spot-btn-ig" onclick="event.stopPropagation()">@'+handle+'</a>':'')
+        +'</div>'
+        +'</div>'
         +'</a>';
     }
 
-    function renderRow(id,arr){
+    // Rotate candidates by week, test images, render only profiles with working photos
+    async function renderRowImgOnly(id,arr,type){
       var el=document.getElementById(id);
       if(!el) return;
-      el.innerHTML=pick4(arr).map(circle).join('');
+      el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:40px 0;">Loading profiles…</div>';
+      var w=getWeek();
+      // Rotate starting offset by week (prime multiplier keeps distribution even)
+      var offset=(w*13)%arr.length;
+      var rotated=arr.slice(offset).concat(arr.slice(0,offset));
+      // Test up to 20 candidates from this week's rotation window
+      var candidates=rotated.slice(0,Math.min(20,arr.length));
+      var results=await Promise.all(candidates.map(function(it){return testImg(it.i);}));
+      // Keep only profiles where image loaded successfully
+      var withImgs=candidates.filter(function(_,i){return results[i];});
+      var show=withImgs.slice(0,4);
+      // If fewer than 4 confirmed-image profiles, fill remaining from next candidates
+      if(show.length<4){
+        var extra=candidates.filter(function(_,i){return !results[i];}).slice(0,4-show.length);
+        show=show.concat(extra);
+      }
+      el.innerHTML=show.map(function(it){return spotCard(it,type);}).join('');
     }
 
-    renderRow('artist-row',ARTISTS);
-    renderRow('brand-row',VENDORS);
-    renderRow('org-row',ORGS);
+    renderRowImgOnly('artist-row',ARTISTS,'ARTIST');
+    renderRowImgOnly('brand-row',VENDORS,'BRAND');
+    renderRowImgOnly('org-row',ORGS,'ORGANIZER');
   })();
   </script>
 
@@ -454,33 +489,33 @@
     <div class="container">
       <h2 class="section-title reveal">CULTURE</h2>
       <div class="blog-grid">
-        <a class="blog-card reveal" href="https://keepitil.com/blog-summer-2026-events-guide.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a2a,#1a000a,#0a1a2a);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:22px;font-weight:900;color:#ff4444;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">🎆 JULY 4TH</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">🎇 Events · Summer 2026</span>
-          <h3 style="margin:8px 0 10px;">July 4th Weekend Underground — Best OC &amp; LA Events for Independence Day 2026</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Independence Day weekend in SoCal means warehouse raves, rooftop sets, and all-night outdoor parties. Here's where the underground is celebrating.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA</span><span>·</span><span>Events · July 2026</span></div>
+        <a class="blog-card reveal" href="https://keepitil.com/blog-news-day-trip-festival-2026-preview.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a2a,#001020);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">DAY TRIP 2026</span></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">⚡ News · This Weekend</span>
+          <h3 style="margin:8px 0 10px;">Day Trip Festival 2026 — Preview &amp; What to Expect This Weekend</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Cloonee, GORDO, Odd Mob, Adam Beyer, HI-LO, and 50+ artists hit Queen Mary Waterfront June 27–28. Full preview inside.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>Long Beach, CA</span><span>·</span><span>Jun 27–28</span></div>
         </a>
-        <a class="blog-card reveal" href="https://keepitil.com/blog-anatomy-of-a-socal-rave.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a001a,#001020);margin:-32px -32px 20px;border-bottom:2px solid #b400ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#b400ff;text-shadow:0 0 20px #b400ff;letter-spacing:.05em;">ANATOMY OF A RAVE</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">🔬 Deep Dive</span>
-          <h3 style="margin:8px 0 10px;">Anatomy of a SoCal Rave — From Flyer to Afterparty</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">What actually goes into a rave? Flyers, lineups, sound checks, lighting — we break down every layer of a proper underground event.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>SoCal Underground</span><span>·</span><span>Event Culture</span></div>
+        <a class="blog-card reveal" href="https://keepitil.com/blog-news-socal-underground-state-2026.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a001a,#001020);margin:-32px -32px 20px;border-bottom:2px solid #b400ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#b400ff;text-shadow:0 0 20px #b400ff;letter-spacing:.05em;">THE SCENE IN 2026</span></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">📰 News · Scene Report</span>
+          <h3 style="margin:8px 0 10px;">The State of the SoCal Underground Scene in 2026</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Permits are harder, festivals are bigger, and local talent is finally getting their due. A clear-eyed look at where the SoCal underground is headed.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>SoCal Underground</span><span>·</span><span>Jun 2026</span></div>
         </a>
-        <a class="blog-card reveal" href="https://keepitil.com/blog-oc-underground-venue-guide.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#001a0d,#0a1a00);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00ff88;text-shadow:0 0 20px #00ff88;letter-spacing:.05em;">OC VENUES</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00ff88;text-transform:uppercase;">📍 Venue Guide</span>
-          <h3 style="margin:8px 0 10px;">OC Underground Venue Guide — Where to Go, What to Expect</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Not all rooms are created equal. OC's underground circuit has its own geography — here's where the real ones play.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>Orange County, CA</span><span>·</span><span>Venue Guide</span></div>
+        <a class="blog-card reveal" href="https://keepitil.com/blog-tip-sound-system-guide.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#001a0d,#0a1a00);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00ff88;text-shadow:0 0 20px #00ff88;letter-spacing:.05em;">SOUND SYSTEMS</span></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00ff88;text-transform:uppercase;">🔊 Tips &amp; Guides</span>
+          <h3 style="margin:8px 0 10px;">Sound System Guide — What to Listen For at Underground Events</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Not all systems are equal. How to recognize the difference between a great and mediocre PA — bass response, sub placement, mid-range clarity.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span>Tips Guide</span></div>
         </a>
-        <a class="blog-card reveal" href="https://keepitil.com/blog-house-techno-guide-2026.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#1a0a00);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">HOUSE vs TECHNO</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">🎛️ Scene Guide · 2026</span>
-          <h3 style="margin:8px 0 10px;">House vs Techno in 2026 — SoCal's Scene Decoded</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">The lines are blurring. Tech house, melodic techno, raw house — a real breakdown of what each sound means right now in OC &amp; LA.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA</span><span>·</span><span>Genre Guide · 2026</span></div>
+        <a class="blog-card reveal" href="https://keepitil.com/blog-song-techno-picks-june-2026.html" style="text-decoration:none;display:flex;flex-direction:column;">
+          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#1a0a00);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">JUNE TECHNO PICKS</span></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">🎵 Songs · June 2026</span>
+          <h3 style="margin:8px 0 10px;">Underground Techno Picks — June 2026 Essential Tracks</h3>
+          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">The tracks that moved floors at Exchange LA, Arts District warehouses, and OC club nights this month. June 2026's essential techno.</p>
+          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA</span><span>·</span><span>Songs · Jun 2026</span></div>
         </a>
         <a class="blog-card reveal" href="https://keepitil.com/artist" style="text-decoration:none;display:flex;flex-direction:column;">
           <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0b1a0b,#0d2010);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">
@@ -515,43 +550,43 @@
         <a href="https://keepitil.com/events" class="events-see-all">See All 40+ Events →</a>
       </div>
 
-      <!-- HERO: Summer of the Living Dead -->
-      <a href="https://keepitil.com/blog-summer-living-dead-2026.html" class="ev-hero reveal">
+      <!-- HERO: Day Trip Festival -->
+      <a href="https://keepitil.com/blog-news-day-trip-festival-2026-preview.html" class="ev-hero reveal">
         <div class="ev-hero-inner">
           <span class="ev-hero-kil">⚡ KEEPITIL PICK · THIS WEEKEND</span>
-          <h3>SUMMER OF THE LIVING DEAD</h3>
-          <div class="ev-sub">Bassrush presents · Bass Music &amp; DnB · 18+ · Queen Mary Long Beach</div>
+          <h3>DAY TRIP FESTIVAL</h3>
+          <div class="ev-sub">House &amp; Techno · 21+ · Queen Mary Waterfront, Long Beach</div>
           <div class="ev-hero-meta">
-            <span>📅 June 19–20, 2026</span>
+            <span>📅 June 27–28, 2026</span>
             <span>📍 Queen Mary Waterfront, Long Beach CA</span>
-            <span>🎟️ 18+ · From $89</span>
+            <span>🎟️ 21+ · Tickets Available</span>
           </div>
           <div class="ev-acts-hero">
-            <strong>Borgore · Pendulum · Bear Grillz · Caspa · Peekaboo · Sullivan King · Mersiv · Hybrid Minds · Tisoki · Liquid Stranger</strong>
+            <strong>Cloonee · GORDO · Odd Mob · Green Velvet B2B Josh Baker · Purple Disco Machine · Adam Beyer · Loco Dice · HI-LO · SIDEPIECE B2B Westend</strong>
           </div>
-          <span class="ev-hero-cta">Get Tickets &amp; Full Info →</span>
+          <span class="ev-hero-cta">Preview &amp; Tickets →</span>
         </div>
       </a>
 
       <!-- Supporting events grid -->
       <div class="events-grid">
         <a href="https://keepitil.com/events" class="ev-card reveal">
-          <div class="ev-date-badge">☀️ Jun 27–28</div>
-          <h3>DAY TRIP FESTIVAL</h3>
-          <div class="ev-venue">📍 Queen Mary Waterfront — Long Beach, CA</div>
-          <div class="ev-acts">Cloonee · Odd Mob · GORDO · Green Velvet B2B Josh Baker · Adam Beyer · HI-LO · Purple Disco Machine</div>
-        </a>
-        <a href="https://keepitil.com/blog-lost-in-dreams-2026.html" class="ev-card reveal">
           <div class="ev-date-badge">🌊 Jul 11–12</div>
           <h3>LOST IN DREAMS FESTIVAL</h3>
           <div class="ev-venue">📍 LA State Historic Park — Los Angeles, CA</div>
           <div class="ev-acts">Future bass &amp; melodic dubstep · 18+ · Two days at LA's most iconic outdoor venue</div>
         </a>
-        <a href="https://keepitil.com/events" class="ev-card reveal">
+        <a href="https://keepitil.com/blog-news-hard-summer-2026-preview.html" class="ev-card reveal">
           <div class="ev-date-badge">🔥 Aug 1–2</div>
           <h3>HARD SUMMER</h3>
           <div class="ev-venue">📍 Hollywood Park — Inglewood, CA</div>
           <div class="ev-acts">Zedd B2B Knock2 · RL Grime · DJ Snake · Charlotte de Witte · Amelie Lens · Mau P · Vintage Culture</div>
+        </a>
+        <a href="https://keepitil.com/events" class="ev-card reveal">
+          <div class="ev-date-badge">⚡ Jul 11</div>
+          <h3>FACTORY 93</h3>
+          <div class="ev-venue">📍 Exchange LA — Los Angeles, CA</div>
+          <div class="ev-acts">Underground techno · Insomniac's boutique series · All-night warehouse format</div>
         </a>
       </div>
     </div>
