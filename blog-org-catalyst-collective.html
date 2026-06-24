@@ -50,6 +50,24 @@ a{color:inherit;text-decoration:none;}
 .event-item{background:var(--dark2);border:1px solid rgba(180,0,255,.2);border-radius:6px;padding:12px 16px;font-size:.88rem;color:rgba(240,240,240,.8);}
 .event-item::before{content:'◆  ';color:var(--accent);}
 .ig-cta{display:inline-flex;align-items:center;gap:8px;margin-top:24px;background:var(--accent);color:#fff;font-weight:700;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;padding:10px 20px;border-radius:4px;}footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 24px;text-align:center;color:var(--grey);font-size:.78rem;margin-top:40px;}
+
+.soc-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:opacity .2s;margin-right:8px;margin-bottom:8px;}
+.soc-btn:hover{opacity:.8;}
+.soc-btn.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
+.soc-btn.web{background:rgba(255,255,255,.12);color:#fff;}
+.org-bk-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:28px 28px 24px;margin:32px 0 16px;}
+.org-bk-title{font-weight:700;font-size:1.1rem;letter-spacing:.04em;margin-bottom:6px;}
+.org-bk-sub{font-size:.84rem;color:rgba(240,240,240,.5);margin-bottom:18px;}
+.org-bk-section input[type=text],.org-bk-section input[type=email],.org-bk-section textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:4px;padding:11px 14px;color:#fff;font-size:.88rem;margin-bottom:11px;font-family:inherit;box-sizing:border-box;outline:none;}
+.org-bk-section input:focus,.org-bk-section textarea:focus{border-color:rgba(255,255,255,.3);}
+.org-bk-section textarea{height:80px;resize:vertical;}
+.org-bk-section input::placeholder,.org-bk-section textarea::placeholder{color:rgba(255,255,255,.28);}
+.sub-row2{display:flex;align-items:center;gap:9px;font-size:.8rem;color:rgba(240,240,240,.55);margin-bottom:16px;cursor:pointer;}
+.sub-row2 input{width:auto;margin-bottom:0;}
+.org-bk-btn{background:#ffb400;color:#000;border:none;padding:13px 24px;font-size:.84rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;width:100%;transition:opacity .2s;}
+.org-bk-btn:hover{opacity:.85;}
+.org-bk-success{text-align:center;padding:16px 0 8px;}
+.org-bk-success p{font-size:.95rem;color:rgba(240,240,240,.8);margin-bottom:16px;}
 </style>
 </head>
 <body>
@@ -96,6 +114,42 @@ a{color:inherit;text-decoration:none;}
   <div class="qa-item" style="margin-bottom:24px;"><div class="pc-label" style="margin-bottom:8px;">What does 'artist-first' mean in practical terms?</div><p class="about-text">It means we pay what we say we'll pay, on the night of the event. It means we have the sound system set up and tested before the artist arrives. It means we communicate set times clearly and actually stick to them. These sound like basic things, but they're not universal in the underground, and artists remember who treats them right.</p></div>
   <div class="qa-item"><div class="pc-label" style="margin-bottom:8px;">How does the OC/IE geographic focus shape your programming?</div><p class="about-text">It means we're building careers for artists who are rooted in those communities rather than constantly chasing touring artists. The local underground in OC and the IE has enough talent to build entire events around, and those events produce something more authentic than a lineup of artists who don't know the audience or the geography.</p></div>
 </div>
+
+<div style="margin:24px 0 8px;"><a href="https://instagram.com/catalyst.collective.oc" target="_blank" rel="noopener" class="soc-btn ig">Follow on Instagram</a><a href="https://fonts.googleapis.com" target="_blank" rel="noopener" class="soc-btn web">Website</a></div>
+<div class="org-bk-section" id="org-book-catalyst_collective">
+  <div class="org-bk-title">Inquire / Get Info</div>
+  <div class="org-bk-sub">Drop your email — we'll connect you directly. No spam, ever.</div>
+  <div id="org-form-catalyst_collective">
+    <form onsubmit="submitOrgBooking(event,'catalyst.collective.oc','Catalyst Collective','catalyst_collective')">
+      <input type="text" name="bname" placeholder="Your Name" required/>
+      <input type="email" name="bemail" placeholder="Your Email" required/>
+      <textarea name="bmsg" placeholder="Message — event inquiry, booking question, general info..."></textarea>
+      <label class="sub-row2"><input type="checkbox" name="bsub" checked/> Get KEEPITIL event updates &amp; picks</label>
+      <button type="submit" class="org-bk-btn">Send &amp; Get Contact Info &rarr;</button>
+    </form>
+  </div>
+  <div id="org-ok-catalyst_collective" class="org-bk-success" style="display:none">
+    <p>&#10003; Sent! Connect with Catalyst Collective directly:</p>
+    <a href="https://instagram.com/catalyst.collective.oc" target="_blank" rel="noopener" class="soc-btn ig">Instagram @catalyst.collective.oc &rarr;</a>
+  </div>
+</div>
+<script>
+async function submitOrgBooking(e,ig,org,slug){
+  e.preventDefault();
+  const f=e.target;
+  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
+  f.querySelector('button').textContent='Sending...';
+  try{
+    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+    await sb.from('inquiries').insert({name,email,message:msg,profile_name:org,profile_slug:slug,subscribe:sub});
+    if(sub)await sb.from('subscribers').upsert({email,name,source:'org_booking',profile:slug},{onConflict:'email'});
+  }catch(err){console.warn(err);}
+  f.closest('[id^=org-form]').style.display='none';
+  document.getElementById('org-ok-'+slug).style.display='block';
+}
+</script>
+
 <footer><p>&copy; 2026 KEEPITIL &middot; <a href="https://keepitil.com/">Home</a> &middot; <a href="https://keepitil.com/artist">Artists</a> &middot; <a href="https://keepitil.com/brand/">Brands</a> &middot; <a href="https://keepitil.com/culture">Culture</a> &middot; <a href="https://keepitil.github.io/about.html">About</a> &middot; <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p></footer>
 </body>
 </html>
