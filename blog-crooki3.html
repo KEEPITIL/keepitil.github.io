@@ -113,13 +113,6 @@ footer a{color:#00b4ff;}
   </div>
 </nav>
 
-<div class="hero">
-  <div class="hero-img-wrap">
-    <img src="https://unavatar.io/instagram/crooki3official" alt="crooki3 - House Tech House Latin House Techno DJ from Lake Elsinore, California DJ"/>
-  </div>
-  <div class="hero-overlay"></div>
-</div>
-
 <div class="article-wrap">
   <div class="article-header">
     <div class="kil-tag">★ KEEPITIL PRESENTS</div>
@@ -216,41 +209,6 @@ footer a{color:#00b4ff;}
   <div class="sec-lbl">Available For</div>
   <div class="stags"><span class="stag">Club Sets</span><span class="stag">Private Events</span><span class="stag">Warehouse Events</span><span class="stag">Underground Sets</span></div>
 </div>
-<div class="price-row"><span class="price-tag" id="price-crooki3">Contact for Pricing</span></div>
-<div class="bk-section" id="book-crooki3">
-  <div class="bk-title">Book / Connect</div>
-  <div class="bk-sub">Send a message — get their direct contact info instantly.</div>
-  <div id="bk-form-crooki3">
-    <form onsubmit="submitBooking(event,'crooki3official','Crooki3','crooki3')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="Message (optional) — event details, date, venue..."></textarea>
-      <label class="sub-row"><input type="checkbox" name="bsub" checked/> Get KEEPITIL updates &amp; new artist drops</label>
-      <button type="submit" class="bk-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="bk-ok-crooki3" class="bk-success" style="display:none">
-    <p>&#10003; Message sent! Connect with Crooki3 directly:</p>
-    <a href="https://instagram.com/crooki3official" target="_blank" rel="noopener" class="soc-btn ig" style="margin:0 auto;">DM on Instagram &rarr;</a>
-  </div>
-</div>
-
-<script>
-async function submitBooking(e,ig,artist,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  document.querySelector('#bk-form-'+slug+' button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:artist,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'booking_form',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn('Supabase:',err);}
-  document.getElementById('bk-form-'+slug).style.display='none';
-  document.getElementById('bk-ok-'+slug).style.display='block';
-}
-</script>
 
 
 <footer>
