@@ -103,6 +103,13 @@ footer a{color:#b400ff;}
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
+      <li><a href="/spotlight">SPOTLIGHT</a></li>
+      <li><a href="/artist">ARTISTS</a></li>
+      <li><a href="/brand/">BRANDS</a></li>
+      <li><a href="/organizer/" class="active">ORGANIZERS</a></li>
+      <li><a href="/events">EVENTS</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
     </ul>
   </div>
 </nav>
@@ -128,7 +135,7 @@ footer a{color:#b400ff;}
     <div class="pc-item"><div class="pc-label">Type</div><div class="pc-value">Club / Multi-Genre</div></div>
     <div class="pc-item"><div class="pc-label">Based In</div><div class="pc-value">Los Angeles, CA</div></div>
     <div class="pc-item"><div class="pc-label">Region</div><div class="pc-value">Los Angeles County</div></div>
-    <div class="pc-item"><div class="pc-label">Instagram</div><div class="pc-value"><a href="https://instagram.com/academyla" target="_blank" class="ig-link">@academyla</a></div></div>
+    <div class="pc-item"><div class="pc-label">Instagram</div><div class="pc-value">@academyla</div></div>
     <div class="pc-item"><div class="pc-label">Platform</div><div class="pc-value">KEEPITIL Featured Organizer</div></div>
   </div>
 
@@ -144,8 +151,7 @@ footer a{color:#b400ff;}
   <!-- Events -->
   <div class="section-title">Upcoming Events</div>
   <div class="events-box">
-    <p>Academy LA hosts events Friday and Saturday. 1720 hosts special events and underground nights throughout the week. Visit academyla.com for the calendar.</p>
-    <a href="https://instagram.com/academyla" target="_blank" class="events-ig-cta">📸 Follow @academyla for Updates</a>
+    <p>Academy LA hosts events Friday and Saturday. 1720 hosts special events and underground nights throughout the week. Visit academyla.com for the full calendar.</p>
   </div>
 
   <!-- Ad Slot 2 -->
@@ -157,44 +163,10 @@ footer a{color:#b400ff;}
 
   <a href="https://keepitil.com/organizer/" class="back-link">← Back to Organizers</a>
 
-<div style="margin:24px 0 8px;"><a href="https://instagram.com/academyla" target="_blank" rel="noopener" class="soc-btn ig">Follow on Instagram</a><a href="https://fonts.googleapis.com" target="_blank" rel="noopener" class="soc-btn web">Website</a></div>
-<div class="org-bk-section" id="org-book-academy_la">
-  <div class="org-bk-title">Inquire / Get Info</div>
-  <div class="org-bk-sub">Drop your email — we'll connect you directly. No spam, ever.</div>
-  <div id="org-form-academy_la">
-    <form onsubmit="submitOrgBooking(event,'academyla','Academy La','academy_la')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="Message — event inquiry, booking question, general info..."></textarea>
-      <label class="sub-row2"><input type="checkbox" name="bsub" checked/> Get KEEPITIL event updates &amp; picks</label>
-      <button type="submit" class="org-bk-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="org-ok-academy_la" class="org-bk-success" style="display:none">
-    <p>&#10003; Sent! Connect with Academy La directly:</p>
-    <a href="https://instagram.com/academyla" target="_blank" rel="noopener" class="soc-btn ig">Instagram @academyla &rarr;</a>
-  </div>
-</div>
-<script>
-async function submitOrgBooking(e,ig,org,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:org,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'org_booking',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=org-form]').style.display='none';
-  document.getElementById('org-ok-'+slug).style.display='block';
-}
-</script>
 </div>
 
 <footer>
-  <p>© 2026 KEEPITIL · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/organizer/">Organizers</a> · <a href="https://keepitil.com/brand/">Brands</a> · <a href="https://keepitil.github.io/about.html">About</a> · <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p>
+  <p>© 2026 KEEPITIL · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/organizer/">Organizers</a> · <a href="https://keepitil.com/brand/">Brands</a> · <a href="https://keepitil.com/about.html">About</a> · <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p>
 </footer>
 </body>
 </html>
