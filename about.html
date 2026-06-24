@@ -158,19 +158,10 @@ footer a{color:var(--orange);}
 
 
 
+
 <!-- ♬ KEEPITIL Radio Player -->
 <style data-kil="player">
-#kil-radio{
-  position:fixed;bottom:20px;right:20px;z-index:9998;
-  background:rgba(6,6,6,.97);
-  border:1px solid rgba(0,255,136,.3);
-  border-radius:10px;
-  box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);
-  backdrop-filter:blur(18px);
-  font-family:'Space Grotesk','Inter',sans-serif;
-  transition:width .3s,height .3s,border-radius .3s;
-  overflow:hidden;
-}
+#kil-radio{position:fixed;bottom:20px;right:20px;z-index:9998;background:rgba(6,6,6,.97);border:1px solid rgba(0,255,136,.3);border-radius:10px;box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;transition:width .3s,height .3s,border-radius .3s;overflow:hidden;}
 #kil-radio.kil-mini{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%;cursor:pointer;}
 #kil-radio.kil-mini #kil-bar{display:none!important;}
 #kil-radio.kil-mini #kil-dot{display:flex!important;}
@@ -201,18 +192,19 @@ footer a{color:var(--orange);}
   scrolling="no" frameborder="no"></iframe>
 <script>
 (function(){
-  var radio   = document.getElementById('kil-radio');
-  var frame   = document.getElementById('kil-sc');
-  var led     = document.getElementById('kil-led');
-  var trackEl = document.getElementById('kil-track');
-  var playBtn = document.getElementById('kr-play');
-  var minBtn  = document.getElementById('kr-min');
-  var dot     = document.getElementById('kil-dot');
+  var radio=document.getElementById('kil-radio');
+  var frame=document.getElementById('kil-sc');
+  var led=document.getElementById('kil-led');
+  var trackEl=document.getElementById('kil-track');
+  var playBtn=document.getElementById('kr-play');
+  var minBtn=document.getElementById('kr-min');
+  var dot=document.getElementById('kil-dot');
 
-  var widget=null, playing=false, mini=false, interacted=false, widgetReady=false;
+  var widget=null,playing=false,mini=false,interacted=false,widgetReady=false;
+  var wakeLock=null;
 
-  function goLive(){ led.classList.remove('off'); playBtn.textContent='⏸'; playing=true; }
-  function goOff() { led.classList.add('off');    playBtn.textContent='▶'; playing=false; }
+  function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
+  function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
 
   function unmute(){
     interacted=true;
@@ -227,6 +219,38 @@ footer a{color:var(--orange);}
   }
   reListenGesture();
 
+  /* ── Wake Lock: keep device awake so audio never stops ── */
+  function requestWakeLock(){
+    if(!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function(lock){
+      wakeLock=lock;
+      lock.addEventListener('release',function(){ wakeLock=null; });
+    }).catch(function(){});
+  }
+  requestWakeLock();
+  /* Re-acquire wake lock when tab becomes visible again */
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'){
+      requestWakeLock();
+      /* Resume playback if browser paused it while hidden */
+      if(widget&&widgetReady&&interacted){
+        setTimeout(function(){
+          widget.isPaused(function(paused){
+            if(paused){ widget.setVolume(20); widget.play(); }
+          });
+        },500);
+      }
+    }
+  });
+
+  /* ── Keepalive: check every 30s and restart if stopped ── */
+  setInterval(function(){
+    if(!widget||!widgetReady||!interacted) return;
+    widget.isPaused(function(paused){
+      if(paused){ widget.setVolume(20); widget.play(); }
+    });
+  },30000);
+
   function initWidget(){
     if(!window.SC) return;
     widget=SC.Widget(frame);
@@ -237,7 +261,7 @@ footer a{color:var(--orange);}
     });
     widget.bind(SC.Widget.Events.PLAY,function(){
       goLive(); reListenGesture();
-      widget.getCurrentSound(function(s){ if(s&&s.title) trackEl.textContent=s.title; });
+      widget.getCurrentSound(function(s){if(s&&s.title) trackEl.textContent=s.title;});
     });
     widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){
       if(interacted&&widget) widget.setVolume(20);
@@ -246,7 +270,9 @@ footer a{color:var(--orange);}
     widget.bind(SC.Widget.Events.FINISH,function(){
       widget.getSounds(function(s){
         if(!s||!s.length) return;
-        widget.getCurrentSoundIndex(function(i){ widget.skip((i+1)%s.length); widget.play(); });
+        widget.getCurrentSoundIndex(function(i){
+          widget.skip((i+1)%s.length); widget.play();
+        });
       });
     });
     widget.bind(SC.Widget.Events.ERROR,function(){
@@ -266,71 +292,49 @@ footer a{color:var(--orange);}
   minBtn.addEventListener('click',function(e){
     e.stopPropagation(); mini=true; radio.classList.add('kil-mini');
   });
-  function expand(){ if(mini){ mini=false; radio.classList.remove('kil-mini'); } }
+  function expand(){ if(mini){mini=false;radio.classList.remove('kil-mini');} }
   dot.addEventListener('click',expand);
   radio.addEventListener('click',expand);
 
-  /* ── PJAX: seamless navigation — music never stops ── */
+  /* ── PJAX: seamless nav — iframe never removed from document ── */
   var navBusy=false;
-
   function pjaxGo(url){
-    if(navBusy) return;
-    navBusy=true;
-
-    /* KEY FIX: lift iframe above <body> so body.innerHTML swap
-       never removes it from the document → no reload, no audio gap */
-    document.documentElement.insertBefore(frame, document.body);
-
+    if(navBusy) return; navBusy=true;
+    /* Lift iframe above <body> so body.innerHTML swap won't touch it */
+    document.documentElement.insertBefore(frame,document.body);
     fetch(url,{cache:'no-cache'})
-      .then(function(r){ return r.text(); })
+      .then(function(r){return r.text();})
       .then(function(html){
         var parser=new DOMParser();
         var newDoc=parser.parseFromString(html,'text/html');
-
-        /* Update title */
         document.title=newDoc.title;
-
-        /* Swap <head> styles (keep player style + loaded scripts) */
-        Array.from(document.head.querySelectorAll('style:not([data-kil])')).forEach(function(s){ s.remove(); });
+        /* Swap <head> styles */
+        Array.from(document.head.querySelectorAll('style:not([data-kil])')).forEach(function(s){s.remove();});
         Array.from(newDoc.head.querySelectorAll('style')).forEach(function(s){
-          var c=document.createElement('style');
-          c.textContent=s.textContent;
+          var c=document.createElement('style'); c.textContent=s.textContent;
           document.head.insertBefore(c,document.head.firstChild);
         });
-
-        /* Swap body — frame is safely above body, won't be touched */
+        /* Swap body */
         document.body.innerHTML=newDoc.body.innerHTML;
-
-        /* Remove duplicate player markup injected by new page */
+        /* Remove any duplicate player markup from new body */
         ['kil-radio','kil-sc'].forEach(function(id){
           var dup=document.getElementById(id);
           if(dup) dup.parentNode.removeChild(dup);
         });
-
-        /* Move frame and radio back into body */
-        document.body.appendChild(frame);   /* audio never stopped */
-        document.body.appendChild(radio);   /* preserved with all listeners */
-
+        /* Move player back into body — audio never stopped */
+        document.body.appendChild(frame);
+        document.body.appendChild(radio);
         history.pushState({pjax:true,url:url},document.title,url);
-
         var hash=(new URL(url)).hash;
-        if(hash){
-          var t=document.querySelector(hash);
-          if(t) t.scrollIntoView({behavior:'smooth'});
-        } else {
-          window.scrollTo(0,0);
-        }
+        if(hash){var t=document.querySelector(hash);if(t)t.scrollIntoView({behavior:'smooth'});}
+        else window.scrollTo(0,0);
         navBusy=false;
       })
       .catch(function(){
-        /* Restore frame before fallback reload */
         if(frame.parentNode!==document.body) document.body.appendChild(frame);
-        window.location.href=url;
-        navBusy=false;
+        window.location.href=url; navBusy=false;
       });
   }
-
-  /* Intercept all internal link clicks */
   document.addEventListener('click',function(e){
     var a=e.target.closest('a[href]');
     if(!a||a.target==='_blank') return;
@@ -340,12 +344,9 @@ footer a{color:var(--orange);}
       if(u.hash&&u.pathname===location.pathname) return;
       var ext=u.pathname.split('.').pop().toLowerCase();
       if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext)>-1) return;
-      e.preventDefault();
-      pjaxGo(u.href);
+      e.preventDefault(); pjaxGo(u.href);
     }catch(err){}
   },true);
-
-  /* Browser back/forward */
   window.addEventListener('popstate',function(){ pjaxGo(location.href); });
 })();
 </script>
