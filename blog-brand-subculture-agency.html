@@ -86,22 +86,14 @@ footer a{color:#b400ff;}
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img src="/logo-orange-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #ff6600);"><span class="nav-brand">KEEPITIL</span>
+      <span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
-      <li><a href="/spotlight">SPOTLIGHT</a></li>
-      <li><a href="/artist">ARTISTS</a></li>
-      <li><a href="/brand/" class="active">BRANDS</a></li>
-      <li><a href="/organizer/">ORGANIZERS</a></li>
-      <li><a href="/events">EVENTS</a></li>
-      <li><a href="/culture">CULTURE</a></li>
-      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
     </ul>
   </div>
 </nav>
 <header class="hero">
-  <img src="https://unavatar.io/instagram/subcultureagency" alt="Subculture Agency" class="profile-img" loading="lazy" onerror="this.style.display='none'"/>
   <div class="hero-type">Artist Booking & Mgmt</div>
   <h1>Subculture<br/>Agency</h1>
   <p class="hero-tagline">LA's underground artist booking and management agency — culture, not commerce.</p>
@@ -135,40 +127,6 @@ footer a{color:#b400ff;}
   </div>
   <a href="https://keepitil.com/brand/" class="back-link">← Back to Brands</a>
 
-<div style="margin:28px 0 8px;"><a href="https://instagram.com/subcultureagency" target="_blank" rel="noopener" class="soc-btn-b ig">@subcultureagency on Instagram</a></div>
-<div class="brand-cta-section" id="brand-book-subculture_agency">
-  <div class="brand-cta-title">Connect / Work Together</div>
-  <div class="brand-cta-sub">Submit your info — we'll share their direct contact details with you.</div>
-  <div id="brand-form-subculture_agency">
-    <form onsubmit="submitBrandContact(event,'subcultureagency','Subculture Agency','subculture_agency')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="What are you looking for? Collab, product, booking..."></textarea>
-      <label class="sub-row3"><input type="checkbox" name="bsub" checked/> Get KEEPITIL brand spotlights &amp; drops</label>
-      <button type="submit" class="brand-cta-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="brand-ok-subculture_agency" class="brand-ok" style="display:none">
-    <p>&#10003; Sent! Connect with Subculture Agency directly:</p>
-    <a href="https://instagram.com/subcultureagency" target="_blank" rel="noopener" class="soc-btn-b ig">@subcultureagency on Instagram</a>
-  </div>
-</div>
-<script>
-async function submitBrandContact(e,ig,brand,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:brand,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'brand_contact',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=brand-form]').style.display='none';
-  document.getElementById('brand-ok-'+slug).style.display='block';
-}
-</script>
 </div>
 <footer>
   <p>© 2026 KEEPITIL · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/organizer/">Organizers</a> · <a href="https://keepitil.com/brand/">Brands</a> · <a href="https://keepitil.com/about.html">About</a> · <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p>
