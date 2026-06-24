@@ -75,22 +75,14 @@ a{color:inherit;text-decoration:none;}
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img src="/logo-orange-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #ff6600);"><span class="nav-brand">KEEPITIL</span>
+      <span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
-      <li><a href="/spotlight">SPOTLIGHT</a></li>
-      <li><a href="/artist">ARTISTS</a></li>
-      <li><a href="/brand/" class="active">BRANDS</a></li>
-      <li><a href="/organizer/">ORGANIZERS</a></li>
-      <li><a href="/events">EVENTS</a></li>
-      <li><a href="/culture">CULTURE</a></li>
-      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
     </ul>
   </div>
 </nav>
 <div class="hero">
-  <img class="profile-img" src="https://unavatar.io/instagram/warehousethreads.la" alt="Warehouse Threads logo"/>
   <div class="hero-type">Streetwear</div>
   <h1>Warehouse Threads</h1>
   <p class="hero-tagline">Streetwear for the underground — built for the city that never stops dancing.</p>
@@ -124,40 +116,6 @@ a{color:inherit;text-decoration:none;}
   <div class="qa-item"><div class="qa-q">How does the event photography background inform the design?</div><p class="qa-a">Spending years photographing events means I know exactly what people look for in practical terms — what fabrics move well, what silhouettes look good under event lighting, what holds up through a 10-hour night of dancing and crowd movement. That observation went directly into every design decision.</p></div>
 </div>
 
-<div style="margin:28px 0 8px;"><a href="https://instagram.com/warehousethreads.la" target="_blank" rel="noopener" class="soc-btn-b ig">@warehousethreads.la on Instagram</a></div>
-<div class="brand-cta-section" id="brand-book-warehouse_threads">
-  <div class="brand-cta-title">Connect / Work Together</div>
-  <div class="brand-cta-sub">Submit your info — we'll share their direct contact details with you.</div>
-  <div id="brand-form-warehouse_threads">
-    <form onsubmit="submitBrandContact(event,'warehousethreads.la','Warehouse Threads','warehouse_threads')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="What are you looking for? Collab, product, booking..."></textarea>
-      <label class="sub-row3"><input type="checkbox" name="bsub" checked/> Get KEEPITIL brand spotlights &amp; drops</label>
-      <button type="submit" class="brand-cta-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="brand-ok-warehouse_threads" class="brand-ok" style="display:none">
-    <p>&#10003; Sent! Connect with Warehouse Threads directly:</p>
-    <a href="https://instagram.com/warehousethreads.la" target="_blank" rel="noopener" class="soc-btn-b ig">@warehousethreads.la on Instagram</a>
-  </div>
-</div>
-<script>
-async function submitBrandContact(e,ig,brand,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:brand,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'brand_contact',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=brand-form]').style.display='none';
-  document.getElementById('brand-ok-'+slug).style.display='block';
-}
-</script>
 
 <footer><p>&copy; 2026 KEEPITIL &middot; <a href="https://keepitil.com/">Home</a> &middot; <a href="https://keepitil.com/artist">Artists</a> &middot; <a href="https://keepitil.com/brand/">Brands</a> &middot; <a href="https://keepitil.com/culture">Culture</a> &middot; <a href="https://keepitil.com/about.html">About</a> &middot; <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p></footer>
 </body>
