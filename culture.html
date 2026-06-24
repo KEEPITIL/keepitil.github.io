@@ -1108,6 +1108,7 @@ loadExternalFeeds();
 
 
 
+
 <!-- ♬ KEEPITIL Radio Player -->
 <style data-kil="player">
 #kil-radio{
@@ -1118,7 +1119,7 @@ loadExternalFeeds();
   box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);
   backdrop-filter:blur(18px);
   font-family:'Space Grotesk','Inter',sans-serif;
-  transition:width .3s ease,height .3s ease,border-radius .3s ease;
+  transition:width .3s,height .3s,border-radius .3s;
   overflow:hidden;
 }
 #kil-radio.kil-mini{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%;cursor:pointer;}
@@ -1151,7 +1152,6 @@ loadExternalFeeds();
   scrolling="no" frameborder="no"></iframe>
 <script>
 (function(){
-  /* ── player DOM refs (preserved across PJAX navigations) ── */
   var radio   = document.getElementById('kil-radio');
   var frame   = document.getElementById('kil-sc');
   var led     = document.getElementById('kil-led');
@@ -1160,153 +1160,144 @@ loadExternalFeeds();
   var minBtn  = document.getElementById('kr-min');
   var dot     = document.getElementById('kil-dot');
 
-  var widget = null, playing = false, mini = false;
-  var interacted = false, widgetReady = false;
+  var widget=null, playing=false, mini=false, interacted=false, widgetReady=false;
 
   function goLive(){ led.classList.remove('off'); playBtn.textContent='⏸'; playing=true; }
   function goOff() { led.classList.add('off');    playBtn.textContent='▶'; playing=false; }
 
   function unmute(){
-    interacted = true;
-    if(!widget || !widgetReady) return;
+    interacted=true;
+    if(!widget||!widgetReady) return;
     widget.setVolume(20);
     if(!playing) widget.play();
   }
-
-  function reListenForGesture(){
+  function reListenGesture(){
     ['mousemove','scroll','touchstart','keydown'].forEach(function(ev){
-      document.addEventListener(ev, unmute, {passive:true, once:true});
+      document.addEventListener(ev,unmute,{passive:true,once:true});
     });
   }
-  reListenForGesture();
+  reListenGesture();
 
   function initWidget(){
     if(!window.SC) return;
-    widget = SC.Widget(frame);
-    widget.bind(SC.Widget.Events.READY, function(){
-      widgetReady = true;
-      widget.setVolume(0);
-      widget.play();
+    widget=SC.Widget(frame);
+    widget.bind(SC.Widget.Events.READY,function(){
+      widgetReady=true;
+      widget.setVolume(0); widget.play();
       if(interacted) widget.setVolume(20);
     });
-    widget.bind(SC.Widget.Events.PLAY, function(){
-      goLive();
-      reListenForGesture();
+    widget.bind(SC.Widget.Events.PLAY,function(){
+      goLive(); reListenGesture();
       widget.getCurrentSound(function(s){ if(s&&s.title) trackEl.textContent=s.title; });
     });
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(){
-      if(interacted && widget) widget.setVolume(20);
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){
+      if(interacted&&widget) widget.setVolume(20);
     });
-    widget.bind(SC.Widget.Events.PAUSE, function(){ goOff(); });
-    widget.bind(SC.Widget.Events.FINISH, function(){
-      widget.getSounds(function(sounds){
-        if(!sounds||!sounds.length) return;
-        widget.getCurrentSoundIndex(function(i){
-          widget.skip((i+1) % sounds.length);
-          widget.play();
-        });
+    widget.bind(SC.Widget.Events.PAUSE,function(){ goOff(); });
+    widget.bind(SC.Widget.Events.FINISH,function(){
+      widget.getSounds(function(s){
+        if(!s||!s.length) return;
+        widget.getCurrentSoundIndex(function(i){ widget.skip((i+1)%s.length); widget.play(); });
       });
     });
-    widget.bind(SC.Widget.Events.ERROR, function(){
-      setTimeout(function(){ widget.next(); widget.play(); }, 1000);
+    widget.bind(SC.Widget.Events.ERROR,function(){
+      setTimeout(function(){ widget.next(); widget.play(); },1000);
     });
   }
-
-  /* Load SC Widget API once */
-  var scApi = document.createElement('script');
-  scApi.src = 'https://w.soundcloud.com/player/api.js';
-  scApi.onload = initWidget;
+  var scApi=document.createElement('script');
+  scApi.src='https://w.soundcloud.com/player/api.js';
+  scApi.onload=initWidget;
   document.head.appendChild(scApi);
 
-  /* Player controls */
-  playBtn.addEventListener('click', function(){
+  playBtn.addEventListener('click',function(){
     if(!widget||!widgetReady) return;
-    interacted = true; widget.setVolume(20);
+    interacted=true; widget.setVolume(20);
     if(playing) widget.pause(); else widget.play();
   });
-  minBtn.addEventListener('click', function(e){
-    e.stopPropagation();
-    mini = true; radio.classList.add('kil-mini');
+  minBtn.addEventListener('click',function(e){
+    e.stopPropagation(); mini=true; radio.classList.add('kil-mini');
   });
   function expand(){ if(mini){ mini=false; radio.classList.remove('kil-mini'); } }
-  dot.addEventListener('click', expand);
-  radio.addEventListener('click', expand);
+  dot.addEventListener('click',expand);
+  radio.addEventListener('click',expand);
 
-  /* ── PJAX: seamless navigation (music never stops) ─────── */
-  var navBusy = false;
+  /* ── PJAX: seamless navigation — music never stops ── */
+  var navBusy=false;
 
   function pjaxGo(url){
     if(navBusy) return;
-    navBusy = true;
+    navBusy=true;
 
-    fetch(url, {cache:'no-cache'})
+    /* KEY FIX: lift iframe above <body> so body.innerHTML swap
+       never removes it from the document → no reload, no audio gap */
+    document.documentElement.insertBefore(frame, document.body);
+
+    fetch(url,{cache:'no-cache'})
       .then(function(r){ return r.text(); })
       .then(function(html){
-        var parser = new DOMParser();
-        var newDoc = parser.parseFromString(html, 'text/html');
+        var parser=new DOMParser();
+        var newDoc=parser.parseFromString(html,'text/html');
 
-        /* Swap <title> */
-        document.title = newDoc.title;
+        /* Update title */
+        document.title=newDoc.title;
 
-        /* Swap <style> blocks in <head> (keep player style + SC API script) */
+        /* Swap <head> styles (keep player style + loaded scripts) */
         Array.from(document.head.querySelectorAll('style:not([data-kil])')).forEach(function(s){ s.remove(); });
         Array.from(newDoc.head.querySelectorAll('style')).forEach(function(s){
-          var clone = document.createElement('style');
-          clone.textContent = s.textContent;
-          document.head.insertBefore(clone, document.head.firstChild);
+          var c=document.createElement('style');
+          c.textContent=s.textContent;
+          document.head.insertBefore(c,document.head.firstChild);
         });
 
-        /* Swap body content */
-        document.body.innerHTML = newDoc.body.innerHTML;
+        /* Swap body — frame is safely above body, won't be touched */
+        document.body.innerHTML=newDoc.body.innerHTML;
 
-        /* Remove duplicate player elements from new body */
+        /* Remove duplicate player markup injected by new page */
         ['kil-radio','kil-sc'].forEach(function(id){
-          var dup = document.getElementById(id);
-          if(dup && dup !== radio && dup !== frame) dup.parentNode.removeChild(dup);
+          var dup=document.getElementById(id);
+          if(dup) dup.parentNode.removeChild(dup);
         });
 
-        /* Re-attach original player (iframe keeps playing!) */
-        document.body.appendChild(frame);
-        document.body.appendChild(radio);
+        /* Move frame and radio back into body */
+        document.body.appendChild(frame);   /* audio never stopped */
+        document.body.appendChild(radio);   /* preserved with all listeners */
 
-        /* Push URL + scroll */
-        history.pushState({pjax:true, url:url}, document.title, url);
-        var hash = (new URL(url)).hash;
+        history.pushState({pjax:true,url:url},document.title,url);
+
+        var hash=(new URL(url)).hash;
         if(hash){
-          var target = document.querySelector(hash);
-          if(target) target.scrollIntoView({behavior:'smooth'});
+          var t=document.querySelector(hash);
+          if(t) t.scrollIntoView({behavior:'smooth'});
         } else {
-          window.scrollTo(0, 0);
+          window.scrollTo(0,0);
         }
-        navBusy = false;
+        navBusy=false;
       })
       .catch(function(){
-        /* Fallback: full reload (music stops, but page works) */
-        window.location.href = url;
-        navBusy = false;
+        /* Restore frame before fallback reload */
+        if(frame.parentNode!==document.body) document.body.appendChild(frame);
+        window.location.href=url;
+        navBusy=false;
       });
   }
 
   /* Intercept all internal link clicks */
-  document.addEventListener('click', function(e){
-    var a = e.target.closest('a[href]');
-    if(!a || a.target==='_blank') return;
-    try {
-      var u = new URL(a.href, location.href);
-      if(u.origin !== location.origin) return;          // external link
-      if(u.hash && u.pathname===location.pathname) return; // same-page anchor
-      var ext = u.pathname.split('.').pop().toLowerCase();
-      if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext) > -1) return;
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href]');
+    if(!a||a.target==='_blank') return;
+    try{
+      var u=new URL(a.href,location.href);
+      if(u.origin!==location.origin) return;
+      if(u.hash&&u.pathname===location.pathname) return;
+      var ext=u.pathname.split('.').pop().toLowerCase();
+      if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext)>-1) return;
       e.preventDefault();
       pjaxGo(u.href);
-    } catch(err){}
-  }, true);
+    }catch(err){}
+  },true);
 
-  /* Browser back / forward */
-  window.addEventListener('popstate', function(){
-    pjaxGo(location.href);
-  });
-
+  /* Browser back/forward */
+  window.addEventListener('popstate',function(){ pjaxGo(location.href); });
 })();
 </script>
 <!-- end KEEPITIL Radio Player -->
