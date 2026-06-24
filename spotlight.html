@@ -122,22 +122,23 @@
     .dj-spotlight .spot-sub{color:#888;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;margin:0 0 32px;}
     .dj-circle-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:28px 16px;width:100%;margin:0 auto 36px;}
     .dj-ci{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
-    .dj-ci-wrap{position:relative;width:120px;height:120px;clip-path:polygon(50% 0%,0% 100%,100% 100%);overflow:hidden;transition:transform .3s ease,filter .3s ease;}
+    .dj-ci-wrap{position:relative;width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
     .dj-ci-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:#fff;z-index:0;}
     .dj-ci-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;}
     .dj-ci:hover .dj-ci-wrap{transform:translateY(-8px) scale(1.06);}
-    .dj-ci.kil .dj-ci-wrap{filter:drop-shadow(0 0 8px var(--blue));}
-    .dj-ci.kil:hover .dj-ci-wrap{filter:drop-shadow(0 0 20px rgba(0,180,255,.9));}
-    .dj-ci:not(.kil):hover .dj-ci-wrap{filter:drop-shadow(0 0 14px rgba(180,0,255,.6));}
+    .dj-ci.kil .dj-ci-wrap{border-color:var(--blue);border-width:3px;}
+    .dj-ci.kil:hover .dj-ci-wrap{box-shadow:0 0 32px rgba(0,180,255,.65);}
+    .dj-ci:not(.kil):hover .dj-ci-wrap{box-shadow:0 0 28px rgba(180,0,255,.5);}
     .dj-ci-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;color:#f0f0f0;text-align:center;line-height:1.2;}
     .dj-ci-tag{font-size:.68rem;letter-spacing:.06em;color:#888;}
     .dj-ci.kil .dj-ci-tag{color:var(--blue);}
     .dj-more-btn{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;padding:14px 40px;border-radius:4px;text-decoration:none;font-weight:700;transition:transform .25s,box-shadow .25s;}
     .dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
     @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
-    @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:80px;height:80px;}}
-    .spot-row{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:14px!important;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent;}
-    .spot-row .dj-ci{flex-shrink:0;}
+    @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:90px;height:90px;}}
+    .spotlight-block .spot-grid{grid-template-columns:repeat(6,1fr);max-width:100%;}
+    @media(max-width:1024px){.spotlight-block .spot-grid{grid-template-columns:repeat(4,1fr);}}
+    @media(max-width:700px){.spotlight-block .spot-grid{grid-template-columns:repeat(2,1fr);}}
     .spotlight-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
     .spotlight-block-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin:0;}
     .spot-find-more{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.12em;color:var(--blue);border:1px solid rgba(0,180,255,.35);padding:6px 18px;border-radius:4px;text-decoration:none;transition:all .2s;white-space:nowrap;}
@@ -362,7 +363,7 @@
           <h3 class="spotlight-block-title" style="color:#00b4ff;">ARTISTS</h3>
           <a href="https://keepitil.com/artist" class="spot-find-more">Find More →</a>
         </div>
-        <div class="dj-circle-grid spot-row" id="artist-row"></div>
+        <div class="spot-grid" id="artist-row"></div>
       </div>
 
       <!-- BRANDS -->
@@ -371,7 +372,7 @@
           <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
           <a href="https://keepitil.com/brand/" class="spot-find-more">Find More →</a>
         </div>
-        <div class="dj-circle-grid spot-row" id="brand-row"></div>
+        <div class="spot-grid" id="brand-row"></div>
       </div>
 
       <!-- ORGANIZERS -->
@@ -380,7 +381,7 @@
           <h3 class="spotlight-block-title" style="color:#ff6600;">ORGANIZERS</h3>
           <a href="https://keepitil.com/organizer/" class="spot-find-more">Find More →</a>
         </div>
-        <div class="dj-circle-grid spot-row" id="org-row"></div>
+        <div class="spot-grid" id="org-row"></div>
       </div>
     </div>
   </section>
@@ -437,7 +438,7 @@
     function renderRow(id,arr){
       var el=document.getElementById(id);
       if(!el) return;
-      el.innerHTML=pickN(arr,5).map(circle).join('');
+      el.innerHTML=pickN(arr,6).map(function(it){return spotCard(it,false);}).join('');
     }
 
     // 4-card spotlight grid
