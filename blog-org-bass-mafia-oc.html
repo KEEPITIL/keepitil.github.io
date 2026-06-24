@@ -51,7 +51,25 @@
     footer{text-align:center;padding:40px 24px;color:#888;font-size:.8rem;border-top:1px solid rgba(255,255,255,.06);}
     footer a{color:#00b4ff;}
     @media(max-width:600px){.hero img{height:45vh;}}
-  </style>
+  
+.soc-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:opacity .2s;margin-right:8px;margin-bottom:8px;}
+.soc-btn:hover{opacity:.8;}
+.soc-btn.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
+.soc-btn.web{background:rgba(255,255,255,.12);color:#fff;}
+.org-bk-section{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:8px;padding:28px 28px 24px;margin:32px 0 16px;}
+.org-bk-title{font-weight:700;font-size:1.1rem;letter-spacing:.04em;margin-bottom:6px;}
+.org-bk-sub{font-size:.84rem;color:rgba(240,240,240,.5);margin-bottom:18px;}
+.org-bk-section input[type=text],.org-bk-section input[type=email],.org-bk-section textarea{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:4px;padding:11px 14px;color:#fff;font-size:.88rem;margin-bottom:11px;font-family:inherit;box-sizing:border-box;outline:none;}
+.org-bk-section input:focus,.org-bk-section textarea:focus{border-color:rgba(255,255,255,.3);}
+.org-bk-section textarea{height:80px;resize:vertical;}
+.org-bk-section input::placeholder,.org-bk-section textarea::placeholder{color:rgba(255,255,255,.28);}
+.sub-row2{display:flex;align-items:center;gap:9px;font-size:.8rem;color:rgba(240,240,240,.55);margin-bottom:16px;cursor:pointer;}
+.sub-row2 input{width:auto;margin-bottom:0;}
+.org-bk-btn{background:#ffb400;color:#000;border:none;padding:13px 24px;font-size:.84rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:4px;cursor:pointer;width:100%;transition:opacity .2s;}
+.org-bk-btn:hover{opacity:.85;}
+.org-bk-success{text-align:center;padding:16px 0 8px;}
+.org-bk-success p{font-size:.95rem;color:rgba(240,240,240,.8);margin-bottom:16px;}
+</style>
 </head>
 <body>
 <nav>
@@ -79,7 +97,42 @@
 
 <div class="article-wrap">
   <div class="article-header">
-    <a class="back-link" href="/culture">&larr; Back to Culture</a><br/>
+    <a class="back-link" href="/culture">&larr; Back to Culture</a>
+
+<div style="margin:24px 0 8px;"><a href="https://fonts.googleapis.com" target="_blank" rel="noopener" class="soc-btn web">Website</a></div>
+<div class="org-bk-section" id="org-book-bass_mafia_oc">
+  <div class="org-bk-title">Inquire / Get Info</div>
+  <div class="org-bk-sub">Drop your email — we'll connect you directly. No spam, ever.</div>
+  <div id="org-form-bass_mafia_oc">
+    <form onsubmit="submitOrgBooking(event,'','Bass Mafia OC &mdash; The Collective Keeping Bass Music Alive in Orange County','bass_mafia_oc')">
+      <input type="text" name="bname" placeholder="Your Name" required/>
+      <input type="email" name="bemail" placeholder="Your Email" required/>
+      <textarea name="bmsg" placeholder="Message — event inquiry, booking question, general info..."></textarea>
+      <label class="sub-row2"><input type="checkbox" name="bsub" checked/> Get KEEPITIL event updates &amp; picks</label>
+      <button type="submit" class="org-bk-btn">Send &amp; Get Contact Info &rarr;</button>
+    </form>
+  </div>
+  <div id="org-ok-bass_mafia_oc" class="org-bk-success" style="display:none">
+    <p>&#10003; Sent! Connect with Bass Mafia OC &mdash; The Collective Keeping Bass Music Alive in Orange County directly:</p>
+    
+  </div>
+</div>
+<script>
+async function submitOrgBooking(e,ig,org,slug){
+  e.preventDefault();
+  const f=e.target;
+  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
+  f.querySelector('button').textContent='Sending...';
+  try{
+    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+    await sb.from('inquiries').insert({name,email,message:msg,profile_name:org,profile_slug:slug,subscribe:sub});
+    if(sub)await sb.from('subscribers').upsert({email,name,source:'org_booking',profile:slug},{onConflict:'email'});
+  }catch(err){console.warn(err);}
+  f.closest('[id^=org-form]').style.display='none';
+  document.getElementById('org-ok-'+slug).style.display='block';
+}
+</script><br/>
     <span class="kil-tag">KEEPITIL</span><span class="cat-tag">Organizers</span>
     <h1 class="article-title">Bass Mafia OC &mdash; The Collective Keeping Bass Music Alive in Orange County</h1>
     <div class="article-meta">
