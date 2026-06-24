@@ -75,17 +75,10 @@
 <nav>
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
+      <span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
       <li><a href="/">HOME</a></li>
-      <li><a href="/spotlight">SPOTLIGHT</a></li>
-      <li><a href="/artist">ARTISTS</a></li>
-      <li><a href="/brand/">BRANDS</a></li>
-      <li><a href="/organizer/">ORGANIZERS</a></li>
-      <li><a href="/events">EVENTS</a></li>
-      <li><a href="/culture">CULTURE</a></li>
-      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
     </ul>
   </div>
 </nav>
@@ -99,40 +92,7 @@
   <div class="article-header">
     <a class="back-link" href="/culture">&larr; Back to Culture</a>
 
-<div style="margin:28px 0 8px;"></div>
-<div class="brand-cta-section" id="brand-book-insomniac">
-  <div class="brand-cta-title">Connect / Work Together</div>
-  <div class="brand-cta-sub">Submit your info — we'll share their direct contact details with you.</div>
-  <div id="brand-form-insomniac">
-    <form onsubmit="submitBrandContact(event,'','Insomniac','insomniac')">
-      <input type="text" name="bname" placeholder="Your Name" required/>
-      <input type="email" name="bemail" placeholder="Your Email" required/>
-      <textarea name="bmsg" placeholder="What are you looking for? Collab, product, booking..."></textarea>
-      <label class="sub-row3"><input type="checkbox" name="bsub" checked/> Get KEEPITIL brand spotlights &amp; drops</label>
-      <button type="submit" class="brand-cta-btn">Send &amp; Get Contact Info &rarr;</button>
-    </form>
-  </div>
-  <div id="brand-ok-insomniac" class="brand-ok" style="display:none">
-    <p>&#10003; Sent! Connect with Insomniac directly:</p>
-    
-  </div>
-</div>
-<script>
-async function submitBrandContact(e,ig,brand,slug){
-  e.preventDefault();
-  const f=e.target;
-  const name=f.bname.value,email=f.bemail.value,msg=f.bmsg.value,sub=f.bsub.checked;
-  f.querySelector('button').textContent='Sending...';
-  try{
-    const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
-    const sb=createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-    await sb.from('inquiries').insert({name,email,message:msg,profile_name:brand,profile_slug:slug,subscribe:sub});
-    if(sub)await sb.from('subscribers').upsert({email,name,source:'brand_contact',profile:slug},{onConflict:'email'});
-  }catch(err){console.warn(err);}
-  f.closest('[id^=brand-form]').style.display='none';
-  document.getElementById('brand-ok-'+slug).style.display='block';
-}
-</script><br/>
+<div style="margin:28px 0 8px;"></div><br/>
     <span class="kil-tag">KEEPITIL</span><span class="cat-tag">Brands</span>
     <h1 class="article-title">Insomniac Events &mdash; The Company That Built the SoCal Scene</h1>
     <div class="article-meta">
