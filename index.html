@@ -834,6 +834,8 @@ filterBtns.forEach(btn => {
 </script>
 
 
+
+
 <!-- ♬ KEEPITIL Background Music Player -->
 <style>
 #kil-bg-player{
@@ -846,6 +848,7 @@ filterBtns.forEach(btn => {
   font-family:'Space Grotesk','Inter',sans-serif;
   transition:all .3s cubic-bezier(.4,0,.2,1);
   overflow:hidden;
+  cursor:default;
 }
 #kil-bg-player.kil-mini{
   width:42px!important;height:42px!important;
@@ -869,14 +872,19 @@ filterBtns.forEach(btn => {
   font-size:.68rem;color:rgba(255,255,255,.5);
   flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   max-width:110px;
+  transition:color .3s;
 }
+#kil-track.kil-prompt{color:#00ff88;font-weight:600;}
 .kil-btn{
   background:none;border:none;cursor:pointer;color:#00ff88;
   font-size:.95rem;line-height:1;padding:3px 2px;
-  transition:opacity .2s;flex-shrink:0;
+  transition:opacity .2s,transform .15s;flex-shrink:0;
 }
 .kil-btn:hover{opacity:.65;}
-/* iframe hidden off-screen */
+#kil-play-btn.kil-pulse{
+  animation:kil-pop .9s ease-in-out infinite alternate;
+}
+@keyframes kil-pop{from{transform:scale(1);opacity:1;}to{transform:scale(1.25);opacity:.7;}}
 #kil-sc-frame{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}
 </style>
 
@@ -884,40 +892,55 @@ filterBtns.forEach(btn => {
   <div id="kil-mini-icon" title="Expand player">♬</div>
   <div id="kil-player-inner">
     <span id="kil-label">♬ KIL</span>
-    <span id="kil-track">Loading&hellip;</span>
-    <button class="kil-btn" id="kil-play-btn" title="Play / Pause">▶</button>
-    <button class="kil-btn" id="kil-min-btn" title="Minimize" style="font-size:.75rem;opacity:.6;">—</button>
+    <span id="kil-track" class="kil-prompt">tap ▶ to play</span>
+    <button class="kil-btn kil-pulse" id="kil-play-btn" title="Play / Pause">▶</button>
+    <button class="kil-btn" id="kil-min-btn" title="Minimize" style="font-size:.75rem;opacity:.5;">—</button>
   </div>
 </div>
 <iframe id="kil-sc-frame" allow="autoplay"
-  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/keepitil&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/keepitil&color=%2300ff88&auto_play=false&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true"
   scrolling="no" frameborder="no"></iframe>
 <script>
 (function(){
   var player   = document.getElementById('kil-bg-player');
-  var inner    = document.getElementById('kil-player-inner');
-  var miniIcon = document.getElementById('kil-mini-icon');
   var trackEl  = document.getElementById('kil-track');
   var playBtn  = document.getElementById('kil-play-btn');
   var minBtn   = document.getElementById('kil-min-btn');
+  var miniIcon = document.getElementById('kil-mini-icon');
   var frame    = document.getElementById('kil-sc-frame');
   var playing  = false;
+  var ready    = false;
   var widget   = null;
   var mini     = false;
 
+  function setTrack(s){
+    if(s && s.title){
+      trackEl.textContent = s.title;
+      trackEl.classList.remove('kil-prompt');
+    }
+  }
+
   function initWidget(){
-    if(!window.SC){return;}
+    if(!window.SC) return;
     widget = SC.Widget(frame);
+
     widget.bind(SC.Widget.Events.READY, function(){
+      ready = true;
       widget.setVolume(20);
-      widget.play();
     });
     widget.bind(SC.Widget.Events.PLAY, function(){
       playing = true;
       playBtn.textContent = '⏸';
-      widget.getCurrentSound(function(s){
-        if(s && s.title) trackEl.textContent = s.title;
-      });
+      playBtn.classList.remove('kil-pulse');
+      widget.getCurrentSound(setTrack);
+    });
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS, function(){
+      if(!playing){
+        playing=true;
+        playBtn.textContent='⏸';
+        playBtn.classList.remove('kil-pulse');
+        widget.getCurrentSound(setTrack);
+      }
     });
     widget.bind(SC.Widget.Events.PAUSE, function(){
       playing = false;
@@ -936,8 +959,9 @@ filterBtns.forEach(btn => {
 
   // Play / pause
   playBtn.addEventListener('click', function(){
-    if(!widget){return;}
-    if(playing) widget.pause(); else widget.play();
+    if(!widget) return;
+    if(playing) { widget.pause(); }
+    else { widget.setVolume(20); widget.play(); }
   });
 
   // Minimize
@@ -946,13 +970,11 @@ filterBtns.forEach(btn => {
     mini = true;
     player.classList.add('kil-mini');
   });
-  miniIcon.addEventListener('click', function(){
-    mini = false;
-    player.classList.remove('kil-mini');
-  });
-  player.addEventListener('click', function(){
-    if(mini){mini=false;player.classList.remove('kil-mini');}
-  });
+  function expandPlayer(){
+    if(mini){ mini=false; player.classList.remove('kil-mini'); }
+  }
+  miniIcon.addEventListener('click', expandPlayer);
+  player.addEventListener('click', expandPlayer);
 })();
 </script>
 <!-- end KEEPITIL music player -->
