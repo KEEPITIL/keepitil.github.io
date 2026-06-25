@@ -87,10 +87,6 @@
     @keyframes blink{0%,100%{border-color:var(--blue);}50%{border-color:transparent;}}
     .hero-sub{font-size:18px;color:var(--grey);max-width:520px;margin-bottom:40px;line-height:1.7;}
     .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px;}
-    .hero-stats{display:flex;gap:40px;flex-wrap:wrap;}
-    .stat{text-align:left;}
-    .stat-num{font-family:var(--font-head);font-size:42px;letter-spacing:.04em;color:var(--blue);text-shadow:0 0 12px rgba(0,180,255,.4);line-height:1;}
-    .stat-label{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
     .live-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;}
     .live-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pulse 1.8s ease-in-out infinite;}
     @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
@@ -244,7 +240,6 @@
       .hero-logo-wrap{display:none;}
       .footer-grid{grid-template-columns:1fr;gap:32px;}
       .footer-bottom{flex-direction:column;text-align:center;}
-      .hero-stats{gap:24px;}
     }
     @media(max-width:480px){.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
     ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
@@ -344,12 +339,6 @@
           <a href="https://keepitil.com/culture" class="btn btn-outline">Read the Latest</a>
         </div>
         <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
-        <div class="hero-stats">
-          <div class="stat"><div class="stat-num" id="stat-artists">52</div><div class="stat-label">Artists</div></div>
-          <div class="stat"><div class="stat-num" id="stat-orgs">43</div><div class="stat-label">Organizers</div></div>
-          <div class="stat"><div class="stat-num" id="stat-brands">38</div><div class="stat-label">Brands</div></div>
-          <div class="stat"><div class="stat-num">3,800+</div><div class="stat-label">Subscribers</div></div>
-        </div>
       </div>
     </div>
   </section>
@@ -737,30 +726,6 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
 
-  /* ── STAT COUNTER ANIMATION ── */
-  function animateCount(el, target, duration) {
-    let start = 0, step = Math.ceil(target / (duration / 40));
-    const timer = setInterval(() => {
-      start = Math.min(start + step, target);
-      el.textContent = start;
-      if (start >= target) clearInterval(timer);
-    }, 40);
-  }
-  const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting && !e.target.dataset.counted) {
-        e.target.dataset.counted = '1';
-        const elA = document.getElementById('stat-artists');
-        const elO = document.getElementById('stat-orgs');
-        const elB = document.getElementById('stat-brands');
-        if (elA) animateCount(elA, 32, 1200);
-        if (elO) animateCount(elO, 30, 1200);
-        if (elB) animateCount(elB, 18, 1000);
-      }
-    });
-  }, { threshold: 0.5 });
-  const heroStats = document.querySelector('.hero-stats');
-  if (heroStats) statsObserver.observe(heroStats);
   </script>
 
 
@@ -806,6 +771,7 @@
   scrolling="no" frameborder="no"></iframe>
 <script>
 (function(){
+  if(window.__kilRadioInit) return; window.__kilRadioInit=true;
   var radio=document.getElementById('kil-radio');
   var frame=document.getElementById('kil-sc');
   var led=document.getElementById('kil-led');
@@ -813,108 +779,42 @@
   var playBtn=document.getElementById('kr-play');
   var minBtn=document.getElementById('kr-min');
   var dot=document.getElementById('kil-dot');
-
-  var widget=null,playing=false,mini=false,interacted=false,widgetReady=false;
-  var wakeLock=null;
+  var widget=null,playing=false,mini=false,interacted=false,widgetReady=false,wakeLock=null;
 
   function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
   function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
-
-  function unmute(){
-    interacted=true;
-    if(!widget||!widgetReady) return;
-    widget.setVolume(20);
-    if(!playing) widget.play();
-  }
-  function reListenGesture(){
-    ['mousemove','scroll','touchstart','keydown'].forEach(function(ev){
-      document.addEventListener(ev,unmute,{passive:true,once:true});
-    });
-  }
+  function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(20);if(!playing)widget.play();}
+  function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
   reListenGesture();
 
-  /* ── Wake Lock: keep device awake so audio never stops ── */
-  function requestWakeLock(){
-    if(!('wakeLock' in navigator)) return;
-    navigator.wakeLock.request('screen').then(function(lock){
-      wakeLock=lock;
-      lock.addEventListener('release',function(){ wakeLock=null; });
-    }).catch(function(){});
-  }
+  function requestWakeLock(){if(!('wakeLock'in navigator))return;navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;});}).catch(function(){});}
   requestWakeLock();
-  /* Re-acquire wake lock when tab becomes visible again */
-  document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible'){
-      requestWakeLock();
-      /* Resume playback if browser paused it while hidden */
-      if(widget&&widgetReady&&interacted){
-        setTimeout(function(){
-          widget.isPaused(function(paused){
-            if(paused){ widget.setVolume(20); widget.play(); }
-          });
-        },500);
-      }
-    }
-  });
-
-  /* ── Keepalive: check every 30s and restart if stopped ── */
-  setInterval(function(){
-    if(!widget||!widgetReady||!interacted) return;
-    widget.isPaused(function(paused){
-      if(paused){ widget.setVolume(20); widget.play(); }
-    });
-  },30000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(20);widget.play();}});},500);}}});
+  setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(20);widget.play();}});},30000);
 
   function initWidget(){
-    if(!window.SC) return;
+    if(!window.SC)return;
     widget=SC.Widget(frame);
-    widget.bind(SC.Widget.Events.READY,function(){
-      widgetReady=true;
-      widget.setVolume(0); widget.play();
-      if(interacted) widget.setVolume(20);
-    });
-    widget.bind(SC.Widget.Events.PLAY,function(){
-      goLive(); reListenGesture();
-      widget.getCurrentSound(function(s){if(s&&s.title) trackEl.textContent=s.title;});
-    });
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){
-      if(interacted&&widget) widget.setVolume(20);
-    });
-    widget.bind(SC.Widget.Events.PAUSE,function(){ goOff(); });
-    widget.bind(SC.Widget.Events.FINISH,function(){
-      widget.getSounds(function(s){
-        if(!s||!s.length) return;
-        widget.getCurrentSoundIndex(function(i){
-          widget.skip((i+1)%s.length); widget.play();
-        });
-      });
-    });
-    widget.bind(SC.Widget.Events.ERROR,function(){
-      setTimeout(function(){ widget.next(); widget.play(); },1000);
-    });
+    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);widget.play();if(interacted)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){if(interacted&&widget)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
+    widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
+    widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
   }
-  var scApi=document.createElement('script');
-  scApi.src='https://w.soundcloud.com/player/api.js';
-  scApi.onload=initWidget;
-  document.head.appendChild(scApi);
+  var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
 
-  playBtn.addEventListener('click',function(){
-    if(!widget||!widgetReady) return;
-    interacted=true; widget.setVolume(20);
-    if(playing) widget.pause(); else widget.play();
-  });
-  minBtn.addEventListener('click',function(e){
-    e.stopPropagation(); mini=true; radio.classList.add('kil-mini');
-  });
-  function expand(){ if(mini){mini=false;radio.classList.remove('kil-mini');} }
-  dot.addEventListener('click',expand);
-  radio.addEventListener('click',expand);
+  playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(20);if(playing)widget.pause();else widget.play();});
+  minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');});
+  function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');}}
+  dot.addEventListener('click',expand);radio.addEventListener('click',expand);
 
-  /* ── PJAX: seamless nav — iframe never removed from document ── */
+  // PJAX — seamless page navigation, audio never stops
   var navBusy=false;
   function pjaxGo(url){
-    if(navBusy) return; navBusy=true;
-    /* Lift iframe above <body> so body.innerHTML swap won't touch it */
+    if(navBusy)return; navBusy=true;
+    // KEY: lift BOTH player elements above <body> before innerHTML swap
+    document.documentElement.insertBefore(radio,document.body);
     document.documentElement.insertBefore(frame,document.body);
     fetch(url,{cache:'no-cache'})
       .then(function(r){return r.text();})
@@ -922,46 +822,37 @@
         var parser=new DOMParser();
         var newDoc=parser.parseFromString(html,'text/html');
         document.title=newDoc.title;
-        /* Swap <head> styles */
+        // Swap head styles (preserve player style)
         Array.from(document.head.querySelectorAll('style:not([data-kil])')).forEach(function(s){s.remove();});
-        Array.from(newDoc.head.querySelectorAll('style')).forEach(function(s){
-          var c=document.createElement('style'); c.textContent=s.textContent;
-          document.head.insertBefore(c,document.head.firstChild);
-        });
-        /* Swap body */
+        Array.from(newDoc.head.querySelectorAll('style')).forEach(function(s){var c=document.createElement('style');c.textContent=s.textContent;document.head.insertBefore(c,document.head.firstChild);});
+        // Swap external CSS links
+        Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function(l){l.remove();});
+        Array.from(newDoc.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function(l){var c=l.cloneNode(true);document.head.appendChild(c);});
+        // Swap body — radio+frame are at <html> level, untouched
         document.body.innerHTML=newDoc.body.innerHTML;
-        /* Remove any duplicate player markup from new body */
-        ['kil-radio','kil-sc'].forEach(function(id){
-          var dup=document.getElementById(id);
-          if(dup) dup.parentNode.removeChild(dup);
-        });
-        /* Move player back into body — audio never stopped */
+        // Remove duplicates from NEW body (originals are above body, NOT in body)
+        var dupSc=document.body.querySelector('#kil-sc');if(dupSc)dupSc.parentNode.removeChild(dupSc);
+        var dupRad=document.body.querySelector('#kil-radio');if(dupRad)dupRad.parentNode.removeChild(dupRad);
+        // Move originals back — audio never stopped!
         document.body.appendChild(frame);
         document.body.appendChild(radio);
         history.pushState({pjax:true,url:url},document.title,url);
         var hash=(new URL(url)).hash;
-        if(hash){var t=document.querySelector(hash);if(t)t.scrollIntoView({behavior:'smooth'});}
-        else window.scrollTo(0,0);
+        if(hash){var t=document.querySelector(hash);if(t)t.scrollIntoView({behavior:'smooth'});}else window.scrollTo(0,0);
         navBusy=false;
       })
       .catch(function(){
-        if(frame.parentNode!==document.body) document.body.appendChild(frame);
-        window.location.href=url; navBusy=false;
+        if(frame.parentNode!==document.body)document.body.appendChild(frame);
+        if(radio.parentNode!==document.body)document.body.appendChild(radio);
+        window.location.href=url;navBusy=false;
       });
   }
   document.addEventListener('click',function(e){
     var a=e.target.closest('a[href]');
-    if(!a||a.target==='_blank') return;
-    try{
-      var u=new URL(a.href,location.href);
-      if(u.origin!==location.origin) return;
-      if(u.hash&&u.pathname===location.pathname) return;
-      var ext=u.pathname.split('.').pop().toLowerCase();
-      if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext)>-1) return;
-      e.preventDefault(); pjaxGo(u.href);
-    }catch(err){}
+    if(!a||a.target==='_blank')return;
+    try{var u=new URL(a.href,location.href);if(u.origin!==location.origin)return;if(u.hash&&u.pathname===location.pathname)return;var ext=u.pathname.split('.').pop().toLowerCase();if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext)>-1)return;e.preventDefault();pjaxGo(u.href);}catch(err){}
   },true);
-  window.addEventListener('popstate',function(){ pjaxGo(location.href); });
+  window.addEventListener('popstate',function(){pjaxGo(location.href);});
 })();
 </script>
 <!-- end KEEPITIL Radio Player -->
