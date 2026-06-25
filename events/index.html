@@ -1082,6 +1082,10 @@
   var minBtn=document.getElementById('kr-min');
   var dot=document.getElementById('kil-dot');
   var widget=null,playing=false,mini=false,interacted=false,widgetReady=false,wakeLock=null;
+  var _ss=null;try{_ss=sessionStorage;}catch(e){}
+  function ss_get(k){try{return _ss&&_ss.getItem(k);}catch(e){return null;}}
+  function ss_set(k,v){try{if(_ss)_ss.setItem(k,v);}catch(e){}}
+  if(ss_get('kil_mini')==='1'){mini=true;radio.classList.add('kil-mini');}
 
   function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
   function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
@@ -1097,9 +1101,9 @@
   function initWidget(){
     if(!window.SC)return;
     widget=SC.Widget(frame);
-    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);widget.play();if(interacted)widget.setVolume(20);});
-    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});});
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){if(interacted&&widget)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);var t=parseInt(ss_get('kil_t')||'0')||0,p=parseInt(ss_get('kil_p')||'0')||0;if(t>0){widget.skip(t);if(p>0)setTimeout(function(){widget.seekTo(p);},600);}else{widget.play();}if(interacted)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});widget.getCurrentSoundIndex(function(i){ss_set('kil_t',i);});});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(pos){if(interacted&&widget)widget.setVolume(20);if(pos&&pos.currentPosition>5000)ss_set('kil_p',pos.currentPosition);});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
     widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
     widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
@@ -1107,8 +1111,8 @@
   var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
 
   playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(20);if(playing)widget.pause();else widget.play();});
-  minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');});
-  function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');}}
+  minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');ss_set('kil_mini','1');});
+  function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');ss_set('kil_mini','0');}}
   dot.addEventListener('click',expand);radio.addEventListener('click',expand);
 })();
 </script>
