@@ -1340,7 +1340,7 @@ function render() {
         <p class="card-excerpt">${escHtml(a.excerpt)}</p>
         <div class="card-footer">
           <span class="card-date">${fmtDate(a.date)}</span>
-          <a class="card-read" href="https://keepitil.github.io/${escHtml(a.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Read More →</a>
+          <a class="card-read" href="${a.link.startsWith('http') ? escHtml(a.link) : 'https://keepitil.com/' + escHtml(a.link)}" ${a.link.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} onclick="event.stopPropagation()">Read More →</a>
         </div>
       </div>
     </article>`;
@@ -1351,7 +1351,15 @@ function escHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function openArticle(url) {
-  if (url) window.open(url, '_blank', 'noopener');
+  if (!url) return;
+  if (url.startsWith('http') && !url.includes('keepitil.com') && !url.includes('keepitil.github.io')) {
+    // External article → new tab
+    window.open(url, '_blank', 'noopener');
+  } else {
+    // Internal KEEPITIL page → PJAX (music keeps playing)
+    var fullUrl = url.startsWith('http') ? url : 'https://keepitil.com/' + url;
+    if (typeof pjaxGo === 'function') { pjaxGo(fullUrl); } else { window.location.href = fullUrl; }
+  }
 }
 
 // ── CONTROLS ──
