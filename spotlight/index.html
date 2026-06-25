@@ -98,28 +98,25 @@
     .fresh-spotlight .spot-badge2{display:inline-block;background:linear-gradient(135deg,var(--blue),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
     .spot-h2{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 8px;}
     .spot-subtext{color:#888;font-size:.9rem;letter-spacing:.06em;margin:0;}
-    .spot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;width:100%;}
-    .spot-card{background:#181818;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;transition:transform .3s,box-shadow .3s;}
-    .spot-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,180,255,.22);}
-    .spot-img-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;}
-    .spot-img-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:#fff;z-index:0;}
-    .spot-img-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
-    .spot-card:hover .spot-img-wrap img{transform:scale(1.06);}
-    .spot-body{padding:18px 16px 20px;}
-    .spot-kil-tag2{display:inline-block;background:rgba(0,180,255,.12);color:var(--blue);font-size:.65rem;letter-spacing:.1em;padding:3px 9px;border-radius:4px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;}
-    .spot-name2{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.06em;color:#f0f0f0;margin:0 0 3px;}
-    .spot-genre2{font-size:.7rem;color:#888;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px;}
-    .spot-bio2{font-size:.82rem;color:#aaa;line-height:1.6;margin:0 0 16px;}
-    .spot-links2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .spot-btn-profile{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--blue);padding:8px 14px;border-radius:6px;text-decoration:none;transition:opacity .2s;display:inline-block;}
-    .spot-btn-profile:hover{opacity:.85;}
-    .spot-btn-ig{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:6px;text-decoration:none;transition:color .2s,border-color .2s;font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;}
-    .spot-btn-ig:hover{color:#f0f0f0;border-color:rgba(255,255,255,.4);}
-    .spot-sc{margin:0 0 14px;border-radius:8px;overflow:hidden;background:#111;}
-    .spot-sc iframe{width:100%;height:80px;border:0;display:block;}
-    @media(max-width:1024px){.spot-grid{grid-template-columns:repeat(3,1fr);}}
-    @media(max-width:700px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:480px){.spot-grid{grid-template-columns:1fr;}}
+    /* ── CAROUSEL ── */
+    .carousel-wrap{overflow:hidden;width:100%;position:relative;mask-image:linear-gradient(to right,transparent 0%,#000 6%,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 6%,#000 94%,transparent 100%);}
+    .carousel-track{display:flex;gap:14px;width:max-content;will-change:transform;}
+    .carousel-track.running{animation:marquee var(--dur,120s) linear infinite;}
+    .carousel-track:hover{animation-play-state:paused;}
+    @keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+    .cc-chip{flex-shrink:0;width:128px;background:#131313;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s;cursor:pointer;}
+    .cc-chip:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 12px 36px rgba(0,0,0,.6);}
+    .cc-avatar{position:relative;width:100%;aspect-ratio:1;overflow:hidden;}
+    .cc-init{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.8rem;z-index:0;opacity:.7;}
+    .cc-avatar img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s;}
+    .cc-chip:hover .cc-avatar img{transform:scale(1.08);}
+    .cc-body{padding:8px 10px 10px;flex:1;display:flex;flex-direction:column;gap:2px;}
+    .cc-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:#f0f0f0;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .cc-genre{font-size:.6rem;color:#666;letter-spacing:.08em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .spotlight-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .spotlight-block-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.18em;margin:0;}
+    .spot-see-all{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;text-decoration:none;transition:color .2s;}
+    .spot-see-all:hover{color:var(--white);}
 
     /* ── DJ CIRCLES — Summer 2026 ── */
     .dj-spotlight{background:linear-gradient(180deg,#0d0d0d 0%,#0f0b03 35%,#100c04 65%,#0f0d08 100%);padding:40px 0;text-align:center;position:relative;overflow:hidden;}
@@ -372,24 +369,33 @@
       <div class="spotlight-block">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#00b4ff;">ARTISTS</h3>
+          <a class="spot-see-all" href="/artist">View All Artists →</a>
         </div>
-        <div class="spot-grid" id="artist-row"></div>
+        <div class="carousel-wrap">
+          <div class="carousel-track" id="artist-row"></div>
+        </div>
       </div>
 
       <!-- BRANDS -->
       <div class="spotlight-block" style="margin-top:48px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
+          <a class="spot-see-all" href="/brand/">View All Brands →</a>
         </div>
-        <div class="spot-grid" id="brand-row"></div>
+        <div class="carousel-wrap">
+          <div class="carousel-track" id="brand-row"></div>
+        </div>
       </div>
 
       <!-- ORGANIZERS -->
       <div class="spotlight-block" style="margin-top:48px;">
         <div class="spotlight-block-hdr">
           <h3 class="spotlight-block-title" style="color:#ff6600;">ORGANIZERS</h3>
+          <a class="spot-see-all" href="/organizer/">View All Organizers →</a>
         </div>
-        <div class="spot-grid" id="org-row"></div>
+        <div class="carousel-wrap">
+          <div class="carousel-track" id="org-row"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -399,77 +405,36 @@
     var VENDORS=[{n:"Cube World Media",g:"Event Production",i:"https://unavatar.io/instagram/cubeworldmedia",b:"blog-org-cube-world-media.html",c:"#00ff88",a:"CW"},{n:"Neon District Lights",g:"Lighting & Visual Effects",i:"https://unavatar.io/instagram/neondistrictoc",b:"blog-brand-neon-district.html",c:"#00b4ff",a:"ND"},{n:"Underground Sound Co",g:"Sound & PA Systems",i:"https://unavatar.io/instagram/undergroundsoundco",b:"blog-brand-underground-sound.html",c:"#b400ff",a:"US"},{n:"OC Rave Supply",g:"Merch & Apparel",i:"https://unavatar.io/instagram/ocravesupply",b:"blog-brand-oc-rave-supply.html",c:"#ff6600",a:"OR"},{n:"Wristband Nation",g:"Event Wristbands & RFID",i:"https://unavatar.io/instagram/wristbandnation",b:"blog-brand-wristband-nation.html",c:"#ff0080",a:"WN"},{n:"The Photo Booth Co",g:"Photography & Video",i:"https://unavatar.io/instagram/thephotoboothco",b:"blog-brand-photo-booth-co.html",c:"#ffb400",a:"TP"},{n:"Bass Apparel OC",g:"Merch & Apparel",i:"https://unavatar.io/instagram/bassappareloc",b:"blog-brand-bass-apparel-oc.html",c:"#00ff88",a:"BA"},{n:"SoCal LED Rentals",g:"Lighting & Visual Effects",i:"https://unavatar.io/instagram/socalledrentals",b:"blog-brand-socal-led.html",c:"#00b4ff",a:"SL"},{n:"Insomniac Events",g:"Event Production",i:"https://unavatar.io/instagram/insomniacevents",b:"blog-org-insomniac.html",c:"#b400ff",a:"IE"},{n:"Create Music Group",g:"Music Marketing & PR",i:"https://unavatar.io/instagram/createmusicgroup",b:"blog-brand-create-music-group.html",c:"#ff0080",a:"CM"},{n:"HARD Events",g:"Event Production",i:"https://unavatar.io/instagram/hardfest",b:"blog-org-hard-events.html",c:"#ff6600",a:"HE"},{n:"Goldenvoice",g:"Event Production",i:"https://unavatar.io/instagram/goldenvoice",b:"blog-org-goldenvoice.html",c:"#ffb400",a:"G"},{n:"ProDJ Supply",g:"DJ Equipment & Gear",i:"https://unavatar.io/instagram/prodjsupply",b:"blog-brand-prodj-supply.html",c:"#00ff88",a:"PS"},{n:"Avalon Hollywood",g:"Event Production",i:"https://unavatar.io/instagram/avalonhollywood",b:"blog-org-avalon-hollywood.html",c:"#00b4ff",a:"AH"},{n:"Bass Head Apparel",g:"Merch & Apparel",i:"https://unavatar.io/instagram/bassheadapparel",b:"blog-brand-basshead-apparel.html",c:"#b400ff",a:"BH"},{n:"LA Visuals",g:"Photography & Video",i:"https://unavatar.io/instagram/lavisuals",b:"blog-brand-la-visuals.html",c:"#ff0080",a:"LV"},{n:"Rave Clothing Co",g:"Merch & Apparel",i:"https://unavatar.io/instagram/raveclothingco",b:"blog-brand-rave-clothing-co.html",c:"#ff6600",a:"RC"},{n:"Sound Strike Audio",g:"Sound & PA Systems",i:"https://unavatar.io/instagram/soundstrike",b:"blog-brand-sound-strike.html",c:"#ffb400",a:"SS"},{n:"Nightlife Security LA",g:"Event Security",i:"https://unavatar.io/instagram/nightlifesecurityla",b:"blog-brand-nightlife-security.html",c:"#00ff88",a:"NS"},{n:"Subculture Agency",g:"Artist Booking & Mgmt",i:"https://unavatar.io/instagram/subcultureagency",b:"blog-brand-subculture-agency.html",c:"#00b4ff",a:"SA"},{n:"Whet Foundation",g:"Event Production",i:"https://unavatar.io/instagram/whetfoundation",b:"blog-org-whet-foundation.html",c:"#b400ff",a:"WF"},{n:"Cygnus Events",g:"Event Production",i:"https://unavatar.io/instagram/cygnusevents",b:"blog-org-cygnus-events.html",c:"#ff0080",a:"CE"},{n:"SD Photo Collective",g:"Photography & Video",i:"https://unavatar.io/instagram/sdphotocollective",b:"blog-brand-sd-photo.html",c:"#ff6600",a:"SP"},{n:"DIRTYBIRD Records",g:"Record Label",i:"https://unavatar.io/instagram/dirtybirdrecords",b:"blog-brand-dirtybird.html",c:"#ffb400",a:"DR"},{n:"Public Works SF",g:"Event Production",i:"https://unavatar.io/instagram/publicworkssf",b:"blog-org-public-works-sf.html",c:"#00ff88",a:"PW"},{n:"Spun Productions",g:"Event Production",i:"https://unavatar.io/instagram/spunproductions",b:"blog-brand-spun-productions.html",c:"#00b4ff",a:"SP"},{n:"Symbiosis Gathering",g:"Festival Production",i:"https://unavatar.io/instagram/symbiosisgathering",b:"blog-org-symbiosis.html",c:"#b400ff",a:"SG"},{n:"IE Rave Nation",g:"Event Production",i:"https://unavatar.io/instagram/ieravenation",b:"blog-org-ie-rave-nation.html",c:"#ff0080",a:"IR"},{n:"SoCal Rave Co",g:"Rave Apparel",i:"https://unavatar.io/instagram/socalraveco",b:"blog-brand-socal-rave-co.html",c:"#ff0080",a:"SR"},{n:"Pacific Bass",g:"DJ & Production Gear",i:"https://unavatar.io/instagram/pacificbass.gear",b:"blog-brand-pacific-bass.html",c:"#00b4ff",a:"PB"},{n:"Neon Jungle",g:"Festival Accessories",i:"https://unavatar.io/instagram/neonjungle.oc",b:"blog-brand-neon-jungle.html",c:"#00ff88",a:"NJ"},{n:"Warehouse Threads",g:"Streetwear",i:"https://unavatar.io/instagram/warehousethreads.la",b:"blog-brand-warehouse-threads.html",c:"#ff6600",a:"WT"},{n:"Desert Bloom Supply",g:"Event Supply",i:"https://unavatar.io/instagram/desertbloom.supply",b:"blog-brand-desert-bloom-supply.html",c:"#b400ff",a:"DB"},{n:"Subculture Ink",g:"Art & Tattoo",i:"https://unavatar.io/instagram/subcultureink.hb",b:"blog-brand-subculture-ink.html",c:"#ff2200",a:"SI"},{n:"Signal Supply Co",g:"DJ Accessories & Gear",i:"https://unavatar.io/instagram/signalsupply.co",b:"blog-brand-signal-supply.html",c:"#00b4ff",a:"SS"},{n:"Night Market Collective",g:"Vendor Collective",i:"https://unavatar.io/instagram/nightmarket.collective",b:"blog-brand-night-market-collective.html",c:"#ff0080",a:"NM"},{n:"Underground Prints",g:"Print & Design",i:"https://unavatar.io/instagram/undergroundprints.la",b:"blog-brand-underground-prints.html",c:"#ffb400",a:"UP"},{n:"Bass Coast Gear",g:"Bass Music Apparel",i:"https://unavatar.io/instagram/basscoastgear",b:"blog-brand-bass-coast-gear.html",c:"#6600ff",a:"BC"}];
     var ORGS=[{n:"KEEPITIL",g:"Underground",i:"https://unavatar.io/instagram/keepitil",b:"blog-org-keepitil.html",c:"#00b4ff",a:"K"},{n:"Cube World Media",g:"Underground",i:"https://unavatar.io/instagram/cubeworldmedia",b:"blog-org-cube-world-media.html",c:"#ff6600",a:"CW"},{n:"Merge the Music",g:"Underground",i:"https://unavatar.io/instagram/mergethemusic",b:"blog-org-merge-the-music.html",c:"#b400ff",a:"MT"},{n:"OC Rave Collective",g:"Warehouse Rave",i:"https://unavatar.io/instagram/ocravecollective",b:"blog-org-oc-rave-collective.html",c:"#00ff88",a:"OR"},{n:"Bass Mafia OC",g:"Bass Music",i:"https://unavatar.io/instagram/bassmafia",b:"blog-org-bass-mafia-oc.html",c:"#ff0080",a:"BM"},{n:"Underground OC",g:"Underground",i:"https://unavatar.io/instagram/undergroundoc",b:"blog-org-underground-oc.html",c:"#ffb400",a:"UO"},{n:"Insomniac Events",g:"Festival",i:"https://unavatar.io/instagram/insomniacevents",b:"blog-org-insomniac.html",c:"#b400ff",a:"IE"},{n:"HARD Events",g:"Festival",i:"https://unavatar.io/instagram/hardfest",b:"blog-org-hard-events.html",c:"#ff6600",a:"HE"},{n:"Goldenvoice",g:"Festival",i:"https://unavatar.io/instagram/goldenvoice",b:"blog-org-goldenvoice.html",c:"#ffb400",a:"G"},{n:"Nocturnal Wonderland",g:"Festival",i:"https://unavatar.io/instagram/nocturnalwonderland",b:"blog-org-nocturnal-wonderland.html",c:"#b400ff",a:"NW"},{n:"Brownies & Lemonade",g:"Underground",i:"https://unavatar.io/instagram/browniesandlemonade",b:"blog-org-brownies-lemonade.html",c:"#ff0080",a:"B&"},{n:"Do Lab",g:"Festival",i:"https://unavatar.io/instagram/thedolab",b:"blog-org-do-lab.html",c:"#00ff88",a:"DL"},{n:"Exchange LA",g:"Club",i:"https://unavatar.io/instagram/exchangela",b:"blog-org-exchange-la.html",c:"#00b4ff",a:"EL"},{n:"Academy LA",g:"Club",i:"https://unavatar.io/instagram/academyla",b:"blog-org-academy-la.html",c:"#b400ff",a:"AL"},{n:"Sound Nightclub",g:"Club",i:"https://unavatar.io/instagram/soundnightclub",b:"blog-org-sound-nightclub.html",c:"#ff6600",a:"SN"},{n:"Echoplex",g:"Club",i:"https://unavatar.io/instagram/theechoplex",b:"blog-org-echoplex.html",c:"#00ff88",a:"E"},{n:"The Fonda Theatre",g:"Concert",i:"https://unavatar.io/instagram/fondatheatre",b:"blog-org-fonda-theatre.html",c:"#ffb400",a:"TF"},{n:"Low End Theory",g:"Underground",i:"https://unavatar.io/instagram/lowendtheorynight",b:"blog-org-low-end-theory.html",c:"#ff0080",a:"LE"},{n:"Together As One",g:"New Year",i:"https://unavatar.io/instagram/togetherasone",b:"blog-org-together-as-one.html",c:"#00b4ff",a:"TA"},{n:"Avalon Hollywood",g:"Club",i:"https://unavatar.io/instagram/avalonhollywood",b:"blog-org-avalon-hollywood.html",c:"#b400ff",a:"AH"},{n:"Control Room",g:"Warehouse Rave",i:"https://unavatar.io/instagram/controlroom.la",b:"blog-org-control-room.html",c:"#b400ff",a:"CR"},{n:"Canary Sound Werk",g:"Warehouse",i:"https://unavatar.io/instagram/canarytest",b:"blog-org-canary-sound-werk.html",c:"#ffb400",a:"CS"},{n:"Whet Foundation",g:"Electronic",i:"https://unavatar.io/instagram/whetfoundation",b:"blog-org-whet-foundation.html",c:"#ff6600",a:"WF"},{n:"Cygnus Events",g:"Underground",i:"https://unavatar.io/instagram/cygnusevents",b:"blog-org-cygnus-events.html",c:"#00ff88",a:"CE"},{n:"ULTRA San Diego",g:"Festival",i:"https://unavatar.io/instagram/ultraworldwide",b:"blog-org-ultra-san-diego.html",c:"#ff0080",a:"US"},{n:"Another Planet Entertainment",g:"Concert",i:"https://unavatar.io/instagram/anotherplanetent",b:"blog-org-another-planet.html",c:"#b400ff",a:"AP"},{n:"Public Works SF",g:"Club",i:"https://unavatar.io/instagram/publicworkssf",b:"blog-org-public-works-sf.html",c:"#00b4ff",a:"PW"},{n:"Mezzanine SF",g:"Club",i:"https://unavatar.io/instagram/mezzaninesf",b:"blog-org-mezzanine-sf.html",c:"#ff6600",a:"MS"},{n:"Symbiosis Gathering",g:"Festival",i:"https://unavatar.io/instagram/symbiosisgathering",b:"blog-org-symbiosis.html",c:"#00ff88",a:"SG"},{n:"Pyramid Scheme",g:"Underground",i:"https://unavatar.io/instagram/pyramidschemesf",b:"blog-org-pyramid-scheme.html",c:"#ffb400",a:"PS"},{n:"IE Rave Nation",g:"Warehouse Rave",i:"https://unavatar.io/instagram/ieravenation",b:"blog-org-ie-rave-nation.html",c:"#ff0080",a:"IR"},{n:"Inferno OC/IE",g:"Underground",i:"https://unavatar.io/instagram/infernoevents",b:"blog-org-inferno.html",c:"#ff6600",a:"IO"},{n:"Subterranean OC",g:"Warehouse Collective",i:"https://unavatar.io/instagram/subterranean.oc",b:"blog-org-subterranean-oc.html",c:"#b400ff",a:"SO"},{n:"Bass Collective LA",g:"Bass Music Events",i:"https://unavatar.io/instagram/basscollective.la",b:"blog-org-bass-collective-la.html",c:"#ff6600",a:"BC"},{n:"Pacific Underground",g:"Cross-Regional Collective",i:"https://unavatar.io/instagram/pacific.underground.events",b:"blog-org-pacific-underground.html",c:"#00b4ff",a:"PU"},{n:"Neon Desert",g:"Underground Events",i:"https://unavatar.io/instagram/neondesert.events",b:"blog-org-neon-desert.html",c:"#00ff88",a:"ND"},{n:"The Foundry Collective",g:"Arts District Events",i:"https://unavatar.io/instagram/foundry.collective.la",b:"blog-org-foundry-collective.html",c:"#ff0080",a:"TF"},{n:"After Hours Collective",g:"Late Night Events",i:"https://unavatar.io/instagram/afterhours.collective.la",b:"blog-org-after-hours-collective.html",c:"#ff2200",a:"AH"},{n:"Resonance Events",g:"Underground Events",i:"https://unavatar.io/instagram/resonance.sd.events",b:"blog-org-resonance-sd.html",c:"#6600ff",a:"RE"},{n:"Catalyst Collective",g:"Artist-Focused Events",i:"https://unavatar.io/instagram/catalyst.collective.oc",b:"blog-org-catalyst-collective.html",c:"#00b4ff",a:"CC"},{n:"Dark Matter Events",g:"Techno Events",i:"https://unavatar.io/instagram/darkmatter.events.la",b:"blog-org-dark-matter-events.html",c:"#b400ff",a:"DM"},{n:"Roots Underground",g:"Community Events",i:"https://unavatar.io/instagram/roots.underground.la",b:"blog-org-roots-underground.html",c:"#ff6600",a:"RU"},{n:"6AM Group",g:"Underground Techno",i:"https://unavatar.io/instagram/6amgroup",b:"blog-org-6am-group.html",c:"#00b4ff",a:"6G"}];
 
-    function getWeek(){
-      var d=new Date(); d.setHours(0,0,0,0);
-      d.setDate(d.getDate()+3-((d.getDay()+6)%7));
-      var w=new Date(d.getFullYear(),0,4);
-      return 1+Math.round(((d-w)/86400000-3+((w.getDay()+6)%7))/7);
-    }
-
-    // Test if an image URL returns a real photo (not a generic fallback icon)
-    function testImg(url){
-      return new Promise(function(resolve){
-        if(!url||url.indexOf('http')!==0){resolve(false);return;}
-        var img=new Image();
-        var t=setTimeout(function(){img.src='';resolve(false);},4000);
-        img.onload=function(){
-          clearTimeout(t);
-          // Reject tiny images — likely placeholder/fallback icons
-          resolve(img.naturalWidth>50&&img.naturalHeight>50);
-        };
-        img.onerror=function(){clearTimeout(t);resolve(false);};
-        img.src=url;
-      });
-    }
-
-    // Render a full profile card (replaces small circle)
-    function spotCard(it,type){
-      var handle='';
-      if(it.i&&it.i.indexOf('instagram/')!==-1) handle=it.i.split('instagram/').pop();
-      var igUrl=handle?'https://instagram.com/'+handle:'';
-      return '<a class="spot-card" href="https://keepitil.com/'+it.b+'" style="text-decoration:none;">'
-        +'<div class="spot-img-wrap">'
-        +'<div class="spot-img-fb" style="background:linear-gradient(135deg,'+it.c+'66,'+it.c+'22)">'+it.a+'</div>'
-        +'<img src="'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;">'
+    // Build a small carousel chip card
+    function chipCard(it){
+      return '<a class="cc-chip" href="https://keepitil.com/'+it.b+'" style="border-color:'+it.c+'44;">'
+        +'<div class="cc-avatar" style="background:linear-gradient(135deg,'+it.c+'55,'+it.c+'11);">'
+        +'<span class="cc-init" style="color:'+it.c+';">'+it.a+'</span>'
+        +'<img src="'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0;" loading="lazy">'
         +'</div>'
-        +'<div class="spot-body">'
-        +'<span class="spot-kil-tag2">'+(type||'KEEPITIL')+'</span>'
-        +'<div class="spot-name2">'+it.n+'</div>'
-        +'<span class="spot-genre2">'+it.g+'</span>'
-        +'<div class="spot-links2" style="margin-top:14px;">'
-        +'<a href="https://keepitil.com/'+it.b+'" class="spot-btn-profile" onclick="event.stopPropagation()">View Profile</a>'
-        +(igUrl?'<a href="'+igUrl+'" target="_blank" rel="noopener" class="spot-btn-ig" onclick="event.stopPropagation()">@'+handle+'</a>':'')
-        +'</div>'
+        +'<div class="cc-body">'
+        +'<div class="cc-name">'+it.n+'</div>'
+        +'<div class="cc-genre">'+it.g+'</div>'
         +'</div>'
         +'</a>';
     }
 
-    // Rotate candidates by week, test images, render only profiles with working photos
-    async function renderRowImgOnly(id,arr,type){
+    // Render all profiles as an infinite auto-scrolling carousel
+    function renderCarousel(id,arr){
       var el=document.getElementById(id);
       if(!el) return;
-      el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:40px 0;">Loading profiles…</div>';
-      var w=getWeek();
-      // Rotate starting offset by week (prime multiplier keeps distribution even)
-      var offset=(w*13)%arr.length;
-      var rotated=arr.slice(offset).concat(arr.slice(0,offset));
-      // Test up to 20 candidates from this week's rotation window
-      var candidates=rotated.slice(0,Math.min(20,arr.length));
-      var results=await Promise.all(candidates.map(function(it){return testImg(it.i);}));
-      // Keep only profiles where image loaded successfully
-      var withImgs=candidates.filter(function(_,i){return results[i];});
-      var show=withImgs.slice(0,4);
-      // If fewer than 4 confirmed-image profiles, fill remaining from next candidates
-      if(show.length<4){
-        var extra=candidates.filter(function(_,i){return !results[i];}).slice(0,4-show.length);
-        show=show.concat(extra);
-      }
-      el.innerHTML=show.map(function(it){return spotCard(it,type);}).join('');
+      // Duplicate array for seamless infinite loop (translateX -50% = one full set)
+      var items=arr.concat(arr);
+      el.innerHTML=items.map(chipCard).join('');
+      // Duration: ~2.4s per card for a slow, ambient scroll
+      var dur=Math.round(arr.length*2.4)+'s';
+      el.style.setProperty('--dur',dur);
+      el.classList.add('running');
     }
 
-    renderRowImgOnly('artist-row',ARTISTS,'ARTIST');
-    renderRowImgOnly('brand-row',VENDORS,'BRAND');
-    renderRowImgOnly('org-row',ORGS,'ORGANIZER');
+    renderCarousel('artist-row',ARTISTS);
+    renderCarousel('brand-row',VENDORS);
+    renderCarousel('org-row',ORGS);
   })();
   </script>
 
