@@ -58,8 +58,14 @@
     .container{max-width:1200px;margin:0 auto;padding:0 24px;}
 
     /* ── FILTER BAR ── */
-    .filter-bar{padding:32px 24px 0;max-width:1200px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;}
-    .filter-btn{padding:8px 20px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--grey);font-family:var(--font-body);font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;}
+    .filter-bar{padding:28px 24px 0;max-width:1200px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .filter-search{padding:9px 16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--white);font-family:var(--font-body);font-size:.82rem;border-radius:4px;outline:none;min-width:190px;flex:1;transition:border-color .2s;}
+    .filter-search:focus{border-color:var(--orange);}
+    .filter-search::placeholder{color:#555;}
+    .filter-select{padding:9px 14px 9px 14px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,26,.95);color:var(--white);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-radius:4px;cursor:pointer;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;}
+    .filter-select:focus,.filter-select:hover{border-color:var(--orange);}
+    .filter-select option{background:#111;color:#fff;}
+    .filter-btn{padding:9px 18px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--grey);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;}
     .filter-btn:hover{border-color:var(--orange);color:var(--orange);}
     .filter-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;}
 
@@ -198,23 +204,45 @@
   <a href="/apply.html" class="nav-cta" onclick="toggleMenu()">APPLY</a>
 </div>
 
-<!-- HERO -->
-<section class="page-hero">
-  <h1>UPCOMING<br/><span>OC &amp; LA EVENTS</span></h1>
-</section>
-
 <!-- FILTER BAR -->
-<div class="filter-bar">
-  <button class="filter-btn active" onclick="filterEvents('all',this)">All</button>
-  <button class="filter-btn" onclick="filterEvents('weekend',this)">This Weekend</button>
-  <button class="filter-btn" onclick="filterEvents('month',this)">This Month</button>
-  <button class="filter-btn" onclick="filterEvents('oc',this)">OC</button>
-  <button class="filter-btn" onclick="filterEvents('la',this)">LA</button>
-  <button class="filter-btn" onclick="filterEvents('techno',this)">Techno</button>
-  <button class="filter-btn" onclick="filterEvents('house',this)">House</button>
-  <button class="filter-btn" onclick="filterEvents('bass',this)">Bass</button>
-  <button class="filter-btn" onclick="filterEvents('dnb',this)">DnB</button>
-  <button class="filter-btn" onclick="filterEvents('trance',this)">Trance</button>
+<div class="filter-bar" id="filter-bar">
+  <input type="text" id="filter-search" class="filter-search" placeholder="Search events…">
+  <select id="filter-year" class="filter-select" onchange="applyFilters()">
+    <option value="">Year</option>
+    <option value="2026">2026</option>
+    <option value="2027">2027</option>
+  </select>
+  <select id="filter-month" class="filter-select" onchange="applyFilters()">
+    <option value="">Month</option>
+    <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+    <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+    <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+  </select>
+  <select id="filter-state" class="filter-select" onchange="applyFilters()">
+    <option value="">State</option>
+    <option value="ca">California</option>
+    <option value="nv">Nevada</option>
+    <option value="az">Arizona</option>
+    <option value="tx">Texas</option>
+  </select>
+  <select id="filter-city" class="filter-select" onchange="applyFilters()">
+    <option value="">City</option>
+    <option value="la">Los Angeles</option>
+    <option value="oc">Orange County</option>
+    <option value="sd">San Diego</option>
+    <option value="sb">San Bernardino</option>
+  </select>
+  <select id="filter-genre" class="filter-select" onchange="applyFilters()">
+    <option value="">Genre</option>
+    <option value="techno">Techno</option>
+    <option value="house">House</option>
+    <option value="bass">Bass</option>
+    <option value="dnb">DnB</option>
+    <option value="trance">Trance</option>
+    <option value="garage">Garage</option>
+  </select>
+  <button class="filter-btn" onclick="clearFilters()">Clear</button>
 </div>
 
 <!-- EVENTS -->
@@ -224,7 +252,6 @@
   <div class="month-section" id="month-june">
   <div class="month-label">June 2026</div>
 
-  <div class="picks-section-label">⚡ KEEPITIL PICKS</div>
   <div class="picks-row">
 
     <div class="ev-card featured" data-genre="house techno" data-region="la" data-date="2026-06-26">
@@ -298,7 +325,6 @@
   <div class="month-section" id="month-july">
   <div class="month-label">July 2026</div>
 
-  <div class="picks-section-label">⚡ KEEPITIL PICKS</div>
   <div class="picks-row">
 
     <div class="ev-card featured" data-genre="house bass" data-region="la" data-date="2026-07-11">
@@ -540,7 +566,6 @@
   <div class="month-section" id="month-august">
   <div class="month-label">August 2026</div>
 
-  <div class="picks-section-label">⚡ KEEPITIL PICKS</div>
   <div class="picks-row">
 
     <div class="ev-card featured" data-genre="house techno bass" data-region="la" data-date="2026-08-01">
@@ -712,7 +737,6 @@
   <div class="month-section" id="month-september">
   <div class="month-label">September 2026</div>
 
-  <div class="picks-section-label">⚡ KEEPITIL PICKS</div>
   <div class="picks-row">
 
     <div class="ev-card featured" data-genre="bass house techno trance" data-region="sb" data-date="2026-09-19">
@@ -829,7 +853,6 @@
   <div class="month-section" id="month-october">
   <div class="month-label">October 2026</div>
 
-  <div class="picks-section-label">⚡ KEEPITIL PICKS</div>
   <div class="picks-row">
 
     <div class="ev-card featured" data-genre="bass house techno trance" data-region="la" data-date="2026-10-30">
@@ -903,7 +926,6 @@
   <div class="month-section" id="month-november">
   <div class="month-label">November 2026</div>
 
-  <div class="picks-section-label">⚡ KEEPITIL PICKS</div>
   <div class="picks-row">
 
     <div class="ev-card featured" data-genre="techno" data-region="la" data-date="2026-11-14">
@@ -957,77 +979,69 @@
 
 <script>
   function toggleMenu(){
-    const m = document.getElementById('mobile-menu');
-    if(m) m.classList.toggle('open');
+    var m=document.getElementById('mobile-menu');
+    if(m)m.classList.toggle('open');
   }
 
-  // Inject KEEPITIL PICK banner at top of every featured card
-  document.querySelectorAll('.ev-card.featured').forEach(function(card) {
-    const banner = document.createElement('div');
-    banner.className = 'ev-pick-banner';
-    banner.textContent = '⚡ KEEPITIL PICK';
-    card.insertBefore(banner, card.firstChild);
+  // Inject KEEPITIL PICK banner on featured cards (once only)
+  document.querySelectorAll('.ev-card.featured').forEach(function(card){
+    if(!card.querySelector('.ev-pick-banner')){
+      var b=document.createElement('div');
+      b.className='ev-pick-banner';b.textContent='⚡ KEEPITIL PICK';
+      card.insertBefore(b,card.firstChild);
+    }
   });
 
-  function filterEvents(type, btn) {
-    // Update active button
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+  // State lookup by region code
+  var REGION_STATE={la:'ca',oc:'ca',sd:'ca',sb:'ca',lv:'nv',phx:'az',dal:'tx'};
 
-    const genres = ['techno','house','bass','dnb','trance'];
-    const now = new Date();
+  function applyFilters(){
+    var search=(document.getElementById('filter-search').value||'').toLowerCase().trim();
+    var year  =document.getElementById('filter-year').value;
+    var month =document.getElementById('filter-month').value;
+    var state =document.getElementById('filter-state').value;
+    var city  =document.getElementById('filter-city').value;
+    var genre =document.getElementById('filter-genre').value;
 
-    // This-weekend window: upcoming Sat & Sun
-    const day = now.getDay();
-    const satOffset = (6 - day + 7) % 7;
-    const weekendStart = new Date(now); weekendStart.setHours(0,0,0,0); weekendStart.setDate(now.getDate() + satOffset);
-    const weekendEnd = new Date(weekendStart); weekendEnd.setDate(weekendStart.getDate() + 1); weekendEnd.setHours(23,59,59,999);
-
-    // This-month window
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-
-    let visible = 0;
-    document.querySelectorAll('.ev-card').forEach(card => {
-      const genre = card.dataset.genre || '';
-      const region = card.dataset.region || '';
-      const d = card.dataset.date ? new Date(card.dataset.date + 'T00:00:00') : null;
-      let match = false;
-
-      if (type === 'all') match = true;
-      else if (genres.includes(type)) match = genre.split(' ').includes(type);
-      else if (type === 'oc' || type === 'la' || type === 'sb') match = region === type;
-      else if (type === 'weekend') match = !!d && d >= weekendStart && d <= weekendEnd;
-      else if (type === 'month') match = !!d && d >= new Date(now.getFullYear(), now.getMonth(), 1) && d <= monthEnd;
-
-      card.style.display = match ? '' : 'none';
-      if (match) visible++;
+    var visible=0;
+    document.querySelectorAll('.ev-card').forEach(function(card){
+      var cG=card.dataset.genre||'';
+      var cR=card.dataset.region||'';
+      var cD=card.dataset.date||'';
+      var cY=cD?cD.split('-')[0]:'';
+      var cM=cD?cD.split('-')[1]:'';
+      var cS=REGION_STATE[cR]||cR;
+      var cT=card.textContent.toLowerCase();
+      var show=(!search||cT.includes(search))
+              &&(!year  ||cY===year)
+              &&(!month ||cM===month)
+              &&(!state ||cS===state)
+              &&(!city  ||cR===city)
+              &&(!genre ||cG.split(' ').includes(genre));
+      card.style.display=show?'':'none';
+      if(show)visible++;
     });
 
-    // Hide empty month sections + show no-results note
-    document.querySelectorAll('.month-section').forEach(section => {
-      const allCards = section.querySelectorAll('.ev-card');
-      const anyVisible = [...allCards].some(c => c.style.display !== 'none');
-      section.style.display = anyVisible ? '' : 'none';
-      // Picks subsection
-      const picksRow = section.querySelector('.picks-row');
-      const picksLabel = section.querySelector('.picks-section-label');
-      if (picksRow) {
-        const pv = [...picksRow.querySelectorAll('.ev-card')].some(c => c.style.display !== 'none');
-        picksRow.style.display = pv ? '' : 'none';
-        if (picksLabel) picksLabel.style.display = pv ? '' : 'none';
-      }
-      // Regular grid subsection
-      const grid = section.querySelector('.events-grid');
-      const moreLabel = section.querySelector('.more-events-label');
-      if (grid) {
-        const gv = [...grid.querySelectorAll('.ev-card')].some(c => c.style.display !== 'none');
-        grid.style.display = gv ? '' : 'none';
-        if (moreLabel) moreLabel.style.display = gv ? '' : 'none';
-      }
+    document.querySelectorAll('.month-section').forEach(function(sec){
+      var anyVis=[...sec.querySelectorAll('.ev-card')].some(c=>c.style.display!=='none');
+      sec.style.display=anyVis?'':'none';
+      var pr=sec.querySelector('.picks-row'),pl=sec.querySelector('.picks-section-label');
+      if(pr){var pv=[...pr.querySelectorAll('.ev-card')].some(c=>c.style.display!=='none');pr.style.display=pv?'':'none';if(pl)pl.style.display=pv?'':'none';}
+      var gr=sec.querySelector('.events-grid'),ml=sec.querySelector('.more-events-label');
+      if(gr){var gv=[...gr.querySelectorAll('.ev-card')].some(c=>c.style.display!=='none');gr.style.display=gv?'':'none';if(ml)ml.style.display=gv?'':'none';}
     });
-    const msg = document.getElementById('no-events-msg');
-    if (msg) msg.style.display = visible === 0 ? 'block' : 'none';
+    var msg=document.getElementById('no-events-msg');
+    if(msg)msg.style.display=visible===0?'block':'none';
   }
+
+  function clearFilters(){
+    ['filter-search','filter-year','filter-month','filter-state','filter-city','filter-genre'].forEach(function(id){
+      var el=document.getElementById(id);if(el){if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';}
+    });
+    applyFilters();
+  }
+
+  document.getElementById('filter-search').addEventListener('input',applyFilters);
 </script>
 
 
