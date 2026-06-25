@@ -123,6 +123,18 @@
     .spot-see-all:hover{color:var(--white);}
     @media(max-width:1024px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.spot-grid{grid-template-columns:1fr;}}
+    /* ── PROFILE CAROUSELS ── */
+    .cc-wrap{overflow:hidden;width:100%;margin-top:20px;}
+    .cc-track{display:flex;gap:12px;width:max-content;animation:ccMarquee 90s linear infinite;}
+    .cc-track:hover{animation-play-state:paused;}
+    @keyframes ccMarquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+    .cc-chip{display:flex;align-items:center;gap:10px;background:#111;border:1px solid rgba(255,255,255,.08);border-radius:40px;padding:8px 16px 8px 8px;text-decoration:none;color:#fff;white-space:nowrap;transition:border-color .2s;}
+    .cc-chip:hover{border-color:rgba(0,180,255,.4);}
+    .cc-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#1a1a1a;display:flex;align-items:center;justify-content:center;}
+    .cc-init{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#00b4ff;}
+    .cc-avatar img{width:100%;height:100%;object-fit:cover;}
+    .cc-name{font-size:.8rem;font-weight:600;letter-spacing:.04em;}
+    .cc-genre{font-size:.7rem;color:#888;margin-top:1px;}
     /* ── FIXED PAGE BACKGROUND LOGO ── */
     .page-bg-logo{position:fixed;top:50%;right:-60px;transform:translateY(-50%);z-index:0;pointer-events:none;opacity:.05;width:min(560px,58vw);}
     .page-bg-logo img{width:100%;filter:drop-shadow(0 0 60px #00b4ff);}
@@ -384,6 +396,7 @@
           <a class="spot-see-all" href="/artist">View All Artists →</a>
         </div>
         <div class="spot-grid" id="artist-row"></div>
+        <div class="cc-wrap"><div class="cc-track" id="artist-carousel"></div></div>
       </div>
 
       <!-- BRANDS -->
@@ -393,6 +406,7 @@
           <a class="spot-see-all" href="/brand/">View All Brands →</a>
         </div>
         <div class="spot-grid" id="brand-row"></div>
+        <div class="cc-wrap"><div class="cc-track" id="brand-carousel"></div></div>
       </div>
 
       <!-- ORGANIZERS -->
@@ -402,6 +416,7 @@
           <a class="spot-see-all" href="/organizer/">View All Organizers →</a>
         </div>
         <div class="spot-grid" id="org-row"></div>
+        <div class="cc-wrap"><div class="cc-track" id="org-carousel"></div></div>
       </div>
     </div>
   </section>
@@ -477,6 +492,27 @@
     renderRowImgOnly('artist-row',ARTISTS,'ARTIST');
     renderRowImgOnly('brand-row',VENDORS,'BRAND');
     renderRowImgOnly('org-row',ORGS,'ORGANIZER');
+
+    function chipCard(it,basePath){
+      var initials=(it.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+      var slug=(it.slug||it.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      var href='/'+basePath+'/'+slug+'/';
+      return '<a class="cc-chip" href="'+href+'">'
+        +'<div class="cc-avatar"><span class="cc-init">'+initials+'</span></div>'
+        +'<div><div class="cc-name">'+it.name+'</div><div class="cc-genre">'+(it.genre||it.type||'')+'</div></div>'
+        +'</a>';
+    }
+    function renderCarousel(trackId,arr,basePath){
+      var el=document.getElementById(trackId);
+      if(!el||!arr||!arr.length)return;
+      var doubled=arr.concat(arr);
+      el.innerHTML=doubled.map(function(it){return chipCard(it,basePath);}).join('');
+      el.style.setProperty('--dur',(arr.length*2.5)+'s');
+      el.style.animationDuration=(arr.length*2.5)+'s';
+    }
+    renderCarousel('artist-carousel',ARTISTS,'artist');
+    renderCarousel('brand-carousel',VENDORS,'brand');
+    renderCarousel('org-carousel',ORGS,'organizer');
 
   })();
   </script>
