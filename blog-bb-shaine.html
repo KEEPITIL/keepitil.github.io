@@ -234,6 +234,7 @@ footer a{color:#00b4ff;}
     <span id="kil-label">LIVE</span>
     <span id="kil-track">KEEPITIL RADIO</span>
     <button class="kr-btn" id="kr-play" title="Play / Pause">&#9654;</button>
+    <input type="range" id="kr-vol" min="0" max="100" value="10" title="Volume" style="width:52px;accent-color:#00ff88;cursor:pointer;vertical-align:middle;opacity:.8;">
     <button class="kr-btn" id="kr-min" title="Minimize" style="font-size:.7rem;opacity:.45;">&#8212;</button>
   </div>
 </div>
@@ -252,40 +253,42 @@ footer a{color:#00b4ff;}
   var dot=document.getElementById('kil-dot');
   var widget=null,playing=false,mini=false,interacted=false,widgetReady=false,wakeLock=null;
   var _ss=null;try{_ss=sessionStorage;}catch(e){}
+  var DEFAULT_VOL=10;function getVol(){var v=document.getElementById('kr-vol');return v?Math.max(0,Math.min(100,parseInt(v.value)||DEFAULT_VOL)):DEFAULT_VOL;}
   function ss_get(k){try{return _ss&&_ss.getItem(k);}catch(e){return null;}}
   function ss_set(k,v){try{if(_ss)_ss.setItem(k,v);}catch(e){}}
   if(ss_get('kil_mini')==='1'){mini=true;radio.classList.add('kil-mini');}
 
   function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
   function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
-  function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(20);if(!playing)widget.play();}
+  function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(getVol());if(!playing)widget.play();}
   function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
   reListenGesture();
 
   function requestWakeLock(){if(!('wakeLock'in navigator))return;navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;});}).catch(function(){});}
   requestWakeLock();
-  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(20);widget.play();}});},500);}}});
-  setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(20);widget.play();}});},30000);
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},500);}}});
+  setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
 
   function initWidget(){
     if(!window.SC)return;
     widget=SC.Widget(frame);
-    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);var t=parseInt(ss_get('kil_t')||'0')||0,p=parseInt(ss_get('kil_p')||'0')||0;if(t>0){widget.skip(t);if(p>0)setTimeout(function(){widget.seekTo(p);},600);}else{widget.play();}if(interacted)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);var t=parseInt(ss_get('kil_t')||'0')||0,p=parseInt(ss_get('kil_p')||'0')||0;if(t>0){widget.skip(t);if(p>0)setTimeout(function(){widget.seekTo(p);},600);}else{widget.play();}if(interacted)widget.setVolume(getVol());});
     widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});widget.getCurrentSoundIndex(function(i){ss_set('kil_t',i);});});
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(pos){if(interacted&&widget)widget.setVolume(20);if(pos&&pos.currentPosition>5000)ss_set('kil_p',pos.currentPosition);});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(pos){if(interacted&&widget)widget.setVolume(getVol());if(pos&&pos.currentPosition>5000)ss_set('kil_p',pos.currentPosition);});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
     widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
     widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
   }
   var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
 
-  playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(20);if(playing)widget.pause();else widget.play();});
+  playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(getVol());if(playing)widget.pause();else widget.play();});
+  var volEl=document.getElementById('kr-vol');if(volEl){volEl.addEventListener('input',function(){if(widget&&widgetReady){interacted=true;widget.setVolume(parseInt(this.value));}});}
   minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');ss_set('kil_mini','1');});
   function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');ss_set('kil_mini','0');}}
   dot.addEventListener('click',expand);radio.addEventListener('click',expand);
 
 })();
-(function(){function pjaxNav(url){var saved=document.getElementById('kil-radio');if(saved)saved.parentNode.removeChild(saved);fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});document.body.innerHTML=doc.body.innerHTML;var slot=document.getElementById('kil-radio');if(slot&&saved)slot.parentNode.replaceChild(saved,slot);else if(saved)document.body.appendChild(saved);doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
+(function(){function pjaxNav(url){fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});Array.from(document.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')c.parentNode.removeChild(c);});Array.from(doc.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')document.body.appendChild(document.importNode(c,true));});doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
 </script>
 <!-- end KEEPITIL Radio Player -->
 </body>
