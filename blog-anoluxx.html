@@ -247,57 +247,6 @@ footer a{color:#00b4ff;}
   function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');}}
   dot.addEventListener('click',expand);radio.addEventListener('click',expand);
 
-  // PJAX — seamless page navigation, audio never stops
-  var navBusy=false;
-  function pjaxGo(url){
-    if(navBusy)return; navBusy=true;
-    // KEY: lift BOTH player elements above <body> before innerHTML swap
-    document.documentElement.insertBefore(radio,document.body);
-    document.documentElement.insertBefore(frame,document.body);
-    fetch(url+(url.indexOf('?')>=0?'&':'?')+'_='+Date.now(),{cache:'no-cache'})
-      .then(function(r){return r.text();})
-      .then(function(html){
-        var parser=new DOMParser();
-        var newDoc=parser.parseFromString(html,'text/html');
-        document.title=newDoc.title;
-        // Swap head styles (preserve player style)
-        Array.from(document.head.querySelectorAll('style:not([data-kil])')).forEach(function(s){s.remove();});
-        Array.from(newDoc.head.querySelectorAll('style')).forEach(function(s){var c=document.createElement('style');c.textContent=s.textContent;document.head.insertBefore(c,document.head.firstChild);});
-        // Swap external CSS links
-        Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function(l){l.remove();});
-        Array.from(newDoc.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function(l){var c=l.cloneNode(true);document.head.appendChild(c);});
-        // Swap body — radio+frame are at <html> level, untouched
-        document.body.innerHTML=newDoc.body.innerHTML;
-        // Remove duplicates from NEW body (originals are above body, NOT in body)
-        var dupSc=document.body.querySelector('#kil-sc');if(dupSc)dupSc.parentNode.removeChild(dupSc);
-        var dupRad=document.body.querySelector('#kil-radio');if(dupRad)dupRad.parentNode.removeChild(dupRad);
-        // Move originals back — audio never stopped!
-        document.body.appendChild(frame);
-        document.body.appendChild(radio);
-        // Re-run page scripts (profile cards, etc.) — player script skipped via __kilRadioInit guard
-        Array.from(document.body.querySelectorAll('script')).forEach(function(os){
-          if(os.textContent.indexOf('__kilRadioInit')>-1)return;
-          var ns=document.createElement('script');
-          if(os.src){ns.src=os.src;ns.async=true;}else{ns.textContent=os.textContent;}
-          os.parentNode.replaceChild(ns,os);
-        });
-        history.pushState({pjax:true,url:url},document.title,url);
-        var hash=(new URL(url)).hash;
-        if(hash){var t=document.querySelector(hash);if(t)t.scrollIntoView({behavior:'smooth'});}else window.scrollTo(0,0);
-        navBusy=false;
-      })
-      .catch(function(){
-        if(frame.parentNode!==document.body)document.body.appendChild(frame);
-        if(radio.parentNode!==document.body)document.body.appendChild(radio);
-        window.location.href=url;navBusy=false;
-      });
-  }
-  document.addEventListener('click',function(e){
-    var a=e.target.closest('a[href]');
-    if(!a||a.target==='_blank')return;
-    try{var u=new URL(a.href,location.href);if(u.origin!==location.origin)return;if(u.hash&&u.pathname===location.pathname)return;var ext=u.pathname.split('.').pop().toLowerCase();if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext)>-1)return;e.preventDefault();pjaxGo(u.href);}catch(err){}
-  },true);
-  window.addEventListener('popstate',function(){pjaxGo(location.href);});
 })();
 </script>
 <!-- end KEEPITIL Radio Player -->
