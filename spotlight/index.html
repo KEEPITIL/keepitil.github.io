@@ -123,21 +123,6 @@
     .spot-see-all:hover{color:var(--white);}
     @media(max-width:1024px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:600px){.spot-grid{grid-template-columns:1fr;}}
-    /* ── CAROUSEL ── */
-    .carousel-wrap{overflow:hidden;width:100%;position:relative;margin-top:20px;mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);}
-    .carousel-track{display:flex;gap:14px;width:max-content;will-change:transform;}
-    .carousel-track.running{animation:marquee var(--dur,120s) linear infinite;}
-    .carousel-track:hover{animation-play-state:paused;}
-    @keyframes marquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
-    .cc-chip{flex-shrink:0;width:110px;background:#131313;border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s;cursor:pointer;}
-    .cc-chip:hover{transform:translateY(-5px) scale(1.05);box-shadow:0 10px 30px rgba(0,0,0,.6);}
-    .cc-avatar{position:relative;width:100%;aspect-ratio:1;overflow:hidden;}
-    .cc-init{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.4rem;z-index:0;opacity:.7;}
-    .cc-avatar img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s;}
-    .cc-chip:hover .cc-avatar img{transform:scale(1.08);}
-    .cc-body{padding:6px 8px 8px;display:flex;flex-direction:column;gap:1px;}
-    .cc-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.06em;color:#f0f0f0;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-    .cc-genre{font-size:.55rem;color:#666;letter-spacing:.08em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     /* ── FIXED PAGE BACKGROUND LOGO ── */
     .page-bg-logo{position:fixed;top:50%;right:-60px;transform:translateY(-50%);z-index:0;pointer-events:none;opacity:.05;width:min(560px,58vw);}
     .page-bg-logo img{width:100%;filter:drop-shadow(0 0 60px #00b4ff);}
@@ -399,7 +384,6 @@
           <a class="spot-see-all" href="/artist">View All Artists →</a>
         </div>
         <div class="spot-grid" id="artist-row"></div>
-        <div class="carousel-wrap"><div class="carousel-track" id="artist-carousel"></div></div>
       </div>
 
       <!-- BRANDS -->
@@ -409,7 +393,6 @@
           <a class="spot-see-all" href="/brand/">View All Brands →</a>
         </div>
         <div class="spot-grid" id="brand-row"></div>
-        <div class="carousel-wrap"><div class="carousel-track" id="brand-carousel"></div></div>
       </div>
 
       <!-- ORGANIZERS -->
@@ -419,7 +402,6 @@
           <a class="spot-see-all" href="/organizer/">View All Organizers →</a>
         </div>
         <div class="spot-grid" id="org-row"></div>
-        <div class="carousel-wrap"><div class="carousel-track" id="org-carousel"></div></div>
       </div>
     </div>
   </section>
@@ -496,29 +478,6 @@
     renderRowImgOnly('brand-row',VENDORS,'BRAND');
     renderRowImgOnly('org-row',ORGS,'ORGANIZER');
 
-    // Carousel chip card
-    function chipCard(it){
-      return '<a class="cc-chip" href="https://keepitil.com/'+it.b+'" style="border-color:'+it.c+'44;">'
-        +'<div class="cc-avatar" style="background:linear-gradient(135deg,'+it.c+'55,'+it.c+'11);">'
-        +'<span class="cc-init" style="color:'+it.c+';">'+it.a+'</span>'
-        +'<img src="'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0;" loading="lazy">'
-        +'</div>'
-        +'<div class="cc-body"><div class="cc-name">'+it.n+'</div><div class="cc-genre">'+it.g+'</div></div>'
-        +'</a>';
-    }
-
-    function renderCarousel(id,arr){
-      var el=document.getElementById(id);
-      if(!el) return;
-      var items=arr.concat(arr);
-      el.innerHTML=items.map(chipCard).join('');
-      el.style.setProperty('--dur',Math.round(arr.length*2.4)+'s');
-      el.classList.add('running');
-    }
-
-    renderCarousel('artist-carousel',ARTISTS);
-    renderCarousel('brand-carousel',VENDORS);
-    renderCarousel('org-carousel',ORGS);
   })();
   </script>
 
