@@ -170,5 +170,124 @@ footer a{color:var(--orange);}
 </div>
 
 <footer><p>© 2026 KEEPITIL · California Underground · <a href="https://keepitil.com/">Home</a> · <a href="https://keepitil.com/artist">Artists</a> · <a href="https://keepitil.com/culture">Culture</a> · <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p></footer>
+
+<!-- ♬ KEEPITIL Radio Player -->
+<style data-kil="player">
+#kil-radio{position:fixed;bottom:20px;right:20px;z-index:9998;background:rgba(6,6,6,.97);border:1px solid rgba(0,255,136,.3);border-radius:10px;box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;transition:width .3s,height .3s,border-radius .3s;overflow:hidden;}
+#kil-radio.kil-mini{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%;cursor:pointer;}
+#kil-radio.kil-mini #kil-bar{display:none!important;}
+#kil-radio.kil-mini #kil-dot{display:flex!important;}
+#kil-dot{display:none;width:44px;height:44px;align-items:center;justify-content:center;color:#00ff88;font-size:1.15rem;}
+#kil-bar{display:flex;align-items:center;gap:9px;padding:10px 13px;min-width:230px;}
+.kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}
+.kil-live.off{background:#444;box-shadow:none;animation:none;}
+@keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+#kil-label{font-size:.6rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#00ff88;flex-shrink:0;}
+#kil-track{font-size:.67rem;color:rgba(255,255,255,.42);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.9rem;line-height:1;padding:2px 3px;transition:opacity .2s;flex-shrink:0;}
+.kr-btn:hover{opacity:.6;}
+#kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}
+</style>
+
+<div id="kil-radio">
+  <div id="kil-dot" title="KEEPITIL Radio">&#9836;</div>
+  <div id="kil-bar">
+    <div class="kil-live off" id="kil-led"></div>
+    <span id="kil-label">LIVE</span>
+    <span id="kil-track">KEEPITIL RADIO</span>
+    <button class="kr-btn" id="kr-play" title="Play / Pause">&#9654;</button>
+    <button class="kr-btn" id="kr-min" title="Minimize" style="font-size:.7rem;opacity:.45;">&#8212;</button>
+  </div>
+</div>
+<iframe id="kil-sc" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false"
+  scrolling="no" frameborder="no"></iframe>
+<script>
+(function(){
+  if(window.__kilRadioInit) return; window.__kilRadioInit=true;
+  var radio=document.getElementById('kil-radio');
+  var frame=document.getElementById('kil-sc');
+  var led=document.getElementById('kil-led');
+  var trackEl=document.getElementById('kil-track');
+  var playBtn=document.getElementById('kr-play');
+  var minBtn=document.getElementById('kr-min');
+  var dot=document.getElementById('kil-dot');
+  var widget=null,playing=false,mini=false,interacted=false,widgetReady=false,wakeLock=null;
+
+  function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
+  function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
+  function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(20);if(!playing)widget.play();}
+  function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
+  reListenGesture();
+
+  function requestWakeLock(){if(!('wakeLock'in navigator))return;navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;});}).catch(function(){});}
+  requestWakeLock();
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(20);widget.play();}});},500);}}});
+  setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(20);widget.play();}});},30000);
+
+  function initWidget(){
+    if(!window.SC)return;
+    widget=SC.Widget(frame);
+    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);widget.play();if(interacted)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){if(interacted&&widget)widget.setVolume(20);});
+    widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
+    widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
+    widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
+  }
+  var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
+
+  playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(20);if(playing)widget.pause();else widget.play();});
+  minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');});
+  function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');}}
+  dot.addEventListener('click',expand);radio.addEventListener('click',expand);
+
+  // PJAX — seamless page navigation, audio never stops
+  var navBusy=false;
+  function pjaxGo(url){
+    if(navBusy)return; navBusy=true;
+    // KEY: lift BOTH player elements above <body> before innerHTML swap
+    document.documentElement.insertBefore(radio,document.body);
+    document.documentElement.insertBefore(frame,document.body);
+    fetch(url,{cache:'no-cache'})
+      .then(function(r){return r.text();})
+      .then(function(html){
+        var parser=new DOMParser();
+        var newDoc=parser.parseFromString(html,'text/html');
+        document.title=newDoc.title;
+        // Swap head styles (preserve player style)
+        Array.from(document.head.querySelectorAll('style:not([data-kil])')).forEach(function(s){s.remove();});
+        Array.from(newDoc.head.querySelectorAll('style')).forEach(function(s){var c=document.createElement('style');c.textContent=s.textContent;document.head.insertBefore(c,document.head.firstChild);});
+        // Swap external CSS links
+        Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function(l){l.remove();});
+        Array.from(newDoc.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function(l){var c=l.cloneNode(true);document.head.appendChild(c);});
+        // Swap body — radio+frame are at <html> level, untouched
+        document.body.innerHTML=newDoc.body.innerHTML;
+        // Remove duplicates from NEW body (originals are above body, NOT in body)
+        var dupSc=document.body.querySelector('#kil-sc');if(dupSc)dupSc.parentNode.removeChild(dupSc);
+        var dupRad=document.body.querySelector('#kil-radio');if(dupRad)dupRad.parentNode.removeChild(dupRad);
+        // Move originals back — audio never stopped!
+        document.body.appendChild(frame);
+        document.body.appendChild(radio);
+        history.pushState({pjax:true,url:url},document.title,url);
+        var hash=(new URL(url)).hash;
+        if(hash){var t=document.querySelector(hash);if(t)t.scrollIntoView({behavior:'smooth'});}else window.scrollTo(0,0);
+        navBusy=false;
+      })
+      .catch(function(){
+        if(frame.parentNode!==document.body)document.body.appendChild(frame);
+        if(radio.parentNode!==document.body)document.body.appendChild(radio);
+        window.location.href=url;navBusy=false;
+      });
+  }
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a[href]');
+    if(!a||a.target==='_blank')return;
+    try{var u=new URL(a.href,location.href);if(u.origin!==location.origin)return;if(u.hash&&u.pathname===location.pathname)return;var ext=u.pathname.split('.').pop().toLowerCase();if(['pdf','jpg','jpeg','png','gif','zip','mp3','wav','webp'].indexOf(ext)>-1)return;e.preventDefault();pjaxGo(u.href);}catch(err){}
+  },true);
+  window.addEventListener('popstate',function(){pjaxGo(location.href);});
+})();
+</script>
+<!-- end KEEPITIL Radio Player -->
 </body>
 </html>
