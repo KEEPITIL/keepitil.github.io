@@ -423,7 +423,6 @@
           <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
           <a class="spot-see-all" href="/brand/">View All Brands →</a>
         </div>
-        <div class="spot-grid" id="brand-row"></div>
         <div class="cc-wrap"><div class="cc-track" id="brand-carousel"></div></div>
       </div>
 
@@ -433,7 +432,6 @@
           <h3 class="spotlight-block-title" style="color:#ff6600;">ORGANIZERS</h3>
           <a class="spot-see-all" href="/organizer/">View All Organizers →</a>
         </div>
-        <div class="spot-grid" id="org-row"></div>
         <div class="cc-wrap"><div class="cc-track" id="org-carousel"></div></div>
       </div>
     </div>
@@ -508,8 +506,6 @@
     }
 
     renderRowImgOnly('artist-row',ARTISTS,'ARTIST');
-    renderRowImgOnly('brand-row',VENDORS,'BRAND');
-    renderRowImgOnly('org-row',ORGS,'ORGANIZER');
 
     function chipCard(it,basePath){
       var initials=(it.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
@@ -532,6 +528,34 @@
     renderCarousel('brand-carousel',VENDORS,'brand');
     renderCarousel('org-carousel',ORGS,'organizer');
 
+    // ── CULTURE CAROUSEL ──
+    var CULTURE_POSTS=[
+      {n:"Day Trip Festival 2026 Preview",g:"News · Jun 2026",a:"🌊",href:"https://keepitil.com/blog-news-day-trip-festival-2026-preview.html"},
+      {n:"SoCal Underground Scene 2026",g:"Scene Report",a:"📰",href:"https://keepitil.com/blog-news-socal-underground-state-2026.html"},
+      {n:"Sound System Guide",g:"Tips & Guides",a:"🔊",href:"https://keepitil.com/blog-tip-sound-system-guide.html"},
+      {n:"Techno Picks — June 2026",g:"Songs · Jun 2026",a:"🎵",href:"https://keepitil.com/blog-song-techno-picks-june-2026.html"},
+      {n:"HARD Summer 2026 Preview",g:"News · Aug 2026",a:"🔥",href:"https://keepitil.com/blog-news-hard-summer-2026-preview.html"},
+      {n:"RAB3L — Bass House OC",g:"Artist Feature",a:"R",href:"https://keepitil.com/blog-rab3l.html"},
+      {n:"Groove Trooper — Latin House",g:"Artist Feature",a:"GT",href:"https://keepitil.com/blog-groove-trooper.html"},
+      {n:"BB Shaine — Bass/Techno LA",g:"Artist Feature",a:"BS",href:"https://keepitil.com/blog-bb-shaine.html"},
+      {n:"Aztekan — Hypnotic Techno",g:"Artist Feature",a:"A",href:"https://keepitil.com/blog-aztekan.html"},
+      {n:"OC Rave Collective",g:"Organizer Feature",a:"OR",href:"https://keepitil.com/blog-org-oc-rave-collective.html"},
+      {n:"Exchange LA — Venue Guide",g:"Organizer Feature",a:"EL",href:"https://keepitil.com/blog-org-exchange-la.html"},
+      {n:"KEEPITIL Movement",g:"Culture · Community",a:"⚡",href:"https://keepitil.com/culture"}
+    ];
+    (function(){
+      var el=document.getElementById('culture-carousel');
+      if(!el) return;
+      var doubled=CULTURE_POSTS.concat(CULTURE_POSTS);
+      el.innerHTML=doubled.map(function(it){
+        return '<a class="cc-chip" href="'+it.href+'">'
+          +'<div class="cc-avatar"><span class="cc-init" style="font-size:.75rem;">'+it.a+'</span></div>'
+          +'<div><div class="cc-name">'+it.n+'</div><div class="cc-genre">'+it.g+'</div></div>'
+          +'</a>';
+      }).join('');
+      el.style.animationDuration=(CULTURE_POSTS.length*3.5)+'s';
+    })();
+
   })();
   </script>
 
@@ -539,8 +563,12 @@
     <!-- Culture / Blog -->
   <section class="blog" id="blog">
     <div class="container">
-      <h2 class="section-title reveal">CULTURE</h2>
-      <div class="blog-grid">
+      <div class="spotlight-block-hdr" style="margin-bottom:8px;">
+        <h2 class="section-title" style="margin-bottom:0;">CULTURE</h2>
+        <a class="spot-see-all" href="/culture">View All Posts →</a>
+      </div>
+      <div class="cc-wrap"><div class="cc-track" id="culture-carousel"></div></div>
+      <div class="blog-grid" style="display:none !important;">
         <a class="blog-card reveal" href="https://keepitil.com/blog-news-day-trip-festival-2026-preview.html" style="text-decoration:none;display:flex;flex-direction:column;">
           <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a2a,#001020);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">DAY TRIP 2026</span></div>
           <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">⚡ News · This Weekend</span>
