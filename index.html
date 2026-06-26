@@ -401,7 +401,7 @@
     @media(max-width:640px){.picks-row{grid-template-columns:1fr;}}
     .picks-row .ev-card{min-height:340px;}
     /* ── KEEPITIL PICK top banner ── */
-    .ev-pick-banner{background:linear-gradient(90deg,rgba(230,51,51,.95),rgba(180,0,255,.75));color:#fff;font-size:.62rem;font-weight:800;letter-spacing:.26em;text-transform:uppercase;padding:8px 22px;text-align:center;flex-shrink:0;}
+    /* ev-pick-banner moved to PICKS ROW 9:16 section */
     .ev-featured-tag{display:none;}
     .picks-section-label{font-size:.65rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
     .picks-section-label::after{content:'';flex:1;height:1px;background:rgba(230,51,51,.2);}
@@ -456,6 +456,29 @@
     .ev-card.has-flyer{background-size:cover;background-position:center top;position:relative;}
     .ev-card.has-flyer::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.45) 50%,rgba(0,0,0,.8) 100%);z-index:0;border-radius:9px;}
     .ev-card.has-flyer>*{position:relative;z-index:1;}
+
+    /* ── PICKS ROW 9:16 ── */
+    .picks-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:0;align-items:start;}
+    @media(max-width:780px){.picks-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.picks-row{grid-template-columns:1fr;}}
+    .ev-pick{aspect-ratio:9/16 !important;width:100%;}
+    .ev-pick-banner{position:absolute;top:0;left:0;right:0;z-index:3;background:linear-gradient(90deg,rgba(230,51,51,.97),rgba(140,0,220,.85));color:#fff;font-size:.6rem;font-weight:900;letter-spacing:.28em;text-transform:uppercase;padding:9px 22px;text-align:center;pointer-events:none;}
+    .ev-pick .ev-fc-info{bottom:46px;}
+    .ev-pick .ev-fc-title{font-size:1.1rem;}
+    /* ── GENRE GRADIENT FALLBACKS (no flyer image) ── */
+    .ev-flyer-card:not([style*="background-image"]){background:linear-gradient(160deg,#0d0d22 0%,#1c1035 55%,#0a0a14 100%);}
+    .ev-flyer-card[data-genre*="bass"]:not([style*="background-image"]){background:linear-gradient(155deg,#12001f 0%,#3a0068 45%,#5c0020 100%);}
+    .ev-flyer-card[data-genre*="dubstep"]:not([style*="background-image"]){background:linear-gradient(155deg,#0f0020 0%,#380060 45%,#600018 100%);}
+    .ev-flyer-card[data-genre*="house"]:not([style*="background-image"]){background:linear-gradient(155deg,#001828 0%,#003566 45%,#001828 100%);}
+    .ev-flyer-card[data-genre*="techno"]:not([style*="background-image"]){background:linear-gradient(155deg,#0a0a0a 0%,#1d1d1d 50%,#0d0d0d 100%);}
+    .ev-flyer-card[data-genre*="trance"]:not([style*="background-image"]){background:linear-gradient(155deg,#001230 0%,#0044bb 45%,#001230 100%);}
+    .ev-flyer-card[data-genre*="dnb"]:not([style*="background-image"]),.ev-flyer-card[data-genre*="jungle"]:not([style*="background-image"]){background:linear-gradient(155deg,#001800 0%,#1a4000 45%,#002800 100%);}
+    .ev-flyer-card[data-genre*="rnb"]:not([style*="background-image"]){background:linear-gradient(155deg,#1a0008 0%,#4d0024 45%,#1a0008 100%);}
+    .ev-flyer-card[data-genre*="garage"]:not([style*="background-image"]),.ev-flyer-card[data-genre*="ukg"]:not([style*="background-image"]){background:linear-gradient(155deg,#0a0020 0%,#1a005a 45%,#3a0068 100%);}
+    /* Noise texture overlay for gradient cards */
+    .ev-flyer-card:not([style*="background-image"])::after{content:'';position:absolute;inset:0;z-index:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px;}
+    /* Fix z-index for content on gradient cards */
+    .ev-flyer-card:not([style*="background-image"]) .ev-fc-date,.ev-flyer-card:not([style*="background-image"]) .ev-fc-genre,.ev-flyer-card:not([style*="background-image"]) .ev-fc-info,.ev-flyer-card:not([style*="background-image"]) .ev-fc-price,.ev-flyer-card:not([style*="background-image"]) .ev-fc-ticket,.ev-flyer-card:not([style*="background-image"]) .ev-pick-banner{z-index:4;}
     /* ── OLD FLYERS SECTION ── */
     .flyers-section{padding:0 24px 80px;max-width:1200px;margin:0 auto;}
     .flyers-heading{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:.08em;margin-bottom:6px;}
@@ -802,52 +825,39 @@
 <div class="events-section" id="events-container">
 
   <div class="picks-row">
-
-    <div class="ev-card featured has-flyer" data-genre="afrobeats house" data-region="oc" data-date="2026-07-12" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30cd9b98ff567fe8575371')">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jul 12</span><span class="ev-genre-tag">Afrobeats · EDM</span></div>
-        <div class="ev-featured-tag">⚡ KEEPITIL PICK</div>
-        <h3>KEEPITIL SUMMER</h3>
-        <div class="ev-subtitle">KEEPITIL presents · all-ages · beach party</div>
+    <div class="ev-flyer-card ev-pick" data-genre="afrobeats house" data-region="oc" data-date="2026-07-12" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30cd9b98ff567fe8575371')">
+      <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
+      <span class="ev-fc-date">Jul 12</span>
+      <span class="ev-fc-genre">Afrobeats · EDM</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">KEEPITIL SUMMER</div>
+        <div class="ev-fc-venue">📍 Huntington Beach — Magnolia & CA-1</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Huntington Beach — Magnolia &amp; CA-1</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">16 DJs spinning EDM, hip hop &amp; afrobeats on the sand. 12PM–8PM · White &amp; Pink dress code.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">Free RSVP</span><a href="https://posh.vip/e/keeitil-summer" target="_blank" rel="noopener" class="ev-ticket-link">RSVP on Posh →</a></div>
+      <span class="ev-fc-price">Free RSVP</span>
+      <a href="https://posh.vip/e/keeitil-summer" class="ev-fc-ticket" target="_blank" rel="noopener">RSVP on Posh</a>
     </div>
-
-    <div class="ev-card featured has-flyer" data-genre="bass" data-region="oc" data-date="2026-07-10" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c4689aa591bbf94784647')">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jul 10</span><span class="ev-genre-tag">Bass · Dubstep</span></div>
-        <div class="ev-featured-tag">⚡ KEEPITIL PICK</div>
-        <h3>KOZMOZ [EUPHAURA]</h3>
-        <div class="ev-subtitle">KEEPITIL presents · 21+ · BLEU NIGHTCLUB OC</div>
+    <div class="ev-flyer-card ev-pick" data-genre="bass dubstep" data-region="oc" data-date="2026-07-10" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c4689aa591bbf94784647')">
+      <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
+      <span class="ev-fc-date">Jul 10</span>
+      <span class="ev-fc-genre">Bass · Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">KOZMOZ [EUPHAURA]</div>
+        <div class="ev-fc-venue">📍 BLEU NIGHTCLUB OC — Westminster, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>BLEU NIGHTCLUB OC — Westminster, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Kozmoz — dubstep's fastest-rising act. One night, one frequency, full immersion open to close.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $11.99</span><a href="https://posh.vip/e/kozmoz-euphaura" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $11.99</span>
+      <a href="https://posh.vip/e/kozmoz-euphaura" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
-
-    <div class="ev-card featured" data-genre="house" data-region="oc" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">House</span></div>
-        <div class="ev-featured-tag">⚡ KEEPITIL PICK</div>
-        <h3>VICETONE</h3>
-        <div class="ev-subtitle">Local OC pick · 21+ · Time Nightclub Costa Mesa</div>
+    <div class="ev-flyer-card ev-pick" data-genre="house" data-region="oc" data-date="2026-06-27">
+      <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">VICETONE</div>
+        <div class="ev-fc-venue">📍 Time Nightclub — Costa Mesa, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Time Nightclub — Costa Mesa, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Vicetone — melodic house &amp; festival future bass. One of OC's best rooms this weekend.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $15</span><a href="https://www.tixr.com/groups/timenightclub/events/vicetone-184670" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $15</span>
+      <a href="https://www.tixr.com/groups/timenightclub/events/vicetone-184670" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
-
   </div>
 
   <!-- EVENTS NAV V2 (after picks) -->
