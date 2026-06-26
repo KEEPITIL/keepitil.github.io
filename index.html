@@ -770,7 +770,6 @@
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
   <input type="text" id="filter-search" class="filter-search" placeholder="Search events…">
-  <button class="filter-btn" id="filter-sub-btn" onclick="toggleSubFilter()" title="Show events from organizers subscribed to KEEPITIL">🎛 Organizer Events</button>
   <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" class="filter-org-btn">🎪 Create Your Event</a>
 </div>
 
@@ -1639,17 +1638,8 @@
   }
 
   // ── Filters ──
-  var _subFilter=false;
-
-  function toggleSubFilter(){
-    _subFilter=!_subFilter;
-    var btn=document.getElementById('filter-sub-btn');
-    if(btn)btn.classList.toggle('active',_subFilter);
-    applyFilters();
-  }
-
   function hasActiveFilters(){
-    return!!((document.getElementById('filter-search').value||'').trim()||_subFilter);
+    return!!((document.getElementById('filter-search').value||'').trim());
   }
 
   function applyFilters(){
@@ -1658,8 +1648,7 @@
 
     document.querySelectorAll('.ev-card').forEach(function(card){
       var cT=card.textContent.toLowerCase();
-      var isKeepit=card.classList.contains('featured')||(card.dataset.region||'')==='oc';
-      var show=(!search||cT.includes(search))&&(!_subFilter||isKeepit);
+      var show=(!search||cT.includes(search));
       card.style.display=show?'':'none';
       if(show)visible++;
     });
@@ -1685,8 +1674,6 @@
   }
 
   function clearFilters(){
-    _subFilter=false;
-    var btn=document.getElementById('filter-sub-btn');if(btn)btn.classList.remove('active');
     var el=document.getElementById('filter-search');if(el)el.value='';
     applyFilters();
   }
