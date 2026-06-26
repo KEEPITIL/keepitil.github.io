@@ -469,7 +469,8 @@
       var handle='';
       if(it.i&&it.i.indexOf('instagram/')!==-1) handle=it.i.split('instagram/').pop();
       var igUrl=handle?'https://instagram.com/'+handle:'';
-      return '<a class="spot-card" href="https://keepitil.com/'+it.b+'" style="text-decoration:none;">'
+      var href='https://keepitil.com/'+it.b;
+      return '<div class="spot-card" onclick="location.href=\''+href+'\'" style="cursor:pointer;">'
         +'<div class="spot-img-wrap">'
         +'<div class="spot-img-fb" style="background:linear-gradient(135deg,'+it.c+'66,'+it.c+'22)">'+it.a+'</div>'
         +'<img src="'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;">'
@@ -479,11 +480,11 @@
         +'<div class="spot-name2">'+it.n+'</div>'
         +'<span class="spot-genre2">'+it.g+'</span>'
         +'<div class="spot-links2" style="margin-top:14px;">'
-        +'<a href="https://keepitil.com/'+it.b+'" class="spot-btn-profile" onclick="event.stopPropagation()">View Profile</a>'
+        +'<a href="'+href+'" class="spot-btn-profile" onclick="event.stopPropagation()">View Profile</a>'
         +(igUrl?'<a href="'+igUrl+'" target="_blank" rel="noopener" class="spot-btn-ig" onclick="event.stopPropagation()">@'+handle+'</a>':'')
         +'</div>'
         +'</div>'
-        +'</a>';
+        +'</div>';
     }
 
     // Rotate candidates by week, test images, render 4 profiles with working photos
