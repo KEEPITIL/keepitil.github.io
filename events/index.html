@@ -123,6 +123,26 @@
     .btn-outline{display:inline-block;padding:14px 32px;background:transparent;color:var(--orange);font-family:var(--font-body);font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(230,51,51,.45);border-radius:4px;text-decoration:none;margin-left:12px;transition:all .2s;}
     .btn-outline:hover{background:rgba(230,51,51,.1);border-color:var(--orange);}
 
+    /* ── MONTH NAV ── */
+    .month-nav{display:flex;align-items:center;justify-content:space-between;padding:28px 24px 4px;max-width:1200px;margin:0 auto;}
+    .month-nav-btn{background:transparent;border:1px solid rgba(230,51,51,.3);color:var(--orange);padding:9px 22px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
+    .month-nav-btn:hover:not(:disabled){background:rgba(230,51,51,.1);border-color:var(--orange);}
+    .month-nav-btn:disabled{opacity:.2;cursor:default;pointer-events:none;}
+    .month-nav-title{font-family:var(--font-head);font-size:2rem;letter-spacing:.12em;color:var(--white);}
+
+    /* ── OLD FLYERS SECTION ── */
+    .flyers-section{padding:0 24px 80px;max-width:1200px;margin:0 auto;}
+    .flyers-heading{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:.08em;margin-bottom:6px;}
+    .flyers-sub{font-size:.8rem;color:var(--grey);margin-bottom:32px;letter-spacing:.04em;}
+    .flyers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}
+    @media(max-width:640px){.flyers-grid{grid-template-columns:repeat(2,1fr);}}
+    .flyer-slot{aspect-ratio:2/3;background:#111;border:1px dashed rgba(255,255,255,.08);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:border-color .2s;}
+    .flyer-slot:hover{border-color:rgba(230,51,51,.35);}
+    .flyer-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+    .flyer-slot-inner{display:flex;flex-direction:column;align-items:center;gap:8px;}
+    .flyer-slot-icon{font-size:1.8rem;opacity:.18;}
+    .flyer-slot-label{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#333;}
+
     /* ── FOOTER ── */
     footer{background:var(--dark);border-top:1px solid rgba(230,51,51,.08);padding:48px 0 28px;}
     .footer-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
@@ -171,38 +191,103 @@
   }
 }
 </script>
+  <style id="nav-uniform">
+  /* ── UNIFORM NAV ── */
+  nav#main-nav,nav:not([class]) {
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    background:rgba(10,10,18,.93);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,.07);
+    padding:0;
+  }
+  .nav-inner {
+    display:flex;align-items:center;
+    max-width:1400px;margin:0 auto;padding:0 28px;height:62px;
+  }
+  .nav-logo {
+    display:flex;align-items:center;gap:10px;
+    text-decoration:none;flex-shrink:0;
+  }
+  .nav-brand {
+    font-family:'Bebas Neue',sans-serif;font-size:1.3rem;
+    letter-spacing:.13em;color:#fff;
+  }
+  .nav-links {
+    display:flex;list-style:none;
+    flex:1;justify-content:center;
+    gap:clamp(14px,3.5vw,56px);
+    margin:0;padding:0;
+  }
+  .nav-links li{list-style:none;}
+  .nav-links a {
+    font-family:'Bebas Neue',sans-serif;font-size:.88rem;
+    letter-spacing:.13em;color:rgba(255,255,255,.68);
+    text-decoration:none;transition:color .2s;white-space:nowrap;
+  }
+  .nav-links a:hover,.nav-links a.active{color:#fff;}
+  .nav-inner > a.nav-cta {
+    font-family:'Bebas Neue',sans-serif;font-size:.82rem;
+    letter-spacing:.13em;color:#00b4ff !important;
+    border:1px solid #00b4ff;padding:6px 20px;border-radius:4px;
+    text-decoration:none;flex-shrink:0;
+    transition:background .2s,color .2s;white-space:nowrap;
+  }
+  .nav-inner > a.nav-cta:hover{background:#00b4ff;color:#000 !important;}
+  .nav-hamburger {
+    display:none;flex-direction:column;gap:5px;
+    background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;
+  }
+  .nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s;}
+  .mobile-menu {
+    display:none;position:fixed;top:62px;left:0;right:0;
+    background:rgba(10,10,18,.97);z-index:999;
+    flex-direction:column;padding:18px 28px;gap:0;
+    border-bottom:1px solid rgba(255,255,255,.1);
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a {
+    font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+    letter-spacing:.12em;color:rgba(255,255,255,.78);
+    text-decoration:none;padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu .nav-cta{color:#00b4ff !important;border:none;padding:10px 0;}
+  @media(max-width:768px){
+    .nav-links{display:none;}
+    .nav-hamburger{display:flex;}
+    .nav-inner > a.nav-cta{display:none;}
+  }
+  body { padding-top: 62px !important; }
+  </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
+  <!-- Nav -->
+  <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/">
       <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
-      <li><a href="/">HOME</a></li>
-      <li><a href="/spotlight">SPOTLIGHT</a></li>
-      <li><a href="/artist">ARTISTS</a></li>
-      <li><a href="/brand/">BRANDS</a></li>
-      <li><a href="/organizer/">ORGANIZERS</a></li>
-      <li><a href="/events" class="active">EVENTS</a></li>
+      <li><a href="/artist">ARTIST</a></li>
+      <li><a href="/brand/">BRAND</a></li>
       <li><a href="/culture">CULTURE</a></li>
-      <li><a href="/apply.html" class="nav-cta">APPLY</a></li>
+      <li><a href="/organizer/">ORGANIZERS</a></li>
     </ul>
+    <a href="/signup.html" class="nav-cta">SUBSCRIBE</a>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
-</nav>
+  </nav>
 
-<div class="mobile-menu" id="mobile-menu">
-  <a href="/" onclick="toggleMenu()">HOME</a>
-  <a href="/spotlight" onclick="toggleMenu()">SPOTLIGHT</a>
-  <a href="/artist" onclick="toggleMenu()">ARTISTS</a>
-  <a href="/brand/" onclick="toggleMenu()">BRANDS</a>
-  <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
-  <a href="/events" onclick="toggleMenu()">EVENTS</a>
-  <a href="/culture" onclick="toggleMenu()">CULTURE</a>
-  <a href="/apply.html" class="nav-cta" onclick="toggleMenu()">APPLY</a>
-</div>
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="/artist" onclick="toggleMenu()">ARTIST</a>
+    <a href="/brand/" onclick="toggleMenu()">BRAND</a>
+    <a href="/culture" onclick="toggleMenu()">CULTURE</a>
+    <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
+    <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+  </div>
 
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
@@ -243,6 +328,13 @@
     <option value="garage">Garage</option>
   </select>
   <button class="filter-btn" onclick="clearFilters()">Clear</button>
+</div>
+
+<!-- MONTH NAV -->
+<div class="month-nav" id="month-nav">
+  <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#8592; Prev</button>
+  <div class="month-nav-title" id="month-nav-title">JUNE 2026</div>
+  <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">Next &#8594;</button>
 </div>
 
 <!-- EVENTS -->
@@ -951,6 +1043,23 @@
 
 </div><!-- /#events-container -->
 
+<!-- OLD FLYERS -->
+<section class="flyers-section">
+  <div class="flyers-heading">OLD FLYERS</div>
+  <div class="flyers-sub">Archive of past KEEPITIL events · OC &amp; LA underground</div>
+  <div class="flyers-grid" id="flyers-grid">
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+    <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
+  </div>
+</section>
+
 <!-- SUBMIT CTA -->
 <section class="submit-cta">
   <h2>GOT AN EVENT?<br/><span>LIST IT ON KEEPITIL</span></h2>
@@ -978,58 +1087,115 @@
 </footer>
 
 <script>
-  function toggleMenu(){
-    var m=document.getElementById('mobile-menu');
-    if(m)m.classList.toggle('open');
-  }
+  // ── Mobile menu ──
+  function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
 
-  // Inject KEEPITIL PICK banner on featured cards (once only)
+  // ── KEEPITIL PICK banner on featured cards ──
   document.querySelectorAll('.ev-card.featured').forEach(function(card){
     if(!card.querySelector('.ev-pick-banner')){
-      var b=document.createElement('div');
-      b.className='ev-pick-banner';b.textContent='⚡ KEEPITIL PICK';
+      var b=document.createElement('div');b.className='ev-pick-banner';b.textContent='⚡ KEEPITIL PICK';
       card.insertBefore(b,card.firstChild);
     }
   });
 
-  // State lookup by region code
+  // ── Month navigation ──
+  var MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var _now=new Date();
+  var MAX_FUTURE=new Date(_now.getFullYear()+3,_now.getMonth(),_now.getDate());
+  var activeYear=_now.getFullYear(), activeMonth=_now.getMonth();
+
+  function getMonthSections(){
+    var out=[];
+    document.querySelectorAll('.month-section').forEach(function(sec){
+      var lbl=sec.querySelector('.month-label');
+      if(!lbl)return;
+      var parts=lbl.textContent.trim().split(' ');
+      var m=MONTH_NAMES.indexOf(parts[0]),y=parseInt(parts[1]);
+      if(m>=0&&!isNaN(y)&&new Date(y,m,1)<=MAX_FUTURE) out.push({el:sec,year:y,month:m});
+    });
+    out.sort(function(a,b){return a.year!==b.year?a.year-b.year:a.month-b.month;});
+    return out;
+  }
+
+  function findActiveIdx(sections){
+    var target=activeYear*100+activeMonth;
+    var idx=sections.findIndex(function(s){return s.year*100+s.month===target;});
+    if(idx<0){
+      idx=sections.findIndex(function(s){return s.year*100+s.month>target;});
+      if(idx<0)idx=sections.length-1;
+      if(idx>=0){activeYear=sections[idx].year;activeMonth=sections[idx].month;}
+    }
+    return idx;
+  }
+
+  function showActiveMonth(){
+    var sections=getMonthSections();
+    var idx=findActiveIdx(sections);
+    sections.forEach(function(s,i){s.el.style.display=(i===idx)?'':'none';});
+    if(idx>=0){
+      document.getElementById('month-nav-title').textContent=MONTH_NAMES[sections[idx].month].toUpperCase()+' '+sections[idx].year;
+    }
+    document.getElementById('month-prev').disabled=idx<=0;
+    document.getElementById('month-next').disabled=idx>=sections.length-1;
+  }
+
+  function changeMonth(dir){
+    var sections=getMonthSections();
+    var idx=findActiveIdx(sections);
+    idx=Math.max(0,Math.min(sections.length-1,idx+dir));
+    activeYear=sections[idx].year;activeMonth=sections[idx].month;
+    showActiveMonth();
+  }
+
+  // ── Filters ──
   var REGION_STATE={la:'ca',oc:'ca',sd:'ca',sb:'ca',lv:'nv',phx:'az',dal:'tx'};
+
+  function hasActiveFilters(){
+    return!!(
+      (document.getElementById('filter-search').value||'').trim()||
+      document.getElementById('filter-year').value||
+      document.getElementById('filter-month').value||
+      document.getElementById('filter-state').value||
+      document.getElementById('filter-city').value||
+      document.getElementById('filter-genre').value
+    );
+  }
 
   function applyFilters(){
     var search=(document.getElementById('filter-search').value||'').toLowerCase().trim();
-    var year  =document.getElementById('filter-year').value;
-    var month =document.getElementById('filter-month').value;
-    var state =document.getElementById('filter-state').value;
-    var city  =document.getElementById('filter-city').value;
-    var genre =document.getElementById('filter-genre').value;
-
+    var year=document.getElementById('filter-year').value;
+    var month=document.getElementById('filter-month').value;
+    var state=document.getElementById('filter-state').value;
+    var city=document.getElementById('filter-city').value;
+    var genre=document.getElementById('filter-genre').value;
     var visible=0;
+
     document.querySelectorAll('.ev-card').forEach(function(card){
-      var cG=card.dataset.genre||'';
-      var cR=card.dataset.region||'';
-      var cD=card.dataset.date||'';
-      var cY=cD?cD.split('-')[0]:'';
-      var cM=cD?cD.split('-')[1]:'';
-      var cS=REGION_STATE[cR]||cR;
-      var cT=card.textContent.toLowerCase();
-      var show=(!search||cT.includes(search))
-              &&(!year  ||cY===year)
-              &&(!month ||cM===month)
-              &&(!state ||cS===state)
-              &&(!city  ||cR===city)
-              &&(!genre ||cG.split(' ').includes(genre));
+      var cG=card.dataset.genre||'',cR=card.dataset.region||'',cD=card.dataset.date||'';
+      var cY=cD?cD.split('-')[0]:'',cM=cD?cD.split('-')[1]:'';
+      var cS=REGION_STATE[cR]||cR,cT=card.textContent.toLowerCase();
+      var show=(!search||cT.includes(search))&&(!year||cY===year)&&(!month||cM===month)
+              &&(!state||cS===state)&&(!city||cR===city)&&(!genre||cG.split(' ').includes(genre));
       card.style.display=show?'':'none';
       if(show)visible++;
     });
 
+    var filtering=hasActiveFilters();
+    var nav=document.getElementById('month-nav');
+    if(nav)nav.style.display=filtering?'none':'';
+
     document.querySelectorAll('.month-section').forEach(function(sec){
-      var anyVis=[...sec.querySelectorAll('.ev-card')].some(c=>c.style.display!=='none');
-      sec.style.display=anyVis?'':'none';
+      if(filtering){
+        var anyVis=[...sec.querySelectorAll('.ev-card')].some(function(c){return c.style.display!=='none';});
+        sec.style.display=anyVis?'':'none';
+      }
       var pr=sec.querySelector('.picks-row'),pl=sec.querySelector('.picks-section-label');
-      if(pr){var pv=[...pr.querySelectorAll('.ev-card')].some(c=>c.style.display!=='none');pr.style.display=pv?'':'none';if(pl)pl.style.display=pv?'':'none';}
+      if(pr){var pv=[...pr.querySelectorAll('.ev-card')].some(function(c){return c.style.display!=='none';});pr.style.display=pv?'':'none';if(pl)pl.style.display=pv?'':'none';}
       var gr=sec.querySelector('.events-grid'),ml=sec.querySelector('.more-events-label');
-      if(gr){var gv=[...gr.querySelectorAll('.ev-card')].some(c=>c.style.display!=='none');gr.style.display=gv?'':'none';if(ml)ml.style.display=gv?'':'none';}
+      if(gr){var gv=[...gr.querySelectorAll('.ev-card')].some(function(c){return c.style.display!=='none';});gr.style.display=gv?'':'none';if(ml)ml.style.display=gv?'':'none';}
     });
+
+    if(!filtering)showActiveMonth();
     var msg=document.getElementById('no-events-msg');
     if(msg)msg.style.display=visible===0?'block':'none';
   }
@@ -1042,6 +1208,9 @@
   }
 
   document.getElementById('filter-search').addEventListener('input',applyFilters);
+
+  // Init: show current month
+  showActiveMonth();
 </script>
 
 
