@@ -60,18 +60,102 @@ footer a{color:var(--orange);}
     /* NAV-STD */
 
 </style>
+  <style id="nav-uniform">
+  /* ── UNIFORM NAV ── */
+  nav#main-nav,nav:not([class]) {
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    background:rgba(10,10,18,.93);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,.07);
+    padding:0;
+  }
+  .nav-inner {
+    display:flex;align-items:center;
+    max-width:1400px;margin:0 auto;padding:0 28px;height:62px;
+  }
+  .nav-logo {
+    display:flex;align-items:center;gap:10px;
+    text-decoration:none;flex-shrink:0;
+  }
+  .nav-brand {
+    font-family:'Bebas Neue',sans-serif;font-size:1.3rem;
+    letter-spacing:.13em;color:#fff;
+  }
+  .nav-links {
+    display:flex;list-style:none;
+    flex:1;justify-content:center;
+    gap:clamp(14px,3.5vw,56px);
+    margin:0;padding:0;
+  }
+  .nav-links li{list-style:none;}
+  .nav-links a {
+    font-family:'Bebas Neue',sans-serif;font-size:.88rem;
+    letter-spacing:.13em;color:rgba(255,255,255,.68);
+    text-decoration:none;transition:color .2s;white-space:nowrap;
+  }
+  .nav-links a:hover,.nav-links a.active{color:#fff;}
+  .nav-inner > a.nav-cta {
+    font-family:'Bebas Neue',sans-serif;font-size:.82rem;
+    letter-spacing:.13em;color:#00b4ff !important;
+    border:1px solid #00b4ff;padding:6px 20px;border-radius:4px;
+    text-decoration:none;flex-shrink:0;
+    transition:background .2s,color .2s;white-space:nowrap;
+  }
+  .nav-inner > a.nav-cta:hover{background:#00b4ff;color:#000 !important;}
+  .nav-hamburger {
+    display:none;flex-direction:column;gap:5px;
+    background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;
+  }
+  .nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s;}
+  .mobile-menu {
+    display:none;position:fixed;top:62px;left:0;right:0;
+    background:rgba(10,10,18,.97);z-index:999;
+    flex-direction:column;padding:18px 28px;gap:0;
+    border-bottom:1px solid rgba(255,255,255,.1);
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a {
+    font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+    letter-spacing:.12em;color:rgba(255,255,255,.78);
+    text-decoration:none;padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu .nav-cta{color:#00b4ff !important;border:none;padding:10px 0;}
+  @media(max-width:768px){
+    .nav-links{display:none;}
+    .nav-hamburger{display:flex;}
+    .nav-inner > a.nav-cta{display:none;}
+  }
+  body { padding-top: 62px !important; }
+  </style>
 </head>
 <body>
-<nav>
+  <!-- Nav -->
+  <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img src="/logo-yellow-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #ffcc00);"><span class="nav-brand">KEEPITIL</span>
+      <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
-      <li><a href="/">HOME</a></li>
+      <li><a href="/artist">ARTIST</a></li>
+      <li><a href="/brand/">BRAND</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/organizer/">ORGANIZERS</a></li>
     </ul>
+    <a href="/signup.html" class="nav-cta">SUBSCRIBE</a>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
-</nav>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="/artist" onclick="toggleMenu()">ARTIST</a>
+    <a href="/brand/" onclick="toggleMenu()">BRAND</a>
+    <a href="/culture" onclick="toggleMenu()">CULTURE</a>
+    <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
+    <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+  </div>
 
 <div class="page-hero">
   <div class="page-hero-inner">
