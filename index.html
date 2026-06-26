@@ -446,7 +446,11 @@
     .show-more-btn{background:transparent;border:1px solid rgba(230,51,51,.3);color:var(--orange);padding:10px 32px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
     .show-more-btn:hover{background:rgba(230,51,51,.1);border-color:var(--orange);}
     /* ── EVENTS NAV V2 ── */
-    .events-nav-v2{display:flex;align-items:center;gap:8px;padding:20px 24px 24px;max-width:1200px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+    .events-nav-v2{display:flex;align-items:center;gap:10px;padding:20px 24px 24px;max-width:1200px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+    .ev-nav-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .ev-nav-city{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.35);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:9px 10px;border-radius:4px;outline:none;width:130px;transition:border-color .2s;}
+    .ev-nav-city::placeholder{color:#666;}
+    .ev-nav-city:focus{border-color:rgba(230,51,51,.6);}
     .ev-nav-month{font-family:var(--font-head);font-size:2.2rem;letter-spacing:.14em;color:var(--white);flex:1;text-align:center;min-width:180px;}
     .ev-nav-select{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.22);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:9px 10px;border-radius:4px;cursor:pointer;outline:none;transition:border-color .2s;flex-shrink:0;}
     .ev-nav-select:hover,.ev-nav-select:focus{border-color:rgba(230,51,51,.5);}
@@ -863,23 +867,28 @@
   <!-- EVENTS NAV V2 (after picks) -->
   <div class="events-nav-v2" id="month-nav">
     <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#171;&#171; PREV</button>
-    <select class="ev-nav-select" id="ev-location" onchange="applyFilters()">
-      <option value="">&#128205; Near Me</option>
-      <option value="la">Los Angeles</option>
-      <option value="oc">Orange County</option>
-      <option value="westminster">Westminster</option>
-    </select>
+    <div class="ev-nav-controls">
+      <select class="ev-nav-select" id="ev-location" onchange="handleLocation(this)">
+        <option value="">&#128205; Near Me</option>
+        <option value="la">Los Angeles</option>
+        <option value="oc">Orange County</option>
+        <option value="westminster">Westminster</option>
+        <option value="custom">&#9997;&#65039; Enter City...</option>
+      </select>
+      <input type="text" class="ev-nav-city" id="ev-city" placeholder="Type city..." oninput="applyFilters()" style="display:none">
+      <select class="ev-nav-select" id="ev-genre" onchange="applyFilters()">
+        <option value="">&#127925; All Genres</option>
+        <option value="bass">Bass / Dubstep</option>
+        <option value="house">House</option>
+        <option value="techno">Techno</option>
+        <option value="trance">Trance</option>
+        <option value="dnb">DnB / Jungle</option>
+        <option value="rnb">RnB / Hip-Hop</option>
+        <option value="garage">Garage / UKG</option>
+        <option value="afrobeats">Afrobeats / EDM</option>
+      </select>
+    </div>
     <div class="ev-nav-month" id="month-nav-title">JUNE 2026</div>
-    <select class="ev-nav-select" id="ev-genre" onchange="applyFilters()">
-      <option value="">&#127925; All Genres</option>
-      <option value="bass">Bass / Dubstep</option>
-      <option value="house">House</option>
-      <option value="techno">Techno</option>
-      <option value="trance">Trance</option>
-      <option value="dnb">DnB / Jungle</option>
-      <option value="rnb">RnB / Hip-Hop</option>
-      <option value="garage">Garage / UKG</option>
-    </select>
     <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" class="filter-org-btn">&#127914; Create Your Event</a>
     <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">NEXT &#187;&#187;</button>
   </div>
@@ -1389,7 +1398,7 @@
 
 <!-- FLYERS -->
 <section class="flyers-section">
-  <div class="flyers-heading">CLASSIC</div>
+  <div class="flyers-heading">PAST EVENTS</div>
   <div class="flyers-grid" id="flyers-grid">
     <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3aebfd02662f5cfcba07ad" alt="Reload: UKG · Posh"></div>
     <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNWIzMGQ2ODljNDUzMmFhYzQ2ZWU4ZjgwYmMwNDQ2NTE0NjkxMmQwYi5wbmc=" alt="SOUNDWAVE ft. Franky Wah · RA"></div>
@@ -1845,9 +1854,9 @@
       s.el.style.display=(i===idx)?'':'none';
       if(i===idx){
         var cards=[...s.el.querySelectorAll('.ev-flyer-grid .ev-flyer-card')];
-        cards.forEach(function(c,j){c.style.display=(j<20)?'':'none';});
+        cards.forEach(function(c,j){c.style.display=(j<15)?'':'none';});
         var smw=s.el.querySelector('.show-more-wrap');
-        if(smw)smw.style.display=(cards.length>20)?'block':'none';
+        if(smw)smw.style.display=(cards.length>15)?'block':'none';
       }
     });
     if(idx>=0){
@@ -1869,14 +1878,27 @@
   }
 
   // ── Filters ──
+  function handleLocation(sel){
+    var cityInput=document.getElementById('ev-city');
+    if(sel.value==='custom'){
+      if(cityInput){cityInput.style.display='inline-block';cityInput.focus();}
+    } else {
+      if(cityInput){cityInput.style.display='none';cityInput.value='';}
+      applyFilters();
+    }
+  }
+
   function hasActiveFilters(){
-    var loc=(document.getElementById('ev-location')?.value||'');
+    var locSel=(document.getElementById('ev-location')?.value||'');
+    var city=(document.getElementById('ev-city')?.value||'').trim();
     var genre=(document.getElementById('ev-genre')?.value||'');
-    return !!(loc||genre);
+    return !!(locSel||city||genre);
   }
 
   function applyFilters(){
-    var loc=(document.getElementById('ev-location')?.value||'').toLowerCase();
+    var locSel=(document.getElementById('ev-location')?.value||'');
+    var cityVal=(document.getElementById('ev-city')?.value||'').toLowerCase().trim();
+    var loc=locSel==='custom' ? cityVal : locSel.toLowerCase();
     var genre=(document.getElementById('ev-genre')?.value||'').toLowerCase();
     var filtering=hasActiveFilters();
     var visible=0;
@@ -1914,6 +1936,7 @@
   function clearFilters(){
     var el=document.getElementById('ev-location');if(el)el.value='';
     var el2=document.getElementById('ev-genre');if(el2)el2.value='';
+    var el3=document.getElementById('ev-city');if(el3){el3.value='';el3.style.display='none';}
     applyFilters();
   }
 
