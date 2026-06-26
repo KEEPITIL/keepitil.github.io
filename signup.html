@@ -1,123 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="canonical" href="https://keepitil.com/signup.html"/>
-  <title>Join KEEPITIL — Artist, Brand & Organizer Signup</title>
-<link rel="icon" type="image/png" href="logo-orange-nav.png"/>
-  <meta name="description" content="Apply to be featured on KEEPITIL. Sign up as an artist, brand, or organizer in the SOCAL underground scene."/>
+  <title>Join KEEPITIL — Artist, Brand & Collective Signup</title>
+  <link rel="icon" type="image/png" href="/logo-orange-nav.png"/>
+  <meta name="description" content="Apply to be featured on KEEPITIL. Sign up as an artist, brand, or collective in the SOCAL underground scene."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>nav{position:sticky;top:0;z-index:100;background:rgba(5,5,5,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);padding:0 24px;}
-.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
-.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
-.nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;vertical-align:middle;}
-.nav-links{display:flex;flex:1;align-items:center;list-style:none;padding-left:32px;}
-.nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
-.nav-links a:hover{color:#fff;}
-@media(max-width:768px){.nav-brand{display:none;}}
-
+  <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --black:#0b0b0b;--dark:#111;--dark2:#181818;
-      --blue:#00b4ff;--blue-dim:#0088cc;--blue-glow:rgba(0,180,255,.35);
       --white:#f0f0f0;--grey:#888;--grey2:#555;
-      --font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;
+      --blue:#00b4ff;--green:#00c853;--orange:#ff6d00;
+      --font-head:'Bebas Neue',sans-serif;
+      --font-body:'Space Grotesk',sans-serif;
+      --active:#00b4ff;--active-glow:rgba(0,180,255,.15);--active-dim:rgba(0,180,255,.25);
     }
     html{scroll-behavior:smooth}
     body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;min-height:100vh}
     a{color:inherit;text-decoration:none}
-    img{max-width:100%;display:block}
 
-    /* NAV */
-    .nav-logo img{height:36px;}
-    .logo-text{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;color:var(--white);}
-
-    /* HERO */
-    .hero{padding:80px 24px 60px;text-align:center;position:relative;overflow:hidden}
-    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,180,255,.12) 0%,transparent 70%);pointer-events:none}
-    .hero-eyebrow{font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;font-weight:700}
-    .hero-title{font-family:var(--font-head);font-size:clamp(3rem,8vw,7rem);letter-spacing:.05em;line-height:1;color:var(--white);margin-bottom:20px}
+    /* ── HERO ── */
+    .hero{padding:72px 24px 52px;text-align:center;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;inset:0;
+      background:radial-gradient(ellipse at 50% 0%,rgba(0,180,255,.1) 0%,transparent 65%);
+      pointer-events:none}
+    .hero-title{font-family:var(--font-head);font-size:clamp(3rem,8vw,7rem);
+      letter-spacing:.05em;line-height:1;color:var(--white);margin-bottom:18px}
     .hero-title span{color:var(--blue)}
-    .hero-sub{color:var(--grey);font-size:1rem;max-width:500px;margin:0 auto 40px;line-height:1.6}
+    .hero-sub{font-family:var(--font-head);font-size:clamp(1rem,2.2vw,1.4rem);
+      letter-spacing:.12em;color:rgba(255,255,255,.55);max-width:640px;
+      margin:0 auto 0;line-height:1.4}
 
-    /* TYPE SELECTOR */
-    .type-selector{display:flex;justify-content:center;gap:12px;margin-bottom:60px;flex-wrap:wrap}
-    .type-btn{padding:14px 32px;border:1px solid rgba(255,255,255,.15);background:transparent;color:var(--grey);font-family:var(--font-head);font-size:1.2rem;letter-spacing:.1em;cursor:pointer;border-radius:6px;transition:all .25s;position:relative;overflow:hidden}
-    .type-btn::before{content:'';position:absolute;inset:0;background:var(--blue);opacity:0;transition:opacity .25s}
-    .type-btn:hover{color:var(--white);border-color:var(--blue)}
-    .type-btn:hover::before{opacity:.08}
-    .type-btn.active{background:var(--blue);color:#000;border-color:var(--blue);font-weight:700}
-    .type-btn.active::before{opacity:0}
-    .type-icon{font-size:1.4rem;margin-right:8px;vertical-align:-.1em}
+    /* ── TYPE CARDS ── */
+    .type-selector{
+      display:grid;grid-template-columns:repeat(3,1fr);
+      gap:20px;max-width:900px;margin:48px auto 56px;
+      padding:0 24px;
+    }
+    @media(max-width:640px){.type-selector{grid-template-columns:1fr;gap:12px;margin:32px auto 40px;}}
+    .type-card{
+      background:rgba(255,255,255,.03);
+      border:2px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:28px 22px 22px;
+      cursor:pointer;
+      text-align:center;
+      transition:all .25s;
+      position:relative;
+      display:flex;flex-direction:column;gap:6px;
+      align-items:center;
+    }
+    .type-card:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);transform:translateY(-2px);}
+    .type-card[data-type="artist"].active{border-color:var(--blue);background:rgba(0,180,255,.07);box-shadow:0 0 30px rgba(0,180,255,.12);}
+    .type-card[data-type="brand"].active{border-color:var(--green);background:rgba(0,200,83,.07);box-shadow:0 0 30px rgba(0,200,83,.12);}
+    .type-card[data-type="organizer"].active{border-color:var(--orange);background:rgba(255,109,0,.07);box-shadow:0 0 30px rgba(255,109,0,.12);}
+    .type-card-icon{font-size:2rem;line-height:1;margin-bottom:4px}
+    .type-card-label{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;color:var(--white)}
+    .type-card[data-type="artist"].active .type-card-label{color:var(--blue)}
+    .type-card[data-type="brand"].active .type-card-label{color:var(--green)}
+    .type-card[data-type="organizer"].active .type-card-label{color:var(--orange)}
+    .type-card-desc{font-size:.8rem;color:var(--grey);line-height:1.4;margin-bottom:4px}
+    .type-card-link{
+      display:inline-block;margin-top:10px;
+      font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+      text-decoration:none;transition:opacity .2s;padding:5px 12px;border-radius:20px;
+    }
+    .type-card[data-type="artist"] .type-card-link{color:var(--blue);border:1px solid rgba(0,180,255,.3);}
+    .type-card[data-type="brand"] .type-card-link{color:var(--green);border:1px solid rgba(0,200,83,.3);}
+    .type-card[data-type="organizer"] .type-card-link{color:var(--orange);border:1px solid rgba(255,109,0,.3);}
+    .type-card-link:hover{opacity:.7}
 
-    /* FORMS CONTAINER */
-    .forms-wrap{max-width:640px;margin:0 auto;padding:0 24px 100px}
+    /* ── FORMS ── */
+    .forms-wrap{max-width:660px;margin:0 auto;padding:0 24px 100px}
     .form-panel{display:none}
     .form-panel.active{display:block}
 
-    /* FORM CARD */
-    .form-card{background:var(--dark2);border:1px solid rgba(0,180,255,.15);border-radius:12px;padding:40px;box-shadow:0 0 40px rgba(0,0,0,.4)}
-    .form-card h2{font-family:var(--font-head);font-size:1.8rem;letter-spacing:.08em;margin-bottom:6px;color:var(--white)}
+    /* Color vars per active type */
+    .form-panel[data-type="artist"]   { --active:#00b4ff; --active-glow:rgba(0,180,255,.12); --active-dim:rgba(0,180,255,.2); }
+    .form-panel[data-type="brand"]    { --active:#00c853; --active-glow:rgba(0,200,83,.12);  --active-dim:rgba(0,200,83,.2);  }
+    .form-panel[data-type="organizer"]{ --active:#ff6d00; --active-glow:rgba(255,109,0,.12); --active-dim:rgba(255,109,0,.2); }
+
+    .form-card{
+      background:var(--dark2);
+      border:1px solid var(--active-dim,rgba(255,255,255,.1));
+      border-radius:14px;padding:44px 40px;
+      box-shadow:0 0 50px rgba(0,0,0,.4),0 0 30px var(--active-glow,transparent);
+      transition:border-color .3s,box-shadow .3s;
+    }
+    @media(max-width:540px){.form-card{padding:28px 20px;}}
+    .form-card h2{
+      font-family:var(--font-head);font-size:2rem;letter-spacing:.1em;
+      margin-bottom:4px;color:var(--active,var(--white));
+    }
     .form-card p.form-desc{color:var(--grey);font-size:.875rem;margin-bottom:32px;line-height:1.5}
 
     .field-group{margin-bottom:20px}
-    .field-group label{display:block;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;font-weight:600}
-    .field-group input,
-    .field-group select,
-    .field-group textarea{width:100%;background:#111;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:12px 16px;color:var(--white);font-family:var(--font-body);font-size:.95rem;outline:none;transition:border-color .2s}
-    .field-group input::placeholder,
-    .field-group textarea::placeholder{color:var(--grey2)}
-    .field-group input:focus,
-    .field-group select:focus,
-    .field-group textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,180,255,.12)}
+    .field-group label{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;font-weight:600}
+    .field-group input,.field-group select,.field-group textarea{
+      width:100%;background:#111;border:1px solid rgba(255,255,255,.11);
+      border-radius:7px;padding:12px 16px;color:var(--white);
+      font-family:var(--font-body);font-size:.95rem;outline:none;transition:border-color .2s,box-shadow .2s
+    }
+    .field-group input::placeholder,.field-group textarea::placeholder{color:var(--grey2)}
+    .field-group input:focus,.field-group select:focus,.field-group textarea:focus{
+      border-color:var(--active,#00b4ff);
+      box-shadow:0 0 0 3px var(--active-glow,rgba(0,180,255,.12))
+    }
     .field-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer}
     .field-group select option{background:#181818}
     .field-group textarea{resize:vertical;min-height:100px;line-height:1.5}
-
     .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
     @media(max-width:520px){.field-row{grid-template-columns:1fr}}
-
     .ig-field{position:relative}
     .ig-field input{padding-left:36px}
     .ig-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--grey);font-size:.95rem;pointer-events:none}
-
     .divider{border:none;border-top:1px solid rgba(255,255,255,.07);margin:28px 0}
 
-    .submit-btn{width:100%;padding:16px;background:var(--blue);color:#000;border:none;border-radius:8px;font-family:var(--font-head);font-size:1.3rem;letter-spacing:.12em;cursor:pointer;transition:all .2s;margin-top:8px}
-    .submit-btn:hover{background:#fff;transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,180,255,.3)}
+    .submit-btn{
+      width:100%;padding:16px;
+      background:var(--active,#00b4ff);color:#000;
+      border:none;border-radius:8px;
+      font-family:var(--font-head);font-size:1.35rem;letter-spacing:.12em;
+      cursor:pointer;transition:all .2s;margin-top:8px;
+    }
+    .submit-btn:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 4px 20px var(--active-dim,rgba(0,180,255,.25));}
     .submit-btn:active{transform:translateY(0)}
     .submit-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-    .form-note{font-size:.78rem;color:var(--grey);text-align:center;margin-top:16px;line-height:1.5}
+    .form-note{font-size:.78rem;color:var(--grey);text-align:center;margin-top:14px;line-height:1.5}
 
-    /* SUCCESS STATE */
-    .success-msg{display:none;text-align:center;padding:40px 20px}
-    .success-msg .check{font-size:3rem;margin-bottom:16px}
-    .success-msg h3{font-family:var(--font-head);font-size:2rem;letter-spacing:.08em;color:var(--blue);margin-bottom:12px}
-    .success-msg p{color:var(--grey);line-height:1.6;margin-bottom:24px}
-    .success-msg a{color:var(--blue);text-decoration:underline}
-
-    /* WHAT HAPPENS NEXT */
-    .next-steps{margin-top:60px;padding:32px;background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.1);border-radius:10px}
-    .next-steps h3{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.1em;color:var(--blue);margin-bottom:16px}
-    .step-item{display:flex;gap:14px;margin-bottom:14px;font-size:.875rem;color:var(--grey)}
-    .step-num{background:var(--blue);color:#000;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;flex-shrink:0;margin-top:2px}
-
-    /* ERROR */
     .field-error{font-size:.75rem;color:#ff6b6b;margin-top:6px;display:none}
-    .field-group.has-error input,
-    .field-group.has-error select,
-    .field-group.has-error textarea{border-color:#ff6b6b}
+    .field-group.has-error input,.field-group.has-error select,.field-group.has-error textarea{border-color:#ff6b6b}
     .field-group.has-error .field-error{display:block}
 
-    /* FOOTER */
-    footer{text-align:center;padding:30px;color:var(--grey);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06)}
-    footer a{color:var(--blue);margin:0 8px}
-</style>
-<style id="nav-uniform">
+    .success-msg{display:none;text-align:center;padding:40px 20px}
+    .success-msg .check{font-size:3rem;margin-bottom:16px}
+    .success-msg h3{font-family:var(--font-head);font-size:2rem;letter-spacing:.08em;color:var(--active,var(--blue));margin-bottom:12px}
+    .success-msg p{color:var(--grey);line-height:1.6;margin-bottom:24px}
+    .success-msg a{color:var(--active,var(--blue));text-decoration:underline}
+
+    .next-steps{
+      margin-top:28px;padding:30px 32px;
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--active-dim,rgba(255,255,255,.08));
+      border-radius:12px;
+    }
+    .next-steps h3{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:var(--active,var(--blue));margin-bottom:16px}
+    .step-item{display:flex;gap:14px;margin-bottom:14px;font-size:.875rem;color:var(--grey)}
+    .step-num{
+      background:var(--active,var(--blue));color:#000;
+      width:22px;height:22px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:.7rem;flex-shrink:0;margin-top:2px
+    }
+
+    footer{text-align:center;padding:32px 24px;color:var(--grey);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06);margin-top:20px}
+    footer a{color:var(--blue);margin:0 10px;transition:color .2s}
+    footer a:hover{color:#fff}
+  </style>
+  <style id="nav-uniform">
   /* ── UNIFORM NAV ── */
   nav#main-nav,nav:not([class]) {
     position:fixed;top:0;left:0;right:0;z-index:1000;
@@ -192,7 +238,7 @@
 </head>
 <body>
 
-  <!-- Nav -->
+<!-- Nav -->
   <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/">
@@ -218,33 +264,42 @@
     <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
   </div>
 
+  <!-- HERO -->
   <section class="hero">
-    <p class="hero-eyebrow">Get On The Map</p>
     <h1 class="hero-title">JOIN <span>KEEPITIL</span></h1>
-    <p class="hero-sub">Artists, brands, and event crews — apply to be featured across our platform and community.</p>
+    <p class="hero-sub">ARTISTS, BRANDS, AND COLLECTIVES &mdash; GET FEATURED FOR FREE.</p>
   </section>
 
-  <!-- TYPE SELECTOR -->
+  <!-- TYPE CARDS -->
   <div class="type-selector">
-    <button class="type-btn active" data-type="artist" onclick="switchForm('artist')">
-      <span class="type-icon">🎧</span>Artist
-    </button>
-    <button class="type-btn" data-type="brand" onclick="switchForm('brand')">
-      <span class="type-icon">🏷️</span>Brand
-    </button>
-    <button class="type-btn" data-type="organizer" onclick="switchForm('organizer')">
-      <span class="type-icon">🎪</span>Organizer
-    </button>
+    <div class="type-card active" data-type="artist" onclick="switchForm('artist')">
+      <div class="type-card-icon">🎧</div>
+      <div class="type-card-label">ARTIST</div>
+      <div class="type-card-desc">DJs, producers, bands &amp; visual artists</div>
+      <a class="type-card-link" href="/artist" onclick="event.stopPropagation()">View Artist Roster &rarr;</a>
+    </div>
+    <div class="type-card" data-type="brand" onclick="switchForm('brand')">
+      <div class="type-card-icon">🏷️</div>
+      <div class="type-card-label">BRAND</div>
+      <div class="type-card-desc">Clothing, gear, lifestyle &amp; culture brands</div>
+      <a class="type-card-link" href="/brand/" onclick="event.stopPropagation()">View Brand Directory &rarr;</a>
+    </div>
+    <div class="type-card" data-type="organizer" onclick="switchForm('organizer')">
+      <div class="type-card-icon">🎪</div>
+      <div class="type-card-label">COLLECTIVE</div>
+      <div class="type-card-desc">Event crews, promoters &amp; collectives</div>
+      <a class="type-card-link" href="/organizer/" onclick="event.stopPropagation()">View Organizer Directory &rarr;</a>
+    </div>
   </div>
 
+  <!-- FORMS -->
   <div class="forms-wrap">
 
-    <!-- ====== ARTIST FORM ====== -->
-    <div class="form-panel active" id="panel-artist">
+    <!-- ARTIST FORM -->
+    <div class="form-panel active" id="panel-artist" data-type="artist">
       <div class="form-card">
-        <h2>Artist Profile</h2>
-        <p class="form-desc">DJs, singers, bands, painters, photographers — if you create, you belong here. Get featured on the roster and connected to the community.</p>
-
+        <h2>Artist Application</h2>
+        <p class="form-desc">DJs, singers, producers, painters, photographers — if you create, you belong here. Get featured on the roster and connected to the community.</p>
         <form id="form-artist" novalidate>
           <div class="field-row">
             <div class="field-group">
@@ -257,12 +312,11 @@
               <input type="text" name="real_name" placeholder="First Last"/>
             </div>
           </div>
-
           <div class="field-row">
             <div class="field-group">
               <label>Artist Type *</label>
               <select name="artist_type" required>
-                <option value="">Select type…</option>
+                <option value="">Select type&hellip;</option>
                 <option>DJ</option>
                 <option>Singer / Vocalist</option>
                 <option>Producer</option>
@@ -278,10 +332,10 @@
             <div class="field-group">
               <label>Primary Genre *</label>
               <select name="genre" required>
-                <option value="">Select genre…</option>
+                <option value="">Select genre&hellip;</option>
                 <option>House</option>
                 <option>Techno</option>
-                <option>Drum & Bass</option>
+                <option>Drum &amp; Bass</option>
                 <option>Dubstep / Bass</option>
                 <option>Trance</option>
                 <option>Breaks</option>
@@ -296,7 +350,6 @@
               <span class="field-error">Required</span>
             </div>
           </div>
-
           <div class="field-row">
             <div class="field-group">
               <label>City *</label>
@@ -304,9 +357,9 @@
               <span class="field-error">Required</span>
             </div>
             <div class="field-group">
-              <label>County</label>
+              <label>Region</label>
               <select name="county">
-                <option value="">Select…</option>
+                <option value="">Select&hellip;</option>
                 <option>Orange County</option>
                 <option>Los Angeles</option>
                 <option>San Diego</option>
@@ -316,7 +369,6 @@
               </select>
             </div>
           </div>
-
           <div class="field-group">
             <label>Instagram Handle *</label>
             <div class="ig-field">
@@ -325,63 +377,54 @@
             </div>
             <span class="field-error">Required</span>
           </div>
-
           <div class="field-group">
             <label>SoundCloud / Spotify Link</label>
             <input type="url" name="soundcloud" placeholder="https://soundcloud.com/yourname"/>
           </div>
-
           <div class="field-group">
             <label>Email Address *</label>
             <input type="email" name="email" placeholder="you@email.com" required/>
-            <span class="field-error">Required — enter a valid email</span>
+            <span class="field-error">Required &mdash; enter a valid email</span>
           </div>
-
           <div class="field-group">
             <label>Bio (optional)</label>
-            <textarea name="bio" placeholder="Tell us about your sound, your sets, your story…"></textarea>
+            <textarea name="bio" placeholder="Tell us about your sound, your sets, your story&hellip;"></textarea>
           </div>
-
           <hr class="divider"/>
-
           <div id="success-artist" class="success-msg">
-            <div class="check">✅</div>
+            <div class="check">&#9989;</div>
             <h3>You're in the system.</h3>
-            <p>We received your application and will review it within a few days. Once approved, your profile goes live on the <a href="https://keepitil.com/artist">artist roster</a>.</p>
+            <p>We received your application and will review it within a few days. Once approved, your profile goes live on the <a href="/artist">artist roster</a>.</p>
           </div>
-
           <button type="submit" class="submit-btn" id="btn-artist">SUBMIT APPLICATION</button>
-          <p class="form-note">We review every application manually. Expect to hear back within 3–5 days.</p>
+          <p class="form-note">We review every application manually. Expect to hear back within 3&ndash;5 days.</p>
         </form>
       </div>
-
       <div class="next-steps">
         <h3>WHAT HAPPENS NEXT</h3>
         <div class="step-item"><div class="step-num">1</div><span>We review your profile and music within a few days</span></div>
-        <div class="step-item"><div class="step-num">2</div><span>If approved, your card goes live on the <a href="https://keepitil.com/artist" style="color:var(--blue)">artist roster</a></span></div>
+        <div class="step-item"><div class="step-num">2</div><span>If approved, your card goes live on the <a href="/artist" style="color:var(--active)">artist roster</a></span></div>
         <div class="step-item"><div class="step-num">3</div><span>You get featured in our weekly community updates and social posts</span></div>
         <div class="step-item"><div class="step-num">4</div><span>Access to booking requests and event opportunities through KEEPITIL</span></div>
       </div>
     </div>
 
-    <!-- ====== BRAND FORM ====== -->
-    <div class="form-panel" id="panel-brand">
+    <!-- BRAND FORM -->
+    <div class="form-panel" id="panel-brand" data-type="brand">
       <div class="form-card">
-        <h2>Brand Profile</h2>
+        <h2>Brand Application</h2>
         <p class="form-desc">Clothing, gear, drinks, lifestyle — if your brand moves with the underground, get featured on the brands page and reach our community directly.</p>
-
         <form id="form-brand" novalidate>
           <div class="field-group">
             <label>Brand Name *</label>
             <input type="text" name="brand_name" placeholder="Your Brand" required/>
             <span class="field-error">Required</span>
           </div>
-
           <div class="field-row">
             <div class="field-group">
               <label>Category *</label>
               <select name="category" required>
-                <option value="">Select…</option>
+                <option value="">Select&hellip;</option>
                 <option>Clothing / Streetwear</option>
                 <option>Event Gear / Equipment</option>
                 <option>Beverages / Drinks</option>
@@ -399,7 +442,6 @@
               <input type="text" name="location" placeholder="Los Angeles, CA"/>
             </div>
           </div>
-
           <div class="field-row">
             <div class="field-group">
               <label>Contact Name *</label>
@@ -412,12 +454,10 @@
               <span class="field-error">Required</span>
             </div>
           </div>
-
           <div class="field-group">
             <label>Website</label>
             <input type="url" name="website" placeholder="https://yourbrand.com"/>
           </div>
-
           <div class="field-group">
             <label>Instagram Handle *</label>
             <div class="ig-field">
@@ -426,16 +466,14 @@
             </div>
             <span class="field-error">Required</span>
           </div>
-
           <div class="field-group">
             <label>Tell Us About Your Brand</label>
             <textarea name="bio" placeholder="What does your brand represent? How are you connected to the underground scene?"></textarea>
           </div>
-
           <div class="field-group">
             <label>Partnership Interest</label>
             <select name="partnership">
-              <option value="">Select…</option>
+              <option value="">Select&hellip;</option>
               <option>Directory listing only</option>
               <option>Event sponsorship</option>
               <option>Artist collaboration</option>
@@ -443,39 +481,34 @@
               <option>All of the above</option>
             </select>
           </div>
-
           <hr class="divider"/>
-
           <div id="success-brand" class="success-msg">
-            <div class="check">✅</div>
+            <div class="check">&#9989;</div>
             <h3>Application received.</h3>
-            <p>We'll review your brand and be in touch within a few days. Once approved, you'll be listed on our <a href="https://keepitil.com/brand/">brands page</a>.</p>
+            <p>We'll review your brand and be in touch within a few days. Once approved, you'll be listed on our <a href="/brand/">brands page</a>.</p>
           </div>
-
           <button type="submit" class="submit-btn" id="btn-brand">SUBMIT APPLICATION</button>
           <p class="form-note">Brand listings are reviewed manually. We feature brands that align with underground culture.</p>
         </form>
       </div>
-
       <div class="next-steps">
         <h3>WHAT HAPPENS NEXT</h3>
-        <div class="step-item"><div class="step-num">1</div><span>We review your brand fit within 3–5 days</span></div>
-        <div class="step-item"><div class="step-num">2</div><span>Approved brands go live on the <a href="https://keepitil.com/brand/" style="color:var(--blue)">brands directory</a></span></div>
+        <div class="step-item"><div class="step-num">1</div><span>We review your brand fit within 3&ndash;5 days</span></div>
+        <div class="step-item"><div class="step-num">2</div><span>Approved brands go live on the <a href="/brand/" style="color:var(--active)">brands directory</a></span></div>
         <div class="step-item"><div class="step-num">3</div><span>Access to artist and event partnership opportunities</span></div>
-        <div class="step-item"><div class="step-num">4</div><span>Community exposure to our OC & LA underground audience</span></div>
+        <div class="step-item"><div class="step-num">4</div><span>Community exposure to our OC &amp; LA underground audience</span></div>
       </div>
     </div>
 
-    <!-- ====== ORGANIZER FORM ====== -->
-    <div class="form-panel" id="panel-organizer">
+    <!-- ORGANIZER / COLLECTIVE FORM -->
+    <div class="form-panel" id="panel-organizer" data-type="organizer">
       <div class="form-card">
-        <h2>Organizer / Promoter</h2>
+        <h2>Collective Application</h2>
         <p class="form-desc">Running events, hosting nights, building the culture? Get listed on the organizer directory and bring your events to the KEEPITIL community.</p>
-
         <form id="form-organizer" novalidate>
           <div class="field-row">
             <div class="field-group">
-              <label>Crew / Org Name *</label>
+              <label>Crew / Collective Name *</label>
               <input type="text" name="org_name" placeholder="Underground Collective" required/>
               <span class="field-error">Required</span>
             </div>
@@ -485,7 +518,6 @@
               <span class="field-error">Required</span>
             </div>
           </div>
-
           <div class="field-row">
             <div class="field-group">
               <label>City *</label>
@@ -493,9 +525,9 @@
               <span class="field-error">Required</span>
             </div>
             <div class="field-group">
-              <label>County / Region</label>
+              <label>Region</label>
               <select name="county">
-                <option value="">Select…</option>
+                <option value="">Select&hellip;</option>
                 <option>Orange County</option>
                 <option>Los Angeles</option>
                 <option>San Diego</option>
@@ -506,13 +538,11 @@
               </select>
             </div>
           </div>
-
           <div class="field-group">
             <label>Email Address *</label>
             <input type="email" name="email" placeholder="you@email.com" required/>
             <span class="field-error">Required</span>
           </div>
-
           <div class="field-group">
             <label>Instagram Handle *</label>
             <div class="ig-field">
@@ -521,55 +551,47 @@
             </div>
             <span class="field-error">Required</span>
           </div>
-
           <div class="field-group">
             <label>Website / Linktree</label>
             <input type="url" name="website" placeholder="https://linktr.ee/yourcrew"/>
           </div>
-
           <div class="field-group">
             <label>Event Types *</label>
             <select name="event_types" required>
-              <option value="">Select primary event type…</option>
+              <option value="">Select primary event type&hellip;</option>
               <option>Warehouse / Underground</option>
               <option>Club Night</option>
               <option>Rooftop / Outdoor</option>
               <option>Festival / Multi-stage</option>
-              <option>Art & Music</option>
+              <option>Art &amp; Music</option>
               <option>Pop-up / Rave</option>
               <option>Private Events</option>
               <option>Mixed / All Types</option>
             </select>
             <span class="field-error">Required</span>
           </div>
-
           <div class="field-group">
             <label>About Your Events</label>
-            <textarea name="bio" placeholder="Tell us about your crew, the events you run, and what makes your nights different…"></textarea>
+            <textarea name="bio" placeholder="Tell us about your crew, the events you run, and what makes your nights different&hellip;"></textarea>
           </div>
-
           <div class="field-group">
-            <label>List an Upcoming Event (optional)</label>
-            <input type="text" name="next_event" placeholder="Event name — Date — Venue"/>
+            <label>Upcoming Event (optional)</label>
+            <input type="text" name="next_event" placeholder="Event name &mdash; Date &mdash; Venue"/>
           </div>
-
           <hr class="divider"/>
-
           <div id="success-organizer" class="success-msg">
-            <div class="check">✅</div>
+            <div class="check">&#9989;</div>
             <h3>Application received.</h3>
-            <p>We'll review your crew and get back to you within a few days. Once approved, you'll be listed in the <a href="https://keepitil.com/organizer/">organizer directory</a>.</p>
+            <p>We'll review your crew and get back to you within a few days. Once approved, you'll be listed in the <a href="/organizer/">organizer directory</a>.</p>
           </div>
-
           <button type="submit" class="submit-btn" id="btn-organizer">SUBMIT APPLICATION</button>
           <p class="form-note">We feature organizers who are actively building the underground scene in SOCAL.</p>
         </form>
       </div>
-
       <div class="next-steps">
         <h3>WHAT HAPPENS NEXT</h3>
-        <div class="step-item"><div class="step-num">1</div><span>We review your crew profile within 3–5 days</span></div>
-        <div class="step-item"><div class="step-num">2</div><span>Approved organizers go live on the <a href="https://keepitil.com/organizer/" style="color:var(--blue)">organizer directory</a></span></div>
+        <div class="step-item"><div class="step-num">1</div><span>We review your crew profile within 3&ndash;5 days</span></div>
+        <div class="step-item"><div class="step-num">2</div><span>Approved collectives go live on the <a href="/organizer/" style="color:var(--active)">organizer directory</a></span></div>
         <div class="step-item"><div class="step-num">3</div><span>Your events get promoted to the KEEPITIL community</span></div>
         <div class="step-item"><div class="step-num">4</div><span>Access to our artist roster for booking and collaboration</span></div>
       </div>
@@ -578,15 +600,16 @@
   </div><!-- /forms-wrap -->
 
   <footer>
-    <a href="https://keepitil.com/">Home</a>
-    <a href="https://keepitil.com/artist">Artists</a>
-    <a href="https://keepitil.com/brand/">Brands</a>
-    <a href="https://keepitil.com/organizer/">Organizers</a>
-    <a href="https://keepitil.com/culture">Culture</a>
+    <a href="/">Home</a>
+    <a href="/artist">Artists</a>
+    <a href="/brand/">Brands</a>
+    <a href="/organizer/">Organizers</a>
+    <a href="/culture">Culture</a>
+    <a href="/events">Events</a>
     <br/><br/>
-    © 2025 KEEPITIL. Underground SOCAL.
-  
-    <a href="https://keepitil.com/privacy.html">Privacy Policy</a></footer>
+    &copy; 2025 KEEPITIL. Underground SOCAL. &nbsp;
+    <a href="/privacy.html">Privacy Policy</a>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
@@ -595,8 +618,8 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
     function switchForm(type) {
-      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector('[data-type="'+type+'"]').classList.add('active');
+      document.querySelectorAll('.type-card').forEach(b => b.classList.remove('active'));
+      document.querySelector('.type-card[data-type="'+type+'"]').classList.add('active');
       document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('panel-'+type).classList.add('active');
       document.querySelector('.forms-wrap').scrollIntoView({behavior:'smooth',block:'start'});
@@ -609,12 +632,8 @@
         const val = el.value.trim();
         const isEmail = el.type === 'email';
         const emailOk = !isEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-        if (!val || !emailOk) {
-          group.classList.add('has-error');
-          valid = false;
-        } else {
-          group.classList.remove('has-error');
-        }
+        if (!val || !emailOk) { group.classList.add('has-error'); valid = false; }
+        else { group.classList.remove('has-error'); }
       });
       return valid;
     }
@@ -629,16 +648,12 @@
       const form = document.getElementById(formId);
       const btn  = document.getElementById(btnId);
       const successEl = document.getElementById(successId);
-
       form.addEventListener('submit', async function(e) {
         e.preventDefault();
         if (!validateForm(form)) return;
-
         btn.disabled = true;
         btn.textContent = 'SENDING…';
-
         const row = collectData(form, type);
-
         try {
           const { error } = await db.from('applications').insert(row);
           if (error) throw error;
@@ -658,7 +673,10 @@
     submitForm('form-brand',     'btn-brand',     'success-brand',     'brand');
     submitForm('form-organizer', 'btn-organizer', 'success-organizer', 'organizer');
 
-    // Check URL param for default tab
+    function toggleMenu() {
+      document.getElementById('mobile-menu').classList.toggle('open');
+    }
+
     const urlType = new URLSearchParams(location.search).get('type');
     if (['artist','brand','organizer'].includes(urlType)) switchForm(urlType);
   </script>
