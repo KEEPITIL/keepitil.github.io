@@ -430,12 +430,13 @@ function renderCard(o){
   const igUrl=`https://instagram.com/${o.ig}`;
   const profileUrl = o.blog ? 'https://keepitil.com/'+o.blog : igUrl;
   const profileTarget = o.blog ? '_self' : '_blank';
-  const imgSrc = o.img || `https://unavatar.io/instagram/${o.ig}`;
+  const col=(o.color||'#ff6600').replace('#','');
+  const hex=col.length===3?col[0]+col[0]+col[1]+col[1]+col[2]+col[2]:col;
+  const imgSrc = o.img || `https://ui-avatars.com/api/?name=${encodeURIComponent(o.name)}&background=${hex}&color=fff&size=400&bold=true&font-size=0.33`;
   return `
     <div class="org-card" onclick="window.location='${profileUrl}'">
-      <div class="org-card-placeholder" style="background:linear-gradient(135deg,${o.color}22 0%,#0b0b0b 100%);background-image:url('${imgSrc}');background-size:cover;background-position:center top;position:relative;">
-        <span style="position:absolute;font-family:'Bebas Neue',sans-serif;font-size:3rem;color:${o.color};opacity:.25;letter-spacing:.05em;">${o.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</span>
-      </div>
+      <div class="org-card-placeholder" style="background:linear-gradient(135deg,${o.color}22 0%,#0b0b0b 100%);position:relative;"></div>
+      <img src="${imgSrc}" alt="${o.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;" loading="lazy" onerror="this.style.display='none'">
       <div class="org-card-overlay"></div>
       <div class="org-card-body">
         <span class="org-type-tag">${o.type}</span>
