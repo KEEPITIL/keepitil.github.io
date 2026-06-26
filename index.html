@@ -425,6 +425,37 @@
     .month-nav-btn:disabled{opacity:.2;cursor:default;pointer-events:none;}
     .month-nav-title{font-family:var(--font-head);font-size:2rem;letter-spacing:.12em;color:var(--white);}
 
+
+    /* ── FLYER EVENT CARDS ── */
+    .ev-flyer-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;padding:0 24px;max-width:1200px;margin-left:auto;margin-right:auto;}
+    @media(max-width:1100px){.ev-flyer-grid{grid-template-columns:repeat(4,1fr);}}
+    @media(max-width:800px){.ev-flyer-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:540px){.ev-flyer-grid{grid-template-columns:repeat(2,1fr);}}
+    .ev-flyer-card{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:#0a0a14;border:1px solid rgba(230,51,51,.15);transition:transform .25s,border-color .25s;background-size:cover;background-position:center top;display:block;}
+    .ev-flyer-card:hover{transform:translateY(-5px);border-color:rgba(230,51,51,.5);}
+    .ev-flyer-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.08) 40%,rgba(0,0,0,.08) 55%,rgba(0,0,0,.88) 100%);z-index:1;}
+    .ev-fc-date{position:absolute;top:9px;left:9px;z-index:2;background:rgba(230,51,51,.9);color:#fff;font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:3px;line-height:1.4;}
+    .ev-fc-genre{position:absolute;top:9px;right:9px;z-index:2;background:rgba(0,0,0,.65);color:#ddd;font-size:.52rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 7px;border-radius:3px;max-width:46%;text-align:right;line-height:1.3;}
+    .ev-fc-info{position:absolute;bottom:32px;left:9px;right:9px;z-index:2;}
+    .ev-fc-title{font-family:var(--font-head);font-size:.95rem;letter-spacing:.04em;color:#fff;line-height:1.1;text-shadow:0 1px 4px rgba(0,0,0,.9);margin-bottom:2px;}
+    .ev-fc-venue{font-size:.56rem;color:#bbb;text-shadow:0 1px 3px rgba(0,0,0,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ev-fc-price{position:absolute;bottom:9px;left:9px;z-index:2;color:var(--orange);font-size:.63rem;font-weight:800;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.9);}
+    .ev-fc-ticket{position:absolute;bottom:7px;right:9px;z-index:2;background:rgba(230,51,51,.9);color:#fff;font-size:.56rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:4px 8px;border-radius:3px;text-decoration:none;transition:background .2s;white-space:nowrap;}
+    .ev-fc-ticket:hover{background:var(--orange);}
+    .show-more-wrap{text-align:center;padding:8px 0 28px;display:none;}
+    .show-more-btn{background:transparent;border:1px solid rgba(230,51,51,.3);color:var(--orange);padding:10px 32px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
+    .show-more-btn:hover{background:rgba(230,51,51,.1);border-color:var(--orange);}
+    /* ── EVENTS NAV V2 ── */
+    .events-nav-v2{display:flex;align-items:center;gap:8px;padding:20px 24px 24px;max-width:1200px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+    .ev-nav-month{font-family:var(--font-head);font-size:2.2rem;letter-spacing:.14em;color:var(--white);flex:1;text-align:center;min-width:180px;}
+    .ev-nav-select{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.22);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:9px 10px;border-radius:4px;cursor:pointer;outline:none;transition:border-color .2s;flex-shrink:0;}
+    .ev-nav-select:hover,.ev-nav-select:focus{border-color:rgba(230,51,51,.5);}
+    .ev-nav-select option{background:#0a0a14;color:#fff;}
+    @media(max-width:860px){.events-nav-v2{gap:6px;}.ev-nav-month{width:100%;font-size:1.7rem;margin-bottom:4px;}}
+    /* ── PICKS WITH FLYER BG ── */
+    .ev-card.has-flyer{background-size:cover;background-position:center top;position:relative;}
+    .ev-card.has-flyer::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.45) 50%,rgba(0,0,0,.8) 100%);z-index:0;border-radius:9px;}
+    .ev-card.has-flyer>*{position:relative;z-index:1;}
     /* ── OLD FLYERS SECTION ── */
     .flyers-section{padding:0 24px 80px;max-width:1200px;margin:0 auto;}
     .flyers-heading{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:.08em;margin-bottom:6px;}
@@ -767,25 +798,12 @@
 
   <!-- EVENTS (from events.html) -->
   <div class="events-hub">
-<!-- FILTER BAR -->
-<div class="filter-bar" id="filter-bar">
-  <input type="text" id="filter-search" class="filter-search" placeholder="Search events…">
-  <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" class="filter-org-btn">🎪 Create Your Event</a>
-</div>
-
-<!-- MONTH NAV -->
-<div class="month-nav" id="month-nav">
-  <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#8592; Prev</button>
-  <div class="month-nav-title" id="month-nav-title">JUNE 2026</div>
-  <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">Next &#8594;</button>
-</div>
-
 <!-- EVENTS -->
 <div class="events-section" id="events-container">
 
   <div class="picks-row">
 
-    <div class="ev-card featured" data-genre="afrobeats house" data-region="oc" data-date="2026-07-12">
+    <div class="ev-card featured has-flyer" data-genre="afrobeats house" data-region="oc" data-date="2026-07-12" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30cd9b98ff567fe8575371')">
       <div class="ev-card-header">
         <div class="ev-date-row"><span class="ev-date-badge">Jul 12</span><span class="ev-genre-tag">Afrobeats · EDM</span></div>
         <div class="ev-featured-tag">⚡ KEEPITIL PICK</div>
@@ -800,7 +818,7 @@
       <div class="ev-footer"><span class="ev-price">Free RSVP</span><a href="https://posh.vip/e/keeitil-summer" target="_blank" rel="noopener" class="ev-ticket-link">RSVP on Posh →</a></div>
     </div>
 
-    <div class="ev-card featured" data-genre="bass" data-region="oc" data-date="2026-07-10">
+    <div class="ev-card featured has-flyer" data-genre="bass" data-region="oc" data-date="2026-07-10" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c4689aa591bbf94784647')">
       <div class="ev-card-header">
         <div class="ev-date-row"><span class="ev-date-badge">Jul 10</span><span class="ev-genre-tag">Bass · Dubstep</span></div>
         <div class="ev-featured-tag">⚡ KEEPITIL PICK</div>
@@ -832,373 +850,534 @@
 
   </div>
 
+  <!-- EVENTS NAV V2 (after picks) -->
+  <div class="events-nav-v2" id="month-nav">
+    <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#171;&#171; PREV</button>
+    <select class="ev-nav-select" id="ev-location" onchange="applyFilters()">
+      <option value="">&#128205; Near Me</option>
+      <option value="la">Los Angeles</option>
+      <option value="oc">Orange County</option>
+      <option value="westminster">Westminster</option>
+    </select>
+    <div class="ev-nav-month" id="month-nav-title">JUNE 2026</div>
+    <select class="ev-nav-select" id="ev-genre" onchange="applyFilters()">
+      <option value="">&#127925; All Genres</option>
+      <option value="bass">Bass / Dubstep</option>
+      <option value="house">House</option>
+      <option value="techno">Techno</option>
+      <option value="trance">Trance</option>
+      <option value="dnb">DnB / Jungle</option>
+      <option value="rnb">RnB / Hip-Hop</option>
+      <option value="garage">Garage / UKG</option>
+    </select>
+    <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" class="filter-org-btn">&#127914; Create Your Event</a>
+    <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">NEXT &#187;&#187;</button>
+  </div>
+
   <div class="month-section" id="month-june">
+  <div class="month-label" style="display:none">June 2026</div>
+  <div class="ev-flyer-grid">
 
-  <div class="more-events-label">More this month</div>
-  <div class="events-grid">
-
-    <div class="ev-card" data-genre="trance techno" data-region="la" data-date="2026-06-25">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 25</span><span class="ev-genre-tag">Trance / Techno</span></div>
-        <h3>AARON HIBELL</h3>
-        <div class="ev-subtitle">Goldenvoice · cinematic trance &amp; techno · 18+</div>
+    <div class="ev-flyer-card" data-genre="trance techno" data-region="la" data-date="2026-06-25">
+      <span class="ev-fc-date">Jun 25</span>
+      <span class="ev-fc-genre">Trance / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">AARON HIBELL</div>
+        <div class="ev-fc-venue">📍 Fonda Theatre — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Fonda Theatre — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Aaron Hibell — emotive, classical-tinged trance and techno live show.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $30</span><a href="https://www.axs.com/events/1332014/aaron-hibell-tickets" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $30</span>
+      <a href="https://www.axs.com/events/1332014/aaron-hibell-tickets" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="techno house" data-region="la" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">Techno / House</span></div>
-        <h3>ELECTRIC CAROUSEL</h3>
-        <div class="ev-subtitle">Sinners Club · tech house &amp; techno warehouse · 18+</div>
+    <div class="ev-flyer-card" data-genre="techno house" data-region="la" data-date="2026-06-26">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">Techno / House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">ELECTRIC CAROUSEL</div>
+        <div class="ev-fc-venue">📍 The Compound by Dirt Dog — Commerce, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>The Compound by Dirt Dog — Commerce, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">XVIRAD · Nina J · Dani Rave Bestie · Ty Diamondz · kyrxmi · KANEKI · Cecylia Parchita · Sorryn · Tenorax</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$25-65</span><a href="https://shotgun.live/en/festivals/electric-carousel" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$25-65</span>
+      <a href="https://shotgun.live/en/festivals/electric-carousel" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="trance" data-region="sd" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">Trance</span></div>
-        <h3>GABRIEL &AMP; DRESDEN</h3>
-        <div class="ev-subtitle">Intricacy · progressive trance · 21+</div>
+    <div class="ev-flyer-card" data-genre="trance" data-region="sd" data-date="2026-06-26">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">Trance</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">GABRIEL &AMP; DRESDEN</div>
+        <div class="ev-fc-venue">📍 Spin Nightclub — San Diego, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Spin Nightclub — San Diego, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Gabriel &amp; Dresden — vocal &amp; progressive trance icons in San Diego.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $15</span><a href="https://intricacynights.ticketsauce.com/e/gssd2026/tickets" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $15</span>
+      <a href="https://intricacynights.ticketsauce.com/e/gssd2026/tickets" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house techno" data-region="la" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">House / Techno</span></div>
-        <h3>GREEN VELVET — DAY TRIP PREPARTY</h3>
-        <div class="ev-subtitle">Day Trip Festival preparty · 21+</div>
+    <div class="ev-flyer-card" data-genre="house techno" data-region="la" data-date="2026-06-26">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">House / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">GREEN VELVET — DAY TRIP PREPARTY</div>
+        <div class="ev-fc-venue">📍 Exchange LA — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Exchange LA — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Green Velvet — Chicago house &amp; techno legend warming up Day Trip weekend.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$45-95</span><a href="https://www.tixr.com/groups/exchangela/events/day-trip-festival-preparty-green-velvet-192192" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$45-95</span>
+      <a href="https://www.tixr.com/groups/exchangela/events/day-trip-festival-preparty-green-velvet-192192" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house" data-region="la" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">House</span></div>
-        <h3>MARK KNIGHT</h3>
-        <div class="ev-subtitle">Toolroom boss · tech house · 21+</div>
+    <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-06-26">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">MARK KNIGHT</div>
+        <div class="ev-fc-venue">📍 Sound Nightclub — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Sound Nightclub — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Mark Knight — Toolroom Records founder bringing peak-time tech house to Sound.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$31</span><a href="https://dice.fm/event/dk29aq-mark-knight-26th-jun-sound-nightclub-los-angeles-tickets" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$31</span>
+      <a href="https://dice.fm/event/dk29aq-mark-knight-26th-jun-sound-nightclub-los-angeles-tickets" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="garage" data-region="sd" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">Garage</span></div>
-        <h3>RELOAD: UKG</h3>
-        <div class="ev-subtitle">Sounds Good Collective · UK garage · 21+</div>
+    <div class="ev-flyer-card" data-genre="garage" data-region="sd" data-date="2026-06-26" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3aebfd02662f5cfcba07ad')">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">Garage</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">RELOAD: UKG</div>
+        <div class="ev-fc-venue">📍 Breakpoint PB — San Diego, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Breakpoint PB — San Diego, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">All-night UK garage from the Sounds Good &amp; Overdrive crews.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$15</span><a href="https://posh.vip/e/reload-ukg" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$15</span>
+      <a href="https://posh.vip/e/reload-ukg" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house" data-region="la" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">House</span></div>
-        <h3>THEMBA</h3>
-        <div class="ev-subtitle">Afro &amp; melodic house · 21+</div>
+    <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-06-26">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">THEMBA</div>
+        <div class="ev-fc-venue">📍 The Spotlight — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>The Spotlight — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Themba — South African afro-house in an intimate room.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$25</span><a href="https://dice.fm/event/yoeqxv-themba-26th-jun-the-spotlight-los-angeles-tickets" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$25</span>
+      <a href="https://dice.fm/event/yoeqxv-themba-26th-jun-the-spotlight-los-angeles-tickets" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="bass" data-region="oc" data-date="2026-06-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 26</span><span class="ev-genre-tag">Bass</span></div>
-        <h3>TROYBOI</h3>
-        <div class="ev-subtitle">Trap &amp; bass · 21+</div>
+    <div class="ev-flyer-card" data-genre="bass" data-region="oc" data-date="2026-06-26">
+      <span class="ev-fc-date">Jun 26</span>
+      <span class="ev-fc-genre">Bass</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">TROYBOI</div>
+        <div class="ev-fc-venue">📍 Time Nightclub — Costa Mesa, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Time Nightclub — Costa Mesa, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">TroyBoi — genre-bending trap &amp; bass in Orange County.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$45</span><a href="https://www.tixr.com/groups/timenightclub/events/troyboi-189381" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$45</span>
+      <a href="https://www.tixr.com/groups/timenightclub/events/troyboi-189381" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house techno" data-region="la" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27–28</span><span class="ev-genre-tag">House / Techno</span></div>
-        <h3>DAY TRIP FESTIVAL</h3>
-        <div class="ev-subtitle">House, disco &amp; techno · open-air · 21+</div>
+    <div class="ev-flyer-card" data-genre="house techno" data-region="la" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27–28</span>
+      <span class="ev-fc-genre">House / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">DAY TRIP FESTIVAL</div>
+        <div class="ev-fc-venue">📍 Queen Mary Waterfront — Long Beach, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Queen Mary Waterfront — Long Beach, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Cloonee · Odd Mob · GORDO · Green Velvet B2B Josh Baker · Purple Disco Machine · Adam Beyer · Loco Dice · SIDEPIECE B2B Westend · HI-LO</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $110</span><a href="https://www.daytripfestival.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $110</span>
+      <a href="https://www.daytripfestival.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="bass" data-region="la" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">Bass</span></div>
-        <h3>DILLON FRANCIS &AMP; FLOSSTRADAMUS</h3>
-        <div class="ev-subtitle">Trap &amp; bass · 18+</div>
+    <div class="ev-flyer-card" data-genre="bass" data-region="la" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">Bass</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">DILLON FRANCIS &AMP; FLOSSTRADAMUS</div>
+        <div class="ev-fc-venue">📍 Hollywood Palladium — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Hollywood Palladium — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Dillon Francis · Flosstradamus — moombahton, trap &amp; festival bass at the Palladium.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$59-182</span><a href="https://www.ticketmaster.com/event/09006437C99A49D6" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$59-182</span>
+      <a href="https://www.ticketmaster.com/event/09006437C99A49D6" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="dnb jungle" data-region="sd" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">DnB / Jungle</span></div>
-        <h3>FLOW STATE: JUNE JUNGLIST</h3>
-        <div class="ev-subtitle">Cue Collective · drum &amp; bass / jungle</div>
+    <div class="ev-flyer-card" data-genre="dnb jungle" data-region="sd" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">DnB / Jungle</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">FLOW STATE: JUNE JUNGLIST</div>
+        <div class="ev-fc-venue">📍 Aztec Brewery — Vista, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Aztec Brewery — Vista, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">2Kinetik (Live) · Werd · Marketing Porpoises — North County DnB &amp; jungle.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $16</span><a href="https://www.cuetogether.com/events/flow-state-ft-2kinetik-live-marketing-porpoises-1780943453467" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $16</span>
+      <a href="https://www.cuetogether.com/events/flow-state-ft-2kinetik-live-marketing-porpoises-1780943453467" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house" data-region="la" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">House</span></div>
-        <h3>FRANKY WAH</h3>
-        <div class="ev-subtitle">Soundwave · progressive house · 21+</div>
+    <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">FRANKY WAH</div>
+        <div class="ev-fc-venue">📍 Community Berlin — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Community Berlin — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Franky Wah — emotive, melodic progressive house.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$35</span><a href="https://ra.co/events/2461308" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$35</span>
+      <a href="https://ra.co/events/2461308" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house" data-region="sd" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27–28</span><span class="ev-genre-tag">House</span></div>
-        <h3>INTO THE HORIZON: MARTIN GARRIX, TIËSTO</h3>
-        <div class="ev-subtitle">Insomniac · big-room &amp; festival house · 21+</div>
+    <div class="ev-flyer-card" data-genre="house" data-region="sd" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27–28</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">INTO THE HORIZON: MARTIN GARRIX, TIËSTO</div>
+        <div class="ev-fc-venue">📍 Waterfront Park — San Diego, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Waterfront Park — San Diego, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Martin Garrix · Tiësto — two-day waterfront festival from Insomniac.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">21+</span><a href="https://intothehorizon.frontgatetickets.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">21+</span>
+      <a href="https://intothehorizon.frontgatetickets.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="techno" data-region="la" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">Techno</span></div>
-        <h3>MUTATE: VENDEX</h3>
-        <div class="ev-subtitle">Mutate Experience · hard techno · 21+</div>
+    <div class="ev-flyer-card" data-genre="techno" data-region="la" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">MUTATE: VENDEX</div>
+        <div class="ev-fc-venue">📍 Exchange LA — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Exchange LA — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Vendex — peak-time hard techno in the main room at Exchange.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$20-83</span><a href="https://www.ticketweb.com/event/vendex-exchange-la-tickets/14899843" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$20-83</span>
+      <a href="https://www.ticketweb.com/event/vendex-exchange-la-tickets/14899843" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="techno" data-region="la" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">Techno</span></div>
-        <h3>PERC (INDUSTRIAL SET)</h3>
-        <div class="ev-subtitle">Das Bunker · industrial techno · 18+</div>
+    <div class="ev-flyer-card" data-genre="techno" data-region="la" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">PERC (INDUSTRIAL SET)</div>
+        <div class="ev-fc-venue">📍 Catch One — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Catch One — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Perc (Industrial Set) · Aurat · The Sow — abrasive industrial techno.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$30</span><a href="https://wl.eventim.us/event/perc-industrial-set-aurat-the-sow/687888" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$30</span>
+      <a href="https://wl.eventim.us/event/perc-industrial-set-aurat-the-sow/687888" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house techno" data-region="la" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">House / Techno</span></div>
-        <h3>TMPLE (HYBRID LIVE) + DAVI</h3>
-        <div class="ev-subtitle">Open-air vineyard · progressive / melodic · 21+</div>
+    <div class="ev-flyer-card" data-genre="house techno" data-region="la" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">House / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">TMPLE (HYBRID LIVE) + DAVI</div>
+        <div class="ev-fc-venue">📍 Cielo Farms — Malibu, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Cielo Farms — Malibu, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Tmple (Hybrid Live Set) · Davi — daytime melodic house &amp; techno at a Malibu vineyard.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">$85</span><a href="https://dice.fm/event/nvkxm3-tmplehybrid-live-set-davi-27th-jun-cielo-farms-malibu-tickets" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">$85</span>
+      <a href="https://dice.fm/event/nvkxm3-tmplehybrid-live-set-davi-27th-jun-cielo-farms-malibu-tickets" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house" data-region="oc" data-date="2026-06-27">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jun 27</span><span class="ev-genre-tag">House</span></div>
-        <h3>VICETONE</h3>
-        <div class="ev-subtitle">House &amp; future bass · 21+</div>
+    <div class="ev-flyer-card" data-genre="house" data-region="oc" data-date="2026-06-27">
+      <span class="ev-fc-date">Jun 27</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">VICETONE</div>
+        <div class="ev-fc-venue">📍 Time Nightclub — Costa Mesa, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Time Nightclub — Costa Mesa, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Vicetone — melodic house &amp; festival future bass in OC.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $15</span><a href="https://www.tixr.com/groups/timenightclub/events/vicetone-184670" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $15</span>
+      <a href="https://www.tixr.com/groups/timenightclub/events/vicetone-184670" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
   </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
   </div><!-- End June month-section -->
 
   <div class="month-section" id="month-july">
   <div class="month-label">July 2026</div>
-  <div class="more-events-label">Events</div>
-  <div class="events-grid">
+  <div class="ev-flyer-grid">
 
-    <div class="ev-card" data-genre="bass house" data-region="la" data-date="2026-07-11">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jul 11–12</span><span class="ev-genre-tag">Bass / House</span></div>
-        <h3>LOST IN DREAMS FESTIVAL</h3>
-        <div class="ev-subtitle">Future bass &amp; melodic dubstep · 18+ · 4PM–11PM</div>
+    <div class="ev-flyer-card" data-genre="bass house" data-region="la" data-date="2026-07-11">
+      <span class="ev-fc-date">Jul 11–12</span>
+      <span class="ev-fc-genre">Bass / House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">LOST IN DREAMS FESTIVAL</div>
+        <div class="ev-fc-venue">📍 LA State Historic Park — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>LA State Historic Park — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Porter Robinson (DJ Set) · Dabin · Louis The Child · Audien · William Black · ARMNHMR · Baauer · What So Not · Yung Bae · Jason Ross</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $95</span><a href="https://www.lostindreamsfestival.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $95</span>
+      <a href="https://www.lostindreamsfestival.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="trance" data-region="la" data-date="2026-07-18">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Jul 18</span><span class="ev-genre-tag">Trance</span></div>
-        <h3>MARKUS SCHULZ: OPEN TO CLOSE</h3>
-        <div class="ev-subtitle">Open-to-close solo set · 21+</div>
+    <div class="ev-flyer-card" data-genre="trance" data-region="la" data-date="2026-07-18">
+      <span class="ev-fc-date">Jul 18</span>
+      <span class="ev-fc-genre">Trance</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">MARKUS SCHULZ: OPEN TO CLOSE</div>
+        <div class="ev-fc-venue">📍 Avalon Hollywood — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Avalon Hollywood — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Markus Schulz — all-night open-to-close trance &amp; progressive set at Avalon Hollywood.</div>
+      <span class="ev-fc-price">From $30</span>
+      <a href="https://avalonhollywood.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+
+    <div class="ev-flyer-card" data-genre="bass techno" data-region="oc" data-date="2026-07-02" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a398a711abff7314a585933')">
+      <span class="ev-fc-date">Jul 2</span>
+      <span class="ev-fc-genre">Bass / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">PRE-4TH BOILER ROOM</div>
+        <div class="ev-fc-venue">📍 Killarney's Irish Pub — Huntington Beach, CA</div>
       </div>
-      <div class="ev-footer"><span class="ev-price">From $30</span><a href="https://avalonhollywood.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">See Posh</span>
+      <a href="https://posh.vip/explore?when=Upcoming&sort=Soonest&city=orange-county" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="house" data-region="oc" data-date="2026-07-19" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a2e381b2bacf0838a90c5fd')">
+      <span class="ev-fc-date">Jul 19</span>
+      <span class="ev-fc-genre">House / Dance</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">SOUNDCHECK: SUN KISSED</div>
+        <div class="ev-fc-venue">📍 The Huntington Beach House — Huntington Beach, CA</div>
+      </div>
+      <span class="ev-fc-price">See Posh</span>
+      <a href="https://posh.vip/explore?when=Upcoming&sort=Soonest&city=orange-county" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="bass dubstep" data-region="oc" data-date="2026-07-25" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c28ce1f2219837a882420')">
+      <span class="ev-fc-date">Jul 25</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">BASS TILL DAWN (AFTERS OC)</div>
+        <div class="ev-fc-venue">📍 CUBE WORLD MEDIA — Orange County, CA</div>
+      </div>
+      <span class="ev-fc-price">See Posh</span>
+      <a href="https://posh.vip/explore?when=Upcoming&sort=Soonest&city=orange-county" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="house" data-region="oc" data-date="2026-07-26" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3add340ad4629dc4d3779f')">
+      <span class="ev-fc-date">Jul 26</span>
+      <span class="ev-fc-genre">RnB / House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">LOVE MORE RNB — LONG BEACH</div>
+        <div class="ev-fc-venue">📍 Club O — Long Beach, CA</div>
+      </div>
+      <span class="ev-fc-price">See Posh</span>
+      <a href="https://posh.vip/explore?when=Upcoming&sort=Soonest&city=long-beach" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
   </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
   </div><!-- End July month-section -->
 
   <div class="month-section" id="month-august">
   <div class="month-label">August 2026</div>
-  <div class="more-events-label">Events</div>
-  <div class="events-grid">
+  <div class="ev-flyer-grid">
 
-    <div class="ev-card" data-genre="house techno bass" data-region="la" data-date="2026-08-01">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Aug 1–2</span><span class="ev-genre-tag">House / Techno / Bass</span></div>
-        <h3>HARD SUMMER</h3>
-        <div class="ev-subtitle">HARD Events · 18+ · two-day festival</div>
+    <div class="ev-flyer-card" data-genre="house techno bass" data-region="la" data-date="2026-08-01">
+      <span class="ev-fc-date">Aug 1–2</span>
+      <span class="ev-fc-genre">House / Techno / Bass</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">HARD SUMMER</div>
+        <div class="ev-fc-venue">📍 Hollywood Park — Inglewood, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Hollywood Park — Inglewood, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Zedd B2B Knock2 · RL Grime · Mau P · Vintage Culture · DJ Snake · Sammy Virji · Charlotte de Witte · Amelie Lens · Brutalismus 3000 · Maceo Plex · salute</div>
+      <span class="ev-fc-price">From $149</span>
+      <a href="https://www.hardsummer.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+
+    <div class="ev-flyer-card" data-genre="house techno" data-region="la" data-date="2026-08-07">
+      <span class="ev-fc-date">Aug 7</span>
+      <span class="ev-fc-genre">House / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">EXCHANGE LA: AUGUST</div>
+        <div class="ev-fc-venue">📍 Exchange LA — Downtown Los Angeles, CA</div>
       </div>
-      <div class="ev-footer"><span class="ev-price">From $149</span><a href="https://www.hardsummer.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $20</span>
+      <a href="https://exchangela.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="bass" data-region="la" data-date="2026-08-15">
+      <span class="ev-fc-date">Aug 15</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">FACTORY 93: BASS BLOC</div>
+        <div class="ev-fc-venue">📍 City Market Social House — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">From $40</span>
+      <a href="https://www.insomniac.com/events/our-world/factory-93/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-08-22" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a39d9d2208449a0e1100ef5')">
+      <span class="ev-fc-date">Aug 22</span>
+      <span class="ev-fc-genre">House / Disco</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">OFFSHORE COLLECTIVE</div>
+        <div class="ev-fc-venue">📍 Kitsch Bar — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">From $15</span>
+      <a href="https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
   </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
   </div><!-- End August month-section -->
 
   <div class="month-section" id="month-september">
   <div class="month-label">September 2026</div>
-  <div class="more-events-label">Events</div>
-  <div class="events-grid">
+  <div class="ev-flyer-grid">
 
-    <div class="ev-card" data-genre="bass house techno trance" data-region="sb" data-date="2026-09-19">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Sep 19–20</span><span class="ev-genre-tag">Bass / House / Techno / Trance</span></div>
-        <h3>NOCTURNAL WONDERLAND</h3>
-        <div class="ev-subtitle">Insomniac · SoCal&#x27;s longest-running dance festival</div>
+    <div class="ev-flyer-card" data-genre="bass house techno trance" data-region="sb" data-date="2026-09-19">
+      <span class="ev-fc-date">Sep 19–20</span>
+      <span class="ev-fc-genre">Bass / House / Techno / Trance</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">NOCTURNAL WONDERLAND</div>
+        <div class="ev-fc-venue">📍 Glen Helen Regional Park — San Bernardino, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Glen Helen Regional Park — San Bernardino, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Multi-stage bass, house, techno &amp; trance across the weekend · SoCal institution since 1995.</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $149</span><a href="https://www.nocturnalwonderland.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $149</span>
+      <a href="https://www.nocturnalwonderland.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-    <div class="ev-card" data-genre="house techno garage" data-region="sd" data-date="2026-09-26">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Sep 26–27</span><span class="ev-genre-tag">House / Techno / Garage</span></div>
-        <h3>CRSSD FESTIVAL — FALL</h3>
-        <div class="ev-subtitle">21+ · two-day waterfront festival · three stages</div>
+    <div class="ev-flyer-card" data-genre="house techno garage" data-region="sd" data-date="2026-09-26">
+      <span class="ev-fc-date">Sep 26–27</span>
+      <span class="ev-fc-genre">House / Techno / Garage</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">CRSSD FESTIVAL — FALL</div>
+        <div class="ev-fc-venue">📍 Waterfront Park — San Diego, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>Waterfront Park — San Diego, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Chris Lake B2B Disclosure · Mochakk · 999999999 · Skepta (Más Tiempo) · Groove Armada · Helena Hauff · KAS:ST · Ben UFO · salute · KETTAMA · Prospa · Layton Giordani · Sonny Fodera · AYYBO</div>
-      </div>
-      <div class="ev-footer"><span class="ev-price">From $169</span><a href="https://www.crssdfest.com/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $169</span>
+      <a href="https://www.crssdfest.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
   </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
   </div><!-- End September month-section -->
+
+  <div class="month-section" id="month-october">
+  <div class="month-label">October 2026</div>
+  <div class="ev-flyer-grid">
+
+    <div class="ev-flyer-card" data-genre="bass house techno" data-region="la" data-date="2026-10-30">
+      <span class="ev-fc-date">Oct 30–31</span>
+      <span class="ev-fc-genre">Bass / House / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">ESCAPE: PSYCHO CIRCUS</div>
+        <div class="ev-fc-venue">📍 NOS Events Center — San Bernardino, CA</div>
+      </div>
+      <span class="ev-fc-price">From $149</span>
+      <a href="https://www.escapepsychocircus.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="techno house" data-region="la" data-date="2026-10-10">
+      <span class="ev-fc-date">Oct 10</span>
+      <span class="ev-fc-genre">Techno / House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">EXCHANGE LA: OCTOBER</div>
+        <div class="ev-fc-venue">📍 Exchange LA — Downtown Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">From $20</span>
+      <a href="https://exchangela.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="bass dubstep" data-region="oc" data-date="2026-10-17" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a2f1d7133f64f9f3c349b60')">
+      <span class="ev-fc-date">Oct 17</span>
+      <span class="ev-fc-genre">Bass · Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">BASS RESURGENCE: FALL EDITION</div>
+        <div class="ev-fc-venue">📍 BLEU NIGHTCLUB OC — Westminster, CA</div>
+      </div>
+      <span class="ev-fc-price">From $11.99</span>
+      <a href="https://posh.vip/g/keepitil" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="techno" data-region="la" data-date="2026-10-24">
+      <span class="ev-fc-date">Oct 24</span>
+      <span class="ev-fc-genre">Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">INCOGNITO: OCTOBER</div>
+        <div class="ev-fc-venue">📍 TBA — Los Angeles Warehouse</div>
+      </div>
+      <span class="ev-fc-price">From $20</span>
+      <a href="https://iluvincognito.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+  </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
+  </div><!-- End October month-section -->
 
   <div class="month-section" id="month-november">
   <div class="month-label">November 2026</div>
-  <div class="more-events-label">Events</div>
-  <div class="events-grid">
+  <div class="ev-flyer-grid">
 
-    <div class="ev-card" data-genre="techno" data-region="la" data-date="2026-11-14">
-      <div class="ev-card-header">
-        <div class="ev-date-row"><span class="ev-date-badge">Nov 14</span><span class="ev-genre-tag">Techno</span></div>
-        <h3>FACTORY 93 PRESENTS ELI BROWN</h3>
-        <div class="ev-subtitle">Factory 93 · Eli Brown&#x27;s biggest LA headline show · 18+</div>
+    <div class="ev-flyer-card" data-genre="techno" data-region="la" data-date="2026-11-14">
+      <span class="ev-fc-date">Nov 14</span>
+      <span class="ev-fc-genre">Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">FACTORY 93 PRESENTS ELI BROWN</div>
+        <div class="ev-fc-venue">📍 City Market Social House — Los Angeles, CA</div>
       </div>
-      <div class="ev-card-body">
-        <div class="ev-venue"><span class="ev-venue-icon">📍</span><span>City Market Social House — Los Angeles, CA</span></div>
-        <div class="ev-acts-label">Lineup</div>
-        <div class="ev-acts">Eli Brown · HNTR · Linska · Leisan</div>
+      <span class="ev-fc-price">From $50</span>
+      <a href="https://www.insomniac.com/events/our-world/factory-93/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+
+    <div class="ev-flyer-card" data-genre="house techno" data-region="la" data-date="2026-11-07">
+      <span class="ev-fc-date">Nov 7</span>
+      <span class="ev-fc-genre">House / Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">EXCHANGE LA: NOVEMBER</div>
+        <div class="ev-fc-venue">📍 Exchange LA — Downtown Los Angeles, CA</div>
       </div>
-      <div class="ev-footer"><span class="ev-price">From $50</span><a href="https://www.insomniac.com/events/our-world/factory-93/" target="_blank" rel="noopener" class="ev-ticket-link">Get Tickets →</a></div>
+      <span class="ev-fc-price">From $20</span>
+      <a href="https://exchangela.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="bass dubstep" data-region="oc" data-date="2026-11-21" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69dee7d5e62eb2eb210069af')">
+      <span class="ev-fc-date">Nov 21</span>
+      <span class="ev-fc-genre">Bass · Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">NO CALLER ID — BLEU</div>
+        <div class="ev-fc-venue">📍 BLEU NIGHTCLUB OC — Westminster, CA</div>
+      </div>
+      <span class="ev-fc-price">From $11.99</span>
+      <a href="https://posh.vip/g/keepitil" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
   </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
   </div><!-- End November month-section -->
+
+  <div class="month-section" id="month-december">
+  <div class="month-label">December 2026</div>
+  <div class="ev-flyer-grid">
+
+    <div class="ev-flyer-card" data-genre="house techno bass" data-region="la" data-date="2026-12-31">
+      <span class="ev-fc-date">Dec 31</span>
+      <span class="ev-fc-genre">House / Techno / Bass</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">NYE 2027: EXCHANGE LA</div>
+        <div class="ev-fc-venue">📍 Exchange LA — Downtown Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">From $60</span>
+      <a href="https://exchangela.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="bass dubstep" data-region="la" data-date="2026-12-31">
+      <span class="ev-fc-date">Dec 31</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">NYE BASS MASSIVE</div>
+        <div class="ev-fc-venue">📍 City Market Social House — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">From $60</span>
+      <a href="https://www.insomniac.com/events/our-world/factory-93/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-12-12">
+      <span class="ev-fc-date">Dec 12</span>
+      <span class="ev-fc-genre">House / Garage</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">CREATE: DECEMBER SELECTORS</div>
+        <div class="ev-fc-venue">📍 Create Nightclub — Hollywood, CA</div>
+      </div>
+      <span class="ev-fc-price">From $25</span>
+      <a href="https://createnightclub.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+    <div class="ev-flyer-card" data-genre="techno house" data-region="oc" data-date="2026-12-18" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a0fd3ae03cfdbb91457ead9')">
+      <span class="ev-fc-date">Dec 18</span>
+      <span class="ev-fc-genre">Techno / Bass</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">KEEP IT TECHNO: WINTER EDITION</div>
+        <div class="ev-fc-venue">📍 BLEU NIGHTCLUB OC — Westminster, CA</div>
+      </div>
+      <span class="ev-fc-price">From $11.99</span>
+      <a href="https://posh.vip/g/keepitil" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+
+  </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
+  </div><!-- End December month-section -->
 
   <p id="no-events-msg" style="display:none;text-align:center;color:#888;padding:40px 0;font-size:.9rem;">No events match this filter. Try another category.</p>
 
 </div><!-- /#events-container -->
 
-<!-- OLD FLYERS -->
+<!-- FLYERS -->
 <section class="flyers-section">
   <div class="flyers-heading">CLASSIC</div>
   <div class="flyers-grid" id="flyers-grid">
@@ -1211,6 +1390,37 @@
     <div class="flyer-slot"><img src="https://cdn.evbuc.com/images/1186569757/423411194433/1/original.20260610-071256" alt="Goldcap Birthday Bash · Eventbrite"></div>
     <div class="flyer-slot"><img src="https://cdn.evbuc.com/images/1179513507/186591320827/1/original.20260310-183632" alt="Kingdom LA: The Rave · Eventbrite"></div>
     <div class="flyer-slot"><img src="https://cdn.evbuc.com/images/1187660205/792480551243/1/original.20260625-182432" alt="Discotheke · Eventbrite"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c4689aa591bbf94784647" alt="KOZMOZ EuphAura · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30cd9b98ff567fe8575371" alt="KEEPITIL SUMMER · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a2f1d7133f64f9f3c349b60" alt="BASS RESURGENCE · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a0fd3ae03cfdbb91457ead9" alt="KEEP IT TECHNO · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a24e07560925098deb29710" alt="NIGHT OWL · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69d96738daee59a094e4eedd" alt="EXTENDO NIGHT Tech House · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69eaf9c43dff3fcfa9844eca" alt="BASS REALM · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69dee7d5e62eb2eb210069af" alt="NO CALLER ID Bass · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69d5aa265935327745e0b5bc" alt="RITMO LATINO · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30d5ff7226b09bef0ab875" alt="DOM CORLEO ziPbby OC · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a32c6c44db611f9668c5795" alt="TANGO ROOM · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3add340ad4629dc4d3779f" alt="Love More RnB Long Beach · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69aefecb48fdf58fa70c1995" alt="AZURE Huntington Beach · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a398a711abff7314a585933" alt="Pre-4th Boiler Room HB · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3bff3912b3704ad60a580e" alt="Blue and White Cookout · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a2e381b2bacf0838a90c5fd" alt="SoundCheck Sun Kissed · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c28ce1f2219837a882420" alt="BASS TILL DAWN Afters OC · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a39d9d2208449a0e1100ef5" alt="Offshore Collective Kitsch Bar · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a0760a50f313123a734bdde" alt="Open Terrace Series · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a399a3a8b6ad726a0af5cd8" alt="OC Underground Event · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a31d85f92e014efe63fa8b0" alt="OC Dance Night · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/696949029378effe5f4d77ff" alt="OC Music Event · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/69cf0db726069d4b02fe8073" alt="KEEPITIL Artist · Posh"></div>
+    <div class="flyer-slot"><img src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a164efdcac1e2fdec483192" alt="LA Dance Event · Posh"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vOWNlNmQ4OTFiNmExNjJjZmVhZmNlNDc2OWJlNTc1MDAwMjI1MzM3Ni5qcGc=" alt="Ostbahnhof XL Music Festival · RA"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODMzMDk0YzNkMTUzYjM0MzhkYzg1MTk0MTkzNWRmZjYxZTdlNjI4ZS5qcGc=" alt="AXIS Aten 2 Year Anniversary · RA"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNzRhZjI5ZjkxODRlNDA2ZGFhYzhhMTE4YmEwYWZlOGRhNjJhMzA2MS5qcGc=" alt="SET Hernan Cattaneo Armen Miran · RA"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjIyMWU1ZTQ2NjAwM2I1ZThiYzc0OTFmYWZlODIxYWRjODg0ZGMwNS5wbmc=" alt="Bears In Space DJ Harvey · RA"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODVmNjJjMmJmNDljM2ZkNjUxYWNhZmZlODEyOTdkZmI0MWU3MDZlYS5qcGc=" alt="Bodyshop Anniversary MCMLXXXV · RA"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZTAzMzQyYmQ5MzY3Y2E3ODAzMjU5MDk1YTVjYWQ0NDk4YTVjYTZiNS5wbmc=" alt="INCOGNITO WAXXX Society Bloody Mary · RA"></div>
+    <div class="flyer-slot"><img src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMjZjODI0OGI0OWMwNWMzYmU1ODNiNjRjNGNiZWY1ZDNkNWRmMGMwMS5qcGc=" alt="Stereo Punks Derrick Does Disco · RA"></div>
   </div>
 </section>
 
@@ -1621,12 +1831,23 @@
   function showActiveMonth(){
     var sections=getMonthSections();
     var idx=findActiveIdx(sections);
-    sections.forEach(function(s,i){s.el.style.display=(i===idx)?'':'none';});
+    sections.forEach(function(s,i){
+      s.el.style.display=(i===idx)?'':'none';
+      if(i===idx){
+        var cards=[...s.el.querySelectorAll('.ev-flyer-grid .ev-flyer-card')];
+        cards.forEach(function(c,j){c.style.display=(j<20)?'':'none';});
+        var smw=s.el.querySelector('.show-more-wrap');
+        if(smw)smw.style.display=(cards.length>20)?'block':'none';
+      }
+    });
     if(idx>=0){
-      document.getElementById('month-nav-title').textContent=MONTH_NAMES[sections[idx].month].toUpperCase()+' '+sections[idx].year;
+      var nt=document.getElementById('month-nav-title');
+      if(nt)nt.textContent=MONTH_NAMES[sections[idx].month].toUpperCase()+' '+sections[idx].year;
     }
-    document.getElementById('month-prev').disabled=idx<=0;
-    document.getElementById('month-next').disabled=idx>=sections.length-1;
+    var pb=document.getElementById('month-prev');
+    var nb=document.getElementById('month-next');
+    if(pb)pb.disabled=idx<=0;
+    if(nb)nb.disabled=idx>=sections.length-1;
   }
 
   function changeMonth(dir){
@@ -1639,33 +1860,40 @@
 
   // ── Filters ──
   function hasActiveFilters(){
-    return!!((document.getElementById('filter-search').value||'').trim());
+    var loc=(document.getElementById('ev-location')?.value||'');
+    var genre=(document.getElementById('ev-genre')?.value||'');
+    return !!(loc||genre);
   }
 
   function applyFilters(){
-    var search=(document.getElementById('filter-search').value||'').toLowerCase().trim();
+    var loc=(document.getElementById('ev-location')?.value||'').toLowerCase();
+    var genre=(document.getElementById('ev-genre')?.value||'').toLowerCase();
+    var filtering=hasActiveFilters();
     var visible=0;
 
-    document.querySelectorAll('.ev-card').forEach(function(card){
-      var cT=card.textContent.toLowerCase();
-      var show=(!search||cT.includes(search));
+    document.querySelectorAll('.ev-flyer-card,.ev-card').forEach(function(card){
+      var cG=(card.dataset.genre||'').toLowerCase();
+      var cR=(card.dataset.region||'').toLowerCase();
+      var locOk=!loc||cR.includes(loc);
+      var genreOk=!genre||cG.includes(genre);
+      var show=locOk&&genreOk;
       card.style.display=show?'':'none';
       if(show)visible++;
     });
 
-    var filtering=hasActiveFilters();
     var nav=document.getElementById('month-nav');
     if(nav)nav.style.display=filtering?'none':'';
 
     document.querySelectorAll('.month-section').forEach(function(sec){
       if(filtering){
-        var anyVis=[...sec.querySelectorAll('.ev-card')].some(function(c){return c.style.display!=='none';});
+        var anyVis=[...sec.querySelectorAll('.ev-flyer-card,.ev-card')].some(function(c){return c.style.display!=='none';});
         sec.style.display=anyVis?'':'none';
       }
-      var pr=sec.querySelector('.picks-row'),pl=sec.querySelector('.picks-section-label');
-      if(pr){var pv=[...pr.querySelectorAll('.ev-card')].some(function(c){return c.style.display!=='none';});pr.style.display=pv?'':'none';if(pl)pl.style.display=pv?'':'none';}
-      var gr=sec.querySelector('.events-grid'),ml=sec.querySelector('.more-events-label');
-      if(gr){var gv=[...gr.querySelectorAll('.ev-card')].some(function(c){return c.style.display!=='none';});gr.style.display=gv?'':'none';if(ml)ml.style.display=gv?'':'none';}
+      var gr=sec.querySelector('.ev-flyer-grid,.events-grid');
+      if(gr){
+        var gv=[...gr.querySelectorAll('.ev-flyer-card,.ev-card')].some(function(c){return c.style.display!=='none';});
+        gr.style.display=gv?'':'none';
+      }
     });
 
     if(!filtering)showActiveMonth();
@@ -1674,11 +1902,16 @@
   }
 
   function clearFilters(){
-    var el=document.getElementById('filter-search');if(el)el.value='';
+    var el=document.getElementById('ev-location');if(el)el.value='';
+    var el2=document.getElementById('ev-genre');if(el2)el2.value='';
     applyFilters();
   }
 
-  document.getElementById('filter-search').addEventListener('input',applyFilters);
+  function showMoreEvents(btn){
+    var grid=btn.closest('.month-section').querySelector('.ev-flyer-grid');
+    if(grid)grid.querySelectorAll('.ev-flyer-card').forEach(function(c){c.style.display='';});
+    if(btn.parentElement)btn.parentElement.style.display='none';
+  }
 
   // Init: show current month
   showActiveMonth();
