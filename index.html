@@ -361,6 +361,8 @@
     .events-hub .filter-btn{padding:9px 18px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--grey);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;}
     .events-hub .filter-btn:hover{border-color:var(--orange);color:var(--orange);}
     .filter-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+    .filter-posh-btn{display:inline-flex;align-items:center;padding:9px 18px;border:1px solid rgba(0,180,255,.4);background:transparent;color:var(--blue);font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;text-decoration:none;transition:all .2s;white-space:nowrap;}
+    .filter-posh-btn:hover{background:rgba(0,180,255,.1);border-color:var(--blue);}
 
     /* ── EVENTS GRID ── */
     .events-section{padding:40px 24px 80px;max-width:1200px;margin:0 auto;}
@@ -768,46 +770,16 @@
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
   <input type="text" id="filter-search" class="filter-search" placeholder="Search events…">
-  <select id="filter-year" class="filter-select" onchange="applyFilters()">
-    <option value="">Year</option>
-    <option value="2026">2026</option>
-    <option value="2027">2027</option>
-  </select>
-  <select id="filter-month" class="filter-select" onchange="applyFilters()">
-    <option value="">Month</option>
-    <option value="01">January</option><option value="02">February</option><option value="03">March</option>
-    <option value="04">April</option><option value="05">May</option><option value="06">June</option>
-    <option value="07">July</option><option value="08">August</option><option value="09">September</option>
-    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-  </select>
-  <select id="filter-state" class="filter-select" onchange="applyFilters()">
-    <option value="">State</option>
-    <option value="ca">California</option>
-    <option value="nv">Nevada</option>
-    <option value="az">Arizona</option>
-    <option value="tx">Texas</option>
-  </select>
-  <select id="filter-city" class="filter-select" onchange="applyFilters()">
-    <option value="">City</option>
-    <option value="la">Los Angeles</option>
-    <option value="oc">Orange County</option>
-    <option value="sd">San Diego</option>
-    <option value="sb">San Bernardino</option>
-  </select>
-  <select id="filter-genre" class="filter-select" onchange="applyFilters()">
-    <option value="">Genre</option>
-    <option value="techno">Techno</option>
-    <option value="house">House</option>
-    <option value="bass">Bass</option>
-    <option value="dnb">DnB</option>
-    <option value="trance">Trance</option>
-    <option value="garage">Garage</option>
-  </select>
-  <button class="filter-btn" onclick="clearFilters()">Clear</button>
+  <a href="https://posh.vip/explore?when=Right+Now&sort=Largest" target="_blank" rel="noopener" class="filter-posh-btn">Explore on Posh ↗</a>
+  <button class="filter-btn" id="filter-sub-btn" onclick="toggleSubFilter()">⚡ Subscribers</button>
 </div>
 
 <!-- MONTH NAV -->
-<div class="month-nav-title" id="month-nav-title" style="padding:28px 24px 4px;max-width:1200px;margin:0 auto;font-family:var(--font-head);font-size:2rem;letter-spacing:.12em;color:var(--white);">JUNE 2026</div>
+<div class="month-nav" id="month-nav">
+  <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#8592; Prev</button>
+  <div class="month-nav-title" id="month-nav-title">JUNE 2026</div>
+  <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">Next &#8594;</button>
+</div>
 
 <!-- EVENTS -->
 <div class="events-section" id="events-container">
@@ -1667,34 +1639,27 @@
   }
 
   // ── Filters ──
-  var REGION_STATE={la:'ca',oc:'ca',sd:'ca',sb:'ca',lv:'nv',phx:'az',dal:'tx'};
+  var _subFilter=false;
+
+  function toggleSubFilter(){
+    _subFilter=!_subFilter;
+    var btn=document.getElementById('filter-sub-btn');
+    if(btn)btn.classList.toggle('active',_subFilter);
+    applyFilters();
+  }
 
   function hasActiveFilters(){
-    return!!(
-      (document.getElementById('filter-search').value||'').trim()||
-      document.getElementById('filter-year').value||
-      document.getElementById('filter-month').value||
-      document.getElementById('filter-state').value||
-      document.getElementById('filter-city').value||
-      document.getElementById('filter-genre').value
-    );
+    return!!((document.getElementById('filter-search').value||'').trim()||_subFilter);
   }
 
   function applyFilters(){
     var search=(document.getElementById('filter-search').value||'').toLowerCase().trim();
-    var year=document.getElementById('filter-year').value;
-    var month=document.getElementById('filter-month').value;
-    var state=document.getElementById('filter-state').value;
-    var city=document.getElementById('filter-city').value;
-    var genre=document.getElementById('filter-genre').value;
     var visible=0;
 
     document.querySelectorAll('.ev-card').forEach(function(card){
-      var cG=card.dataset.genre||'',cR=card.dataset.region||'',cD=card.dataset.date||'';
-      var cY=cD?cD.split('-')[0]:'',cM=cD?cD.split('-')[1]:'';
-      var cS=REGION_STATE[cR]||cR,cT=card.textContent.toLowerCase();
-      var show=(!search||cT.includes(search))&&(!year||cY===year)&&(!month||cM===month)
-              &&(!state||cS===state)&&(!city||cR===city)&&(!genre||cG.split(' ').includes(genre));
+      var cT=card.textContent.toLowerCase();
+      var isKeepit=card.classList.contains('featured')||(card.dataset.region||'')==='oc';
+      var show=(!search||cT.includes(search))&&(!_subFilter||isKeepit);
       card.style.display=show?'':'none';
       if(show)visible++;
     });
@@ -1720,9 +1685,9 @@
   }
 
   function clearFilters(){
-    ['filter-search','filter-year','filter-month','filter-state','filter-city','filter-genre'].forEach(function(id){
-      var el=document.getElementById(id);if(el){if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';}
-    });
+    _subFilter=false;
+    var btn=document.getElementById('filter-sub-btn');if(btn)btn.classList.remove('active');
+    var el=document.getElementById('filter-search');if(el)el.value='';
     applyFilters();
   }
 
