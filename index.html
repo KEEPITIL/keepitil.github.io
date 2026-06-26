@@ -396,9 +396,9 @@
     .ev-featured-tag{display:inline-block;background:var(--orange);color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:6px;}
 
     /* ── PICKS ROW ── */
-    .picks-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;align-items:stretch;}
-    @media(max-width:840px){.picks-row{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:480px){.picks-row{grid-template-columns:1fr;}}
+    
+    
+    
     
     
     .picks-row .ev-card{min-height:340px;}
@@ -467,7 +467,7 @@
     /* picks-row defined above */
     
     
-    .ev-pick{aspect-ratio:9/16 !important;width:100%;background-size:contain !important;background-position:center center !important;background-repeat:no-repeat !important;}
+    
     .ev-pick-banner{position:absolute;top:0;left:0;right:0;z-index:3;background:linear-gradient(90deg,rgba(230,51,51,.97),rgba(140,0,220,.85));color:#fff;font-size:.6rem;font-weight:900;letter-spacing:.28em;text-transform:uppercase;padding:9px 22px;text-align:center;pointer-events:none;}
     .ev-pick .ev-fc-info{bottom:46px;}
     .ev-pick .ev-fc-title{font-size:1.1rem;}
@@ -485,6 +485,13 @@
     .ev-flyer-card:not([style*="background-image"])::after{content:'';position:absolute;inset:0;z-index:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px;}
     /* Fix z-index for content on gradient cards */
     .ev-flyer-card:not([style*="background-image"]) .ev-fc-date,.ev-flyer-card:not([style*="background-image"]) .ev-fc-genre,.ev-flyer-card:not([style*="background-image"]) .ev-fc-info,.ev-flyer-card:not([style*="background-image"]) .ev-fc-price,.ev-flyer-card:not([style*="background-image"]) .ev-fc-ticket,.ev-flyer-card:not([style*="background-image"]) .ev-pick-banner{z-index:4;}
+    /* ── PICKS ROW ── */
+    .picks-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+    @media(max-width:840px){.picks-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.picks-row{grid-template-columns:1fr;}}
+    .ev-pick-flyer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;display:block;}
+    
+    .ev-pick .ev-pick-banner,.ev-pick .ev-fc-date,.ev-pick .ev-fc-genre,.ev-pick .ev-fc-info,.ev-pick .ev-fc-price,.ev-pick .ev-fc-ticket{z-index:4 !important;}
     /* ── OLD FLYERS SECTION ── */
     .flyers-section{padding:0 24px 80px;max-width:1200px;margin:0 auto;}
     .flyers-heading{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:.08em;margin-bottom:6px;}
@@ -831,7 +838,8 @@
 <div class="events-section" id="events-container">
 
   <div class="picks-row">
-    <div class="ev-flyer-card ev-pick" data-genre="afrobeats house" data-region="oc" data-date="2026-07-12" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30cd9b98ff567fe8575371')">
+    <div class="ev-flyer-card ev-pick" data-genre="afrobeats house" data-region="oc" data-date="2026-07-12">
+      <img class="ev-pick-flyer" src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a30cd9b98ff567fe8575371" alt="KEEPITIL SUMMER" loading="lazy">
       <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
       <span class="ev-fc-date">Jul 12</span>
       <span class="ev-fc-genre">Afrobeats · EDM</span>
@@ -842,7 +850,8 @@
       <span class="ev-fc-price">Free RSVP</span>
       <a href="https://posh.vip/e/keeitil-summer" class="ev-fc-ticket" target="_blank" rel="noopener">RSVP on Posh</a>
     </div>
-    <div class="ev-flyer-card ev-pick" data-genre="bass dubstep" data-region="oc" data-date="2026-07-10" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c4689aa591bbf94784647')">
+    <div class="ev-flyer-card ev-pick" data-genre="bass dubstep" data-region="oc" data-date="2026-07-10">
+      <img class="ev-pick-flyer" src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a3c4689aa591bbf94784647" alt="KOZMOZ [EUPHAURA]" loading="lazy">
       <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
       <span class="ev-fc-date">Jul 10</span>
       <span class="ev-fc-genre">Bass · Dubstep</span>
@@ -853,38 +862,33 @@
       <span class="ev-fc-price">From $11.99</span>
       <a href="https://posh.vip/e/kozmoz-euphaura" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
-        <div class="ev-flyer-card ev-pick" data-genre="house" data-region="oc" data-date="2026-07-19" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a2e381b2bacf0838a90c5fd')">
+    <div class="ev-flyer-card ev-pick" data-genre="house" data-region="oc" data-date="2026-07-19">
+      <img class="ev-pick-flyer" src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a2e381b2bacf0838a90c5fd" alt="SOUNDCHECK: SUN KISSED" loading="lazy">
       <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
       <span class="ev-fc-date">Jul 19</span>
       <span class="ev-fc-genre">House / Dance</span>
       <div class="ev-fc-info">
         <div class="ev-fc-title">SOUNDCHECK: SUN KISSED</div>
-        <div class="ev-fc-venue">&#128205; Huntington Beach House &#8212; Huntington Beach, CA</div>
+        <div class="ev-fc-venue">📍 Huntington Beach House — Huntington Beach, CA</div>
       </div>
       <span class="ev-fc-price">See Posh</span>
       <a href="https://posh.vip/e/soundcheck-sun-kissed" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
-      <span class="ev-fc-date">Jun 27</span>
-      <span class="ev-fc-genre">House</span>
-      <div class="ev-fc-info">
-        <div class="ev-fc-title">VICETONE</div>
-        <div class="ev-fc-venue">📍 Time Nightclub — Costa Mesa, CA</div>
-      </div>
-      <span class="ev-fc-price">From $15</span>
-      <a href="https://www.tixr.com/groups/timenightclub/events/vicetone-184670" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
-    </div>
-  
-    <div class="ev-flyer-card ev-pick" data-genre="bass techno" data-region="oc" data-date="2026-07-04" style="background-image:url('https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a398a711abff7314a585933')">
+    <div class="ev-flyer-card ev-pick" data-genre="bass techno" data-region="oc" data-date="2026-07-04">
+      <img class="ev-pick-flyer" src="https://posh.vip/cdn-cgi/image/width=1080,quality=75,fit=scale-down,format=auto/https://images.posh.vip/originals/6a398a711abff7314a585933" alt="PRE-4TH BOILER ROOM" loading="lazy">
       <div class="ev-pick-banner">&#9889; KEEPITIL PICK</div>
       <span class="ev-fc-date">Jul 4</span>
       <span class="ev-fc-genre">Bass · Techno</span>
       <div class="ev-fc-info">
         <div class="ev-fc-title">PRE-4TH BOILER ROOM</div>
-        <div class="ev-fc-venue">&#128205; Killarney's Irish Pub — Huntington Beach, CA</div>
+        <div class="ev-fc-venue">📍 Killarney's Irish Pub — Huntington Beach, CA</div>
       </div>
       <span class="ev-fc-price">See Posh</span>
       <a href="https://posh.vip/e/pre-4th-boiler-room" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
+  </div>
+  
+    
   </div>
 
   <!-- EVENTS NAV V2 (after picks) -->
