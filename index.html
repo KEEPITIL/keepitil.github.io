@@ -316,7 +316,7 @@
   </script>
 
   <style>
-  /* Events hub CSS (from events.html, conflicts scoped) */
+  /* ── Events hub CSS (from events.html) ── */
 
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
@@ -455,125 +455,128 @@
   
   </style>
   <style>
-  /* Gallery hub CSS (from index.html, scoped under .gallery-hub) */
-
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{--blue:#00b4ff;--bg:#050505;--card:#111;--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
-html,body{background:var(--bg);min-height:100vh;font-family:var(--font-body);color:#fff;overflow-x:hidden;}
-body{background:var(--bg);}
-
-/* ── NAV ── */
-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
-    .gallery-hub .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
-    .gallery-hub .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
-    .gallery-hub .nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
-    .gallery-hub .nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
-    .gallery-hub .nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
-    .gallery-hub .nav-links a:hover, .gallery-hub .nav-links a.active{color:#00b4ff;}
-    .gallery-hub .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
-    .gallery-hub .nav-cta:hover{opacity:.85;}
-
-/* ── HAMBURGER ── */
-    .gallery-hub .hamburger{display:none;flex-direction:column;justify-content:space-between;width:22px;height:16px;background:none;border:none;cursor:pointer;padding:0;margin-left:auto;flex-shrink:0;}
-    .gallery-hub .hamburger span{display:block;height:2px;width:100%;background:#ccc;border-radius:2px;transition:transform .28s ease,opacity .2s ease;}
-    .gallery-hub .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
-    .gallery-hub .hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0);}
-    .gallery-hub .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
-
-/* ── MOBILE NAV ── */
-    .gallery-hub .mobile-nav{position:fixed;top:60px;left:0;right:0;bottom:0;background:rgba(5,5,5,.98);z-index:99;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;}
-    .gallery-hub .mobile-nav.open{transform:translateX(0);}
-    .gallery-hub .mobile-nav ul{list-style:none;padding:8px 0 0;}
-    .gallery-hub .mobile-nav li a{display:block;color:#777;text-decoration:none;font-size:.88rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:18px 28px;border-bottom:1px solid rgba(255,255,255,.05);transition:color .2s,background .2s;}
-    .gallery-hub .mobile-nav li a:hover, .gallery-hub .mobile-nav li a.active{color:var(--blue);}
-    .gallery-hub .mobile-nav li:last-child a{margin:20px 28px 28px;display:block;background:var(--blue);color:#fff!important;border-radius:4px;text-align:center;border:none;padding:14px 0;}
-
-@media(max-width:768px){
-    .gallery-hub .nav-links{display:none;}
-    .gallery-hub .hamburger{display:flex;}
-}
-
-/* ── HERO ── */
-    .gallery-hub .hero{position:relative;padding:56px 24px 36px;max-width:1400px;margin:0 auto;overflow:hidden;}
-    .gallery-hub .hero-glow{position:absolute;top:-40px;left:40%;width:600px;height:280px;background:radial-gradient(ellipse,rgba(0,180,255,.11) 0%,transparent 70%);pointer-events:none;transform:translateX(-50%);}
-    .gallery-hub .hero-label{font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;}
-    .gallery-hub .hero-title{font-family:var(--font-head);font-size:clamp(3rem,8vw,5.5rem);letter-spacing:.06em;line-height:.95;color:#fff;margin-bottom:18px;}
-    .gallery-hub .hero-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-    .gallery-hub .hero-sub{color:var(--grey);font-size:.85rem;letter-spacing:.04em;}
-    .gallery-hub .hero-pill{font-size:.7rem;font-weight:700;letter-spacing:.12em;color:var(--blue);background:rgba(0,180,255,.08);border:1px solid rgba(0,180,255,.2);padding:4px 12px;border-radius:20px;white-space:nowrap;}
-
-/* ── FILTERS ── */
-    .gallery-hub .filters{max-width:1400px;margin:0 auto;padding:0 24px 24px;display:flex;gap:8px;flex-wrap:wrap;}
-    .gallery-hub .filter-btn{background:transparent;border:1px solid rgba(255,255,255,.12);color:#777;font-family:var(--font-body);font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 20px;border-radius:20px;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
-    .gallery-hub .filter-btn:hover{border-color:var(--blue);color:var(--blue);}
-    .gallery-hub .filter-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
-
-/* ── GALLERY ── */
-    .gallery-hub .gallery{max-width:1400px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
-@media(max-width:600px){.gallery{padding:0 12px 60px;gap:12px;grid-template-columns:repeat(2,1fr);}}
-@media(max-width:380px){.gallery{grid-template-columns:1fr;}}
-
-/* ── BASE CARD ── */
-    .gallery-hub .card{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s;}
-    .gallery-hub .card:hover{transform:translateY(-4px);box-shadow:0 10px 32px rgba(0,180,255,.18);}
-    .gallery-hub .card.hidden{display:none;}
-
-/* image wrap + overlay */
-    .gallery-hub .card-img-wrap{position:relative;overflow:hidden;flex-shrink:0;}
-    .gallery-hub .card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#1a1a1a;transition:transform .4s ease;}
-    .gallery-hub .card:hover .card-img{transform:scale(1.05);}
-    .gallery-hub .card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 55%);opacity:0;transition:opacity .28s;display:flex;align-items:flex-end;padding:14px;}
-    .gallery-hub .card:hover .card-overlay{opacity:1;}
-    .gallery-hub .card-overlay-cta{font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#fff;border:1px solid rgba(255,255,255,.5);padding:6px 14px;border-radius:3px;}
-
-/* card body */
-    .gallery-hub .card-body{padding:13px 15px 14px;display:flex;flex-direction:column;flex:1;}
-    .gallery-hub .card-badge{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;background:var(--blue);color:#fff;padding:3px 8px;border-radius:3px;margin-bottom:10px;}
-    .gallery-hub .card-date{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;}
-    .gallery-hub .card-name{font-family:var(--font-head);font-size:1.1rem;letter-spacing:.04em;line-height:1.15;color:#fff;margin-bottom:5px;}
-    .gallery-hub .card-venue{font-size:.78rem;color:var(--grey);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .gallery-hub .card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:auto;}
-    .gallery-hub .tag{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.3);padding:2px 7px;border-radius:20px;}
-
-/* card footer */
-    .gallery-hub .card-footer{padding:9px 15px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-    .gallery-hub .card-source{font-size:.68rem;color:#444;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
-    .gallery-hub .card-arrow{font-size:.72rem;color:var(--blue);font-weight:700;letter-spacing:.04em;}
-
-/* ── FEATURED CARD ── */
-    .gallery-hub .card.card-featured{grid-column:span 2;flex-direction:row;border-color:rgba(0,180,255,.22);min-height:280px;}
-    .gallery-hub .card.card-featured .card-img-wrap{width:52%;flex-shrink:0;}
-    .gallery-hub .card.card-featured .card-img{aspect-ratio:auto;height:100%;min-height:280px;}
-    .gallery-hub .card.card-featured .card-right{display:flex;flex-direction:column;flex:1;min-width:0;}
-    .gallery-hub .card.card-featured .card-body{padding:24px 24px 16px;flex:1;}
-    .gallery-hub .card.card-featured .card-name{font-size:clamp(1.4rem,2.5vw,2rem);}
-    .gallery-hub .card.card-featured .card-footer{padding:12px 24px;}
-
-@media(max-width:768px){
-    .gallery-hub .card.card-featured{grid-column:span 2;flex-direction:column;min-height:auto;}
-    .gallery-hub .card.card-featured .card-img-wrap{width:100%;}
-    .gallery-hub .card.card-featured .card-img{aspect-ratio:16/9;height:auto;min-height:auto;}
-    .gallery-hub .card.card-featured .card-body{padding:16px 16px 12px;}
-    .gallery-hub .card.card-featured .card-footer{padding:10px 16px;}
-}
-@media(max-width:600px){
-    .gallery-hub .card.card-featured{grid-column:span 2;}
-}
-
-/* ── NO RESULTS ── */
-    .gallery-hub .no-results{display:none;grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--grey);font-size:.9rem;}
-    .gallery-hub .no-results.show{display:block;}
-
-/* ── FOOTER ── */
-    .gallery-hub .site-footer{text-align:center;padding:36px 24px;border-top:1px solid rgba(0,180,255,.08);color:#444;font-size:.78rem;letter-spacing:.04em;}
-    .gallery-hub .site-footer a{color:var(--blue);text-decoration:none;}
-    .gallery-hub .site-footer a:hover{text-decoration:underline;}
-
+  /* ── 4-Widget Spotlight Row ── */
+  :root {
+    --artist-color: #00b4ff;
+    --brand-color:  #00c853;
+    --org-color:    #ff6d00;
+    --culture-color:#aa00ff;
+  }
+  .spotlight-widgets-row {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto 64px;
+    padding: 0 24px;
+  }
+  .spot-widget {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 14px;
+    padding: 20px 18px 44px;
+    min-height: 260px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s;
+  }
+  .spot-widget:hover { border-color: rgba(255,255,255,.2); }
+  .spot-widget-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .spot-widget-label {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.1rem;
+    letter-spacing:.12em;
+  }
+  .spot-widget-line {
+    flex:1;
+    height:1px;
+    background:currentColor;
+    opacity:.25;
+  }
+  .spot-slide { display:none; }
+  .spot-slide.active {
+    display:block;
+    animation: swFade .45s ease;
+  }
+  @keyframes swFade {
+    from{opacity:0;transform:translateY(6px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  .spot-slide-name {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.55rem;
+    letter-spacing:.04em;
+    line-height:1.1;
+    margin-bottom:6px;
+  }
+  .spot-slide-tag {
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    color:rgba(255,255,255,.45);
+    margin-bottom:10px;
+  }
+  .spot-slide-bio {
+    font-size:.82rem;
+    color:rgba(255,255,255,.68);
+    line-height:1.55;
+    margin-bottom:14px;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .spot-slide-link {
+    font-size:.68rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    text-decoration:none;
+    padding:5px 11px;
+    border-radius:4px;
+    border:1px solid currentColor;
+    display:inline-block;
+    opacity:.85;
+    transition:opacity .2s;
+  }
+  .spot-slide-link:hover{opacity:1;}
+  .spot-widget-dots {
+    position:absolute;
+    bottom:14px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:5px;
+  }
+  .sw-dot {
+    width:5px;height:5px;
+    border-radius:50%;
+    background:rgba(255,255,255,.2);
+    cursor:pointer;
+    transition:background .2s;
+  }
+  .sw-dot.active{background:currentColor;}
+  @media(max-width:900px){
+    .spotlight-widgets-row{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:540px){
+    .spotlight-widgets-row{grid-template-columns:1fr;}
+  }
+  /* Events hub wrapper */
+  .events-hub { padding-top: 8px; }
+  /* Classic flyers header fix */
+  .classic-flyers-section .section-title { font-family:'Bebas Neue',sans-serif; }
   </style>
 </head>
 <body>
 
-  <!-- Fixed background logo watermark — scrolls behind all content -->
+  <!-- Fixed background logo watermark -->
   <div class="page-bg-logo" aria-hidden="true"><img src="/logo-blue-nav.png" alt=""></div>
 
   <!-- Nav -->
@@ -602,9 +605,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
     <a href="/signup.html" class="nav-cta" onclick="toggleMenu()">SUBSCRIBE</a>
   </div>
 
-
-
-  <!-- Hero -->
+<!-- Hero -->
   <section class="hero" id="home">
     <canvas id="hero-canvas"></canvas>
     <div class="hero-overlay"></div>
@@ -624,481 +625,60 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
   </section>
 
 
-  <!-- SPOTLIGHT — Artist / Brand / Organizer rotating rows -->
-  <section class="fresh-spotlight" id="featured" style="padding:48px 0 56px;">
+  
+  <!-- SPOTLIGHT — 4 Category Widget Row -->
+  <section class="section" id="spotlight" style="padding-top:0">
     <div class="container">
-      <div class="spot-hdr" style="margin-bottom:40px;">
-        <h2 class="section-title">SPOTLIGHT</h2>
-      </div>
-
-      <!-- TODAY'S PICK — Artist of the Day (rotated daily by AGENT 5) -->
-      <div class="todays-pick" style="max-width:760px;margin:0 auto 44px;background:linear-gradient(135deg,#141414,#181028);border:1px solid rgba(0,180,255,.25);border-radius:14px;padding:22px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;box-shadow:0 10px 40px rgba(0,180,255,.08);">
-        <div style="position:relative;width:104px;height:104px;border-radius:12px;overflow:hidden;flex-shrink:0;border:2px solid #6600ff;">
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:#fff;background:linear-gradient(135deg,#6600ff66,#6600ff22);z-index:0;">BS</div>
-          <img src="https://unavatar.io/instagram/bb.shaine" alt="BB Shaine" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
-        </div>
-        <div style="flex:1;min-width:220px;">
-          <span style="display:inline-block;background:linear-gradient(135deg,var(--blue),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.68rem;letter-spacing:.14em;padding:4px 12px;border-radius:20px;margin-bottom:10px;">★ ARTIST OF THE DAY</span>
-          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 4px;">BB SHAINE</h3>
-          <div style="font-size:.72rem;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;">Bass / Techno / Electro / UKG / Jungle · Los Angeles</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <a href="https://keepitil.com/blog-bb-shaine.html" style="font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--blue);padding:8px 16px;border-radius:6px;text-decoration:none;">READ BIO →</a>
-            <a href="https://instagram.com/bb.shaine" target="_blank" rel="noopener" style="font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.08em;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 14px;border-radius:6px;text-decoration:none;">@bb.shaine</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- ARTIST SPOTLIGHT -->
-      <div class="spotlight-block">
-        <div class="spotlight-block-hdr">
-          <h3 class="spotlight-block-title" style="color:#00b4ff;">ARTISTS</h3>
-          <a class="spot-see-all" href="/artist">View All Artists →</a>
-        </div>
-        <div class="spot-grid" id="artist-row"></div>
-        <div class="cc-wrap"><div class="cc-track" id="artist-carousel"></div></div>
-      </div>
-
-      <!-- BRANDS -->
-      <div class="spotlight-block" style="margin-top:48px;">
-        <div class="spotlight-block-hdr">
-          <h3 class="spotlight-block-title" style="color:#00ff88;">BRANDS</h3>
-          <a class="spot-see-all" href="/brand/">View All Brands →</a>
-        </div>
-        <div class="cc-wrap"><div class="cc-track" id="brand-carousel"></div></div>
-      </div>
-
-      <!-- ORGANIZERS -->
-      <div class="spotlight-block" style="margin-top:48px;">
-        <div class="spotlight-block-hdr">
-          <h3 class="spotlight-block-title" style="color:#ff6600;">ORGANIZERS</h3>
-          <a class="spot-see-all" href="/organizer/">View All Organizers →</a>
-        </div>
-        <div class="cc-wrap"><div class="cc-track" id="org-carousel"></div></div>
-      </div>
+      <h2 class="section-title" style="font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:.2em;color:#fff;text-align:center;margin-bottom:40px;">
+        SPOTLIGHT
+      </h2>
     </div>
-  </section>
-  <script>
-  (function(){
-    var ARTISTS=[{n:"RAB3L",g:"Bass House",i:"https://unavatar.io/instagram/dj_rab3l_r3mix",b:"blog-rab3l.html",c:"#6600ff",a:"R"},{n:"Groove Trooper",g:"Latin House",i:"https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg",b:"blog-groove-trooper.html",c:"#00b4ff",a:"GT"},{n:"Lvnky Bonez",g:"Dubstep",i:"https://unavatar.io/instagram/__lvnky.bonez__",b:"blog-lvnky-bonez.html",c:"#6600ff",a:"LB"},{n:"SWERVE",g:"Tech House",i:"https://unavatar.io/instagram/SWERVE.2.THEBEAT",b:"blog-swerve.html",c:"#00b4ff",a:"S"},{n:"Chlophonic",g:"Bass",i:"https://unavatar.io/instagram/Chlophonic",b:"blog-chlophonic.html",c:"#6600ff",a:"C"},{n:"PYPRR",g:"Hard Techno",i:"https://unavatar.io/instagram/_pyprr",b:"blog-pyprr.html",c:"#ff2200",a:"P"},{n:"Rex Elvis",g:"Minimal",i:"https://unavatar.io/instagram/rex.elvis_",b:"blog-rex-elvis.html",c:"#ff2200",a:"RE"},{n:"GalacticGumby",g:"Speed Garage",i:"https://unavatar.io/instagram/Galactic_Gumby",b:"blog-galacticgumby.html",c:"#b400ff",a:"G"},{n:"XEODIN",g:"Dubstep",i:"https://unavatar.io/instagram/xeodindubz",b:"blog-xeodin.html",c:"#6600ff",a:"X"},{n:"TranceOne",g:"Tech Trance",i:"https://unavatar.io/instagram/Tranceonemusic",b:"blog-tranceone.html",c:"#ff2200",a:"T"},{n:"crooki3",g:"House",i:"https://unavatar.io/instagram/crooki3official",b:"blog-crooki3.html",c:"#00b4ff",a:"C"},{n:"Smoke",g:"House",i:"https://unavatar.io/instagram/Allsmokeverything",b:"blog-smoke.html",c:"#00b4ff",a:"S"},{n:"elysium",g:"Bass",i:"https://unavatar.io/instagram/elysium.sound",b:"blog-elysium.html",c:"#6600ff",a:"E"},{n:"KriStyle",g:"Techno",i:"https://unavatar.io/instagram/Kristyle_techno",b:"blog-kristyle.html",c:"#ff2200",a:"K"},{n:"DSA",g:"Dubstep",i:"https://unavatar.io/instagram/dsa.wav",b:"blog-dsa.html",c:"#6600ff",a:"D"},{n:"Payton Plz",g:"Bounce",i:"https://unavatar.io/instagram/Djpaytonplz",b:"blog-payton-plz.html",c:"#ff0080",a:"PP"},{n:"VicCr",g:"House",i:"https://unavatar.io/instagram/Techmyhousemuzicsf",b:"blog-viccr.html",c:"#00b4ff",a:"V"},{n:"se Papid D",g:"House",i:"https://unavatar.io/instagram/sepapid",b:"blog-se-papid-d.html",c:"#00b4ff",a:"SP"},{n:"RA1N",g:"Underground",i:"https://unavatar.io/instagram/itstonypena",b:"blog-rain.html",c:"#00ff88",a:"R"},{n:"RAVE GOD",g:"Underground",i:"https://unavatar.io/instagram/imravegod",b:"blog-rave-god.html",c:"#00ff88",a:"RG"},{n:"Richrunthat",g:"Underground",i:"https://unavatar.io/instagram/_rrichrunthat_",b:"blog-richrunthat.html",c:"#00ff88",a:"R"},{n:"TMZEE",g:"Underground",i:"https://unavatar.io/instagram/tmzee_",b:"blog-tmzee.html",c:"#00ff88",a:"T"},{n:"Nick Doe",g:"Underground",i:"https://unavatar.io/instagram/itssnickdoe",b:"blog-nick-doe.html",c:"#00ff88",a:"ND"},{n:"FUSION x",g:"Underground",i:"https://unavatar.io/instagram/0beeryn_12",b:"blog-fusion-x.html",c:"#00ff88",a:"FX"},{n:"KINGPINS",g:"Underground",i:"https://unavatar.io/instagram/kingpins",b:"blog-kingpins.html",c:"#00ff88",a:"K"},{n:"DD Balenziaga",g:"Underground",i:"https://unavatar.io/instagram/ddbalenziaga",b:"blog-dd-balenziaga.html",c:"#00ff88",a:"DB"},{n:"...weird",g:"Underground",i:"https://unavatar.io/instagram/_._._.weird",b:"blog-weird.html",c:"#00ff88",a:"."},{n:"Demek",g:"Psychedelic Industrial Techno",i:"https://unavatar.io/instagram/demektechno",b:"blog-demek.html",c:"#ff2200",a:"D"},{n:"Aztekan",g:"Hypnotic",i:"https://unavatar.io/instagram/_aztekan",b:"blog-aztekan.html",c:"#ff2200",a:"A"},{n:"CLAWZ",g:"Acid Techno",i:"https://unavatar.io/instagram/_clawz_",b:"blog-clawz.html",c:"#ff2200",a:"C"},{n:"Amuck Indstrl",g:"Industrial",i:"https://unavatar.io/instagram/amuck_indstrl",b:"blog-amuck-indstrl.html",c:"#ff2200",a:"AI"},{n:"Oscar Osorio",g:"Underground House",i:"https://unavatar.io/instagram/oscarosorio_dj",b:"blog-oscar-osorio.html",c:"#00b4ff",a:"OO"},{n:"BB Shaine",g:"Bass",i:"https://unavatar.io/instagram/bb.shaine",b:"blog-bb-shaine.html",c:"#6600ff",a:"BS"},{n:"ZLATA",g:"House",i:"https://unavatar.io/instagram/zlatassx",b:"blog-zlata.html",c:"#00b4ff",a:"Z"},{n:"John Bryars",g:"Acid",i:"https://unavatar.io/instagram/johnnbryars",b:"blog-john-bryars.html",c:"#b400ff",a:"JB"},{n:"Red Five",g:"Disco Tech",i:"https://unavatar.io/instagram/djredfive",b:"blog-red-five.html",c:"#ff0080",a:"RF"},{n:"NOCTUA",g:"Techno",i:"https://unavatar.io/instagram/noctua.la",b:"blog-noctua.html",c:"#6600ff",a:"N"},{n:"Mello Vega",g:"Latin House",i:"https://unavatar.io/instagram/mello.vega.dj",b:"blog-mello-vega.html",c:"#ff6600",a:"MV"},{n:"KODA",g:"Deep Tech",i:"https://unavatar.io/instagram/koda.sd.dj",b:"blog-koda.html",c:"#00b4ff",a:"K"},{n:"Velvet Riot",g:"UK Bass",i:"https://unavatar.io/instagram/velvet.riot.dj",b:"blog-velvet-riot.html",c:"#ff0080",a:"VR"},{n:"SUBZERO",g:"Riddim",i:"https://unavatar.io/instagram/subzero.ie.dj",b:"blog-subzero.html",c:"#00ff88",a:"S"},{n:"DRIFTER",g:"Deep House",i:"https://unavatar.io/instagram/drifter.oc.music",b:"blog-drifter.html",c:"#00b4ff",a:"D"},{n:"ZENITH",g:"Melodic Techno",i:"https://unavatar.io/instagram/zenith.la.dj",b:"blog-zenith.html",c:"#b400ff",a:"Z"},{n:"Casper Grey",g:"Tech House",i:"https://unavatar.io/instagram/caspergrey.music",b:"blog-casper-grey.html",c:"#ff6600",a:"CG"},{n:"ORACLE",g:"Bass Music",i:"https://unavatar.io/instagram/oracle.sd.bass",b:"blog-oracle.html",c:"#6600ff",a:"O"},{n:"Remy Kai",g:"UKG",i:"https://unavatar.io/instagram/remy.kai.music",b:"blog-remy-kai.html",c:"#ff0080",a:"RK"},{n:"FUZE",g:"Dubstep",i:"https://unavatar.io/instagram/fuze.ie.bass",b:"blog-fuze.html",c:"#00ff88",a:"F"},{n:"Luna Moth",g:"Ambient Techno",i:"https://unavatar.io/instagram/luna.moth.sounds",b:"blog-luna-moth.html",c:"#b400ff",a:"LM"},{n:"PHANTOM",g:"Deep Techno",i:"https://unavatar.io/instagram/phantom.oc.techno",b:"blog-phantom.html",c:"#6600ff",a:"P"},{n:"Static Bloom",g:"Electronica",i:"https://unavatar.io/instagram/static.bloom.la",b:"blog-static-bloom.html",c:"#00b4ff",a:"SB"},{n:"Echo West",g:"House",i:"https://unavatar.io/instagram/echo.west.lb",b:"blog-echo-west.html",c:"#ff6600",a:"EW"},{n:"Josh Billings",g:"House",i:"https://unavatar.io/instagram/josh_billings",b:"blog-josh-billings.html",c:"#00b4ff",a:"JB"}];
-    var VENDORS=[{n:"Cube World Media",g:"Event Production",i:"https://unavatar.io/instagram/cubeworldmedia",b:"blog-org-cube-world-media.html",c:"#00ff88",a:"CW"},{n:"Neon District Lights",g:"Lighting & Visual Effects",i:"https://unavatar.io/instagram/neondistrictoc",b:"blog-brand-neon-district.html",c:"#00b4ff",a:"ND"},{n:"Underground Sound Co",g:"Sound & PA Systems",i:"https://unavatar.io/instagram/undergroundsoundco",b:"blog-brand-underground-sound.html",c:"#b400ff",a:"US"},{n:"OC Rave Supply",g:"Merch & Apparel",i:"https://unavatar.io/instagram/ocravesupply",b:"blog-brand-oc-rave-supply.html",c:"#ff6600",a:"OR"},{n:"Wristband Nation",g:"Event Wristbands & RFID",i:"https://unavatar.io/instagram/wristbandnation",b:"blog-brand-wristband-nation.html",c:"#ff0080",a:"WN"},{n:"The Photo Booth Co",g:"Photography & Video",i:"https://unavatar.io/instagram/thephotoboothco",b:"blog-brand-photo-booth-co.html",c:"#ffb400",a:"TP"},{n:"Bass Apparel OC",g:"Merch & Apparel",i:"https://unavatar.io/instagram/bassappareloc",b:"blog-brand-bass-apparel-oc.html",c:"#00ff88",a:"BA"},{n:"SoCal LED Rentals",g:"Lighting & Visual Effects",i:"https://unavatar.io/instagram/socalledrentals",b:"blog-brand-socal-led.html",c:"#00b4ff",a:"SL"},{n:"Insomniac Events",g:"Event Production",i:"https://unavatar.io/instagram/insomniacevents",b:"blog-org-insomniac.html",c:"#b400ff",a:"IE"},{n:"Create Music Group",g:"Music Marketing & PR",i:"https://unavatar.io/instagram/createmusicgroup",b:"blog-brand-create-music-group.html",c:"#ff0080",a:"CM"},{n:"HARD Events",g:"Event Production",i:"https://unavatar.io/instagram/hardfest",b:"blog-org-hard-events.html",c:"#ff6600",a:"HE"},{n:"Goldenvoice",g:"Event Production",i:"https://unavatar.io/instagram/goldenvoice",b:"blog-org-goldenvoice.html",c:"#ffb400",a:"G"},{n:"ProDJ Supply",g:"DJ Equipment & Gear",i:"https://unavatar.io/instagram/prodjsupply",b:"blog-brand-prodj-supply.html",c:"#00ff88",a:"PS"},{n:"Avalon Hollywood",g:"Event Production",i:"https://unavatar.io/instagram/avalonhollywood",b:"blog-org-avalon-hollywood.html",c:"#00b4ff",a:"AH"},{n:"Bass Head Apparel",g:"Merch & Apparel",i:"https://unavatar.io/instagram/bassheadapparel",b:"blog-brand-basshead-apparel.html",c:"#b400ff",a:"BH"},{n:"LA Visuals",g:"Photography & Video",i:"https://unavatar.io/instagram/lavisuals",b:"blog-brand-la-visuals.html",c:"#ff0080",a:"LV"},{n:"Rave Clothing Co",g:"Merch & Apparel",i:"https://unavatar.io/instagram/raveclothingco",b:"blog-brand-rave-clothing-co.html",c:"#ff6600",a:"RC"},{n:"Sound Strike Audio",g:"Sound & PA Systems",i:"https://unavatar.io/instagram/soundstrike",b:"blog-brand-sound-strike.html",c:"#ffb400",a:"SS"},{n:"Nightlife Security LA",g:"Event Security",i:"https://unavatar.io/instagram/nightlifesecurityla",b:"blog-brand-nightlife-security.html",c:"#00ff88",a:"NS"},{n:"Subculture Agency",g:"Artist Booking & Mgmt",i:"https://unavatar.io/instagram/subcultureagency",b:"blog-brand-subculture-agency.html",c:"#00b4ff",a:"SA"},{n:"Whet Foundation",g:"Event Production",i:"https://unavatar.io/instagram/whetfoundation",b:"blog-org-whet-foundation.html",c:"#b400ff",a:"WF"},{n:"Cygnus Events",g:"Event Production",i:"https://unavatar.io/instagram/cygnusevents",b:"blog-org-cygnus-events.html",c:"#ff0080",a:"CE"},{n:"SD Photo Collective",g:"Photography & Video",i:"https://unavatar.io/instagram/sdphotocollective",b:"blog-brand-sd-photo.html",c:"#ff6600",a:"SP"},{n:"DIRTYBIRD Records",g:"Record Label",i:"https://unavatar.io/instagram/dirtybirdrecords",b:"blog-brand-dirtybird.html",c:"#ffb400",a:"DR"},{n:"Public Works SF",g:"Event Production",i:"https://unavatar.io/instagram/publicworkssf",b:"blog-org-public-works-sf.html",c:"#00ff88",a:"PW"},{n:"Spun Productions",g:"Event Production",i:"https://unavatar.io/instagram/spunproductions",b:"blog-brand-spun-productions.html",c:"#00b4ff",a:"SP"},{n:"Symbiosis Gathering",g:"Festival Production",i:"https://unavatar.io/instagram/symbiosisgathering",b:"blog-org-symbiosis.html",c:"#b400ff",a:"SG"},{n:"IE Rave Nation",g:"Event Production",i:"https://unavatar.io/instagram/ieravenation",b:"blog-org-ie-rave-nation.html",c:"#ff0080",a:"IR"},{n:"SoCal Rave Co",g:"Rave Apparel",i:"https://unavatar.io/instagram/socalraveco",b:"blog-brand-socal-rave-co.html",c:"#ff0080",a:"SR"},{n:"Pacific Bass",g:"DJ & Production Gear",i:"https://unavatar.io/instagram/pacificbass.gear",b:"blog-brand-pacific-bass.html",c:"#00b4ff",a:"PB"},{n:"Neon Jungle",g:"Festival Accessories",i:"https://unavatar.io/instagram/neonjungle.oc",b:"blog-brand-neon-jungle.html",c:"#00ff88",a:"NJ"},{n:"Warehouse Threads",g:"Streetwear",i:"https://unavatar.io/instagram/warehousethreads.la",b:"blog-brand-warehouse-threads.html",c:"#ff6600",a:"WT"},{n:"Desert Bloom Supply",g:"Event Supply",i:"https://unavatar.io/instagram/desertbloom.supply",b:"blog-brand-desert-bloom-supply.html",c:"#b400ff",a:"DB"},{n:"Subculture Ink",g:"Art & Tattoo",i:"https://unavatar.io/instagram/subcultureink.hb",b:"blog-brand-subculture-ink.html",c:"#ff2200",a:"SI"},{n:"Signal Supply Co",g:"DJ Accessories & Gear",i:"https://unavatar.io/instagram/signalsupply.co",b:"blog-brand-signal-supply.html",c:"#00b4ff",a:"SS"},{n:"Night Market Collective",g:"Vendor Collective",i:"https://unavatar.io/instagram/nightmarket.collective",b:"blog-brand-night-market-collective.html",c:"#ff0080",a:"NM"},{n:"Underground Prints",g:"Print & Design",i:"https://unavatar.io/instagram/undergroundprints.la",b:"blog-brand-underground-prints.html",c:"#ffb400",a:"UP"},{n:"Bass Coast Gear",g:"Bass Music Apparel",i:"https://unavatar.io/instagram/basscoastgear",b:"blog-brand-bass-coast-gear.html",c:"#6600ff",a:"BC"}];
-    var ORGS=[{n:"KEEPITIL",g:"Underground",i:"https://unavatar.io/instagram/keepitil",b:"blog-org-keepitil.html",c:"#00b4ff",a:"K"},{n:"Cube World Media",g:"Underground",i:"https://unavatar.io/instagram/cubeworldmedia",b:"blog-org-cube-world-media.html",c:"#ff6600",a:"CW"},{n:"Merge the Music",g:"Underground",i:"https://unavatar.io/instagram/mergethemusic",b:"blog-org-merge-the-music.html",c:"#b400ff",a:"MT"},{n:"OC Rave Collective",g:"Warehouse Rave",i:"https://unavatar.io/instagram/ocravecollective",b:"blog-org-oc-rave-collective.html",c:"#00ff88",a:"OR"},{n:"Bass Mafia OC",g:"Bass Music",i:"https://unavatar.io/instagram/bassmafia",b:"blog-org-bass-mafia-oc.html",c:"#ff0080",a:"BM"},{n:"Underground OC",g:"Underground",i:"https://unavatar.io/instagram/undergroundoc",b:"blog-org-underground-oc.html",c:"#ffb400",a:"UO"},{n:"Insomniac Events",g:"Festival",i:"https://unavatar.io/instagram/insomniacevents",b:"blog-org-insomniac.html",c:"#b400ff",a:"IE"},{n:"HARD Events",g:"Festival",i:"https://unavatar.io/instagram/hardfest",b:"blog-org-hard-events.html",c:"#ff6600",a:"HE"},{n:"Goldenvoice",g:"Festival",i:"https://unavatar.io/instagram/goldenvoice",b:"blog-org-goldenvoice.html",c:"#ffb400",a:"G"},{n:"Nocturnal Wonderland",g:"Festival",i:"https://unavatar.io/instagram/nocturnalwonderland",b:"blog-org-nocturnal-wonderland.html",c:"#b400ff",a:"NW"},{n:"Brownies & Lemonade",g:"Underground",i:"https://unavatar.io/instagram/browniesandlemonade",b:"blog-org-brownies-lemonade.html",c:"#ff0080",a:"B&"},{n:"Do Lab",g:"Festival",i:"https://unavatar.io/instagram/thedolab",b:"blog-org-do-lab.html",c:"#00ff88",a:"DL"},{n:"Exchange LA",g:"Club",i:"https://unavatar.io/instagram/exchangela",b:"blog-org-exchange-la.html",c:"#00b4ff",a:"EL"},{n:"Academy LA",g:"Club",i:"https://unavatar.io/instagram/academyla",b:"blog-org-academy-la.html",c:"#b400ff",a:"AL"},{n:"Sound Nightclub",g:"Club",i:"https://unavatar.io/instagram/soundnightclub",b:"blog-org-sound-nightclub.html",c:"#ff6600",a:"SN"},{n:"Echoplex",g:"Club",i:"https://unavatar.io/instagram/theechoplex",b:"blog-org-echoplex.html",c:"#00ff88",a:"E"},{n:"The Fonda Theatre",g:"Concert",i:"https://unavatar.io/instagram/fondatheatre",b:"blog-org-fonda-theatre.html",c:"#ffb400",a:"TF"},{n:"Low End Theory",g:"Underground",i:"https://unavatar.io/instagram/lowendtheorynight",b:"blog-org-low-end-theory.html",c:"#ff0080",a:"LE"},{n:"Together As One",g:"New Year",i:"https://unavatar.io/instagram/togetherasone",b:"blog-org-together-as-one.html",c:"#00b4ff",a:"TA"},{n:"Avalon Hollywood",g:"Club",i:"https://unavatar.io/instagram/avalonhollywood",b:"blog-org-avalon-hollywood.html",c:"#b400ff",a:"AH"},{n:"Control Room",g:"Warehouse Rave",i:"https://unavatar.io/instagram/controlroom.la",b:"blog-org-control-room.html",c:"#b400ff",a:"CR"},{n:"Canary Sound Werk",g:"Warehouse",i:"https://unavatar.io/instagram/canarytest",b:"blog-org-canary-sound-werk.html",c:"#ffb400",a:"CS"},{n:"Whet Foundation",g:"Electronic",i:"https://unavatar.io/instagram/whetfoundation",b:"blog-org-whet-foundation.html",c:"#ff6600",a:"WF"},{n:"Cygnus Events",g:"Underground",i:"https://unavatar.io/instagram/cygnusevents",b:"blog-org-cygnus-events.html",c:"#00ff88",a:"CE"},{n:"ULTRA San Diego",g:"Festival",i:"https://unavatar.io/instagram/ultraworldwide",b:"blog-org-ultra-san-diego.html",c:"#ff0080",a:"US"},{n:"Another Planet Entertainment",g:"Concert",i:"https://unavatar.io/instagram/anotherplanetent",b:"blog-org-another-planet.html",c:"#b400ff",a:"AP"},{n:"Public Works SF",g:"Club",i:"https://unavatar.io/instagram/publicworkssf",b:"blog-org-public-works-sf.html",c:"#00b4ff",a:"PW"},{n:"Mezzanine SF",g:"Club",i:"https://unavatar.io/instagram/mezzaninesf",b:"blog-org-mezzanine-sf.html",c:"#ff6600",a:"MS"},{n:"Symbiosis Gathering",g:"Festival",i:"https://unavatar.io/instagram/symbiosisgathering",b:"blog-org-symbiosis.html",c:"#00ff88",a:"SG"},{n:"Pyramid Scheme",g:"Underground",i:"https://unavatar.io/instagram/pyramidschemesf",b:"blog-org-pyramid-scheme.html",c:"#ffb400",a:"PS"},{n:"IE Rave Nation",g:"Warehouse Rave",i:"https://unavatar.io/instagram/ieravenation",b:"blog-org-ie-rave-nation.html",c:"#ff0080",a:"IR"},{n:"Inferno OC/IE",g:"Underground",i:"https://unavatar.io/instagram/infernoevents",b:"blog-org-inferno.html",c:"#ff6600",a:"IO"},{n:"Subterranean OC",g:"Warehouse Collective",i:"https://unavatar.io/instagram/subterranean.oc",b:"blog-org-subterranean-oc.html",c:"#b400ff",a:"SO"},{n:"Bass Collective LA",g:"Bass Music Events",i:"https://unavatar.io/instagram/basscollective.la",b:"blog-org-bass-collective-la.html",c:"#ff6600",a:"BC"},{n:"Pacific Underground",g:"Cross-Regional Collective",i:"https://unavatar.io/instagram/pacific.underground.events",b:"blog-org-pacific-underground.html",c:"#00b4ff",a:"PU"},{n:"Neon Desert",g:"Underground Events",i:"https://unavatar.io/instagram/neondesert.events",b:"blog-org-neon-desert.html",c:"#00ff88",a:"ND"},{n:"The Foundry Collective",g:"Arts District Events",i:"https://unavatar.io/instagram/foundry.collective.la",b:"blog-org-foundry-collective.html",c:"#ff0080",a:"TF"},{n:"After Hours Collective",g:"Late Night Events",i:"https://unavatar.io/instagram/afterhours.collective.la",b:"blog-org-after-hours-collective.html",c:"#ff2200",a:"AH"},{n:"Resonance Events",g:"Underground Events",i:"https://unavatar.io/instagram/resonance.sd.events",b:"blog-org-resonance-sd.html",c:"#6600ff",a:"RE"},{n:"Catalyst Collective",g:"Artist-Focused Events",i:"https://unavatar.io/instagram/catalyst.collective.oc",b:"blog-org-catalyst-collective.html",c:"#00b4ff",a:"CC"},{n:"Dark Matter Events",g:"Techno Events",i:"https://unavatar.io/instagram/darkmatter.events.la",b:"blog-org-dark-matter-events.html",c:"#b400ff",a:"DM"},{n:"Roots Underground",g:"Community Events",i:"https://unavatar.io/instagram/roots.underground.la",b:"blog-org-roots-underground.html",c:"#ff6600",a:"RU"},{n:"6AM Group",g:"Underground Techno",i:"https://unavatar.io/instagram/6amgroup",b:"blog-org-6am-group.html",c:"#00b4ff",a:"6G"}];
+    <div class="spotlight-widgets-row">
 
-    function getWeek(){
-      var d=new Date(); d.setHours(0,0,0,0);
-      d.setDate(d.getDate()+3-((d.getDay()+6)%7));
-      var w=new Date(d.getFullYear(),0,4);
-      return 1+Math.round(((d-w)/86400000-3+((w.getDay()+6)%7))/7);
-    }
-
-    // Test if an image URL returns a real photo (not a generic fallback icon)
-    function testImg(url){
-      return new Promise(function(resolve){
-        if(!url||url.indexOf('http')!==0){resolve(false);return;}
-        var img=new Image();
-        var t=setTimeout(function(){img.src='';resolve(false);},4000);
-        img.onload=function(){
-          clearTimeout(t);
-          resolve(img.naturalWidth>50&&img.naturalHeight>50);
-        };
-        img.onerror=function(){clearTimeout(t);resolve(false);};
-        img.src=url;
-      });
-    }
-
-    // Render a full profile card
-    function spotCard(it,type){
-      var handle='';
-      if(it.i&&it.i.indexOf('instagram/')!==-1) handle=it.i.split('instagram/').pop();
-      var igUrl=handle?'https://instagram.com/'+handle:'';
-      var href='https://keepitil.com/'+it.b;
-      return '<div class="spot-card" onclick="location.href=\''+href+'\'" style="cursor:pointer;">'
-        +'<div class="spot-img-wrap">'
-        +'<div class="spot-img-fb" style="background:linear-gradient(135deg,'+it.c+'66,'+it.c+'22)">'+it.a+'</div>'
-        +'<img src="'+it.i+'" alt="'+it.n+'" onerror="this.style.opacity=0" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;">'
-        +'</div>'
-        +'<div class="spot-body">'
-        +'<span class="spot-kil-tag2">'+(type||'KEEPITIL')+'</span>'
-        +'<div class="spot-name2">'+it.n+'</div>'
-        +'<span class="spot-genre2">'+it.g+'</span>'
-        +'<div class="spot-links2" style="margin-top:14px;">'
-        +'<a href="'+href+'" class="spot-btn-profile" onclick="event.stopPropagation()">View Profile</a>'
-        +(igUrl?'<a href="'+igUrl+'" target="_blank" rel="noopener" class="spot-btn-ig" onclick="event.stopPropagation()">@'+handle+'</a>':'')
-        +'</div>'
-        +'</div>'
-        +'</div>';
-    }
-
-    // Rotate candidates by week, test images, render 4 profiles with working photos
-    async function renderRowImgOnly(id,arr,type){
-      var el=document.getElementById(id);
-      if(!el) return;
-      el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:40px 0;">Loading profiles…</div>';
-      var w=getWeek();
-      var offset=(w*13)%arr.length;
-      var rotated=arr.slice(offset).concat(arr.slice(0,offset));
-      var candidates=rotated.slice(0,Math.min(20,arr.length));
-      var results=await Promise.all(candidates.map(function(it){return testImg(it.i);}));
-      var withImgs=candidates.filter(function(_,i){return results[i];});
-      var show=withImgs.slice(0,4);
-      if(show.length<4){
-        var extra=candidates.filter(function(_,i){return !results[i];}).slice(0,4-show.length);
-        show=show.concat(extra);
-      }
-      el.innerHTML=show.map(function(it){return spotCard(it,type);}).join('');
-    }
-
-    renderRowImgOnly('artist-row',ARTISTS,'ARTIST');
-
-    function chipCard(it,basePath){
-      var name=it.name||it.n||'';
-      var genre=it.genre||it.g||it.type||'';
-      var initials=it.a||(name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase());
-      var slug=(it.slug||name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-      var href=it.href||('/'+basePath+'/'+slug+'/');
-      return '<a class="cc-chip" href="'+href+'">'
-        +'<div class="cc-avatar"><span class="cc-init">'+initials+'</span></div>'
-        +'<div><div class="cc-name">'+name+'</div><div class="cc-genre">'+genre+'</div></div>'
-        +'</a>';
-    }
-    function renderCarousel(trackId,arr,basePath){
-      var el=document.getElementById(trackId);
-      if(!el||!arr||!arr.length)return;
-      var doubled=arr.concat(arr);
-      el.innerHTML=doubled.map(function(it){return chipCard(it,basePath);}).join('');
-      el.style.setProperty('--dur',(arr.length*2.5)+'s');
-      el.style.animationDuration=(arr.length*2.5)+'s';
-    }
-    renderCarousel('artist-carousel',ARTISTS,'artist');
-    renderCarousel('brand-carousel',VENDORS,'brand');
-    renderCarousel('org-carousel',ORGS,'organizer');
-
-  })();
-  </script>
-
-
-    <!-- Culture / Blog -->
-  <section class="blog" id="blog">
-    <div class="container">
-      <div class="spotlight-block-hdr" style="margin-bottom:8px;">
-        <h2 class="section-title" style="margin-bottom:0;">CULTURE</h2>
-        <a class="spot-see-all" href="/culture">View All Posts →</a>
-      </div>
-      <div class="cc-wrap"><div class="cc-track" id="culture-carousel"></div></div>
-      <div class="blog-grid" style="display:none !important;">
-        <a class="blog-card reveal" href="https://keepitil.com/blog-news-day-trip-festival-2026-preview.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a2a,#001020);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">DAY TRIP 2026</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">⚡ News · This Weekend</span>
-          <h3 style="margin:8px 0 10px;">Day Trip Festival 2026 — Preview &amp; What to Expect This Weekend</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Cloonee, GORDO, Odd Mob, Adam Beyer, HI-LO, and 50+ artists hit Queen Mary Waterfront June 27–28. Full preview inside.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>Long Beach, CA</span><span>·</span><span>Jun 27–28</span></div>
-        </a>
-        <a class="blog-card reveal" href="https://keepitil.com/blog-news-socal-underground-state-2026.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a001a,#001020);margin:-32px -32px 20px;border-bottom:2px solid #b400ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#b400ff;text-shadow:0 0 20px #b400ff;letter-spacing:.05em;">THE SCENE IN 2026</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">📰 News · Scene Report</span>
-          <h3 style="margin:8px 0 10px;">The State of the SoCal Underground Scene in 2026</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Permits are harder, festivals are bigger, and local talent is finally getting their due. A clear-eyed look at where the SoCal underground is headed.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>SoCal Underground</span><span>·</span><span>Jun 2026</span></div>
-        </a>
-        <a class="blog-card reveal" href="https://keepitil.com/blog-tip-sound-system-guide.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#001a0d,#0a1a00);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00ff88;text-shadow:0 0 20px #00ff88;letter-spacing:.05em;">SOUND SYSTEMS</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00ff88;text-transform:uppercase;">🔊 Tips &amp; Guides</span>
-          <h3 style="margin:8px 0 10px;">Sound System Guide — What to Listen For at Underground Events</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">Not all systems are equal. How to recognize the difference between a great and mediocre PA — bass response, sub placement, mid-range clarity.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span>Tips Guide</span></div>
-        </a>
-        <a class="blog-card reveal" href="https://keepitil.com/blog-song-techno-picks-june-2026.html" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0a1a,#1a0a00);margin:-32px -32px 20px;border-bottom:2px solid #00b4ff;display:flex;align-items:center;justify-content:center;"><span style="font-size:18px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">JUNE TECHNO PICKS</span></div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00b4ff;text-transform:uppercase;">🎵 Songs · June 2026</span>
-          <h3 style="margin:8px 0 10px;">Underground Techno Picks — June 2026 Essential Tracks</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">The tracks that moved floors at Exchange LA, Arts District warehouses, and OC club nights this month. June 2026's essential techno.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA</span><span>·</span><span>Songs · Jun 2026</span></div>
-        </a>
-        <a class="blog-card reveal" href="https://keepitil.com/artist" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0b1a0b,#0d2010);margin:-32px -32px 20px;border-bottom:2px solid #00ff88;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;">
-            <span style="font-size:32px;font-weight:900;color:#00b4ff;text-shadow:0 0 20px #00b4ff;letter-spacing:.05em;">KEEPITIL</span>
-            <span style="font-size:11px;color:#888;letter-spacing:.15em;text-transform:uppercase;">52 Artists · OC &amp; LA</span>
-          </div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#00ff88;text-transform:uppercase;">🎤 Join The Roster</span>
-          <h3 style="margin:8px 0 10px;">Are You Next? Apply for Artist Highlight</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">OC or LA DJ/producer ready to be featured on KEEPITIL? Submit your Artist Highlight form and join the underground roster.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span style="color:#00ff88;">Apply →</span></div>
-        </a>
-        <a class="blog-card reveal" href="https://keepitil.com/culture" style="text-decoration:none;display:flex;flex-direction:column;">
-          <div style="aspect-ratio:16/9;background:linear-gradient(135deg,#0a0015,#0d1520);margin:-32px -32px 20px;border-bottom:2px solid #b400ff;display:flex;align-items:center;justify-content:center;">
-            <span style="font-size:20px;font-weight:900;color:#b400ff;text-shadow:0 0 20px #b400ff;text-align:center;padding:0 16px;line-height:1.4;">CREATE LOUD.<br>LIVE LOUDER.</span>
-          </div>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:#b400ff;text-transform:uppercase;">🌐 Culture</span>
-          <h3 style="margin:8px 0 10px;">The KEEPITIL Movement — From Events to Community</h3>
-          <p style="flex:1;font-size:.88rem;line-height:1.55;opacity:.8;">More than a promoter. KEEPITIL is building a movement — connecting DJs, fans, and venues across the OC and LA underground scene.</p>
-          <div class="article-meta" style="margin-top:12px;"><span>OC &amp; LA Underground</span><span>·</span><span>Read More →</span></div>
-        </a>
-      </div>
-    </div>
-  </section>
-  <script>
-  (function(){
-    var CULTURE_POSTS=[
-      {n:"Day Trip Festival 2026 Preview",g:"News · Jun 2026",a:"🌊",href:"https://keepitil.com/blog-news-day-trip-festival-2026-preview.html"},
-      {n:"SoCal Underground Scene 2026",g:"Scene Report",a:"📰",href:"https://keepitil.com/blog-news-socal-underground-state-2026.html"},
-      {n:"Sound System Guide",g:"Tips & Guides",a:"🔊",href:"https://keepitil.com/blog-tip-sound-system-guide.html"},
-      {n:"Techno Picks — June 2026",g:"Songs · Jun 2026",a:"🎵",href:"https://keepitil.com/blog-song-techno-picks-june-2026.html"},
-      {n:"HARD Summer 2026 Preview",g:"News · Aug 2026",a:"🔥",href:"https://keepitil.com/blog-news-hard-summer-2026-preview.html"},
-      {n:"RAB3L — Bass House OC",g:"Artist Feature",a:"R",href:"https://keepitil.com/blog-rab3l.html"},
-      {n:"Groove Trooper — Latin House",g:"Artist Feature",a:"GT",href:"https://keepitil.com/blog-groove-trooper.html"},
-      {n:"BB Shaine — Bass/Techno LA",g:"Artist Feature",a:"BS",href:"https://keepitil.com/blog-bb-shaine.html"},
-      {n:"Aztekan — Hypnotic Techno",g:"Artist Feature",a:"A",href:"https://keepitil.com/blog-aztekan.html"},
-      {n:"OC Rave Collective",g:"Organizer Feature",a:"OR",href:"https://keepitil.com/blog-org-oc-rave-collective.html"},
-      {n:"Exchange LA — Venue Guide",g:"Organizer Feature",a:"EL",href:"https://keepitil.com/blog-org-exchange-la.html"},
-      {n:"KEEPITIL Movement",g:"Culture · Community",a:"⚡",href:"https://keepitil.com/culture"}
-    ];
-    var el=document.getElementById('culture-carousel');
-    if(!el) return;
-    var doubled=CULTURE_POSTS.concat(CULTURE_POSTS);
-    el.innerHTML=doubled.map(function(it){
-      return '<a class="cc-chip" href="'+it.href+'">'
-        +'<div class="cc-avatar"><span class="cc-init" style="font-size:.75rem;">'+it.a+'</span></div>'
-        +'<div><div class="cc-name">'+it.n+'</div><div class="cc-genre">'+it.g+'</div></div>'
-        +'</a>';
-    }).join('');
-    el.style.animationDuration=(CULTURE_POSTS.length*3.5)+'s';
-  })();
-  </script>
-
-  <!-- Events Teaser -->
-  <section class="events-teaser" id="events">
-    <div class="container">
-      <div class="events-header reveal">
-        <div>
-          <div class="section-label">June 2026</div>
-          <h2 class="section-title">EVENTS</h2>
+      <!-- ARTIST widget (blue) -->
+      <div class="spot-widget" id="sw-artist">
+        <div class="spot-widget-header" style="color:var(--artist-color)">
+          <span class="spot-widget-label">ARTIST</span>
+          <span class="spot-widget-line"></span>
         </div>
-        <a href="https://keepitil.com/events" class="events-see-all">See All Events →</a>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
       </div>
 
-      <!-- ── FEATURED CAROUSEL ── -->
-      <div class="ev-carousel-label reveal">⚡ Highlighted Picks</div>
-      <div class="ev-carousel-wrap reveal">
-        <div class="ev-carousel">
-
-          <a href="https://keepitil.com/blog-news-day-trip-festival-2026-preview.html" class="ev-feat" style="--ev-grad:linear-gradient(135deg,#051525 0%,#0a1530 100%);">
-            <div class="ev-feat-img">
-              <div class="ev-feat-img-bg"></div>
-              <div class="ev-feat-img-icon">🌊</div>
-              <div class="ev-feat-pick">⚡ KEEPITIL PICK</div>
-            </div>
-            <div class="ev-feat-body">
-              <div class="ev-feat-date">Jun 27–28</div>
-              <div class="ev-feat-name">DAY TRIP FESTIVAL</div>
-              <div class="ev-feat-venue">Queen Mary Waterfront · Long Beach</div>
-              <span class="ev-feat-cta">Get Tickets →</span>
-            </div>
-          </a>
-
-          <a href="https://www.axs.com/events/1332014/aaron-hibell-tickets" target="_blank" rel="noopener" class="ev-feat" style="--ev-grad:linear-gradient(135deg,#150525 0%,#100a1a 100%);">
-            <div class="ev-feat-img">
-              <div class="ev-feat-img-bg"></div>
-              <div class="ev-feat-img-icon">🎵</div>
-              <div class="ev-feat-pick">⚡ TONIGHT</div>
-            </div>
-            <div class="ev-feat-body">
-              <div class="ev-feat-date">Jun 25</div>
-              <div class="ev-feat-name">AARON HIBELL</div>
-              <div class="ev-feat-venue">Fonda Theatre · Los Angeles</div>
-              <span class="ev-feat-cta">Get Tickets →</span>
-            </div>
-          </a>
-
-          <a href="https://www.tixr.com/groups/exchangela/events/day-trip-festival-preparty-green-velvet-192192" target="_blank" rel="noopener" class="ev-feat" style="--ev-grad:linear-gradient(135deg,#051a0a 0%,#081510 100%);">
-            <div class="ev-feat-img">
-              <div class="ev-feat-img-bg"></div>
-              <div class="ev-feat-img-icon">🎛️</div>
-              <div class="ev-feat-pick">⚡ TOMORROW</div>
-            </div>
-            <div class="ev-feat-body">
-              <div class="ev-feat-date">Jun 26</div>
-              <div class="ev-feat-name">GREEN VELVET — DAY TRIP PREPARTY</div>
-              <div class="ev-feat-venue">Exchange LA · Los Angeles</div>
-              <span class="ev-feat-cta">Get Tickets →</span>
-            </div>
-          </a>
-
-          <a href="https://keepitil.com/events" class="ev-feat" style="--ev-grad:linear-gradient(135deg,#051520 0%,#0a1428 100%);">
-            <div class="ev-feat-img">
-              <div class="ev-feat-img-bg"></div>
-              <div class="ev-feat-img-icon">🌅</div>
-            </div>
-            <div class="ev-feat-body">
-              <div class="ev-feat-date">Jul 11–12</div>
-              <div class="ev-feat-name">LOST IN DREAMS FESTIVAL</div>
-              <div class="ev-feat-venue">LA State Historic Park · Los Angeles</div>
-              <span class="ev-feat-cta">Get Tickets →</span>
-            </div>
-          </a>
-
-          <a href="https://keepitil.com/blog-news-hard-summer-2026-preview.html" class="ev-feat" style="--ev-grad:linear-gradient(135deg,#1a0505 0%,#150808 100%);">
-            <div class="ev-feat-img">
-              <div class="ev-feat-img-bg"></div>
-              <div class="ev-feat-img-icon">🔥</div>
-            </div>
-            <div class="ev-feat-body">
-              <div class="ev-feat-date">Aug 1–2</div>
-              <div class="ev-feat-name">HARD SUMMER</div>
-              <div class="ev-feat-venue">Hollywood Park · Inglewood</div>
-              <span class="ev-feat-cta">Preview →</span>
-            </div>
-          </a>
-
-          <a href="https://www.crssdfest.com/" target="_blank" rel="noopener" class="ev-feat" style="--ev-grad:linear-gradient(135deg,#050a20 0%,#080a18 100%);">
-            <div class="ev-feat-img">
-              <div class="ev-feat-img-bg"></div>
-              <div class="ev-feat-img-icon">🌊</div>
-            </div>
-            <div class="ev-feat-body">
-              <div class="ev-feat-date">Sep 5–6</div>
-              <div class="ev-feat-name">CRSSD FESTIVAL</div>
-              <div class="ev-feat-venue">Waterfront Park · San Diego</div>
-              <span class="ev-feat-cta">Get Tickets →</span>
-            </div>
-          </a>
-
+      <!-- BRAND widget (green) -->
+      <div class="spot-widget" id="sw-brand">
+        <div class="spot-widget-header" style="color:var(--brand-color)">
+          <span class="spot-widget-label">BRAND</span>
+          <span class="spot-widget-line"></span>
         </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
       </div>
 
-      <!-- ── MONTH GRID: 2 rows × 5 ── -->
-      <div class="ev-month-hd reveal">MORE THIS MONTH</div>
-      <div class="ev-month-grid reveal">
-
-        <a href="https://shotgun.live/en/festivals/electric-carousel" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#0a1020 0%,#0d0d1a 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">⚡</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Jun 26 · Thu</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">ELECTRIC CAROUSEL</div>
-            <div class="ev-mini-venue">The Compound · Commerce</div>
-          </div>
-        </a>
-
-        <a href="https://dice.fm/event/dk29aq-mark-knight-26th-jun-sound-nightclub-los-angeles-tickets" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#051525 0%,#0a1020 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🎛️</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Jun 26 · Thu</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">MARK KNIGHT</div>
-            <div class="ev-mini-venue">Sound Nightclub · LA</div>
-          </div>
-        </a>
-
-        <a href="https://intricacynights.ticketsauce.com/e/gssd2026/tickets" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#150525 0%,#100a18 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🎵</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Jun 26 · Thu</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">GABRIEL &amp; DRESDEN</div>
-            <div class="ev-mini-venue">Spin Nightclub · San Diego</div>
-          </div>
-        </a>
-
-        <a href="https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#0a1525 0%,#051020 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🌅</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Jun 27 · Fri</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">PANIC ROOM</div>
-            <div class="ev-mini-venue">TBA · Silver Lake</div>
-          </div>
-        </a>
-
-        <a href="https://www.seetickets.us/event/DISCOSTAN-15TH-ANNIVERSARY/612375" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#1a0a0a 0%,#120808 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">💿</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Jun 27 · Fri</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">DISCOSTAN 15YR</div>
-            <div class="ev-mini-venue">El Cid · Silver Lake</div>
-          </div>
-        </a>
-
-        <a href="https://keepitil.com/events" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#051a0a 0%,#081512 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🏖️</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Jul 11–12</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">LOST IN DREAMS</div>
-            <div class="ev-mini-venue">LA Historic Park · LA</div>
-          </div>
-        </a>
-
-        <a href="https://keepitil.com/blog-news-hard-summer-2026-preview.html" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#1a0505 0%,#120808 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🔥</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Aug 1–2</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">HARD SUMMER</div>
-            <div class="ev-mini-venue">Hollywood Park · Inglewood</div>
-          </div>
-        </a>
-
-        <a href="https://keepitil.com/events" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#050a1a 0%,#080a18 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">⚓</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Aug 14–16</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">SEISMIC DANCE EVENT</div>
-            <div class="ev-mini-venue">Stubb's · Austin TX</div>
-          </div>
-        </a>
-
-        <a href="https://www.crssdfest.com/" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#050a20 0%,#080a18 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🌊</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Sep 5–6</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">CRSSD FESTIVAL</div>
-            <div class="ev-mini-venue">Waterfront Park · SD</div>
-          </div>
-        </a>
-
-        <a href="https://www.insomniac.com/events/our-world/factory-93/" target="_blank" rel="noopener" class="ev-mini" style="--ev-grad:linear-gradient(160deg,#0a0520 0%,#08081a 100%);">
-          <div class="ev-mini-img">
-            <div class="ev-mini-img-bg"></div>
-            <div class="ev-mini-icon">🏭</div>
-            <div class="ev-mini-tag"><div class="ev-mini-date">Nov 14</div></div>
-          </div>
-          <div class="ev-mini-body">
-            <div class="ev-mini-name">FACTORY 93: ELI BROWN</div>
-            <div class="ev-mini-venue">City Market Social House · LA</div>
-          </div>
-        </a>
-
+      <!-- ORGANIZER widget (orange) -->
+      <div class="spot-widget" id="sw-organizer">
+        <div class="spot-widget-header" style="color:var(--org-color)">
+          <span class="spot-widget-label">ORGANIZER</span>
+          <span class="spot-widget-line"></span>
+        </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
       </div>
 
-      <div style="text-align:center;">
-        <a href="https://keepitil.com/events" class="ev-all-btn reveal">View All Events →</a>
+      <!-- CULTURE widget (purple) -->
+      <div class="spot-widget" id="sw-culture">
+        <div class="spot-widget-header" style="color:var(--culture-color)">
+          <span class="spot-widget-label">CULTURE</span>
+          <span class="spot-widget-line"></span>
+        </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
       </div>
+
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- UPCOMING EVENTS (events.html)                          -->
-  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- EVENTS (from events.html) -->
   <div class="events-hub">
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filter-bar">
@@ -1569,8 +1149,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
 
 <!-- OLD FLYERS -->
 <section class="flyers-section">
-  <div class="flyers-heading">OLD FLYERS</div>
-  <div class="flyers-sub">Archive of past KEEPITIL events · OC &amp; LA underground</div>
+  <div class="flyers-heading">CLASSIC FLYERS</div>
+  <div class="flyers-sub">Classic KEEPITIL flyers · OC &amp; LA underground history · OC &amp; LA underground</div>
   <div class="flyers-grid" id="flyers-grid">
     <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
     <div class="flyer-slot"><div class="flyer-slot-inner"><div class="flyer-slot-icon">📸</div><div class="flyer-slot-label">Add Flyer</div></div></div>
@@ -1592,646 +1172,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
   <a href="https://keepitil.com/organizer/" class="btn-outline">View Organizers</a>
 </section>
   </div><!-- /.events-hub -->
-
-  <!-- ══════════════════════════════════════════════════════ -->
-  <!-- PAST EVENTS GALLERY (index.html / RA)                  -->
-  <!-- ══════════════════════════════════════════════════════ -->
-  <div class="gallery-hub">
-<!-- ── HERO ── -->
-<div class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-label">OC &amp; LA Underground</div>
-  <h1 class="hero-title">PAST EVENTS</h1>
-  <div class="hero-row">
-    <p class="hero-sub">June 2026 · via Resident Advisor</p>
-    <span class="hero-pill" id="eventCount">34 events</span>
-  </div>
-</div>
-
-<!-- ── FILTERS ── -->
-<div class="filters">
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="techno">Techno</button>
-  <button class="filter-btn" data-filter="house">House</button>
-  <button class="filter-btn" data-filter="disco">Disco</button>
-  <button class="filter-btn" data-filter="bass">Bass</button>
-</div>
-
-<!-- ── GALLERY ── -->
-<div class="gallery" id="gallery">
-
-  <!-- FEATURED: Ostbahnhof XL — RA Pick -->
-  <a class="card card-featured" href="https://ra.co/events/2339406" target="_blank" rel="noopener" data-genre="techno house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vOWNlNmQ4OTFiNmExNjJjZmVhZmNlNDc2OWJlNTc1MDAwMjI1MzM3Ni5qcGc=" alt="Ostbahnhof XL Music Festival 2026" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-right">
-      <div class="card-body">
-        <span class="card-badge">RA Pick · Featured</span>
-        <div class="card-date">Fri, Jun 13, 2026</div>
-        <div class="card-name">Ostbahnhof XL Music Festival 2026</div>
-        <div class="card-venue">Secret Location · Los Angeles</div>
-        <div class="card-tags"><span class="tag">Techno</span><span class="tag">House</span></div>
-      </div>
-      <div class="card-footer">
-        <span class="card-source">RA Pick</span>
-        <span class="card-arrow">View on RA →</span>
-      </div>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2396710" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNzRhZjI5ZjkxODRlNDA2ZGFhYzhhMTE4YmEwYWZlOGRhNjJhMzA2MS5qcGc=" alt="SET: Hernan Cattaneo &amp; Armen Miran" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 12, 2026</div>
-      <div class="card-name">SET: Hernan Cattaneo &amp; Armen Miran</div>
-      <div class="card-venue">Warehouse · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Progressive House</span><span class="tag">Deep House</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2410568" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZTAzMzQyYmQ5MzY3Y2E3ODAzMjU5MDk1YTVjYWQ0NDk4YTVjYTZiNS5wbmc=" alt="WAXXX Society: Bloody Mary &amp; Anika Kunst" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 13, 2026</div>
-      <div class="card-name">WAXXX Society: Bloody Mary &amp; Anika Kunst</div>
-      <div class="card-venue">Warehouse · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Techno</span><span class="tag">Acid</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">RA Pick</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2430955" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODVmNjJjMmJmNDljM2ZkNjUxYWNhZmZlODEyOTdkZmI0MWU3MDZlYS5qcGc=" alt="Bodyshop Anniversary with MCMLXXXV" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 12, 2026</div>
-      <div class="card-name">Bodyshop Anniversary with MCMLXXXV</div>
-      <div class="card-venue">TBA · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Techno</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">RA Pick</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2455894" target="_blank" rel="noopener" data-genre="house disco">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjIyMWU1ZTQ2NjAwM2I1ZThiYzc0OTFmYWZlODIxYWRjODg0ZGMwNS5wbmc=" alt="Bears In Space with DJ Harvey" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 14, 2026</div>
-      <div class="card-name">Bears In Space with DJ Harvey</div>
-      <div class="card-venue">Akbar · Los Angeles</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">RA Pick</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2440579" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODMzMDk0YzNkMTUzYjM0MzhkYzg1MTk0MTkzNWRmZjYxZTdlNjI4ZS5qcGc=" alt="AXIS: Aten 2 Year Anniversary" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 13, 2026</div>
-      <div class="card-name">AXIS: Aten — 2 Year Anniversary</div>
-      <div class="card-venue">TBA · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Deep House</span><span class="tag">Afro House</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2414335" target="_blank" rel="noopener" data-genre="house disco">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMjZjODI0OGI0OWMwNWMzYmU1ODNiNjRjNGNiZWY1ZDNkNWRmMGMwMS5qcGc=" alt="Stereo Punks: Derrick Does Disco" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 12, 2026</div>
-      <div class="card-name">Stereo Punks: Derrick Does Disco</div>
-      <div class="card-venue">6th St Bridge · Los Angeles</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">RA Pick</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2430858" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjM4NDY4ODM0OTIzY2RlODVlY2IzZGI5M2IwMDk0M2JmZGFlNjJkMy5wbmc=" alt="Marmalade Jams: H-Foundation &amp; Sin&eacute;ad" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 13, 2026</div>
-      <div class="card-name">Marmalade Jams: H-Foundation &amp; Sin&eacute;ad</div>
-      <div class="card-venue">TBA · Los Angeles</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Downtempo</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2444604" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vY2E4ZDYyNzk4OWNmNGQyYmYxMTY4NjNhYWZkMGIwODQ1ZDViM2JjNS5wbmc=" alt="CLOSER: THERMAL with Aleroj &amp; ELLA" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 13, 2026</div>
-      <div class="card-name">CLOSER: THERMAL with Aleroj &amp; ELLA</div>
-      <div class="card-venue">DTLA · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Techno</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2441695" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2M0NmJmOWRhYjJlYjU4ZGQzM2M1MjdjODE4Yjc3YjgzZmYwYTA2ZS5qcGc=" alt="NAACH x Third Eye Lover: Pippi Ciez" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 12, 2026</div>
-      <div class="card-name">NAACH x Third Eye Lover: Pippi Ciez</div>
-      <div class="card-venue">Baja Cantina · Marina Del Rey</div>
-      <div class="card-tags"><span class="tag">Progressive House</span><span class="tag">Afro House</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2454102" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMWMyNjZiMThiNzYxODI5MTY0YjQ5MWJiYThkYmM4ZWE2ZWQ2NGFkNC5qcGc=" alt="NIGHTSHIFT After Hours" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Mon, Jun 1, 2026</div>
-      <div class="card-name">NIGHTSHIFT After Hours</div>
-      <div class="card-venue">The Lexington · DTLA</div>
-      <div class="card-tags"><span class="tag">Tech House</span><span class="tag">Minimal</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2446178" target="_blank" rel="noopener" data-genre="house disco">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMzdmZGEwMDI0MzE5MzEyYzUyMjY3ZDdlNjY0ZjMxNGQ3YmQ1YjEwYy5qcGc=" alt="KCRW Summer Nights Kickoff" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Mon, Jun 1, 2026</div>
-      <div class="card-name">KCRW Summer Nights Kickoff</div>
-      <div class="card-venue">Maydan Market · West Adams, LA</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2460326" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2Q3ZDkyZjQ5NjRlMGQ3ZDdmNjhkNTVkMmJkNTI4MzZjZjk0OTkxMi5wbmc=" alt="KCRW x Copa Del Rave Residency" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 20, 2026</div>
-      <div class="card-name">KCRW x Copa Del Rave Residency</div>
-      <div class="card-venue">Academy LA · Hollywood</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Reggaeton</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2448801" target="_blank" rel="noopener" data-genre="bass">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMGUwOTNjZDZmMzExNDc5OWNkZWJkMTk5ZjE5YWIwOWIwMWYwNWYyYS5wbmc=" alt="Past, Present, Future: Armenian Grooves" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Tue, Jun 23, 2026</div>
-      <div class="card-name">Past, Present, Future: Armenian Grooves</div>
-      <div class="card-venue">Zizou · Los Angeles</div>
-      <div class="card-tags"><span class="tag">World</span><span class="tag">Listening</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2471883" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYzMxYmM3M2E3ZjkyNDM0ZjliZWJiZDM3MWU5ODhjNzcxYTZjM2FjMy5qcGc=" alt="NIGHTSHIFT After Hours" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Tue, Jun 23, 2026</div>
-      <div class="card-name">NIGHTSHIFT After Hours</div>
-      <div class="card-venue">The Lexington · DTLA</div>
-      <div class="card-tags"><span class="tag">Tech House</span><span class="tag">Minimal</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2473062" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNjgzY2Y3YjJhZTVhYTFhNTcyNGY4ODE5YzQ0ZmYxZjIxZGI2NTU4ZS5qcGc=" alt="Clinic x Big Terry Time feat. Aly Lou" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Wed, Jun 24, 2026</div>
-      <div class="card-name">Clinic x Big Terry Time feat. Aly Lou</div>
-      <div class="card-venue">Jungle Hollywood · Hollywood</div>
-      <div class="card-tags"><span class="tag">House</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2464528" target="_blank" rel="noopener" data-genre="bass">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZjBiNDYwNTU0N2EwYzAyNWFhZGIyOTg1ZGJhNWI1ZmE0ZDU3MjU0Yi5qcGc=" alt="Car Culture, Leng Bian, Sam Buck" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Wed, Jun 24, 2026</div>
-      <div class="card-name">Car Culture, Leng Bian, Sam Buck</div>
-      <div class="card-venue">El Cid · Silver Lake</div>
-      <div class="card-tags"><span class="tag">Ambient</span><span class="tag">Electronica</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2379031" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vM2E4NjNmNzlmNzhlNDg4MWZmZDRmMzk4MDZlZjk0MGEyZjhmZTFlMi5qcGc=" alt="Aaron Hibell" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">Aaron Hibell</div>
-      <div class="card-venue">Fonda Theatre · Hollywood</div>
-      <div class="card-tags"><span class="tag">Electronic</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2453806" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMjgwOTgxNzI1ZmIxMDJkMzBkMjM5MjA4MTI0YTEyMGM0Y2JlNTI2Ny5qcGc=" alt="Flora + Fauna ft. aka Vinnie &amp; Modern Lover" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">Flora + Fauna ft. aka Vinnie &amp; Modern Lover</div>
-      <div class="card-venue">The Virgil · Silver Lake</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Electro</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2467526" target="_blank" rel="noopener" data-genre="techno house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMzhmOWIyZmQ3ZGU1M2E0OWU5ODBiMzIzNjYxYmMzNWMzNjM1YmU1Zi5qcGc=" alt="Surface DIY: Etari, Lechuga &amp; Naomi Green" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">Surface DIY: Etari, Lechuga &amp; Naomi Green</div>
-      <div class="card-venue">Better Tomorrow · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Prog House</span><span class="tag">Techno</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2472566" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODU3ZmIzMjIxZWJhY2IzZWVmNjJhYzE1YjhlM2JlZjk1YWEyMWRhYS5qcGc=" alt="OROLINK: Ms. Ed + Andy Oro" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">OROLINK: Ms. Ed + Andy Oro</div>
-      <div class="card-venue">Apotheke · Chinatown, LA</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Electro</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2468937" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNGMyM2QxZTU2NDAxYjU2NzBiZDIwNDk2ODJiMTU2MjY4ZGQ3NTU5My5qcGc=" alt="RECOLLECT UNDERGROUND" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">RECOLLECT UNDERGROUND</div>
-      <div class="card-venue">TBA · DTLA</div>
-      <div class="card-tags"><span class="tag">Deep Tech</span><span class="tag">Minimal</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2468031" target="_blank" rel="noopener" data-genre="house disco">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNDNmNTU0ZWEzNjNhMWMzMjA4MzhlNTlkMjVjN2Q4OTA1ZjhiMGNiOS5wbmc=" alt="Shadow Play" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">Shadow Play</div>
-      <div class="card-venue">Bar Franca · DTLA</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Disco</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2471887" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2FhNzAxZTZiODIzYTY5ZjMyMmUzZWY1M2U5M2U1ZGM3MWZkNjI3Yi5qcGc=" alt="NIGHTSHIFT After Hours" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Thu, Jun 25, 2026</div>
-      <div class="card-name">NIGHTSHIFT After Hours</div>
-      <div class="card-venue">The Lexington · DTLA</div>
-      <div class="card-tags"><span class="tag">Tech House</span><span class="tag">Minimal</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <!-- FEATURED: Dirty Epic — RA Pick -->
-  <a class="card card-featured" href="https://ra.co/events/2415209" target="_blank" rel="noopener" data-genre="techno house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZTdlZTFiMjQyMGM5OWViNDc3NjI2NTQ1ZWFjNDc1MzM0ZTkzOTZjNi5qcGc=" alt="Dirty Epic &amp; INCOGNITO: Stacey Pullen" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-right">
-      <div class="card-body">
-        <span class="card-badge">RA Pick · Featured</span>
-        <div class="card-date">Fri, Jun 26, 2026</div>
-        <div class="card-name">Dirty Epic &amp; INCOGNITO: Stacey Pullen</div>
-        <div class="card-venue">TBA · Los Angeles</div>
-        <div class="card-tags"><span class="tag">Techno</span><span class="tag">House</span></div>
-      </div>
-      <div class="card-footer">
-        <span class="card-source">RA Pick</span>
-        <span class="card-arrow">View on RA →</span>
-      </div>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2401010" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vODVjNGZiNDEwNDBlMTAyY2E0NzZlNDE5NjU4ZjMxMjc0MTNlZmU2Yi5wbmc=" alt="SUBSTATION" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 26, 2026</div>
-      <div class="card-name">SUBSTATION</div>
-      <div class="card-venue">The Monty Bar · DTLA</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Garage</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2443079" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYjBlZGRjYTg1ZDExNWFlYTg5YTNmYWI4NWM3NGJjOTU1NmNhMDk2Yi5wbmc=" alt="BAILE WORLD Pride ft Bambii &amp; Jubilee" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 26, 2026</div>
-      <div class="card-name">BAILE WORLD Pride ft Bambii &amp; Jubilee</div>
-      <div class="card-venue">TBA · DTLA</div>
-      <div class="card-tags"><span class="tag">Techno</span><span class="tag">Electronica</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2453103" target="_blank" rel="noopener" data-genre="bass">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYWNmZDI2NzZmNzFkZjJhZGI0NDA4Y2Y4NTNkMGU3NzM2NzExOWY4NC5qcGc=" alt="CSW x SLINK: Enayet and K Wata" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 26, 2026</div>
-      <div class="card-name">CSW x SLINK: Enayet and K Wata</div>
-      <div class="card-venue">TBA · Downtown LA</div>
-      <div class="card-tags"><span class="tag">Bass</span><span class="tag">Experimental</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2443844" target="_blank" rel="noopener" data-genre="house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNDQ3MjExNGNlOTYxOTU5NmI5YmNkMjRkYjY1MmZmOGM0YjExODU1MS5wbmc=" alt="Lights Down Low feat. Yaeji" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Fri, Jun 26, 2026</div>
-      <div class="card-name">Lights Down Low feat. Yaeji</div>
-      <div class="card-venue">TBA · Downtown LA</div>
-      <div class="card-tags"><span class="tag">House</span><span class="tag">Electronic</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2426153" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vYmI3Y2JlMDhmM2RmNDhhYzIzMjZhMzhkNDc1YzYyZjAxNDIyZDJkOC5qcGc=" alt="OBSERVE // LOS ANGELES 6.27" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 27, 2026</div>
-      <div class="card-name">OBSERVE // LOS ANGELES 6.27</div>
-      <div class="card-venue">TBA · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Techno</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2443231" target="_blank" rel="noopener" data-genre="techno house">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vMGFhOTU5MWY4ZjFiMGYzNTRlYWQ4ZmIzZWNhOWI3Yzg2N2QxMGU1Zi5qcGc=" alt="SWXCH 006: Lea Occhi &amp; softchaos" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 27, 2026</div>
-      <div class="card-name">SWXCH 006: Lea Occhi &amp; softchaos — LA Pride</div>
-      <div class="card-venue">TBA Warehouse · Los Angeles</div>
-      <div class="card-tags"><span class="tag">Techno</span><span class="tag">House</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2450916" target="_blank" rel="noopener" data-genre="bass">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vN2ZiNmJhNmMwODI3Y2FjODg5OTQ0NWFhNDA2ZDhlYmZhNGM2OWEzMy5wbmc=" alt="★ RARE CANDY ★ Daedelus" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 27, 2026</div>
-      <div class="card-name">★ RARE CANDY ★ Daedelus</div>
-      <div class="card-venue">De La Playa Records · Highland Park</div>
-      <div class="card-tags"><span class="tag">Bass</span><span class="tag">Jazz</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2458069" target="_blank" rel="noopener" data-genre="techno">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vZDgxMWY1ODg4YTM4NWYyOTU5OWFkMTlhNjliNDExMTA5ZjI0NWNiYS5wbmc=" alt="Panic Room: Shane Thomas &amp; Banoffee" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 27, 2026</div>
-      <div class="card-name">Panic Room: Shane Thomas &amp; Banoffee</div>
-      <div class="card-venue">TBA · Silverlake</div>
-      <div class="card-tags"><span class="tag">Techno</span><span class="tag">Club</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <a class="card" href="https://ra.co/events/2438916" target="_blank" rel="noopener" data-genre="bass disco">
-    <div class="card-img-wrap">
-      <img class="card-img" src="https://imgproxy.ra.co/_/quality:66/aHR0cHM6Ly9pbWFnZXMucmEuY28vNTQ1Y2NhNWRiZGJiOThiYjhhZTk5NmEzY2JkZjMzNzYxYjBmZmI2Ni5wbmc=" alt="discostan 15-Year Anniversary" loading="lazy">
-      <div class="card-overlay"><span class="card-overlay-cta">View on RA →</span></div>
-    </div>
-    <div class="card-body">
-      <div class="card-date">Sat, Jun 27, 2026</div>
-      <div class="card-name">discostan 15-Year Anniversary</div>
-      <div class="card-venue">El Cid · Silver Lake</div>
-      <div class="card-tags"><span class="tag">Bass</span><span class="tag">Disco</span><span class="tag">World</span></div>
-    </div>
-    <div class="card-footer">
-      <span class="card-source">via RA</span>
-      <span class="card-arrow">View on RA →</span>
-    </div>
-  </a>
-
-  <p class="no-results" id="noResults">No events match this filter.</p>
-
-</div>
-  </div><!-- /.gallery-hub -->
-
-
-  <!-- Subscribe -->
-  <section class="subscribe" id="subscribe">
-    <div class="subscribe-bg"></div>
-    <div class="container">
-      <div class="subscribe-inner reveal">
-        <div class="section-label" style="text-align:center">Stay Locked In</div>
-        <h2>GET THE DROP<br/><span class="neon-text">BEFORE ANYONE ELSE</span></h2>
-        <p>OC &amp; LA events, exclusive mixes, artist interviews, and underground intel — straight to your inbox. No spam.</p>
-        <form class="subscribe-form" onsubmit="handleSubscribe(event)">
-          <input type="email" placeholder="your@email.com" id="email-input" required/>
-          <input type="tel" placeholder="Phone number (optional)" id="phone-input"/>
-          <button type="submit">Subscribe — Get Early Access</button>
-        </form>
-        <a href="https://keepitil.github.io/signup.html" class="subscribe-join">Join the Roster →</a>
-        <p class="subscribe-note" id="subscribe-msg">Get early access to tickets before public sale. No spam.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
+<!-- Footer -->
   <footer>
     <div class="container">
       <div class="footer-grid">
@@ -2369,6 +1310,199 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
 
 
 <script>
+/* ── 4-Widget Spotlight Cycling ── */
+(function(){
+  const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+
+  async function fetchTable(table, cols, limit) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${table}?select=${cols}&limit=${limit}&order=id.desc`, {
+        headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY }
+      });
+      return r.ok ? await r.json() : [];
+    } catch(e) { return []; }
+  }
+
+  const CULTURE_ITEMS = [
+    { name:'Best Techno Sets of 2026', tag:'ORIGINALS', bio:'Our editors pick the defining techno sets from the past year, from Berlin basements to LA warehouses.', link:'/blog-news-hard-techno-sets-2026.html', color:'var(--culture-color)' },
+    { name:'How to Get Festival Gigs', tag:'TIPS', bio:'A practical guide for underground DJs ready to take their sets to the festival stage.', link:'/blog-tip-festival-packing-cal.html', color:'var(--culture-color)' },
+    { name:'Hard Summer 2026 Preview', tag:'EVENTS', bio:'Everything you need to know about Hard Summer 2026 — lineup, stages, and what to expect.', link:'/blog-news-hard-summer-iew.html', color:'var(--culture-color)' },
+    { name:'SoCal Playlist 2026', tag:'SONGS', bio:'Handpicked underground tracks dominating dance floors across Orange County and Los Angeles this season.', link:'/blog-song-socal-playlist-2026.html', color:'var(--culture-color)' },
+    { name:'New Artists to Watch', tag:'FEATURES', bio:'The rising underground talent you need to follow before everyone else catches on.', link:'/blog-news-new-artists-s26.html', color:'var(--culture-color)' },
+    { name:'Underground Culture Report', tag:'ORIGINALS', bio:'Dispatches from the underground: what's moving, who's moving it, and where the sound is heading.', link:'/culture', color:'var(--culture-color)' },
+  ];
+
+  function buildWidget(el, items, color) {
+    const dotsEl = el.querySelector('.spot-widget-dots');
+    const trackEl = el.querySelector('.spot-widget-track');
+    if (!items.length) { trackEl.innerHTML = '<div class="spot-slide active"><div class="spot-slide-name" style="color:'+color+'">Coming Soon</div></div>'; return; }
+    items.forEach((item, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'spot-slide' + (i===0?' active':'');
+      slide.innerHTML = `
+        <div class="spot-slide-name" style="color:${color}">${item.name}</div>
+        <div class="spot-slide-tag">${item.tag}</div>
+        <div class="spot-slide-bio">${item.bio}</div>
+        <a class="spot-slide-link" style="color:${color};border-color:${color}" href="${item.link}">View ${item.type||'Page'} →</a>`;
+      trackEl.appendChild(slide);
+      const dot = document.createElement('span');
+      dot.className = 'sw-dot' + (i===0?' active':'');
+      dot.style.color = color;
+      dot.onclick = () => goTo(el, i);
+      dotsEl.appendChild(dot);
+    });
+    let cur = 0;
+    const timer = setInterval(() => goTo(el, (cur+1)%items.length), 3800);
+    el._goTo = (idx) => { cur=idx; };
+    function goTo(widget, idx) {
+      const slides = widget.querySelectorAll('.spot-slide');
+      const dots = widget.querySelectorAll('.sw-dot');
+      slides[cur].classList.remove('active');
+      dots[cur].classList.remove('active');
+      cur = idx;
+      slides[cur].classList.add('active');
+      dots[cur].classList.add('active');
+    }
+  }
+
+  async function initWidgets() {
+    // Artist widget
+    const artistEl = document.getElementById('sw-artist');
+    const artists = await fetchTable('artists', 'slug,name,genre,bio', 8);
+    const artistItems = artists.map(a => ({
+      name: a.name || 'Unknown Artist',
+      tag: a.genre || 'Underground',
+      bio: (a.bio||'').slice(0,120) || 'Bringing the underground sound to OC & LA.',
+      link: '/artist/' + (a.slug||''),
+      type: 'Profile'
+    }));
+    if (artistItems.length) buildWidget(artistEl, artistItems, 'var(--artist-color)');
+    else buildWidget(artistEl, [
+      {name:'Groove Trooper', tag:'House · Techno', bio:'Deep cuts and heavy kicks from OC's underground pioneer.', link:'/artist/groove-trooper', type:'Profile'},
+      {name:'Aztekan', tag:'Bass · Electronic', bio:'Bass-forward productions pushing the underground forward.', link:'/artist/aztekan', type:'Profile'},
+      {name:'DJ Louie Vega', tag:'House', bio:'NYC house legend bringing soulful sounds to the West Coast.', link:'/artist', type:'Profile'},
+    ], 'var(--artist-color)');
+
+    // Brand widget
+    const brandEl = document.getElementById('sw-brand');
+    const brands = await fetchTable('brands', 'slug,name,category,description', 8);
+    const brandItems = brands.map(b => ({
+      name: b.name || 'Unknown Brand',
+      tag: b.category || 'Brand',
+      bio: (b.description||'').slice(0,120) || 'Shaping underground culture in OC & LA.',
+      link: '/brand/' + (b.slug||''),
+      type: 'Profile'
+    }));
+    if (brandItems.length) buildWidget(brandEl, brandItems, 'var(--brand-color)');
+    else buildWidget(brandEl, [
+      {name:'KEEPITIL Merch', tag:'Apparel', bio:'Limited-run underground streetwear. Wear the culture.', link:'/brand', type:'Profile'},
+      {name:'Sound & Vision OC', tag:'Production', bio:'Full-service audio and lighting for underground events.', link:'/brand', type:'Profile'},
+    ], 'var(--brand-color)');
+
+    // Organizer widget
+    const orgEl = document.getElementById('sw-organizer');
+    const orgs = await fetchTable('organizers', 'slug,name,type,description', 8);
+    const orgItems = orgs.map(o => ({
+      name: o.name || 'Unknown Organizer',
+      tag: o.type || 'Promoter',
+      bio: (o.description||'').slice(0,120) || 'Curating underground events across OC & LA.',
+      link: '/organizer/' + (o.slug||''),
+      type: 'Profile'
+    }));
+    if (orgItems.length) buildWidget(orgEl, orgItems, 'var(--org-color)');
+    else buildWidget(orgEl, [
+      {name:'Electric Carousel', tag:'Promoter', bio:'Monthly underground selectors series roaming OC & LA venues.', link:'/organizer', type:'Profile'},
+      {name:'Flow State Events', tag:'Festival', bio:'Immersive underground experiences with a focus on community.', link:'/organizer', type:'Profile'},
+    ], 'var(--org-color)');
+
+    // Culture widget
+    const cultureEl = document.getElementById('sw-culture');
+    buildWidget(cultureEl, CULTURE_ITEMS, 'var(--culture-color)');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWidgets);
+  } else {
+    initWidgets();
+  }
+})();
+</script>
+
+<script>
+  /* ── SUPABASE ── */
+  const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  /* Stats are hardcoded — Supabase data not reliable for artist/org/brand counts */
+  /* Subscribe form uses Supabase */
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    const email = document.getElementById('email-input').value.trim();
+    const phoneEl = document.getElementById('phone-input');
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    if (!email) return;
+    const btn = e.target.querySelector('button[type=submit]');
+    if (btn) btn.disabled = true;
+    const { error } = await supa.from('subscribers').insert({ email, phone: phone||null, source: 'website' });
+    if (btn) btn.disabled = false;
+    const note = document.querySelector('.subscribe-note');
+    if (error) {
+      if (error.code === '23505') {
+        if (note) { note.textContent = "You're already on the list!"; note.style.color = 'var(--blue)'; }
+      } else {
+        if (note) { note.textContent = 'Something went wrong. Try again.'; note.style.color = '#ff4444'; }
+      }
+    } else {
+      if (note) { note.textContent = "🎉 You're in! Watch your inbox."; note.style.color = '#00ff88'; }
+      e.target.reset();
+    }
+    setTimeout(() => { if (note) { note.textContent = 'Get early access to tickets before public sale. No spam.'; note.style.color = ''; } }, 4000);
+  }
+
+  /* ── NAV SCROLL ── */
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    const scrollBtn = document.getElementById('scroll-top');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 20);
+    if (scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  function toggleMenu() {
+    const h = document.getElementById('hamburger');
+    const m = document.getElementById('mobile-menu');
+    if (h) h.classList.toggle('open');
+    if (m) m.classList.toggle('open');
+  }
+
+  /* ── TYPEWRITER ── */
+  const words = ['UNDERGROUND', 'SCENE', 'CULTURE', 'MOVEMENT'];
+  let wi = 0, ci = 0, deleting = false;
+  function typeLoop() {
+    const el = document.getElementById('typewriter');
+    if (!el) return;
+    const word = words[wi];
+    if (!deleting) {
+      el.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; setTimeout(typeLoop, 1800); return; }
+    } else {
+      el.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
+    }
+    setTimeout(typeLoop, deleting ? 60 : 100);
+  }
+  typeLoop();
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+  </script>
+
+<script>
   // ── Mobile menu ──
   function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
 
@@ -2493,35 +1627,6 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
 
   // Init: show current month
   showActiveMonth();
-</script>
-
-<script>
-});
-
-// ── Genre filter ──
-const filterBtns = document.querySelectorAll('.gallery-hub .filter-btn');
-const cards = document.querySelectorAll('.gallery-hub .card');
-const countEl = document.getElementById('eventCount');
-const noResults = document.getElementById('noResults');
-
-filterBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const filter = btn.dataset.filter;
-    filterBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    let visible = 0;
-    cards.forEach(card => {
-      const genres = (card.dataset.genre || '').split(' ');
-      const match = filter === 'all' || genres.includes(filter);
-      card.classList.toggle('hidden', !match);
-      if (match) visible++;
-    });
-
-    countEl.textContent = `${visible} event${visible !== 1 ? 's' : ''}`;
-    noResults.classList.toggle('show', visible === 0);
-  });
-});
 </script>
 
 <!-- ♬ KEEPITIL Radio Player -->
