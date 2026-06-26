@@ -134,8 +134,8 @@
     .cc-name{font-size:.8rem;font-weight:600;letter-spacing:.04em;}
     .cc-genre{font-size:.7rem;color:#888;margin-top:1px;}
     /* ── FIXED PAGE BACKGROUND LOGO ── */
-    .page-bg-logo{position:fixed;top:50%;right:-60px;transform:translateY(-50%);z-index:0;pointer-events:none;opacity:.05;width:min(560px,58vw);}
-    .page-bg-logo img{width:100%;filter:drop-shadow(0 0 60px #00b4ff);}
+    .page-bg-logo{position:fixed;top:50%;right:0;transform:translateY(-50%);z-index:1;pointer-events:none;opacity:.07;width:min(520px,52vw);}
+    .page-bg-logo img{width:100%;filter:drop-shadow(0 0 80px #00b4ff) brightness(1.4);}
 
     /* ── DJ CIRCLES — Summer 2026 ── */
     .dj-spotlight{background:linear-gradient(180deg,#0d0d0d 0%,#0f0b03 35%,#100c04 65%,#0f0d08 100%);padding:40px 0;text-align:center;position:relative;overflow:hidden;}
@@ -466,7 +466,7 @@
     display: grid;
     grid-template-columns: repeat(4,1fr);
     gap: 16px;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto 32px;
     padding: 0 24px;
   }
@@ -474,13 +474,13 @@
     background: rgba(255,255,255,.04);
     border: 1px solid rgba(255,255,255,.09);
     border-radius: 14px;
-    padding: 20px 18px 44px;
-    min-height: 260px;
+    padding: 20px 18px 48px;
+    min-height: 300px;
     position: relative;
     overflow: hidden;
-    transition: border-color .25s;
+    transition: border-color .25s, box-shadow .25s;
   }
-  .spot-widget:hover { border-color: rgba(255,255,255,.2); }
+  .spot-widget:hover { border-color: rgba(255,255,255,.18); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
   .spot-widget-header {
     display: flex;
     align-items: center;
@@ -500,41 +500,69 @@
     background:currentColor;
     opacity:.25;
   }
-  .spot-slide { display:none; }
+  /* Track: fixed height container for crossfade */
+  .spot-widget-track {
+    position: relative;
+    min-height: 210px;
+  }
+  .spot-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .55s ease, transform .55s ease;
+    pointer-events: none;
+  }
   .spot-slide.active {
-    display:block;
-    animation: swFade .45s ease;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
-  @keyframes swFade {
-    from{opacity:0;transform:translateY(6px)}
-    to{opacity:1;transform:translateY(0)}
+  /* Image thumbnail */
+  .spot-slide-img {
+    width: 46px; height: 46px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,.1);
   }
+  .spot-slide-img-fb {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.1rem;
+    letter-spacing:.05em;
+    opacity:.9;
+  }
+  .spot-slide-img img { width:100%;height:100%;object-fit:cover; }
   .spot-slide-name {
     font-family:'Bebas Neue',sans-serif;
-    font-size:1.55rem;
+    font-size:1.45rem;
     letter-spacing:.04em;
     line-height:1.1;
-    margin-bottom:6px;
+    margin-bottom:4px;
   }
   .spot-slide-tag {
-    font-size:.7rem;
+    font-size:.68rem;
     text-transform:uppercase;
     letter-spacing:.14em;
-    color:rgba(255,255,255,.45);
-    margin-bottom:10px;
+    color:rgba(255,255,255,.42);
+    margin-bottom:9px;
   }
   .spot-slide-bio {
-    font-size:.82rem;
-    color:rgba(255,255,255,.68);
+    font-size:.8rem;
+    color:rgba(255,255,255,.65);
     line-height:1.55;
-    margin-bottom:14px;
+    margin-bottom:12px;
     display:-webkit-box;
     -webkit-line-clamp:3;
     -webkit-box-orient:vertical;
     overflow:hidden;
   }
   .spot-slide-link {
-    font-size:.68rem;
+    font-size:.65rem;
     text-transform:uppercase;
     letter-spacing:.1em;
     text-decoration:none;
@@ -542,26 +570,26 @@
     border-radius:4px;
     border:1px solid currentColor;
     display:inline-block;
-    opacity:.85;
-    transition:opacity .2s;
+    opacity:.8;
+    transition:opacity .2s, background .2s;
   }
   .spot-slide-link:hover{opacity:1;}
   .spot-widget-dots {
     position:absolute;
-    bottom:14px;
+    bottom:16px;
     left:50%;
     transform:translateX(-50%);
     display:flex;
-    gap:5px;
+    gap:6px;
   }
   .sw-dot {
     width:5px;height:5px;
     border-radius:50%;
-    background:rgba(255,255,255,.2);
+    background:rgba(255,255,255,.18);
     cursor:pointer;
-    transition:background .2s;
+    transition:background .3s, transform .3s;
   }
-  .sw-dot.active{background:currentColor;}
+  .sw-dot.active{background:currentColor;transform:scale(1.4);}
   @media(max-width:900px){
     .spotlight-widgets-row{grid-template-columns:repeat(2,1fr);}
   }
@@ -1400,6 +1428,11 @@
     { name:'Underground Culture Report', tag:'ORIGINALS', bio:'Dispatches from the underground — what is moving, who is moving it, and where the sound is heading.', link:'/culture', color:'var(--culture-color)' },
   ];
 
+  function initials(name) {
+    const parts = (name||'').split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (parts[0]||'?').slice(0,2).toUpperCase();
+  }
   function buildWidget(el, items, color) {
     const dotsEl = el.querySelector('.spot-widget-dots');
     const trackEl = el.querySelector('.spot-widget-track');
@@ -1407,11 +1440,13 @@
     items.forEach((item, i) => {
       const slide = document.createElement('div');
       slide.className = 'spot-slide' + (i===0?' active':'');
+      const imgSrc = item.img ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="spot-slide-img-fb" style="display:none;color:${color}">${initials(item.name)}</span>` : `<span class="spot-slide-img-fb" style="color:${color}">${initials(item.name)}</span>`;
       slide.innerHTML = `
+        <div class="spot-slide-img" style="background:${color}18">${imgSrc}</div>
         <div class="spot-slide-name" style="color:${color}">${item.name}</div>
         <div class="spot-slide-tag">${item.tag}</div>
         <div class="spot-slide-bio">${item.bio}</div>
-        <a class="spot-slide-link" style="color:${color};border-color:${color}" href="${item.link}">View ${item.type||'Page'} →</a>`;
+        <a class="spot-slide-link" style="color:${color};border-color:${color}44" href="${item.link}">View ${item.type||'Page'} →</a>`;
       trackEl.appendChild(slide);
       const dot = document.createElement('span');
       dot.className = 'sw-dot' + (i===0?' active':'');
@@ -1419,17 +1454,23 @@
       dot.onclick = () => goTo(el, i);
       dotsEl.appendChild(dot);
     });
-    let cur = 0;
-    const timer = setInterval(() => goTo(el, (cur+1)%items.length), 3800);
+    let cur = 0, transitioning = false;
+    const timer = setInterval(() => goTo(el, (cur+1)%items.length), 4200);
     el._goTo = (idx) => { cur=idx; };
     function goTo(widget, idx) {
+      if (transitioning || idx === cur) return;
+      transitioning = true;
       const slides = widget.querySelectorAll('.spot-slide');
       const dots = widget.querySelectorAll('.sw-dot');
       slides[cur].classList.remove('active');
       dots[cur].classList.remove('active');
-      cur = idx;
-      slides[cur].classList.add('active');
-      dots[cur].classList.add('active');
+      const next = idx;
+      setTimeout(() => {
+        cur = next;
+        slides[cur].classList.add('active');
+        dots[cur].classList.add('active');
+        transitioning = false;
+      }, 120);
     }
   }
 
