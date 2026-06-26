@@ -23,7 +23,18 @@
     .nav-links a:hover,.nav-links a.active{color:#00b4ff;}
     .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
     .nav-cta:hover{opacity:.85;}
-    @media(max-width:768px){.nav-links{display:none;}}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+    .nav-hamburger span{display:block;width:24px;height:2px;background:#00b4ff;border-radius:2px;transition:all .3s;}
+    .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .nav-hamburger.open span:nth-child(2){opacity:0;}
+    .nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(15,15,26,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+    .mobile-menu.open{display:flex;}
+    .mobile-menu a{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.12em;color:rgba(255,255,255,.78);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+    .mobile-menu a:last-child{border-bottom:none;}
+    .mobile-menu .nav-cta{color:#00b4ff!important;border:none;padding:12px 0;background:transparent!important;}
+    @media(max-width:768px){.nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner > a.nav-cta{display:none;}}
+    body{padding-top:66px;}
 
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
@@ -128,23 +139,30 @@
   <link rel="canonical" href="https://keepitil.com/apply.html"/>
 </head>
 <body>
-  <nav>
+  <nav id="main-nav">
     <div class="nav-inner">
       <a class="nav-logo" href="/">
         <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
       </a>
       <ul class="nav-links">
-        <li><a href="/">HOME</a></li>
-        <li><a href="/spotlight">SPOTLIGHT</a></li>
-        <li><a href="/artist">ARTISTS</a></li>
-        <li><a href="/brand/">BRANDS</a></li>
-        <li><a href="/organizer/">ORGANIZERS</a></li>
-        <li><a href="/events">EVENTS</a></li>
+        <li><a href="/artist">ARTIST</a></li>
+        <li><a href="/brand/">BRAND</a></li>
         <li><a href="/culture">CULTURE</a></li>
-        <li><a href="/apply.html" class="nav-cta active">APPLY</a></li>
+        <li><a href="/organizer/">ORGANIZERS</a></li>
       </ul>
+      <a href="/signup.html" class="nav-cta">SUBSCRIBE</a>
+      <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="/artist" onclick="toggleMenu()">ARTIST</a>
+    <a href="/brand/" onclick="toggleMenu()">BRAND</a>
+    <a href="/culture" onclick="toggleMenu()">CULTURE</a>
+    <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
+    <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+  </div>
 
   <header class="apply-head">
     <div class="container">
@@ -524,6 +542,10 @@
       }
     });
   </script>
+
+<script>
+function toggleMenu(){var m=document.getElementById('mobile-menu');var b=document.querySelector('.nav-hamburger');m.classList.toggle('open');b.classList.toggle('open');}
+</script>
 
 <!-- ♬ KEEPITIL Radio Player -->
 <style data-kil="player">
