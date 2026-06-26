@@ -508,12 +508,14 @@
     renderRowImgOnly('artist-row',ARTISTS,'ARTIST');
 
     function chipCard(it,basePath){
-      var initials=(it.name||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
-      var slug=(it.slug||it.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-      var href='/'+basePath+'/'+slug+'/';
+      var name=it.name||it.n||'';
+      var genre=it.genre||it.g||it.type||'';
+      var initials=it.a||(name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase());
+      var slug=(it.slug||name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      var href=it.href||('/'+basePath+'/'+slug+'/');
       return '<a class="cc-chip" href="'+href+'">'
         +'<div class="cc-avatar"><span class="cc-init">'+initials+'</span></div>'
-        +'<div><div class="cc-name">'+it.name+'</div><div class="cc-genre">'+(it.genre||it.type||'')+'</div></div>'
+        +'<div><div class="cc-name">'+name+'</div><div class="cc-genre">'+genre+'</div></div>'
         +'</a>';
     }
     function renderCarousel(trackId,arr,basePath){
