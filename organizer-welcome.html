@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to KEEPITIL — You're In</title>
+  <link rel="icon" type="image/png" href="logo-blue-nav.png"/>
+  <meta name="robots" content="noindex"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+    .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+    .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+    .nav-brand{color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+    .nav-links{display:flex;flex:1;justify-content:flex-end;align-items:center;list-style:none;padding:0;gap:28px;}
+    .nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover{color:#00b4ff;}
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0f0f1a;--dark:#111;--dark2:#181818;
+      --blue:#00b4ff;--green:#00ff88;--white:#f0f0f0;--grey:#888;
+      --font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;
+    }
+    html{overflow-x:hidden;}
+    body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;min-height:100vh;}
+
+    .page{max-width:680px;margin:0 auto;padding:80px 24px 100px;}
+
+    /* CONFIRMATION BADGE */
+    .badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--green);border:1px solid rgba(0,255,136,.3);padding:6px 16px;border-radius:2px;margin-bottom:28px;}
+    .badge-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s ease-in-out infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+    h1{font-family:var(--font-head);font-size:clamp(52px,10vw,96px);line-height:.9;letter-spacing:.02em;margin-bottom:18px;}
+    h1 .name{color:var(--blue);text-shadow:0 0 28px var(--blue);}
+    .tagline{font-size:18px;color:var(--grey);margin-bottom:48px;max-width:500px;}
+
+    /* STEPS */
+    .steps{display:flex;flex-direction:column;gap:16px;margin-bottom:52px;}
+    .step{display:flex;align-items:flex-start;gap:16px;background:linear-gradient(135deg,#181828,#111);border:1px solid #2a2a3a;border-radius:10px;padding:18px 20px;transition:border-color .2s;}
+    .step.done{border-color:rgba(0,255,136,.35);}
+    .step-num{flex:0 0 36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;background:#0c0c16;border:2px solid #2a2a3a;color:var(--grey);}
+    .step.done .step-num{background:rgba(0,255,136,.15);border-color:var(--green);color:var(--green);}
+    .step-body{flex:1;}
+    .step-title{font-weight:700;font-size:15px;color:#fff;margin-bottom:3px;}
+    .step.done .step-title{color:var(--green);}
+    .step-desc{font-size:13px;color:var(--grey);}
+    .step-check{flex:0 0 auto;font-size:18px;opacity:0;}
+    .step.done .step-check{opacity:1;}
+
+    /* CTA BUTTON */
+    .sc-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 28px;background:#ff5500;color:#fff;border-radius:6px;font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:.04em;text-decoration:none;transition:all .2s;margin-top:8px;border:none;cursor:pointer;}
+    .sc-btn:hover{background:#cc4400;transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,85,0,.35);}
+    .sc-btn svg{width:22px;height:22px;flex-shrink:0;}
+
+    .sc-note{font-size:13px;color:#555;margin-top:10px;}
+
+    /* POSH SECTION */
+    .posh-confirm{background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.2);border-radius:10px;padding:20px;margin-bottom:28px;}
+    .posh-confirm h3{font-family:var(--font-head);font-size:22px;letter-spacing:.04em;color:var(--blue);margin-bottom:8px;}
+    .posh-confirm p{font-size:13px;color:var(--grey);margin-bottom:0;}
+    .posh-confirm .posh-link{display:inline-block;margin-top:10px;color:var(--blue);font-size:13px;font-weight:600;text-decoration:underline;word-break:break-all;}
+
+    /* WHAT HAPPENS NEXT */
+    .next-up{background:#111;border-radius:10px;padding:24px;border:1px solid #222;}
+    .next-up h3{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:14px;}
+    .next-item{display:flex;gap:12px;margin-bottom:12px;font-size:14px;}
+    .next-item:last-child{margin-bottom:0;}
+    .next-icon{flex:0 0 auto;font-size:16px;}
+
+    footer{border-top:1px solid rgba(0,180,255,.12);padding:30px 0;color:#555;font-size:13px;text-align:center;}
+    footer a{color:var(--blue);}
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="/">
+        <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"/>
+        <span class="nav-brand">KEEPITIL</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/">HOME</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Profile submitted
+    </div>
+
+    <h1>YOU'RE IN,<br/><span class="name" id="org-name">ORGANIZER</span></h1>
+    <p class="tagline">Your KEEPITIL organizer profile is being reviewed. Here's how to finish setting up your presence on the platform.</p>
+
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step done" id="step-1">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Profile submitted ✓</div>
+          <div class="step-desc">Your organizer profile is in — we'll review it and reach out to confirm within 24–48 hours.</div>
+        </div>
+        <div class="step-check">✅</div>
+      </div>
+
+      <div class="step" id="step-2">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Connect your Posh account</div>
+          <div class="step-desc" id="posh-step-desc">Link your Posh page so your events automatically appear in the KEEPITIL calendar and get promoted to our audience.</div>
+        </div>
+        <div class="step-check">✅</div>
+      </div>
+
+      <div class="step" id="step-3">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Follow KEEPITIL on SoundCloud</div>
+          <div class="step-desc">Stay tuned in — new artists, mixes, and underground picks drop regularly. One tap locks you in.</div>
+          <div style="margin-top:12px;">
+            <a class="sc-btn" href="https://soundcloud.com/illestrated-lifestyle" target="_blank" rel="noopener" id="sc-follow-btn">
+              <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154a.1.1 0 0 0-.084-.1zm.899-.828c-.055 0-.103.046-.107.105l-.235 2.977.235 2.843c.004.062.052.107.107.107.054 0 .1-.045.107-.107l.267-2.843-.267-2.977c-.007-.06-.053-.105-.107-.105zm.936-.357c-.063 0-.115.055-.12.12l-.199 3.334.199 3.19c.005.064.057.115.12.115.064 0 .115-.051.12-.115l.228-3.19-.228-3.334c-.005-.065-.056-.12-.12-.12zm.941-.14c-.07 0-.128.06-.131.132l-.176 3.474.176 3.31c.003.073.061.131.131.131.072 0 .129-.058.133-.131l.2-3.31-.2-3.474c-.004-.072-.061-.132-.133-.132zm.956-.048c-.078 0-.141.065-.143.145l-.152 3.522.152 3.404c.002.08.065.144.143.144.08 0 .143-.064.145-.144l.172-3.404-.172-3.522c-.002-.08-.065-.145-.145-.145zm.966.038c-.086 0-.156.07-.158.158l-.128 3.484.128 3.477c.002.088.072.158.158.158.087 0 .157-.07.16-.158l.146-3.477-.146-3.484c-.003-.088-.073-.158-.16-.158zm1.428 1.258a4.8 4.8 0 0 0-1.08.118l-.148 3.24.148 3.274c.004.18.15.322.33.322.18 0 .326-.142.33-.322l.17-3.274-.17-3.24a.33.33 0 0 0-.33-.326zm1.13-.484c-.194 0-.352.158-.354.353l-.127 3.745.127 3.7c.002.195.16.353.354.353.195 0 .353-.158.355-.353l.145-3.7-.145-3.745c-.002-.195-.16-.353-.355-.353zm1.04.22c-.208 0-.378.17-.38.38l-.104 3.525.104 3.474c.002.21.172.38.38.38.21 0 .38-.17.382-.38l.118-3.474-.118-3.525c-.002-.21-.172-.38-.382-.38zm1.054-.07c-.223 0-.405.182-.407.407l-.084 3.595.084 3.49c.002.225.184.407.407.407.224 0 .406-.182.408-.407l.095-3.49-.095-3.595c-.002-.225-.184-.407-.408-.407zm1.066.14c-.24 0-.433.194-.435.434l-.064 3.455.064 3.382c.002.24.195.434.435.434.24 0 .433-.194.435-.434l.073-3.382-.073-3.455c-.002-.24-.195-.434-.435-.434zm1.072-.307c-.254 0-.46.206-.462.46l-.044 3.762.044 3.366c.002.254.208.46.462.46.254 0 .46-.206.462-.46l.05-3.366-.05-3.762c-.002-.254-.208-.46-.462-.46zm4.34-.744c-.23-.104-.476-.16-.737-.16-.273 0-.534.06-.768.167a3.07 3.07 0 0 0-1.072-.192 2.97 2.97 0 0 0-.784.107c-.116.033-.148.067-.149.133L10.5 14.842l-.001 4.14c0 .078.063.14.14.147h8.21c.617 0 1.117-.5 1.117-1.117v-4.697c0-.617-.5-1.117-1.117-1.117-.075 0-.149.007-.22.02a4.134 4.134 0 0 0-.803-5.527 4.15 4.15 0 0 0-2.5-.835z"/></svg>
+              Follow on SoundCloud
+            </a>
+            <div class="sc-note">Opens in a new tab — tap Follow and come right back.</div>
+          </div>
+        </div>
+        <div class="step-check">✅</div>
+      </div>
+    </div>
+
+    <!-- WHAT HAPPENS NEXT -->
+    <div class="next-up">
+      <h3>What happens next</h3>
+      <div class="next-item">
+        <div class="next-icon">📧</div>
+        <div>We'll email you within 48 hours to confirm your listing and walk through your first event post.</div>
+      </div>
+      <div class="next-item">
+        <div class="next-icon">🎪</div>
+        <div>Your Posh events will start appearing in the KEEPITIL calendar once your profile is approved.</div>
+      </div>
+      <div class="next-item">
+        <div class="next-icon">📣</div>
+        <div>You'll be added to our organizer network — first access to collab promos and artist bookings.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div style="max-width:680px;margin:0 auto;padding:0 24px;">
+      © 2026 KEEPITIL — <a href="/">keepitil.com</a>. Questions? <a href="mailto:info@keepitil.com">info@keepitil.com</a>
+    </div>
+  </footer>
+
+  <script>
+    // Read URL params
+    const params = new URLSearchParams(location.search);
+    const name = params.get('name') || '';
+    const posh = params.get('posh') || '';
+
+    // Set org name in heading
+    if (name) {
+      document.getElementById('org-name').textContent = name.toUpperCase();
+    }
+
+    // Update posh step based on whether they have a URL
+    const poshDesc = document.getElementById('posh-step-desc');
+    const step2 = document.getElementById('step-2');
+    if (posh) {
+      poshDesc.innerHTML = `Posh link on file: <a href="${posh}" target="_blank" rel="noopener" style="color:#00b4ff;text-decoration:underline;">${posh}</a> — we'll connect it to your profile.`;
+      step2.classList.add('done');
+    } else {
+      poshDesc.innerHTML = `Don't have one yet? <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" style="color:#00b4ff;text-decoration:underline;">Create your free Posh account →</a> then email <a href="mailto:info@keepitil.com" style="color:#00b4ff;">info@keepitil.com</a> with your link.`;
+    }
+
+    // Mark SoundCloud step done after click
+    document.getElementById('sc-follow-btn').addEventListener('click', () => {
+      setTimeout(() => document.getElementById('step-3').classList.add('done'), 400);
+    });
+  </script>
+
+<!-- ♬ KEEPITIL Radio Player -->
+<style data-kil="player">
+#kil-radio{position:fixed;bottom:20px;right:20px;z-index:9998;background:rgba(6,6,6,.97);border:1px solid rgba(0,255,136,.3);border-radius:10px;box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;transition:width .3s,height .3s,border-radius .3s;overflow:hidden;}
+#kil-radio.kil-mini{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%;cursor:pointer;}
+#kil-radio.kil-mini #kil-bar{display:none!important;}
+#kil-radio.kil-mini #kil-dot{display:flex!important;}
+#kil-dot{display:none;width:44px;height:44px;align-items:center;justify-content:center;color:#00ff88;font-size:1.15rem;}
+#kil-bar{display:flex;align-items:center;gap:9px;padding:10px 13px;min-width:230px;}
+.kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}
+.kil-live.off{background:#444;box-shadow:none;animation:none;}
+@keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+#kil-label{font-size:.6rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#00ff88;flex-shrink:0;}
+#kil-track{font-size:.67rem;color:rgba(255,255,255,.42);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.9rem;line-height:1;padding:2px 3px;transition:opacity .2s;flex-shrink:0;}
+.kr-btn:hover{opacity:.6;}
+#kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}
+</style>
+<div id="kil-radio">
+  <div id="kil-dot" title="KEEPITIL Radio">&#9836;</div>
+  <div id="kil-bar">
+    <div class="kil-live off" id="kil-led"></div>
+    <span id="kil-label">LIVE</span>
+    <span id="kil-track">KEEPITIL RADIO</span>
+    <button class="kr-btn" id="kr-play" title="Play / Pause">&#9654;</button>
+    <input type="range" id="kr-vol" min="0" max="100" value="10" title="Volume" style="width:52px;accent-color:#00ff88;cursor:pointer;vertical-align:middle;opacity:.8;">
+    <button class="kr-btn" id="kr-min" title="Minimize" style="font-size:.7rem;opacity:.45;">&#8212;</button>
+  </div>
+</div>
+<iframe id="kil-sc" allow="autoplay"
+  src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false"
+  scrolling="no" frameborder="no"></iframe>
+<script>
+(function(){
+  if(window.__kilRadioInit) return; window.__kilRadioInit=true;
+  var radio=document.getElementById('kil-radio');
+  var frame=document.getElementById('kil-sc');
+  var led=document.getElementById('kil-led');
+  var trackEl=document.getElementById('kil-track');
+  var playBtn=document.getElementById('kr-play');
+  var minBtn=document.getElementById('kr-min');
+  var dot=document.getElementById('kil-dot');
+  var widget=null,playing=false,mini=false,interacted=false,widgetReady=false,wakeLock=null;
+  var _ss=null;try{_ss=sessionStorage;}catch(e){}
+  var DEFAULT_VOL=10;function getVol(){var v=document.getElementById('kr-vol');return v?Math.max(0,Math.min(100,parseInt(v.value)||DEFAULT_VOL)):DEFAULT_VOL;}
+  function ss_get(k){try{return _ss&&_ss.getItem(k);}catch(e){return null;}}
+  function ss_set(k,v){try{if(_ss)_ss.setItem(k,v);}catch(e){}}
+  if(ss_get('kil_mini')==='1'){mini=true;radio.classList.add('kil-mini');}
+  function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
+  function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
+  function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(getVol());if(!playing)widget.play();}
+  function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
+  reListenGesture();
+  function requestWakeLock(){if(!('wakeLock'in navigator))return;navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;});}).catch(function(){});}
+  requestWakeLock();
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},500);}}});
+  setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
+  function initWidget(){
+    if(!window.SC)return;
+    widget=SC.Widget(frame);
+    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);var t=parseInt(ss_get('kil_t')||'0')||0,p=parseInt(ss_get('kil_p')||'0')||0;if(t>0){widget.skip(t);if(p>0)setTimeout(function(){widget.seekTo(p);},600);}else{widget.play();}if(interacted)widget.setVolume(getVol());});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});widget.getCurrentSoundIndex(function(i){ss_set('kil_t',i);});});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(pos){if(interacted&&widget)widget.setVolume(getVol());if(pos&&pos.currentPosition>5000)ss_set('kil_p',pos.currentPosition);});
+    widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
+    widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
+    widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
+  }
+  var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
+  playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(getVol());if(playing)widget.pause();else widget.play();});
+  var volEl=document.getElementById('kr-vol');if(volEl){volEl.addEventListener('input',function(){if(widget&&widgetReady){interacted=true;widget.setVolume(parseInt(this.value));}});}
+  minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');ss_set('kil_mini','1');});
+  function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');ss_set('kil_mini','0');}}
+  dot.addEventListener('click',expand);radio.addEventListener('click',expand);
+})();
+</script>
+<!-- end KEEPITIL Radio Player -->
+</body>
+</html>
