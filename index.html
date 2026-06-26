@@ -365,7 +365,7 @@
     .filter-org-btn:hover{background:rgba(230,51,51,.12);border-color:var(--orange);}
 
     /* ── EVENTS GRID ── */
-    .events-section{padding:40px 24px 80px;max-width:1200px;margin:0 auto;}
+    .events-section{padding:16px 24px 32px;max-width:1200px;margin:0 auto;}
     .month-label{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.1em;color:var(--orange);margin:40px 0 20px;padding-bottom:8px;border-bottom:1px solid rgba(230,51,51,.15);}
     .month-label:first-child{margin-top:0;}
     .events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;margin-bottom:48px;}
@@ -448,12 +448,12 @@
     .show-more-btn{background:transparent;border:1px solid rgba(230,51,51,.3);color:var(--orange);padding:10px 32px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
     .show-more-btn:hover{background:rgba(230,51,51,.1);border-color:var(--orange);}
     /* ── EVENTS NAV V2 ── */
-    .events-nav-v2{display:flex;align-items:center;gap:10px;padding:20px 24px 24px;max-width:1200px;margin:0 auto;flex-wrap:wrap;justify-content:center;}
+    .events-nav-v2{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 24px 16px;max-width:1200px;margin:0 auto;}    .ev-nav-left{display:flex;align-items:center;gap:8px;}    .ev-nav-right{display:flex;align-items:center;gap:8px;}
     .ev-nav-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
     .ev-nav-city{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.35);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:9px 10px;border-radius:4px;outline:none;width:130px;transition:border-color .2s;}
     .ev-nav-city::placeholder{color:#666;}
     .ev-nav-city:focus{border-color:rgba(230,51,51,.6);}
-    .ev-nav-month{font-family:var(--font-head);font-size:2.2rem;letter-spacing:.14em;color:var(--white);flex:1;text-align:center;min-width:180px;}
+    .ev-nav-month{font-family:var(--font-head);font-size:2rem;letter-spacing:.14em;color:var(--white);text-align:center;white-space:nowrap;}
     .ev-nav-select{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.22);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:9px 10px;border-radius:4px;cursor:pointer;outline:none;transition:border-color .2s;flex-shrink:0;}
     .ev-nav-select:hover,.ev-nav-select:focus{border-color:rgba(230,51,51,.5);}
     .ev-nav-select option{background:#0a0a14;color:#fff;}
@@ -493,7 +493,7 @@
     
     .ev-pick .ev-pick-banner,.ev-pick .ev-fc-info,.ev-pick .ev-fc-price,.ev-pick .ev-fc-ticket{z-index:4 !important;}.ev-pick .ev-fc-date{z-index:4 !important;top:38px;left:9px;}.ev-pick .ev-fc-genre{z-index:4 !important;top:38px;right:9px;}
     /* ── OLD FLYERS SECTION ── */
-    .flyers-section{padding:0 24px 80px;max-width:1200px;margin:0 auto;}
+    .flyers-section{padding:0 24px 32px;max-width:1200px;margin:0 auto;}
     .flyers-heading{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:.08em;margin-bottom:6px;}
     .flyers-sub{font-size:.8rem;color:var(--grey);margin-bottom:32px;letter-spacing:.04em;}
     .flyers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}
@@ -893,31 +893,32 @@
 
   <!-- EVENTS NAV V2 (after picks) -->
   <div class="events-nav-v2" id="month-nav">
-    <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#171;&#171; PREV</button>
-    <div class="ev-nav-controls">
-      <select class="ev-nav-select" id="ev-location" onchange="handleLocation(this)">
-        <option value="">&#128205; Near Me</option>
-        <option value="la">Los Angeles</option>
-        <option value="oc">Orange County</option>
-        <option value="westminster">Westminster</option>
-        <option value="custom">&#9997;&#65039; Enter City...</option>
-      </select>
-      <input type="text" class="ev-nav-city" id="ev-city" placeholder="Type city..." oninput="applyFilters()" style="display:none">
-      <select class="ev-nav-select" id="ev-genre" onchange="applyFilters()">
-        <option value="">&#127925; All Genres</option>
-        <option value="bass">Bass / Dubstep</option>
-        <option value="house">House</option>
-        <option value="techno">Techno</option>
-        <option value="trance">Trance</option>
-        <option value="dnb">DnB / Jungle</option>
-        <option value="rnb">RnB / Hip-Hop</option>
-        <option value="garage">Garage / UKG</option>
-        <option value="afrobeats">Afrobeats / EDM</option>
+    <div class="ev-nav-left">
+      <button class="month-nav-btn" id="month-prev" onclick="changeMonth(-1)">&#171;&#171; PREV</button>
+      <select class="ev-nav-select" id="ev-filter" onchange="applyFilters()">
+        <option value="">&#128269; Filter Events</option>
+        <optgroup label="&#128205; Location">
+          <option value="loc:la">Los Angeles</option>
+          <option value="loc:oc">Orange County</option>
+          <option value="loc:westminster">Westminster</option>
+        </optgroup>
+        <optgroup label="&#127925; Genre">
+          <option value="genre:bass">Bass / Dubstep</option>
+          <option value="genre:house">House</option>
+          <option value="genre:techno">Techno</option>
+          <option value="genre:trance">Trance</option>
+          <option value="genre:dnb">DnB / Jungle</option>
+          <option value="genre:rnb">RnB / Hip-Hop</option>
+          <option value="genre:garage">Garage / UKG</option>
+          <option value="genre:afrobeats">Afrobeats / EDM</option>
+        </optgroup>
       </select>
     </div>
     <div class="ev-nav-month" id="month-nav-title">JUNE 2026</div>
-    <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" class="filter-org-btn">&#127914; Create Your Event</a>
-    <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">NEXT &#187;&#187;</button>
+    <div class="ev-nav-right">
+      <a href="https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt" target="_blank" rel="noopener" class="filter-org-btn">&#127914; Create Your Event</a>
+      <button class="month-nav-btn" id="month-next" onclick="changeMonth(1)">NEXT &#187;&#187;</button>
+    </div>
   </div>
 
   <div class="month-section" id="month-june">
@@ -1897,17 +1898,15 @@
   }
 
   function hasActiveFilters(){
-    var locSel=(document.getElementById('ev-location')?.value||'');
-    var city=(document.getElementById('ev-city')?.value||'').trim();
-    var genre=(document.getElementById('ev-genre')?.value||'');
-    return !!(locSel||city||genre);
+    var filterVal=(document.getElementById('ev-filter')?.value||'');
+    return !!filterVal;
   }
 
   function applyFilters(){
-    var locSel=(document.getElementById('ev-location')?.value||'');
-    var cityVal=(document.getElementById('ev-city')?.value||'').toLowerCase().trim();
-    var loc=locSel==='custom' ? cityVal : locSel.toLowerCase();
-    var genre=(document.getElementById('ev-genre')?.value||'').toLowerCase();
+    var filterVal=(document.getElementById('ev-filter')?.value||'');
+    var loc=filterVal.startsWith('loc:') ? filterVal.slice(4) : '';
+    var genre2=filterVal.startsWith('genre:') ? filterVal.slice(6) : '';
+    var genre=genre2||'';
     var filtering=hasActiveFilters();
     var visible=0;
 
@@ -1942,9 +1941,7 @@
   }
 
   function clearFilters(){
-    var el=document.getElementById('ev-location');if(el)el.value='';
-    var el2=document.getElementById('ev-genre');if(el2)el2.value='';
-    var el3=document.getElementById('ev-city');if(el3){el3.value='';el3.style.display='none';}
+    var el=document.getElementById('ev-filter');if(el)el.value='';
     applyFilters();
   }
 
