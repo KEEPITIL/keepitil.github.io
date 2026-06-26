@@ -617,12 +617,13 @@
     const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-    function switchForm(type) {
+    window.switchForm = function(type) {
       document.querySelectorAll('.type-card').forEach(b => b.classList.remove('active'));
       document.querySelector('.type-card[data-type="'+type+'"]').classList.add('active');
       document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
       document.getElementById('panel-'+type).classList.add('active');
-      document.querySelector('.forms-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+      var fw = document.querySelector('.forms-wrap');
+      if (fw) fw.scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     function validateForm(form) {
@@ -673,8 +674,9 @@
     submitForm('form-brand',     'btn-brand',     'success-brand',     'brand');
     submitForm('form-organizer', 'btn-organizer', 'success-organizer', 'organizer');
 
-    function toggleMenu() {
-      document.getElementById('mobile-menu').classList.toggle('open');
+    window.toggleMenu = function() {
+      var m = document.getElementById('mobile-menu');
+      if (m) m.classList.toggle('open');
     }
 
     const urlType = new URLSearchParams(location.search).get('type');
