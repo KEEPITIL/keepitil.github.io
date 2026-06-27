@@ -561,10 +561,13 @@
     background:currentColor;
     opacity:.25;
   }
-  /* Track: fixed height container for crossfade */
+  /* Track: full-bleed card like artist profiles */
   .spot-widget-track {
     position: relative;
-    min-height: 210px;
+    min-height: 270px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 -18px -48px;
   }
   .spot-slide {
     position: absolute;
@@ -573,31 +576,31 @@
     transform: translateY(10px);
     transition: opacity .55s ease, transform .55s ease;
     pointer-events: none;
+    background-size: cover !important;
+    background-position: center top !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 14px 18px 18px;
   }
+  .spot-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.92) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .spot-slide > * { position: relative; z-index: 1; }
   .spot-slide.active {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
   /* Image thumbnail */
-  .spot-slide-img {
-    width: 46px; height: 46px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border: 1px solid rgba(255,255,255,.1);
-  }
-  .spot-slide-img-fb {
-    font-family:'Bebas Neue',sans-serif;
-    font-size:1.1rem;
-    letter-spacing:.05em;
-    opacity:.9;
-  }
-  .spot-slide-img img { width:100%;height:100%;object-fit:cover; }
+  /* Full-bleed profile image */
+  .spot-slide-img { display: none !important; }
+  .spot-slide-img-fb { display: none !important; }
   .spot-slide-name {
     font-family:'Bebas Neue',sans-serif;
     font-size:1.45rem;
@@ -1656,7 +1659,8 @@
     items.forEach((item, i) => {
       const slide = document.createElement('div');
       slide.className = 'spot-slide' + (i===0?' active':'');
-      const imgSrc = item.img ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="spot-slide-img-fb" style="display:none;color:${color}">${initials(item.name)}</span>` : `<span class="spot-slide-img-fb" style="color:${color}">${initials(item.name)}</span>`;
+      if (item.img) slide.style.backgroundImage = "url('" + item.img + "')";
+      const imgSrc = '';
       slide.innerHTML = `
         <div class="spot-slide-img" style="background:${color}18">${imgSrc}</div>
         <div class="spot-slide-name" style="color:${color}">${item.name}</div>
