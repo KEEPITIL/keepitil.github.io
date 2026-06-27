@@ -4,12 +4,22 @@
   <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Artist Roster &mdash; KEEPITIL | Top California Artists</title>
-<link rel="icon" type="image/png" href="/logo-blue-nav.png"/>
+<link rel="icon" type="image/png" href="https://keepitil.github.io/logo-blue-nav.png"/>
 <meta name="description" content="Top 100 California Artists &mdash; OC, LA, San Diego, Bay Area. Browse, filter, book."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
+<style>nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+.nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+.nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
+.nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:#00b4ff;}
+.nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
+.nav-cta:hover{opacity:.85;}
+@media(max-width:768px){.nav-links{display:none;}}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --black:#0f0f1a;--dark:#111;--dark2:#181818;--dark3:#222;
@@ -29,15 +39,6 @@ body::before{
 }
 
 /* -- NAV -- */
-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
-.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
-.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
-.nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
-.nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
-.nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
-.nav-links a:hover,.nav-links a.active{color:#00b4ff;}
-.nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
-.nav-cta:hover{opacity:.85;}
 
 /* -- HERO -- */
 .page-hero{padding:48px 24px 32px;text-align:center;position:relative;}
@@ -80,19 +81,20 @@ select:focus{border-color:var(--blue);}
   background:var(--dark2);border:1px solid rgba(255,255,255,.06);
   transition:transform .25s,border-color .25s,box-shadow .25s;
   display:flex;flex-direction:column;
+  aspect-ratio:1/1;
 }
 .dj-card:hover{
   transform:translateY(-6px) scale(1.02);
   border-color:var(--card-color,var(--blue));
   box-shadow:0 12px 40px rgba(0,0,0,.5), 0 0 24px var(--card-glow,var(--blue-glow));
 }
-.card-img{width:100%;aspect-ratio:1/1;background-size:cover;background-position:center top;position:relative;overflow:hidden;}
-.card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.85) 100%);opacity:0;transition:opacity .25s;}
+.card-img{width:100%;height:100%;background-size:cover;background-position:center top;position:relative;overflow:hidden;}
+.card-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.35) 50%,transparent 100%);opacity:1;}
 .dj-card:hover .card-img::after{opacity:1;}
 .card-img .initials{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:3.5rem;letter-spacing:.05em;opacity:.6;}
 .card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;}
 .keepitil-badge{position:absolute;top:10px;right:10px;z-index:2;background:var(--blue);color:var(--black);font-size:.65rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
-.card-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:4px;}
+.card-body{position:absolute;bottom:0;left:0;right:0;padding:12px 14px 14px;z-index:2;display:flex;flex-direction:column;gap:3px;}
 .card-name{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.06em;line-height:1;}
 .card-sub{font-size:.72rem;color:var(--grey);line-height:1.3;}
 .card-genre{font-size:.7rem;font-weight:600;letter-spacing:.06em;color:var(--blue);margin-top:4px;}
@@ -120,17 +122,31 @@ footer{text-align:center;padding:32px;color:var(--grey);font-size:.8rem;border-t
 footer a{color:var(--blue);text-decoration:none;}
 .no-results{grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--grey);}
 .no-results h3{font-family:var(--font-head);font-size:2rem;letter-spacing:.05em;margin-bottom:8px;}
-</style>
 
-<link rel="canonical" href="https://keepitil.com/artist.html"/>
+    /* NAV-STD */
+    
+    
+    
+    
+    
+    
+    
+    
+    @media(max-width:768px){}
+
+  
+
+</style>
+<!-- nav-v2 -->
+<link rel="canonical" href="https://keepitil.com/artist"/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="Artist Roster — KEEPITIL | Top California Underground DJs"/>
+<meta property="og:title" content="Artist Roster â KEEPITIL | Top California Underground DJs"/>
 <meta property="og:description" content="Browse 37+ verified underground DJs and producers across Orange County, Los Angeles, San Diego, and the Inland Empire. Filter by genre, city, and county."/>
 <meta property="og:image" content="https://keepitil.com/logo-bg.jpg"/>
 <meta property="og:url" content="https://keepitil.com/artist.html"/>
 <meta property="og:site_name" content="KEEPITIL"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Artist Roster — KEEPITIL | Top California Underground DJs"/>
+<meta name="twitter:title" content="Artist Roster â KEEPITIL | Top California Underground DJs"/>
 <meta name="twitter:description" content="Browse 37+ verified underground DJs and producers across Orange County, Los Angeles, San Diego, and the Inland Empire. Filter by genre, city, and county."/>
 <meta name="twitter:image" content="https://keepitil.com/logo-bg.jpg"/>
 <script type="application/ld+json">
@@ -146,8 +162,8 @@ footer a{color:var(--blue);text-decoration:none;}
   }
 }
 </script>
-  <style id="nav-uniform">
-  /* ── UNIFORM NAV ── */
+<style id="nav-uniform">
+  /* ââ UNIFORM NAV ââ */
   nav#main-nav,nav:not([class]) {
     position:fixed;top:0;left:0;right:0;z-index:1000;
     background:rgba(10,10,18,.93);
@@ -310,76 +326,73 @@ footer a{color:var(--blue);text-decoration:none;}
   <p>We list the top 100 Artists in California. If you're an underground artist ready to be featured on KEEPITIL, apply now.</p>
   <div class="apply-btns">
     <a href="https://keepitil.com/apply.html" class="btn-primary-apply">Apply to Join</a>
-    <a href="index.html" class="btn-outline-apply">Back to Home</a>
+    <a href="https://keepitil.com/" class="btn-outline-apply">Back to Home</a>
   </div>
 </div>
 
 <footer>
-  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> &mdash; OC &amp; LA Underground EDM &middot; <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p>
+  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> &mdash; OC &amp; LA Underground EDM &middot; <a href="https://keepitil.github.io/privacy.html">Privacy Policy</a></p>
 </footer>
 
 <script>
 const DJS = [
   // === KEEPITIL FEATURED (with blog pages) ===
-  {name:'RAB3L',         city:'Torrance',      county:'Los Angeles County',    genre:'Bass House / Tech House / UKG / Bassline', ig:'dj_rab3l_r3mix',       img:'https://unavatar.io/instagram/dj_rab3l_r3mix',       color:'#6600ff', blog:'blog-rab3l.html',          keepitil:true, type:'DJ'},
-  {name:'Groove Trooper',city:'Garden Grove',  county:'Orange County',         genre:'Latin House / Tech House',                 ig:'Groove_Trooper',        img:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg', color:'#00b4ff', blog:'blog-groove-trooper.html', keepitil:true, type:'DJ'},
-  {name:'Lvnky Bonez',   city:'Los Angeles',   county:'Los Angeles County',    genre:'Dubstep / DnB / Bass House',               ig:'__lvnky.bonez__',       img:'https://unavatar.io/instagram/__lvnky.bonez__',       color:'#6600ff', blog:'blog-lvnky-bonez.html',   keepitil:true, type:'DJ'},
-  {name:'SWERVE',        city:'Los Angeles',   county:'Los Angeles County',    genre:'Tech House / Bass House / Techno / DnB',   ig:'SWERVE.2.THEBEAT',      img:'https://unavatar.io/instagram/SWERVE.2.THEBEAT',      color:'#00b4ff', blog:'blog-swerve.html',        keepitil:true, type:'DJ'},
+  {name:'RAB3L',         city:'Torrance',      county:'Los Angeles County',    genre:'Bass House / Tech House / UKG / Bassline', ig:'dj_rab3l_r3mix',       img:'https://i1.sndcdn.com/avatars-Z5V6LqAjRIN9MyRX-HjzMWg-t500x500.jpg',       color:'#6600ff', blog:'blog-rab3l.html',          keepitil:true, type:'DJ'},
+  {name:'Groove Trooper',city:'Garden Grove',  county:'Orange County',         genre:'Latin House / Tech House',                 ig:'Groove_Trooper',        img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg', color:'#00b4ff', blog:'blog-groove-trooper.html', keepitil:true, type:'DJ'},
+  {name:'Lvnky Bonez',   city:'Los Angeles',   county:'Los Angeles County',    genre:'Dubstep / DnB / Bass House',               ig:'__lvnky.bonez__',       img:'https://i1.sndcdn.com/avatars-jCj8KC28yfyEy6EI-idOFeA-t500x500.jpg',       color:'#6600ff', blog:'blog-lvnky-bonez.html',   keepitil:true, type:'DJ'},
+  {name:'SWERVE',        city:'Los Angeles',   county:'Los Angeles County',    genre:'Tech House / Bass House / Techno / DnB',   ig:'SWERVE.2.THEBEAT',      img:'https://images.pexels.com/photos/995301/pexels-photo-995301.jpeg?auto=compress&cs=tinysrgb&w=600',      color:'#00b4ff', blog:'blog-swerve.html',        keepitil:true, type:'DJ'},
   // === KEEPITIL ROSTER ===
-  {name:'Chlophonic',    city:'Santa Ana',     county:'Orange County',         genre:'Bass / Dubstep / House / DnB',             ig:'Chlophonic',            img:'https://unavatar.io/instagram/Chlophonic',            color:'#6600ff', blog:'blog-chlophonic.html',    keepitil:true, type:'DJ'},
-  {name:'PYPRR',         city:'Los Angeles',   county:'Los Angeles County',    genre:'Hard Techno / Hardcore',                   ig:'_pyprr',                img:'https://unavatar.io/instagram/_pyprr',                color:'#ff2200', blog:'blog-pyprr.html',         keepitil:true, type:'DJ'},
-  {name:'Rex Elvis',     city:'Lake Forest',   county:'Orange County',         genre:'Minimal / Ghetto-Tech / Techno',           ig:'rex.elvis_',            img:'https://unavatar.io/instagram/rex.elvis_',            color:'#ff2200', blog:'blog-rex-elvis.html',     keepitil:true, type:'DJ'},
-  {name:'GalacticGumby', city:'San Jacinto',   county:'Riverside County',      genre:'Speed Garage / UKG / House / Hard Techno', ig:'Galactic_Gumby',        img:'https://unavatar.io/instagram/Galactic_Gumby',        color:'#b400ff', blog:'blog-galacticgumby.html', keepitil:true, type:'DJ'},
-  {name:'XEODIN',        city:'San Diego',     county:'San Diego County',      genre:'Dubstep / Tearout / Riddim',               ig:'xeodindubz',            img:'https://unavatar.io/instagram/xeodindubz',            color:'#6600ff', blog:'blog-xeodin.html',        keepitil:true, type:'DJ'},
-  {name:'TranceOne',     city:'Santa Clarita', county:'Los Angeles County',    genre:'Tech Trance / Hard Techno',                ig:'Tranceonemusic',        img:'https://unavatar.io/instagram/Tranceonemusic',        color:'#ff2200', blog:'blog-tranceone.html',     keepitil:true, type:'DJ'},
-  {name:'crooki3',       city:'Lake Elsinore', county:'Riverside County',      genre:'House / Tech House / Latin House / Techno',ig:'crooki3official',       img:'https://unavatar.io/instagram/crooki3official',       color:'#00b4ff', blog:'blog-crooki3.html',       keepitil:true, type:'DJ'},
-  {name:'Smoke',         city:'Westminster',   county:'Orange County',         genre:'House / Minimal / Techno / Afro / Latin',  ig:'Allsmokeverything',     img:'https://unavatar.io/instagram/Allsmokeverything',     color:'#00b4ff', blog:'blog-smoke.html',         keepitil:true, type:'DJ'},
-  {name:'elysium',       city:'Los Angeles',   county:'Los Angeles County',    genre:'Bass / Dubstep',                           ig:'elysium.sound',         img:'https://unavatar.io/instagram/elysium.sound',         color:'#6600ff', blog:'blog-elysium.html',       keepitil:true, type:'DJ'},
-  {name:'KriStyle',      city:'Orange County', county:'Orange County',         genre:'Techno',                                   ig:'Kristyle_techno',       img:'https://unavatar.io/instagram/Kristyle_techno',       color:'#ff2200', blog:'blog-kristyle.html',      keepitil:true, type:'DJ'},
-  {name:'DSA',           city:'Orange',        county:'Orange County',         genre:'Dubstep',                                  ig:'dsa.wav',               img:'https://unavatar.io/instagram/dsa.wav',               color:'#6600ff', blog:'blog-dsa.html',           keepitil:true, type:'DJ'},
-  {name:'Payton Plz',    city:'San Francisco', county:'San Francisco County',  genre:'Bounce / Techno / Jackin House',           ig:'Djpaytonplz',           img:'https://unavatar.io/instagram/Djpaytonplz',           color:'#ff0080', blog:'blog-payton-plz.html',    keepitil:true, type:'DJ'},
-  {name:'VicCr',         city:'Santa Ana',     county:'Orange County',         genre:'House / Tech House',                       ig:'Techmyhousemuzicsf',    img:'https://unavatar.io/instagram/Techmyhousemuzicsf',    color:'#00b4ff', blog:'blog-viccr.html',         keepitil:true, type:'DJ'},
-  {name:'se Papid D',    city:'Los Angeles',   county:'Los Angeles County',    genre:'House',                                    ig:'sepapid',               img:'https://unavatar.io/instagram/sepapid',               color:'#00b4ff', blog:'blog-se-papid-d.html',    keepitil:true, type:'DJ'},
-  {name:'RA1N',          city:'Temecula',      county:'Riverside County',      genre:'Underground',                              ig:'itstonypena',           img:'https://unavatar.io/instagram/itstonypena',           color:'#00ff88', blog:'blog-rain.html',          keepitil:true, type:'DJ'},
-  {name:'RAVE GOD',      city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'imravegod',             img:'https://unavatar.io/instagram/imravegod',             color:'#00ff88', blog:'blog-rave-god.html',      keepitil:true, type:'DJ'},
-  {name:'Richrunthat',   city:'Anaheim',       county:'Orange County',         genre:'Underground',                              ig:'_rrichrunthat_',        img:'https://unavatar.io/instagram/_rrichrunthat_',        color:'#00ff88', blog:'blog-richrunthat.html',   keepitil:true, type:'DJ'},
-  {name:'TMZEE',         city:'Orange',        county:'Orange County',         genre:'Underground',                              ig:'tmzee_',                img:'https://unavatar.io/instagram/tmzee_',                color:'#00ff88', blog:'blog-tmzee.html',         keepitil:true, type:'DJ'},
-  {name:'Nick Doe',      city:'Highland',      county:'San Bernardino County', genre:'Underground',                              ig:'itssnickdoe',           img:'https://unavatar.io/instagram/itssnickdoe',           color:'#00ff88', blog:'blog-nick-doe.html',      keepitil:true, type:'DJ'},
-  {name:'FUSION x',      city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'0beeryn_12',            img:'https://unavatar.io/instagram/0beeryn_12',            color:'#00ff88', blog:'blog-fusion-x.html',      keepitil:true, type:'DJ'},
-  {name:'KINGPINS',      city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'kingpins',              img:'https://unavatar.io/instagram/kingpins',              color:'#00ff88', blog:'blog-kingpins.html',      keepitil:true, type:'DJ'},
-  {name:'DD Balenziaga', city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'ddbalenziaga',          img:'https://unavatar.io/instagram/ddbalenziaga',          color:'#00ff88', blog:'blog-dd-balenziaga.html', keepitil:true, type:'DJ'},
-  {name:'...weird',      city:'Westminster',   county:'Orange County',         genre:'Underground',                              ig:'_._._.weird',           img:'https://unavatar.io/instagram/_._._.weird',           color:'#00ff88', blog:'blog-weird.html',         keepitil:true, type:'DJ'},
-  // === DISCOVERED — LA/SoCal Underground ===
-  {name:'Demek',         city:'Los Angeles',   county:'Los Angeles County',    genre:'Psychedelic Industrial Techno',            ig:'demektechno',           img:'https://unavatar.io/instagram/demektechno',           color:'#ff2200', blog:'blog-demek.html',         keepitil:true, type:'DJ'},
-  {name:'Aztekan',       city:'San Bernardino',county:'San Bernardino County', genre:'Hypnotic / Deep Techno',                   ig:'_aztekan',              img:'https://unavatar.io/instagram/_aztekan',              color:'#ff2200', blog:'blog-aztekan.html',       keepitil:true, type:'DJ'},
-  {name:'CLAWZ',         city:'Los Angeles',   county:'Los Angeles County',    genre:'Acid Techno / Hard Techno',                ig:'_clawz_',               img:'https://unavatar.io/instagram/_clawz_',               color:'#ff2200', blog:'blog-clawz.html',         keepitil:true, type:'DJ'},
-  {name:'Amuck Indstrl', city:'Los Angeles',   county:'Los Angeles County',    genre:'Industrial / Hard Techno',                 ig:'amuck_indstrl',         img:'https://unavatar.io/instagram/amuck_indstrl',         color:'#ff2200', blog:'blog-amuck-indstrl.html', keepitil:true, type:'DJ'},
-  {name:'Oscar Osorio',  city:'Santa Ana',     county:'Orange County',         genre:'Underground House / Deep House',           ig:'oscarosorio_dj',        img:'https://unavatar.io/instagram/oscarosorio_dj',        color:'#00b4ff', blog:'blog-oscar-osorio.html',  keepitil:true, type:'DJ'},
-  {name:'BB Shaine',     city:'Los Angeles',   county:'Los Angeles County',    genre:'Bass / Techno / Electro / UKG / Jungle',   ig:'bb.shaine',             img:'https://unavatar.io/instagram/bb.shaine',             color:'#6600ff', blog:'blog-bb-shaine.html',     keepitil:true, type:'DJ'},
-  {name:'ZLATA',         city:'Los Angeles',   county:'Los Angeles County',    genre:'House / Techno / Trance',                  ig:'zlatassx',              img:'https://unavatar.io/instagram/zlatassx',              color:'#00b4ff', blog:'blog-zlata.html',         keepitil:true, type:'DJ'},
-  {name:'John Bryars',   city:'Los Angeles',   county:'Los Angeles County',    genre:'Acid / Techno / Electro / EBM / Breaks',   ig:'johnnbryars',           img:'https://unavatar.io/instagram/johnnbryars',           color:'#b400ff', blog:'blog-john-bryars.html',   keepitil:true, type:'DJ'},
-  {name:'Red Five',      city:'Orange County', county:'Orange County',         genre:'Disco Tech / Tech House',                  ig:'djredfive',             img:'https://unavatar.io/instagram/djredfive',             color:'#ff0080', blog:'blog-red-five.html',      keepitil:true, type:'DJ'},
+  {name:'Chlophonic',    city:'Santa Ana',     county:'Orange County',         genre:'Bass / Dubstep / House / DnB',             ig:'Chlophonic',            img:'https://i1.sndcdn.com/avatars-vG0UppNPHrELmL47-yzlQ6A-t500x500.jpg',            color:'#6600ff', blog:'blog-chlophonic.html',    keepitil:true, type:'DJ'},
+  {name:'PYPRR',         city:'Los Angeles',   county:'Los Angeles County',    genre:'Hard Techno / Hardcore',                   ig:'_pyprr',                img:'https://i1.sndcdn.com/avatars-yrzJEP33BRgfiqMB-gidahg-t500x500.jpg',                color:'#ff2200', blog:'blog-pyprr.html',         keepitil:true, type:'DJ'},
+  {name:'Rex Elvis',     city:'Lake Forest',   county:'Orange County',         genre:'Minimal / Ghetto-Tech / Techno',           ig:'rex.elvis_',            img:'https://i1.sndcdn.com/avatars-czbWsDRxXysCalTv-sd7Wpw-t500x500.jpg',            color:'#ff2200', blog:'blog-rex-elvis.html',     keepitil:true, type:'DJ'},
+  {name:'GalacticGumby', city:'San Jacinto',   county:'Riverside County',      genre:'Speed Garage / UKG / House / Hard Techno', ig:'Galactic_Gumby',        img:'https://images.pexels.com/photos/2080604/pexels-photo-2080604.jpeg?auto=compress&cs=tinysrgb&w=600',        color:'#b400ff', blog:'blog-galacticgumby.html', keepitil:true, type:'DJ'},
+  {name:'XEODIN',        city:'San Diego',     county:'San Diego County',      genre:'Dubstep / Tearout / Riddim',               ig:'xeodindubz',            img:'https://i1.sndcdn.com/avatars-BKll7fcWvwhKbph4-q1BBYw-t500x500.jpg',            color:'#6600ff', blog:'blog-xeodin.html',        keepitil:true, type:'DJ'},
+  {name:'TranceOne',     city:'Santa Clarita', county:'Los Angeles County',    genre:'Tech Trance / Hard Techno',                ig:'Tranceonemusic',        img:'https://i1.sndcdn.com/avatars-MvAafLrTsUgQ4mIa-CKXqHQ-t500x500.jpg',        color:'#ff2200', blog:'blog-tranceone.html',     keepitil:true, type:'DJ'},
+  {name:'crooki3',       city:'Lake Elsinore', county:'Riverside County',      genre:'House / Tech House / Latin House / Techno',ig:'crooki3official',       img:'https://i1.sndcdn.com/avatars-vkji3fFO87uOEkkf-IZboxw-t500x500.jpg',       color:'#00b4ff', blog:'blog-crooki3.html',       keepitil:true, type:'DJ'},
+  {name:'Smoke',         city:'Westminster',   county:'Orange County',         genre:'House / Minimal / Techno / Afro / Latin',  ig:'Allsmokeverything',     img:'https://i1.sndcdn.com/avatars-000716753935-ajfcmp-t500x500.jpg',     color:'#00b4ff', blog:'blog-smoke.html',         keepitil:true, type:'DJ'},
+  {name:'elysium',       city:'Los Angeles',   county:'Los Angeles County',    genre:'Bass / Dubstep',                           ig:'elysium.sound',         img:'https://i1.sndcdn.com/avatars-wvbKXsCR4y1z9YZ9-ERxz0w-t500x500.jpg',         color:'#6600ff', blog:'blog-elysium.html',       keepitil:true, type:'DJ'},
+  {name:'KriStyle',      city:'Orange County', county:'Orange County',         genre:'Techno',                                   ig:'Kristyle_techno',       img:'https://i1.sndcdn.com/avatars-i1iQHvE6zu2ZcRe9-AiausA-t500x500.jpg',       color:'#ff2200', blog:'blog-kristyle.html',      keepitil:true, type:'DJ'},
+  {name:'DSA',           city:'Orange',        county:'Orange County',         genre:'Dubstep',                                  ig:'dsa.wav',               img:'https://images.pexels.com/photos/3052727/pexels-photo-3052727.jpeg?auto=compress&cs=tinysrgb&w=600',               color:'#6600ff', blog:'blog-dsa.html',           keepitil:true, type:'DJ'},
+  {name:'Payton Plz',    city:'San Francisco', county:'San Francisco County',  genre:'Bounce / Techno / Jackin House',           ig:'Djpaytonplz',           img:'https://images.pexels.com/photos/3629537/pexels-photo-3629537.jpeg?auto=compress&cs=tinysrgb&w=600',           color:'#ff0080', blog:'blog-payton-plz.html',    keepitil:true, type:'DJ'},
+  {name:'VicCr',         city:'Santa Ana',     county:'Orange County',         genre:'House / Tech House',                       ig:'viccr',                 img:'https://images.pexels.com/photos/3893586/pexels-photo-3893586.jpeg?auto=compress&cs=tinysrgb&w=600',                 color:'#00b4ff', blog:'blog-viccr.html',         keepitil:true, type:'DJ'},
+  {name:'se Papid D',    city:'Los Angeles',   county:'Los Angeles County',    genre:'House',                                    ig:'sepapid',               img:'https://i1.sndcdn.com/avatars-o1MXS7hw6bzziECi-FlTJSw-t500x500.jpg',               color:'#00b4ff', blog:'blog-se-papid-d.html',    keepitil:true, type:'DJ'},
+  {name:'RA1N',          city:'Temecula',      county:'Riverside County',      genre:'Underground',                              ig:'itstonypena',           img:'https://i1.sndcdn.com/avatars-sszz3vanaQpgZzAY-ZpWS5g-t500x500.jpg',           color:'#00ff88', blog:'blog-rain.html',          keepitil:true, type:'DJ'},
+  {name:'RAVE GOD',      city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'imravegod',             img:'https://i1.sndcdn.com/avatars-fu4xApdIZLwonYAD-myDsyQ-t500x500.jpg',             color:'#00ff88', blog:'blog-rave-god.html',      keepitil:true, type:'DJ'},
+  {name:'Richrunthat',   city:'Anaheim',       county:'Orange County',         genre:'Underground',                              ig:'_rrichrunthat_',        img:'https://i1.sndcdn.com/avatars-yg9qDGS1492DHlae-vrS7Fg-t500x500.jpg',        color:'#00ff88', blog:'blog-richrunthat.html',   keepitil:true, type:'DJ'},
+  {name:'TMZEE',         city:'Orange',        county:'Orange County',         genre:'Underground',                              ig:'tmzee_',                img:'https://i1.sndcdn.com/avatars-zfWlHzuWmYzVeSHX-6V84RQ-t500x500.jpg',                color:'#00ff88', blog:'blog-tmzee.html',         keepitil:true, type:'DJ'},
+  {name:'Nick Doe',      city:'Highland',      county:'San Bernardino County', genre:'Underground',                              ig:'itssnickdoe',           img:'https://i1.sndcdn.com/avatars-ULDfh7CHws2GNmZf-w4LlTg-t500x500.jpg',           color:'#00ff88', blog:'blog-nick-doe.html',      keepitil:true, type:'DJ'},
+  {name:'FUSION x',      city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'0beeryn_12',            img:'https://i1.sndcdn.com/avatars-QdPCKBZ2RyaLYJyw-tesJVQ-t500x500.jpg',            color:'#00ff88', blog:'blog-fusion-x.html',      keepitil:true, type:'DJ'},
+  {name:'KINGPINS',      city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'kingpins',              img:'https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=600',              color:'#00ff88', blog:'blog-kingpins.html',      keepitil:true, type:'DJ'},
+  {name:'DD Balenziaga', city:'OC',            county:'Orange County',         genre:'Underground',                              ig:'ddbalenziaga',          img:'https://i1.sndcdn.com/avatars-f6cYQKsVsXdEJAc6-S1oE7A-t500x500.jpg',          color:'#00ff88', blog:'blog-dd-balenziaga.html', keepitil:true, type:'DJ'},
+  {name:'...weird',      city:'Westminster',   county:'Orange County',         genre:'Underground',                              ig:'_._._.weird',           img:'https://images.pexels.com/photos/1537671/pexels-photo-1537671.jpeg?auto=compress&cs=tinysrgb&w=600',           color:'#00ff88', blog:'blog-weird.html',         keepitil:true, type:'DJ'},
+  // === DISCOVERED â LA/SoCal Underground ===
+  {name:'Demek',         city:'Los Angeles',   county:'Los Angeles County',    genre:'Psychedelic Industrial Techno',            ig:'demektechno',           img:'https://i1.sndcdn.com/avatars-P7zV1yw08MXu6Mqr-gizalQ-t500x500.jpg',           color:'#ff2200', blog:'blog-demek.html',         keepitil:true, type:'DJ'},
+  {name:'Aztekan',       city:'San Bernardino',county:'San Bernardino County', genre:'Hypnotic / Deep Techno',                   ig:'_aztekan',              img:'https://i1.sndcdn.com/avatars-65ANz1PFRKjujXrW-qWNxdw-t500x500.jpg',              color:'#ff2200', blog:'blog-aztekan.html',       keepitil:true, type:'DJ'},
+  {name:'CLAWZ',         city:'Los Angeles',   county:'Los Angeles County',    genre:'Acid Techno / Hard Techno',                ig:'_clawz_',               img:'https://i1.sndcdn.com/avatars-eleJcZ9KTcLyUA1W-C5HLrQ-t500x500.jpg',               color:'#ff2200', blog:'blog-clawz.html',         keepitil:true, type:'DJ'},
+  {name:'Amuck Indstrl', city:'Los Angeles',   county:'Los Angeles County',    genre:'Industrial / Hard Techno',                 ig:'amuck_indstrl',         img:'https://images.pexels.com/photos/3747139/pexels-photo-3747139.jpeg?auto=compress&cs=tinysrgb&w=600',         color:'#ff2200', blog:'blog-amuck-indstrl.html', keepitil:true, type:'DJ'},
+  {name:'Oscar Osorio',  city:'Santa Ana',     county:'Orange County',         genre:'Underground House / Deep House',           ig:'oscarosorio_dj',        img:'https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=600',        color:'#00b4ff', blog:'blog-oscar-osorio.html',  keepitil:true, type:'DJ'},
+  {name:'BB Shaine',     city:'Los Angeles',   county:'Los Angeles County',    genre:'Bass / Techno / Electro / UKG / Jungle',   ig:'bb.shaine',             img:'https://i1.sndcdn.com/avatars-JHAiz4U3S1ddJibQ-50XmFw-t500x500.jpg',             color:'#6600ff', blog:'blog-bb-shaine.html',     keepitil:true, type:'DJ'},
+  {name:'ZLATA',         city:'Los Angeles',   county:'Los Angeles County',    genre:'House / Techno / Trance',                  ig:'zlatassx',              img:'https://i1.sndcdn.com/avatars-Q8LfeLRTq81Ly0jm-O1K6qw-t500x500.jpg',              color:'#00b4ff', blog:'blog-zlata.html',         keepitil:true, type:'DJ'},
+  {name:'John Bryars',   city:'Los Angeles',   county:'Los Angeles County',    genre:'Acid / Techno / Electro / EBM / Breaks',   ig:'johnnbryars',           img:'https://i1.sndcdn.com/avatars-zgd0wyzOzHetnyW6-DLvz3Q-t500x500.jpg',           color:'#b400ff', blog:'blog-john-bryars.html',   keepitil:true, type:'DJ'},
+  {name:'Red Five',      city:'Orange County', county:'Orange County',         genre:'Disco Tech / Tech House',                  ig:'djredfive',             img:'https://i1.sndcdn.com/avatars-6tJTTDMnVMEmSoLw-iD4YPQ-t500x500.jpg',             color:'#ff0080', blog:'blog-red-five.html',      keepitil:true, type:'DJ'},
   // === NEW KEEPITIL ARTISTS (Jun 2026) ===
-  {name:'NOCTUA',       city:'Los Angeles',   county:'Los Angeles County',    genre:'Techno / Dark Techno / Industrial',        ig:'noctua.la',             img:'https://unavatar.io/instagram/noctua.la',             color:'#6600ff', blog:'blog-noctua.html',         keepitil:true, type:'DJ'},
-  {name:'Mello Vega',   city:'East Los Angeles',county:'Los Angeles County', genre:'Latin House / Afro House / Deep House',    ig:'mello.vega.dj',         img:'https://unavatar.io/instagram/mello.vega.dj',         color:'#ff6600', blog:'blog-mello-vega.html',     keepitil:true, type:'DJ'},
-  {name:'KODA',         city:'San Diego',     county:'San Diego County',      genre:'Deep Tech / Minimal Techno',               ig:'koda.sd.dj',            img:'https://unavatar.io/instagram/koda.sd.dj',            color:'#00b4ff', blog:'blog-koda.html',           keepitil:true, type:'DJ'},
-  {name:'Velvet Riot',  city:'Los Angeles',   county:'Los Angeles County',    genre:'UK Bass / Garage / Bass House',            ig:'velvet.riot.dj',        img:'https://unavatar.io/instagram/velvet.riot.dj',        color:'#ff0080', blog:'blog-velvet-riot.html',    keepitil:true, type:'DJ'},
-  {name:'SUBZERO',      city:'San Bernardino',county:'San Bernardino County', genre:'Riddim / Dubstep / Heavy Bass',            ig:'subzero.ie.dj',         img:'https://unavatar.io/instagram/subzero.ie.dj',         color:'#00ff88', blog:'blog-subzero.html',        keepitil:true, type:'DJ'},
-  {name:'DRIFTER',      city:'Costa Mesa',    county:'Orange County',         genre:'Deep House / Organic House / Melodic Techno',ig:'drifter.oc.music',    img:'https://unavatar.io/instagram/drifter.oc.music',      color:'#00b4ff', blog:'blog-drifter.html',        keepitil:true, type:'DJ'},
-  {name:'ZENITH',       city:'Hollywood',     county:'Los Angeles County',    genre:'Melodic Techno / Progressive / Peak-Time', ig:'zenith.la.dj',          img:'https://unavatar.io/instagram/zenith.la.dj',          color:'#b400ff', blog:'blog-zenith.html',         keepitil:true, type:'DJ'},
-  {name:'Casper Grey',  city:'Anaheim',       county:'Orange County',         genre:'Tech House / House / Club',                ig:'caspergrey.music',      img:'https://unavatar.io/instagram/caspergrey.music',      color:'#ff6600', blog:'blog-casper-grey.html',    keepitil:true, type:'DJ'},
-  {name:'ORACLE',       city:'San Diego',     county:'San Diego County',      genre:'Bass Music / Future Bass / Experimental',  ig:'oracle.sd.bass',        img:'https://unavatar.io/instagram/oracle.sd.bass',        color:'#6600ff', blog:'blog-oracle.html',         keepitil:true, type:'DJ'},
-  {name:'Remy Kai',     city:'Irvine',        county:'Orange County',         genre:'UKG / Bassline / Bass House',              ig:'remy.kai.music',        img:'https://unavatar.io/instagram/remy.kai.music',        color:'#ff0080', blog:'blog-remy-kai.html',       keepitil:true, type:'DJ'},
-  {name:'FUZE',         city:'Riverside',     county:'Riverside County',      genre:'Dubstep / Bass / Hybrid Trap',             ig:'fuze.ie.bass',          img:'https://unavatar.io/instagram/fuze.ie.bass',          color:'#00ff88', blog:'blog-fuze.html',           keepitil:true, type:'DJ'},
-  {name:'Luna Moth',    city:'Silver Lake',   county:'Los Angeles County',    genre:'Ambient Techno / Experimental / Electronica',ig:'luna.moth.sounds',   img:'https://unavatar.io/instagram/luna.moth.sounds',      color:'#b400ff', blog:'blog-luna-moth.html',      keepitil:true, type:'DJ'},
-  {name:'PHANTOM',      city:'Garden Grove',  county:'Orange County',         genre:'Deep Techno / Hypnotic / Hardware',        ig:'phantom.oc.techno',     img:'https://unavatar.io/instagram/phantom.oc.techno',     color:'#6600ff', blog:'blog-phantom.html',        keepitil:true, type:'DJ'},
-  {name:'Static Bloom', city:'Los Feliz',     county:'Los Angeles County',    genre:'Electronica / Leftfield / Bass Music',     ig:'static.bloom.la',       img:'https://unavatar.io/instagram/static.bloom.la',       color:'#00b4ff', blog:'blog-static-bloom.html',   keepitil:true, type:'DJ'},
-  {name:'Echo West',    city:'Long Beach',    county:'Los Angeles County',    genre:'House / Deep House / Soulful House',       ig:'echo.west.lb',          img:'https://unavatar.io/instagram/echo.west.lb',          color:'#ff6600', blog:'blog-echo-west.html',      keepitil:true, type:'DJ'},
-  {name:'Josh Billings', city:'Newport Beach', county:'Orange County',         genre:'House / Tech House / Deep House',          ig:'josh_billings',         img:'https://unavatar.io/instagram/josh_billings',         color:'#00b4ff', blog:'blog-josh-billings.html',  keepitil:true, type:'DJ'},
-  {name:'ANOLUXX',      city:'Los Angeles',   county:'Los Angeles County',    genre:'Hard Techno',                              ig:'anoluxx',               img:'https://unavatar.io/instagram/anoluxx',               color:'#ff2200', blog:'blog-anoluxx.html',        keepitil:true, type:'DJ'},
-  // === DISCOVERED — SoCal Underground (Jun 20 2026) ===
-  {name:'LIGHTLEAK',    city:'Laguna Beach',  county:'Orange County',         genre:'Minimal / Deep Tech / Tech House',         ig:'lightleak_',            img:'https://unavatar.io/instagram/lightleak_',            color:'#00b4ff', blog:'blog-lightleak.html',      keepitil:true, type:'DJ'},
-  {name:'DJ Susan',     city:'San Diego',     county:'San Diego County',      genre:'Tech House / House',                       ig:'susieshouse',           img:'https://unavatar.io/instagram/susieshouse',           color:'#00b4ff', blog:'blog-dj-susan.html',       keepitil:true, type:'DJ'},
+  {name:'NOCTUA',       city:'Los Angeles',   county:'Los Angeles County',    genre:'Techno / Dark Techno / Industrial',        ig:'noctua.la',             img:'https://i1.sndcdn.com/avatars-NB3EKyezxHqyKHmj-AYTwyg-t500x500.jpg',             color:'#6600ff', blog:'blog-noctua.html',         keepitil:true, type:'DJ'},
+  {name:'Mello Vega',   city:'East Los Angeles',county:'Los Angeles County', genre:'Latin House / Afro House / Deep House',    ig:'mello.vega.dj',         img:'https://i1.sndcdn.com/avatars-TdqNQcXQZyss0MUB-b2rauw-t500x500.jpg',         color:'#ff6600', blog:'blog-mello-vega.html',     keepitil:true, type:'DJ'},
+  {name:'KODA',         city:'San Diego',     county:'San Diego County',      genre:'Deep Tech / Minimal Techno',               ig:'koda.sd.dj',            img:'https://i1.sndcdn.com/avatars-uzJ9lphceW1VZIu8-v9V4jQ-t500x500.jpg',            color:'#00b4ff', blog:'blog-koda.html',           keepitil:true, type:'DJ'},
+  {name:'Velvet Riot',  city:'Los Angeles',   county:'Los Angeles County',    genre:'UK Bass / Garage / Bass House',            ig:'velvet.riot.dj',        img:'https://i1.sndcdn.com/avatars-jU0bh0j1eR5sVWrK-akrpcQ-t500x500.jpg',        color:'#ff0080', blog:'blog-velvet-riot.html',    keepitil:true, type:'DJ'},
+  {name:'SUBZERO',      city:'San Bernardino',county:'San Bernardino County', genre:'Riddim / Dubstep / Heavy Bass',            ig:'subzero.ie.dj',         img:'https://i1.sndcdn.com/avatars-000505375989-j1gzvo-t500x500.jpg',         color:'#00ff88', blog:'blog-subzero.html',        keepitil:true, type:'DJ'},
+  {name:'DRIFTER',      city:'Costa Mesa',    county:'Orange County',         genre:'Deep House / Organic House / Melodic Techno',ig:'drifter.oc.music',    img:'https://images.pexels.com/photos/1540298/pexels-photo-1540298.jpeg?auto=compress&cs=tinysrgb&w=600',      color:'#00b4ff', blog:'blog-drifter.html',        keepitil:true, type:'DJ'},
+  {name:'ZENITH',       city:'Hollywood',     county:'Los Angeles County',    genre:'Melodic Techno / Progressive / Peak-Time', ig:'zenith.la.dj',          img:'https://images.pexels.com/photos/2240767/pexels-photo-2240767.jpeg?auto=compress&cs=tinysrgb&w=600',          color:'#b400ff', blog:'blog-zenith.html',         keepitil:true, type:'DJ'},
+  {name:'Casper Grey',  city:'Anaheim',       county:'Orange County',         genre:'Tech House / House / Club',                ig:'caspergrey.music',      img:'https://i1.sndcdn.com/avatars-29LCuhDRHUHemOgF-FKFQaQ-t500x500.jpg',      color:'#ff6600', blog:'blog-casper-grey.html',    keepitil:true, type:'DJ'},
+  {name:'ORACLE',       city:'San Diego',     county:'San Diego County',      genre:'Bass Music / Future Bass / Experimental',  ig:'oracle.sd.bass',        img:'https://i1.sndcdn.com/avatars-000594342168-5v84dp-t500x500.jpg',        color:'#6600ff', blog:'blog-oracle.html',         keepitil:true, type:'DJ'},
+  {name:'Remy Kai',     city:'Irvine',        county:'Orange County',         genre:'UKG / Bassline / Bass House',              ig:'remy.kai.music',        img:'https://i1.sndcdn.com/avatars-000096206309-cndor1-t500x500.jpg',        color:'#ff0080', blog:'blog-remy-kai.html',       keepitil:true, type:'DJ'},
+  {name:'FUZE',         city:'Riverside',     county:'Riverside County',      genre:'Dubstep / Bass / Hybrid Trap',             ig:'fuze.ie.bass',          img:'https://images.pexels.com/photos/1540338/pexels-photo-1540338.jpeg?auto=compress&cs=tinysrgb&w=600',          color:'#00ff88', blog:'blog-fuze.html',           keepitil:true, type:'DJ'},
+  {name:'Luna Moth',    city:'Silver Lake',   county:'Los Angeles County',    genre:'Ambient Techno / Experimental / Electronica',ig:'luna.moth.sounds',   img:'https://i1.sndcdn.com/avatars-000419706507-os2ykc-t500x500.jpg',      color:'#b400ff', blog:'blog-luna-moth.html',      keepitil:true, type:'DJ'},
+  {name:'PHANTOM',      city:'Garden Grove',  county:'Orange County',         genre:'Deep Techno / Hypnotic / Hardware',        ig:'phantom.oc.techno',     img:'https://i1.sndcdn.com/avatars-001418757907-3ih4j4-t500x500.jpg',     color:'#6600ff', blog:'blog-phantom.html',        keepitil:true, type:'DJ'},
+  {name:'Static Bloom', city:'Los Feliz',     county:'Los Angeles County',    genre:'Electronica / Leftfield / Bass Music',     ig:'static.bloom.la',       img:'https://i1.sndcdn.com/avatars-ZpdLfp9SYUIHaYCO-oHhoiw-t500x500.jpg',       color:'#00b4ff', blog:'blog-static-bloom.html',   keepitil:true, type:'DJ'},
+  {name:'Echo West',    city:'Long Beach',    county:'Los Angeles County',    genre:'House / Deep House / Soulful House',       ig:'echo.west.lb',          img:'https://images.pexels.com/photos/226737/pexels-photo-226737.jpeg?auto=compress&cs=tinysrgb&w=600',          color:'#ff6600', blog:'blog-echo-west.html',      keepitil:true, type:'DJ'},
+  {name:'Josh Billings', city:'Newport Beach', county:'Orange County',         genre:'House / Tech House / Deep House',          ig:'josh_billings',         img:'https://i1.sndcdn.com/avatars-000019027814-30us3e-t500x500.jpg',         color:'#00b4ff', blog:'blog-josh-billings.html',  keepitil:true, type:'DJ'},
+  {name:'ANOLUXX',      city:'Los Angeles',   county:'Los Angeles County',    genre:'Hard Techno',                              ig:'anoluxx',               img:'https://i1.sndcdn.com/avatars-RkdORUhOkFphidW6-5KFBhA-t500x500.jpg',               color:'#ff2200', blog:'blog-anoluxx.html',        keepitil:true, type:'DJ'},
 ];
 
 let currentSort='az', currentCounty='', currentCity='', currentGenre='', currentSearch='', currentType='';
@@ -419,10 +432,11 @@ function render(){
     var color=d.color||'#00b4ff';
     var initials=d.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
     var glow=hexToRgba(color,.3);
-    var overlayHref=d.blog?d.blog:'https://instagram.com/'+d.ig;
+    var overlayHref=d.blog?'https://keepitil.com/'+d.blog:'https://instagram.com/'+d.ig;
     var overlayTarget=d.blog?'':'target="_blank"';
     return '<div class="dj-card" style="--card-color:'+color+';--card-glow:'+glow+';">'
       +'<div class="card-img" style="background:linear-gradient(135deg,'+hexToRgba(color,.25)+' 0%,#111 100%);">'
+      +'<div class="initials" style="color:'+color+';">'+initials+'</div>'
       +(d.img?'<img class="card-photo" src="'+d.img+'" alt="'+d.name+'" onerror="this.style.display=\'none\'" loading="lazy"/>':'')
       +(d.keepitil?'<div class="keepitil-badge">KEEPITIL</div>':'')
       +'<div class="card-overlay"><a href="'+overlayHref+'" '+overlayTarget+'>View Profile</a></div>'
@@ -431,11 +445,6 @@ function render(){
       +'<div class="card-name" style="color:'+(d.keepitil?color:'var(--white)')+';">'+d.name+'</div>'
       +'<div class="card-sub">'+d.city+' &middot; '+d.county.replace(' County','')+'</div>'
       +'<div class="card-genre">'+d.genre+'</div>'
-      +'<div class="card-footer">'
-      +'<a class="card-ig" href="https://instagram.com/'+d.ig+'" target="_blank">'
-      +'<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>'
-      +'@'+d.ig+'</a>'
-      +'</div>'
       +'</div>'
       +'</div>';
   }).join('');
@@ -458,17 +467,7 @@ populateCities();
 render();
 </script>
 
-
-
-
-
-
-
-
-
-
-
-<!-- ♬ KEEPITIL Radio Player -->
+<!-- â¬ KEEPITIL Radio Player -->
 <style data-kil="player">
 #kil-radio{position:fixed;bottom:20px;right:20px;z-index:9998;background:rgba(6,6,6,.97);border:1px solid rgba(0,255,136,.3);border-radius:10px;box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;transition:width .3s,height .3s,border-radius .3s;overflow:hidden;}
 #kil-radio.kil-mini{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%;cursor:pointer;}
@@ -517,8 +516,8 @@ render();
   function ss_set(k,v){try{if(_ss)_ss.setItem(k,v);}catch(e){}}
   if(ss_get('kil_mini')==='1'){mini=true;radio.classList.add('kil-mini');}
 
-  function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
-  function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
+  function goLive(){led.classList.remove('off');playBtn.textContent='â¸';playing=true;}
+  function goOff(){led.classList.add('off');playBtn.textContent='â¶';playing=false;}
   function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(getVol());if(!playing)widget.play();}
   function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
   reListenGesture();
@@ -545,10 +544,10 @@ render();
   minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');ss_set('kil_mini','1');});
   function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');ss_set('kil_mini','0');}}
   dot.addEventListener('click',expand);radio.addEventListener('click',expand);
-
 })();
 (function(){function pjaxNav(url){fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});Array.from(document.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')c.parentNode.removeChild(c);});Array.from(doc.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')document.body.appendChild(document.importNode(c,true));});doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
 </script>
 <!-- end KEEPITIL Radio Player -->
 </body>
+
 </html>
