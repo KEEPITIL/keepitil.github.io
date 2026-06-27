@@ -561,13 +561,10 @@
     background:currentColor;
     opacity:.25;
   }
-  /* Track: full-bleed card like artist profiles */
+  /* Track: fixed height container for crossfade */
   .spot-widget-track {
     position: relative;
-    min-height: 270px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 0 -18px -48px;
+    min-height: 210px;
   }
   .spot-slide {
     position: absolute;
@@ -576,31 +573,31 @@
     transform: translateY(10px);
     transition: opacity .55s ease, transform .55s ease;
     pointer-events: none;
-    background-size: cover !important;
-    background-position: center top !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 14px 18px 18px;
   }
-  .spot-slide::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 50%, rgba(0,0,0,0.92) 100%);
-    z-index: 0;
-    pointer-events: none;
-  }
-  .spot-slide > * { position: relative; z-index: 1; }
   .spot-slide.active {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
   }
   /* Image thumbnail */
-  /* Full-bleed profile image */
-  .spot-slide-img { display: none !important; }
-  .spot-slide-img-fb { display: none !important; }
+  .spot-slide-img {
+    width: 46px; height: 46px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .spot-slide-img-fb {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.1rem;
+    letter-spacing:.05em;
+    opacity:.9;
+  }
+  .spot-slide-img img { width:100%;height:100%;object-fit:cover; }
   .spot-slide-name {
     font-family:'Bebas Neue',sans-serif;
     font-size:1.45rem;
@@ -1134,7 +1131,7 @@
         <div class="ev-fc-venue">📍 Exchange LA — Los Angeles, CA</div>
       </div>
       <span class="ev-fc-price">From $25</span>
-      <a href="https://exchangela.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+      <a href="https://www.insomniac.com/events/kayzo-2026-07-03-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
     <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-07-05" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/04/30191923/ukXdFwRfEfxHBhomApJd4e1F6ZsuqRTW11IP7u4l-420x420.jpg')">
@@ -1200,7 +1197,6 @@
       <a href="https://www.hardsummer.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
-
     <div class="ev-flyer-card" data-genre="house techno" data-region="la" data-date="2026-08-16" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/04/30192136/KyKfRc1cApkWBCVz9SrLHfk37IlNNl2nDvy0leh6-420x420.jpg')">
       <span class="ev-fc-date">Aug 16</span>
       <span class="ev-fc-genre">House / Techno</span>
@@ -1231,7 +1227,7 @@
         <div class="ev-fc-venue">📍 Exchange LA — Los Angeles, CA</div>
       </div>
       <span class="ev-fc-price">From $25</span>
-      <a href="https://exchangela.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+      <a href="https://ra.co/events/us/losangeles" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
 
     <div class="ev-flyer-card" data-genre="techno house" data-region="la" data-date="2026-08-23" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/04/30192157/VnwnWv66N8AWam4UOjEjRAhInbRcKgZfMbSCH7n0-420x420.jpg')">
@@ -1275,7 +1271,7 @@
   <div class="month-label" style="display:none">September 2026</div>
   <div class="ev-flyer-grid">
 
-<div class="ev-flyer-card" data-genre="techno house" data-region="la" data-date="2026-09-06" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/04/30192239/6lPToKCWWSeqnut2DzHgth2mAGQySw13Q2aCPPaS-420x420.jpg')">
+    <div class="ev-flyer-card" data-genre="techno house" data-region="la" data-date="2026-09-06" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/04/30192239/6lPToKCWWSeqnut2DzHgth2mAGQySw13Q2aCPPaS-420x420.jpg')">
       <span class="ev-fc-date">Sep 6</span>
       <span class="ev-fc-genre">Techno / House</span>
       <div class="ev-fc-info">
@@ -1370,8 +1366,7 @@
   <div class="month-section" id="month-october">
   <div class="month-label" style="display:none">October 2026</div>
   <div class="ev-flyer-grid">
-
-<div class="ev-flyer-card" data-genre="bass dubstep" data-region="la" data-date="2026-10-02" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/03/23224426/2VEkStGOdYH5D7i2wZn511NjEmfkzfFWAbfD9Jfy-420x420.png')">
+      <div class="ev-flyer-card" data-genre="bass dubstep" data-region="la" data-date="2026-10-02" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/03/23224426/2VEkStGOdYH5D7i2wZn511NjEmfkzfFWAbfD9Jfy-420x420.png')">
       <span class="ev-fc-date">Oct 2</span>
       <span class="ev-fc-genre">Bass / Dubstep</span>
       <div class="ev-fc-info">
@@ -1381,7 +1376,27 @@
       <span class="ev-fc-price">From $40</span>
       <a href="https://www.bassrush.com/bassrush-presents-zeds-dead-at-grand-park-2026/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
-    <div class="ev-flyer-card" data-genre="bass house techno" data-region="sb" data-date="2026-10-30" style="background-image:url('https://escapehalloween.com/wp-content/uploads/2026/06/escape_halloween_2026_keyart.jpg')">
+      <div class="ev-flyer-card" data-genre="techno" data-region="la" data-date="2026-10-03" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/05/09005413/pUt7ua4lbxQujDFFh0W8ffQDTOhzgBEe2uAZa91O-1-420x420.jpg')">
+      <span class="ev-fc-date">Oct 3</span>
+      <span class="ev-fc-genre">Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">OUTWORLD: KLANGKUENSTLER ALL NIGHT LONG</div>
+        <div class="ev-fc-venue">📍 Kia Forum — Inglewood, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/outworld-klangkuenstler-all-night-long-2026-10-03-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+      <div class="ev-flyer-card" data-genre="bass" data-region="oc" data-date="2026-10-17" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/04/29192342/zf7K8qeUZwJjK5bbuhGqGDKzPiUEFZ5QmnK7aTXT-420x420.png')">
+      <span class="ev-fc-date">Oct 17</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">ARMNHMR</div>
+        <div class="ev-fc-venue">📍 The Observatory OC — Santa Ana, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/armnhmr-2026-10-17-costa-mesa-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+      <div class="ev-flyer-card" data-genre="bass house techno" data-region="sb" data-date="2026-10-30" style="background-image:url('https://escapehalloween.com/wp-content/uploads/2026/06/escape_halloween_2026_keyart.jpg')">
       <span class="ev-fc-date">Oct 30–31</span>
       <span class="ev-fc-genre">Bass / House / Techno</span>
       <div class="ev-fc-info">
@@ -1391,23 +1406,75 @@
       <span class="ev-fc-price">From $149</span>
       <a href="https://escapehalloween.com/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
+    </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button>
 
-  </div>
-  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
+    </div>
   </div><!-- End October month-section -->
 
   <div class="month-section" id="month-november">
   <div class="month-label" style="display:none">November 2026</div>
   <div class="ev-flyer-grid">
-  </div>
-  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
+      <div class="ev-flyer-card" data-genre="techno" data-region="la" data-date="2026-11-14" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/06/20020111/rIoCr35VAaGCQ4b7ZQJG1HSC8Gyb5IpyRNGIrUBb-420x420.png')">
+      <span class="ev-fc-date">Nov 14</span>
+      <span class="ev-fc-genre">Techno</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">ELI BROWN</div>
+        <div class="ev-fc-venue">📍 City Market — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/eli-brown-2026-11-14-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+      <div class="ev-flyer-card" data-genre="bass" data-region="la" data-date="2026-11-14" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/06/06000557/Rb7ECItEY5dtoMxgbcEQguTqpPQLE8X2RlAxknEw-420x420.png')">
+      <span class="ev-fc-date">Nov 14</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">VALENTINO KHAN</div>
+        <div class="ev-fc-venue">📍 Hollywood Palladium — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/valentino-khan-2026-11-14-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+      <div class="ev-flyer-card" data-genre="house" data-region="la" data-date="2026-11-27" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/06/19015419/e2504116b77eb8465e4e0acbc15e3ada8e7626ab-420x420.jpeg')">
+      <span class="ev-fc-date">Nov 27</span>
+      <span class="ev-fc-genre">House</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">DEVAULT</div>
+        <div class="ev-fc-venue">📍 Hollywood Palladium — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/devault-2026-11-27-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+      <div class="ev-flyer-card" data-genre="bass" data-region="la" data-date="2026-11-28" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/05/29170455/aZ7o4UqK43dkpxwCIxHmjlDFelMr9tVKfFfFTvMD-420x420.png')">
+      <span class="ev-fc-date">Nov 28</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">RAY VOLPE</div>
+        <div class="ev-fc-venue">📍 The Torch at LA Memorial Coliseum — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/ray-volpe-2026-11-28-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+    </div>
+  <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button>
+
+    </div>
   </div><!-- End November month-section -->
 
   <div class="month-section" id="month-december">
   <div class="month-label" style="display:none">December 2026</div>
   <div class="ev-flyer-grid">
-
-    <div class="ev-flyer-card" data-genre="house techno bass" data-region="la" data-date="2026-12-31">
+      <div class="ev-flyer-card" data-genre="bass" data-region="la" data-date="2026-12-11" style="background-image:url('https://d3vhc53cl8e8km.cloudfront.net/hello-staging/wp-content/uploads/2026/06/25214347/f5lyhzXkBfN3HanbSa7Ev82WhjQTNz4rBLIqZW6d-420x420.png')">
+      <span class="ev-fc-date">Dec 11</span>
+      <span class="ev-fc-genre">Bass / Dubstep</span>
+      <div class="ev-fc-info">
+        <div class="ev-fc-title">VIRTUAL RIOT & BLANKE</div>
+        <div class="ev-fc-venue">📍 Hollywood Palladium — Los Angeles, CA</div>
+      </div>
+      <span class="ev-fc-price">See Link</span>
+      <a href="https://www.insomniac.com/events/virtual-riot-blanke-2026-12-11-los-angeles-ca/" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
+    </div>
+      <div class="ev-flyer-card" data-genre="house techno bass" data-region="la" data-date="2026-12-31">
       <img src="https://exchangela.com/wp-content/uploads/2022/05/Exchange-LA-Troy-Acevedo-4-2-1024x683.jpg" alt="NYE 2027: EXCHANGE LA" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.45;z-index:0;">
       <span class="ev-fc-date">Dec 31</span>
       <span class="ev-fc-genre">House / Techno / Bass</span>
@@ -1418,7 +1485,7 @@
       <span class="ev-fc-price">From $60</span>
       <a href="https://exchangela.com" class="ev-fc-ticket" target="_blank" rel="noopener">Get Tickets</a>
     </div>
-  </div>
+    </div>
   <div class="show-more-wrap"><button class="show-more-btn" onclick="showMoreEvents(this)">Show More Events ↓</button></div>
   </div><!-- End December month-section -->
 
@@ -1635,8 +1702,7 @@
     items.forEach((item, i) => {
       const slide = document.createElement('div');
       slide.className = 'spot-slide' + (i===0?' active':'');
-      if (item.img) slide.style.backgroundImage = "url('" + item.img + "')";
-      const imgSrc = '';
+      const imgSrc = item.img ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="spot-slide-img-fb" style="display:none;color:${color}">${initials(item.name)}</span>` : `<span class="spot-slide-img-fb" style="color:${color}">${initials(item.name)}</span>`;
       slide.innerHTML = `
         <div class="spot-slide-img" style="background:${color}18">${imgSrc}</div>
         <div class="spot-slide-name" style="color:${color}">${item.name}</div>
@@ -1988,7 +2054,9 @@
     <button class="kr-btn" id="kr-play" title="Play / Pause">&#9654;</button>
     <input type="range" id="kr-vol" min="0" max="100" value="10" title="Volume" style="width:52px;accent-color:#00ff88;cursor:pointer;vertical-align:middle;opacity:.8;">
     <button class="kr-btn" id="kr-min" title="Minimize" style="font-size:.7rem;opacity:.45;">&#8212;</button>
-  </div>
+  
+
+    </div>
 </div>
 <iframe id="kil-sc" allow="autoplay"
   src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false"
