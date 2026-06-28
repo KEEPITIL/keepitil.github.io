@@ -19,9 +19,9 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-fil
 .nav-links a:hover,.nav-links a.active{color:#00b4ff;}
 .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
 .nav-cta:hover{opacity:.85;}
-@media(max-width:768px){.nav-links{display:none;}}
+@media(max-width:768px){.nav-links{display:none;}.nav-hamburger{display:flex;}}
 nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
-.nav-hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
 .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue,#00b4ff);border-radius:2px;transition:all .3s;}
 .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
 .nav-hamburger.open span:nth-child(2){opacity:0;}
@@ -103,6 +103,11 @@ footer a{color:#00b4ff;}
 .bk-success{text-align:center;padding:16px 0 8px;}
 .bk-success p{font-size:.95rem;color:rgba(240,240,240,.8);margin-bottom:16px;line-height:1.6;}
 @media(max-width:600px){.bk-section{padding:20px 16px;}}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(15,15,26,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-family:var(--font-head,'Bebas Neue',sans-serif);font-size:40px;letter-spacing:.08em;color:#f0f0f0;transition:color .2s;text-decoration:none;}
+.mobile-menu a:hover{color:#00b4ff;}
+.mobile-menu .nav-cta{color:#00b4ff!important;border:none;padding:12px 0;background:transparent!important;}
 </style>
 
 <link rel="canonical" href="https://keepitil.com/blog-rab3l.html"/>
@@ -163,6 +168,13 @@ footer a{color:#00b4ff;}
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="/artist/" onclick="toggleMenu()">ARTIST</a>
+  <a href="/brand/" onclick="toggleMenu()">BRAND</a>
+  <a href="/culture" onclick="toggleMenu()">CULTURE</a>
+  <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
+  <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -432,6 +444,9 @@ footer a{color:#00b4ff;}
 (function(){function pjaxNav(url){fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});Array.from(document.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')c.parentNode.removeChild(c);});Array.from(doc.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')document.body.appendChild(document.importNode(c,true));});doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
 </script>
 <!-- end KEEPITIL Radio Player -->
+<script>
+function toggleMenu(){var h=document.querySelector('.nav-hamburger');var m=document.getElementById('mobile-menu');if(h)h.classList.toggle('open');if(m)m.classList.toggle('open');}
+</script>
 <script src="/keepitil-ai.js" defer></script>
 </body>
 </html>
