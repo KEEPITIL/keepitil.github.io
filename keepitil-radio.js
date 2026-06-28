@@ -89,6 +89,15 @@
   var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,miniState=false,wakeLock=null;
   var DEFAULT_VOL=5;
   var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — all visitors hear same position
+  var currentTrackIdx=0,currentPosition=0; // kept fresh for beforeunload handoff
+
+  // ── Save playback state before navigating away ────────────────────────────
+  window.addEventListener('beforeunload',function(){
+    if(!widgetReady)return;
+    try{
+      sessionStorage.setItem('kil_hand',JSON.stringify({idx:currentTrackIdx,pos:currentPosition,ts:Date.now(),vol:muted?0:savedVol,muted:muted}));
+    }catch(e){}
+  });
 
   function getVol(){return muted?0:Math.max(0,Math.min(100,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL));}
 
@@ -124,8 +133,30 @@
   });
   setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
 
-  // ── Epoch sync: all visitors hear the same track at the same position ─────
+  // ── Sync: resume from sessionStorage handoff, or fall back to epoch sync ──
   function syncAndPlay(){
+    // ── 1. Try sessionStorage handoff (same-site navigation) ────────────────
+    try{
+      var h=JSON.parse(sessionStorage.getItem('kil_hand')||'null');
+      if(h&&(Date.now()-h.ts)<8000){
+        sessionStorage.removeItem('kil_hand');
+        var elapsed=Date.now()-h.ts;
+        var resumePos=Math.round(h.pos+elapsed);
+        // Restore volume state from previous page
+        if(h.muted){muted=true;if(muteBtn)muteBtn.textContent='🔇';}
+        else{savedVol=h.vol||DEFAULT_VOL;if(volEl)volEl.value=savedVol;}
+        interacted=true; // user was already listening
+        widget.skip(h.idx);
+        widget.setVolume(0);
+        setTimeout(function(){
+          widget.seekTo(resumePos);
+          setTimeout(function(){widget.play();if(!muted)widget.setVolume(getVol());},150);
+        },200);
+        return; // skip epoch calc
+      }
+    }catch(e){}
+
+    // ── 2. Epoch sync fallback: all visitors hear same position ──────────────
     widget.getSounds(function(sounds){
       if(!sounds||!sounds.length){widget.play();return;}
       var durations=[],totalMs=0;
@@ -140,8 +171,8 @@
       widget.setVolume(0);
       setTimeout(function(){
         widget.seekTo(trackOffset);
-        setTimeout(function(){widget.play();if(interacted)widget.setVolume(getVol());},300);
-      },800);
+        setTimeout(function(){widget.play();if(interacted)widget.setVolume(getVol());},200);
+      },400);
     });
   }
 
@@ -149,8 +180,8 @@
     if(!window.SC)return;
     widget=SC.Widget(frame);
     widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);syncAndPlay();});
-    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title&&trackEl)trackEl.textContent=s.title;});});
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){if(interacted&&widget)widget.setVolume(getVol());});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSoundIndex(function(i){currentTrackIdx=i;});widget.getCurrentSound(function(s){if(s&&s.title&&trackEl)trackEl.textContent=s.title;});});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(e){if(e&&e.currentPosition)currentPosition=e.currentPosition;if(interacted&&widget)widget.setVolume(getVol());});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
     widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
     widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
