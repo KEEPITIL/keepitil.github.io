@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#6C63FF"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>SkillVault — Quiz</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --purple: #6C63FF;
+    --purple-light: #EAE9FF;
+    --games:#FF6B6B; --lang:#4ECDC4; --tech:#45B7D1; --howto:#FFA07A;
+    --bg: #F0F2FF; --card: #FFFFFF; --text: #2D3748; --text-muted: #718096;
+    --border: #E2E8F0; --shadow: 0 2px 12px rgba(108,99,255,0.10);
+    --shadow-lg: 0 8px 32px rgba(108,99,255,0.18); --radius: 16px; --nav-height: 72px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    overscroll-behavior: none;
+  }
+  a { text-decoration: none; color: inherit; }
+  button { cursor: pointer; font: inherit; border: none; background: none; }
+
+  /* ─── Layout ─── */
+  .app-shell { max-width: 480px; margin: 0 auto; }
+  @media (min-width: 768px) {
+    body { display: flex; padding-bottom: 0; }
+    .app-shell { max-width: 100%; width: 100%; display: flex; }
+    .sidebar-nav { display: flex !important; }
+    .bottom-nav { display: none !important; }
+    .main-content { margin-left: 220px; flex: 1; max-width: 580px; padding-bottom: 32px; }
+  }
+
+  /* ─── Sidebar ─── */
+  .sidebar-nav {
+    display: none; width: 220px;
+    position: fixed; top: 0; left: 0; height: 100dvh;
+    background: var(--card); border-right: 1px solid var(--border);
+    padding: 20px 12px; flex-direction: column; gap: 4px; z-index: 200;
+  }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 10px 12px 20px; }
+  .sidebar-logo-icon { width: 34px; height: 34px; background: var(--purple); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .sidebar-logo-text { font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 18px; color: var(--purple); }
+  .sidebar-tab { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; color: var(--text-muted); transition: background .15s, color .15s; }
+  .sidebar-tab:hover { background: var(--bg); color: var(--text); }
+  .sidebar-tab.active { background: var(--purple-light); color: var(--purple); }
+
+  /* ─── Top Bar ─── */
+  .top-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(240,242,255,0.96);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    border-bottom: 1px solid rgba(108,99,255,0.08);
+  }
+  .back-btn {
+    width: 38px; height: 38px; background: var(--card);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; box-shadow: var(--shadow); transition: transform .15s;
+  }
+  .back-btn:active { transform: scale(.93); }
+  .top-bar-title {
+    flex: 1;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px;
+  }
+  .top-bar-sub { font-size: 11px; color: var(--text-muted); }
+
+  /* ─── Main Content ─── */
+  .main-content { padding: 16px; }
+
+  /* ─── Setup Screen ─── */
+  #setup-screen {
+    opacity: 0; transform: translateY(12px);
+    animation: fadeUp .4s ease forwards;
+  }
+  .setup-header {
+    text-align: center; padding: 30px 0 24px;
+  }
+  .setup-emoji { font-size: 60px; line-height: 1; margin-bottom: 12px; }
+  .setup-title {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 26px; margin-bottom: 6px;
+  }
+  .setup-sub { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+  .setup-section {
+    background: var(--card); border-radius: 18px; padding: 20px;
+    box-shadow: var(--shadow); margin-bottom: 14px;
+  }
+  .setup-section-label {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px;
+    text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .cat-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .cat-choice {
+    padding: 14px 10px;
+    border-radius: 14px;
+    border: 2px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer;
+    transition: all .15s;
+    background: var(--bg);
+  }
+  .cat-choice .cc-emoji { font-size: 26px; }
+  .cat-choice .cc-label { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 13px; }
+  .cat-choice.selected { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+  .cat-choice.selected .cc-label { color: var(--purple); }
+
+  .count-row { display: flex; gap: 8px; }
+  .count-btn {
+    flex: 1; padding: 12px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 16px;
+    background: var(--bg);
+    transition: all .15s;
+    text-align: center;
+  }
+  .count-btn.selected { border-color: var(--purple); background: var(--purple-light); color: var(--purple); }
+
+  .btn-start {
+    width: 100%;
+    padding: 16px;
+    background: var(--purple);
+    color: #fff;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 17px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(108,99,255,.35);
+    transition: opacity .15s, transform .15s;
+    margin-top: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-start:hover { opacity: .9; }
+  .btn-start:active { transform: scale(.97); }
+  .btn-start:disabled { background: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+
+  /* ─── Quiz Screen ─── */
+  #quiz-screen { display: none; }
+
+  /* ─── Progress ─── */
+  .quiz-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .quiz-counter-text {
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 15px;
+    flex-shrink: 0;
+  }
+  .progress-track {
+    flex: 1; height: 8px;
+    background: var(--border); border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--purple), #a78bfa);
+    transition: width 0.4s ease;
+  }
+  .score-text {
+    font-size: 12px; color: var(--text-muted); font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* ─── Flashcard ─── */
+  .card-scene {
+    perspective: 1400px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .flashcard {
+    width: 100%; min-height: 280px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    border-radius: 22px;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+
+  .card-face {
+    position: absolute; inset: 0;
+    border-radius: 22px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 28px 24px;
+    text-align: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .card-front {
+    background: linear-gradient(145deg, #1a1a3e, #2d1b69);
+    box-shadow: 0 10px 40px rgba(108,99,255,.4);
+  }
+  .card-back {
+    background: linear-gradient(145deg, #1a3a5c, #0f2040);
+    box-shadow: 0 10px 40px rgba(69,183,209,.35);
+    transform: rotateY(180deg);
+  }
+
+  .card-cat-chip {
+    position: absolute; top: 14px; left: 14px;
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+  }
+  .card-cat-chip.games { background: rgba(255,107,107,.2); color: #ff8e8e; }
+  .card-cat-chip.lang  { background: rgba(78,205,196,.2);  color: #6ee7df; }
+  .card-cat-chip.tech  { background: rgba(69,183,209,.2);  color: #6ecfe8; }
+  .card-cat-chip.howto { background: rgba(255,160,122,.2); color: #ffb98a; }
+
+  .card-side-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+    color: rgba(255,255,255,.35); margin-bottom: 12px;
+  }
+  .card-question {
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+    font-size: 18px; color: #fff;
+    line-height: 1.45;
+  }
+  .card-answer {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    font-size: 16px; color: #e2e8f0;
+    line-height: 1.55; white-space: pre-wrap;
+  }
+  .tap-hint {
+    position: absolute; bottom: 14px;
+    font-size: 11px; color: rgba(255,255,255,.25);
+    letter-spacing: .5px;
+  }
+
+  /* ─── Rating Buttons ─── */
+  .rating-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 8px; margin-bottom: 12px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+  }
+  .rating-row.visible { opacity: 1; pointer-events: auto; }
+
+  .rate-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 12px 6px;
+    border-radius: 14px;
+    border: 2px solid transparent;
+    font-family: 'Nunito', sans-serif; font-weight: 800;
+    font-size: 11px; text-align: center;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .rate-btn:active { transform: scale(.93); }
+  .rate-btn .rate-icon { font-size: 22px; line-height: 1; }
+
+  .btn-again { background: #fff5f5; color: #e53e3e; border-color: #fed7d7; }
+  .btn-again:hover  { background: #fed7d7; }
+  .btn-hard  { background: #fffaf0; color: #dd6b20; border-color: #feebc8; }
+  .btn-hard:hover   { background: #feebc8; }
+  .btn-good  { background: #f0fff4; color: #38a169; border-color: #c6f6d5; }
+  .btn-good:hover   { background: #c6f6d5; }
+  .btn-easy  { background: #ebf8ff; color: #3182ce; border-color: #bee3f8; }
+  .btn-easy:hover   { background: #bee3f8; }
+
+  /* ─── Flip prompt ─── */
+  .flip-prompt {
+    text-align: center; padding: 10px 0;
+    font-size: 13px; color: var(--text-muted); font-weight: 600;
+  }
+
+  /* ─── Result Screen ─── */
+  #result-screen { display: none; }
+  .result-wrap {
+    text-align: center; padding: 40px 16px;
+    opacity: 0; transform: translateY(14px);
+    animation: fadeUp .45s ease forwards;
+  }
+  .result-emoji { font-size: 72px; line-height: 1; margin-bottom: 16px; }
+  .result-title {
+    font-family: 'Nunito', sans-serif; font-weight: 900;
+    font-size: 28px; margin-bottom: 8px;
+  }
+  .result-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.5; }
+
+  .score-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 28px;
+  }
+  .score-box {
+    padding: 14px 8px; border-radius: 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .score-box .s-num {
+    font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 24px; line-height: 1;
+  }
+  .score-box .s-lbl { font-size: 11px; font-weight: 700; }
+  .score-box.again { background: #fff5f5; color: #e53e3e; }
+  .score-box.hard  { background: #fffaf0; color: #dd6b20; }
+  .score-box.good  { background: #f0fff4; color: #38a169; }
+  .score-box.easy  { background: #ebf8ff; color: #3182ce; }
+
+  .result-actions { display: flex; flex-direction: column; gap: 10px; }
+  .btn-again-quiz {
+    padding: 16px;
+    background: var(--purple);
+    color: #fff;
+    font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 16px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(108,99,255,.3);
+    transition: opacity .15s, transform .15s;
+  }
+  .btn-again-quiz:hover { opacity: .9; }
+  .btn-again-quiz:active { transform: scale(.97); }
+  .btn-home-quiz {
+    padding: 14px;
+    background: var(--card);
+    color: var(--text-muted);
+    font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 15px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: background .15s;
+  }
+  .btn-home-quiz:hover { background: var(--bg); color: var(--text); }
+
+  /* ─── Bottom Nav ─── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: rgba(255,255,255,.97);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 100;
+  }
+  .nav-tab {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; padding: 10px 0 8px;
+    text-decoration: none; color: var(--text-muted);
+    font-size: 10px; font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    text-transform: uppercase; letter-spacing: .3px;
+    transition: color .15s;
+  }
+  .nav-icon { font-size: 22px; }
+  .nav-tab.active { color: var(--purple); }
+
+  /* ─── Swipe hint ─── */
+  .swipe-hint {
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    padding: 10px 0 4px;
+    font-size: 11px; color: var(--text-muted); font-weight: 600;
+  }
+  .swipe-hint span { opacity: .6; }
+
+  @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── Card entrance animation ─── */
+  @keyframes cardIn {
+    from { opacity: 0; transform: scale(.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .card-scene.animate { animation: cardIn .35s ease; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar Nav (Desktop) -->
+<nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="sidebar-logo">
+    <span class="sidebar-logo-icon">⚡</span>
+    <span class="sidebar-logo-text">SkillVault</span>
+  </a>
+  <a href="index.html"       class="sidebar-tab">🏠 Home</a>
+  <a href="index.html#search" class="sidebar-tab">🔍 Search</a>
+  <a href="add.html"         class="sidebar-tab">➕ Add Skill</a>
+  <a href="quiz.html"        class="sidebar-tab active">🎯 Quiz</a>
+</nav>
+
+<div class="app-shell">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <a href="index.html" class="back-btn">←</a>
+    <div style="flex:1">
+      <div class="top-bar-title">🎯 Quiz Mode</div>
+      <div class="top-bar-sub" id="top-bar-sub">Flashcard review</div>
+    </div>
+  </header>
+
+  <!-- SETUP SCREEN -->
+  <main class="main-content" id="setup-screen">
+    <div class="setup-header">
+      <div class="setup-emoji">🧠</div>
+      <div class="setup-title">Ready to quiz?</div>
+      <div class="setup-sub">Flip cards, rate how well you knew it,<br>and build your memory muscle.</div>
+    </div>
+
+    <!-- Category picker -->
+    <div class="setup-section">
+      <div class="setup-section-label">📂 Category</div>
+      <div class="cat-choice-grid">
+        <button class="cat-choice selected" data-cat="all">
+          <span class="cc-emoji">⚡</span>
+          <span class="cc-label">All</span>
+        </button>
+        <button class="cat-choice" data-cat="games">
+          <span class="cc-emoji">🎮</span>
+          <span class="cc-label">Games</span>
+        </button>
+        <button class="cat-choice" data-cat="lang">
+          <span class="cc-emoji">🌍</span>
+          <span class="cc-label">Languages</span>
+        </button>
+        <button class="cat-choice" data-cat="tech">
+          <span class="cc-emoji">🔧</span>
+          <span class="cc-label">Tech Help</span>
+        </button>
+        <button class="cat-choice" data-cat="howto">
+          <span class="cc-emoji">📚</span>
+          <span class="cc-label">How-To</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Card count -->
+    <div class="setup-section">
+      <div class="setup-section-label">🃏 Cards per session</div>
+      <div class="count-row">
+        <button class="count-btn" data-count="5">5</button>
+        <button class="count-btn selected" data-count="10">10</button>
+        <button class="count-btn" data-count="20">20</button>
+        <button class="count-btn" data-count="all">All</button>
+      </div>
+    </div>
+
+    <button class="btn-start" id="start-btn" onclick="startQuiz()">
+      🚀 Start Quiz
+    </button>
+  </main>
+
+  <!-- QUIZ SCREEN -->
+  <main class="main-content" id="quiz-screen">
+    <!-- Progress Bar -->
+    <div class="quiz-header">
+      <div class="quiz-counter-text" id="counter-text">1 / 10</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="score-text" id="score-text">0 ✓</div>
+    </div>
+
+    <!-- Flashcard -->
+    <div class="card-scene" id="card-scene" onclick="flipCard()" role="button" aria-label="Flip flashcard" tabindex="0">
+      <div class="flashcard" id="flashcard">
+        <div class="card-face card-front">
+          <span class="card-cat-chip" id="card-cat-chip">Games</span>
+          <div class="card-side-label">QUESTION</div>
+          <div class="card-question" id="card-question">Loading...</div>
+          <div class="tap-hint">Tap to reveal answer</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="card-side-label">ANSWER</div>
+          <div class="card-answer" id="card-answer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Flip prompt -->
+    <div class="flip-prompt" id="flip-prompt">👆 Tap the card to see the answer</div>
+
+    <!-- Rating buttons (shown after flip) -->
+    <div class="rating-row" id="rating-row">
+      <button class="rate-btn btn-again" onclick="rate('again')">
+        <span class="rate-icon">😣</span>Again
+      </button>
+      <button class="rate-btn btn-hard" onclick="rate('hard')">
+        <span class="rate-icon">😅</span>Hard
+      </button>
+      <button class="rate-btn btn-good" onclick="rate('good')">
+        <span class="rate-icon">😊</span>Good
+      </button>
+      <button class="rate-btn btn-easy" onclick="rate('easy')">
+        <span class="rate-icon">😎</span>Easy
+      </button>
+    </div>
+
+    <!-- Swipe hint -->
+    <div class="swipe-hint">
+      <span>← Again</span>
+      <span style="font-size:13px;opacity:.4">swipe or tap rating</span>
+      <span>Easy →</span>
+    </div>
+
+    <!-- Skip/Quit row -->
+    <div style="display:flex;gap:10px;margin-top:4px;">
+      <button onclick="rate('skip')" style="flex:1;padding:10px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--text-muted);">Skip →</button>
+      <button onclick="endQuiz()" style="flex:1;padding:10px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--text-muted);">End Quiz</button>
+    </div>
+  </main>
+
+  <!-- RESULT SCREEN -->
+  <main class="main-content" id="result-screen">
+    <div class="result-wrap" id="result-wrap">
+      <div class="result-emoji" id="result-emoji">🎉</div>
+      <div class="result-title" id="result-title">Quiz Complete!</div>
+      <div class="result-sub" id="result-sub">Great work reviewing your skills.</div>
+
+      <div class="score-grid">
+        <div class="score-box again">
+          <div class="s-num" id="res-again">0</div>
+          <div class="s-lbl">😣 Again</div>
+        </div>
+        <div class="score-box hard">
+          <div class="s-num" id="res-hard">0</div>
+          <div class="s-lbl">😅 Hard</div>
+        </div>
+        <div class="score-box good">
+          <div class="s-num" id="res-good">0</div>
+          <div class="s-lbl">😊 Good</div>
+        </div>
+        <div class="score-box easy">
+          <div class="s-num" id="res-easy">0</div>
+          <div class="s-lbl">😎 Easy</div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-again-quiz" onclick="showSetup()">🔄 Quiz Again</button>
+        <a href="index.html" class="btn-home-quiz">🏠 Back to Home</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-tab"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="index.html#search" class="nav-tab"><span class="nav-icon">🔍</span><span>Search</span></a>
+    <a href="add.html" class="nav-tab"><span class="nav-icon">➕</span><span>Add</span></a>
+    <a href="quiz.html" class="nav-tab active"><span class="nav-icon">🎯</span><span>Quiz</span></a>
+  </nav>
+</div>
+
+<script src="app.js"></script>
+<script>
+/* ─── State ─── */
+let selectedCat   = 'all';
+let selectedCount = 10;
+let deck          = [];
+let currentIdx    = 0;
+let isFlipped     = false;
+let scores        = { again: 0, hard: 0, good: 0, easy: 0, skip: 0 };
+let touchStartX   = 0;
+
+/* ─── Category metadata ─── */
+const CAT_META = {
+  games: { label: 'Games', emoji: '🎮' },
+  lang:  { label: 'Languages', emoji: '🌍' },
+  tech:  { label: 'Tech Help', emoji: '🔧' },
+  howto: { label: 'How-To', emoji: '📚' },
+};
+
+/* ─── Init ─── */
+SkillVault.seed();
+
+/* Pre-select from URL param ?cat=games */
+const urlCat = new URLSearchParams(location.search).get('cat');
+if (urlCat && urlCat !== 'all') {
+  selectedCat = urlCat;
+  document.querySelectorAll('.cat-choice').forEach(b => {
+    b.classList.toggle('selected', b.dataset.cat === urlCat);
+  });
+}
+
+/* ─── Setup interactions ─── */
+document.querySelectorAll('.cat-choice').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedCat = btn.dataset.cat;
+    document.querySelectorAll('.cat-choice').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    updateStartBtn();
+  });
+});
+
+document.querySelectorAll('.count-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedCount = btn.dataset.count === 'all' ? 9999 : parseInt(btn.dataset.count);
+    document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  });
+});
+
+function updateStartBtn() {
+  const deck = buildDeck();
+  const btn = document.getElementById('start-btn');
+  if (deck.length === 0) {
+    btn.disabled = true;
+    btn.textContent = 'No skills in this category';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = `🚀 Start Quiz (${Math.min(deck.length, selectedCount === 9999 ? deck.length : selectedCount)} cards)`;
+  }
+}
+
+function buildDeck() {
+  const raw = selectedCat === 'all' ? SkillVault.getAll() : SkillVault.getByCategory(selectedCat);
+  return SkillVault.shuffle(raw.map(s => ({
+    id: s.id, cat: s.cat, title: s.title,
+    front: s.front || s.title,
+    back: s.back || (s.body || '').trim().slice(0, 300),
+  })));
+}
+
+/* ─── Start Quiz ─── */
+function startQuiz() {
+  deck = buildDeck().slice(0, selectedCount === 9999 ? 999 : selectedCount);
+  if (deck.length === 0) return;
+
+  currentIdx = 0;
+  scores = { again: 0, hard: 0, good: 0, easy: 0, skip: 0 };
+  isFlipped = false;
+
+  document.getElementById('setup-screen').style.display  = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display   = 'block';
+
+  const catLabel = selectedCat === 'all' ? 'All categories' : (CAT_META[selectedCat]?.label || selectedCat);
+  document.getElementById('top-bar-sub').textContent = `${catLabel} · ${deck.length} cards`;
+
+  showCard();
+}
+
+/* ─── Show current card ─── */
+function showCard() {
+  if (currentIdx >= deck.length) { endQuiz(); return; }
+
+  const card = deck[currentIdx];
+  isFlipped = false;
+
+  const fc = document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+
+  // Reset card entrance animation
+  const scene = document.getElementById('card-scene');
+  scene.classList.remove('animate');
+  void scene.offsetWidth; // reflow
+  scene.classList.add('animate');
+
+  // Set content
+  const chip = document.getElementById('card-cat-chip');
+  chip.textContent = `${CAT_META[card.cat]?.emoji || '⚡'} ${CAT_META[card.cat]?.label || card.cat}`;
+  chip.className = `card-cat-chip ${card.cat}`;
+  document.getElementById('card-question').textContent = card.front;
+  document.getElementById('card-answer').textContent   = card.back;
+
+  // Progress
+  const pct = (currentIdx / deck.length) * 100;
+  document.getElementById('progress-fill').style.width  = pct + '%';
+  document.getElementById('counter-text').textContent   = `${currentIdx + 1} / ${deck.length}`;
+  const done = scores.good + scores.easy;
+  document.getElementById('score-text').textContent     = `${done} ✓`;
+
+  // Hide rating buttons until flipped
+  document.getElementById('rating-row').classList.remove('visible');
+  document.getElementById('flip-prompt').style.opacity = '1';
+}
+
+/* ─── Flip card ─── */
+function flipCard() {
+  if (isFlipped) return;
+  isFlipped = true;
+  document.getElementById('flashcard').classList.add('flipped');
+  document.getElementById('rating-row').classList.add('visible');
+  document.getElementById('flip-prompt').style.opacity = '0.3';
+}
+
+/* ─── Rate card ─── */
+function rate(rating) {
+  if (rating !== 'skip' && !isFlipped) { flipCard(); return; }
+  if (scores[rating] !== undefined) scores[rating]++;
+  currentIdx++;
+  if (currentIdx >= deck.length) { endQuiz(); return; }
+  setTimeout(showCard, 120);
+}
+
+/* ─── End quiz ─── */
+function endQuiz() {
+  document.getElementById('quiz-screen').style.display   = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+
+  const total = deck.length;
+  const mastered = scores.good + scores.easy;
+  const pct = total > 0 ? Math.round(mastered / total * 100) : 0;
+
+  let emoji, title, sub;
+  if (pct >= 90)      { emoji='🏆'; title='Crushing it!';   sub=`You nailed ${mastered} of ${total} cards. You're a master.`; }
+  else if (pct >= 70) { emoji='🎉'; title='Nice work!';     sub=`${mastered} of ${total} cards mastered. Keep it up!`; }
+  else if (pct >= 50) { emoji='💪'; title='Getting there!'; sub=`${mastered} of ${total} good/easy. A few more reps will lock it in.`; }
+  else                { emoji='📚'; title='Keep grinding!'; sub=`${mastered} of ${total} mastered — but that's why we practice!`; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-sub').textContent   = sub;
+  document.getElementById('res-again').textContent    = scores.again;
+  document.getElementById('res-hard').textContent     = scores.hard;
+  document.getElementById('res-good').textContent     = scores.good;
+  document.getElementById('res-easy').textContent     = scores.easy;
+
+  // Reanimate
+  const rw = document.getElementById('result-wrap');
+  rw.style.animation = 'none';
+  void rw.offsetWidth;
+  rw.style.animation = '';
+}
+
+/* ─── Show setup again ─── */
+function showSetup() {
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display   = 'none';
+  document.getElementById('setup-screen').style.display  = 'block';
+  updateStartBtn();
+}
+
+/* ─── Swipe gestures (left=again, right=easy) ─── */
+const cardScene = document.getElementById('card-scene');
+cardScene.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+cardScene.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if (!isFlipped && Math.abs(dx) < 60) return;
+  if (Math.abs(dx) < 60) return;
+  if (!isFlipped) { flipCard(); return; }
+  rate(dx < 0 ? 'again' : 'easy');
+}, { passive: true });
+
+/* ─── Keyboard shortcuts ─── */
+document.addEventListener('keydown', e => {
+  if (document.getElementById('quiz-screen').style.display === 'none') return;
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+  if (isFlipped) {
+    if (e.key === '1') rate('again');
+    if (e.key === '2') rate('hard');
+    if (e.key === '3') rate('good');
+    if (e.key === '4') rate('easy');
+    if (e.key === 'ArrowLeft') rate('again');
+    if (e.key === 'ArrowRight') rate('easy');
+  }
+});
+
+/* ─── Initial state of start btn ─── */
+updateStartBtn();
+</script>
+
+</body>
+</html>
