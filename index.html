@@ -2966,7 +2966,11 @@
 
 <!-- ♬ KEEPITIL Radio Bar -->
 <style data-kil="player">
-#kil-radio{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:9998;background:rgba(6,6,6,.97);border-top:1px solid rgba(0,255,136,.2);box-shadow:0 -2px 24px rgba(0,0,0,.7);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;display:flex;align-items:center;padding:0 16px;gap:12px;overflow:hidden;}
+#kil-radio{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:9998;background:rgba(6,6,6,.97);border-top:1px solid rgba(0,255,136,.2);box-shadow:0 -2px 24px rgba(0,0,0,.7);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;display:flex;align-items:center;padding:0 16px;gap:12px;overflow:hidden;transition:bottom .3s,left .3s,right .3s,width .3s,height .3s,border-radius .3s,border .3s,padding .3s,box-shadow .3s;}
+#kil-radio.kil-mini{bottom:20px!important;left:auto!important;right:24px!important;width:58px!important;height:58px!important;border-radius:50%!important;border:2px solid rgba(0,255,136,.3)!important;border-top:2px solid rgba(0,255,136,.3)!important;box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 20px rgba(0,255,136,.08)!important;cursor:pointer!important;padding:0!important;justify-content:center!important;gap:0!important;}
+#kil-mini-dot{display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.5rem;color:#00ff88;animation:kil-blink 2s ease-in-out infinite;}
+#kil-radio.kil-mini #kil-mini-dot{display:flex!important;}
+#kil-radio.kil-mini .kil-live,#kil-radio.kil-mini .kil-brand,#kil-radio.kil-mini .kil-divider,#kil-radio.kil-mini #kil-track,#kil-radio.kil-mini .kr-controls,#kil-radio.kil-mini .kil-submit,#kil-radio.kil-mini #kr-toggle{display:none!important;}
 .kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}
 .kil-live.off{background:#444;box-shadow:none;animation:none;}
 @keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}
@@ -2980,13 +2984,22 @@
 .kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.85rem;line-height:1;padding:2px 4px;transition:opacity .2s;flex-shrink:0;}
 .kr-btn:hover{opacity:.6;}
 #kr-vol{width:60px;accent-color:#00ff88;cursor:pointer;opacity:.75;vertical-align:middle;}
+#kr-toggle{margin-left:auto;font-size:.7rem!important;opacity:.35!important;}
 .kil-submit{font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(0,180,255,.8);text-decoration:none;border:1px solid rgba(0,180,255,.28);border-radius:3px;padding:3px 9px;transition:all .2s;white-space:nowrap;flex-shrink:0;}
 .kil-submit:hover{color:#00b4ff;border-color:#00b4ff;background:rgba(0,180,255,.07);}
 #kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}
+/* Echo stays above radio bar (open state) */
+#kilo-btn{bottom:66px!important;}
+#kilo-panel{bottom:134px!important;}
+/* Echo repositions above mini icon (same size, stacked) */
+.radio-mini #kilo-btn{bottom:88px!important;right:24px!important;}
+.radio-mini #kilo-panel{bottom:156px!important;right:24px!important;}
 @media(max-width:600px){#kil-track{display:none;}.kil-submit{display:none;}#kr-vol{width:46px;}}
+@media(max-width:480px){.radio-mini #kilo-btn{bottom:88px!important;right:16px!important;}.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}
 </style>
 
 <div id="kil-radio">
+  <div id="kil-mini-dot">♬</div>
   <div class="kil-live off" id="kil-led"></div>
   <div class="kil-brand">
     <span class="kil-brand-live">LIVE</span>
@@ -2998,9 +3011,9 @@
   <div class="kr-controls">
     <button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>
     <input type="range" id="kr-vol" min="0" max="100" value="5" title="Volume"/>
-    <button class="kr-btn" id="kr-play" title="Play" style="display:none;font-size:.75rem;opacity:.55;">▶</button>
   </div>
   <a href="/signup.html" class="kil-submit" target="_blank">🎵 Play your song?</a>
+  <button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>
 </div>
 <iframe id="kil-sc" allow="autoplay"
   src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false"
@@ -3008,25 +3021,41 @@
 <script>
 (function(){
   if(window.__kilRadioInit)return;window.__kilRadioInit=true;
+  var radio=document.getElementById('kil-radio');
   var frame=document.getElementById('kil-sc');
   var led=document.getElementById('kil-led');
   var trackEl=document.getElementById('kil-track');
-  var playBtn=document.getElementById('kr-play');
   var muteBtn=document.getElementById('kr-mute');
   var volEl=document.getElementById('kr-vol');
-  var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,wakeLock=null;
+  var toggleBtn=document.getElementById('kr-toggle');
+  var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,miniState=false,wakeLock=null;
   var DEFAULT_VOL=5;
-  var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — global clock so all visitors hear same position
+  var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — global clock, all visitors hear same position
 
   function getVol(){return muted?0:Math.max(0,Math.min(100,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL));}
-  function goLive(){led.classList.remove('off');playing=true;if(playBtn)playBtn.style.display='none';}
-  function goOff(){led.classList.add('off');playing=false;if(playBtn){playBtn.textContent='▶';playBtn.style.display='inline-block';}}
+
+  // ── Mini / expand toggle ──────────────────────────────────────────────────
+  function setMini(on){
+    miniState=on;
+    if(on){radio.classList.add('kil-mini');document.body.classList.add('radio-mini');}
+    else{radio.classList.remove('kil-mini');document.body.classList.remove('radio-mini');}
+    try{localStorage.setItem('kil_radio_mini',on?'1':'0');}catch(e){}
+  }
+  try{if(localStorage.getItem('kil_radio_mini')==='1')setMini(true);}catch(e){}
+  if(toggleBtn){toggleBtn.addEventListener('click',function(e){e.stopPropagation();setMini(true);});}
+  radio.addEventListener('click',function(){if(miniState)setMini(false);});
+
+  // ── LED state (music always plays — LED just shows stream status) ─────────
+  function goLive(){led.classList.remove('off');playing=true;}
+  function goOff(){led.classList.add('off');playing=false;} // volume=0 OR browser blocked autoplay; music resumes automatically
+
   function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(getVol());if(!playing)widget.play();}
   function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
   reListenGesture();
 
   function requestWakeLock(){if(!('wakeLock'in navigator))return;navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;});}).catch(function(){});}
   requestWakeLock();
+  // Keepalive: resume if browser paused (tab sleep, autoplay block, etc.) — 24/7 radio never stops
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},500);}}});
   setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
 
@@ -3062,13 +3091,27 @@
   }
   var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
 
-  if(muteBtn){muteBtn.addEventListener('click',function(){if(!widget||!widgetReady){interacted=true;return;}
+  // MUTE: sets volume to 0 ONLY — never pauses or stops playback (24/7 radio)
+  if(muteBtn){muteBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(!widget||!widgetReady){interacted=true;return;}
     interacted=true;
-    if(muted){muted=false;muteBtn.textContent='🔊';widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;}
-    else{savedVol=getVol()||DEFAULT_VOL;muted=true;muteBtn.textContent='🔇';widget.setVolume(0);}
+    if(muted){
+      muted=false;muteBtn.textContent='🔊';
+      widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;
+    } else {
+      savedVol=Math.max(1,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL);
+      muted=true;muteBtn.textContent='🔇';
+      widget.setVolume(0); // volume only — track keeps playing silently
+    }
   });}
-  if(volEl){volEl.addEventListener('input',function(){if(widget&&widgetReady){interacted=true;savedVol=parseInt(this.value);muted=false;if(muteBtn)muteBtn.textContent='🔊';widget.setVolume(savedVol);}});}
-  if(playBtn){playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(getVol());if(playing)widget.pause();else widget.play();});}
+  if(volEl){volEl.addEventListener('input',function(){
+    if(widget&&widgetReady){
+      interacted=true;savedVol=parseInt(this.value);
+      muted=false;if(muteBtn)muteBtn.textContent='🔊';
+      widget.setVolume(savedVol);
+    }
+  });}
 })();
 (function(){function pjaxNav(url){fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});Array.from(document.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')c.parentNode.removeChild(c);});Array.from(doc.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')document.body.appendChild(document.importNode(c,true));});doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
 </script>
