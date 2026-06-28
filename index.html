@@ -2964,59 +2964,63 @@
   showActiveMonth();
 </script>
 
-<!-- ♬ KEEPITIL Radio Player -->
+<!-- ♬ KEEPITIL Radio Bar -->
 <style data-kil="player">
-#kil-radio{position:fixed;bottom:20px;right:20px;z-index:9998;background:rgba(6,6,6,.97);border:1px solid rgba(0,255,136,.3);border-radius:10px;box-shadow:0 4px 40px rgba(0,0,0,.7),0 0 30px rgba(0,255,136,.07);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;transition:width .3s,height .3s,border-radius .3s;overflow:hidden;}
-#kil-radio.kil-mini{width:44px!important;height:44px!important;min-width:0!important;border-radius:50%;cursor:pointer;}
-#kil-radio.kil-mini #kil-bar{display:none!important;}
-#kil-radio.kil-mini #kil-dot{display:flex!important;}
-#kil-dot{display:none;width:44px;height:44px;align-items:center;justify-content:center;color:#00ff88;font-size:1.15rem;}
-#kil-bar{display:flex;align-items:center;gap:9px;padding:10px 13px;min-width:230px;}
+#kil-radio{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:9998;background:rgba(6,6,6,.97);border-top:1px solid rgba(0,255,136,.2);box-shadow:0 -2px 24px rgba(0,0,0,.7);backdrop-filter:blur(18px);font-family:'Space Grotesk','Inter',sans-serif;display:flex;align-items:center;padding:0 16px;gap:12px;overflow:hidden;}
 .kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}
 .kil-live.off{background:#444;box-shadow:none;animation:none;}
 @keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}
-#kil-label{font-size:.6rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#00ff88;flex-shrink:0;}
-#kil-track{font-size:.67rem;color:rgba(255,255,255,.42);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
-.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.9rem;line-height:1;padding:2px 3px;transition:opacity .2s;flex-shrink:0;}
+.kil-brand{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.kil-brand-live{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}
+.kil-brand-logo{height:18px;width:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 4px #00ff88);}
+.kil-brand-radio{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}
+.kil-divider{color:rgba(255,255,255,.18);font-size:.75rem;flex-shrink:0;}
+#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.kr-controls{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.85rem;line-height:1;padding:2px 4px;transition:opacity .2s;flex-shrink:0;}
 .kr-btn:hover{opacity:.6;}
+#kr-vol{width:60px;accent-color:#00ff88;cursor:pointer;opacity:.75;vertical-align:middle;}
+.kil-submit{font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(0,180,255,.8);text-decoration:none;border:1px solid rgba(0,180,255,.28);border-radius:3px;padding:3px 9px;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.kil-submit:hover{color:#00b4ff;border-color:#00b4ff;background:rgba(0,180,255,.07);}
 #kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}
+@media(max-width:600px){#kil-track{display:none;}.kil-submit{display:none;}#kr-vol{width:46px;}}
 </style>
 
 <div id="kil-radio">
-  <div id="kil-dot" title="KEEPITIL Radio">&#9836;</div>
-  <div id="kil-bar">
-    <div class="kil-live off" id="kil-led"></div>
-    <span id="kil-label">LIVE</span>
-    <span id="kil-track">KEEPITIL RADIO</span>
-    <button class="kr-btn" id="kr-play" title="Play / Pause">&#9654;</button>
-    <input type="range" id="kr-vol" min="0" max="100" value="10" title="Volume" style="width:52px;accent-color:#00ff88;cursor:pointer;vertical-align:middle;opacity:.8;">
-    <button class="kr-btn" id="kr-min" title="Minimize" style="font-size:.7rem;opacity:.45;">&#8212;</button>
-  
-
-    </div>
+  <div class="kil-live off" id="kil-led"></div>
+  <div class="kil-brand">
+    <span class="kil-brand-live">LIVE</span>
+    <img src="/logo-blue-nav.png" class="kil-brand-logo" alt="KEEPITIL"/>
+    <span class="kil-brand-radio">RADIO</span>
+  </div>
+  <span class="kil-divider">·</span>
+  <span id="kil-track">Loading...</span>
+  <div class="kr-controls">
+    <button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>
+    <input type="range" id="kr-vol" min="0" max="100" value="5" title="Volume"/>
+    <button class="kr-btn" id="kr-play" title="Play" style="display:none;font-size:.75rem;opacity:.55;">▶</button>
+  </div>
+  <a href="/signup.html" class="kil-submit" target="_blank">🎵 Play your song?</a>
 </div>
 <iframe id="kil-sc" allow="autoplay"
   src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false"
   scrolling="no" frameborder="no"></iframe>
 <script>
 (function(){
-  if(window.__kilRadioInit) return; window.__kilRadioInit=true;
-  var radio=document.getElementById('kil-radio');
+  if(window.__kilRadioInit)return;window.__kilRadioInit=true;
   var frame=document.getElementById('kil-sc');
   var led=document.getElementById('kil-led');
   var trackEl=document.getElementById('kil-track');
   var playBtn=document.getElementById('kr-play');
-  var minBtn=document.getElementById('kr-min');
-  var dot=document.getElementById('kil-dot');
-  var widget=null,playing=false,mini=false,interacted=false,widgetReady=false,wakeLock=null;
-  var _ss=null;try{_ss=sessionStorage;}catch(e){}
-  var DEFAULT_VOL=10;function getVol(){var v=document.getElementById('kr-vol');return v?Math.max(0,Math.min(100,parseInt(v.value)||DEFAULT_VOL)):DEFAULT_VOL;}
-  function ss_get(k){try{return _ss&&_ss.getItem(k);}catch(e){return null;}}
-  function ss_set(k,v){try{if(_ss)_ss.setItem(k,v);}catch(e){}}
-  if(ss_get('kil_mini')==='1'){mini=true;radio.classList.add('kil-mini');}
+  var muteBtn=document.getElementById('kr-mute');
+  var volEl=document.getElementById('kr-vol');
+  var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,wakeLock=null;
+  var DEFAULT_VOL=5;
+  var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — global clock so all visitors hear same position
 
-  function goLive(){led.classList.remove('off');playBtn.textContent='⏸';playing=true;}
-  function goOff(){led.classList.add('off');playBtn.textContent='▶';playing=false;}
+  function getVol(){return muted?0:Math.max(0,Math.min(100,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL));}
+  function goLive(){led.classList.remove('off');playing=true;if(playBtn)playBtn.style.display='none';}
+  function goOff(){led.classList.add('off');playing=false;if(playBtn){playBtn.textContent='▶';playBtn.style.display='inline-block';}}
   function unmute(){interacted=true;if(!widget||!widgetReady)return;widget.setVolume(getVol());if(!playing)widget.play();}
   function reListenGesture(){['mousemove','scroll','touchstart','keydown'].forEach(function(ev){document.addEventListener(ev,unmute,{passive:true,once:true});});}
   reListenGesture();
@@ -3026,27 +3030,49 @@
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'){requestWakeLock();if(widget&&widgetReady&&interacted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},500);}}});
   setInterval(function(){if(!widget||!widgetReady||!interacted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
 
+  function syncAndPlay(){
+    widget.getSounds(function(sounds){
+      if(!sounds||!sounds.length){widget.play();return;}
+      var durations=[],totalMs=0;
+      for(var i=0;i<sounds.length;i++){var d=sounds[i].duration||240000;durations.push(d);totalMs+=d;}
+      var offset=(Date.now()-SYNC_EPOCH)%totalMs;
+      var cumulative=0,trackIndex=0,trackOffset=0;
+      for(var j=0;j<durations.length;j++){
+        if(offset<cumulative+durations[j]){trackIndex=j;trackOffset=offset-cumulative;break;}
+        cumulative+=durations[j];
+      }
+      widget.skip(trackIndex);
+      widget.setVolume(0);
+      setTimeout(function(){
+        widget.seekTo(trackOffset);
+        setTimeout(function(){widget.play();if(interacted)widget.setVolume(getVol());},300);
+      },800);
+    });
+  }
+
   function initWidget(){
     if(!window.SC)return;
     widget=SC.Widget(frame);
-    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);var t=parseInt(ss_get('kil_t')||'0')||0,p=parseInt(ss_get('kil_p')||'0')||0;if(t>0){widget.skip(t);if(p>0)setTimeout(function(){widget.seekTo(p);},600);}else{widget.play();}if(interacted)widget.setVolume(getVol());});
-    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});widget.getCurrentSoundIndex(function(i){ss_set('kil_t',i);});});
-    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(pos){if(interacted&&widget)widget.setVolume(getVol());if(pos&&pos.currentPosition>5000)ss_set('kil_p',pos.currentPosition);});
+    widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);syncAndPlay();});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSound(function(s){if(s&&s.title)trackEl.textContent=s.title;});});
+    widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(){if(interacted&&widget)widget.setVolume(getVol());});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
     widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
     widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
   }
   var scApi=document.createElement('script');scApi.src='https://w.soundcloud.com/player/api.js';scApi.onload=initWidget;document.head.appendChild(scApi);
 
-  playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(getVol());if(playing)widget.pause();else widget.play();});
-  var volEl=document.getElementById('kr-vol');if(volEl){volEl.addEventListener('input',function(){if(widget&&widgetReady){interacted=true;widget.setVolume(parseInt(this.value));}});}
-  minBtn.addEventListener('click',function(e){e.stopPropagation();mini=true;radio.classList.add('kil-mini');ss_set('kil_mini','1');});
-  function expand(){if(mini){mini=false;radio.classList.remove('kil-mini');ss_set('kil_mini','0');}}
-  dot.addEventListener('click',expand);radio.addEventListener('click',expand);
+  if(muteBtn){muteBtn.addEventListener('click',function(){if(!widget||!widgetReady){interacted=true;return;}
+    interacted=true;
+    if(muted){muted=false;muteBtn.textContent='🔊';widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;}
+    else{savedVol=getVol()||DEFAULT_VOL;muted=true;muteBtn.textContent='🔇';widget.setVolume(0);}
+  });}
+  if(volEl){volEl.addEventListener('input',function(){if(widget&&widgetReady){interacted=true;savedVol=parseInt(this.value);muted=false;if(muteBtn)muteBtn.textContent='🔊';widget.setVolume(savedVol);}});}
+  if(playBtn){playBtn.addEventListener('click',function(){if(!widget||!widgetReady)return;interacted=true;widget.setVolume(getVol());if(playing)widget.pause();else widget.play();});}
 })();
 (function(){function pjaxNav(url){fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});Array.from(document.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')c.parentNode.removeChild(c);});Array.from(doc.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')document.body.appendChild(document.importNode(c,true));});doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
 </script>
-<!-- end KEEPITIL Radio Player -->
+<!-- end KEEPITIL Radio Bar -->
 <script src="/keepitil-ai.js" defer></script>
 </body>
 </html>
