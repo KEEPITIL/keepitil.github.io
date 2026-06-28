@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#6C63FF"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>SkillVault</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --purple: #6C63FF;
+    --bg: #F0F2FF;
+    --games: #FF6B6B;
+    --languages: #4ECDC4;
+    --tech: #45B7D1;
+    --howto: #FFA07A;
+    --white: #ffffff;
+    --text: #1a1a2e;
+    --muted: #8892a4;
+    --radius: 16px;
+    --shadow: 0 4px 20px rgba(108,99,255,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    padding-bottom: 80px;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .topbar-back {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    color: var(--purple);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .topbar-title {
+    flex: 1;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .topbar-edit {
+    background: var(--bg);
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: var(--purple);
+    flex-shrink: 0;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--white);
+    padding: 28px 20px 24px;
+    text-align: center;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .hero-emoji {
+    font-size: 56px;
+    display: block;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+  .category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    color: var(--white);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .subcategory-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .hero-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .tag-pill {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--purple);
+  }
+  .hero-dates {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ACTION BUTTONS */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 16px 16px;
+  }
+  .action-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 6px;
+    background: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .action-btn:active { transform: scale(0.96); }
+  .action-btn .btn-icon { font-size: 22px; line-height: 1; }
+  .action-btn.delete-btn { color: #e74c3c; }
+  .action-btn.pin-btn.pinned { color: var(--purple); }
+
+  /* SECTION CARD */
+  .section-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    margin: 0 16px 16px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* FLASHCARD */
+  .flashcard-wrapper {
+    perspective: 800px;
+    width: 100%;
+    height: 180px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  .flashcard-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+  }
+  .flashcard-inner.flipped { transform: rotateY(180deg); }
+  .flashcard-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+  }
+  .flashcard-front {
+    background: linear-gradient(135deg, var(--purple) 0%, #8b80ff 100%);
+    color: var(--white);
+  }
+  .flashcard-back {
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 100%);
+    color: var(--white);
+    transform: rotateY(180deg);
+  }
+  .flashcard-face-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .flashcard-face-text {
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .flashcard-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* BODY CONTENT */
+  .body-content { font-size: 15px; line-height: 1.7; color: var(--text); }
+  .body-content p { margin-bottom: 12px; }
+  .body-content ul { margin-left: 18px; margin-bottom: 12px; }
+  .body-content ol { margin-left: 18px; margin-bottom: 12px; }
+  .body-content li { margin-bottom: 5px; }
+  .body-content h2 { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; margin-bottom: 8px; margin-top: 14px; color: var(--purple); }
+  .body-content h3 { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 6px; margin-top: 10px; }
+  .body-content strong { font-weight: 700; }
+
+  /* MORE LINK */
+  .more-link-card {
+    margin: 0 16px 20px;
+    padding: 14px 18px;
+    background: var(--white);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: var(--purple);
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+  }
+  .more-link-card span { font-size: 20px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    display: flex;
+    height: 68px;
+    z-index: 200;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: color 0.15s;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  .nav-item .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-item.active { color: var(--purple); }
+  .nav-item.add-item {
+    color: var(--white);
+  }
+  .nav-item.add-item .nav-icon-wrap {
+    background: var(--purple);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: -2px;
+    box-shadow: 0 4px 14px rgba(108,99,255,0.4);
+  }
+
+  /* DELETE MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 36px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .modal-body { font-size: 15px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+  .modal-btn-delete {
+    background: #e74c3c;
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+  }
+  .modal-btn-cancel {
+    background: var(--bg);
+    color: var(--text);
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 600;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* EMPTY / LOADING */
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--muted);
+  }
+  .empty-state .empty-emoji { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <button class="topbar-back" id="backBtn" aria-label="Back">←</button>
+  <div class="topbar-title" id="skillTitle">Loading…</div>
+  <button class="topbar-edit" id="editBtn" aria-label="Edit skill">✏️</button>
+</div>
+
+<div id="skillContent">
+  <div class="empty-state"><div class="empty-emoji">⏳</div><p>Loading skill…</p></div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav">
+  <a href="index.html" class="nav-item">
+    <span class="nav-icon">🏠</span>Home
+  </a>
+  <a href="index.html#search" class="nav-item">
+    <span class="nav-icon">🔍</span>Search
+  </a>
+  <a href="add.html" class="nav-item add-item">
+    <div class="nav-icon-wrap">➕</div>
+  </a>
+  <a href="quiz.html" class="nav-item">
+    <span class="nav-icon">🎯</span>Quiz
+  </a>
+</nav>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-sheet">
+    <div class="modal-title">Delete Skill?</div>
+    <div class="modal-body" id="deleteModalBody">This will permanently delete this skill. You can't undo this action.</div>
+    <div class="modal-btns">
+      <button class="modal-btn-delete" id="confirmDeleteBtn">🗑️ Yes, Delete</button>
+      <button class="modal-btn-cancel" id="cancelDeleteBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+(function() {
+  const CAT_META = {
+    games:     { emoji: '🎮', label: 'Games',     color: '#FF6B6B' },
+    languages: { emoji: '🌍', label: 'Languages', color: '#4ECDC4' },
+    tech:      { emoji: '🔧', label: 'Tech Help', color: '#45B7D1' },
+    howto:     { emoji: '📚', label: 'How-To',    color: '#FFA07A' },
+  };
+
+  const params = new URLSearchParams(location.search);
+  const skillId = params.get('id');
+  let skill = null;
+
+  function showToast(msg, duration = 2000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  function formatDate(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function parseBody(text) {
+    if (!text) return '';
+    const lines = text.split('\n');
+    let html = '';
+    let inUl = false;
+    let inOl = false;
+
+    function closeList() {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      if (inOl) { html += '</ol>'; inOl = false; }
+    }
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        closeList();
+        html += '<p style="margin-bottom:8px"></p>';
+        return;
+      }
+      if (/^#{2}\s/.test(trimmed)) {
+        closeList();
+        html += `<h2>${escHtml(trimmed.replace(/^#{2}\s/, ''))}</h2>`;
+      } else if (/^#{1}\s/.test(trimmed)) {
+        closeList();
+        html += `<h2>${escHtml(trimmed.replace(/^#{1}\s/, ''))}</h2>`;
+      } else if (/^[-•]\s/.test(trimmed)) {
+        if (inOl) { html += '</ol>'; inOl = false; }
+        if (!inUl) { html += '<ul>'; inUl = true; }
+        html += `<li>${renderInline(trimmed.replace(/^[-•]\s/, ''))}</li>`;
+      } else if (/^\d+\.\s/.test(trimmed)) {
+        if (inUl) { html += '</ul>'; inUl = false; }
+        if (!inOl) { html += '<ol>'; inOl = true; }
+        html += `<li>${renderInline(trimmed.replace(/^\d+\.\s/, ''))}</li>`;
+      } else {
+        closeList();
+        html += `<p>${renderInline(trimmed)}</p>`;
+      }
+    });
+    closeList();
+    return html;
+  }
+
+  function renderInline(text) {
+    return escHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function render(s) {
+    const meta = CAT_META[s.category] || CAT_META.howto;
+    const createdStr = formatDate(s.createdAt);
+    const updatedStr = formatDate(s.updatedAt);
+    const dateStr = updatedStr
+      ? `Created ${createdStr} · Updated ${updatedStr}`
+      : `Created ${createdStr}`;
+
+    const tagsHtml = (s.tags || []).map(t => `<span class="tag-pill">${escHtml(t)}</span>`).join('');
+
+    const flashcardHtml = (s.front && s.back) ? `
+      <div class="section-card">
+        <div class="section-label">Flashcard</div>
+        <div class="flashcard-wrapper" id="fcWrapper" role="button" aria-label="Flip flashcard" tabindex="0">
+          <div class="flashcard-inner" id="fcInner">
+            <div class="flashcard-face flashcard-front">
+              <div class="flashcard-face-label">Question</div>
+              <div class="flashcard-face-text">${escHtml(s.front)}</div>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <div class="flashcard-face-label">Answer</div>
+              <div class="flashcard-face-text">${escHtml(s.back)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="flashcard-hint">👆 Tap to flip</div>
+      </div>
+    ` : '';
+
+    const bodyHtml = parseBody(s.body);
+
+    document.getElementById('skillContent').innerHTML = `
+      <div class="hero">
+        <span class="hero-emoji">${meta.emoji}</span>
+        <div><span class="category-chip" style="background:${meta.color}">${meta.label}</span></div>
+        ${s.subcategory ? `<div class="subcategory-label">${escHtml(s.subcategory)}</div>` : ''}
+        <h1 class="hero-title">${escHtml(s.title)}</h1>
+        ${tagsHtml ? `<div class="tags-row">${tagsHtml}</div>` : ''}
+        <div class="hero-dates">${dateStr}</div>
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn" id="copyBtn">
+          <span class="btn-icon">📋</span>Copy
+        </button>
+        <button class="action-btn pin-btn ${s.pinned ? 'pinned' : ''}" id="pinBtn">
+          <span class="btn-icon">${s.pinned ? '📌' : '📍'}</span>${s.pinned ? 'Unpin' : 'Pin'}
+        </button>
+        <button class="action-btn delete-btn" id="deleteBtn">
+          <span class="btn-icon">🗑️</span>Delete
+        </button>
+      </div>
+
+      ${flashcardHtml}
+
+      <div class="section-card">
+        <div class="section-label">Notes</div>
+        <div class="body-content">${bodyHtml}</div>
+      </div>
+
+      <a href="category.html?cat=${s.category}" class="more-link-card">
+        ${meta.emoji} More in ${meta.label} <span>→</span>
+      </a>
+    `;
+
+    // Wire events
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(s.body || '').then(() => showToast('📋 Copied to clipboard!'));
+    });
+
+    const pinBtn = document.getElementById('pinBtn');
+    pinBtn.addEventListener('click', () => {
+      s.pinned = !s.pinned;
+      if (window.SkillVault) window.SkillVault.save(s);
+      pinBtn.innerHTML = `<span class="btn-icon">${s.pinned ? '📌' : '📍'}</span>${s.pinned ? 'Unpin' : 'Pin'}`;
+      pinBtn.classList.toggle('pinned', s.pinned);
+      showToast(s.pinned ? '📌 Pinned!' : '📍 Unpinned');
+    });
+
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      document.getElementById('deleteModal').classList.add('open');
+    });
+
+    const fc = document.getElementById('fcInner');
+    const fcWrapper = document.getElementById('fcWrapper');
+    if (fc && fcWrapper) {
+      fcWrapper.addEventListener('click', () => fc.classList.toggle('flipped'));
+      fcWrapper.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fc.classList.toggle('flipped'); }
+      });
+    }
+  }
+
+  function init() {
+    if (!skillId) {
+      document.getElementById('skillContent').innerHTML = '<div class="empty-state"><div class="empty-emoji">🤷</div><p>No skill ID provided.</p></div>';
+      return;
+    }
+
+    const tryLoad = () => {
+      if (window.SkillVault) {
+        skill = window.SkillVault.getById(skillId);
+        if (!skill) {
+          document.getElementById('skillContent').innerHTML = '<div class="empty-state"><div class="empty-emoji">🔍</div><p>Skill not found.</p></div>';
+          return;
+        }
+        const meta = CAT_META[skill.category] || CAT_META.howto;
+        document.getElementById('skillTitle').textContent = skill.title;
+        document.getElementById('backBtn').href = `category.html?cat=${skill.category}`;
+        document.getElementById('backBtn').addEventListener('click', e => {
+          e.preventDefault();
+          location.href = `category.html?cat=${skill.category}`;
+        });
+        document.getElementById('editBtn').addEventListener('click', () => {
+          location.href = `add.html?id=${skill.id}`;
+        });
+        render(skill);
+      } else {
+        setTimeout(tryLoad, 50);
+      }
+    };
+    tryLoad();
+
+    // Delete modal
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => {
+      document.getElementById('deleteModal').classList.remove('open');
+    });
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+      if (window.SkillVault && skill) {
+        window.SkillVault.delete(skill.id);
+      }
+      document.getElementById('deleteModal').classList.remove('open');
+      showToast('🗑️ Skill deleted');
+      setTimeout(() => {
+        location.href = skill ? `category.html?cat=${skill.category}` : 'index.html';
+      }, 800);
+    });
+
+    // Close modal on overlay click
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+
+</body>
+</html>
