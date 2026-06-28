@@ -229,8 +229,8 @@
           var doc=new DOMParser().parseFromString(html,'text/html');
           document.title=doc.title;
 
-          // Swap inline head styles (keep data-kil — that's our radio style)
-          document.head.querySelectorAll('style:not([data-kil])').forEach(function(s){s.remove();});
+          // Swap inline head styles (keep data-kil + kilo-styles — our injected CSS)
+          document.head.querySelectorAll('style:not([data-kil]):not(#kilo-styles)').forEach(function(s){s.remove();});
           doc.head.querySelectorAll('style').forEach(function(s){
             var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);
           });
@@ -241,14 +241,13 @@
           });
           document.body.className=doc.body.className||'';
 
-          // Insert new content before #kil-radio so radio stays at bottom
-          var ref=document.getElementById('kil-radio');
+          // Insert new content at the BEGINNING of body (before preserved elements)
+          // Using a DocumentFragment keeps DOM order and avoids preserved elements ending up mid-page
+          var frag=document.createDocumentFragment();
           Array.from(doc.body.children).forEach(function(c){
-            if(KEEP.indexOf(c.id)===-1){
-              var node=document.importNode(c,true);
-              ref?document.body.insertBefore(node,ref):document.body.appendChild(node);
-            }
+            if(KEEP.indexOf(c.id)===-1)frag.appendChild(document.importNode(c,true));
           });
+          document.body.insertBefore(frag,document.body.firstChild);
 
           // Re-run page-specific inline scripts (skip external + radio/sc scripts)
           doc.body.querySelectorAll('script').forEach(function(s){
