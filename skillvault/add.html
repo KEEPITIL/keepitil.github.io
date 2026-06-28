@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#6C63FF"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>SkillVault</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --purple: #6C63FF;
+    --bg: #F0F2FF;
+    --games: #FF6B6B;
+    --languages: #4ECDC4;
+    --tech: #45B7D1;
+    --howto: #FFA07A;
+    --white: #ffffff;
+    --text: #1a1a2e;
+    --muted: #8892a4;
+    --border: #e2e6f0;
+    --radius: 16px;
+    --shadow: 0 4px 20px rgba(108,99,255,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    padding-bottom: 40px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .topbar-cancel {
+    background: none;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .topbar-title {
+    flex: 1;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    text-align: center;
+    color: var(--text);
+  }
+  .topbar-save {
+    background: var(--purple);
+    border: none;
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 8px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .topbar-save:active { transform: scale(0.96); }
+  .topbar-save:disabled { background: var(--muted); cursor: not-allowed; }
+
+  /* FORM CONTAINER */
+  .form-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* SECTION */
+  .form-section {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* CATEGORY GRID */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .cat-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 16px 10px;
+    border-radius: 14px;
+    border: 2px solid var(--cat-color, #ccc);
+    background: var(--white);
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--cat-color, #ccc);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .cat-btn .cat-emoji { font-size: 28px; line-height: 1; }
+  .cat-btn.selected {
+    background: var(--cat-color);
+    color: var(--white);
+    border-color: var(--cat-color);
+  }
+  .cat-btn .cat-check {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .cat-btn.selected .cat-check { opacity: 1; }
+  .cat-error { color: #e74c3c; font-size: 12px; margin-top: 8px; display: none; }
+  .cat-error.show { display: block; }
+
+  /* INPUTS */
+  .field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .field-group:last-child { margin-bottom: 0; }
+  .field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .field-required { color: #e74c3c; }
+  .field-input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .field-input:focus { border-color: var(--purple); background: var(--white); }
+  .field-input.error { border-color: #e74c3c; }
+  .field-error { color: #e74c3c; font-size: 12px; display: none; }
+  .field-error.show { display: block; }
+
+  /* TAGS */
+  .tags-input-wrap {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    padding: 8px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 48px;
+    cursor: text;
+    transition: border-color 0.15s;
+  }
+  .tags-input-wrap:focus-within { border-color: var(--purple); background: var(--white); }
+  .tag-pill-edit {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(108,99,255,0.12);
+    color: var(--purple);
+    border-radius: 10px;
+    padding: 3px 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .tag-pill-edit .tag-remove {
+    background: none;
+    border: none;
+    color: var(--purple);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.7;
+  }
+  .tag-pill-edit .tag-remove:hover { opacity: 1; }
+  .tags-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    flex: 1;
+    min-width: 80px;
+    padding: 3px 2px;
+  }
+  .tags-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* TEXTAREA */
+  .body-area-wrap { position: relative; }
+  .format-bar {
+    display: flex;
+    gap: 4px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+  }
+  .fmt-btn {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    transition: background 0.1s, color 0.1s;
+  }
+  .fmt-btn:hover { background: var(--purple); color: var(--white); border-color: var(--purple); }
+  .body-textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 13px 14px;
+    border: 2px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    resize: vertical;
+    line-height: 1.6;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .body-textarea:focus { border-color: var(--purple); background: var(--white); }
+  .body-textarea.error { border-color: #e74c3c; }
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .char-count.warning { color: #e74c3c; }
+
+  /* FLASHCARD SECTION */
+  .flashcard-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 26px;
+    flex-shrink: 0;
+  }
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 13px;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--white);
+    transition: transform 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-switch input:checked + .toggle-track { background: var(--purple); }
+  .toggle-switch input:checked + .toggle-track::after { transform: translateX(18px); }
+
+  .flashcard-fields {
+    display: none;
+    margin-top: 16px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .flashcard-fields.open { display: flex; }
+
+  /* LIVE FC PREVIEW */
+  .fc-preview-wrap {
+    perspective: 600px;
+    width: 100%;
+    height: 130px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .fc-preview-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+  }
+  .fc-preview-inner.flipped { transform: rotateY(180deg); }
+  .fc-preview-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+    text-align: center;
+  }
+  .fc-preview-front {
+    background: linear-gradient(135deg, var(--purple) 0%, #8b80ff 100%);
+    color: var(--white);
+  }
+  .fc-preview-back {
+    background: linear-gradient(135deg, #1a1a2e 0%, #2d2b55 100%);
+    color: var(--white);
+    transform: rotateY(180deg);
+  }
+  .fc-preview-label { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.7; margin-bottom: 6px; font-weight: 700; }
+  .fc-preview-text { font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; line-height: 1.4; }
+  .fc-preview-hint { text-align: center; font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+  /* PIN TOGGLE */
+  .pin-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .pin-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    flex: 1;
+  }
+  .pin-sub { font-size: 12px; color: var(--muted); font-weight: 400; font-family: 'Inter', sans-serif; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #2ecc71;
+    color: var(--white);
+    padding: 10px 22px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 600;
+    white-space: nowrap;
+    font-family: 'Nunito', sans-serif;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* CONFIRM LEAVE MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 500;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 36px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .modal-body { font-size: 15px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+  .modal-btn-primary {
+    background: #e74c3c;
+    color: var(--white);
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+  }
+  .modal-btn-cancel {
+    background: var(--bg);
+    color: var(--text);
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="topbar-cancel" id="cancelBtn">Cancel</button>
+  <div class="topbar-title" id="pageTitle">New Skill</div>
+  <button class="topbar-save" id="saveBtn">Save</button>
+</div>
+
+<div class="form-container">
+
+  <!-- 1. CATEGORY -->
+  <div class="form-section">
+    <div class="section-label">Category <span style="color:#e74c3c">*</span></div>
+    <div class="cat-grid">
+      <button type="button" class="cat-btn" data-cat="games" style="--cat-color:#FF6B6B">
+        <span class="cat-check">✓</span>
+        <span class="cat-emoji">🎮</span>Games
+      </button>
+      <button type="button" class="cat-btn" data-cat="languages" style="--cat-color:#4ECDC4">
+        <span class="cat-check">✓</span>
+        <span class="cat-emoji">🌍</span>Languages
+      </button>
+      <button type="button" class="cat-btn" data-cat="tech" style="--cat-color:#45B7D1">
+        <span class="cat-check">✓</span>
+        <span class="cat-emoji">🔧</span>Tech Help
+      </button>
+      <button type="button" class="cat-btn" data-cat="howto" style="--cat-color:#FFA07A">
+        <span class="cat-check">✓</span>
+        <span class="cat-emoji">📚</span>How-To
+      </button>
+    </div>
+    <div class="cat-error" id="catError">Please select a category</div>
+  </div>
+
+  <!-- 2. BASIC INFO -->
+  <div class="form-section">
+    <div class="section-label">Basic Info</div>
+    <div class="field-group">
+      <label class="field-label" for="titleInput">Title <span class="field-required">*</span></label>
+      <input
+        type="text"
+        id="titleInput"
+        class="field-input"
+        placeholder="What's this skill called?"
+        autocomplete="off"
+        maxlength="120"
+      />
+      <div class="field-error" id="titleError">Title is required</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="subcatInput">Subcategory</label>
+      <input
+        type="text"
+        id="subcatInput"
+        class="field-input"
+        placeholder="e.g. Zelda: TOTK, Japanese, Windows 11…"
+        autocomplete="off"
+        maxlength="80"
+      />
+    </div>
+    <div class="field-group">
+      <label class="field-label" for="tagsInner">Tags</label>
+      <div class="tags-input-wrap" id="tagsWrap">
+        <input type="text" id="tagsInner" class="tags-input" placeholder="Type a tag + Enter" autocomplete="off" maxlength="40"/>
+      </div>
+      <div class="tags-hint">Press Enter or comma to add a tag · tap × to remove</div>
+    </div>
+  </div>
+
+  <!-- 3. BODY -->
+  <div class="form-section">
+    <div class="section-label">Skill Notes <span style="color:#e74c3c">*</span></div>
+    <div class="body-area-wrap">
+      <div class="format-bar">
+        <button type="button" class="fmt-btn" data-insert="**text**" data-select="text" title="Bold">B</button>
+        <button type="button" class="fmt-btn" data-insert="- " title="Bullet">•</button>
+        <button type="button" class="fmt-btn" data-insert="1. " title="Numbered">1.</button>
+        <button type="button" class="fmt-btn" data-insert="# " title="Heading">#</button>
+      </div>
+      <textarea
+        id="bodyTextarea"
+        class="body-textarea"
+        placeholder="Write your skill notes here…
+
+Tips:
+- Use bullet points
+- Add step numbers
+- Include examples"
+        maxlength="5000"
+        rows="8"
+      ></textarea>
+    </div>
+    <div class="char-count" id="charCount">0 / 5000</div>
+    <div class="field-error" id="bodyError">Skill notes are required</div>
+  </div>
+
+  <!-- 4. FLASHCARD -->
+  <div class="form-section">
+    <div class="flashcard-toggle-row" id="fcToggleRow">
+      <div class="toggle-label">⚡ Add Flashcard</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="fcToggle"/>
+        <div class="toggle-track"></div>
+      </label>
+    </div>
+    <div class="flashcard-fields" id="fcFields">
+      <div class="field-group">
+        <label class="field-label" for="fcFront">Front (Question / Prompt)</label>
+        <input
+          type="text"
+          id="fcFront"
+          class="field-input"
+          placeholder="e.g. How do you say Hello in Japanese?"
+          maxlength="200"
+        />
+      </div>
+      <div class="field-group">
+        <label class="field-label" for="fcBack">Back (Answer)</label>
+        <textarea
+          id="fcBack"
+          class="field-input"
+          rows="3"
+          placeholder="e.g. こんにちは (Konnichiwa)"
+          maxlength="500"
+          style="resize:vertical"
+        ></textarea>
+      </div>
+      <div>
+        <div class="section-label" style="margin-bottom:8px">Live Preview</div>
+        <div class="fc-preview-wrap" id="fcPreviewWrap">
+          <div class="fc-preview-inner" id="fcPreviewInner">
+            <div class="fc-preview-face fc-preview-front">
+              <div class="fc-preview-label">Question</div>
+              <div class="fc-preview-text" id="fcPreviewFront">Your question will appear here</div>
+            </div>
+            <div class="fc-preview-face fc-preview-back">
+              <div class="fc-preview-label">Answer</div>
+              <div class="fc-preview-text" id="fcPreviewBack">Your answer will appear here</div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-preview-hint">👆 Tap to flip preview</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. PIN -->
+  <div class="form-section">
+    <label class="pin-row" for="pinToggle">
+      <div>
+        <div class="pin-label">📌 Pin this skill</div>
+        <div class="pin-sub">Pinned skills appear at the top of your library</div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="pinToggle"/>
+        <div class="toggle-track"></div>
+      </label>
+    </label>
+  </div>
+
+</div><!-- /form-container -->
+
+<!-- CONFIRM LEAVE MODAL -->
+<div class="modal-overlay" id="leaveModal">
+  <div class="modal-sheet">
+    <div class="modal-title">Discard Changes?</div>
+    <div class="modal-body">You have unsaved changes. If you leave now, your work will be lost.</div>
+    <div class="modal-btns">
+      <button class="modal-btn-primary" id="confirmLeaveBtn">Discard</button>
+      <button class="modal-btn-cancel" id="cancelLeaveBtn">Keep Editing</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+(function() {
+  const params = new URLSearchParams(location.search);
+  const editId = params.get('id');
+  const presetCat = params.get('cat');
+
+  let selectedCat = null;
+  let tags = [];
+  let hasChanges = false;
+  let pendingLeaveUrl = null;
+  let existingSkill = null;
+
+  // DOM refs
+  const saveBtn = document.getElementById('saveBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const titleInput = document.getElementById('titleInput');
+  const subcatInput = document.getElementById('subcatInput');
+  const tagsWrap = document.getElementById('tagsWrap');
+  const tagsInner = document.getElementById('tagsInner');
+  const bodyTextarea = document.getElementById('bodyTextarea');
+  const charCount = document.getElementById('charCount');
+  const fcToggle = document.getElementById('fcToggle');
+  const fcFields = document.getElementById('fcFields');
+  const fcFront = document.getElementById('fcFront');
+  const fcBack = document.getElementById('fcBack');
+  const fcPreviewFront = document.getElementById('fcPreviewFront');
+  const fcPreviewBack = document.getElementById('fcPreviewBack');
+  const fcPreviewInner = document.getElementById('fcPreviewInner');
+  const fcPreviewWrap = document.getElementById('fcPreviewWrap');
+  const pinToggle = document.getElementById('pinToggle');
+  const leaveModal = document.getElementById('leaveModal');
+  const pageTitle = document.getElementById('pageTitle');
+
+  // PAGE TITLE
+  if (editId) pageTitle.textContent = 'Edit Skill';
+
+  // CATEGORY BUTTONS
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCat = btn.dataset.cat;
+      document.getElementById('catError').classList.remove('show');
+      hasChanges = true;
+    });
+  });
+
+  function preselectCat(cat) {
+    const btn = document.querySelector(`.cat-btn[data-cat="${cat}"]`);
+    if (btn) {
+      btn.click();
+    }
+  }
+
+  // TAGS
+  function addTag(raw) {
+    const val = raw.trim().replace(/,+$/, '').trim();
+    if (!val || tags.includes(val)) return;
+    tags.push(val);
+    renderTags();
+    hasChanges = true;
+  }
+
+  function removeTag(idx) {
+    tags.splice(idx, 1);
+    renderTags();
+    hasChanges = true;
+  }
+
+  function renderTags() {
+    // Remove existing pills
+    document.querySelectorAll('.tag-pill-edit').forEach(p => p.remove());
+    tags.forEach((tag, i) => {
+      const pill = document.createElement('span');
+      pill.className = 'tag-pill-edit';
+      pill.innerHTML = `${escHtml(tag)}<button type="button" class="tag-remove" aria-label="Remove tag">×</button>`;
+      pill.querySelector('.tag-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeTag(i);
+      });
+      tagsWrap.insertBefore(pill, tagsInner);
+    });
+  }
+
+  tagsInner.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(tagsInner.value);
+      tagsInner.value = '';
+    } else if (e.key === 'Backspace' && !tagsInner.value && tags.length) {
+      removeTag(tags.length - 1);
+    }
+  });
+
+  tagsInner.addEventListener('blur', () => {
+    if (tagsInner.value.trim()) {
+      addTag(tagsInner.value);
+      tagsInner.value = '';
+    }
+  });
+
+  tagsWrap.addEventListener('click', () => tagsInner.focus());
+
+  // CHAR COUNT
+  bodyTextarea.addEventListener('input', () => {
+    const len = bodyTextarea.value.length;
+    charCount.textContent = `${len} / 5000`;
+    charCount.classList.toggle('warning', len > 4500);
+    document.getElementById('bodyError').classList.remove('show');
+    bodyTextarea.classList.remove('error');
+    hasChanges = true;
+  });
+
+  // FORMAT BAR
+  document.querySelectorAll('.fmt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const insert = btn.dataset.insert;
+      const selectText = btn.dataset.select;
+      const ta = bodyTextarea;
+      ta.focus();
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const before = ta.value.slice(0, start);
+      const after = ta.value.slice(end);
+      const selected = ta.value.slice(start, end);
+
+      let newText, newStart, newEnd;
+      if (selectText && selected) {
+        newText = before + insert.replace(selectText, selected) + after;
+        newStart = start;
+        newEnd = start + insert.replace(selectText, selected).length;
+      } else if (selectText) {
+        newText = before + insert + after;
+        newStart = start + insert.indexOf(selectText);
+        newEnd = newStart + selectText.length;
+      } else {
+        // Prefix style: insert at line start
+        const lineStart = before.lastIndexOf('\n') + 1;
+        newText = ta.value.slice(0, lineStart) + insert + ta.value.slice(lineStart);
+        newStart = lineStart + insert.length;
+        newEnd = newStart;
+      }
+
+      ta.value = newText;
+      ta.setSelectionRange(newStart, newEnd);
+      const evt = new Event('input');
+      ta.dispatchEvent(evt);
+    });
+  });
+
+  // FLASHCARD TOGGLE
+  fcToggle.addEventListener('change', () => {
+    fcFields.classList.toggle('open', fcToggle.checked);
+    hasChanges = true;
+  });
+
+  document.getElementById('fcToggleRow').addEventListener('click', (e) => {
+    if (e.target === fcToggle || e.target.classList.contains('toggle-track')) return;
+    // clicking the row label toggles, but the label itself does it via the input
+  });
+
+  // FC PREVIEW UPDATE
+  function updateFcPreview() {
+    fcPreviewFront.textContent = fcFront.value.trim() || 'Your question will appear here';
+    fcPreviewBack.textContent = fcBack.value.trim() || 'Your answer will appear here';
+  }
+  fcFront.addEventListener('input', updateFcPreview);
+  fcBack.addEventListener('input', updateFcPreview);
+
+  fcPreviewWrap.addEventListener('click', () => fcPreviewInner.classList.toggle('flipped'));
+
+  // CHANGE TRACKING
+  [titleInput, subcatInput, bodyTextarea, fcFront, fcBack].forEach(el => {
+    el.addEventListener('input', () => { hasChanges = true; });
+  });
+  pinToggle.addEventListener('change', () => { hasChanges = true; });
+
+  // VALIDATION
+  function validate() {
+    let ok = true;
+    if (!selectedCat) {
+      document.getElementById('catError').classList.add('show');
+      ok = false;
+    }
+    if (!titleInput.value.trim()) {
+      document.getElementById('titleError').classList.add('show');
+      titleInput.classList.add('error');
+      ok = false;
+    } else {
+      document.getElementById('titleError').classList.remove('show');
+      titleInput.classList.remove('error');
+    }
+    if (!bodyTextarea.value.trim()) {
+      document.getElementById('bodyError').classList.add('show');
+      bodyTextarea.classList.add('error');
+      ok = false;
+    } else {
+      document.getElementById('bodyError').classList.remove('show');
+      bodyTextarea.classList.remove('error');
+    }
+    return ok;
+  }
+
+  titleInput.addEventListener('input', () => {
+    if (titleInput.value.trim()) {
+      document.getElementById('titleError').classList.remove('show');
+      titleInput.classList.remove('error');
+    }
+  });
+
+  // SAVE
+  saveBtn.addEventListener('click', () => {
+    if (!validate()) return;
+
+    const skillObj = {
+      id: editId || (existingSkill && existingSkill.id) || generateId(),
+      category: selectedCat,
+      title: titleInput.value.trim(),
+      subcategory: subcatInput.value.trim(),
+      tags: [...tags],
+      body: bodyTextarea.value.trim(),
+      front: fcToggle.checked ? fcFront.value.trim() : '',
+      back: fcToggle.checked ? fcBack.value.trim() : '',
+      pinned: pinToggle.checked,
+      updatedAt: Date.now(),
+    };
+
+    if (!editId && !(existingSkill && existingSkill.id)) {
+      skillObj.createdAt = Date.now();
+    } else if (existingSkill) {
+      skillObj.createdAt = existingSkill.createdAt || Date.now();
+    }
+
+    const trySave = () => {
+      if (window.SkillVault) {
+        window.SkillVault.save(skillObj);
+        hasChanges = false;
+        showToast('Saved! ✓');
+        setTimeout(() => {
+          location.href = `skill.html?id=${skillObj.id}`;
+        }, 700);
+      } else {
+        setTimeout(trySave, 50);
+      }
+    };
+    trySave();
+  });
+
+  // CANCEL / LEAVE
+  cancelBtn.addEventListener('click', () => {
+    if (hasChanges) {
+      pendingLeaveUrl = editId ? `skill.html?id=${editId}` : 'index.html';
+      leaveModal.classList.add('open');
+    } else {
+      location.href = editId ? `skill.html?id=${editId}` : 'index.html';
+    }
+  });
+
+  document.getElementById('confirmLeaveBtn').addEventListener('click', () => {
+    hasChanges = false;
+    location.href = pendingLeaveUrl || 'index.html';
+  });
+
+  document.getElementById('cancelLeaveBtn').addEventListener('click', () => {
+    leaveModal.classList.remove('open');
+  });
+
+  leaveModal.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+
+  // TOAST
+  function showToast(msg, duration = 2000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
+
+  // UTILS
+  function generateId() {
+    return 'sk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+  }
+
+  function escHtml(str) {
+    return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // POPULATE IF EDITING
+  function populateForm(s) {
+    existingSkill = s;
+    preselectCat(s.category);
+    titleInput.value = s.title || '';
+    subcatInput.value = s.subcategory || '';
+    tags = [...(s.tags || [])];
+    renderTags();
+    bodyTextarea.value = s.body || '';
+    const len = bodyTextarea.value.length;
+    charCount.textContent = `${len} / 5000`;
+    if (s.front || s.back) {
+      fcToggle.checked = true;
+      fcFields.classList.add('open');
+      fcFront.value = s.front || '';
+      fcBack.value = s.back || '';
+      updateFcPreview();
+    }
+    pinToggle.checked = !!s.pinned;
+    hasChanges = false;
+  }
+
+  // INIT
+  function init() {
+    const tryInit = () => {
+      if (window.SkillVault) {
+        if (editId) {
+          const s = window.SkillVault.getById(editId);
+          if (s) populateForm(s);
+        } else if (presetCat) {
+          preselectCat(presetCat);
+        }
+      } else {
+        setTimeout(tryInit, 50);
+      }
+    };
+    tryInit();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+
+</body>
+</html>
