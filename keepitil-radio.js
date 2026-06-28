@@ -38,6 +38,9 @@
     '.radio-mini #kilo-panel{bottom:156px!important;right:24px!important;}'+
     // Body padding so content clears the fixed bar
     'body{padding-bottom:56px;}'+
+    // Scroll-to-top button: lift above radio bar, move to left to avoid Echo on right
+    '#scroll-top{bottom:70px!important;left:24px!important;right:auto!important;}'+
+    '.radio-mini #scroll-top{bottom:92px!important;}'+
     '@media(max-width:600px){#kil-track{display:none;}.kil-submit{display:none;}#kr-vol{width:46px;}}'+
     '@media(max-width:480px){#kilo-btn{bottom:66px!important;right:16px!important;}.radio-mini #kilo-btn{bottom:88px!important;right:16px!important;}.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}';
   document.head.appendChild(css);
