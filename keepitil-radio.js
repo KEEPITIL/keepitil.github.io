@@ -204,7 +204,7 @@
   });}
 
   // ── Nav logo swap: transparent extracted X marks, no mix-blend-mode ─────
-  (function swapNavLogos(){
+  function swapNavLogos(){
     document.querySelectorAll('a.nav-logo img,#main-nav img,nav img').forEach(function(img){
       var src=img.getAttribute('src')||'';
       var m=src.match(/logo-(\w+)-nav\.png/i);
@@ -214,7 +214,77 @@
       img.setAttribute('style',st.replace(/mix-blend-mode\s*:\s*\w+\s*;?/gi,''));
       img.style.mixBlendMode='';
     });
-  })();
+  }
+  swapNavLogos();
 
-  // PJAX removed — each page loads fresh so radio CSS + logo swap re-run cleanly
+  // ── PJAX: keep radio alive during navigation (no iframe reload = no gap) ──
+  (function(){
+    var SKIP=/\.(pdf|zip|png|jpg|jpeg|gif|svg|mp3|mp4|webm|wav|ogg)$/i;
+    var KEEP=['kil-radio','kil-sc','kilo-btn','kilo-panel'];
+
+    function pjaxNav(url){
+      fetch(url,{credentials:'same-origin'})
+        .then(function(r){if(!r.ok)throw 0;return r.text();})
+        .then(function(html){
+          var doc=new DOMParser().parseFromString(html,'text/html');
+          document.title=doc.title;
+
+          // Swap inline head styles (keep data-kil — that's our radio style)
+          document.head.querySelectorAll('style:not([data-kil])').forEach(function(s){s.remove();});
+          doc.head.querySelectorAll('style').forEach(function(s){
+            var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);
+          });
+
+          // Remove old body content except radio + echo elements
+          Array.from(document.body.children).forEach(function(c){
+            if(KEEP.indexOf(c.id)===-1)c.remove();
+          });
+          document.body.className=doc.body.className||'';
+
+          // Insert new content before #kil-radio so radio stays at bottom
+          var ref=document.getElementById('kil-radio');
+          Array.from(doc.body.children).forEach(function(c){
+            if(KEEP.indexOf(c.id)===-1){
+              var node=document.importNode(c,true);
+              ref?document.body.insertBefore(node,ref):document.body.appendChild(node);
+            }
+          });
+
+          // Re-run page-specific inline scripts (skip external + radio/sc scripts)
+          doc.body.querySelectorAll('script').forEach(function(s){
+            if(s.getAttribute('src'))return; // already loaded externals
+            var code=s.textContent||'';
+            if(!code.trim())return;
+            if(code.includes('__kilRadioInit')||code.includes('SC.Widget')||code.includes('keepitil-ai'))return;
+            try{(new Function(code))();}catch(ex){console.warn('[kil-pjax]',ex);}
+          });
+
+          swapNavLogos();
+          history.pushState({pjax:1,url:url},document.title,url);
+          window.scrollTo(0,0);
+        })
+        .catch(function(){window.location.href=url;}); // graceful fallback
+    }
+
+    // Intercept link clicks
+    document.addEventListener('click',function(e){
+      var a=e.target.closest('a');
+      if(!a||!a.href)return;
+      var t=a.target;
+      if(t==='_blank'||t==='_parent'||t==='_top')return;
+      try{
+        var u=new URL(a.href,location.href);
+        if(u.origin!==location.origin)return;
+        if(SKIP.test(u.pathname))return;
+        if(u.pathname===location.pathname&&u.hash)return; // same-page anchor
+        e.preventDefault();
+        pjaxNav(u.href);
+      }catch(ex){}
+    },true);
+
+    // Handle browser back/forward
+    window.addEventListener('popstate',function(e){
+      if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);
+    });
+  })();
 })();
