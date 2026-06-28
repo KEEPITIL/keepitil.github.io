@@ -30,7 +30,7 @@
       id: 'events',
       kw: ['event','show','concert','festival','upcoming','tonight','weekend','week','calendar','schedule','rave','party','find event','what\'s on','whats on','where to go','going out','nightlife'],
       title: '🎉 Events',
-      text: 'KEEPITIL curates underground electronic music events across SoCal — house, techno, UK garage, drum & bass, and more. Our KEEPITIL PICK badges highlight events we especially recommend. New events are added weekly.',
+      text: 'KEEPITIL curates music events across Southern California — concerts, club nights, festivals, raves, pop-ups, and more. Our KEEPITIL PICK badges highlight events we personally recommend. New events are added weekly.',
       links: [
         { url: 'https://keepitil.com/#events-container', label: 'Browse Upcoming Events' },
         { url: 'https://keepitil.com/culture', label: 'Culture Blog' },
@@ -106,7 +106,7 @@
       id: 'artists',
       kw: ['artist','dj','producer','who is','find artist','artist profile','music','mix','set','performer','discover','underground dj'],
       title: '🎧 Artists & DJs',
-      text: 'KEEPITIL profiles artists from the SoCal underground electronic scene — DJs, producers, and live acts across house, techno, UK garage, D&B, and more. Each profile includes bio, music, social links, and booking info.',
+      text: 'KEEPITIL profiles artists across the SoCal music scene — DJs, producers, live acts, bands, and performers of all genres. Each profile includes bio, music samples, social links, and direct booking info. Artists get exposure to organizers and brands actively looking to book talent.',
       links: [
         { url: 'https://keepitil.com/artist/', label: 'Browse All Artists' },
       ],
@@ -137,7 +137,7 @@
       id: 'brands',
       kw: ['brand','sponsor','sponsorship','brand deal','brand collab','brand partnership','brand profile','clothing','apparel','merch','label','record label'],
       title: '🏷️ Brand Partnerships',
-      text: 'KEEPITIL connects underground music brands with the SoCal electronic music community. Whether you\'re a clothing brand, record label, gear company, or lifestyle brand, the underground scene is a niche but deeply loyal audience.',
+      text: 'KEEPITIL connects brands with the SoCal music community. Whether you\'re a clothing brand, beverage company, gear manufacturer, record label, or lifestyle brand looking to reach event-goers, artists, and organizers — this is your direct lane into the scene.\n\nBrands get profiled alongside the artists and events their audience is already following.',
       links: [
         { url: 'https://keepitil.com/brand/', label: 'Browse Brand Directory' },
         { url: 'https://keepitil.com/signup.html', label: 'Get Listed on KEEPITIL' },
@@ -147,8 +147,8 @@
     {
       id: 'brand-strategy',
       kw: ['brand strategy','promote brand','brand visibility','brand in music','brand marketing','partnership strategy','how brands work with djs','how brands work with events'],
-      title: '📣 Brand Strategy in the Underground Scene',
-      text: 'The underground scene runs on authenticity. Brands that win here do it organically:\n\n• Partner with artists who genuinely wear/use your product\n• Sponsor events you\'d actually attend\n• Show up physically — flyers, pop-ups, merch at events\n• Build relationships with organizers before asking for logo placement\n• Let your community reps create content, don\'t script them\n\nAvoid: generic sponsorship decks, paid post packages that feel like ads, mismatching vibes.',
+      title: '📣 Brand Strategy for SoCal Events',
+      text: 'Brands that win in the SoCal music scene do it by showing up, not just writing checks:\n\n• Partner with artists who genuinely use or believe in your product\n• Sponsor events that match your brand\'s vibe and audience\n• Show up physically — activations, pop-ups, merch tables, flyers\n• Build relationships with organizers first, before asking for logo placement\n• Let community members create content — authentic beats scripted every time\n• Use KEEPITIL to identify the right artists, organizers, and events to align with\n\nThe music community rewards brands that are real. Avoid: generic decks, paid post packages that feel like ads, and mismatched audiences.',
       links: [
         { url: 'https://keepitil.com/brand/', label: 'Brand Directory' },
         { url: 'https://keepitil.com/organizer/', label: 'Find Organizers to Partner With' },
@@ -159,7 +159,7 @@
       id: 'organizers',
       kw: ['organizer','promoter','event organizer','event promoter','put on event','throw a party','throw a rave','produce event','organizer directory','find promoter'],
       title: '🗂️ Organizers & Promoters',
-      text: 'KEEPITIL features organizers running underground electronic events across OC and LA. From small warehouse crews to established promoters, the directory covers who\'s running the scene.',
+      text: 'KEEPITIL features event organizers and promoters across Southern California — from club nights and warehouse crews to festival producers and corporate event planners. The directory connects organizers with artists to book and brands to partner with.',
       links: [
         { url: 'https://keepitil.com/organizer/', label: 'Organizer Directory' },
         { url: 'https://keepitil.com/organizers-directory.html', label: 'Full Organizer List' },
@@ -169,8 +169,8 @@
     {
       id: 'organize-event',
       kw: ['how to organize','how to throw','how to promote event','throwing event','producing event','start throwing','put on show','plan event','event planning','venue','venue booking','event budget'],
-      title: '🎪 How to Organize an Underground Event',
-      text: 'Getting started as an organizer in the SoCal underground scene:\n\n1. Start small — a 100-person event teaches you more than planning a 1,000-person festival\n2. Find your venue first: warehouses, backyards, small clubs, art spaces\n3. Secure a permit or confirm the venue handles them\n4. Book your artist EARLY — 4–8 weeks minimum, more for touring acts\n5. Build a flyer and post 3–4 weeks out\n6. Use Eventbrite, RA, and Instagram for promotion\n7. Get a sound system quote — don\'t cut corners here\n8. Plan capacity limits and have a door person\n\nNetwork with established organizers before launching. KEEPITIL\'s directory is a great place to start connecting.',
+      title: '🎪 How to Organize an Event in SoCal',
+      text: 'Whether it\'s a club night, festival, brand activation, or private event — the fundamentals are the same:\n\n1. Start with your audience: who\'s coming, what do they expect?\n2. Lock your venue first — clubs, warehouses, rooftops, art spaces, outdoor venues\n3. Secure permits or confirm the venue is handling it\n4. Book your artist EARLY — 4–8 weeks minimum, longer for touring or headliner acts\n5. Partner with a brand for sponsorship to offset costs\n6. Build a flyer and launch promotion 3–4 weeks out\n7. Ticket through Eventbrite, RA, or your own page\n8. Use Instagram + KEEPITIL for promotion to reach the right audience\n\nUse KEEPITIL\'s artist directory to find talent and the organizer directory to connect with crews who can help.',
       links: [
         { url: 'https://keepitil.com/blog-how-to-promote-your-event-oc-la.html', label: 'Event Promotion Guide' },
         { url: 'https://keepitil.com/organizer/', label: 'Organizer Directory' },
@@ -286,7 +286,7 @@
       id: 'about',
       kw: ['about','what is keepitil','who runs','who are you','what do you do','keepitil','platform','mission','community','underground'],
       title: '🔊 About KEEPITIL',
-      text: 'KEEPITIL is a discovery and community platform for the underground electronic music scene in Southern California. We curate events, profile artists and organizers, cover music culture, and connect the people who make the scene run.\n\nFounded to fill the gap between mainstream event platforms and the actual underground — KEEPITIL is by the community, for the community.',
+      text: 'KEEPITIL is a music marketing and management platform for Southern California — built to promote artists, connect organizers with talent, and match brands with events that reach their audience.\n\nThink of it as a SoCal-focused marketplace: artists get exposure and bookings, organizers find talent and brand partners, and brands activate inside the music community.\n\nFounded in the underground, we cover the full SoCal scene — electronic, hip-hop, R&B, live music, and everything in between. As the community grows, KEEPITIL expands — our goal is to eventually cover every region in the US, starting right here.',
       links: [
         { url: 'https://keepitil.com', label: 'KEEPITIL Home' },
         { url: 'https://keepitil.com/culture', label: 'Culture Blog' },
@@ -298,7 +298,7 @@
       id: 'get-listed',
       kw: ['get listed','submit','list my event','add my event','feature','profile','artist profile','brand profile','organizer profile','submit event','apply','partnership','collab','collaborate'],
       title: '✅ Get Listed on KEEPITIL',
-      text: 'Want your event, artist profile, brand, or organizer page on KEEPITIL?\n\n• Events: Submit via the KEEPITIL subscribe page and reach out on Instagram\n• Artists & DJs: Get in touch to be profiled — we look for artists with a presence in the SoCal scene\n• Brands: Same process — reach out if you\'re active in the underground community\n• Organizers: Connect with us to discuss a listing in the organizer directory',
+      text: 'Want to be on KEEPITIL? Here\'s how each type gets listed:\n\n• Artists & DJs: Get profiled — we feature artists active in the SoCal scene. Your profile includes bio, music, booking info, and social links so organizers and brands can find you.\n• Organizers & Promoters: Join the directory — connect with artists to book and brands looking to sponsor.\n• Brands: Partner with the community — get listed alongside the events and artists your audience already follows.\n• Events: Submit for consideration and KEEPITIL PICK review.\n\nReach out via Instagram or the subscribe page to get started.',
       links: [
         { url: 'https://keepitil.com/signup.html', label: 'Contact & Subscribe' },
         { url: 'https://www.instagram.com/keepitil', label: 'DM Us on Instagram' },
@@ -309,7 +309,7 @@
       id: 'networking',
       kw: ['network','networking','connect','meet people','industry','scene','make connections','meet djs','collaboration','collab','build relationship','who to know','meet organizer','scene access'],
       title: '🤝 Networking in the Scene',
-      text: 'The underground electronic music community runs on relationships. Here\'s how to build them authentically:\n\n• Go to events regularly — presence builds recognition\n• Introduce yourself genuinely, not transactionally. Talk about the music first.\n• Volunteer or help out at events — crews remember people who put in work\n• Support other artists: attend their nights, share their mixes\n• Reach out on Instagram with specific, genuine messages — "loved your set at X" > "let\'s collab"\n• Be consistent. The scene is small. Your reputation follows you.',
+      text: 'The SoCal music industry runs on relationships. Whether you\'re an artist, organizer, or brand — here\'s how to build them:\n\n• Show up to events consistently — presence builds recognition faster than anything online\n• Introduce yourself genuinely. Lead with the music, not the pitch.\n• For artists: volunteer at events, support other artists\' nights, share their work\n• For organizers: connect with brands before you need their money — build the relationship first\n• For brands: reach out to artists and organizers who fit your product naturally, not transactionally\n• Use KEEPITIL\'s directories to identify the right people to connect with\n• DM on Instagram with specific, genuine messages — "loved your set at X" beats "let\'s collab"\n\nSoCal is big but the music scene is a community. Your reputation travels.',
       links: [
         { url: 'https://keepitil.com/blog-tip-networking-underground-events.html', label: 'Networking at Underground Events' },
         { url: 'https://keepitil.com/#events-container', label: 'Find Events to Attend' },
@@ -630,7 +630,7 @@
       if (!msgs.hasChildNodes()) {
         addMessage('bot', {
           title: 'Hey 👋 I\'m KILO',
-          text: 'Your KEEPITIL guide to the SoCal underground electronic music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
+          text: 'Your KEEPITIL guide to the SoCal music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
           chips: WELCOME_CHIPS,
         });
       }
