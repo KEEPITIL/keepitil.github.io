@@ -5,6 +5,23 @@
  */
 // Auto-load KEEPITIL Radio Bar on every page
 (function(){if(!window.__kilRadioInit){var s=document.createElement('script');s.src='/keepitil-radio.js';document.head.appendChild(s);}})();
+// Swap nav logo PNGs to extracted transparent X marks (no mix-blend-mode needed)
+(function(){
+  function swapNavLogos(){
+    document.querySelectorAll('a.nav-logo img, nav img').forEach(function(img){
+      var src = img.getAttribute('src')||'';
+      var m = src.match(/logo-(\w+)-nav\.png/i);
+      if(!m) return;
+      img.src = '/keepitil-x-' + m[1] + '.png';
+      img.style.mixBlendMode = '';
+      // Remove mix-blend-mode from inline style string if present
+      var st = img.getAttribute('style')||'';
+      img.setAttribute('style', st.replace(/mix-blend-mode\s*:\s*\w+\s*;?/gi,''));
+    });
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',swapNavLogos);}
+  else{swapNavLogos();}
+})();
 (function () {
   'use strict';
 
