@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+    <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>For Organizers — KEEP IT IL</title>
   <meta name="description" content="Partner with KEEP IT IL. Get your OC event blasted to thousands of underground EDM fans via Posh, Eventbrite, Instagram, and our Explore page."/>
@@ -19,6 +19,8 @@
     html{scroll-behavior:smooth;}
     body{background:var(--black);color:var(--white);font-family:var(--font-body);line-height:1.6;}
     a{color:inherit;text-decoration:none;}
+
+    /* NAV */
     nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:rgba(11,11,11,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);}
     .nav-logo{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.1em;color:var(--white);}
     .nav-logo span{color:var(--blue);}
@@ -27,6 +29,8 @@
     .nav-links a:hover{color:var(--white);}
     .nav-cta{background:var(--blue);color:#000 !important;padding:.5rem 1.25rem;border-radius:4px;font-weight:600;transition:opacity .2s;}
     .nav-cta:hover{opacity:.85;}
+
+    /* HERO */
     .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 4rem;position:relative;overflow:hidden;}
     .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,180,255,.08) 0%,transparent 70%);}
     .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(0,180,255,.1);border:1px solid rgba(0,180,255,.25);border-radius:20px;padding:.35rem 1rem;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:1.5rem;}
@@ -43,11 +47,15 @@
     .hero-stat span{display:block;}
     .hero-stat .num{font-family:var(--font-head);font-size:2.2rem;color:var(--blue);}
     .hero-stat .label{font-size:.8rem;color:var(--grey);letter-spacing:.08em;text-transform:uppercase;}
+
+    /* SECTIONS */
     section{padding:5rem 2rem;}
     .container{max-width:1100px;margin:0 auto;}
     .section-label{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:.75rem;}
     .section-title{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);line-height:1;margin-bottom:1rem;}
     .section-sub{color:var(--grey);font-size:1rem;max-width:540px;margin-bottom:3rem;}
+
+    /* PACKAGE */
     .package{background:var(--dark);border-radius:16px;padding:3rem;}
     .package-header{display:flex;align-items:flex-start;justify-content:space-between;gap:2rem;margin-bottom:3rem;flex-wrap:wrap;}
     .package-title{font-family:var(--font-head);font-size:2.2rem;letter-spacing:.05em;}
@@ -61,18 +69,35 @@
     .benefit-title{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.05em;margin-bottom:.5rem;}
     .benefit-desc{font-size:.88rem;color:var(--grey);line-height:1.6;}
     .benefit-reach{display:inline-block;margin-top:.75rem;font-size:.75rem;color:var(--blue);background:rgba(0,180,255,.1);padding:.25rem .6rem;border-radius:20px;}
+
+    /* HOW IT WORKS */
     .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;position:relative;}
+    .steps::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,180,255,.3),transparent);pointer-events:none;}
     .step{text-align:center;padding:2rem 1.5rem;}
     .step-num{width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,180,255,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-family:var(--font-head);font-size:1.4rem;color:var(--blue);}
     .step h4{font-family:var(--font-head);font-size:1.1rem;letter-spacing:.05em;margin-bottom:.5rem;}
     .step p{font-size:.85rem;color:var(--grey);}
+
+    /* PRICING */
     .pricing-box{background:var(--dark);border:1px solid rgba(0,180,255,.2);border-radius:16px;padding:3rem;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;}
     .pricing-left .big{font-family:var(--font-head);font-size:5rem;color:var(--blue);line-height:1;}
     .pricing-left .big-label{font-size:.9rem;color:var(--grey);margin-top:.5rem;}
     .pricing-features{list-style:none;display:flex;flex-direction:column;gap:.85rem;}
     .pricing-features li{display:flex;align-items:flex-start;gap:.75rem;font-size:.9rem;}
     .pricing-features li::before{content:'✓';color:var(--blue);font-weight:700;flex-shrink:0;margin-top:.1rem;}
-    @media(max-width:640px){.pricing-box{grid-template-columns:1fr;}}
+    @media(max-width:640px){.pricing-box{grid-template-columns:1fr;}.steps::before{display:none;}}
+
+    /* TESTIMONIAL / TRUST */
+    .trust{background:var(--dark2);border-radius:16px;padding:2.5rem;text-align:center;border:1px solid rgba(255,255,255,.06);}
+    .trust p{font-size:1.1rem;font-style:italic;color:var(--grey);max-width:600px;margin:0 auto 1rem;}
+    .trust cite{font-size:.85rem;color:var(--blue);}
+
+    /* CTA SECTION */
+    .cta-section{background:linear-gradient(135deg,rgba(0,180,255,.08) 0%,rgba(0,180,255,.02) 100%);border:1px solid rgba(0,180,255,.15);border-radius:16px;padding:4rem;text-align:center;}
+    .cta-section h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);margin-bottom:1rem;}
+    .cta-section p{color:var(--grey);margin-bottom:2rem;}
+
+    /* FAQ */
     .faq{display:flex;flex-direction:column;gap:1rem;}
     .faq-item{background:var(--dark);border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,.06);}
     .faq-q{padding:1.25rem 1.5rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:500;}
@@ -80,22 +105,24 @@
     .faq-a{padding:0 1.5rem;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;color:var(--grey);font-size:.9rem;}
     .faq-item.open .faq-a{max-height:200px;padding:0 1.5rem 1.25rem;}
     .faq-item.open .faq-q span{transform:rotate(45deg);}
-    .cta-section{background:linear-gradient(135deg,rgba(0,180,255,.08) 0%,rgba(0,180,255,.02) 100%);border:1px solid rgba(0,180,255,.15);border-radius:16px;padding:4rem;text-align:center;}
-    .cta-section h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);margin-bottom:1rem;}
-    .cta-section p{color:var(--grey);margin-bottom:2rem;}
+
+    /* FOOTER */
     footer{border-top:1px solid rgba(255,255,255,.06);padding:2rem;text-align:center;color:var(--grey);font-size:.85rem;}
     footer a{color:var(--blue);}
   </style>
 </head>
 <body>
+
 <nav>
   <a href="../" class="nav-logo">KEEP IT <span>IL</span></a>
   <div class="nav-links">
-    <a href="../#events">Events</a>
+    <a href="https://keepitil.com/events">Events</a>
     <a href="../#explore">Explore</a>
     <a href="dashboard.html" class="nav-cta">Organizer Login</a>
   </div>
 </nav>
+
+<!-- HERO -->
 <section class="hero">
   <div>
     <div class="hero-badge">🎛 Partner Program</div>
@@ -113,11 +140,14 @@
     </div>
   </div>
 </section>
+
+<!-- MARKETING PACKAGE -->
 <section id="package">
   <div class="container">
     <div class="section-label">What You Get</div>
     <h2 class="section-title">THE MARKETING PACKAGE</h2>
     <p class="section-sub">Every approved event gets the full promotional treatment — no extra fees, no picking and choosing.</p>
+
     <div class="package">
       <div class="package-header">
         <div>
@@ -129,36 +159,86 @@
           <div class="cut-label">platform cut · you keep 80%</div>
         </div>
       </div>
+
       <div class="benefits-grid">
-        <div class="benefit"><div class="benefit-icon">📲</div><div class="benefit-title">Posh Text Blast</div><p class="benefit-desc">Your event gets blasted via text to every follower on our Posh account the moment it's approved.</p><span class="benefit-reach">845+ Posh followers</span></div>
-        <div class="benefit"><div class="benefit-icon">📧</div><div class="benefit-title">Eventbrite Email Campaign</div><p class="benefit-desc">Your event goes out in a dedicated email to our full Eventbrite subscriber list.</p><span class="benefit-reach">4.5k past attendees</span></div>
-        <div class="benefit"><div class="benefit-icon">📸</div><div class="benefit-title">Instagram Collab Post</div><p class="benefit-desc">We collaborate on an Instagram post promoting your event. Your account gets tagged as collaborator.</p><span class="benefit-reach">Shared reach</span></div>
-        <div class="benefit"><div class="benefit-icon">🗺</div><div class="benefit-title">Explore Page Feature</div><p class="benefit-desc">Your event is pinned to our Explore section on keepitil.github.io — the go-to discovery page for OC underground events.</p><span class="benefit-reach">Featured placement</span></div>
+        <div class="benefit">
+          <div class="benefit-icon">📲</div>
+          <div class="benefit-title">Posh Text Blast</div>
+          <p class="benefit-desc">Your event gets blasted via text to every follower on our Posh account the moment it's approved. Direct to their phones.</p>
+          <span class="benefit-reach">845+ Posh followers</span>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">📧</div>
+          <div class="benefit-title">Eventbrite Email Campaign</div>
+          <p class="benefit-desc">Your event goes out in a dedicated email to our full Eventbrite subscriber list — people who've already attended KEEPITIL events.</p>
+          <span class="benefit-reach">4.5k past attendees</span>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">📸</div>
+          <div class="benefit-title">Instagram Collab Post</div>
+          <p class="benefit-desc">We collaborate on an Instagram post promoting your event. Your account gets tagged as collaborator — your followers see it too.</p>
+          <span class="benefit-reach">Shared reach</span>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">🗺</div>
+          <div class="benefit-title">Explore Page Feature</div>
+          <p class="benefit-desc">Your event is pinned to our Explore section on keepitil.github.io — the go-to discovery page for OC underground events.</p>
+          <span class="benefit-reach">Featured placement</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<!-- HOW IT WORKS -->
 <section style="background:var(--dark);">
   <div class="container">
     <div class="section-label">Process</div>
     <h2 class="section-title">HOW IT WORKS</h2>
     <p class="section-sub">From application to promotion in a few steps.</p>
+
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><h4>APPLY</h4><p>Create your organizer account, fill in your profile, and agree to the 20% platform terms.</p></div>
-      <div class="step"><div class="step-num">2</div><h4>SUBMIT EVENT</h4><p>Add your event details, flyer, ticket tiers, and links. It goes into our approval queue.</p></div>
-      <div class="step"><div class="step-num">3</div><h4>WE REVIEW</h4><p>KEEPITIL reviews within 48 hours. We only feature OC music events that fit the scene.</p></div>
-      <div class="step"><div class="step-num">4</div><h4>GET PROMOTED</h4><p>Approved events get the full blast — Posh text, EB email, IG collab, Explore feature.</p></div>
-      <div class="step"><div class="step-num">5</div><h4>TRACK IT</h4><p>Log into your dashboard to see marketing status and reach for every event you submit.</p></div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>APPLY</h4>
+        <p>Create your organizer account, fill in your profile, and agree to the 20% platform terms.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>SUBMIT EVENT</h4>
+        <p>Add your event details, flyer, ticket tiers, and links. It goes into our approval queue.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>WE REVIEW</h4>
+        <p>KEEPITIL reviews within 48 hours. We only feature OC music events that fit the scene.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>GET PROMOTED</h4>
+        <p>Approved events get the full blast — Posh text, EB email, IG collab, Explore feature.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <h4>TRACK IT</h4>
+        <p>Log into your dashboard to see marketing status and reach for every event you submit.</p>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- PRICING -->
 <section id="pricing">
   <div class="container">
     <div class="section-label">Pricing</div>
     <h2 class="section-title">SIMPLE SPLIT</h2>
     <p class="section-sub">No monthly fees. No upfront costs. We only earn when you do.</p>
+
     <div class="pricing-box">
-      <div class="pricing-left"><div class="big">20%</div><div class="big-label">platform fee on ticket revenue<br/>You keep the other 80%</div></div>
+      <div class="pricing-left">
+        <div class="big">20%</div>
+        <div class="big-label">platform fee on ticket revenue<br/>You keep the other 80%</div>
+      </div>
       <ul class="pricing-features">
         <li>Full Posh text blast to 845+ followers</li>
         <li>Eventbrite email to 4.5k past attendees</li>
@@ -171,19 +251,39 @@
     </div>
   </div>
 </section>
+
+<!-- FAQ -->
 <section style="background:var(--dark);">
   <div class="container">
     <div class="section-label">FAQ</div>
-    <h2 class="section-title">QUESTIONS</h2><br/>
+    <h2 class="section-title">QUESTIONS</h2>
+    <br/>
     <div class="faq">
-      <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What kinds of events do you accept? <span>+</span></div><div class="faq-a">OC and LA County underground electronic music events only — techno, house, bass, D&amp;B, trance. Quality over quantity.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How does the 20% cut work? <span>+</span></div><div class="faq-a">The 20% is taken from ticket revenue processed through your Eventbrite or Posh account. This covers all four marketing channels — no additional cost.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How long does approval take? <span>+</span></div><div class="faq-a">We aim to review within 48 hours. Once approved, your event is added to the Explore page immediately.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need a Posh or Eventbrite account? <span>+</span></div><div class="faq-a">Yes — you'll need at least one active ticket link for your event to be approved. Free events are accepted too.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I submit multiple events? <span>+</span></div><div class="faq-a">Yes. Once your organizer account is approved, you can submit as many events as you like.</div></div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">What kinds of events do you accept? <span>+</span></div>
+        <div class="faq-a">OC and LA County underground electronic music events only — techno, house, bass, D&B, trance. No hip hop nights, bar events, or non-music events. Quality over quantity.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How does the 20% cut work? <span>+</span></div>
+        <div class="faq-a">The 20% is taken from ticket revenue processed through your Eventbrite or Posh account. You invoice us or we track it via your submitted ticket links. This covers all four marketing channels — there's no additional cost.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">How long does approval take? <span>+</span></div>
+        <div class="faq-a">We aim to review within 48 hours. Once approved, your event is added to the Explore page immediately and the Posh blast + EB email go out within 24 hours of approval.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Do I need a Posh or Eventbrite account? <span>+</span></div>
+        <div class="faq-a">Yes — you'll need at least one active ticket link (Posh or Eventbrite) for your event to be approved. Free events are accepted too; the 20% applies only to paid ticket revenue.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I submit multiple events? <span>+</span></div>
+        <div class="faq-a">Yes. Once your organizer account is approved, you can submit as many events as you like. Each goes through the same 48-hour review process.</div>
+      </div>
     </div>
   </div>
 </section>
+
+<!-- CTA -->
 <section>
   <div class="container">
     <div class="cta-section">
@@ -193,8 +293,11 @@
     </div>
   </div>
 </section>
+
 <footer>
-  <p>© 2026 Keep It IL — <a href="keepitil.github.io">keepitil.github.io</a> · <a href="dashboard.html">Organizer Login</a> · <a href="admin.html">Admin</a></p>
+  <p>© 2026 Keep It IL — <a href="https://keepitil.com">keepitil.github.io</a> · <a href="dashboard.html">Organizer Login</a> · <a href="admin.html">Admin</a></p>
 </footer>
+
+
 </body>
 </html>
