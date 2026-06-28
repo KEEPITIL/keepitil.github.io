@@ -41,6 +41,8 @@
     // Scroll-to-top button: lift above radio bar, move to left to avoid Echo on right
     '#scroll-top{bottom:70px!important;left:24px!important;right:auto!important;}'+
     '.radio-mini #scroll-top{bottom:92px!important;}'+
+    // Nav logo: bigger across all pages (overrides inline height:30px)
+    'a.nav-logo img,#main-nav img,nav img[src*="keepitil-x-"]{height:44px!important;width:auto!important;}'+
     '@media(max-width:600px){#kil-track{display:none;}.kil-submit{display:none;}#kr-vol{width:46px;}}'+
     '@media(max-width:480px){#kilo-btn{bottom:66px!important;right:16px!important;}.radio-mini #kilo-btn{bottom:88px!important;right:16px!important;}.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}';
   document.head.appendChild(css);
@@ -169,6 +171,19 @@
   if(volEl){volEl.addEventListener('input',function(){
     if(widget&&widgetReady){interacted=true;savedVol=parseInt(this.value);muted=false;if(muteBtn)muteBtn.textContent='🔊';widget.setVolume(savedVol);}
   });}
+
+  // ── Nav logo swap: transparent extracted X marks, no mix-blend-mode ─────
+  (function swapNavLogos(){
+    document.querySelectorAll('a.nav-logo img,#main-nav img,nav img').forEach(function(img){
+      var src=img.getAttribute('src')||'';
+      var m=src.match(/logo-(\w+)-nav\.png/i);
+      if(!m)return;
+      img.src='/keepitil-x-'+m[1]+'.png';
+      var st=img.getAttribute('style')||'';
+      img.setAttribute('style',st.replace(/mix-blend-mode\s*:\s*\w+\s*;?/gi,''));
+      img.style.mixBlendMode='';
+    });
+  })();
 
   // ── PJAX: seamless navigation without reloading radio ────────────────────
   (function(){
