@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#6C63FF"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>SkillVault</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="stylesheet" href="styles.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  /* ─── Reset & Base ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #6C63FF;
+    --purple-light: #EAE9FF;
+    --games: #FF6B6B;
+    --games-light: #FFE8E8;
+    --lang: #4ECDC4;
+    --lang-light: #E0F9F7;
+    --tech: #45B7D1;
+    --tech-light: #E0F4FA;
+    --howto: #FFA07A;
+    --howto-light: #FFF0E8;
+    --bg: #F0F2FF;
+    --card: #FFFFFF;
+    --text: #2D3748;
+    --text-muted: #718096;
+    --border: #E2E8F0;
+    --shadow: 0 2px 12px rgba(108,99,255,0.10);
+    --shadow-lg: 0 8px 32px rgba(108,99,255,0.18);
+    --radius: 16px;
+    --nav-height: 72px;
+  }
+
+  html { -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    overscroll-behavior-y: none;
+  }
+
+  /* ─── Layout Shell ─── */
+  .app-shell {
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  @media (min-width: 768px) {
+    body { display: flex; padding-bottom: 0; }
+    .app-shell { max-width: 100%; width: 100%; display: flex; }
+    .sidebar-nav { display: flex !important; }
+    .bottom-nav { display: none !important; }
+    .main-content { margin-left: 220px; flex: 1; max-width: 580px; padding-bottom: 32px; }
+  }
+
+  /* ─── Top Bar ─── */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(240,242,255,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 16px 20px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(108,99,255,0.08);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--purple);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(108,99,255,0.35);
+  }
+  .logo-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--purple);
+    letter-spacing: -0.5px;
+  }
+
+  .icon-btn {
+    width: 38px; height: 38px;
+    background: var(--card);
+    border: none;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.93); box-shadow: none; }
+
+  /* ─── Main Content ─── */
+  .main-content {
+    padding: 20px 16px 0;
+  }
+
+  /* ─── Stats Strip ─── */
+  .stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.4s ease forwards 0.05s;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 10px 6px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    cursor: default;
+    transition: transform 0.15s;
+  }
+  .stat-card:active { transform: scale(0.96); }
+
+  .stat-emoji { font-size: 18px; line-height: 1; margin-bottom: 2px; }
+  .stat-count {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    line-height: 1;
+    margin-bottom: 1px;
+  }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .stat-card.games .stat-count { color: var(--games); }
+  .stat-card.lang  .stat-count { color: var(--lang); }
+  .stat-card.tech  .stat-count { color: var(--tech); }
+  .stat-card.howto .stat-count { color: var(--howto); }
+
+  /* ─── Search Bar ─── */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.4s ease forwards 0.12s;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 13px 42px 13px 42px;
+    border: 2px solid transparent;
+    border-radius: 14px;
+    background: var(--card);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.12);
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: var(--text-muted);
+    color: white;
+    border: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    font-weight: 700;
+    transition: background 0.15s;
+  }
+  .search-clear:hover { background: var(--text); }
+  .search-clear.visible { display: flex; }
+
+  /* ─── Search Results ─── */
+  .search-results {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    margin-top: 8px;
+    overflow: hidden;
+    display: none;
+  }
+  .search-results.visible { display: block; }
+
+  .search-result-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+  }
+  .search-result-item:last-child { border-bottom: none; }
+  .search-result-item:hover, .search-result-item:active { background: var(--bg); }
+
+  .search-result-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .search-result-info { flex: 1; min-width: 0; }
+  .search-result-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .search-result-cat {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .search-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .search-empty strong { color: var(--text); }
+
+  /* ─── Section Title ─── */
+  .section-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ─── Category Grid ─── */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.4s ease forwards 0.19s;
+  }
+
+  .cat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 14px 16px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .cat-card:active { transform: scale(0.97); box-shadow: none; }
+
+  .cat-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.12;
+  }
+  .cat-card.games { border-top: 4px solid var(--games); }
+  .cat-card.games::before { background: var(--games); }
+  .cat-card.lang  { border-top: 4px solid var(--lang); }
+  .cat-card.lang::before  { background: var(--lang); }
+  .cat-card.tech  { border-top: 4px solid var(--tech); }
+  .cat-card.tech::before  { background: var(--tech); }
+  .cat-card.howto { border-top: 4px solid var(--howto); }
+  .cat-card.howto::before { background: var(--howto); }
+
+  .cat-emoji {
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .cat-name {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .cat-card.games .cat-name { color: var(--games); }
+  .cat-card.lang  .cat-name { color: var(--lang); }
+  .cat-card.tech  .cat-name { color: var(--tech); }
+  .cat-card.howto .cat-name { color: var(--howto); }
+
+  .cat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .cat-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+  }
+  .cat-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: 'Nunito', sans-serif;
+  }
+  .cat-card.games .cat-badge { background: var(--games-light); color: var(--games); }
+  .cat-card.lang  .cat-badge { background: var(--lang-light);  color: var(--lang); }
+  .cat-card.tech  .cat-badge { background: var(--tech-light);  color: var(--tech); }
+  .cat-card.howto .cat-badge { background: var(--howto-light); color: var(--howto); }
+
+  .cat-arrow {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  /* ─── Skill Cards ─── */
+  .skills-section {
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.4s ease forwards 0.27s;
+  }
+
+  .skill-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 13px 14px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    display: block;
+    box-shadow: var(--shadow);
+    border-left: 4px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card:active { transform: scale(0.98); box-shadow: none; }
+  .skill-card.games { border-left-color: var(--games); }
+  .skill-card.lang  { border-left-color: var(--lang); }
+  .skill-card.tech  { border-left-color: var(--tech); }
+  .skill-card.howto { border-left-color: var(--howto); }
+
+  .skill-card-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 4px;
+  }
+  .skill-chip {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-family: 'Nunito', sans-serif;
+  }
+  .skill-chip.games { background: var(--games-light); color: var(--games); }
+  .skill-chip.lang  { background: var(--lang-light);  color: var(--lang); }
+  .skill-chip.tech  { background: var(--tech-light);  color: var(--tech); }
+  .skill-chip.howto { background: var(--howto-light); color: var(--howto); }
+
+  .pin-icon { font-size: 12px; margin-left: auto; }
+
+  .skill-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .skill-body {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.45;
+  }
+
+  /* ─── Sub-section divider ─── */
+  .sub-section-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 14px 0 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sub-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── Empty State ─── */
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-emoji { font-size: 40px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; margin-bottom: 14px; }
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple);
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    box-shadow: 0 4px 14px rgba(108,99,255,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-primary:active { transform: scale(0.96); box-shadow: none; }
+
+  /* ─── FAB ─── */
+  .fab {
+    position: fixed;
+    bottom: calc(var(--nav-height) + 16px + env(safe-area-inset-bottom));
+    right: 20px;
+    width: 54px; height: 54px;
+    background: var(--purple);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    font-weight: 300;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(108,99,255,0.45);
+    z-index: 90;
+    transition: transform 0.2s, box-shadow 0.2s;
+    line-height: 1;
+  }
+  .fab:active { transform: scale(0.93) rotate(90deg); box-shadow: 0 2px 8px rgba(108,99,255,0.3); }
+
+  @media (min-width: 768px) {
+    .fab { bottom: 24px; }
+  }
+
+  /* ─── Bottom Nav ─── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 8px;
+    z-index: 200;
+  }
+
+  .nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+    padding: 4px 0;
+    transition: transform 0.15s;
+  }
+  .nav-tab:active { transform: scale(0.9); }
+
+  .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-muted);
+  }
+  .nav-tab.active .nav-label { color: var(--purple); }
+  .nav-tab.active .nav-icon { filter: drop-shadow(0 2px 4px rgba(108,99,255,0.4)); }
+
+  /* ─── Sidebar Nav (Desktop) ─── */
+  .sidebar-nav {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 220px; height: 100vh;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    flex-direction: column;
+    padding: 28px 16px;
+    gap: 6px;
+    z-index: 200;
+    box-shadow: 2px 0 16px rgba(108,99,255,0.06);
+  }
+
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 8px 20px;
+    text-decoration: none;
+  }
+  .sidebar-logo-icon {
+    width: 38px; height: 38px;
+    background: var(--purple);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(108,99,255,0.35);
+  }
+  .sidebar-logo-text {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--purple);
+  }
+
+  .sidebar-tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: background 0.15s, color 0.15s;
+  }
+  .sidebar-tab:hover { background: var(--bg); color: var(--text); }
+  .sidebar-tab.active { background: var(--purple-light); color: var(--purple); }
+  .sidebar-tab-icon { font-size: 18px; }
+
+  /* ─── Animations ─── */
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── Loading shimmer ─── */
+  .shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+    border-radius: 8px;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar Nav (Desktop) -->
+<nav class="sidebar-nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="sidebar-logo">
+    <span class="sidebar-logo-icon">⚡</span>
+    <span class="sidebar-logo-text">SkillVault</span>
+  </a>
+  <a href="index.html" class="sidebar-tab active">
+    <span class="sidebar-tab-icon">🏠</span> Home
+  </a>
+  <a href="index.html#search" class="sidebar-tab" id="sidebar-search-tab">
+    <span class="sidebar-tab-icon">🔍</span> Search
+  </a>
+  <a href="add.html" class="sidebar-tab">
+    <span class="sidebar-tab-icon">➕</span> Add Skill
+  </a>
+  <a href="quiz.html" class="sidebar-tab">
+    <span class="sidebar-tab-icon">🎯</span> Quiz
+  </a>
+</nav>
+
+<div class="app-shell">
+  <!-- Top Bar -->
+  <header class="top-bar" role="banner">
+    <a href="index.html" class="logo" aria-label="SkillVault Home">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">SkillVault</span>
+    </a>
+    <button class="icon-btn" aria-label="Settings" onclick="alert('Settings coming soon!')">⚙️</button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+
+    <!-- Stats Strip -->
+    <div class="stats-strip" id="stats-strip" role="region" aria-label="Skill statistics">
+      <div class="stat-card games">
+        <div class="stat-emoji">🎮</div>
+        <div class="stat-count" id="stat-games">0</div>
+        <div class="stat-label">Games</div>
+      </div>
+      <div class="stat-card lang">
+        <div class="stat-emoji">🌍</div>
+        <div class="stat-count" id="stat-lang">0</div>
+        <div class="stat-label">Lang</div>
+      </div>
+      <div class="stat-card tech">
+        <div class="stat-emoji">🔧</div>
+        <div class="stat-count" id="stat-tech">0</div>
+        <div class="stat-label">Tech</div>
+      </div>
+      <div class="stat-card howto">
+        <div class="stat-emoji">📚</div>
+        <div class="stat-count" id="stat-howto">0</div>
+        <div class="stat-label">How-To</div>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-wrap" id="search-section">
+      <span class="search-icon">🔍</span>
+      <input
+        type="search"
+        class="search-input"
+        id="search-input"
+        placeholder="Search skills…"
+        autocomplete="off"
+        aria-label="Search skills"
+      />
+      <button class="search-clear" id="search-clear" aria-label="Clear search">×</button>
+      <div class="search-results" id="search-results" role="listbox" aria-label="Search results"></div>
+    </div>
+
+    <!-- Category Grid -->
+    <section class="cat-grid" aria-label="Skill categories">
+      <a href="category.html?cat=games" class="cat-card games" aria-label="Games category">
+        <div class="cat-emoji">🎮</div>
+        <div class="cat-name">Games</div>
+        <div class="cat-sub">Tips, guides &amp; walkthroughs</div>
+        <div class="cat-footer">
+          <span class="cat-badge" id="badge-games">0 skills</span>
+          <span class="cat-arrow">→</span>
+        </div>
+      </a>
+      <a href="category.html?cat=lang" class="cat-card lang" aria-label="Languages category">
+        <div class="cat-emoji">🌍</div>
+        <div class="cat-name">Languages</div>
+        <div class="cat-sub">Phrases, vocab &amp; translations</div>
+        <div class="cat-footer">
+          <span class="cat-badge" id="badge-lang">0 skills</span>
+          <span class="cat-arrow">→</span>
+        </div>
+      </a>
+      <a href="category.html?cat=tech" class="cat-card tech" aria-label="Tech Help category">
+        <div class="cat-emoji">🔧</div>
+        <div class="cat-name">Tech Help</div>
+        <div class="cat-sub">Fixes &amp; troubleshooting</div>
+        <div class="cat-footer">
+          <span class="cat-badge" id="badge-tech">0 skills</span>
+          <span class="cat-arrow">→</span>
+        </div>
+      </a>
+      <a href="category.html?cat=howto" class="cat-card howto" aria-label="How-To category">
+        <div class="cat-emoji">📚</div>
+        <div class="cat-name">How-To</div>
+        <div class="cat-sub">Step-by-step skills</div>
+        <div class="cat-footer">
+          <span class="cat-badge" id="badge-howto">0 skills</span>
+          <span class="cat-arrow">→</span>
+        </div>
+      </a>
+    </section>
+
+    <!-- Pinned & Recent Skills -->
+    <section class="skills-section" aria-label="Pinned and recent skills">
+      <div class="section-title">📌 Pinned &amp; Recent</div>
+      <div id="pinned-skills"></div>
+      <div id="recent-skills"></div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav" role="navigation" aria-label="Main navigation">
+    <a href="index.html" class="nav-tab active" aria-current="page">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="index.html#search" class="nav-tab" id="search-tab-btn">
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Search</span>
+    </a>
+    <a href="add.html" class="nav-tab">
+      <span class="nav-icon">➕</span>
+      <span class="nav-label">Add</span>
+    </a>
+    <a href="quiz.html" class="nav-tab">
+      <span class="nav-icon">🎯</span>
+      <span class="nav-label">Quiz</span>
+    </a>
+  </nav>
+
+  <!-- FAB -->
+  <a href="add.html" class="fab" aria-label="Add new skill">+</a>
+</div>
+
+<script src="app.js"></script>
+<script>
+/* ── SkillVault Home Page Script ── */
+
+const CAT_META = {
+  games: { label: 'Games',     emoji: '🎮', color: '#FF6B6B' },
+  lang:  { label: 'Languages', emoji: '🌍', color: '#4ECDC4' },
+  tech:  { label: 'Tech Help', emoji: '🔧', color: '#45B7D1' },
+  howto: { label: 'How-To',    emoji: '📚', color: '#FFA07A' },
+};
+
+/* ── Fallback stub if app.js not loaded yet ── */
+if (typeof window.SkillVault === 'undefined') {
+  window.SkillVault = {
+    _key: 'skillvault_data',
+    _data() {
+      try { return JSON.parse(localStorage.getItem(this._key)) || { skills: [] }; } catch(e) { return { skills: [] }; }
+    },
+    _save(d) { localStorage.setItem(this._key, JSON.stringify(d)); },
+    seed() {
+      const d = this._data();
+      if (d.seeded) return;
+      const now = Date.now();
+      d.skills = [
+        { id: 'g1', cat: 'games', title: 'Hollow Knight — Nail Combos', body: 'Spam Cyclone Slash when boss is stunned. Great Slash deals 2.5× damage. Always nail-pogo on spiky enemies to conserve Soul.', tags: ['combat', 'boss'], pinned: true,  updatedAt: now - 1000 * 60 * 2 },
+        { id: 'g2', cat: 'games', title: 'Celeste — Dash Mechanics',   body: 'You can dash in 8 directions. Dash resets on landing AND on grabbing a wall. Corner corrections are generous — give 5px leeway.', tags: ['platformer', 'movement'], pinned: false, updatedAt: now - 1000 * 60 * 20 },
+        { id: 'l1', cat: 'lang',  title: 'Japanese Counters Cheatsheet', body: 'Use 枚(まい) for flat things, 本(ほん) for long things, 匹(ひき) for small animals, 頭(とう) for large animals, 冊(さつ) for books.', tags: ['japanese', 'grammar'], pinned: true,  updatedAt: now - 1000 * 60 * 45 },
+        { id: 'l2', cat: 'lang',  title: 'Spanish Ser vs Estar',         body: 'SER = permanent traits (identity, origin, material, time). ESTAR = temporary states (emotion, location, condition, progressive).', tags: ['spanish', 'grammar'], pinned: false, updatedAt: now - 1000 * 60 * 90 },
+        { id: 't1', cat: 'tech',  title: 'SSH Config Shortcuts',          body: 'Add entries to ~/.ssh/config: Host myserver\\n  HostName 192.168.1.10\\n  User ubuntu\\n  IdentityFile ~/.ssh/id_ed25519', tags: ['ssh', 'linux'], pinned: false, updatedAt: now - 1000 * 60 * 5 },
+        { id: 't2', cat: 'tech',  title: 'Chrome DevTools: Network Tab',  body: 'Filter by XHR to see API calls. Click a request → Preview for JSON. Shift+click a request to highlight its initiator/dependencies.', tags: ['devtools', 'debugging'], pinned: true, updatedAt: now - 1000 * 60 * 30 },
+        { id: 'h1', cat: 'howto', title: 'Perfect Soft-Boiled Eggs',      body: 'Boil water first, lower eggs gently. 6 min 30 sec exactly. Transfer to ice bath for 2 min. Peel under running water.', tags: ['cooking', 'eggs'], pinned: false, updatedAt: now - 1000 * 60 * 60 },
+        { id: 'h2', cat: 'howto', title: 'Tie a Bowline Knot',            body: 'The rabbit comes out of the hole, goes around the tree, and back down the hole. Forms a secure fixed loop that won\'t slip under load.', tags: ['knots', 'outdoors'], pinned: true, updatedAt: now - 1000 * 60 * 120 },
+      ];
+      d.seeded = true;
+      this._save(d);
+    },
+    getStats() {
+      const d = this._data();
+      const counts = { games: 0, lang: 0, tech: 0, howto: 0 };
+      d.skills.forEach(s => { if (counts[s.cat] !== undefined) counts[s.cat]++; });
+      return counts;
+    },
+    getAll() { return this._data().skills; },
+    getByCategory(cat) { return this._data().skills.filter(s => s.cat === cat); },
+    getPinned() { return this._data().skills.filter(s => s.pinned); },
+    getRecent(n = 5) {
+      return [...this._data().skills].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, n);
+    },
+    search(q) {
+      q = q.toLowerCase().trim();
+      if (!q) return [];
+      return this._data().skills.filter(s =>
+        s.title.toLowerCase().includes(q) ||
+        s.body.toLowerCase().includes(q) ||
+        (s.tags || []).some(t => t.toLowerCase().includes(q))
+      );
+    },
+  };
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  SkillVault.seed();
+  renderStats();
+  renderSkills();
+  initSearch();
+  handleHashNav();
+  animateCatGrid();
+});
+
+/* ── Handle #search hash from nav ── */
+function handleHashNav() {
+  if (location.hash === '#search') {
+    setTimeout(() => {
+      const inp = document.getElementById('search-input');
+      if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      history.replaceState(null, '', location.pathname);
+    }, 200);
+  }
+}
+
+/* ── Animate cat cards staggered ── */
+function animateCatGrid() {
+  document.querySelectorAll('.cat-card').forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(14px)';
+    el.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    setTimeout(() => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, 190 + i * 60);
+  });
+}
+
+/* ── Render Stats ── */
+function renderStats() {
+  const stats = SkillVault.getStats();
+  document.getElementById('stat-games').textContent = stats.games;
+  document.getElementById('stat-lang').textContent  = stats.lang;
+  document.getElementById('stat-tech').textContent  = stats.tech;
+  document.getElementById('stat-howto').textContent = stats.howto;
+
+  const pl = n => n === 1 ? 'skill' : 'skills';
+  document.getElementById('badge-games').textContent = `${stats.games} ${pl(stats.games)}`;
+  document.getElementById('badge-lang').textContent  = `${stats.lang}  ${pl(stats.lang)}`;
+  document.getElementById('badge-tech').textContent  = `${stats.tech}  ${pl(stats.tech)}`;
+  document.getElementById('badge-howto').textContent = `${stats.howto} ${pl(stats.howto)}`;
+}
+
+/* ── Render Skill Cards ── */
+function skillCardHTML(skill) {
+  const meta = CAT_META[skill.cat] || { label: skill.cat, emoji: '📝', color: '#999' };
+  const pin  = skill.pinned ? '<span class="pin-icon" aria-label="Pinned">📌</span>' : '';
+  return `
+    <a href="skill.html?id=${encodeURIComponent(skill.id)}" class="skill-card ${skill.cat}" aria-label="${escapeHTML(skill.title)}">
+      <div class="skill-card-header">
+        <span class="skill-chip ${skill.cat}">${meta.emoji} ${meta.label}</span>
+        ${pin}
+      </div>
+      <div class="skill-title">${escapeHTML(skill.title)}</div>
+      <div class="skill-body">${escapeHTML(skill.body)}</div>
+    </a>`;
+}
+
+function renderSkills() {
+  const pinned = SkillVault.getPinned();
+  const recent = SkillVault.getRecent(5).filter(s => !s.pinned);
+  const pinnedEl = document.getElementById('pinned-skills');
+  const recentEl = document.getElementById('recent-skills');
+
+  if (pinned.length === 0 && recent.length === 0) {
+    pinnedEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-emoji">🗂️</div>
+        <p>No skills saved yet.<br/>Add your first one to get started!</p>
+        <a href="add.html" class="btn-primary">➕ Add a Skill</a>
+      </div>`;
+    return;
+  }
+
+  if (pinned.length > 0) {
+    pinnedEl.innerHTML = `<div class="sub-section-label">📌 Pinned</div>` +
+      pinned.map(skillCardHTML).join('');
+  }
+
+  if (recent.length > 0) {
+    recentEl.innerHTML = `<div class="sub-section-label">🕐 Recent</div>` +
+      recent.map(skillCardHTML).join('');
+  }
+}
+
+/* ── Search ── */
+function initSearch() {
+  const input   = document.getElementById('search-input');
+  const clear   = document.getElementById('search-clear');
+  const results = document.getElementById('search-results');
+
+  let debounceTimer;
+
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => doSearch(input.value), 120);
+    clear.classList.toggle('visible', input.value.length > 0);
+  });
+
+  clear.addEventListener('click', () => {
+    input.value = '';
+    clear.classList.remove('visible');
+    results.classList.remove('visible');
+    results.innerHTML = '';
+    input.focus();
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      input.value = '';
+      clear.classList.remove('visible');
+      results.classList.remove('visible');
+      results.innerHTML = '';
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) {
+      results.classList.remove('visible');
+    }
+  });
+
+  /* Search nav tab: focus the input */
+  const searchTabBtn = document.getElementById('search-tab-btn');
+  if (searchTabBtn) {
+    searchTabBtn.addEventListener('click', e => {
+      e.preventDefault();
+      input.focus();
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+  const sidebarSearchTab = document.getElementById('sidebar-search-tab');
+  if (sidebarSearchTab) {
+    sidebarSearchTab.addEventListener('click', e => {
+      e.preventDefault();
+      input.focus();
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+}
+
+function doSearch(query) {
+  const results = document.getElementById('search-results');
+  const q = query.trim();
+  if (!q) {
+    results.classList.remove('visible');
+    results.innerHTML = '';
+    return;
+  }
+
+  const hits = SkillVault.search(q);
+  results.classList.add('visible');
+
+  if (hits.length === 0) {
+    results.innerHTML = `<div class="search-empty">No skills found for <strong>"${escapeHTML(q)}"</strong></div>`;
+    return;
+  }
+
+  results.innerHTML = hits.slice(0, 8).map(s => {
+    const meta = CAT_META[s.cat] || { label: s.cat, color: '#999' };
+    return `
+      <a href="skill.html?id=${encodeURIComponent(s.id)}" class="search-result-item" role="option">
+        <span class="search-result-dot" style="background:${meta.color}"></span>
+        <span class="search-result-info">
+          <div class="search-result-title">${escapeHTML(s.title)}</div>
+          <div class="search-result-cat">${meta.emoji || ''} ${meta.label}</div>
+        </span>
+        <span style="color:#ccc;font-size:14px">→</span>
+      </a>`;
+  }).join('');
+}
+
+function escapeHTML(str) {
+  return String(str ?? '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+</script>
+
+</body>
+</html>
