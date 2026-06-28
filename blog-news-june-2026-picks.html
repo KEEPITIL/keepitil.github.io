@@ -19,6 +19,23 @@
   <meta name="twitter:title" content="KEEPITIL June 2026 Picks &mdash; The Underground Events That Mattered"/>
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1504680177321-2e6a879aac86?w=1400&q=80&auto=format&fit=crop"/>
   <style>
+nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+.nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+.nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
+.nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:#00b4ff;}
+.nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
+.nav-cta:hover{opacity:.85;}
+@media(max-width:768px){.nav-links{display:none;}}
+nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
+.nav-hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
+.nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue,#00b4ff);border-radius:2px;transition:all .3s;}
+.nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-hamburger.open span:nth-child(2){opacity:0;}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
     nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
     .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
     .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
@@ -54,14 +71,19 @@
   </style>
 </head>
 <body>
-<nav>
+<nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <span class="nav-brand">KEEPITIL</span>
+      <img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
-      <li><a href="/">HOME</a></li>
+      <li><a href="/artist/">ARTIST</a></li>
+      <li><a href="/brand/">BRAND</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/organizer/">ORGANIZERS</a></li>
     </ul>
+    <a href="/signup.html" class="nav-cta">SUBSCRIBE</a>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
 
@@ -95,6 +117,7 @@
 
 
 
+
 <style id="pnav-css">
 #pnav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 18px;
   padding:22px 20px;border-top:1px solid rgba(255,255,255,.07);
@@ -121,7 +144,7 @@
 </div>
 <footer>
   <p><a href="/">KEEPITIL</a> &mdash; Underground EDM. OC &amp; LA Events.</p>
-  <p style="margin-top:8px;"><a href="/culture">&larr; More Culture</a> &nbsp;|&nbsp; <a href="/events">Upcoming Events &rarr;</a></p>
+  <p style="margin-top:8px;"><a href="/culture">&larr; More Culture</a> &nbsp;|&nbsp; <a href="/#events-container">Upcoming Events &rarr;</a></p>
 </footer>
 
 <!-- ♬ KEEPITIL Radio Player -->
@@ -206,5 +229,6 @@
 (function(){function pjaxNav(url){fetch(url).then(function(r){return r.text();}).then(function(html){var doc=new DOMParser().parseFromString(html,'text/html');document.title=doc.title;document.head.querySelectorAll('style').forEach(function(s){s.remove();});doc.head.querySelectorAll('style').forEach(function(s){var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);});Array.from(document.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')c.parentNode.removeChild(c);});Array.from(doc.body.children).forEach(function(c){if(c.id!=='kil-radio'&&c.id!=='kil-sc')document.body.appendChild(document.importNode(c,true));});doc.body.querySelectorAll('script').forEach(function(s){if(!s.src&&s.textContent&&!s.textContent.includes('SC.Widget')&&!s.textContent.includes('kil-radio')){try{(new Function(s.textContent))();}catch(ex){}}});history.pushState({pjax:1,url:url},doc.title,url);window.scrollTo(0,0);}).catch(function(){window.location.href=url;});}document.addEventListener('click',function(e){var a=e.target.closest('a');if(!a||a.target==='_blank'||!a.href)return;try{var u=new URL(a.href,location.href);}catch(ex){return;}if(u.origin!==location.origin)return;if(/\.(pdf|zip|png|jpg|gif|svg|mp3|mp4)$/i.test(u.pathname))return;if(u.pathname===location.pathname&&u.hash)return;e.preventDefault();pjaxNav(u.href);},true);window.addEventListener('popstate',function(e){if(e.state&&e.state.pjax)pjaxNav(e.state.url||location.href);});})();
 </script>
 <!-- end KEEPITIL Radio Player -->
+<script src="/keepitil-ai.js" defer></script>
 </body>
 </html>
