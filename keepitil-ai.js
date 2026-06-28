@@ -1,5 +1,5 @@
 /*!
- * KILO — KEEPITIL AI Assistant  v1.0
+ * Echo — KEEPITIL AI Assistant  v2.0
  * Floating chat widget | keepitil.com
  * Self-contained, zero dependencies.
  */
@@ -358,7 +358,7 @@
   // ── CSS injection ────────────────────────────────────────────────────────────
   function injectStyles() {
     var css = [
-      '#kilo-btn{position:fixed;bottom:24px;right:24px;z-index:99998;width:58px;height:58px;border-radius:50%;',
+      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:58px;height:58px;border-radius:50%;',
       'background:linear-gradient(135deg,#00b4ff,#00ff88);border:none;cursor:pointer;',
       'box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);',
       'display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;',
@@ -371,8 +371,8 @@
       '@keyframes kilo-pulse{0%,100%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);}',
       '50%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 8px rgba(0,180,255,0);}}',
 
-      '#kilo-panel{position:fixed;bottom:94px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
-      'height:520px;max-height:calc(100vh - 120px);',
+      '#kilo-panel{position:fixed;bottom:134px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
+      'height:520px;max-height:calc(100vh - 150px);',
       'background:#0f0f1a;border:1px solid rgba(0,180,255,.18);border-radius:16px;',
       'display:flex;flex-direction:column;overflow:hidden;',
       'box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px rgba(0,180,255,.08);',
@@ -449,8 +449,8 @@
       'flex-shrink:0;transition:opacity .18s,transform .15s;}',
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
-      '@media(max-width:480px){#kilo-panel{bottom:80px;right:12px;width:calc(100vw - 24px);}',
-      '#kilo-btn{bottom:16px;right:16px;}}',
+      '@media(max-width:480px){#kilo-panel{bottom:134px;right:12px;width:calc(100vw - 24px);}',
+      '#kilo-btn{bottom:66px;right:16px;}}',
     ].join('');
 
     var s = document.createElement('style');
@@ -477,14 +477,14 @@
     var panel = document.createElement('div');
     panel.id = 'kilo-panel';
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'KILO — KEEPITIL AI Assistant');
+    panel.setAttribute('aria-label', 'Echo — KEEPITIL AI Assistant');
     panel.innerHTML = [
       '<div id="kilo-header">',
         '<div id="kilo-avatar">',
           '<svg viewBox="0 0 24 24"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.49 1.36 4.73 3.5 6.25V21l3.5-2.25c.96.26 1.97.4 3 .4 5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/></svg>',
         '</div>',
         '<div id="kilo-hinfo">',
-          '<div id="kilo-hname">KILO</div>',
+          '<div id="kilo-hname">Echo</div>',
           '<div id="kilo-hsub">KEEPITIL Intelligence</div>',
         '</div>',
         '<button id="kilo-close" aria-label="Close">',
@@ -629,7 +629,7 @@
       // Welcome message on first open
       if (!msgs.hasChildNodes()) {
         addMessage('bot', {
-          title: 'Hey 👋 I\'m KILO',
+          title: 'Hey 👋 I\'m Echo',
           text: 'Your KEEPITIL guide to the SoCal music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
           chips: WELCOME_CHIPS,
         });
