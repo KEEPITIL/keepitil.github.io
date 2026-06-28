@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artist Application — KEEPITIL | OC &amp; LA Underground</title>
+  <meta name="description" content="Apply to join KEEPITIL's artist roster. Underground DJs and producers from OC, LA, SD, and IE welcome."/>
+  <link rel="icon" type="image/png" href="https://keepitil.github.io/logo-blue-nav.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{--black:#0f0f1a;--dark:#111;--dark2:#181818;--blue:#00b4ff;--blue-dim:#0088cc;--white:#f0f0f0;--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
+    html{scroll-behavior:smooth;overflow-x:hidden;}
+    body{background:#0a0a0f url('/logo-bg.jpg') center/cover no-repeat fixed;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}img{max-width:100%;display:block;}
+    .container{max-width:860px;margin:0 auto;padding:0 24px;}
+    .neon-text{color:var(--blue);text-shadow:0 0 8px var(--blue),0 0 20px rgba(0,180,255,.4);}
+    nav{position:sticky;top:0;z-index:100;background:rgba(10,10,18,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+    .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+    .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+    .nav-brand{color:#fff;font-family:var(--font-head);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+    .nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
+    .nav-links a{color:#888;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover{color:#00b4ff;}
+    .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;font-family:var(--font-head);letter-spacing:.1em;font-size:.9rem;}
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
+    .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;}
+    @media(max-width:768px){.nav-links{display:none;}.nav-hamburger{display:flex;}}
+    footer{background:var(--dark);border-top:1px solid rgba(0,180,255,.08);padding:48px 0 24px;}
+    .footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+    .footer-bottom p{font-size:12px;color:#444;}.footer-bottom a{color:var(--blue);}
+
+    /* ── FORM PAGE ── */
+    .form-hero{padding:64px 0 32px;text-align:center;}
+    .form-hero .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--grey);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px;transition:color .2s;}
+    .form-hero .back-link:hover{color:var(--blue);}
+    .form-hero .section-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+    .form-hero h1{font-family:var(--font-head);font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin-bottom:16px;}
+    .form-hero p{max-width:560px;margin:0 auto;color:var(--grey);font-size:15px;}
+
+    /* ── FORM STYLES ── */
+    .form-wrap{background:rgba(17,17,17,.92);border:1px solid rgba(0,180,255,.15);border-radius:8px;padding:48px;margin:32px 0 64px;}
+    .form-section{margin-bottom:40px;}
+    .form-section-title{font-family:var(--font-head);font-size:20px;letter-spacing:.08em;color:var(--blue);border-bottom:1px solid rgba(0,180,255,.2);padding-bottom:10px;margin-bottom:24px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+    .form-row.full{grid-template-columns:1fr;}
+    .form-group{display:flex;flex-direction:column;gap:6px;}
+    .form-group label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
+    .form-group label span.req{color:var(--blue);}
+    .form-group input,.form-group select,.form-group textarea{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:4px;
+      color:var(--white);
+      font-family:var(--font-body);
+      font-size:15px;
+      padding:12px 14px;
+      transition:border-color .2s,box-shadow .2s;
+      width:100%;
+    }
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+      outline:none;
+      border-color:var(--blue);
+      box-shadow:0 0 0 2px rgba(0,180,255,.15);
+    }
+    .form-group input::placeholder,.form-group textarea::placeholder{color:#444;}
+    .form-group select option{background:#111;color:var(--white);}
+    .form-group textarea{resize:vertical;min-height:100px;}
+    .form-hint{font-size:12px;color:#555;margin-top:4px;}
+    .form-checkbox{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;}
+    .form-checkbox input[type="checkbox"]{width:18px;height:18px;margin-top:2px;accent-color:var(--blue);flex-shrink:0;}
+    .form-checkbox label{font-size:14px;color:var(--grey);cursor:pointer;}
+    .form-submit{text-align:center;margin-top:40px;}
+    .btn-submit{background:var(--blue);color:#fff;border:none;padding:16px 48px;border-radius:4px;font-family:var(--font-head);font-size:22px;letter-spacing:.1em;cursor:pointer;box-shadow:0 0 24px rgba(0,180,255,.4);transition:all .2s;}
+    .btn-submit:hover{background:#0088cc;box-shadow:0 0 40px var(--blue);transform:translateY(-2px);}
+    .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+    .form-success{display:none;text-align:center;padding:48px 32px;background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.3);border-radius:8px;}
+    .form-success h3{font-family:var(--font-head);font-size:36px;letter-spacing:.06em;color:var(--blue);margin-bottom:16px;}
+    .form-success p{color:var(--grey);font-size:15px;max-width:480px;margin:0 auto 24px;}
+    .form-error{background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.3);border-radius:4px;padding:12px 16px;color:#ff6b6b;font-size:13px;margin-top:16px;display:none;}
+    @media(max-width:700px){.form-wrap{padding:28px 20px;}.form-row{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <nav id="main-nav">
+    <div class="nav-inner">
+      <a class="nav-logo" href="/"><img src="/logo-blue-nav.png" alt="KEEPITIL" style="height:30px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
+      <ul class="nav-links">
+        <li><a href="/artist/">ARTIST</a></li>
+        <li><a href="/brand/">BRAND</a></li>
+        <li><a href="/culture">CULTURE</a></li>
+        <li><a href="/organizer/">ORGANIZERS</a></li>
+      </ul>
+      <a href="/signup.html" class="nav-cta">SUBSCRIBE</a>
+      <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="form-hero">
+      <div class="container">
+        <a class="back-link" href="/apply.html">← All Applications</a>
+        <p class="section-label">ARTIST APPLICATION</p>
+        <h1>JOIN THE <span class="neon-text">ROSTER</span></h1>
+        <p>Tell us who you are and what you bring to the underground. All genres welcome — we focus on artists genuinely connected to the SoCal scene.</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="form-wrap" id="form-wrap">
+
+        <form id="artist-form" novalidate>
+
+          <!-- SECTION: IDENTITY -->
+          <div class="form-section">
+            <div class="form-section-title">IDENTITY</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Stage Name <span class="req">*</span></label>
+                <input type="text" name="Name" placeholder="Your artist name" required/>
+              </div>
+              <div class="form-group">
+                <label>Pronouns</label>
+                <input type="text" name="Pronouns" placeholder="e.g. she/her, he/him, they/them"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email <span class="req">*</span></label>
+                <input type="email" name="Email" placeholder="booking@youremail.com" required/>
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" name="Phone" placeholder="(xxx) xxx-xxxx"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>City <span class="req">*</span></label>
+                <input type="text" name="City" placeholder="e.g. Santa Ana" required/>
+              </div>
+              <div class="form-group">
+                <label>State</label>
+                <input type="text" name="State" placeholder="CA" maxlength="2"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: SOCIALS -->
+          <div class="form-section">
+            <div class="form-section-title">LINKS &amp; SOCIALS</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Instagram <span class="req">*</span></label>
+                <input type="text" name="Instagram" placeholder="@yourtag" required/>
+              </div>
+              <div class="form-group">
+                <label>SoundCloud</label>
+                <input type="url" name="SoundCloud" placeholder="https://soundcloud.com/..."/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Spotify</label>
+                <input type="url" name="Spotify" placeholder="https://open.spotify.com/..."/>
+              </div>
+              <div class="form-group">
+                <label>YouTube / Mixcloud</label>
+                <input type="url" name="YouTube" placeholder="https://youtube.com/..."/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Website / Linktree</label>
+                <input type="url" name="Website" placeholder="https://..."/>
+              </div>
+              <div class="form-group">
+                <label>Headshot / Press Photo URL</label>
+                <input type="url" name="Image URL" placeholder="https://drive.google.com/..."/>
+                <span class="form-hint">Google Drive, Dropbox, or direct image link</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: SOUND -->
+          <div class="form-section">
+            <div class="form-section-title">YOUR SOUND</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Primary Genre(s) <span class="req">*</span></label>
+                <input type="text" name="Primary Genre" placeholder="e.g. Hard Techno, Melodic House, Dubstep" required/>
+              </div>
+              <div class="form-group">
+                <label>Secondary Influences</label>
+                <input type="text" name="Secondary Influences" placeholder="e.g. Industrial, UKG, Ambient"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Performance Style</label>
+                <select name="Performance Style">
+                  <option value="">Select...</option>
+                  <option>DJ Set</option>
+                  <option>Live Production</option>
+                  <option>Hybrid (DJ + Live)</option>
+                  <option>B2B</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Typical Set Length</label>
+                <select name="Set Length">
+                  <option value="">Select...</option>
+                  <option>30 min</option>
+                  <option>60 min</option>
+                  <option>90 min</option>
+                  <option>2 hours</option>
+                  <option>3+ hours (closing set)</option>
+                  <option>All night</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Years Active</label>
+                <input type="text" name="Years Active" placeholder="e.g. 4 years / since 2021"/>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Short Bio <span class="req">*</span></label>
+                <textarea name="Bio" placeholder="150–200 words. Who are you, what's your sound, what do you bring to the scene?" rows="5" required></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: PERFORMANCE -->
+          <div class="form-section">
+            <div class="form-section-title">PERFORMANCE &amp; CREDITS</div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Notable Past Performances</label>
+                <textarea name="Notable Performances" placeholder="Events, venues, festivals — include approximate dates and crowd sizes if you have them." rows="3"></textarea>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Top 3 Tracks or Mixes <span class="req">*</span></label>
+                <textarea name="Top Tracks / Mixes" placeholder="Paste SoundCloud, Mixcloud, or YouTube links — one per line." rows="3" required></textarea>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Current or Upcoming Releases</label>
+                <textarea name="Current Releases" placeholder="Track/EP/album titles, labels, release dates (if known)." rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION: BOOKING -->
+          <div class="form-section">
+            <div class="form-section-title">BOOKING DETAILS</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Fee Range</label>
+                <select name="Fee Range">
+                  <option value="">Select...</option>
+                  <option>I play for door splits / exposure</option>
+                  <option>$0–$100</option>
+                  <option>$100–$300</option>
+                  <option>$300–$750</option>
+                  <option>$750–$1,500</option>
+                  <option>$1,500+ (negotiate)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Technical Rider Notes</label>
+                <input type="text" name="Technical Rider" placeholder="e.g. Pioneer CDJ-3000s, DJM-A9, PFL headphone out required"/>
+              </div>
+            </div>
+            <div class="form-row full">
+              <div class="form-group">
+                <label>Anything Else to Highlight</label>
+                <textarea name="Notes" placeholder="Military service, cultural roots, residencies, press quotes, anything we should know." rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- CONSENT -->
+          <div class="form-checkbox">
+            <input type="checkbox" id="consent" name="Consent" required/>
+            <label for="consent">I agree to allow KEEPITIL to use my submitted bio, images, and information for editorial coverage, social media spotlights, and on keepitil.com. <span class="req">*</span></label>
+          </div>
+
+          <div class="form-submit">
+            <button type="submit" class="btn-submit" id="submit-btn">SUBMIT APPLICATION</button>
+            <div class="form-error" id="form-error">Please fill in all required fields before submitting.</div>
+          </div>
+
+        </form>
+
+        <div class="form-success" id="form-success">
+          <h3>APPLICATION RECEIVED</h3>
+          <p>Thanks for applying to KEEPITIL. We review every submission personally and will reach out within 7–10 days if it's a fit.</p>
+          <a href="/artist/" style="color:var(--blue);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;">← Browse the Roster</a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-bottom">
+        <p>&copy; 2026 KEEPITIL. All rights reserved.</p>
+        <p><a href="/apply.html">← All Applications</a> &nbsp;|&nbsp; <a href="https://keepitil.com">keepitil.com</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/keepitil-ai.js" defer></script>
+  <script>
+    // ── Replace with your deployed Apps Script URL ──
+    const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+    function toggleMenu(){
+      document.querySelector('.nav-hamburger').classList.toggle('open');
+    }
+
+    document.getElementById('artist-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = document.getElementById('submit-btn');
+      const errEl = document.getElementById('form-error');
+
+      // Validate required
+      const required = form.querySelectorAll('[required]');
+      let valid = true;
+      required.forEach(el => {
+        if (el.type === 'checkbox') { if (!el.checked) valid = false; }
+        else if (!el.value.trim()) valid = false;
+      });
+      if (!valid) { errEl.style.display = 'block'; return; }
+      errEl.style.display = 'none';
+
+      btn.textContent = 'SUBMITTING…';
+      btn.disabled = true;
+
+      // Collect form data
+      const data = { Role: 'Artist' };
+      new FormData(form).forEach((val, key) => { data[key] = val; });
+      data['Consent'] = form.querySelector('#consent').checked ? 'Yes' : 'No';
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        document.getElementById('form-wrap').querySelector('form').style.display = 'none';
+        document.getElementById('form-success').style.display = 'block';
+      } catch (err) {
+        btn.textContent = 'SUBMIT APPLICATION';
+        btn.disabled = false;
+        errEl.textContent = 'Submission failed. Please email info@keepitil.com directly.';
+        errEl.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
