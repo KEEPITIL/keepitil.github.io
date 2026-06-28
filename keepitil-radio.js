@@ -20,7 +20,7 @@
     '@keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}'+
     '.kil-brand{display:flex;align-items:center;gap:6px;flex-shrink:0;}'+
     '.kil-brand-live{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
-    '.kil-brand-logo{height:28px;width:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 5px rgba(0,255,136,.6));}'+
+    '.kil-brand-logo{height:28px;width:auto;filter:drop-shadow(0 0 4px rgba(255,80,120,.7));}'+
     '.kil-brand-radio{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
     '#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
     '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
@@ -51,7 +51,7 @@
       '<div class="kil-live off" id="kil-led"></div>'+
       '<div class="kil-brand">'+
         '<span class="kil-brand-live">LIVE</span>'+
-        '<img src="/keepitil-mark.png" class="kil-brand-logo" alt="KEEPITIL"/>'+
+        '<img src="/keepitil-x-logo.png" class="kil-brand-logo" alt="KEEPITIL"/>'+
         '<span class="kil-brand-radio">RADIO</span>'+
       '</div>'+
       '<span class="kil-divider">·</span>'+
