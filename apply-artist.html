@@ -303,8 +303,8 @@
         </form>
 
         <div class="form-success" id="form-success">
-          <h3>APPLICATION RECEIVED</h3>
-          <p>Thanks for applying to KEEPITIL. We review every submission personally and will reach out within 7–10 days if it's a fit.</p>
+          <h3>YOU'RE IN! 📬</h3>
+          <p>Your artist profile is live on KEEPITIL. Check <strong id="success-email"></strong> for a magic link to your profile editor — update your bio, links, and image anytime, instantly.</p>
           <a href="/artist/" style="color:var(--blue);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;">← Browse the Roster</a>
         </div>
 
@@ -321,13 +321,20 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/keepitil-ai.js" defer></script>
   <script>
-    // ── Replace with your deployed Apps Script URL ──
+    const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+    const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1MCsveYCwAB2OSMxd4yKtGX_XRk-aKVAqwiMc3gLvjZOK_bJY3e8Ac0B7MXsDzwmXLg/exec';
 
     function toggleMenu(){
       document.querySelector('.nav-hamburger').classList.toggle('open');
+    }
+
+    function makeSlug(name) {
+      return (name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     }
 
     document.getElementById('artist-form').addEventListener('submit', async function(e) {
@@ -336,7 +343,6 @@
       const btn = document.getElementById('submit-btn');
       const errEl = document.getElementById('form-error');
 
-      // Validate required
       const required = form.querySelectorAll('[required]');
       let valid = true;
       required.forEach(el => {
@@ -349,25 +355,64 @@
       btn.textContent = 'SUBMITTING…';
       btn.disabled = true;
 
-      // Collect form data
-      const data = { Role: 'Artist' };
+      const data = {};
       new FormData(form).forEach((val, key) => { data[key] = val; });
-      data['Consent'] = form.querySelector('#consent').checked ? 'Yes' : 'No';
+
+      const email = (data['Email'] || '').trim().toLowerCase();
+      let slug = makeSlug(data['Name'] || '');
+
+      // Build Supabase record
+      const record = {
+        slug,
+        status: 'approved',
+        type: 'artist',
+        name: data['Name'] || '',
+        email,
+        city: [data['City'], data['State']].filter(Boolean).join(', '),
+        genre: data['Primary Genre'] || '',
+        bio: data['Bio'] || '',
+        music: data['SoundCloud'] || '',
+        instagram: data['Instagram'] || '',
+        image_url: data['Image URL'] || '',
+        website: data['Website'] || '',
+        spotify: data['Spotify'] || '',
+        youtube: data['YouTube'] || '',
+      };
 
       try {
-        await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+        // Write to Supabase — auto-approved
+        let { error } = await supa.from('applications').insert(record);
+
+        // Handle slug conflict: add short random suffix and retry
+        if (error && error.code === '23505') {
+          record.slug = slug + '-' + Math.random().toString(36).slice(2, 5);
+          ({ error } = await supa.from('applications').insert(record));
+        }
+        if (error) throw error;
+
+        // Send magic link to applicant (their portal access)
+        await supa.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: 'https://keepitil.com/portal.html' }
         });
-        document.getElementById('form-wrap').querySelector('form').style.display = 'none';
+
+        // Background backup to Google Sheets (fire-and-forget)
+        fetch(APPS_SCRIPT_URL, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Role: 'Artist', ...data })
+        }).catch(() => {});
+
+        document.getElementById('success-email').textContent = email;
+        form.style.display = 'none';
         document.getElementById('form-success').style.display = 'block';
+
       } catch (err) {
         btn.textContent = 'SUBMIT APPLICATION';
         btn.disabled = false;
-        errEl.textContent = 'Submission failed. Please email info@keepitil.com directly.';
+        errEl.textContent = 'Submission failed — please try again or email info@keepitil.com.';
         errEl.style.display = 'block';
+        console.error(err);
       }
     });
   </script>
