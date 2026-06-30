@@ -89,8 +89,13 @@
   var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,miniState=false,wakeLock=null;
   var isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0);
   var DEFAULT_VOL=5;
-  var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — all visitors hear same position
+  var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — fallback only
   var currentTrackIdx=0,currentPosition=0; // kept fresh for beforeunload handoff
+
+  // ── Supabase radio sync ───────────────────────────────────────────────────
+  var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  var commercialAudio=null,inCommercial=false;
 
   // ── Save playback state before navigating away ────────────────────────────
   window.addEventListener('beforeunload',function(){
@@ -133,31 +138,65 @@
     }
   });
   setInterval(function(){if(!widget||!widgetReady||!interacted||muted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
+  // ── 10-second Supabase radio state poll ──────────────────────────────────
+  setInterval(function(){if(widgetReady)fetchRadioState(applyRadioState);},10000);
 
-  // ── Sync: resume from sessionStorage handoff, or fall back to epoch sync ──
-  function syncAndPlay(){
-    // ── 1. Try sessionStorage handoff (same-site navigation) ────────────────
-    try{
-      var h=JSON.parse(sessionStorage.getItem('kil_hand')||'null');
-      if(h&&(Date.now()-h.ts)<8000){
-        sessionStorage.removeItem('kil_hand');
-        var elapsed=Date.now()-h.ts;
-        var resumePos=Math.round(h.pos+elapsed);
-        // Restore volume state from previous page
-        if(h.muted){muted=true;if(muteBtn)muteBtn.textContent='🔇';}
-        else{savedVol=h.vol||DEFAULT_VOL;if(volEl)volEl.value=savedVol;}
-        interacted=true; // user was already listening
-        widget.skip(h.idx);
-        widget.setVolume(0);
-        setTimeout(function(){
-          widget.seekTo(resumePos);
-          setTimeout(function(){widget.play();if(!muted)widget.setVolume(getVol());},150);
-        },200);
-        return; // skip epoch calc
+  // ── Supabase radio sync functions ────────────────────────────────────────
+  function fetchRadioState(cb){
+    fetch(SUPA_URL+'/rest/v1/radio_state?id=eq.1&select=*',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    }).then(function(r){return r.json();})
+    .then(function(d){if(d&&d[0])cb(d[0]);else epochSync();})
+    .catch(function(){epochSync();});
+  }
+
+  function applyRadioState(state){
+    if(!state||!widgetReady)return;
+    var now=Date.now();
+    // Commercial check
+    if(state.commercial_url&&state.commercial_ends_at){
+      var ends=new Date(state.commercial_ends_at).getTime();
+      if(now<ends){startCommercial(state.commercial_url,ends-now);return;}
+    }
+    if(inCommercial)stopCommercial();
+    // Track sync
+    var started=new Date(state.track_started_at).getTime();
+    var position=now-started;
+    if(position<0)position=0;
+    widget.getCurrentSoundIndex(function(i){
+      if(i!==state.track_index){
+        widget.skip(state.track_index);
+        setTimeout(function(){widget.seekTo(position);setTimeout(function(){if(interacted){widget.setVolume(muted?0:getVol());widget.play();}},150);},400);
+      } else {
+        widget.getPosition(function(pos){
+          if(Math.abs(pos-position)>4000){widget.seekTo(position);}
+          if(interacted&&!muted){widget.setVolume(getVol());widget.isPaused(function(p){if(p)widget.play();});}
+        });
       }
-    }catch(e){}
+    });
+    currentTrackIdx=state.track_index;
+  }
 
-    // ── 2. Epoch sync fallback: all visitors hear same position ──────────────
+  function startCommercial(url,durationMs){
+    if(inCommercial&&commercialAudio&&commercialAudio.src===url)return;
+    inCommercial=true;
+    widget.setVolume(0);
+    if(commercialAudio){commercialAudio.pause();commercialAudio=null;}
+    commercialAudio=new Audio(url);
+    commercialAudio.volume=muted?0:Math.min(1,savedVol/100);
+    if(trackEl)trackEl.textContent='🎙️ KEEPITIL RADIO — LIVE BREAK';
+    if(led)led.classList.remove('off');
+    commercialAudio.play().catch(function(){});
+    setTimeout(function(){stopCommercial();fetchRadioState(applyRadioState);},durationMs+500);
+  }
+
+  function stopCommercial(){
+    inCommercial=false;
+    if(commercialAudio){commercialAudio.pause();commercialAudio=null;}
+    if(!muted&&widgetReady&&widget)widget.setVolume(getVol());
+  }
+
+  function epochSync(){
     widget.getSounds(function(sounds){
       if(!sounds||!sounds.length){widget.play();return;}
       var durations=[],totalMs=0;
@@ -168,13 +207,29 @@
         if(offset<cumulative+durations[j]){trackIndex=j;trackOffset=offset-cumulative;break;}
         cumulative+=durations[j];
       }
-      widget.skip(trackIndex);
-      widget.setVolume(0);
-      setTimeout(function(){
-        widget.seekTo(trackOffset);
-        setTimeout(function(){widget.play();if(interacted)widget.setVolume(getVol());},200);
-      },400);
+      widget.skip(trackIndex);widget.setVolume(0);
+      setTimeout(function(){widget.seekTo(trackOffset);setTimeout(function(){widget.play();if(interacted)widget.setVolume(getVol());},200);},400);
     });
+  }
+
+  function syncAndPlay(){
+    // 1. sessionStorage handoff (PJAX fallback for full-reload navigation)
+    try{
+      var h=JSON.parse(sessionStorage.getItem('kil_hand')||'null');
+      if(h&&(Date.now()-h.ts)<8000){
+        sessionStorage.removeItem('kil_hand');
+        var elapsed=Date.now()-h.ts;
+        var resumePos=Math.round(h.pos+elapsed);
+        if(h.muted){muted=true;if(muteBtn)muteBtn.textContent='🔇';}
+        else{savedVol=h.vol||DEFAULT_VOL;if(volEl)volEl.value=savedVol;}
+        interacted=true;
+        widget.skip(h.idx);widget.setVolume(0);
+        setTimeout(function(){widget.seekTo(resumePos);setTimeout(function(){widget.play();if(!muted)widget.setVolume(getVol());},150);},200);
+        return;
+      }
+    }catch(e){}
+    // 2. Supabase sync (true radio sync)
+    fetchRadioState(applyRadioState);
   }
 
   function initWidget(){
@@ -197,11 +252,11 @@
     e.stopPropagation();
     if(!widget||!widgetReady){interacted=true;return;}
     interacted=true;
-    if(muted){muted=false;muteBtn.textContent='🔊';widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;if(isMobile)widget.play();}
-    else{savedVol=Math.max(1,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL);muted=true;muteBtn.textContent='🔇';widget.setVolume(0);if(isMobile)widget.pause();}
+    if(muted){muted=false;muteBtn.textContent='🔊';widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;if(isMobile)widget.play();if(commercialAudio)commercialAudio.volume=Math.min(1,savedVol/100);}
+    else{savedVol=Math.max(1,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL);muted=true;muteBtn.textContent='🔇';widget.setVolume(0);if(isMobile)widget.pause();if(commercialAudio)commercialAudio.volume=0;}
   });}
   if(volEl){volEl.addEventListener('input',function(){
-    if(widget&&widgetReady){interacted=true;savedVol=parseInt(this.value);muted=false;if(muteBtn)muteBtn.textContent='🔊';widget.setVolume(savedVol);}
+    if(widget&&widgetReady){interacted=true;savedVol=parseInt(this.value);muted=false;if(muteBtn)muteBtn.textContent='🔊';widget.setVolume(savedVol);if(commercialAudio)commercialAudio.volume=Math.min(1,savedVol/100);}
   });}
 
   // ── Nav logo swap: transparent extracted X marks, no mix-blend-mode ─────
