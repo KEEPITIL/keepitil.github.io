@@ -159,17 +159,17 @@
       if(now<ends){startCommercial(state.commercial_url,ends-now);return;}
     }
     if(inCommercial)stopCommercial();
-    // Track sync
-    var started=new Date(state.track_started_at).getTime();
-    var position=now-started;
-    if(position<0)position=0;
+    // Only sync tracks for RECENT DJ overrides (< 2 min) — epoch handles normal looping
+    var age=now-new Date(state.track_started_at).getTime();
+    if(age>120000)return;
+    var position=age;if(position<0)position=0;
     widget.getCurrentSoundIndex(function(i){
       if(i!==state.track_index){
         widget.skip(state.track_index);
         setTimeout(function(){widget.seekTo(position);setTimeout(function(){if(interacted){widget.setVolume(muted?0:getVol());widget.play();}},150);},400);
       } else {
         widget.getPosition(function(pos){
-          if(Math.abs(pos-position)>4000){widget.seekTo(position);}
+          if(Math.abs(pos-position)>5000){widget.seekTo(position);}
           if(interacted&&!muted){widget.setVolume(getVol());widget.isPaused(function(p){if(p)widget.play();});}
         });
       }
@@ -228,8 +228,23 @@
         return;
       }
     }catch(e){}
-    // 2. Supabase sync (true radio sync)
-    fetchRadioState(applyRadioState);
+    // 2. Check Supabase for active commercial or recent DJ override — else epoch sync
+    fetchRadioState(function(state){
+      if(!state){epochSync();return;}
+      var now=Date.now();
+      // Active commercial?
+      if(state.commercial_url&&state.commercial_ends_at&&new Date(state.commercial_ends_at).getTime()>now){
+        startCommercial(state.commercial_url,new Date(state.commercial_ends_at).getTime()-now);
+        return;
+      }
+      // Recent DJ override (within 2 minutes)? → follow it
+      if((now-new Date(state.track_started_at).getTime())<120000){
+        applyRadioState(state);
+        return;
+      }
+      // Default: epoch sync keeps everyone on same track position 24/7
+      epochSync();
+    });
   }
 
   function initWidget(){
