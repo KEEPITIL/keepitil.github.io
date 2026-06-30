@@ -266,6 +266,22 @@
             <label for="consent">I agree to allow KEEPITIL to use my submitted event info, images, and organization details for editorial coverage, event listings, social media features, and on keepitil.com. <span class="req">*</span></label>
           </div>
 
+          <!-- ACCOUNT PASSWORD -->
+          <div class="form-section" style="margin-top:32px;">
+            <div class="form-section-title">CREATE YOUR ACCOUNT</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="f-password">Password <span class="req">*</span></label>
+                <input type="password" name="Password" id="f-password" placeholder="Min. 8 characters" class="form-input" required minlength="8"/>
+              </div>
+              <div class="form-group">
+                <label for="f-confirm">Confirm Password <span class="req">*</span></label>
+                <input type="password" name="Confirm Password" id="f-confirm" placeholder="Repeat your password" class="form-input" required/>
+              </div>
+            </div>
+            <p style="font-size:12px;color:var(--grey);margin-top:4px;">You'll use this to log in at <a href="/portal.html" style="color:var(--blue);">keepitil.com/portal.html</a> and edit your profile anytime.</p>
+          </div>
+
           <div class="form-submit">
             <button type="submit" class="btn-submit" id="submit-btn">SUBMIT APPLICATION</button>
             <div class="form-error" id="form-error">Please fill in all required fields before submitting.</div>
@@ -318,14 +334,24 @@
         if (el.type === 'checkbox') { if (!el.checked) valid = false; }
         else if (!el.value.trim()) valid = false;
       });
-      if (!valid) { errEl.style.display = 'block'; return; }
-      errEl.style.display = 'none';
-
-      btn.textContent = 'SUBMITTING…';
-      btn.disabled = true;
+      if (!valid) { errEl.style.display = 'block'; errEl.textContent = 'Please fill in all required fields before submitting.'; return; }
 
       const data = {};
       new FormData(form).forEach((val, key) => { data[key] = val; });
+
+      const password = data['Password'] || '';
+      if (password.length < 8) {
+        errEl.textContent = 'Password must be at least 8 characters.';
+        errEl.style.display = 'block'; return;
+      }
+      if (password !== data['Confirm Password']) {
+        errEl.textContent = 'Passwords do not match.';
+        errEl.style.display = 'block'; return;
+      }
+
+      errEl.style.display = 'none';
+      btn.textContent = 'SUBMITTING…';
+      btn.disabled = true;
 
       const email = (data['Email'] || '').trim().toLowerCase();
       let slug = makeSlug(data['Name'] || '');
@@ -352,10 +378,10 @@
         }
         if (error) throw error;
 
-        await supa.auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: 'https://keepitil.com/portal.html' }
-        });
+        const { error: authError } = await supa.auth.signUp({ email, password });
+        if (authError && !authError.message.includes('already registered')) throw authError;
+
+        await supa.auth.signInWithPassword({ email, password });
 
         fetch(APPS_SCRIPT_URL, {
           method: 'POST', mode: 'no-cors',
@@ -363,9 +389,7 @@
           body: JSON.stringify({ Role: 'Organizer', ...data })
         }).catch(() => {});
 
-        document.getElementById('success-email').textContent = email;
-        form.style.display = 'none';
-        document.getElementById('form-success').style.display = 'block';
+        window.location.href = 'https://keepitil.com/portal.html';
 
       } catch (err) {
         btn.textContent = 'SUBMIT APPLICATION';
