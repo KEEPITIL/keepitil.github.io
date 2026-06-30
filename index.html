@@ -83,6 +83,9 @@
     .hero h1 .accent{color:var(--blue);text-shadow:0 0 24px var(--blue),0 0 60px rgba(0,180,255,.4);}
     .hero h1 .typewriter{border-right:3px solid var(--blue);padding-right:4px;animation:blink .7s step-end infinite;}
     @keyframes blink{0%,100%{border-color:var(--blue);}50%{border-color:transparent;}}
+    /* ── HOLIDAY BACKGROUND ── */
+    .hero-holiday-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center top;background-repeat:no-repeat;opacity:0;transition:opacity 1.8s ease;pointer-events:none;}
+    .hero-holiday-bg.active{opacity:1;}
     .hero-sub{font-size:18px;color:var(--grey);max-width:520px;margin-bottom:40px;line-height:1.7;}
     .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px;}
     .live-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;}
@@ -783,6 +786,7 @@
 <!-- Hero -->
   <section class="hero" id="home">
     <canvas id="hero-canvas"></canvas>
+    <div class="hero-holiday-bg" id="hero-holiday-bg"></div>
     <div class="hero-overlay"></div>
 <div class="container">
       <div class="hero-content">
@@ -2675,6 +2679,52 @@
     setTimeout(typeLoop, deleting ? 60 : 100);
   }
   typeLoop();
+
+  /* ── HOLIDAY BACKGROUND SYSTEM ──────────────────────────────────────────
+   * To add a new holiday:
+   *   1. Add an entry to HOLIDAYS below
+   *   2. Drop the image in assets/ folder and match the img path
+   *   3. dateRange: [[startMonth0, startDay], [endMonth0, endDay]]  (month is 0-indexed: Jan=0 … Dec=11)
+   * ─────────────────────────────────────────────────────────────────────── */
+  const HOLIDAYS = [
+    {
+      name: 'july4',
+      label: 'Independence Day',
+      dateRange: [[5, 25], [6, 7]], // Jun 25 – Jul 7
+      img: 'assets/holiday-july4.jpg',
+      overlayOpacity: 0.55            // 0–1: how dark to tint the overlay on this holiday
+    },
+    // ── Future American holidays — add image + uncomment ──────────────────
+    // { name: 'memorial',     label: 'Memorial Day',   dateRange: [[4,23],[4,28]], img: 'assets/holiday-memorial.jpg',     overlayOpacity: 0.5 },
+    // { name: 'juneteenth',   label: 'Juneteenth',     dateRange: [[5,16],[5,21]], img: 'assets/holiday-juneteenth.jpg',   overlayOpacity: 0.5 },
+    // { name: 'laborday',     label: 'Labor Day',      dateRange: [[7,29],[8, 3]], img: 'assets/holiday-laborday.jpg',     overlayOpacity: 0.5 },
+    // { name: 'halloween',    label: 'Halloween',      dateRange: [[9,24],[10,1]], img: 'assets/holiday-halloween.jpg',    overlayOpacity: 0.55 },
+    // { name: 'thanksgiving', label: 'Thanksgiving',   dateRange: [[10,19],[10,28]], img: 'assets/holiday-thanksgiving.jpg', overlayOpacity: 0.5 },
+    // { name: 'christmas',    label: 'Christmas',      dateRange: [[11,18],[12,26]], img: 'assets/holiday-christmas.jpg',   overlayOpacity: 0.55 },
+    // { name: 'newyear',      label: "New Year's",     dateRange: [[11,29],[0, 2]], img: 'assets/holiday-newyear.jpg',     overlayOpacity: 0.5 },
+    // { name: 'mlk',          label: 'MLK Day',        dateRange: [[0,12],[0,20]], img: 'assets/holiday-mlk.jpg',          overlayOpacity: 0.45 },
+  ];
+
+  (function initHolidayBg() {
+    var now = new Date(), m = now.getMonth(), d = now.getDate();
+    function inRange(r) {
+      var sm = r[0][0], sd = r[0][1], em = r[1][0], ed = r[1][1];
+      var cur = m * 100 + d, start = sm * 100 + sd, end = em * 100 + ed;
+      return start <= end ? (cur >= start && cur <= end) : (cur >= start || cur <= end);
+    }
+    var active = HOLIDAYS.find(function(h){ return inRange(h.dateRange); });
+    if (!active) return;
+    var bg = document.getElementById('hero-holiday-bg');
+    if (!bg) return;
+    bg.style.backgroundImage = "url('" + active.img + "')";
+    // Deepen overlay slightly so text stays legible over holiday art
+    var overlay = document.querySelector('.hero-overlay');
+    if (overlay && active.overlayOpacity) {
+      overlay.style.background = 'rgba(10,10,20,' + active.overlayOpacity + '),' + overlay.style.background;
+    }
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ bg.classList.add('active'); }); });
+  })();
+  /* ── END HOLIDAY BACKGROUND SYSTEM ── */
 
   /* ── SCROLL REVEAL ── */
   const observer = new IntersectionObserver((entries) => {
