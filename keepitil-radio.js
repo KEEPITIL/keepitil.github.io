@@ -87,6 +87,7 @@
   var volEl=document.getElementById('kr-vol');
   var toggleBtn=document.getElementById('kr-toggle');
   var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,miniState=false,wakeLock=null;
+  var isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0);
   var DEFAULT_VOL=5;
   var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — all visitors hear same position
   var currentTrackIdx=0,currentPosition=0; // kept fresh for beforeunload handoff
@@ -196,8 +197,8 @@
     e.stopPropagation();
     if(!widget||!widgetReady){interacted=true;return;}
     interacted=true;
-    if(muted){muted=false;muteBtn.textContent='🔊';widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;widget.play();}
-    else{savedVol=Math.max(1,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL);muted=true;muteBtn.textContent='🔇';widget.setVolume(0);widget.pause();}
+    if(muted){muted=false;muteBtn.textContent='🔊';widget.setVolume(savedVol);if(volEl)volEl.value=savedVol;if(isMobile)widget.play();}
+    else{savedVol=Math.max(1,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL);muted=true;muteBtn.textContent='🔇';widget.setVolume(0);if(isMobile)widget.pause();}
   });}
   if(volEl){volEl.addEventListener('input',function(){
     if(widget&&widgetReady){interacted=true;savedVol=parseInt(this.value);muted=false;if(muteBtn)muteBtn.textContent='🔊';widget.setVolume(savedVol);}
