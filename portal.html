@@ -53,12 +53,17 @@ nav{position:sticky;top:0;z-index:100;background:rgba(11,11,15,.96);backdrop-fil
 
 .login-card{background:var(--dark2);border:1px solid rgba(0,180,255,.14);border-radius:12px;padding:32px 28px;}
 .login-card label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;}
-.login-card input[type="email"]{
+.login-card input[type="email"],
+.login-card input[type="password"]{
   width:100%;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:8px;
   color:var(--white);font-size:1rem;padding:13px 16px;outline:none;transition:border-color .2s;
 }
-.login-card input[type="email"]:focus{border-color:var(--blue);}
-.login-card input[type="email"]::placeholder{color:var(--grey2);}
+.login-card input[type="email"]:focus,
+.login-card input[type="password"]:focus{border-color:var(--blue);}
+.login-card input[type="email"]::placeholder,
+.login-card input[type="password"]::placeholder{color:var(--grey2);}
+.login-card label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;margin-top:14px;}
+.login-card label:first-child{margin-top:0;}
 .btn-magic{
   width:100%;margin-top:14px;padding:15px;background:var(--blue);color:#fff;
   border:none;border-radius:8px;font-family:var(--font-head);font-size:1.3rem;
@@ -197,39 +202,68 @@ footer a{color:var(--blue);}
       <p>Edit your bio, music links, and image. All changes go live on your profile instantly.</p>
     </div>
 
-    <div class="login-card">
-      <label for="email-input">Your email address <span style="color:var(--blue)">*</span></label>
+    <!-- Sign In -->
+    <div class="login-card" id="signin-section">
+      <label for="email-input">Email address</label>
       <input type="email" id="email-input" placeholder="you@email.com" autocomplete="email"/>
-      <button class="btn-magic" id="login-btn">SEND MY LINK</button>
-      <p class="login-hint">No password needed — we'll email you a secure one-click login link.</p>
+      <label for="password-input">Password</label>
+      <input type="password" id="password-input" placeholder="Your password" autocomplete="current-password"/>
+      <button class="btn-magic" id="login-btn" style="margin-top:14px;">SIGN IN</button>
+      <p class="login-hint"><a href="#" id="forgot-link" style="color:var(--blue);">Forgot password?</a></p>
       <div class="msg-error" id="login-error"></div>
     </div>
 
-    <div class="divider">Already on KEEPITIL?</div>
+    <!-- Forgot Password -->
+    <div class="login-card" id="forgot-section" style="display:none;">
+      <p style="font-size:.88rem;color:var(--grey);margin-bottom:14px;margin-top:0;">We'll send you a link to reset your password.</p>
+      <label for="reset-email">Email address</label>
+      <input type="email" id="reset-email" placeholder="you@email.com"/>
+      <button class="btn-magic" id="reset-btn" style="margin-top:14px;">SEND RESET LINK</button>
+      <p class="login-hint"><a href="#" id="back-signin" style="color:var(--blue);">← Back to sign in</a></p>
+      <div class="msg-error" id="reset-msg" style="text-align:left;"></div>
+    </div>
+
+    <div class="divider">New to KEEPITIL?</div>
 
     <div class="claim-card">
-      <h3>CLAIM YOUR PROFILE</h3>
-      <p>Already listed on KEEPITIL as an artist, brand, or organizer? Enter your email to claim your profile and start editing it yourself.</p>
-      <a href="#" class="btn-claim" id="claim-link">CLAIM MY PROFILE</a>
-      <p style="margin-top:12px;font-size:.78rem;color:var(--grey2);">Uses the same magic link — just enter the email you'd like to use for your KEEPITIL account above, then click SEND MY LINK.</p>
+      <h3>JOIN KEEPITIL</h3>
+      <p>Apply as an artist, brand, or event organizer. You'll create your password during the application.</p>
+      <a href="/apply.html" class="btn-claim">APPLY NOW</a>
     </div>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════
-     STATE 2 — EMAIL SENT
+     STATE 2 — RESET LINK SENT
 ════════════════════════════════════════════════════ -->
 <div id="state-sent">
   <div class="wrap">
     <div class="sent-icon">📬</div>
     <h2>CHECK YOUR EMAIL</h2>
-    <p>We sent a magic login link to</p>
+    <p>We sent a password reset link to</p>
     <p><strong id="sent-email-display"></strong></p>
-    <p style="margin-top:8px;">Click the link in that email to open your profile editor.</p>
+    <p style="margin-top:8px;">Click the link to set a new password.</p>
     <p style="margin-top:6px;font-size:.82rem;color:var(--grey2);">Check your spam folder if you don't see it within a minute.</p>
-    <div class="resend-wrap">
-      <button class="btn-resend" id="resend-btn" disabled>Resend link</button>
-      <div id="resend-timer">Resend available in <span id="resend-count">30</span>s</div>
+    <p style="margin-top:24px;"><a href="#" onclick="show('login');return false;" style="color:var(--blue);font-size:.88rem;">← Back to sign in</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STATE 2b — SET NEW PASSWORD (after reset link)
+════════════════════════════════════════════════════ -->
+<div id="state-reset" style="display:none;padding:64px 0 80px;">
+  <div class="wrap">
+    <div class="portal-hero">
+      <div class="portal-badge">SET NEW PASSWORD</div>
+      <h1>RESET YOUR<br><span>PASSWORD</span></h1>
+    </div>
+    <div class="login-card">
+      <label for="new-password">New password</label>
+      <input type="password" id="new-password" placeholder="Min. 8 characters"/>
+      <label for="confirm-password">Confirm new password</label>
+      <input type="password" id="confirm-password" placeholder="Repeat your password"/>
+      <button class="btn-magic" id="save-pw-btn" style="margin-top:14px;">SET PASSWORD</button>
+      <div class="msg-error" id="reset-pw-msg" style="text-align:left;"></div>
     </div>
   </div>
 </div>
@@ -392,12 +426,11 @@ const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 const stateLogin  = document.getElementById('state-login');
 const stateSent   = document.getElementById('state-sent');
 const stateEditor = document.getElementById('state-editor');
+const stateReset  = document.getElementById('state-reset');
 const loginBtn    = document.getElementById('login-btn');
 const emailInput  = document.getElementById('email-input');
 const loginError  = document.getElementById('login-error');
 const sentEmailEl = document.getElementById('sent-email-display');
-const resendBtn   = document.getElementById('resend-btn');
-const resendCount = document.getElementById('resend-count');
 const signoutBtn  = document.getElementById('signout-btn');
 const profileForm = document.getElementById('profile-form');
 const saveBtn     = document.getElementById('save-btn');
@@ -407,87 +440,94 @@ const previewLink = document.getElementById('preview-profile-link');
 
 let currentEmail = '';
 let currentProfile = null;
-let resendInterval = null;
 
 /* ════════ SHOW STATE ════════ */
 function show(state) {
   stateLogin.style.display  = state === 'login'  ? '' : 'none';
   stateSent.style.display   = state === 'sent'   ? '' : 'none';
   stateEditor.style.display = state === 'editor' ? '' : 'none';
+  stateReset.style.display  = state === 'reset'  ? '' : 'none';
 }
 
-/* ════════ AUTH ════════ */
-loginBtn.addEventListener('click', sendMagicLink);
-emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMagicLink(); });
-document.getElementById('claim-link').addEventListener('click', e => {
-  e.preventDefault();
-  emailInput.focus();
-  emailInput.scrollIntoView({behavior:'smooth',block:'center'});
-});
+/* ════════ SIGN IN ════════ */
+loginBtn.addEventListener('click', signIn);
+emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+document.getElementById('password-input').addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
 
-async function sendMagicLink() {
+async function signIn() {
   const email = emailInput.value.trim();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    loginError.textContent = 'Please enter a valid email address.';
-    return;
-  }
+  const password = document.getElementById('password-input').value;
   loginError.textContent = '';
+  if (!email) { loginError.textContent = 'Enter your email.'; return; }
+  if (!password) { loginError.textContent = 'Enter your password.'; return; }
   loginBtn.disabled = true;
-  loginBtn.textContent = 'SENDING…';
-  try {
-    const { error } = await supa.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: 'https://keepitil.com/portal.html' }
-    });
-    if (error) throw error;
-    currentEmail = email;
-    sentEmailEl.textContent = email;
-    show('sent');
-    startResendTimer();
-  } catch(err) {
-    loginError.textContent = err.message || 'Something went wrong. Try again.';
+  loginBtn.textContent = 'SIGNING IN…';
+  const { error } = await supa.auth.signInWithPassword({ email, password });
+  if (error) {
+    loginError.textContent = error.message === 'Invalid login credentials'
+      ? 'Wrong email or password. Use "Forgot password?" to reset it.'
+      : error.message;
     loginBtn.disabled = false;
-    loginBtn.textContent = 'SEND MY LINK';
+    loginBtn.textContent = 'SIGN IN';
   }
+  // success → onAuthStateChange → loadEditor()
 }
 
-function startResendTimer() {
-  let secs = 30;
-  resendBtn.disabled = true;
-  resendCount.textContent = secs;
-  resendInterval = setInterval(() => {
-    secs--;
-    resendCount.textContent = secs;
-    if (secs <= 0) {
-      clearInterval(resendInterval);
-      resendBtn.disabled = false;
-      document.getElementById('resend-timer').style.display = 'none';
-    }
-  }, 1000);
-}
-
-resendBtn.addEventListener('click', async () => {
-  if (!currentEmail) return;
-  resendBtn.disabled = true;
-  resendBtn.textContent = 'Sent!';
-  await supa.auth.signInWithOtp({
-    email: currentEmail,
-    options: { emailRedirectTo: 'https://keepitil.com/portal.html' }
+/* ════════ FORGOT PASSWORD ════════ */
+document.getElementById('forgot-link').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('signin-section').style.display = 'none';
+  document.getElementById('forgot-section').style.display = '';
+  loginError.textContent = '';
+});
+document.getElementById('back-signin').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('forgot-section').style.display = 'none';
+  document.getElementById('signin-section').style.display = '';
+});
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  const email = document.getElementById('reset-email').value.trim();
+  const msgEl = document.getElementById('reset-msg');
+  msgEl.style.color = '#ff4d4d';
+  if (!email) { msgEl.textContent = 'Enter your email.'; return; }
+  msgEl.textContent = '';
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://keepitil.com/portal.html'
   });
-  setTimeout(() => { resendBtn.textContent = 'Resend link'; startResendTimer(); }, 2000);
+  if (error) { msgEl.textContent = error.message; return; }
+  sentEmailEl.textContent = email;
+  show('sent');
 });
 
+/* ════════ SIGN OUT ════════ */
 signoutBtn.addEventListener('click', async () => {
   await supa.auth.signOut();
   currentProfile = null;
-  show('login');
   loginBtn.disabled = false;
-  loginBtn.textContent = 'SEND MY LINK';
+  loginBtn.textContent = 'SIGN IN';
+  show('login');
+});
+
+/* ════════ SET NEW PASSWORD (after reset link) ════════ */
+document.getElementById('save-pw-btn').addEventListener('click', async () => {
+  const pw  = document.getElementById('new-password').value;
+  const pw2 = document.getElementById('confirm-password').value;
+  const msgEl = document.getElementById('reset-pw-msg');
+  msgEl.style.color = '#ff4d4d';
+  if (pw.length < 8) { msgEl.textContent = 'Password must be at least 8 characters.'; return; }
+  if (pw !== pw2) { msgEl.textContent = 'Passwords do not match.'; return; }
+  const { error } = await supa.auth.updateUser({ password: pw });
+  if (error) { msgEl.textContent = error.message; return; }
+  // After password update, session is active — go straight to editor
+  const { data: { session } } = await supa.auth.getSession();
+  if (session) await loadEditor(session.user);
 });
 
 /* ════════ AUTH STATE CHANGE ════════ */
 supa.auth.onAuthStateChange(async (event, session) => {
-  if (session) {
+  if (event === 'PASSWORD_RECOVERY') {
+    show('reset');
+  } else if (session) {
     await loadEditor(session.user);
   }
 });
