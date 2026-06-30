@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>KEEPITIL Radio Control</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#060606;color:#fff;font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;}
+  .logo{font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:.2em;color:#00ff88;margin-bottom:4px;}
+  .subtitle{font-size:.65rem;letter-spacing:.18em;color:#444;text-transform:uppercase;margin-bottom:32px;}
+  /* PIN gate */
+  #pin-gate{width:100%;max-width:320px;text-align:center;}
+  #pin-gate input{width:100%;padding:14px;background:#111;border:1px solid #222;border-radius:8px;color:#fff;font-size:1.1rem;letter-spacing:.3em;text-align:center;margin-bottom:12px;}
+  #pin-gate input:focus{outline:none;border-color:#00ff88;}
+  #pin-err{color:#ff4466;font-size:.75rem;margin-top:6px;min-height:18px;}
+  /* Control panel */
+  #panel{display:none;width:100%;max-width:480px;}
+  .card{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:12px;padding:20px;margin-bottom:16px;}
+  .card-title{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:#00ff88;margin-bottom:14px;}
+  .status-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .led{width:8px;height:8px;border-radius:50%;background:#00ff88;box-shadow:0 0 6px #00ff88;animation:blink 2s ease-in-out infinite;flex-shrink:0;}
+  .led.off{background:#333;box-shadow:none;animation:none;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+  #status-track{font-size:.85rem;color:#ccc;}
+  #status-pos{font-size:.7rem;color:#555;margin-top:2px;}
+  #status-commercial{font-size:.75rem;color:#ffd700;margin-top:6px;display:none;}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:8px;padding:11px 18px;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s;text-transform:uppercase;}
+  .btn:hover{opacity:.8;}
+  .btn:active{opacity:.6;}
+  .btn-green{background:#00ff88;color:#000;}
+  .btn-blue{background:#00b4ff;color:#000;}
+  .btn-red{background:#ff4466;color:#fff;}
+  .btn-gray{background:#222;color:#aaa;border:1px solid #333;}
+  .btn-yellow{background:#ffd700;color:#000;}
+  .form-row{display:flex;flex-direction:column;gap:8px;}
+  .form-row label{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:#555;}
+  .form-row input{background:#111;border:1px solid #222;border-radius:6px;color:#fff;padding:10px;font-size:.85rem;}
+  .form-row input:focus{outline:none;border-color:#00b4ff;}
+  .form-row input::placeholder{color:#333;}
+  #msg{font-size:.72rem;color:#00ff88;min-height:18px;margin-top:8px;}
+  .divider{height:1px;background:#1a1a1a;margin:12px 0;}
+  .track-counter{font-size:.65rem;color:#444;margin-top:6px;}
+  .logout{font-size:.65rem;color:#333;text-decoration:underline;cursor:pointer;margin-top:24px;text-align:center;}
+  .logout:hover{color:#666;}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<div class="logo">KEEPITIL</div>
+<div class="subtitle">Radio Control</div>
+
+<!-- PIN gate -->
+<div id="pin-gate">
+  <input type="password" id="pin-input" placeholder="••••••" maxlength="12" autocomplete="off"/>
+  <div id="pin-err"></div>
+  <button class="btn btn-green" onclick="checkPin()" style="width:100%;margin-top:4px;">ENTER</button>
+</div>
+
+<!-- Control panel -->
+<div id="panel">
+
+  <!-- Status -->
+  <div class="card">
+    <div class="card-title">Now Broadcasting</div>
+    <div class="status-row">
+      <div class="led" id="s-led"></div>
+      <div id="status-track">Loading...</div>
+    </div>
+    <div id="status-pos"></div>
+    <div id="status-commercial"></div>
+    <div class="track-counter">Track index: <span id="s-idx">—</span> &nbsp;|&nbsp; Started: <span id="s-started">—</span></div>
+  </div>
+
+  <!-- Track controls -->
+  <div class="card">
+    <div class="card-title">Track Control</div>
+    <div class="btn-row">
+      <button class="btn btn-gray" onclick="changeTrack(-1)">⏮ PREV</button>
+      <button class="btn btn-green" onclick="changeTrack(1)">NEXT ⏭</button>
+      <button class="btn btn-blue" onclick="restartTrack()">↺ RESTART TRACK</button>
+    </div>
+    <div class="divider"></div>
+    <div class="form-row">
+      <label>Jump to track index</label>
+      <input type="number" id="jump-idx" min="0" placeholder="0" style="width:120px;"/>
+    </div>
+    <button class="btn btn-gray" onclick="jumpToTrack()" style="margin-top:8px;">JUMP</button>
+  </div>
+
+  <!-- Commercial -->
+  <div class="card">
+    <div class="card-title">Commercial Break</div>
+    <div class="form-row">
+      <label>Audio URL (.mp3 / .wav)</label>
+      <input type="url" id="comm-url" placeholder="https://...commercial.mp3"/>
+    </div>
+    <div class="form-row" style="margin-top:8px;">
+      <label>Duration (seconds)</label>
+      <input type="number" id="comm-dur" value="30" min="5" max="300" style="width:120px;"/>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-yellow" onclick="playCommercial()">▶ PLAY COMMERCIAL</button>
+      <button class="btn btn-red" onclick="stopCommercial()">✕ STOP</button>
+    </div>
+  </div>
+
+  <div id="msg"></div>
+  <div class="logout" onclick="logout()">Sign out</div>
+</div>
+
+<script>
+const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+const PIN = 'keepitil2024'; // change this to your preferred PIN
+const HEADERS = {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+
+let currentState = null;
+let pollInterval = null;
+
+// ── Auth ──────────────────────────────────────────────────────────────────
+function checkPin(){
+  const val = document.getElementById('pin-input').value;
+  if(val === PIN){
+    sessionStorage.setItem('rc_auth','1');
+    showPanel();
+  } else {
+    document.getElementById('pin-err').textContent = 'Incorrect PIN';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+function logout(){
+  sessionStorage.removeItem('rc_auth');
+  location.reload();
+}
+document.getElementById('pin-input').addEventListener('keydown', e => { if(e.key==='Enter') checkPin(); });
+
+function showPanel(){
+  document.getElementById('pin-gate').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  loadState();
+  pollInterval = setInterval(loadState, 5000);
+}
+
+// ── Supabase ──────────────────────────────────────────────────────────────
+async function loadState(){
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/radio_state?id=eq.1&select=*', {headers:{apikey:SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    const d = await r.json();
+    if(d && d[0]) { currentState = d[0]; renderState(d[0]); }
+  } catch(e) { showMsg('⚠ Could not reach Supabase', true); }
+}
+
+async function updateState(patch){
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/radio_state?id=eq.1', {
+      method:'PATCH', headers:HEADERS, body: JSON.stringify(patch)
+    });
+    if(!r.ok) throw new Error(r.status);
+    showMsg('✅ Broadcast updated');
+    setTimeout(loadState, 500);
+  } catch(e) { showMsg('❌ Update failed: '+e.message, true); }
+}
+
+function renderState(s){
+  const now = Date.now();
+  document.getElementById('s-idx').textContent = s.track_index;
+  const started = new Date(s.track_started_at);
+  document.getElementById('s-started').textContent = started.toLocaleTimeString();
+  const pos = Math.round((now - started.getTime()) / 1000);
+  document.getElementById('status-pos').textContent = 'Position: ' + formatTime(pos);
+  const led = document.getElementById('s-led');
+  const commEl = document.getElementById('status-commercial');
+  if(s.commercial_url && s.commercial_ends_at && new Date(s.commercial_ends_at).getTime() > now){
+    const secsLeft = Math.round((new Date(s.commercial_ends_at).getTime() - now) / 1000);
+    document.getElementById('status-track').textContent = '🎙️ COMMERCIAL BREAK';
+    commEl.style.display = 'block';
+    commEl.textContent = 'Commercial ends in ' + secsLeft + 's — ' + s.commercial_url.split('/').pop();
+    led.classList.remove('off');
+  } else {
+    document.getElementById('status-track').textContent = 'Track #' + s.track_index + ' — SoundCloud stream';
+    commEl.style.display = 'none';
+    led.classList.toggle('off', !s.is_live);
+  }
+}
+
+function formatTime(secs){
+  const m = Math.floor(secs/60);
+  const s = String(secs%60).padStart(2,'0');
+  return m+':'+s;
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────
+async function changeTrack(delta){
+  if(!currentState) return;
+  const newIdx = Math.max(0, currentState.track_index + delta);
+  await updateState({ track_index: newIdx, track_started_at: new Date().toISOString(), commercial_url: null, commercial_ends_at: null });
+}
+
+async function restartTrack(){
+  await updateState({ track_started_at: new Date().toISOString() });
+}
+
+async function jumpToTrack(){
+  const idx = parseInt(document.getElementById('jump-idx').value);
+  if(isNaN(idx) || idx < 0){ showMsg('Enter a valid track index', true); return; }
+  await updateState({ track_index: idx, track_started_at: new Date().toISOString(), commercial_url: null, commercial_ends_at: null });
+}
+
+async function playCommercial(){
+  const url = document.getElementById('comm-url').value.trim();
+  const dur = parseInt(document.getElementById('comm-dur').value) || 30;
+  if(!url){ showMsg('Paste a commercial audio URL', true); return; }
+  const endsAt = new Date(Date.now() + dur*1000).toISOString();
+  await updateState({ commercial_url: url, commercial_ends_at: endsAt });
+}
+
+async function stopCommercial(){
+  await updateState({ commercial_url: null, commercial_ends_at: null, track_started_at: new Date().toISOString() });
+}
+
+function showMsg(txt, isErr){
+  const el = document.getElementById('msg');
+  el.textContent = txt;
+  el.style.color = isErr ? '#ff4466' : '#00ff88';
+  setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+if(sessionStorage.getItem('rc_auth') === '1') showPanel();
+</script>
+</body>
+</html>
