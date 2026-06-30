@@ -262,8 +262,16 @@
           swapNavLogos();
           history.pushState({pjax:1,url:url},document.title,url);
           window.scrollTo(0,0);
+          // Resume playback if PJAX accidentally caused a pause
+          if(widget&&widgetReady&&interacted&&!muted){
+            setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},400);
+          }
         })
-        .catch(function(){window.location.href=url;}); // graceful fallback
+        .catch(function(){
+          // Full reload fallback — save position so next page can hand off
+          try{sessionStorage.setItem('kil_hand',JSON.stringify({idx:currentTrackIdx,pos:currentPosition,ts:Date.now(),vol:muted?0:savedVol,muted:muted}));}catch(e){}
+          window.location.href=url;
+        });
     }
 
     // Intercept link clicks
