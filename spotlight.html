@@ -397,7 +397,7 @@
   <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);"><span class="nav-brand">KEEPITIL</span>
+      <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
       <li><a href="/artist/">ARTIST</a></li>
@@ -449,16 +449,16 @@
       <!-- TODAY'S PICK — Artist of the Day (rotated daily by AGENT 5) -->
       <div class="todays-pick" style="max-width:760px;margin:0 auto 44px;background:linear-gradient(135deg,#141414,#181028);border:1px solid rgba(0,180,255,.25);border-radius:14px;padding:22px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;box-shadow:0 10px 40px rgba(0,180,255,.08);">
         <div style="position:relative;width:104px;height:104px;border-radius:12px;overflow:hidden;flex-shrink:0;border:2px solid #6600ff;">
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:#fff;background:linear-gradient(135deg,#6600ff66,#6600ff22);z-index:0;">BS</div>
-          <img src="https://unavatar.io/instagram/bb.shaine" alt="BB Shaine" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:#fff;background:linear-gradient(135deg,#6600ff66,#6600ff22);z-index:0;">AZ</div>
+          <img src="https://unavatar.io/instagram/_aztekan" alt="Aztekan" style="position:relative;z-index:1;width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"/>
         </div>
         <div style="flex:1;min-width:220px;">
           <span style="display:inline-block;background:linear-gradient(135deg,var(--blue),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.68rem;letter-spacing:.14em;padding:4px 12px;border-radius:20px;margin-bottom:10px;">★ ARTIST OF THE DAY</span>
-          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 4px;">BB SHAINE</h3>
-          <div style="font-size:.72rem;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;">Bass / Techno / Electro / UKG / Jungle · Los Angeles</div>
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 4px;">AZTEKAN</h3>
+          <div style="font-size:.72rem;color:#888;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;">Hypnotic / Deep Techno · San Bernardino</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <a href="https://keepitil.com/blog-bb-shaine.html" style="font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--blue);padding:8px 16px;border-radius:6px;text-decoration:none;">READ BIO →</a>
-            <a href="https://instagram.com/bb.shaine" target="_blank" rel="noopener" style="font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.08em;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 14px;border-radius:6px;text-decoration:none;">@bb.shaine</a>
+            <a href="https://keepitil.com/blog-aztekan.html" style="font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--blue);padding:8px 16px;border-radius:6px;text-decoration:none;">READ BIO →</a>
+            <a href="https://instagram.com/_aztekan" target="_blank" rel="noopener" style="font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.08em;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 14px;border-radius:6px;text-decoration:none;">@_aztekan</a>
           </div>
         </div>
       </div>
@@ -505,21 +505,6 @@
       return 1+Math.round(((d-w)/86400000-3+((w.getDay()+6)%7))/7);
     }
 
-    // Test if an image URL returns a real photo (not a generic fallback icon)
-    function testImg(url){
-      return new Promise(function(resolve){
-        if(!url||url.indexOf('http')!==0){resolve(false);return;}
-        var img=new Image();
-        var t=setTimeout(function(){img.src='';resolve(false);},4000);
-        img.onload=function(){
-          clearTimeout(t);
-          resolve(img.naturalWidth>50&&img.naturalHeight>50);
-        };
-        img.onerror=function(){clearTimeout(t);resolve(false);};
-        img.src=url;
-      });
-    }
-
     // Render a full profile card
     function spotCard(it,type){
       var handle='';
@@ -543,22 +528,14 @@
         +'</div>';
     }
 
-    // Rotate candidates by week, test images, render 4 profiles with working photos
-    async function renderRowImgOnly(id,arr,type){
+    // Rotate 4 profiles by week — gradient fallback renders instantly
+    function renderRowImgOnly(id,arr,type){
       var el=document.getElementById(id);
       if(!el) return;
-      el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;padding:40px 0;">Loading profiles…</div>';
       var w=getWeek();
       var offset=(w*13)%arr.length;
       var rotated=arr.slice(offset).concat(arr.slice(0,offset));
-      var candidates=rotated.slice(0,Math.min(20,arr.length));
-      var results=await Promise.all(candidates.map(function(it){return testImg(it.i);}));
-      var withImgs=candidates.filter(function(_,i){return results[i];});
-      var show=withImgs.slice(0,4);
-      if(show.length<4){
-        var extra=candidates.filter(function(_,i){return !results[i];}).slice(0,4-show.length);
-        show=show.concat(extra);
-      }
+      var show=rotated.slice(0,4);
       el.innerHTML=show.map(function(it){return spotCard(it,type);}).join('');
     }
 
