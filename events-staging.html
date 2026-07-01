@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Events Staging v3 — KEEPITIL</title>
+  <title>Events Staging v5 — KEEPITIL</title>
   <link rel="icon" type="image/png" href="/logo-blue-nav.png"/>
   <meta name="robots" content="noindex,nofollow"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -18,7 +18,7 @@
       --orange-glow:rgba(230,51,51,.35);
       --font-head:'Bebas Neue',sans-serif;
       --font-body:'Inter',sans-serif;
-      --bar:30px;--nav:60px;--dsel:52px;
+      --bar:30px;--nav:60px;--dsel:52px;--radio-bar:44px;
     }
     html{scroll-behavior:smooth;}
     body{
@@ -37,7 +37,7 @@
     /* ── STAGING BANNER ── */
     .staging-banner{
       position:fixed;top:0;left:0;right:0;z-index:9999;
-      background:linear-gradient(90deg,var(--purple),var(--orange));
+      background:linear-gradient(90deg,var(--purple),var(--blue));
       color:#fff;text-align:center;
       font-family:var(--font-body);font-size:.62rem;font-weight:800;
       letter-spacing:.18em;text-transform:uppercase;padding:7px 12px;
@@ -80,8 +80,41 @@
     .mobile-menu a:hover{color:var(--blue);}
     .mobile-menu .nav-cta{color:var(--blue)!important;background:transparent!important;font-size:24px;}
 
+    /* ── RADIO BAR ── */
+    .radio-bar{
+      position:sticky;top:calc(var(--bar) + var(--nav));z-index:95;
+      background:rgba(8,8,18,.97);backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(0,255,136,.1);padding:0 20px;
+    }
+    .radio-inner{
+      max-width:1400px;margin:0 auto;display:flex;align-items:center;
+      height:var(--radio-bar);gap:12px;
+    }
+    .radio-dot{
+      width:6px;height:6px;border-radius:50%;background:var(--green);
+      box-shadow:0 0 8px var(--green);flex-shrink:0;
+      animation:radioPulse 2s ease-in-out infinite;
+    }
+    @keyframes radioPulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .radio-dot.paused{animation:none;background:#333;box-shadow:none;}
+    .radio-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
+    .radio-name{font-size:.55rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--green);}
+    .radio-track{font-size:.6rem;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .radio-play-btn{
+      background:transparent;border:1px solid rgba(0,255,136,.3);color:var(--green);
+      width:26px;height:26px;border-radius:50%;font-size:.65rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;
+    }
+    .radio-play-btn:hover{background:rgba(0,255,136,.12);border-color:var(--green);}
+    .radio-play-btn.playing{background:rgba(0,255,136,.1);}
+    .radio-close-btn{
+      background:transparent;border:none;color:#2a2a3a;font-size:.7rem;
+      cursor:pointer;padding:4px;transition:color .2s;flex-shrink:0;line-height:1;
+    }
+    .radio-close-btn:hover{color:#555;}
+
     /* ── HERO ── */
-    .page-hero{max-width:1200px;margin:0 auto;padding:40px 20px 28px;}
+    .page-hero{max-width:1200px;margin:0 auto;padding:36px 20px 24px;}
     .eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
     .page-hero h1{font-family:var(--font-head);font-size:clamp(2.4rem,7vw,4.4rem);line-height:1;letter-spacing:.05em;margin-bottom:18px;}
     .page-hero h1 span{color:var(--orange);text-shadow:0 0 40px var(--orange-glow);}
@@ -98,44 +131,60 @@
     .gf-chip.active{background:var(--green);border-color:var(--green);color:#0f0f1a;}
 
     /* ── SECTION SHELL ── */
-    .site-section{max-width:1200px;margin:0 auto;padding:40px 20px 0;}
+    .site-section{max-width:1200px;margin:0 auto;padding:36px 20px 0;}
     .sec-header{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;}
     .sec-label{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.12em;color:var(--white);}
     .sec-sub{font-size:.67rem;color:#444;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
     .sec-divider{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.08),transparent);margin-left:4px;}
 
-    /* ── MONTHLY HIGHLIGHTS ── */
+    /* ── SHARED MONTH SELECTOR ── */
+    .month-selector-wrap{max-width:1200px;margin:0 auto;padding:28px 20px 0;}
+    .month-selector{
+      display:flex;gap:6px;flex-wrap:wrap;
+      padding-bottom:20px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .ms-tab{
+      padding:8px 20px;border-radius:6px;
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+      color:#444;font-family:var(--font-body);font-size:.68rem;font-weight:700;
+      letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .2s;
+    }
+    .ms-tab:hover{border-color:rgba(0,255,136,.3);color:var(--white);}
+    .ms-tab.active{background:var(--green);border-color:var(--green);color:#0f0f1a;}
+    .ms-tab-label{
+      display:inline-block;font-size:.5rem;letter-spacing:.1em;
+      color:#333;margin-left:4px;text-transform:uppercase;vertical-align:middle;
+    }
+
+    /* ── MUST-SEE EVENTS (KEEPITIL PICKS — single row) ── */
     .highlights-grid{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+      display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;padding-bottom:6px;
     }
-    @media(max-width:960px){
-      .highlights-grid{
-        display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
-        scrollbar-width:none;gap:12px;padding-bottom:6px;
-      }
-      .highlights-grid::-webkit-scrollbar{display:none;}
-    }
+    .highlights-grid::-webkit-scrollbar{display:none;}
     .hl-card{
       display:flex;flex-direction:column;
       border-radius:12px;overflow:hidden;
-      border:1px solid rgba(255,255,255,.07);text-decoration:none;
+      border:1px solid rgba(255,255,255,.07);border-top:3px solid var(--green);text-decoration:none;
       transition:transform .25s,border-color .25s,box-shadow .25s;
-      position:relative;aspect-ratio:3/4;flex-shrink:0;
+      position:relative;aspect-ratio:3/4;flex-shrink:0;width:236px;
     }
-    @media(max-width:960px){.hl-card{width:210px;}}
-    .hl-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.2);box-shadow:0 12px 40px rgba(0,0,0,.5);}
-    .hl-badge{
-      position:absolute;top:12px;left:12px;z-index:2;
-      font-size:.54rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-      padding:3px 9px;border-radius:3px;
+    @media(max-width:520px){.hl-card{width:205px;}}
+    .hl-card:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.4);box-shadow:0 12px 40px rgba(0,0,0,.5);}
+    /* top border ribbon: KEEPITIL PICKS (left) + genre (right) */
+    .hl-topbar{
+      position:absolute;top:0;left:0;right:0;z-index:3;
+      display:flex;align-items:center;justify-content:space-between;gap:6px;
+      padding:5px 10px;
+      background:linear-gradient(90deg,rgba(0,255,136,.95),rgba(0,200,120,.6));
     }
-    .hl-badge--ki{background:var(--orange);color:#fff;}
-    .hl-badge--partner{background:rgba(0,0,0,.5);color:var(--blue);border:1px solid rgba(0,180,255,.5);}
+    .hl-kp{font-size:.53rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#06120a;white-space:nowrap;}
+    .hl-gn{font-size:.5rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#06120a;opacity:.8;white-space:nowrap;}
     .hl-card-body{
       flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;
       background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.3) 55%,transparent 100%);
     }
-    .hl-genre{font-size:.57rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:5px;}
     .hl-name{font-family:var(--font-head);font-size:clamp(1.05rem,2vw,1.35rem);letter-spacing:.04em;color:#fff;line-height:1;margin-bottom:5px;}
     .hl-venue{font-size:.66rem;color:rgba(255,255,255,.55);line-height:1.35;margin-bottom:4px;}
     .hl-date{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);}
@@ -146,25 +195,6 @@
     }
     .hl-price{font-size:.7rem;font-weight:700;color:var(--orange);}
     .hl-ticket{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);}
-
-    /* ── RECENTLY ADDED: MONTH TABS ── */
-    .recent-month-tabs{
-      display:flex;gap:4px;margin-bottom:16px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
-    .rm-tab{
-      padding:9px 18px;background:transparent;border:none;
-      color:#444;font-family:var(--font-body);font-size:.7rem;font-weight:700;
-      letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
-      position:relative;transition:color .2s;
-    }
-    .rm-tab::after{
-      content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;
-      background:var(--green);transform:scaleX(0);transition:transform .2s;
-    }
-    .rm-tab.active{color:var(--green);}
-    .rm-tab.active::after{transform:scaleX(1);}
-    .rm-tab:hover{color:var(--white);}
 
     /* ── RECENTLY ADDED: 3-CARD CAROUSEL ── */
     .recent-carousel-outer{
@@ -213,7 +243,7 @@
 
     /* ── DAY NAVIGATOR ── */
     .day-nav-wrap{
-      position:sticky;top:calc(var(--bar) + var(--nav));z-index:90;
+      position:sticky;top:calc(var(--bar) + var(--nav) + var(--radio-bar));z-index:90;
       background:rgba(11,11,11,.97);backdrop-filter:blur(10px);
       border-bottom:1px solid rgba(255,255,255,.05);
     }
@@ -240,12 +270,12 @@
     .day-tab:hover{color:var(--white);}
 
     /* ── DAYS LIST ── */
-    .days-list{max-width:1200px;margin:0 auto;padding:0 20px 140px;}
+    .days-list{max-width:1200px;margin:0 auto;padding:0 20px 160px;}
 
-    /* ── DAY SECTION — calendar layout ── */
+    /* ── DAY SECTION ── */
     .day-section{
       margin-top:52px;
-      scroll-margin-top:calc(var(--bar) + var(--nav) + var(--dsel) + 18px);
+      scroll-margin-top:calc(var(--bar) + var(--nav) + var(--radio-bar) + var(--dsel) + 18px);
       display:grid;grid-template-columns:72px 1fr;gap:0 28px;
     }
     @media(max-width:680px){.day-section{grid-template-columns:1fr;gap:14px 0;}}
@@ -273,27 +303,40 @@
       color:#3a3a3a;margin-bottom:14px;
     }
 
-    /* ── EVENT GRID ── */
-    .ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-    @media(max-width:1000px){.ev-grid{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:520px){
-      /* Mobile: horizontal carousel */
-      .ev-grid{
-        display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
-        scrollbar-width:none;gap:10px;
-        margin:0 -24px;padding:0 20px 6px;
-      }
-      .ev-grid::-webkit-scrollbar{display:none;}
+    /* ── EVENT GRID — horizontal carousel on ALL sizes ── */
+    .ev-grid{
+      display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;gap:12px;padding-bottom:8px;scroll-behavior:smooth;
     }
+    .ev-grid::-webkit-scrollbar{display:none;}
+
+    /* per-day carousel wrapper + smooth left/right arrows */
+    .ev-carousel{position:relative;}
+    .ev-arrow{
+      position:absolute;top:50%;transform:translateY(-50%);z-index:6;
+      width:34px;height:34px;border-radius:50%;
+      background:rgba(12,12,22,.92);border:1px solid rgba(255,255,255,.16);
+      color:#fff;font-size:1.35rem;line-height:1;cursor:pointer;
+      display:none;align-items:center;justify-content:center;
+      transition:all .2s;backdrop-filter:blur(6px);
+      box-shadow:0 3px 14px rgba(0,0,0,.5);
+    }
+    .ev-arrow:hover{border-color:var(--green);color:var(--green);}
+    .ev-arrow:disabled{opacity:.2;cursor:default;pointer-events:none;}
+    .ev-arrow-prev{left:-8px;}
+    .ev-arrow-next{right:-8px;}
+    .ev-carousel.scrollable .ev-arrow{display:flex;}
+    @media(max-width:680px){.ev-carousel.scrollable .ev-arrow{display:none;}}
 
     /* ── EVENT CARD — flyer style ── */
     .ev-card{
+      flex-shrink:0;width:280px;
       border-radius:10px;border:1px solid rgba(255,255,255,.07);border-top-width:3px;
-      padding:16px;display:flex;flex-direction:column;min-height:270px;
+      padding:16px;display:flex;flex-direction:column;min-height:280px;
       transition:border-color .25s,transform .25s,box-shadow .25s;
       position:relative;overflow:hidden;
     }
-    @media(max-width:520px){.ev-card{flex-shrink:0;width:230px;min-height:260px;}}
+    @media(max-width:520px){.ev-card{width:240px;min-height:265px;}}
     .ev-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
 
     .ev-card.gc-house{border-top-color:var(--orange);}
@@ -311,14 +354,13 @@
     .ev-card.gc-country{border-top-color:#d4a017;}
     .ev-card.gc-country:hover{border-color:rgba(212,160,23,.4);}
 
-    /* KEEPITIL.COM watermark (social crop) */
     .ev-card::after{
       content:'KEEPITIL.COM';position:absolute;bottom:10px;right:11px;
       font-size:.42rem;font-weight:700;letter-spacing:.13em;
       color:rgba(255,255,255,.08);text-transform:uppercase;pointer-events:none;
     }
 
-    .ev-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:10px;}
+    .ev-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:8px;}
     .ev-pick-badge{
       font-size:.5rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
       background:var(--orange);color:#fff;padding:3px 7px;border-radius:2px;flex-shrink:0;
@@ -336,9 +378,26 @@
     .gp-hiphop{background:rgba(255,149,0,.13);color:#ff9500;}
     .gp-country{background:rgba(212,160,23,.13);color:#d4a017;}
 
-    .ev-name{font-family:var(--font-head);font-size:clamp(1.15rem,2.2vw,1.5rem);letter-spacing:.04em;color:var(--white);line-height:1;margin-bottom:4px;}
-    .ev-subtitle{font-size:.67rem;color:#555;margin-bottom:7px;line-height:1.4;}
-    .ev-venue{font-size:.69rem;color:#595959;display:flex;align-items:flex-start;gap:3px;margin-bottom:7px;}
+    /* ── EVENT BADGES ── */
+    .ev-badges{
+      display:flex;flex-wrap:wrap;gap:4px;
+      margin-bottom:7px;min-height:0;
+    }
+    .ev-badge{
+      font-size:.44rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+      padding:2px 6px;border-radius:2px;white-space:nowrap;
+    }
+    .badge-pick{background:var(--orange);color:#fff;}
+    .badge-partner{background:rgba(0,180,255,.12);color:var(--blue);border:1px solid rgba(0,180,255,.35);}
+    .badge-free{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3);}
+    .badge-age{background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.12);}
+    .badge-afterhours{background:rgba(180,0,255,.12);color:var(--purple);border:1px solid rgba(180,0,255,.3);}
+    .badge-warehouse{background:rgba(255,149,0,.1);color:#ff9500;border:1px solid rgba(255,149,0,.28);}
+    .badge-festival{background:rgba(0,255,136,.08);color:#00dd77;border:1px solid rgba(0,255,136,.2);}
+
+    .ev-name{font-family:var(--font-head);font-size:clamp(1.1rem,2.2vw,1.45rem);letter-spacing:.04em;color:var(--white);line-height:1;margin-bottom:4px;}
+    .ev-subtitle{font-size:.67rem;color:#555;margin-bottom:6px;line-height:1.4;}
+    .ev-venue{font-size:.69rem;color:#595959;display:flex;align-items:flex-start;gap:3px;margin-bottom:6px;}
     .ev-acts{font-size:.69rem;color:#666;line-height:1.6;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
     .ev-card-footer{
       margin-top:14px;padding-top:11px;border-top:1px solid rgba(255,255,255,.06);
@@ -360,9 +419,60 @@
     }
     .ev-btn-cal:hover{border-color:var(--green);color:var(--green);}
     .no-events-msg{
-      grid-column:1/-1;padding:40px 0;text-align:center;
-      font-size:.8rem;color:#444;letter-spacing:.08em;
+      padding:40px 20px;text-align:center;
+      font-size:.8rem;color:#444;letter-spacing:.08em;flex-shrink:0;
     }
+
+    /* ── ECHO CHAT ── */
+    .echo-chat-wrap{
+      position:fixed;bottom:92px;right:20px;z-index:195;
+      display:flex;flex-direction:column;align-items:flex-end;gap:10px;
+    }
+    .echo-panel{
+      display:none;width:256px;
+      background:rgba(12,8,22,.97);
+      border:1px solid rgba(180,0,255,.3);
+      border-radius:12px;overflow:hidden;
+      box-shadow:0 8px 36px rgba(0,0,0,.6);
+      backdrop-filter:blur(16px);
+    }
+    .echo-panel.open{display:block;}
+    .echo-panel-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:9px 14px;
+      background:rgba(180,0,255,.1);
+      border-bottom:1px solid rgba(180,0,255,.2);
+    }
+    .echo-panel-title{
+      font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--purple);display:flex;align-items:center;gap:6px;
+    }
+    .echo-panel-title span{font-size:.8rem;}
+    .echo-panel-close{
+      background:transparent;border:none;color:#444;cursor:pointer;font-size:.85rem;
+      padding:2px;transition:color .2s;line-height:1;
+    }
+    .echo-panel-close:hover{color:var(--white);}
+    .echo-panel-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+    .echo-greeting{font-size:.7rem;color:#777;line-height:1.6;}
+    .echo-dash-link{
+      display:block;text-align:center;
+      font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--purple);background:rgba(180,0,255,.08);
+      border:1px solid rgba(180,0,255,.25);
+      text-decoration:none;padding:8px;border-radius:6px;transition:all .2s;
+    }
+    .echo-dash-link:hover{background:rgba(180,0,255,.18);border-color:var(--purple);}
+    .echo-fab{
+      width:42px;height:42px;border-radius:50%;
+      background:rgba(180,0,255,.12);
+      border:1px solid rgba(180,0,255,.35);
+      color:var(--white);font-size:1.1rem;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .2s;backdrop-filter:blur(10px);
+      box-shadow:0 4px 18px rgba(180,0,255,.2);
+    }
+    .echo-fab:hover{background:rgba(180,0,255,.25);border-color:rgba(180,0,255,.6);box-shadow:0 4px 24px rgba(180,0,255,.4);}
 
     /* ── FLOATING ACTIONS ── */
     .float-actions{
@@ -370,12 +480,10 @@
       display:flex;align-items:center;justify-content:space-between;
       padding:0 20px;pointer-events:none;
     }
-    /* Save: X logo circle */
     .float-save{
       pointer-events:auto;
       width:50px;height:50px;border-radius:50%;
-      background:transparent;
-      border:2px solid var(--green);
+      background:transparent;border:2px solid var(--green);
       display:flex;align-items:center;justify-content:center;
       cursor:pointer;transition:all .3s;
       box-shadow:0 0 14px rgba(0,255,136,.15),0 2px 10px rgba(0,0,0,.4);
@@ -388,8 +496,6 @@
       color:var(--green);transition:color .3s;letter-spacing:0;
     }
     .float-save.saved .ki-x-logo{color:#0f0f1a;}
-
-    /* Add Event: neon green */
     .float-add{
       pointer-events:auto;
       display:inline-flex;align-items:center;gap:7px;
@@ -417,7 +523,7 @@
 <body>
 
 <!-- Staging Banner -->
-<div class="staging-banner">⚠ STAGING v3 · EDMTrain-inspired · INTERNAL ONLY · NOT LINKED FROM NAV</div>
+<div class="staging-banner">⚡ STAGING v5 · Atlas · Founder spec (month nav + KEEPITIL picks + day carousels) · INTERNAL ONLY · QA BEFORE PUSH</div>
 
 <!-- Nav -->
 <nav id="main-nav">
@@ -448,9 +554,22 @@
   <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
 </div>
 
+<!-- Radio Bar -->
+<div class="radio-bar" id="radio-bar">
+  <div class="radio-inner">
+    <div class="radio-dot paused" id="radio-dot"></div>
+    <div class="radio-info">
+      <span class="radio-name">KEEPITIL RADIO</span>
+      <span class="radio-track" id="radio-track-lbl">Deep Frequencies 24/7 · Click ▶ to tune in</span>
+    </div>
+    <button class="radio-play-btn" id="radio-play-btn" onclick="toggleRadio()" aria-label="Play radio">▶</button>
+    <button class="radio-close-btn" onclick="hideRadio()" aria-label="Hide radio">✕</button>
+  </div>
+</div>
+
 <!-- Hero + Genre Filter -->
 <div class="page-hero">
-  <div class="eyebrow">OC · LA · San Diego · Staging Preview v3</div>
+  <div class="eyebrow">OC · LA · San Diego · Staging Preview v4 · Atlas Directive</div>
   <h1>UPCOMING <span>EVENTS</span></h1>
   <div class="genre-filter" id="genre-filter">
     <button class="gf-chip active" data-genre="">ALL</button>
@@ -465,24 +584,28 @@
   </div>
 </div>
 
+<!-- Shared Month Selector -->
+<div class="month-selector-wrap">
+  <div class="month-selector" id="month-tabs"></div>
+</div>
+
 <!-- Monthly Highlights -->
 <section class="site-section">
   <div class="sec-header">
-    <span class="sec-label">⚡ MONTHLY HIGHLIGHTS</span>
-    <span class="sec-sub">Must-see events</span>
+    <span class="sec-label" id="hl-label">JUN MUST-SEE EVENTS</span>
+    <span class="sec-sub" id="hl-subtitle">Hand-picked by KEEPITIL</span>
     <span class="sec-divider"></span>
   </div>
   <div class="highlights-grid" id="highlights-grid"></div>
 </section>
 
-<!-- Recently Added — per month, 3-card carousel -->
+<!-- Recently Added -->
 <section class="site-section">
   <div class="sec-header">
     <span class="sec-label">🔄 RECENTLY ADDED</span>
     <span class="sec-sub">3 shown · swipe for more</span>
     <span class="sec-divider"></span>
   </div>
-  <div class="recent-month-tabs" id="recent-month-tabs"></div>
   <div class="recent-carousel-outer">
     <button class="rc-ctrl" id="rc-prev" onclick="rcSlide(-1)" aria-label="Previous">&#8249;</button>
     <div class="recent-wrap" id="recent-wrap">
@@ -500,13 +623,26 @@
 <!-- Day List -->
 <div class="days-list" id="days-list"></div>
 
+<!-- Echo Chat -->
+<div class="echo-chat-wrap">
+  <div class="echo-panel" id="echo-panel">
+    <div class="echo-panel-head">
+      <div class="echo-panel-title"><span>🧠</span> ECHO AI</div>
+      <button class="echo-panel-close" onclick="closeEcho()">✕</button>
+    </div>
+    <div class="echo-panel-body">
+      <p class="echo-greeting">Hey — I'm Echo, KEEPITIL's CEO AI. Looking for events, artist info, or site updates? I've got you.</p>
+      <a href="/echo-dashboard.html" target="_blank" rel="noopener" class="echo-dash-link">Open Mission Control →</a>
+    </div>
+  </div>
+  <button class="echo-fab" onclick="toggleEcho()" title="Chat with Echo">🧠</button>
+</div>
+
 <!-- Floating Bottom Actions -->
 <div class="float-actions">
-  <!-- X logo: neon green outline circle, fills on save -->
   <button class="float-save" id="float-save-btn" onclick="toggleSave()" title="Save events">
     <span class="ki-x-logo">X</span>
   </button>
-  <!-- Add Event: neon green, links to portal -->
   <a href="/portal.html" class="float-add">
     <span>+</span> Add Event · Sign in
   </a>
@@ -523,66 +659,80 @@
 'use strict';
 
 /* ───────────────────────────────
-   HIGHLIGHTS DATA
+   MONTHLY HIGHLIGHTS (4 per month: 2 KEEPITIL Picks + 2 Partner/Posh)
 ─────────────────────────────── */
-var HIGHLIGHTS=[
-  {ki:true,name:'HOT SINCE 82',genre:'House',venue:'Dream Rooftop',city:'Los Angeles, CA',
-   date:'SUN · JUN 21',price:'$51',
-   ticket:'https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets',
-   bg:'linear-gradient(155deg,#1a0505 0%,#3d0c0c 30%,#7a1515 65%,#e63333 100%)'},
-  {ki:true,name:'RICHIE HAWTIN — SOLSTICE',genre:'Techno',venue:'LACMA',city:'Los Angeles, CA',
-   date:'SUN · JUN 21',price:'Free w/ RSVP',
-   ticket:'https://tickets.lacma.org/25866/28076',
-   bg:'linear-gradient(155deg,#0d0015 0%,#28003d 30%,#6b00b0 65%,#b400ff 100%)'},
-  {ki:false,name:'DAY TRIP FESTIVAL',genre:'House / Techno',venue:'Queen Mary Waterfront',city:'Long Beach, CA',
-   date:'SAT · JUN 27',price:'From $110',
-   ticket:'https://www.daytripfestival.com/',
-   bg:'linear-gradient(155deg,#00060f 0%,#001530 30%,#003366 65%,#00b4ff 100%)'},
-  {ki:false,name:'CRSSD FESTIVAL — FALL',genre:'House / Techno / Garage',venue:'Waterfront Park',city:'San Diego, CA',
-   date:'SAT · SEP 26',price:'From $169',
-   ticket:'https://www.crssdfest.com/',
-   bg:'linear-gradient(155deg,#000e08 0%,#002a1a 30%,#006040 65%,#00c878 100%)'}
-];
+var HIGHLIGHTS_BY_MONTH={
+  JUN:[
+    {ki:true, name:'HOT SINCE 82',             genre:'House',              venue:'Dream Rooftop',           city:'Los Angeles, CA',     date:'SUN · JUN 21', price:'$51',          ticket:'https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets', bg:'linear-gradient(155deg,#1a0505 0%,#3d0c0c 30%,#7a1515 65%,#e63333 100%)'},
+    {ki:true, name:'RICHIE HAWTIN — SOLSTICE', genre:'Techno',             venue:'LACMA',                   city:'Los Angeles, CA',     date:'SUN · JUN 21', price:'Free w/ RSVP', ticket:'https://tickets.lacma.org/25866/28076',                                                                     bg:'linear-gradient(155deg,#0d0015 0%,#28003d 30%,#6b00b0 65%,#b400ff 100%)'},
+    {ki:false,name:'DAY TRIP FESTIVAL',         genre:'House / Techno',     venue:'Queen Mary Waterfront',   city:'Long Beach, CA',      date:'SAT · JUN 27', price:'From $110',    ticket:'https://www.daytripfestival.com/',                                                                          bg:'linear-gradient(155deg,#00060f 0%,#001530 30%,#003366 65%,#00b4ff 100%)'},
+    {ki:false,name:'ELECTRIC CAROUSEL',         genre:'Techno / House',     venue:'The Compound',            city:'Commerce, CA',        date:'FRI · JUN 26', price:'$25–65',       ticket:'https://shotgun.live/en/festivals/electric-carousel',                                                       bg:'linear-gradient(155deg,#0d0015 0%,#28003d 30%,#6b00b0 65%,#b400ff 100%)'}
+  ],
+  JUL:[
+    {ki:true, name:'LOST IN DREAMS FESTIVAL',   genre:'Bass / House',       venue:'LA State Historic Park',  city:'Los Angeles, CA',     date:'SAT · JUL 11', price:'From $95',     ticket:'https://www.lostindreamsfestival.com/',                                                                    bg:'linear-gradient(155deg,#000d1a 0%,#001a35 30%,#003370 65%,#00b4ff 100%)'},
+    {ki:true, name:'MARKUS SCHULZ: OTC',        genre:'Trance',             venue:'Avalon Hollywood',        city:'Los Angeles, CA',     date:'SAT · JUL 18', price:'From $30',     ticket:'https://avalonhollywood.com/',                                                                             bg:'linear-gradient(155deg,#000715 0%,#001535 30%,#002a66 65%,#0060ff 100%)'},
+    {ki:false,name:'OC HIP-HOP SUMMER NIGHT',   genre:'Hip-Hop',            venue:'The Observatory OC',      city:'Santa Ana, CA',       date:'SAT · JUL 11', price:'From $20',     ticket:'https://www.observatoryoc.com/',                                                                           bg:'linear-gradient(155deg,#140800 0%,#2d1500 30%,#5c2900 65%,#ff9500 100%)'},
+    {ki:false,name:'DILLON FRANCIS',            genre:'Bass',               venue:'Hollywood Palladium',     city:'Los Angeles, CA',     date:'SAT · JUN 27', price:'$59–182',      ticket:'https://www.ticketmaster.com/event/09006437C99A49D6',                                                      bg:'linear-gradient(155deg,#000e08 0%,#002a1a 30%,#006040 65%,#00c878 100%)'}
+  ],
+  AUG:[
+    {ki:true, name:'HARD SUMMER',               genre:'House / Techno / Bass',venue:'Hollywood Park',        city:'Inglewood, CA',       date:'SAT · AUG 1',  price:'From $149',    ticket:'https://www.hardsummer.com/',                                                                              bg:'linear-gradient(155deg,#1a0505 0%,#3d0c0c 30%,#7a1515 65%,#e63333 100%)'},
+    {ki:true, name:'OC COUNTRY MUSIC FEST',     genre:'Country',            venue:'Oak Canyon Ranch',        city:'Silverado, CA',       date:'SAT · AUG 1',  price:'From $55',     ticket:'https://www.oakcanyonranch.com/',                                                                          bg:'linear-gradient(155deg,#100c00 0%,#261900 30%,#4d3300 65%,#d4a017 100%)'},
+    {ki:false,name:'INTO THE HORIZON',          genre:'House',              venue:'Waterfront Park',         city:'San Diego, CA',       date:'SAT · JUN 27', price:'21+',          ticket:'https://intothehorizon.frontgatetickets.com/',                                                             bg:'linear-gradient(155deg,#000e08 0%,#001a14 30%,#003530 65%,#00b4ff 100%)'},
+    {ki:false,name:'LOST IN DREAMS FESTIVAL',   genre:'Bass / House',       venue:'LA State Historic Park',  city:'Los Angeles, CA',     date:'SAT · JUL 11', price:'From $95',     ticket:'https://www.lostindreamsfestival.com/',                                                                    bg:'linear-gradient(155deg,#000d1a 0%,#001a35 30%,#003370 65%,#00b4ff 100%)'}
+  ],
+  SEP:[
+    {ki:true, name:'NOCTURNAL WONDERLAND',      genre:'Bass / House / Techno',venue:'Glen Helen Regional Park',city:'San Bernardino, CA',date:'SAT · SEP 19', price:'From $149',    ticket:'https://www.nocturnalwonderland.com/',                                                                     bg:'linear-gradient(155deg,#000d1a 0%,#001a35 30%,#003370 65%,#00b4ff 100%)'},
+    {ki:true, name:'CRSSD FESTIVAL — FALL',     genre:'House / Techno / Garage',venue:'Waterfront Park',     city:'San Diego, CA',       date:'SAT · SEP 26', price:'From $169',    ticket:'https://www.crssdfest.com/',                                                                               bg:'linear-gradient(155deg,#000e08 0%,#002a1a 30%,#006040 65%,#00c878 100%)'},
+    {ki:false,name:'PRE-CRSSD DEEP HOUSE',      genre:'House',              venue:'The Observatory SD',      city:'San Diego, CA',       date:'FRI · SEP 25', price:'$18',          ticket:'https://www.observatorysd.com/',                                                                           bg:'linear-gradient(155deg,#1a0505 0%,#2d0a0a 30%,#5a1010 65%,#e63333 100%)'},
+    {ki:false,name:'KETTAMA',                   genre:'Techno / House',     venue:'Bang Bang San Diego',     city:'San Diego, CA',       date:'FRI · SEP 26', price:'From $20',     ticket:'https://ra.co/',                                                                                           bg:'linear-gradient(155deg,#0d0015 0%,#28003d 30%,#6b00b0 65%,#b400ff 100%)'}
+  ],
+  NOV:[
+    {ki:true, name:'FACTORY 93: ELI BROWN',     genre:'Techno',             venue:'City Market Social House',city:'Los Angeles, CA',     date:'SAT · NOV 14', price:'From $50',     ticket:'https://www.insomniac.com/events/our-world/factory-93/',                                                   bg:'linear-gradient(155deg,#0d0015 0%,#28003d 30%,#6b00b0 65%,#b400ff 100%)'},
+    {ki:true, name:'MUTATE: VENDEX',            genre:'Techno',             venue:'Exchange LA',             city:'Los Angeles, CA',     date:'SAT · NOV 27', price:'$20–83',       ticket:'https://www.ticketweb.com/event/vendex-exchange-la-tickets/14899843',                                       bg:'linear-gradient(155deg,#0d0015 0%,#1a0030 30%,#4a0090 65%,#9900ff 100%)'},
+    {ki:false,name:'FACTORY 93: AFTERHOURS',    genre:'Techno / House',     venue:'City Market Social House',city:'Los Angeles, CA',     date:'SUN · NOV 15', price:'From $30',     ticket:'https://www.insomniac.com/events/our-world/factory-93/',                                                   bg:'linear-gradient(155deg,#0d0015 0%,#200030 30%,#550090 65%,#aa00ee 100%)'},
+    {ki:false,name:'THANKSGIVING BEATS',        genre:'House',              venue:'Catch One',               city:'Los Angeles, CA',     date:'WED · NOV 26', price:'$20',          ticket:'https://ra.co/',                                                                                           bg:'linear-gradient(155deg,#1a0505 0%,#3d0c0c 30%,#7a1515 65%,#e63333 100%)'}
+  ]
+};
 
 /* ───────────────────────────────
-   RECENTLY ADDED — grouped by month (min 12 in JUN, cap 24 total per month)
+   RECENTLY ADDED — per month (cap 24 per month)
 ─────────────────────────────── */
 var RECENTLY_ADDED={
   JUN:[
-    {posh:true, name:'RELOAD: UKG',          genre:'Garage',           venue:'Breakpoint PB',           city:'San Diego, CA',   date:'FRI · JUN 26', price:'$15',        ticket:'https://posh.vip/e/reload-ukg',                                                   bg:'rgba(0,200,180,.07)'},
-    {posh:false,name:'ELECTRIC CAROUSEL',    genre:'Techno / House',   venue:'The Compound',            city:'Commerce, CA',    date:'FRI · JUN 26', price:'$25–65',     ticket:'https://shotgun.live/en/festivals/electric-carousel',                              bg:'rgba(180,0,255,.08)'},
-    {posh:true, name:'THEMBA',               genre:'House',            venue:'The Spotlight',           city:'Los Angeles, CA', date:'FRI · JUN 26', price:'$25',        ticket:'https://dice.fm/event/yoeqxv-themba-26th-jun-the-spotlight-los-angeles-tickets', bg:'rgba(230,51,51,.07)'},
-    {posh:false,name:'MARK KNIGHT',          genre:'House',            venue:'Sound Nightclub',         city:'Los Angeles, CA', date:'FRI · JUN 26', price:'$31',        ticket:'https://dice.fm/event/dk29aq-mark-knight-26th-jun-sound-nightclub-los-angeles-tickets',bg:'rgba(230,51,51,.06)'},
-    {posh:true, name:'GREEN VELVET PREPARTY',genre:'House / Techno',   venue:'Exchange LA',             city:'Los Angeles, CA', date:'FRI · JUN 26', price:'$45–95',     ticket:'https://www.tixr.com/groups/exchangela/events/day-trip-festival-preparty-green-velvet-192192',bg:'rgba(0,180,255,.07)'},
-    {posh:false,name:'LOUIE VEGA: ELEMENTS', genre:'House',            venue:'Blue Note LA',            city:'Los Angeles, CA', date:'MON · JUN 23', price:'$18–66',     ticket:'https://www.ticketweb.com/event/louie-vega-elements-of-life-blue-note-los-angeles-tickets/14782753',bg:'rgba(230,51,51,.07)'},
-    {posh:false,name:'HOT SINCE 82',         genre:'House',            venue:'Dream Rooftop',           city:'Los Angeles, CA', date:'SUN · JUN 21', price:'$51',        ticket:'https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets',bg:'rgba(230,51,51,.08)'},
-    {posh:false,name:'GABRIEL & DRESDEN',    genre:'Trance',           venue:'Spin Nightclub',          city:'San Diego, CA',   date:'FRI · JUN 26', price:'From $15',   ticket:'https://intricacynights.ticketsauce.com/e/gssd2026/tickets',                      bg:'rgba(0,180,255,.08)'},
-    {posh:false,name:'PERC INDUSTRIAL SET',  genre:'Techno',           venue:'Catch One',               city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$30',        ticket:'https://wl.eventim.us/event/perc-industrial-set-aurat-the-sow/687888',           bg:'rgba(180,0,255,.09)'},
-    {posh:false,name:'FRANKY WAH',           genre:'House',            venue:'Community Berlin LA',     city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$35',        ticket:'https://ra.co/events/2461308',                                                     bg:'rgba(230,51,51,.06)'},
-    {posh:false,name:'TROYBOI',              genre:'Bass',             venue:'Time Nightclub',          city:'Costa Mesa, CA',  date:'FRI · JUN 26', price:'$45',        ticket:'https://www.tixr.com/groups/timenightclub/events/troyboi-189381',                 bg:'rgba(0,210,130,.07)'},
-    {posh:true, name:'TMPLE + DAVI',         genre:'House / Techno',   venue:'Cielo Farms',             city:'Malibu, CA',      date:'SAT · JUN 27', price:'$85',        ticket:'https://dice.fm/event/nvkxm3-tmplehybrid-live-set-davi-27th-jun-cielo-farms-malibu-tickets',bg:'rgba(0,180,255,.06)'}
+    {posh:true, name:'RELOAD: UKG',           genre:'Garage',           venue:'Breakpoint PB',           city:'San Diego, CA',   date:'FRI · JUN 26', price:'$15',        ticket:'https://posh.vip/e/reload-ukg',                                                                    bg:'rgba(0,200,180,.07)'},
+    {posh:false,name:'ELECTRIC CAROUSEL',     genre:'Techno / House',   venue:'The Compound',            city:'Commerce, CA',    date:'FRI · JUN 26', price:'$25–65',     ticket:'https://shotgun.live/en/festivals/electric-carousel',                                               bg:'rgba(180,0,255,.08)'},
+    {posh:true, name:'THEMBA',                genre:'House',            venue:'The Spotlight',           city:'Los Angeles, CA', date:'FRI · JUN 26', price:'$25',        ticket:'https://dice.fm/event/yoeqxv-themba-26th-jun-the-spotlight-los-angeles-tickets',                   bg:'rgba(230,51,51,.07)'},
+    {posh:false,name:'MARK KNIGHT',           genre:'House',            venue:'Sound Nightclub',         city:'Los Angeles, CA', date:'FRI · JUN 26', price:'$31',        ticket:'https://dice.fm/event/dk29aq-mark-knight-26th-jun-sound-nightclub-los-angeles-tickets',            bg:'rgba(230,51,51,.06)'},
+    {posh:true, name:'GREEN VELVET PREPARTY', genre:'House / Techno',   venue:'Exchange LA',             city:'Los Angeles, CA', date:'FRI · JUN 26', price:'$45–95',     ticket:'https://www.tixr.com/groups/exchangela/events/day-trip-festival-preparty-green-velvet-192192',    bg:'rgba(0,180,255,.07)'},
+    {posh:false,name:'LOUIE VEGA: ELEMENTS',  genre:'House',            venue:'Blue Note LA',            city:'Los Angeles, CA', date:'MON · JUN 23', price:'$18–66',     ticket:'https://www.ticketweb.com/event/louie-vega-elements-of-life-blue-note-los-angeles-tickets/14782753',bg:'rgba(230,51,51,.07)'},
+    {posh:false,name:'HOT SINCE 82',          genre:'House',            venue:'Dream Rooftop',           city:'Los Angeles, CA', date:'SUN · JUN 21', price:'$51',        ticket:'https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets',bg:'rgba(230,51,51,.08)'},
+    {posh:false,name:'GABRIEL & DRESDEN',     genre:'Trance',           venue:'Spin Nightclub',          city:'San Diego, CA',   date:'FRI · JUN 26', price:'From $15',   ticket:'https://intricacynights.ticketsauce.com/e/gssd2026/tickets',                                        bg:'rgba(0,180,255,.08)'},
+    {posh:false,name:'PERC INDUSTRIAL SET',   genre:'Techno',           venue:'Catch One',               city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$30',        ticket:'https://wl.eventim.us/event/perc-industrial-set-aurat-the-sow/687888',                            bg:'rgba(180,0,255,.09)'},
+    {posh:false,name:'FRANKY WAH',            genre:'House',            venue:'Community Berlin LA',     city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$35',        ticket:'https://ra.co/events/2461308',                                                                      bg:'rgba(230,51,51,.06)'},
+    {posh:false,name:'TROYBOI',               genre:'Bass',             venue:'Time Nightclub',          city:'Costa Mesa, CA',  date:'FRI · JUN 26', price:'$45',        ticket:'https://www.tixr.com/groups/timenightclub/events/troyboi-189381',                                   bg:'rgba(0,210,130,.07)'},
+    {posh:true, name:'TMPLE + DAVI',          genre:'House / Techno',   venue:'Cielo Farms',             city:'Malibu, CA',      date:'SAT · JUN 27', price:'$85',        ticket:'https://dice.fm/event/nvkxm3-tmplehybrid-live-set-davi-27th-jun-cielo-farms-malibu-tickets',       bg:'rgba(0,180,255,.06)'}
   ],
   JUL:[
-    {posh:false,name:'LOST IN DREAMS',       genre:'Bass / House',     venue:'LA State Historic Park',  city:'Los Angeles, CA', date:'SAT · JUL 11', price:'From $95',   ticket:'https://www.lostindreamsfestival.com/',                                            bg:'rgba(0,180,255,.07)'},
-    {posh:false,name:'MARKUS SCHULZ OTC',    genre:'Trance',           venue:'Avalon Hollywood',        city:'Los Angeles, CA', date:'SAT · JUL 18', price:'From $30',   ticket:'https://avalonhollywood.com/',                                                     bg:'rgba(0,180,255,.08)'},
-    {posh:true, name:'OC HIP-HOP NIGHT',     genre:'Hip-Hop',          venue:'Chain Reaction',          city:'Anaheim, CA',     date:'FRI · JUL 11', price:'$15',        ticket:'https://www.chainreactionanaheim.com/',                                            bg:'rgba(255,149,0,.08)'},
-    {posh:false,name:'COUNTRY NIGHTS SOCAL', genre:'Country',          venue:'Saddleback Ranch',        city:'Santa Ana, CA',   date:'SAT · JUL 18', price:'$20–30',     ticket:'https://www.saddlebackranchoc.com/',                                               bg:'rgba(212,160,23,.07)'},
-    {posh:true, name:'DILLON FRANCIS',       genre:'Bass',             venue:'Hollywood Palladium',     city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$59–182',    ticket:'https://www.ticketmaster.com/event/09006437C99A49D6',                              bg:'rgba(0,210,130,.07)'}
+    {posh:false,name:'LOST IN DREAMS',        genre:'Bass / House',     venue:'LA State Historic Park',  city:'Los Angeles, CA', date:'SAT · JUL 11', price:'From $95',   ticket:'https://www.lostindreamsfestival.com/',                                                             bg:'rgba(0,180,255,.07)'},
+    {posh:false,name:'MARKUS SCHULZ OTC',     genre:'Trance',           venue:'Avalon Hollywood',        city:'Los Angeles, CA', date:'SAT · JUL 18', price:'From $30',   ticket:'https://avalonhollywood.com/',                                                                      bg:'rgba(0,180,255,.08)'},
+    {posh:true, name:'OC HIP-HOP NIGHT',      genre:'Hip-Hop',          venue:'Chain Reaction',          city:'Anaheim, CA',     date:'FRI · JUL 11', price:'$15',        ticket:'https://www.chainreactionanaheim.com/',                                                             bg:'rgba(255,149,0,.08)'},
+    {posh:false,name:'COUNTRY NIGHTS SOCAL',  genre:'Country',          venue:'Saddleback Ranch',        city:'Santa Ana, CA',   date:'SAT · JUL 18', price:'$20–30',     ticket:'https://www.saddlebackranchoc.com/',                                                                bg:'rgba(212,160,23,.07)'},
+    {posh:true, name:'DILLON FRANCIS',        genre:'Bass',             venue:'Hollywood Palladium',     city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$59–182',    ticket:'https://www.ticketmaster.com/event/09006437C99A49D6',                                               bg:'rgba(0,210,130,.07)'}
   ],
   AUG:[
-    {posh:false,name:'HARD SUMMER',          genre:'House / Techno / Bass',venue:'Hollywood Park',       city:'Inglewood, CA',  date:'SAT · AUG 1',  price:'From $149',  ticket:'https://www.hardsummer.com/',                                                     bg:'rgba(230,51,51,.08)'},
-    {posh:true, name:'OC COUNTRY MUSIC FEST',genre:'Country',          venue:'Oak Canyon Ranch',        city:'Silverado, CA',   date:'SAT · AUG 1',  price:'From $55',   ticket:'https://www.oakcanyonranch.com/',                                                  bg:'rgba(212,160,23,.07)'},
-    {posh:false,name:'INTO THE HORIZON',     genre:'House',            venue:'Waterfront Park',         city:'San Diego, CA',   date:'SAT · JUN 27', price:'21+',        ticket:'https://intothehorizon.frontgatetickets.com/',                                     bg:'rgba(0,180,255,.07)'}
+    {posh:false,name:'HARD SUMMER',           genre:'House / Techno / Bass',venue:'Hollywood Park',       city:'Inglewood, CA',  date:'SAT · AUG 1',  price:'From $149',  ticket:'https://www.hardsummer.com/',                                                                       bg:'rgba(230,51,51,.08)'},
+    {posh:true, name:'OC COUNTRY MUSIC FEST', genre:'Country',          venue:'Oak Canyon Ranch',        city:'Silverado, CA',   date:'SAT · AUG 1',  price:'From $55',   ticket:'https://www.oakcanyonranch.com/',                                                                   bg:'rgba(212,160,23,.07)'},
+    {posh:false,name:'INTO THE HORIZON',      genre:'House',            venue:'Waterfront Park',         city:'San Diego, CA',   date:'SAT · JUN 27', price:'21+',        ticket:'https://intothehorizon.frontgatetickets.com/',                                                      bg:'rgba(0,180,255,.07)'}
   ],
   SEP:[
-    {posh:false,name:'NOCTURNAL WONDERLAND', genre:'Multi-Genre',      venue:'Glen Helen Regional Park',city:'San Bernardino, CA',date:'SAT · SEP 19',price:'From $149', ticket:'https://www.nocturnalwonderland.com/',                                             bg:'rgba(0,180,255,.07)'},
-    {posh:false,name:'CRSSD FESTIVAL — FALL',genre:'House / Techno',   venue:'Waterfront Park',         city:'San Diego, CA',   date:'SAT · SEP 26', price:'From $169',  ticket:'https://www.crssdfest.com/',                                                       bg:'rgba(0,200,180,.06)'},
-    {posh:true, name:'PRE-CRSSD DEEP HOUSE', genre:'House',            venue:'The Observatory SD',      city:'San Diego, CA',   date:'FRI · SEP 25', price:'$18',        ticket:'https://www.observatorysd.com/',                                                   bg:'rgba(0,180,255,.07)'},
-    {posh:false,name:'KETTAMA',              genre:'Techno / House',   venue:'Bang Bang San Diego',     city:'San Diego, CA',   date:'FRI · SEP 26', price:'From $20',   ticket:'https://ra.co/',                                                                   bg:'rgba(180,0,255,.07)'}
+    {posh:false,name:'NOCTURNAL WONDERLAND',  genre:'Multi-Genre',      venue:'Glen Helen Regional Park',city:'San Bernardino, CA',date:'SAT · SEP 19',price:'From $149', ticket:'https://www.nocturnalwonderland.com/',                                                              bg:'rgba(0,180,255,.07)'},
+    {posh:false,name:'CRSSD FESTIVAL — FALL', genre:'House / Techno',   venue:'Waterfront Park',         city:'San Diego, CA',   date:'SAT · SEP 26', price:'From $169',  ticket:'https://www.crssdfest.com/',                                                                        bg:'rgba(0,200,180,.06)'},
+    {posh:true, name:'PRE-CRSSD DEEP HOUSE',  genre:'House',            venue:'The Observatory SD',      city:'San Diego, CA',   date:'FRI · SEP 25', price:'$18',        ticket:'https://www.observatorysd.com/',                                                                    bg:'rgba(0,180,255,.07)'},
+    {posh:false,name:'KETTAMA',               genre:'Techno / House',   venue:'Bang Bang San Diego',     city:'San Diego, CA',   date:'FRI · SEP 26', price:'From $20',   ticket:'https://ra.co/',                                                                                    bg:'rgba(180,0,255,.07)'}
   ],
   NOV:[
-    {posh:false,name:'FACTORY 93: ELI BROWN',genre:'Techno',           venue:'City Market Social House',city:'Los Angeles, CA', date:'SAT · NOV 14', price:'From $50',   ticket:'https://www.insomniac.com/events/our-world/factory-93/',                           bg:'rgba(180,0,255,.08)'},
-    {posh:true, name:'MUTATE: VENDEX',       genre:'Techno',           venue:'Exchange LA',             city:'Los Angeles, CA', date:'SAT · JUN 27', price:'$20–83',     ticket:'https://www.ticketweb.com/event/vendex-exchange-la-tickets/14899843',            bg:'rgba(180,0,255,.07)'}
+    {posh:false,name:'FACTORY 93: ELI BROWN', genre:'Techno',           venue:'City Market Social House',city:'Los Angeles, CA', date:'SAT · NOV 14', price:'From $50',   ticket:'https://www.insomniac.com/events/our-world/factory-93/',                                            bg:'rgba(180,0,255,.08)'},
+    {posh:true, name:'MUTATE: VENDEX',        genre:'Techno',           venue:'Exchange LA',             city:'Los Angeles, CA', date:'SAT · NOV 27', price:'$20–83',     ticket:'https://www.ticketweb.com/event/vendex-exchange-la-tickets/14899843',                              bg:'rgba(180,0,255,.07)'}
   ]
 };
 
@@ -591,11 +741,11 @@ var RECENTLY_ADDED={
 ─────────────────────────────── */
 var DAYS=[
   {date:'2026-06-21',tab:'Jun 21',dow:'SUN',num:'21',month:'JUN',events:[
-    {pick:true,name:'HOT SINCE 82',subtitle:'Sound presents · rooftop sunset set · 21+',genre:'House',venue:'Dream Rooftop',city:'Los Angeles, CA',acts:'Hot Since 82 — deep & funky house all evening on the Dream Hollywood rooftop.',price:'$51',ticket:'https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets',cs:'20260621T220000',ce:'20260622T030000'},
-    {pick:true,name:'RICHIE HAWTIN — SUMMER SOLSTICE',subtitle:'6AM Group · Summer Solstice dance · all ages',genre:'Techno',venue:'LACMA',city:'Los Angeles, CA',acts:'Richie Hawtin · John Gerrard — open-air solstice techno at the museum.',price:'Free w/ RSVP',ticket:'https://tickets.lacma.org/25866/28076',cs:'20260621T160000',ce:'20260621T220000'}
+    {pick:true, name:'HOT SINCE 82',subtitle:'Sound presents · rooftop sunset set · 21+',genre:'House',venue:'Dream Rooftop',city:'Los Angeles, CA',acts:'Hot Since 82 — deep & funky house all evening on the Dream Hollywood rooftop.',price:'$51',ticket:'https://dice.fm/event/g5q8pp-sound-presents-hot-since-82-21st-jun-dream-rooftop-los-angeles-tickets',cs:'20260621T220000',ce:'20260622T030000'},
+    {pick:true, name:'RICHIE HAWTIN — SUMMER SOLSTICE',subtitle:'6AM Group · Summer Solstice dance · all ages',genre:'Techno',venue:'LACMA',city:'Los Angeles, CA',acts:'Richie Hawtin · John Gerrard — open-air solstice techno at the museum.',price:'Free w/ RSVP',ticket:'https://tickets.lacma.org/25866/28076',cs:'20260621T160000',ce:'20260621T220000'}
   ]},
   {date:'2026-06-23',tab:'Jun 23',dow:'MON',num:'23',month:'JUN',events:[
-    {pick:true,name:'LOUIE VEGA: ELEMENTS OF LIFE',subtitle:'Soulful & latin house · all ages',genre:'House',venue:'Blue Note',city:'Los Angeles, CA',acts:'Louie Vega — Masters at Work legend, live Elements of Life residency.',price:'$18–66',ticket:'https://www.ticketweb.com/event/louie-vega-elements-of-life-blue-note-los-angeles-tickets/14782753',cs:'20260623T200000',ce:'20260624T010000'}
+    {pick:true, name:'LOUIE VEGA: ELEMENTS OF LIFE',subtitle:'Soulful & latin house · all ages',genre:'House',venue:'Blue Note',city:'Los Angeles, CA',acts:'Louie Vega — Masters at Work legend, live Elements of Life residency.',price:'$18–66',ticket:'https://www.ticketweb.com/event/louie-vega-elements-of-life-blue-note-los-angeles-tickets/14782753',cs:'20260623T200000',ce:'20260624T010000'}
   ]},
   {date:'2026-06-25',tab:'Jun 25',dow:'THU',num:'25',month:'JUN',events:[
     {name:'AARON HIBELL',subtitle:'Goldenvoice · cinematic trance & techno · 18+',genre:'Trance / Techno',venue:'Fonda Theatre',city:'Los Angeles, CA',acts:'Aaron Hibell — emotive, classical-tinged trance and techno live show.',price:'From $30',ticket:'https://www.axs.com/events/1332014/aaron-hibell-tickets',cs:'20260625T220000',ce:'20260626T030000'}
@@ -646,6 +796,15 @@ var DAYS=[
 ];
 
 /* ───────────────────────────────
+   SHARED STATE
+─────────────────────────────── */
+var activeMonth='JUN';
+var rcIdx=0;
+var RC_MAX=24;
+var activeGenre='';
+var MONTH_FULL={JAN:'JANUARY',FEB:'FEBRUARY',MAR:'MARCH',APR:'APRIL',MAY:'MAY',JUN:'JUNE',JUL:'JULY',AUG:'AUGUST',SEP:'SEPTEMBER',OCT:'OCTOBER',NOV:'NOVEMBER',DEC:'DECEMBER'};
+
+/* ───────────────────────────────
    HELPERS
 ─────────────────────────────── */
 function enc(s){return encodeURIComponent(s);}
@@ -681,19 +840,67 @@ function grad(genre){
   return 'linear-gradient(145deg,rgba(230,51,51,.09),rgba(180,0,255,.04),rgba(15,15,26,.6))';
 }
 
+/* Badge detection from event fields */
+function getBadgeStrip(ev){
+  var sub=(ev.subtitle||'').toLowerCase();
+  var name=(ev.name||'').toLowerCase();
+  var price=(ev.price||'').toLowerCase();
+  var venue=(ev.venue||'').toLowerCase();
+  var badges=[];
+  if(ev.pick)               badges.push({cls:'badge-pick',    text:'⚡ KEEPITIL PICK'});
+  if(ev.partner)            badges.push({cls:'badge-partner', text:'🤝 PARTNER EVENT'});
+  if(price.indexOf('free')>-1)  badges.push({cls:'badge-free',    text:'FREE'});
+  if(sub.indexOf('21+')>-1)     badges.push({cls:'badge-age',     text:'21+'});
+  else if(sub.indexOf('18+')>-1) badges.push({cls:'badge-age',    text:'18+'});
+  if(sub.indexOf('afterhours')>-1||sub.indexOf('after hours')>-1)
+    badges.push({cls:'badge-afterhours',text:'AFTERHOURS'});
+  if(venue.indexOf('warehouse')>-1||venue.indexOf('compound')>-1)
+    badges.push({cls:'badge-warehouse',text:'WAREHOUSE'});
+  if(name.indexOf('festival')>-1||sub.indexOf('festival')>-1)
+    badges.push({cls:'badge-festival',text:'FESTIVAL'});
+  if(badges.length===0) return '';
+  return '<div class="ev-badges">'+badges.map(function(b){
+    return '<span class="ev-badge '+b.cls+'">'+b.text+'</span>';
+  }).join('')+'</div>';
+}
+
+/* ───────────────────────────────
+   SHARED MONTH TABS
+─────────────────────────────── */
+function buildMonthTabs(){
+  var months=Object.keys(HIGHLIGHTS_BY_MONTH);
+  var html=months.map(function(m){
+    var cnt=(RECENTLY_ADDED[m]||[]).length;
+    return '<button class="ms-tab'+(m===activeMonth?' active':'')+'" data-month="'+m+'" onclick="setActiveMonth(\''+m+'\')">'+m+'<span class="ms-tab-label">'+cnt+'</span></button>';
+  }).join('');
+  document.getElementById('month-tabs').innerHTML=html;
+}
+
+window.setActiveMonth=function(month){
+  activeMonth=month;
+  // Update tab UI
+  document.querySelectorAll('.ms-tab').forEach(function(t){
+    t.classList.toggle('active',t.dataset.month===month);
+  });
+  // Update the MUST-SEE label -> e.g. "JULY MUST-SEE EVENTS"
+  var lbl=document.getElementById('hl-label');
+  if(lbl) lbl.textContent=(MONTH_FULL[month]||month)+' MUST-SEE EVENTS';
+  // Rebuild highlights + recently added + day list (month drives all three)
+  buildHighlights();
+  buildRecentMonth(month);
+  buildDays();
+};
+
 /* ───────────────────────────────
    BUILD HIGHLIGHTS
 ─────────────────────────────── */
 function buildHighlights(){
-  var html='';
-  HIGHLIGHTS.forEach(function(ev){
-    var badge=ev.ki
-      ?'<span class="hl-badge hl-badge--ki">⚡ KEEPITIL</span>'
-      :'<span class="hl-badge hl-badge--partner">🤝 PARTNER</span>';
-    html+='<a href="'+h(ev.ticket)+'" target="_blank" rel="noopener" class="hl-card" style="background:'+ev.bg+'">'
-      +badge
+  // KEEPITIL PICKS only — partner picks removed
+  var evs=(HIGHLIGHTS_BY_MONTH[activeMonth]||[]).filter(function(ev){return ev.ki;});
+  var html=evs.map(function(ev){
+    return '<a href="'+h(ev.ticket)+'" target="_blank" rel="noopener" class="hl-card" style="background:'+ev.bg+'">'
+      +'<div class="hl-topbar"><span class="hl-kp">⚡ KEEPITIL PICKS</span><span class="hl-gn">'+h(ev.genre)+'</span></div>'
       +'<div class="hl-card-body">'
-      +'<div class="hl-genre">'+h(ev.genre)+'</div>'
       +'<div class="hl-name">'+h(ev.name)+'</div>'
       +'<div class="hl-venue">'+h(ev.venue)+' · '+h(ev.city)+'</div>'
       +'<div class="hl-date">'+h(ev.date)+'</div>'
@@ -703,17 +910,14 @@ function buildHighlights(){
       +'<span class="hl-ticket">GET TICKETS →</span>'
       +'</div>'
       +'</a>';
-  });
-  document.getElementById('highlights-grid').innerHTML=html;
+  }).join('');
+  document.getElementById('highlights-grid').innerHTML=html
+    ||'<div class="no-events-msg">No KEEPITIL picks yet for '+(MONTH_FULL[activeMonth]||activeMonth)+'</div>';
 }
 
 /* ───────────────────────────────
-   RECENTLY ADDED — per-month 3-card carousel
+   RECENTLY ADDED — 3-card carousel (driven by activeMonth)
 ─────────────────────────────── */
-var rcMonth='JUN';
-var rcIdx=0;
-var RC_MAX=24;
-
 function getVisibleCount(){
   return window.innerWidth<480?1:window.innerWidth<768?2:3;
 }
@@ -724,12 +928,11 @@ function setRcCardWidths(){
   var vis=getVisibleCount();
   var gap=12;
   var total=wrap.offsetWidth;
-  var cardW=Math.floor((total - gap*(vis-1))/vis);
+  var cardW=Math.floor((total-gap*(vis-1))/vis);
   document.querySelectorAll('.rc-card').forEach(function(c){
     c.style.width=cardW+'px';
     c.style.minWidth=cardW+'px';
   });
-  // Re-apply position
   var track=document.getElementById('recent-track');
   if(track){track.style.transform='';}
   rcIdx=0;
@@ -737,13 +940,7 @@ function setRcCardWidths(){
 }
 
 function buildRecentMonth(month){
-  rcMonth=month;
   rcIdx=0;
-  // Update tabs
-  document.querySelectorAll('.rm-tab').forEach(function(t){
-    t.classList.toggle('active',t.dataset.month===month);
-  });
-  // Build cards
   var evs=(RECENTLY_ADDED[month]||[]).slice(0,RC_MAX);
   var html=evs.map(function(ev){
     var posh=ev.posh?'<span class="rc-posh">POSH</span>':'';
@@ -760,23 +957,12 @@ function buildRecentMonth(month){
   }).join('');
   document.getElementById('recent-track').innerHTML=html;
   document.getElementById('recent-track').style.transform='';
-  // Set widths after DOM renders
   setTimeout(setRcCardWidths,0);
 }
 
-function buildRecentTabs(){
-  var months=Object.keys(RECENTLY_ADDED);
-  var html=months.map(function(m){
-    return '<button class="rm-tab'+(m===rcMonth?' active':'')+'" data-month="'+m+'" onclick="switchRcMonth(\''+m+'\')">'+m+'</button>';
-  }).join('');
-  document.getElementById('recent-month-tabs').innerHTML=html;
-}
-
-window.switchRcMonth=function(month){buildRecentMonth(month);};
-
 function rcSlide(dir){
   var vis=getVisibleCount();
-  var total=(RECENTLY_ADDED[rcMonth]||[]).length;
+  var total=(RECENTLY_ADDED[activeMonth]||[]).length;
   var maxIdx=Math.max(0,Math.min(RC_MAX,total)-vis);
   rcIdx=Math.max(0,Math.min(maxIdx,rcIdx+dir));
   var track=document.getElementById('recent-track');
@@ -789,7 +975,7 @@ function rcSlide(dir){
 
 function updateRcArrows(){
   var vis=getVisibleCount();
-  var total=(RECENTLY_ADDED[rcMonth]||[]).length;
+  var total=(RECENTLY_ADDED[activeMonth]||[]).length;
   var maxIdx=Math.max(0,Math.min(RC_MAX,total)-vis);
   var prev=document.getElementById('rc-prev');
   var next=document.getElementById('rc-next');
@@ -800,19 +986,27 @@ function updateRcArrows(){
 /* ───────────────────────────────
    BUILD DAY LIST
 ─────────────────────────────── */
-var activeGenre='';
 function buildDays(){
   var navEl=document.getElementById('day-nav');
   var listEl=document.getElementById('days-list');
   var nh='',lh='';
 
-  DAYS.forEach(function(day,i){
+  // Month nav drives the day list — only show days in the active month
+  var monthDays=DAYS.filter(function(d){return d.month===activeMonth;});
+
+  if(monthDays.length===0){
+    navEl.innerHTML='';
+    listEl.innerHTML='<div class="no-events-msg" style="padding:70px 20px;">No events listed yet for '+(MONTH_FULL[activeMonth]||activeMonth)+'.</div>';
+    return;
+  }
+
+  monthDays.forEach(function(day,i){
     var evs=day.events.filter(function(ev){
       if(!activeGenre) return true;
       var g=ev.genre.toLowerCase();
       if(activeGenre==='hip-hop') return g.indexOf('hip-hop')>-1||g.indexOf('hiphop')>-1||g.indexOf('rap')>-1;
       return g.indexOf(activeGenre)>-1;
-    }).slice(0,24); // cap per-day at 24
+    }).slice(0,24);
 
     nh+='<button class="day-tab'+(i===0?' active':'')+'" id="tab-'+i+'" onclick="goDay('+i+')">'+h(day.tab)+'</button>';
 
@@ -825,6 +1019,7 @@ function buildDays(){
         var tickHref=h(ev.ticket);
         var gc=genreClass(ev.genre);
         var gp=genrePillClass(gc);
+        var badges=getBadgeStrip(ev);
         return '<div class="ev-card '+gc+'" style="background:'+grad(ev.genre)+'">'
           +'<div class="ev-card-top">'
           +(ev.pick?'<span class="ev-pick-badge">⚡ PICK</span>':'<span class="ev-no-pick"></span>')
@@ -833,6 +1028,7 @@ function buildDays(){
           +'<div class="ev-name">'+h(ev.name)+'</div>'
           +'<div class="ev-subtitle">'+h(ev.subtitle)+'</div>'
           +'<div class="ev-venue">📍 '+h(ev.venue)+' · '+h(ev.city)+'</div>'
+          +badges
           +'<div class="ev-acts">'+h(ev.acts)+'</div>'
           +'<div class="ev-card-footer">'
           +'<span class="ev-price">'+h(ev.price)+'</span>'
@@ -853,7 +1049,11 @@ function buildDays(){
       +'</div>'
       +'<div class="day-events-col">'
       +'<div class="day-events-count">'+evs.length+' '+(evs.length===1?'event':'events')+'</div>'
+      +'<div class="ev-carousel">'
+      +'<button class="ev-arrow ev-arrow-prev" onclick="evScroll(this,-1)" aria-label="Scroll left">&#8249;</button>'
       +'<div class="ev-grid">'+cardsH+'</div>'
+      +'<button class="ev-arrow ev-arrow-next" onclick="evScroll(this,1)" aria-label="Scroll right">&#8250;</button>'
+      +'</div>'
       +'</div>'
       +'</section>';
   });
@@ -861,6 +1061,38 @@ function buildDays(){
   navEl.innerHTML=nh;
   listEl.innerHTML=lh;
   setupObserver();
+  setTimeout(markScrollables,0);
+}
+
+/* ───────────────────────────────
+   PER-DAY EVENT CAROUSEL (smooth scroll left/right)
+─────────────────────────────── */
+window.evScroll=function(btn,dir){
+  var car=btn.closest('.ev-carousel');
+  if(!car) return;
+  var grid=car.querySelector('.ev-grid');
+  var card=grid.querySelector('.ev-card');
+  var step=card?(card.offsetWidth+12)*Math.max(1,Math.floor(grid.clientWidth/(card.offsetWidth+12))):300;
+  grid.scrollBy({left:dir*step,behavior:'smooth'});
+};
+function updateArrowState(car){
+  var grid=car.querySelector('.ev-grid');
+  var prev=car.querySelector('.ev-arrow-prev');
+  var next=car.querySelector('.ev-arrow-next');
+  var scrollable=grid.scrollWidth-grid.clientWidth>4;
+  car.classList.toggle('scrollable',scrollable);
+  if(prev) prev.disabled=grid.scrollLeft<=2;
+  if(next) next.disabled=grid.scrollLeft>=(grid.scrollWidth-grid.clientWidth-2);
+}
+function markScrollables(){
+  document.querySelectorAll('.ev-carousel').forEach(function(car){
+    var grid=car.querySelector('.ev-grid');
+    updateArrowState(car);
+    if(!grid.__evBound){
+      grid.__evBound=true;
+      grid.addEventListener('scroll',function(){updateArrowState(car);});
+    }
+  });
 }
 
 /* ───────────────────────────────
@@ -909,11 +1141,10 @@ document.getElementById('genre-filter').addEventListener('click',function(e){
 });
 
 /* ───────────────────────────────
-   SAVE TOGGLE (X logo)
+   SAVE TOGGLE
 ─────────────────────────────── */
 window.toggleSave=function(){
-  var btn=document.getElementById('float-save-btn');
-  btn.classList.toggle('saved');
+  document.getElementById('float-save-btn').classList.toggle('saved');
 };
 
 /* ───────────────────────────────
@@ -924,22 +1155,50 @@ window.toggleMenu=function(){
 };
 
 /* ───────────────────────────────
+   RADIO
+─────────────────────────────── */
+var radioPlaying=false;
+window.toggleRadio=function(){
+  radioPlaying=!radioPlaying;
+  var btn=document.getElementById('radio-play-btn');
+  var dot=document.getElementById('radio-dot');
+  var lbl=document.getElementById('radio-track-lbl');
+  if(btn){btn.textContent=radioPlaying?'⏸':'▶';btn.classList.toggle('playing',radioPlaying);}
+  if(dot){dot.classList.toggle('paused',!radioPlaying);}
+  if(lbl){lbl.textContent=radioPlaying?'▶ Deep Frequencies 24/7 · Now streaming':'Deep Frequencies 24/7 · Click ▶ to tune in';}
+};
+window.hideRadio=function(){
+  var bar=document.getElementById('radio-bar');
+  if(bar){bar.style.display='none';}
+};
+
+/* ───────────────────────────────
+   ECHO CHAT
+─────────────────────────────── */
+window.toggleEcho=function(){
+  document.getElementById('echo-panel').classList.toggle('open');
+};
+window.closeEcho=function(){
+  document.getElementById('echo-panel').classList.remove('open');
+};
+
+/* ───────────────────────────────
    RESIZE
 ─────────────────────────────── */
 var resizeTimer;
 window.addEventListener('resize',function(){
   clearTimeout(resizeTimer);
-  resizeTimer=setTimeout(function(){
-    setRcCardWidths();
-  },120);
+  resizeTimer=setTimeout(function(){setRcCardWidths();markScrollables();},120);
 });
 
 /* ───────────────────────────────
    INIT
 ─────────────────────────────── */
+buildMonthTabs();
+var _initLbl=document.getElementById('hl-label');
+if(_initLbl) _initLbl.textContent=(MONTH_FULL[activeMonth]||activeMonth)+' MUST-SEE EVENTS';
 buildHighlights();
-buildRecentTabs();
-buildRecentMonth('JUN');
+buildRecentMonth(activeMonth);
 buildDays();
 
 })();
