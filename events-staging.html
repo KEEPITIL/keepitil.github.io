@@ -6,7 +6,7 @@
   <title>KEEPITIL — OC & LA Underground EDM Events, Artists & Culture</title>
   <meta name="description" content="Discover OC, LA & San Diego underground EDM events, artists and culture on KEEPITIL. Browse the events calendar by month, genre and day — save your KEEPITIL picks and grab tickets."/>
   <link rel="canonical" href="https://keepitil.com/"/>
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+  <meta name="robots" content="noindex, nofollow"/>
   <meta name="keywords" content="OC EDM events, LA underground events, Orange County rave calendar, Los Angeles techno events, house music events OC LA, San Diego EDM events, underground music discovery, rave calendar, KEEPITIL"/>
   <meta name="author" content="KEEPITIL"/>
   <meta name="theme-color" content="#00b4ff"/>
@@ -376,6 +376,32 @@
 @media(max-width:680px){#evx .evx-carousel.scrollable .evx-arrow{display:none;}}
 #evx .evx-empty{padding:26px 6px;color:#44505a;font-size:.8rem;letter-spacing:.05em;}
 #evx .evx-flyer-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;}
+#evx .evx-flyer{cursor:pointer;}
+#evx .evx-save{position:absolute;left:10px;bottom:10px;z-index:6;width:34px;height:34px;border-radius:9px;background:rgba(6,6,10,.5);border:1.6px solid var(--green);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px);padding:0;}
+#evx .evx-save img{width:17px;height:17px;object-fit:contain;pointer-events:none;display:block;}
+#evx .evx-save:hover{background:rgba(0,255,136,.2);}
+#evx .evx-save.on{background:var(--green);box-shadow:0 0 12px rgba(0,255,136,.6);}
+#evx .evx-save.on img{filter:brightness(0);}
+#evx .evx-actions{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;flex-direction:column;gap:6px;padding:12px;background:linear-gradient(0deg,rgba(0,0,0,.95),rgba(0,0,0,.78) 72%,transparent);transform:translateY(101%);transition:transform .25s ease,opacity .2s;opacity:0;}
+#evx .evx-flyer:hover .evx-actions,#evx .evx-flyer.open .evx-actions{transform:translateY(0);opacity:1;}
+#evx .evx-act{display:block;text-align:center;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:9px;border-radius:7px;transition:filter .2s;}
+#evx .evx-act-tix{background:var(--green);color:#06120a;}
+#evx .evx-act-vip{background:rgba(212,160,23,.18);color:var(--gold);border:1px solid rgba(212,160,23,.5);}
+#evx .evx-act-chat{background:rgba(0,180,255,.16);color:#5cc8ff;border:1px solid rgba(0,180,255,.45);}
+#evx .evx-act:hover{filter:brightness(1.14);}
+/* sign-in modal */
+.kil-modal{position:fixed;inset:0;z-index:9999;background:rgba(4,4,9,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;}
+.kil-modal[hidden]{display:none;}
+.kil-modal-card{position:relative;max-width:380px;width:100%;background:linear-gradient(160deg,#12121e,#0a0a12);border:1px solid rgba(0,255,136,.25);border-radius:16px;padding:30px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.kil-modal-x{position:absolute;top:12px;right:14px;background:none;border:none;color:#667;font-size:1.1rem;cursor:pointer;}
+.kil-modal-logo{font-family:var(--font-head);letter-spacing:.18em;color:var(--green);font-size:1.1rem;margin-bottom:14px;}
+.kil-modal-card h3{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.03em;color:#fff;margin:0 0 8px;}
+.kil-modal-card p{color:#9aa7b4;font-size:.85rem;line-height:1.6;margin:0 0 18px;}
+.kil-modal-card input{width:100%;padding:12px 14px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;font-size:.9rem;margin-bottom:10px;}
+.kil-modal-btn{width:100%;padding:12px;border-radius:9px;background:var(--green);color:#06120a;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.8rem;border:none;cursor:pointer;transition:filter .2s;}
+.kil-modal-btn:hover{filter:brightness(1.1);}
+.kil-modal-msg{min-height:18px;font-size:.75rem;color:var(--green);margin-top:10px;}
+.kil-modal-alt{display:inline-block;margin-top:12px;color:#5cc8ff;font-size:.72rem;text-decoration:none;}
 .seo-block{max-width:1180px;margin:0 auto;padding:6px 24px 0;}
 .seo-block .seo-inner{border-top:1px solid rgba(255,255,255,.07);padding-top:34px;}
 .seo-h{font-family:var(--font-head);font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:.04em;color:#fff;margin:0 0 14px;}
@@ -404,7 +430,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="canonical" href="https://keepitil.com/" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="noindex, nofollow"/>
   <meta name="theme-color" content="#00b4ff" />
   <meta property="og:image" content="https://keepitil.com/logo-bg.jpg" />
   <meta property="og:image:width" content="1200" />
@@ -1998,6 +2024,7 @@ function mLabel(mk){return MON3[(+mk.slice(5,7))-1];}
 function mFull(mk){return MONF[(+mk.slice(5,7))-1]+' '+mk.slice(0,4);}
 function inGenre(e){return !activeGenre||e.gcat===activeGenre;}
 
+function slugify(e){return (e.title+'-'+e.date).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);}
 function flyer(e,showPick){
   var pk=(showPick===undefined)?e.pick:showPick;
   var alt=h(e.title+' — '+e.venue+(e.city?', '+e.city:'')+' | '+e.genre+' event');
@@ -2005,14 +2032,23 @@ function flyer(e,showPick){
   var fb=e.img?'':' style="background:linear-gradient(155deg,#12121c,#241033,#0c0c14)"';
   var ribbon=pk?'<div class="evx-ribbon"><span class="kp">⚡ KEEPITIL PICK</span></div>':'';
   var pr=(e.price&&e.price!=='Tickets')?h(e.price):'';
-  return '<a class="evx-flyer'+(pk?' pick':'')+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener"'+fb+'>'
+  var slug=slugify(e);
+  var vip=/club|lounge|nightclub|rooftop|exchange|avalon|catch one|time nightclub|\bsound\b/i.test(e.venue||'');
+  var saved=(window.KIL_SAVED&&window.KIL_SAVED.has(slug))?' on':'';
+  var chat='event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title);
+  return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
     +'<span class="evx-genre">'+h(e.genre)+'</span>'
+    +'<button class="evx-save'+saved+'" data-slug="'+slug+'" data-title="'+h(e.title)+'" aria-label="Save event"><img src="https://keepitil.com/keepitil-x-green.png" alt=""/></button>'
     +'<div class="evx-body"><div class="evx-date">'+h(fmtLong(e.date))+'</div>'
     +'<div class="evx-title">'+h(e.title)+'</div>'
     +'<div class="evx-venue">📍 '+h(e.venue)+(e.city?' · '+h(e.city):'')+'</div>'
-    +'<div class="evx-foot"><span class="evx-price">'+pr+'</span><span class="evx-cta">Tickets →</span></div>'
-    +'</div></a>';
+    +'<div class="evx-foot"><span class="evx-price">'+pr+'</span><span class="evx-cta">Details</span></div></div>'
+    +'<div class="evx-actions">'
+      +'<a class="evx-act evx-act-tix" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>'
+      +(vip?'<a class="evx-act evx-act-vip" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
+      +'<a class="evx-act evx-act-chat" href="'+chat+'">💬 Join Event Chat</a>'
+    +'</div></div>';
 }
 function buildMonths(){
   var el=document.getElementById('evx-months');
@@ -2114,5 +2150,62 @@ buildMonths();buildGenres();buildMustSee();buildRecent();buildDays();
 })();
 </script>
 <script src="/keepitil-ai.js" defer></script>
+
+<div class="kil-modal" id="kil-signin" hidden>
+  <div class="kil-modal-card">
+    <button class="kil-modal-x" id="kil-signin-x" aria-label="Close">✕</button>
+    <div class="kil-modal-logo">⚡ KEEPITIL</div>
+    <h3>Save events &amp; join the scene</h3>
+    <p>Sign in or subscribe (free) to save events with the KEEPITIL-X, join event chats, share photos and plan meetups.</p>
+    <input type="email" id="kil-email" placeholder="you@email.com" autocomplete="email"/>
+    <button class="kil-modal-btn" id="kil-send">Email me a magic link</button>
+    <div class="kil-modal-msg" id="kil-msg"></div>
+    <a class="kil-modal-alt" href="/signup.html">Or subscribe on the signup page →</a>
+  </div>
+</div>
+<script>
+(function(){
+  var KIL_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var KIL_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(KIL_URL,KIL_KEY); }catch(e){}
+  window.KIL_SAVED=new Set(); var session=null;
+  function $(id){return document.getElementById(id);}
+  function openModal(){var m=$('kil-signin'); if(m) m.hidden=false;}
+  function closeModal(){var m=$('kil-signin'); if(m) m.hidden=true;}
+  function markSaved(){document.querySelectorAll('#evx .evx-save').forEach(function(b){b.classList.toggle('on',window.KIL_SAVED.has(b.getAttribute('data-slug')));});}
+  function loadSaves(){ if(!sb||!session) return; sb.from('saved_events').select('event_slug').eq('user_id',session.user.id).then(function(r){ if(r&&r.data){ window.KIL_SAVED=new Set(r.data.map(function(x){return x.event_slug;})); markSaved(); } }).catch(function(){}); }
+  function toggleSave(slug,title,btn){
+    if(!session){ openModal(); return; }
+    var on=window.KIL_SAVED.has(slug); btn.classList.toggle('on',!on);
+    if(on){ window.KIL_SAVED.delete(slug); if(sb) sb.from('saved_events').delete().eq('user_id',session.user.id).eq('event_slug',slug).then(function(){}).catch(function(){}); }
+    else { window.KIL_SAVED.add(slug); if(sb) sb.from('saved_events').insert({user_id:session.user.id,event_slug:slug,event_title:title}).then(function(){}).catch(function(){}); }
+  }
+  document.addEventListener('click',function(ev){
+    var save=ev.target.closest('.evx-save');
+    if(save){ ev.preventDefault(); ev.stopPropagation(); toggleSave(save.getAttribute('data-slug'),save.getAttribute('data-title'),save); return; }
+    if(ev.target.closest('.evx-act')){ ev.stopPropagation(); return; }
+    var fly=ev.target.closest('#evx .evx-flyer');
+    if(fly){ document.querySelectorAll('#evx .evx-flyer.open').forEach(function(f){ if(f!==fly) f.classList.remove('open'); }); fly.classList.toggle('open'); return; }
+    document.querySelectorAll('#evx .evx-flyer.open').forEach(function(f){ f.classList.remove('open'); });
+    if(ev.target.id==='kil-signin'||ev.target.id==='kil-signin-x'){ closeModal(); }
+  });
+  var sendBtn=$('kil-send');
+  if(sendBtn) sendBtn.onclick=function(){
+    var email=($('kil-email')||{}).value||''; var msg=$('kil-msg');
+    if(!email){ if(msg) msg.textContent='Enter your email.'; return; }
+    if(!sb){ if(msg) msg.textContent='Sign-in is being set up — check back soon.'; return; }
+    if(msg) msg.textContent='Sending…';
+    sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(r){
+      if(msg) msg.textContent=(r&&r.error)?'Sign-in is not enabled yet - coming soon.':'Check your email for your magic link!';
+    }).catch(function(){ if(msg) msg.textContent='Sign-in is being set up — coming soon.'; });
+  };
+  if(sb){
+    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; loadSaves(); }).catch(function(){});
+    sb.auth.onAuthStateChange(function(_e,s){ session=s; closeModal(); loadSaves(); });
+  }
+  var host=$('evx');
+  if(host && window.MutationObserver){ new MutationObserver(function(){ markSaved(); }).observe(host,{childList:true,subtree:true}); }
+})();
+</script>
 </body>
 </html>
