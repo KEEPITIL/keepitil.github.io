@@ -1422,14 +1422,14 @@ function buildMustSee(){
   var evs=EVENTS.filter(function(e){return inMonth(e)&&inGenre(e)&&e.pick;});
   if(evs.length<4){var extra=EVENTS.filter(function(e){return inMonth(e)&&inGenre(e)&&!e.pick;});evs=evs.concat(extra).slice(0,Math.max(4,evs.length));}
   var el=document.getElementById('evx-mustsee');
-  el.innerHTML=evs.length?evs.map(flyer).join(''):'<div class="evx-empty">No '+(activeGenre||'')+' picks this month.</div>';
+  el.innerHTML=evs.length?evs.map(function(e){return flyer(e);}).join(''):'<div class="evx-empty">No '+(activeGenre||'')+' picks this month.</div>';
 }
 function buildRecent(){
   var picks=EVENTS.filter(function(e){return inMonth(e)&&e.pick;});
   var evs=EVENTS.filter(function(e){return inMonth(e)&&inGenre(e)&&picks.indexOf(e)<0;});
   if(evs.length===0) evs=EVENTS.filter(function(e){return inMonth(e)&&inGenre(e);});
   var el=document.getElementById('evx-recent');
-  el.innerHTML=evs.length?evs.slice(0,14).map(flyer).join(''):'<div class="evx-empty">Nothing new in this filter.</div>';
+  el.innerHTML=evs.length?evs.slice(0,14).map(function(e){return flyer(e);}).join(''):'<div class="evx-empty">Nothing new in this filter.</div>';
 }
 function groupDays(){
   var map={};
