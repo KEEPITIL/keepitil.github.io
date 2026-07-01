@@ -1,318 +1,401 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Events Staging v5 — KEEPITIL</title>
-  <link rel="icon" type="image/png" href="/logo-blue-nav.png"/>
-  <meta name="robots" content="noindex,nofollow"/>
+    <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KEEPITIL — Discover OC & LA Underground Artists, Brands & Organizers</title>
+<link rel="icon" type="image/png" href="https://keepitil.github.io/logo-blue-nav.png"/>
+  <meta name="description" content="KEEPITIL is the discovery platform for OC & LA's underground creative scene — artist profiles, events, music, and culture all in one place. Browse, connect, and get discovered."/>
+  <meta property="og:title" content="KEEPITIL — OC & LA Underground Discovery Platform"/>
+  <meta property="og:description" content="Discover OC & LA underground artists, brands, and organizers. Find your next favorite act, your next event, or claim your own profile on KEEPITIL."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://keepitil.com/spotlight"/>
+
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <style>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+  <style>nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+.nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+.nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
+.nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:#00b4ff;}
+.nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
+.nav-cta:hover{opacity:.85;}
+@media(max-width:768px){.nav-links{display:none;}}
+
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     :root{
-      --black:#0f0f1a;--orange:#e63333;--purple:#b400ff;--blue:#00b4ff;
-      --green:#00ff88;--green-glow:rgba(0,255,136,.3);
-      --white:#f0f0f0;--grey:#888;
-      --orange-glow:rgba(230,51,51,.35);
-      --font-head:'Bebas Neue',sans-serif;
-      --font-body:'Inter',sans-serif;
-      --bar:30px;--nav:60px;--dsel:52px;--radio-bar:44px;
+      --black:#0f0f1a; --dark:#111; --dark2:#181818; --dark3:#222;
+      --orange:#00b4ff; --blue:#00b4ff; --blue-dim:#0088cc; --blue-glow:rgba(0,180,255,.35);
+      --blue-glow2:rgba(0,180,255,.15); --white:#f0f0f0; --grey:#888;
+      --font-head:'Bebas Neue',sans-serif; --font-body:'Inter',sans-serif;
     }
-    html{scroll-behavior:smooth;}
-    body{
-      background:var(--black);color:var(--white);
-      font-family:var(--font-body);font-size:16px;line-height:1.6;
-      overflow-x:hidden;padding-top:var(--bar);
-    }
-    body::before{
-      content:'';position:fixed;inset:0;z-index:-1;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -10%,rgba(0,255,136,.04) 0%,transparent 55%),
-        radial-gradient(ellipse 60% 40% at 100% 100%,rgba(180,0,255,.03) 0%,transparent 60%);
-      pointer-events:none;
-    }
+    html{scroll-behavior:smooth;overflow-x:hidden;}
+    body{background:#0a0a0f url('logo-bg.jpg') center/cover no-repeat fixed;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
+    a{color:inherit;text-decoration:none;}
+    img{max-width:100%;display:block;}
+    .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+    .neon-text{color:var(--blue);text-shadow:0 0 8px var(--blue),0 0 20px rgba(0,180,255,.4);}
 
-    /* ── STAGING BANNER ── */
-    .staging-banner{
-      position:fixed;top:0;left:0;right:0;z-index:9999;
-      background:linear-gradient(90deg,var(--purple),var(--blue));
-      color:#fff;text-align:center;
-      font-family:var(--font-body);font-size:.62rem;font-weight:800;
-      letter-spacing:.18em;text-transform:uppercase;padding:7px 12px;
-    }
+    .reveal{opacity:0;transform:translateY(32px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal.visible{opacity:1;transform:none;}
+    .reveal-left{opacity:0;transform:translateX(-32px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal-left.visible{opacity:1;transform:none;}
+    .reveal-right{opacity:0;transform:translateX(32px);transition:opacity .6s ease,transform .6s ease;}
+    .reveal-right.visible{opacity:1;transform:none;}
+
+    .btn{display:inline-block;padding:12px 28px;border-radius:2px;font-family:var(--font-body);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s ease;border:none;}
+    .btn-primary{background:var(--blue);color:#fff;box-shadow:0 0 18px rgba(0,180,255,.4);}
+    .btn-primary:hover{background:#0088cc;box-shadow:0 0 32px var(--blue);transform:translateY(-2px);}
+    .btn-outline{background:transparent;color:var(--blue);border:1px solid var(--blue);box-shadow:0 0 10px rgba(0,180,255,.2);}
+    .btn-outline:hover{background:var(--blue);color:#fff;box-shadow:0 0 24px var(--blue);transform:translateY(-2px);}
+    .btn-sm{padding:8px 16px;font-size:11px;}
 
     /* ── NAV ── */
-    nav{
-      position:sticky;top:var(--bar);z-index:100;
-      background:rgba(11,11,11,.97);backdrop-filter:blur(12px);
-      border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;
-    }
-    .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:var(--nav);}
-    .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
-    .nav-brand{color:#fff;font-family:var(--font-head);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
-    .nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
-    .nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
-    .nav-links a:hover,.nav-links a.active{color:#fff;}
-    .nav-inner>.nav-cta{
-      background:var(--blue);color:#000;padding:7px 20px;border-radius:4px;
-      font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-      text-decoration:none;transition:opacity .2s;
-    }
-    .nav-inner>.nav-cta:hover{opacity:.85;}
-    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:6px;}
-    .nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;}
-    @media(max-width:768px){
-      .nav-links,.nav-inner>.nav-cta{display:none;}
-      .nav-hamburger{display:flex;}
-    }
-
-    /* ── MOBILE MENU ── */
-    .mobile-menu{
-      display:none;position:fixed;
-      top:calc(var(--bar) + var(--nav));left:0;right:0;bottom:0;
-      background:rgba(15,15,26,.98);z-index:999;
-      flex-direction:column;align-items:center;justify-content:center;gap:28px;
-    }
+    nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
+    
+    
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;}
+    .nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;transition:all .3s;}
+    .nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .nav-hamburger.open span:nth-child(2){opacity:0;}
+    .nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(15,15,26,.98);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:28px;}
     .mobile-menu.open{display:flex;}
-    .mobile-menu a{font-family:var(--font-head);font-size:36px;letter-spacing:.08em;color:#f0f0f0;transition:color .2s;text-decoration:none;}
+    .mobile-menu a{font-family:var(--font-head);font-size:40px;letter-spacing:.08em;color:var(--white);transition:color .2s;}
     .mobile-menu a:hover{color:var(--blue);}
-    .mobile-menu .nav-cta{color:var(--blue)!important;background:transparent!important;font-size:24px;}
-
-    /* ── RADIO BAR ── */
-    .radio-bar{
-      position:sticky;top:calc(var(--bar) + var(--nav));z-index:95;
-      background:rgba(8,8,18,.97);backdrop-filter:blur(10px);
-      border-bottom:1px solid rgba(0,255,136,.1);padding:0 20px;
-    }
-    .radio-inner{
-      max-width:1400px;margin:0 auto;display:flex;align-items:center;
-      height:var(--radio-bar);gap:12px;
-    }
-    .radio-dot{
-      width:6px;height:6px;border-radius:50%;background:var(--green);
-      box-shadow:0 0 8px var(--green);flex-shrink:0;
-      animation:radioPulse 2s ease-in-out infinite;
-    }
-    @keyframes radioPulse{0%,100%{opacity:1}50%{opacity:.3}}
-    .radio-dot.paused{animation:none;background:#333;box-shadow:none;}
-    .radio-info{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;}
-    .radio-name{font-size:.55rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--green);}
-    .radio-track{font-size:.6rem;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .radio-play-btn{
-      background:transparent;border:1px solid rgba(0,255,136,.3);color:var(--green);
-      width:26px;height:26px;border-radius:50%;font-size:.65rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;
-    }
-    .radio-play-btn:hover{background:rgba(0,255,136,.12);border-color:var(--green);}
-    .radio-play-btn.playing{background:rgba(0,255,136,.1);}
-    .radio-close-btn{
-      background:transparent;border:none;color:#2a2a3a;font-size:.7rem;
-      cursor:pointer;padding:4px;transition:color .2s;flex-shrink:0;line-height:1;
-    }
-    .radio-close-btn:hover{color:#555;}
+    .mobile-menu
 
     /* ── HERO ── */
-    .page-hero{max-width:1200px;margin:0 auto;padding:36px 20px 24px;}
-    .eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--green);margin-bottom:10px;}
-    .page-hero h1{font-family:var(--font-head);font-size:clamp(2.4rem,7vw,4.4rem);line-height:1;letter-spacing:.05em;margin-bottom:18px;}
-    .page-hero h1 span{color:var(--orange);text-shadow:0 0 40px var(--orange-glow);}
+    section{padding:40px 0;}
+    .section-label{font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+    .section-title{font-family:var(--font-head);font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin-bottom:24px;}
 
-    /* Genre chips */
-    .genre-filter{display:flex;flex-wrap:wrap;gap:8px;}
-    .gf-chip{
+    .hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:64px;}
+    #hero-canvas{position:absolute;inset:0;z-index:0;}
+    .hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 70% 50%,rgba(0,180,255,.04) 0%,transparent 70%),linear-gradient(180deg,rgba(15,15,26,0) 60%,var(--black) 100%);z-index:1;}
+    .hero-content{position:relative;z-index:2;max-width:800px;}
+    .hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.35);padding:5px 14px;border-radius:2px;margin-bottom:28px;}
+    .hero h1{font-family:var(--font-head);font-size:clamp(60px,10vw,130px);line-height:.9;letter-spacing:.02em;color:var(--white);margin-bottom:24px;}
+    .hero h1 .accent{color:var(--blue);text-shadow:0 0 24px var(--blue),0 0 60px rgba(0,180,255,.4);}
+    .hero h1 .typewriter{border-right:3px solid var(--blue);padding-right:4px;animation:blink .7s step-end infinite;}
+    @keyframes blink{0%,100%{border-color:var(--blue);}50%{border-color:transparent;}}
+    /* ── HOLIDAY BACKGROUND ── */
+    .hero-holiday-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center top;background-repeat:no-repeat;opacity:0;transition:opacity 1.8s ease;pointer-events:none;}
+    .hero-holiday-bg.active{opacity:1;}
+    .hero-sub{font-size:18px;color:var(--grey);max-width:520px;margin-bottom:40px;line-height:1.7;}
+    .hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:36px;}
+    .live-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue);animation:pulse 1.8s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+
+    /* ── FEATURED SPOTLIGHT — Summer 2026 ── */
+    .fresh-spotlight{background:transparent;padding:40px 0;position:relative;overflow:hidden;}
+    .fresh-spotlight::before{display:none;}
+    .fresh-spotlight .spot-hdr{text-align:center;margin-bottom:32px;}
+    .fresh-spotlight .spot-badge2{display:inline-block;background:linear-gradient(135deg,var(--blue),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
+    .spot-h2{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 8px;}
+    .spot-subtext{color:#888;font-size:.9rem;letter-spacing:.06em;margin:0;}
+    .spot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;width:100%;}
+    .spot-card{position:relative;background:rgba(10,10,20,0.5);border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden;transition:transform .3s,box-shadow .3s;aspect-ratio:3/4;}
+    .spot-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,180,255,.22);}
+    .spot-img-wrap{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;}
+    .spot-img-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:5rem;color:rgba(255,255,255,.25);z-index:0;letter-spacing:.08em;}
+    .spot-img-wrap img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+    .spot-card:hover .spot-img-wrap img{transform:scale(1.06);}
+    .spot-body{position:absolute;bottom:0;left:0;right:0;padding:18px 16px 22px;background:linear-gradient(to top,rgba(0,0,0,.96) 0%,rgba(0,0,0,.72) 55%,transparent 100%);z-index:2;}
+    .spot-kil-tag2{display:inline-block;background:rgba(0,180,255,.12);color:var(--blue);font-size:.65rem;letter-spacing:.1em;padding:3px 9px;border-radius:4px;margin-bottom:8px;font-family:'Bebas Neue',sans-serif;}
+    .spot-name2{font-family:'Bebas Neue',sans-serif;font-size:1.45rem;letter-spacing:.06em;color:#f0f0f0;margin:0 0 3px;}
+    .spot-genre2{font-size:.7rem;color:#888;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:10px;}
+    .spot-bio2{font-size:.82rem;color:#aaa;line-height:1.6;margin:0 0 16px;}
+    .spot-links2{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .spot-btn-profile{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.1em;color:#fff;background:var(--blue);padding:8px 14px;border-radius:6px;text-decoration:none;transition:opacity .2s;display:inline-block;}
+    .spot-btn-profile:hover{opacity:.85;}
+    .spot-btn-ig{display:flex;align-items:center;gap:5px;font-size:.78rem;color:#888;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:6px;text-decoration:none;transition:color .2s,border-color .2s;font-family:'Bebas Neue',sans-serif;letter-spacing:.08em;}
+    .spot-btn-ig:hover{color:#f0f0f0;border-color:rgba(255,255,255,.4);}
+    .spot-sc{margin:0 0 14px;border-radius:8px;overflow:hidden;background:#111;}
+    .spot-sc iframe{width:100%;height:80px;border:0;display:block;}
+    .spotlight-block-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .spotlight-block-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.18em;margin:0;}
+    .spot-see-all{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;text-decoration:none;transition:color .2s;}
+    .spot-see-all:hover{color:var(--white);}
+    @media(max-width:1024px){.spot-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.spot-grid{grid-template-columns:1fr;}}
+    /* ── PROFILE CAROUSELS ── */
+    .cc-wrap{overflow:hidden;width:100%;margin-top:20px;}
+    .cc-track{display:flex;gap:12px;width:max-content;animation:ccMarquee 90s linear infinite;}
+    .cc-track:hover{animation-play-state:paused;}
+    @keyframes ccMarquee{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+    .cc-chip{display:flex;align-items:center;gap:10px;background:#111;border:1px solid rgba(255,255,255,.08);border-radius:40px;padding:8px 16px 8px 8px;text-decoration:none;color:#fff;white-space:nowrap;transition:border-color .2s;}
+    .cc-chip:hover{border-color:rgba(0,180,255,.4);}
+    .cc-avatar{width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;background:#1a1a1a;display:flex;align-items:center;justify-content:center;}
+    .cc-init{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#00b4ff;}
+    .cc-avatar img{width:100%;height:100%;object-fit:cover;}
+    .cc-name{font-size:.8rem;font-weight:600;letter-spacing:.04em;}
+    .cc-genre{font-size:.7rem;color:#888;margin-top:1px;}
+
+
+    /* ── DJ CIRCLES — Summer 2026 ── */
+    .dj-spotlight{background:transparent;padding:40px 0;text-align:center;position:relative;overflow:hidden;}
+    .dj-spotlight::before{display:none;}
+    .dj-spotlight .spot-badge{display:inline-block;background:linear-gradient(135deg,var(--blue),#b400ff);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:.14em;padding:4px 14px;border-radius:20px;margin-bottom:14px;}
+    .dj-spotlight h2.spot-title{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:.05em;color:#f0f0f0;margin:0 0 6px;}
+    .dj-spotlight .spot-sub{color:#888;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;margin:0 0 32px;}
+    .dj-circle-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:28px 16px;max-width:1100px;margin:0 auto 36px;}
+    .dj-ci{display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;text-decoration:none;}
+    .dj-ci-wrap{position:relative;width:150px;height:150px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.12);transition:transform .3s ease,box-shadow .3s ease;}
+    .dj-ci-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:#fff;z-index:0;}
+    .dj-ci-wrap img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;display:block;}
+    .dj-ci:hover .dj-ci-wrap{transform:translateY(-8px) scale(1.06);}
+    .dj-ci.kil .dj-ci-wrap{border-color:var(--blue);border-width:3px;}
+    .dj-ci.kil:hover .dj-ci-wrap{box-shadow:0 0 32px rgba(0,180,255,.65);}
+    .dj-ci:not(.kil):hover .dj-ci-wrap{box-shadow:0 0 28px rgba(180,0,255,.5);}
+    .dj-ci-name{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;color:#f0f0f0;text-align:center;line-height:1.2;}
+    .dj-ci-tag{font-size:.68rem;letter-spacing:.06em;color:#888;}
+    .dj-ci.kil .dj-ci-tag{color:var(--blue);}
+    .dj-more-btn{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.15em;padding:14px 40px;border-radius:4px;text-decoration:none;font-weight:700;transition:transform .25s,box-shadow .25s;}
+    .dj-more-btn:hover{transform:translateY(-3px);box-shadow:0 10px 35px rgba(0,180,255,.45);}
+    @media(max-width:900px){.dj-circle-grid{grid-template-columns:repeat(4,1fr);}}
+    @media(max-width:600px){.dj-circle-grid{grid-template-columns:repeat(3,1fr);gap:20px 10px;}.dj-ci-wrap{width:100px;height:100px;}}
+    .spot-row{grid-template-columns:repeat(4,1fr)!important;}
+    @media(max-width:600px){.spot-row{grid-template-columns:repeat(2,1fr)!important;}}
+
+    /* ── BLOG / CULTURE — Summer 2026 ── */
+    .blog{background:transparent;position:relative;overflow:hidden;}
+    .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;position:relative;z-index:1;}
+    .blog-card{background:rgba(10,10,20,0.5);padding:32px;cursor:pointer;transition:all .25s;display:flex;flex-direction:column;border-bottom:2px solid transparent;}
+    .blog-card:hover{background:#181818;border-bottom-color:var(--blue);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.5);}
+    .blog-card h3{font-family:var(--font-head);font-size:22px;letter-spacing:.03em;line-height:1.1;color:var(--white);margin:10px 0 12px;}
+    .blog-card p{font-size:13px;color:var(--grey);line-height:1.7;flex-grow:1;margin-bottom:20px;}
+    .blog-card .article-meta{margin-top:auto;font-size:12px;color:var(--grey);display:flex;gap:12px;align-items:center;}
+    .article-meta span{opacity:.5;}
+
+    /* ── ORG CTA — July 4th 2026 ── */
+    .org-cta{background:rgba(10,10,20,0.35);border-top:1px solid rgba(0,180,255,.1);border-bottom:1px solid rgba(0,102,0,.1);padding:52px 0;}
+    .org-cta-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;align-items:center;}
+    .org-cta-text p{font-size:15px;color:#888;line-height:1.7;margin-bottom:0;max-width:480px;}
+    .org-cta-btns{display:flex;gap:16px;flex-wrap:wrap;margin-top:32px;}
+    .org-stats{display:flex;flex-direction:column;gap:14px;}
+    .org-stat{background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.12);border-radius:8px;padding:18px 24px;display:flex;align-items:center;gap:16px;}
+    .org-stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--blue);line-height:1;text-shadow:0 0 12px rgba(0,180,255,.3);}
+    .org-stat-lbl{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#555;}
+    @media(max-width:900px){.org-cta-grid{grid-template-columns:1fr;}.org-stats{display:none;}}
+
+    /* ── EVENTS TEASER ── */
+    .events-teaser{padding:72px 0;background:transparent;}
+    .events-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;}
+    .events-header .section-label{margin-bottom:8px;}
+    .events-see-all{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .events-see-all:hover{opacity:1;}
+
+    /* ── FEATURED CAROUSEL ── */
+    .ev-carousel-label{font-size:.62rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+    .ev-carousel-label::after{content:'';flex:1;height:1px;background:rgba(0,180,255,.15);}
+    .ev-carousel-wrap{margin-bottom:40px;}
+    .ev-carousel{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin;scrollbar-color:rgba(0,180,255,.25) transparent;-webkit-overflow-scrolling:touch;}
+    .ev-carousel::-webkit-scrollbar{height:3px;}
+    .ev-carousel::-webkit-scrollbar-track{background:transparent;}
+    .ev-carousel::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:2px;}
+    .ev-feat{flex:0 0 230px;background:#0d1117;border:1px solid rgba(0,180,255,.12);border-radius:10px;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;transition:border-color .25s,transform .25s;}
+    .ev-feat:hover{border-color:rgba(0,180,255,.42);transform:translateY(-3px);}
+    .ev-feat-img{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+    .ev-feat-img-bg{position:absolute;inset:0;background:var(--ev-grad,linear-gradient(135deg,#0a1525 0%,#0d0d1a 100%));}
+    .ev-feat-img-icon{font-size:2.4rem;opacity:.12;position:relative;z-index:1;}
+    .ev-feat-pick{position:absolute;top:10px;left:10px;z-index:2;background:var(--blue);color:#0a0a10;font-size:.53rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;padding:3px 9px;border-radius:3px;}
+    .ev-feat-body{padding:13px 14px 15px;display:flex;flex-direction:column;flex:1;}
+    .ev-feat-date{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;}
+    .ev-feat-name{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.04em;line-height:1.1;margin-bottom:4px;flex:1;}
+    .ev-feat-venue{font-size:.7rem;color:#555;margin-bottom:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ev-feat-cta{display:inline-block;padding:7px 14px;background:var(--blue);color:#0a0a10;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;border-radius:3px;align-self:flex-start;transition:opacity .2s;}
+    .ev-feat-cta:hover{opacity:.8;}
+
+    /* ── MONTH GRID ── */
+    .ev-month-hd{font-size:.62rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#333;margin-bottom:14px;padding-top:28px;border-top:1px solid rgba(255,255,255,.05);}
+    .ev-month-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+    @media(max-width:1100px){.ev-month-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:640px){.ev-month-grid{grid-template-columns:repeat(2,1fr);}}
+    .ev-mini{background:rgba(10,10,20,0.5);border:1px solid rgba(0,180,255,.08);border-radius:8px;overflow:hidden;text-decoration:none;color:#fff;display:flex;flex-direction:column;transition:border-color .2s,transform .2s;}
+    .ev-mini:hover{border-color:rgba(0,180,255,.32);transform:translateY(-2px);}
+    .ev-mini-img{width:100%;aspect-ratio:2/3;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+    .ev-mini-img-bg{position:absolute;inset:0;background:var(--ev-grad,linear-gradient(160deg,#0a1020 0%,#0a0a12 100%));}
+    .ev-mini-icon{font-size:1.6rem;opacity:.1;position:relative;z-index:1;}
+    .ev-mini-tag{position:absolute;bottom:0;left:0;right:0;padding:8px 10px;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 100%);z-index:2;}
+    .ev-mini-date{font-size:.58rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);}
+    .ev-mini-body{padding:9px 11px 11px;}
+    .ev-mini-name{font-family:var(--font-head);font-size:.88rem;letter-spacing:.04em;line-height:1.1;margin-bottom:3px;}
+    .ev-mini-venue{font-size:.67rem;color:#444;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ev-all-btn{display:inline-block;margin-top:28px;padding:10px 28px;border:1px solid rgba(0,180,255,.3);color:var(--blue);font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:4px;text-decoration:none;transition:all .2s;}
+    .ev-all-btn:hover{background:rgba(0,180,255,.08);border-color:var(--blue);}
+
+    /* ── SUBSCRIBE ── */
+    .subscribe{background:rgba(10,10,20,0.35);position:relative;overflow:hidden;}
+    .subscribe-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 50%,rgba(0,180,255,.07) 0%,transparent 70%);}
+    .subscribe-inner{position:relative;z-index:2;text-align:center;max-width:600px;margin:0 auto;}
+    .subscribe h2{font-family:var(--font-head);font-size:clamp(40px,6vw,70px);letter-spacing:.04em;color:var(--white);margin-bottom:16px;}
+    .subscribe p{font-size:16px;color:var(--grey);margin-bottom:40px;}
+    .subscribe-form{display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto;}
+    .subscribe-form input{padding:14px 20px;background:var(--dark3);border:1px solid rgba(0,180,255,.2);color:var(--white);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .2s;border-radius:4px;width:100%;}
+    .subscribe-form input:focus{border-color:rgba(0,180,255,.6);}
+    .subscribe-form input::placeholder{color:#555;}
+    .subscribe-form button{padding:14px 28px;background:var(--blue);color:#fff;border:none;font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;width:100%;}
+    .subscribe-form button:hover{background:#0088cc;transform:translateY(-1px);}
+    .subscribe-join{display:block;width:100%;max-width:480px;margin:10px auto 0;padding:14px 28px;background:transparent;border:1px solid rgba(0,180,255,.45);color:var(--blue);font-family:var(--font-body);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;text-align:center;transition:all .2s;}
+    .subscribe-join:hover{background:rgba(0,180,255,.1);border-color:var(--blue);}
+    .subscribe-note{font-size:12px;color:#444;margin-top:14px;}
+
+    /* ── FOOTER ── */
+    footer{background:var(--dark);border-top:1px solid rgba(0,180,255,.08);padding:64px 0 32px;}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:56px;}
+    .footer-brand .logo{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+    .footer-brand .logo-img{width:40px;height:auto;filter:drop-shadow(0 0 10px #00b4ff);object-fit:contain;}
+    .footer-brand .logo-text{font-family:var(--font-head);font-size:22px;letter-spacing:.12em;color:var(--blue);}
+    .footer-brand p{font-size:14px;color:var(--grey);line-height:1.7;max-width:280px;}
+    .footer-social{display:flex;gap:10px;margin-top:24px;}
+    .social-link{width:38px;height:38px;border:1px solid rgba(0,180,255,.2);border-radius:2px;display:flex;align-items:center;justify-content:center;color:var(--grey);font-size:12px;font-weight:700;transition:all .2s;}
+    .social-link:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px);}
+    .footer-col h5{font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--white);margin-bottom:20px;}
+    .footer-col ul{list-style:none;}
+    .footer-col ul li{margin-bottom:12px;}
+    .footer-col ul a{font-size:14px;color:var(--grey);transition:color .2s;}
+    .footer-col ul a:hover{color:var(--blue);}
+    .footer-bottom{padding-top:28px;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between;gap:24px;}
+    .footer-bottom p{font-size:12px;color:#444;}
+    .footer-bottom a{color:var(--blue);}
+    .scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;background:var(--blue);color:#fff;border:none;border-radius:2px;cursor:pointer;font-size:18px;z-index:500;opacity:0;transform:translateY(20px);transition:all .3s;display:flex;align-items:center;justify-content:center;}
+    .scroll-top.visible{opacity:1;transform:none;}
+    .scroll-top:hover{background:#0088cc;transform:translateY(-2px);}
+
+    @media(max-width:1024px){.blog-grid{grid-template-columns:repeat(2,1fr);}.footer-grid{grid-template-columns:1fr 1fr;gap:40px;}}
+    @media(max-width:768px){
+.nav-hamburger{display:flex;}
+      .blog-grid{grid-template-columns:1fr;}
+.footer-grid{grid-template-columns:1fr;gap:32px;}
+      .footer-bottom{flex-direction:column;text-align:center;}
+    }
+    @media(max-width:480px){.hero-actions{flex-direction:column;}.hero h1{font-size:clamp(52px,14vw,90px);}}
+    ::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:rgba(0,180,255,.3);border-radius:3px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+  
+    /* NAV-STD */
+    
+    
+    
+    
+    
+    
+    
+    
+    @media(max-width:768px){}
+
+  
+
+
+/* ===== EVX events browser (scoped) ===== */
+#evx{--green:#00ff88;--green-glow:rgba(0,255,136,.3);--orange:#e63333;--orange-glow:rgba(230,51,51,.35);--purple:#b400ff;--bar:0px;--nav:64px;--radio-bar:0px;--dsel:52px;}
+#evx{max-width:1280px;margin:0 auto;}
+#evx .genre-filter{display:flex;flex-wrap:wrap;gap:8px;}#evx .gf-chip{
       padding:7px 16px;border-radius:20px;
       border:1px solid rgba(255,255,255,.1);background:transparent;
       color:#555;font-family:var(--font-body);font-size:.68rem;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .2s;
-    }
-    .gf-chip:hover{border-color:var(--green);color:var(--white);}
-    .gf-chip.active{background:var(--green);border-color:var(--green);color:#0f0f1a;}
-
-    /* ── SECTION SHELL ── */
-    .site-section{max-width:1200px;margin:0 auto;padding:36px 20px 0;}
-    .sec-header{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;}
-    .sec-label{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.12em;color:var(--white);}
-    .sec-sub{font-size:.67rem;color:#444;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
-    .sec-divider{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.08),transparent);margin-left:4px;}
-
-    /* ── SHARED MONTH SELECTOR ── */
-    .month-selector-wrap{max-width:1200px;margin:0 auto;padding:28px 20px 0;}
-    .month-selector{
+    }#evx .gf-chip:hover{border-color:var(--green);color:var(--white);}#evx .gf-chip.active{background:var(--green);border-color:var(--green);color:#0f0f1a;}#evx .site-section{max-width:1200px;margin:0 auto;padding:36px 20px 0;}#evx .sec-header{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;}#evx .sec-label{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.12em;color:var(--white);}#evx .sec-sub{font-size:.67rem;color:#444;font-weight:600;letter-spacing:.08em;text-transform:uppercase;}#evx .sec-divider{flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.08),transparent);margin-left:4px;}#evx .month-selector-wrap{max-width:1200px;margin:0 auto;padding:28px 20px 0;}#evx .month-selector{
       display:flex;gap:6px;flex-wrap:wrap;
       padding-bottom:20px;
       border-bottom:1px solid rgba(255,255,255,.05);
-    }
-    .ms-tab{
+    }#evx .ms-tab{
       padding:8px 20px;border-radius:6px;
       background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
       color:#444;font-family:var(--font-body);font-size:.68rem;font-weight:700;
       letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .2s;
-    }
-    .ms-tab:hover{border-color:rgba(0,255,136,.3);color:var(--white);}
-    .ms-tab.active{background:var(--green);border-color:var(--green);color:#0f0f1a;}
-    .ms-tab-label{
+    }#evx .ms-tab:hover{border-color:rgba(0,255,136,.3);color:var(--white);}#evx .ms-tab.active{background:var(--green);border-color:var(--green);color:#0f0f1a;}#evx .ms-tab-label{
       display:inline-block;font-size:.5rem;letter-spacing:.1em;
       color:#333;margin-left:4px;text-transform:uppercase;vertical-align:middle;
-    }
-
-    /* ── MUST-SEE EVENTS (KEEPITIL PICKS — single row) ── */
-    .highlights-grid{
+    }#evx .highlights-grid{
       display:flex;gap:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;
       scrollbar-width:none;padding-bottom:6px;
-    }
-    .highlights-grid::-webkit-scrollbar{display:none;}
-    .hl-card{
+    }#evx .highlights-grid::-webkit-scrollbar{display:none;}#evx .hl-card{
       display:flex;flex-direction:column;
       border-radius:12px;overflow:hidden;
       border:1px solid rgba(255,255,255,.07);border-top:3px solid var(--green);text-decoration:none;
       transition:transform .25s,border-color .25s,box-shadow .25s;
       position:relative;aspect-ratio:3/4;flex-shrink:0;width:236px;
-    }
-    @media(max-width:520px){.hl-card{width:205px;}}
-    .hl-card:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.4);box-shadow:0 12px 40px rgba(0,0,0,.5);}
-    /* top border ribbon: KEEPITIL PICKS (left) + genre (right) */
-    .hl-topbar{
+    }@media(max-width:520px){#evx .hl-card{width:205px;}}#evx .hl-card:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.4);box-shadow:0 12px 40px rgba(0,0,0,.5);}#evx .hl-topbar{
       position:absolute;top:0;left:0;right:0;z-index:3;
       display:flex;align-items:center;justify-content:space-between;gap:6px;
       padding:5px 10px;
       background:linear-gradient(90deg,rgba(0,255,136,.95),rgba(0,200,120,.6));
-    }
-    .hl-kp{font-size:.53rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#06120a;white-space:nowrap;}
-    .hl-gn{font-size:.5rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#06120a;opacity:.8;white-space:nowrap;}
-    .hl-card-body{
+    }#evx .hl-kp{font-size:.53rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#06120a;white-space:nowrap;}#evx .hl-gn{font-size:.5rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#06120a;opacity:.8;white-space:nowrap;}#evx .hl-card-body{
       flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;
       background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.3) 55%,transparent 100%);
-    }
-    .hl-name{font-family:var(--font-head);font-size:clamp(1.05rem,2vw,1.35rem);letter-spacing:.04em;color:#fff;line-height:1;margin-bottom:5px;}
-    .hl-venue{font-size:.66rem;color:rgba(255,255,255,.55);line-height:1.35;margin-bottom:4px;}
-    .hl-date{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);}
-    .hl-card-footer{
+    }#evx .hl-name{font-family:var(--font-head);font-size:clamp(1.05rem,2vw,1.35rem);letter-spacing:.04em;color:#fff;line-height:1;margin-bottom:5px;}#evx .hl-venue{font-size:.66rem;color:rgba(255,255,255,.55);line-height:1.35;margin-bottom:4px;}#evx .hl-date{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);}#evx .hl-card-footer{
       flex-shrink:0;padding:11px 14px;
       display:flex;align-items:center;justify-content:space-between;
       background:rgba(0,0,0,.7);border-top:1px solid rgba(255,255,255,.06);
-    }
-    .hl-price{font-size:.7rem;font-weight:700;color:var(--orange);}
-    .hl-ticket{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);}
-
-    /* ── RECENTLY ADDED: 3-CARD CAROUSEL ── */
-    .recent-carousel-outer{
+    }#evx .hl-price{font-size:.7rem;font-weight:700;color:var(--orange);}#evx .hl-ticket{font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);}#evx .recent-carousel-outer{
       position:relative;display:flex;align-items:center;gap:10px;
-    }
-    .rc-ctrl{
+    }#evx .rc-ctrl{
       flex-shrink:0;width:34px;height:34px;
       background:rgba(15,15,26,.9);border:1px solid rgba(255,255,255,.1);
       border-radius:50%;color:var(--white);font-size:1.2rem;line-height:1;
       cursor:pointer;display:flex;align-items:center;justify-content:center;
       transition:all .2s;z-index:2;
-    }
-    .rc-ctrl:hover{border-color:var(--green);color:var(--green);}
-    .rc-ctrl:disabled{opacity:.25;cursor:default;pointer-events:none;}
-    .recent-wrap{flex:1;overflow:hidden;min-width:0;}
-    .recent-track{
+    }#evx .rc-ctrl:hover{border-color:var(--green);color:var(--green);}#evx .rc-ctrl:disabled{opacity:.25;cursor:default;pointer-events:none;}#evx .recent-wrap{flex:1;overflow:hidden;min-width:0;}#evx .recent-track{
       display:flex;gap:12px;
       transition:transform .35s ease;
       will-change:transform;
-    }
-    .rc-card{
+    }#evx .rc-card{
       flex-shrink:0;min-height:220px;
       border:1px solid rgba(255,255,255,.07);border-radius:10px;
       padding:14px;display:flex;flex-direction:column;gap:5px;
       transition:border-color .2s,transform .2s;position:relative;
-    }
-    .rc-card:hover{border-color:rgba(0,255,136,.25);transform:translateY(-2px);}
-    .rc-posh{
+    }#evx .rc-card:hover{border-color:rgba(0,255,136,.25);transform:translateY(-2px);}#evx .rc-posh{
       position:absolute;top:10px;right:10px;
       font-size:.48rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
       background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.3);
       padding:2px 6px;border-radius:2px;
-    }
-    .rc-genre{font-size:.55rem;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
-    .rc-name{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.04em;color:var(--white);line-height:1.1;}
-    .rc-venue{font-size:.65rem;color:#666;line-height:1.35;}
-    .rc-date{font-size:.62rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;}
-    .rc-footer{margin-top:auto;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);}
-    .rc-ticket{
+    }#evx .rc-genre{font-size:.55rem;color:#444;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}#evx .rc-name{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.04em;color:var(--white);line-height:1.1;}#evx .rc-venue{font-size:.65rem;color:#666;line-height:1.35;}#evx .rc-date{font-size:.62rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;}#evx .rc-footer{margin-top:auto;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);}#evx .rc-ticket{
       display:block;text-align:center;
       font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
       color:var(--green);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);
       text-decoration:none;padding:7px 10px;border-radius:5px;transition:all .2s;
-    }
-    .rc-ticket:hover{background:var(--green);border-color:var(--green);color:#0f0f1a;}
-
-    /* ── DAY NAVIGATOR ── */
-    .day-nav-wrap{
+    }#evx .rc-ticket:hover{background:var(--green);border-color:var(--green);color:#0f0f1a;}#evx .day-nav-wrap{
       position:sticky;top:calc(var(--bar) + var(--nav) + var(--radio-bar));z-index:90;
       background:rgba(11,11,11,.97);backdrop-filter:blur(10px);
       border-bottom:1px solid rgba(255,255,255,.05);
-    }
-    .day-nav{
+    }#evx .day-nav{
       display:flex;overflow-x:auto;scrollbar-width:none;
       -webkit-overflow-scrolling:touch;
       max-width:1200px;margin:0 auto;padding:0 16px;
-    }
-    .day-nav::-webkit-scrollbar{display:none;}
-    .day-tab{
+    }#evx .day-nav::-webkit-scrollbar{display:none;}#evx .day-tab{
       flex-shrink:0;padding:14px 16px;
       background:transparent;border:none;
       color:#444;font-family:var(--font-body);font-size:.68rem;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
       transition:color .2s;position:relative;white-space:nowrap;
-    }
-    .day-tab::after{
+    }#evx .day-tab::after{
       content:'';position:absolute;bottom:0;left:10px;right:10px;height:2px;
       background:var(--green);transform:scaleX(0);transition:transform .2s;
       border-radius:2px 2px 0 0;
-    }
-    .day-tab.active{color:var(--green);}
-    .day-tab.active::after{transform:scaleX(1);}
-    .day-tab:hover{color:var(--white);}
-
-    /* ── DAYS LIST ── */
-    .days-list{max-width:1200px;margin:0 auto;padding:0 20px 160px;}
-
-    /* ── DAY SECTION ── */
-    .day-section{
+    }#evx .day-tab.active{color:var(--green);}#evx .day-tab.active::after{transform:scaleX(1);}#evx .day-tab:hover{color:var(--white);}#evx .days-list{max-width:1200px;margin:0 auto;padding:0 20px 160px;}#evx .day-section{
       margin-top:52px;
       scroll-margin-top:calc(var(--bar) + var(--nav) + var(--radio-bar) + var(--dsel) + 18px);
       display:grid;grid-template-columns:72px 1fr;gap:0 28px;
-    }
-    @media(max-width:680px){.day-section{grid-template-columns:1fr;gap:14px 0;}}
-
-    .day-date-col{padding-top:3px;}
-    .day-num{
+    }@media(max-width:680px){#evx .day-section{grid-template-columns:1fr;gap:14px 0;}}#evx .day-date-col{padding-top:3px;}#evx .day-num{
       font-family:var(--font-head);font-size:3rem;line-height:1;
       color:var(--green);text-shadow:0 0 22px var(--green-glow);
-    }
-    .day-dow{font-size:.57rem;font-weight:700;letter-spacing:.16em;color:#555;text-transform:uppercase;margin-top:2px;}
-    .day-month-lbl{font-size:.54rem;color:#3a3a3a;text-transform:uppercase;letter-spacing:.1em;margin-top:1px;}
-    @media(max-width:680px){
-      .day-date-col{display:flex;align-items:baseline;gap:10px;}
-      .day-num{font-size:2rem;}
-    }
-
-    .day-events-col{
+    }#evx .day-dow{font-size:.57rem;font-weight:700;letter-spacing:.16em;color:#555;text-transform:uppercase;margin-top:2px;}#evx .day-month-lbl{font-size:.54rem;color:#3a3a3a;text-transform:uppercase;letter-spacing:.1em;margin-top:1px;}@media(max-width:680px){#evx .day-date-col{display:flex;align-items:baseline;gap:10px;}#evx .day-num{font-size:2rem;}
+    }#evx .day-events-col{
       border-left:1px solid rgba(0,255,136,.1);
       padding-left:24px;min-width:0;
-    }
-    @media(max-width:680px){.day-events-col{border-left:none;padding-left:0;border-top:1px solid rgba(0,255,136,.1);padding-top:16px;}}
-
-    .day-events-count{
+    }@media(max-width:680px){#evx .day-events-col{border-left:none;padding-left:0;border-top:1px solid rgba(0,255,136,.1);padding-top:16px;}}#evx .day-events-count{
       font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
       color:#3a3a3a;margin-bottom:14px;
-    }
-
-    /* ── EVENT GRID — horizontal carousel on ALL sizes ── */
-    .ev-grid{
+    }#evx .ev-grid{
       display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
       scrollbar-width:none;gap:12px;padding-bottom:8px;scroll-behavior:smooth;
-    }
-    .ev-grid::-webkit-scrollbar{display:none;}
-
-    /* per-day carousel wrapper + smooth left/right arrows */
-    .ev-carousel{position:relative;}
-    .ev-arrow{
+    }#evx .ev-grid::-webkit-scrollbar{display:none;}#evx .ev-carousel{position:relative;}#evx .ev-arrow{
       position:absolute;top:50%;transform:translateY(-50%);z-index:6;
       width:34px;height:34px;border-radius:50%;
       background:rgba(12,12,22,.92);border:1px solid rgba(255,255,255,.16);
@@ -320,258 +403,618 @@
       display:none;align-items:center;justify-content:center;
       transition:all .2s;backdrop-filter:blur(6px);
       box-shadow:0 3px 14px rgba(0,0,0,.5);
-    }
-    .ev-arrow:hover{border-color:var(--green);color:var(--green);}
-    .ev-arrow:disabled{opacity:.2;cursor:default;pointer-events:none;}
-    .ev-arrow-prev{left:-8px;}
-    .ev-arrow-next{right:-8px;}
-    .ev-carousel.scrollable .ev-arrow{display:flex;}
-    @media(max-width:680px){.ev-carousel.scrollable .ev-arrow{display:none;}}
-
-    /* ── EVENT CARD — flyer style ── */
-    .ev-card{
+    }#evx .ev-arrow:hover{border-color:var(--green);color:var(--green);}#evx .ev-arrow:disabled{opacity:.2;cursor:default;pointer-events:none;}#evx .ev-arrow-prev{left:-8px;}#evx .ev-arrow-next{right:-8px;}#evx .ev-carousel.scrollable .ev-arrow{display:flex;}@media(max-width:680px){#evx .ev-carousel.scrollable .ev-arrow{display:none;}}#evx .ev-card{
       flex-shrink:0;width:280px;
       border-radius:10px;border:1px solid rgba(255,255,255,.07);border-top-width:3px;
       padding:16px;display:flex;flex-direction:column;min-height:280px;
       transition:border-color .25s,transform .25s,box-shadow .25s;
       position:relative;overflow:hidden;
-    }
-    @media(max-width:520px){.ev-card{width:240px;min-height:265px;}}
-    .ev-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.4);}
-
-    .ev-card.gc-house{border-top-color:var(--orange);}
-    .ev-card.gc-house:hover{border-color:rgba(230,51,51,.4);}
-    .ev-card.gc-techno{border-top-color:var(--purple);}
-    .ev-card.gc-techno:hover{border-color:rgba(180,0,255,.4);}
-    .ev-card.gc-trance{border-top-color:var(--blue);}
-    .ev-card.gc-trance:hover{border-color:rgba(0,180,255,.4);}
-    .ev-card.gc-bass,.ev-card.gc-dnb{border-top-color:#00d282;}
-    .ev-card.gc-bass:hover,.ev-card.gc-dnb:hover{border-color:rgba(0,210,130,.4);}
-    .ev-card.gc-garage{border-top-color:#00c8b4;}
-    .ev-card.gc-garage:hover{border-color:rgba(0,200,180,.4);}
-    .ev-card.gc-hiphop{border-top-color:#ff9500;}
-    .ev-card.gc-hiphop:hover{border-color:rgba(255,149,0,.4);}
-    .ev-card.gc-country{border-top-color:#d4a017;}
-    .ev-card.gc-country:hover{border-color:rgba(212,160,23,.4);}
-
-    .ev-card::after{
+    }@media(max-width:520px){#evx .ev-card{width:240px;min-height:265px;}}#evx .ev-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.4);}#evx .ev-card.gc-house{border-top-color:var(--orange);}#evx .ev-card.gc-house:hover{border-color:rgba(230,51,51,.4);}#evx .ev-card.gc-techno{border-top-color:var(--purple);}#evx .ev-card.gc-techno:hover{border-color:rgba(180,0,255,.4);}#evx .ev-card.gc-trance{border-top-color:var(--blue);}#evx .ev-card.gc-trance:hover{border-color:rgba(0,180,255,.4);}#evx .ev-card.gc-bass, #evx .ev-card.gc-dnb{border-top-color:#00d282;}#evx .ev-card.gc-bass:hover, #evx .ev-card.gc-dnb:hover{border-color:rgba(0,210,130,.4);}#evx .ev-card.gc-garage{border-top-color:#00c8b4;}#evx .ev-card.gc-garage:hover{border-color:rgba(0,200,180,.4);}#evx .ev-card.gc-hiphop{border-top-color:#ff9500;}#evx .ev-card.gc-hiphop:hover{border-color:rgba(255,149,0,.4);}#evx .ev-card.gc-country{border-top-color:#d4a017;}#evx .ev-card.gc-country:hover{border-color:rgba(212,160,23,.4);}#evx .ev-card::after{
       content:'KEEPITIL.COM';position:absolute;bottom:10px;right:11px;
       font-size:.42rem;font-weight:700;letter-spacing:.13em;
       color:rgba(255,255,255,.08);text-transform:uppercase;pointer-events:none;
-    }
-
-    .ev-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:8px;}
-    .ev-pick-badge{
+    }#evx .ev-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:8px;}#evx .ev-pick-badge{
       font-size:.5rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
       background:var(--orange);color:#fff;padding:3px 7px;border-radius:2px;flex-shrink:0;
-    }
-    .ev-no-pick{display:inline-block;width:1px;}
-    .ev-genre-pill{
+    }#evx .ev-no-pick{display:inline-block;width:1px;}#evx .ev-genre-pill{
       font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
       padding:3px 9px;border-radius:10px;flex-shrink:0;white-space:nowrap;
-    }
-    .gp-house{background:rgba(230,51,51,.15);color:var(--orange);}
-    .gp-techno{background:rgba(180,0,255,.15);color:var(--purple);}
-    .gp-trance{background:rgba(0,180,255,.15);color:var(--blue);}
-    .gp-bass,.gp-dnb{background:rgba(0,210,130,.12);color:#00d282;}
-    .gp-garage{background:rgba(0,200,180,.12);color:#00c8b4;}
-    .gp-hiphop{background:rgba(255,149,0,.13);color:#ff9500;}
-    .gp-country{background:rgba(212,160,23,.13);color:#d4a017;}
-
-    /* ── EVENT BADGES ── */
-    .ev-badges{
+    }#evx .gp-house{background:rgba(230,51,51,.15);color:var(--orange);}#evx .gp-techno{background:rgba(180,0,255,.15);color:var(--purple);}#evx .gp-trance{background:rgba(0,180,255,.15);color:var(--blue);}#evx .gp-bass, #evx .gp-dnb{background:rgba(0,210,130,.12);color:#00d282;}#evx .gp-garage{background:rgba(0,200,180,.12);color:#00c8b4;}#evx .gp-hiphop{background:rgba(255,149,0,.13);color:#ff9500;}#evx .gp-country{background:rgba(212,160,23,.13);color:#d4a017;}#evx .ev-badges{
       display:flex;flex-wrap:wrap;gap:4px;
       margin-bottom:7px;min-height:0;
-    }
-    .ev-badge{
+    }#evx .ev-badge{
       font-size:.44rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
       padding:2px 6px;border-radius:2px;white-space:nowrap;
-    }
-    .badge-pick{background:var(--orange);color:#fff;}
-    .badge-partner{background:rgba(0,180,255,.12);color:var(--blue);border:1px solid rgba(0,180,255,.35);}
-    .badge-free{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3);}
-    .badge-age{background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.12);}
-    .badge-afterhours{background:rgba(180,0,255,.12);color:var(--purple);border:1px solid rgba(180,0,255,.3);}
-    .badge-warehouse{background:rgba(255,149,0,.1);color:#ff9500;border:1px solid rgba(255,149,0,.28);}
-    .badge-festival{background:rgba(0,255,136,.08);color:#00dd77;border:1px solid rgba(0,255,136,.2);}
-
-    .ev-name{font-family:var(--font-head);font-size:clamp(1.1rem,2.2vw,1.45rem);letter-spacing:.04em;color:var(--white);line-height:1;margin-bottom:4px;}
-    .ev-subtitle{font-size:.67rem;color:#555;margin-bottom:6px;line-height:1.4;}
-    .ev-venue{font-size:.69rem;color:#595959;display:flex;align-items:flex-start;gap:3px;margin-bottom:6px;}
-    .ev-acts{font-size:.69rem;color:#666;line-height:1.6;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
-    .ev-card-footer{
+    }#evx .badge-pick{background:var(--orange);color:#fff;}#evx .badge-partner{background:rgba(0,180,255,.12);color:var(--blue);border:1px solid rgba(0,180,255,.35);}#evx .badge-free{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3);}#evx .badge-age{background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.12);}#evx .badge-afterhours{background:rgba(180,0,255,.12);color:var(--purple);border:1px solid rgba(180,0,255,.3);}#evx .badge-warehouse{background:rgba(255,149,0,.1);color:#ff9500;border:1px solid rgba(255,149,0,.28);}#evx .badge-festival{background:rgba(0,255,136,.08);color:#00dd77;border:1px solid rgba(0,255,136,.2);}#evx .ev-name{font-family:var(--font-head);font-size:clamp(1.1rem,2.2vw,1.45rem);letter-spacing:.04em;color:var(--white);line-height:1;margin-bottom:4px;}#evx .ev-subtitle{font-size:.67rem;color:#555;margin-bottom:6px;line-height:1.4;}#evx .ev-venue{font-size:.69rem;color:#595959;display:flex;align-items:flex-start;gap:3px;margin-bottom:6px;}#evx .ev-acts{font-size:.69rem;color:#666;line-height:1.6;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}#evx .ev-card-footer{
       margin-top:14px;padding-top:11px;border-top:1px solid rgba(255,255,255,.06);
       display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-    }
-    .ev-price{font-size:.73rem;font-weight:700;color:var(--orange);}
-    .ev-btns{display:flex;gap:6px;align-items:center;}
-    .ev-btn-ticket{
+    }#evx .ev-price{font-size:.73rem;font-weight:700;color:var(--orange);}#evx .ev-btns{display:flex;gap:6px;align-items:center;}#evx .ev-btn-ticket{
       display:inline-flex;align-items:center;gap:3px;
       background:var(--orange);color:#fff;font-size:.58rem;font-weight:700;
       letter-spacing:.1em;text-transform:uppercase;text-decoration:none;
       padding:7px 12px;border-radius:4px;transition:opacity .2s;white-space:nowrap;
-    }
-    .ev-btn-ticket:hover{opacity:.82;}
-    .ev-btn-cal{
+    }#evx .ev-btn-ticket:hover{opacity:.82;}#evx .ev-btn-cal{
       display:inline-flex;align-items:center;background:transparent;color:#555;font-size:.7rem;
       text-decoration:none;padding:6px 9px;border-radius:4px;
       border:1px solid rgba(255,255,255,.08);transition:all .2s;white-space:nowrap;
-    }
-    .ev-btn-cal:hover{border-color:var(--green);color:var(--green);}
-    .no-events-msg{
+    }#evx .ev-btn-cal:hover{border-color:var(--green);color:var(--green);}#evx .no-events-msg{
       padding:40px 20px;text-align:center;
       font-size:.8rem;color:#444;letter-spacing:.08em;flex-shrink:0;
     }
+</style>
 
-    /* ── ECHO CHAT ── */
-    .echo-chat-wrap{
-      position:fixed;bottom:92px;right:20px;z-index:195;
-      display:flex;flex-direction:column;align-items:flex-end;gap:10px;
-    }
-    .echo-panel{
-      display:none;width:256px;
-      background:rgba(12,8,22,.97);
-      border:1px solid rgba(180,0,255,.3);
-      border-radius:12px;overflow:hidden;
-      box-shadow:0 8px 36px rgba(0,0,0,.6);
-      backdrop-filter:blur(16px);
-    }
-    .echo-panel.open{display:block;}
-    .echo-panel-head{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:9px 14px;
-      background:rgba(180,0,255,.1);
-      border-bottom:1px solid rgba(180,0,255,.2);
-    }
-    .echo-panel-title{
-      font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-      color:var(--purple);display:flex;align-items:center;gap:6px;
-    }
-    .echo-panel-title span{font-size:.8rem;}
-    .echo-panel-close{
-      background:transparent;border:none;color:#444;cursor:pointer;font-size:.85rem;
-      padding:2px;transition:color .2s;line-height:1;
-    }
-    .echo-panel-close:hover{color:var(--white);}
-    .echo-panel-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
-    .echo-greeting{font-size:.7rem;color:#777;line-height:1.6;}
-    .echo-dash-link{
-      display:block;text-align:center;
-      font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-      color:var(--purple);background:rgba(180,0,255,.08);
-      border:1px solid rgba(180,0,255,.25);
-      text-decoration:none;padding:8px;border-radius:6px;transition:all .2s;
-    }
-    .echo-dash-link:hover{background:rgba(180,0,255,.18);border-color:var(--purple);}
-    .echo-fab{
-      width:42px;height:42px;border-radius:50%;
-      background:rgba(180,0,255,.12);
-      border:1px solid rgba(180,0,255,.35);
-      color:var(--white);font-size:1.1rem;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-      transition:all .2s;backdrop-filter:blur(10px);
-      box-shadow:0 4px 18px rgba(180,0,255,.2);
-    }
-    .echo-fab:hover{background:rgba(180,0,255,.25);border-color:rgba(180,0,255,.6);box-shadow:0 4px 24px rgba(180,0,255,.4);}
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="canonical" href="https://keepitil.com/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#00b4ff" />
+  <meta property="og:image" content="https://keepitil.com/logo-bg.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="KEEPITIL — OC & LA Underground Discovery Platform" />
+  <meta name="twitter:description" content="Discover OC & LA underground artists, brands, and event organizers. Browse profiles, find events, and get discovered on KEEPITIL." />
+  <meta name="twitter:image" content="https://keepitil.com/logo-bg.jpg" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": "https://keepitil.com/#organization",
+    "name": "Keep It IL",
+    "url": "https://keepitil.com/",
+    "logo": "https://keepitil.com/logo-neon-nav.png",
+    "description": "The discovery platform for OC & LA's underground creative scene — artist profiles, events, music, and culture all in one place."
+  }
+  </script>
 
-    /* ── FLOATING ACTIONS ── */
-    .float-actions{
-      position:fixed;bottom:22px;left:0;right:0;z-index:200;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0 20px;pointer-events:none;
+  <style>
+  /* ── Events hub CSS (from events.html) ── */
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --black:#0f0f1a;--dark:#111;--dark2:#181818;--dark3:#222;--dark4:#2a2a2a;
+      --orange:#e63333;--red:#e63333;--purple:#b400ff;--white:#f0f0f0;--grey:#888;
+      --orange-glow:rgba(230,51,51,.35);
+      --font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;
     }
-    .float-save{
-      pointer-events:auto;
-      width:50px;height:50px;border-radius:50%;
-      background:transparent;border:2px solid var(--green);
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;transition:all .3s;
-      box-shadow:0 0 14px rgba(0,255,136,.15),0 2px 10px rgba(0,0,0,.4);
-      backdrop-filter:blur(10px);
-    }
-    .float-save:hover{box-shadow:0 0 24px rgba(0,255,136,.35),0 2px 10px rgba(0,0,0,.4);}
-    .float-save.saved{background:var(--green);box-shadow:0 0 28px rgba(0,255,136,.5);}
-    .ki-x-logo{
-      font-family:var(--font-head);font-size:1.6rem;line-height:1;
-      color:var(--green);transition:color .3s;letter-spacing:0;
-    }
-    .float-save.saved .ki-x-logo{color:#0f0f1a;}
-    .float-add{
-      pointer-events:auto;
-      display:inline-flex;align-items:center;gap:7px;
-      background:var(--green);color:#0f0f1a;
-      font-family:var(--font-body);font-size:.72rem;font-weight:800;
-      letter-spacing:.1em;text-transform:uppercase;
-      padding:12px 20px;border-radius:8px;
-      text-decoration:none;border:none;cursor:pointer;
-      box-shadow:0 4px 22px rgba(0,255,136,.35),0 2px 10px rgba(0,0,0,.4);
-      transition:all .2s;backdrop-filter:blur(10px);
-    }
-    .float-add:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,255,136,.45);}
-    @media(max-width:480px){.float-add{font-size:.62rem;padding:10px 15px;gap:5px;}}
+    html{scroll-behavior:smooth;}
+    body{background:#0a0a0f url('logo-bg.jpg') center/cover no-repeat fixed;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+
+
+    /* ── NAV ── */
+    nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+    .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
+    .nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;}
+    .nav-brand{color:#fff;font-family:var(--font-head,"Bebas Neue",sans-serif);font-size:1.15rem;letter-spacing:.14em;margin-left:10px;}
+    .nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
+    .nav-links a{color:#888;text-decoration:none;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;transition:color .2s;}
+    .nav-links a:hover,.nav-links a.active{color:#00b4ff;}
+    .nav-cta{background:#00b4ff!important;color:#fff!important;padding:7px 20px;border-radius:4px;}
+    .nav-cta:hover{opacity:.85;}
+    @media(max-width:768px){.nav-links{display:none;}}
+
+    /* ── HERO ── */
+    .events-hub .page-hero{padding:48px 24px 36px;text-align:center;position:relative;}
+    .events-hub .page-hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--orange),transparent);}
+    .events-hub .eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--orange);margin-bottom:14px;}
+    .events-hub .page-hero h1{font-family:var(--font-head);font-size:clamp(2.8rem,7vw,5.5rem);line-height:1;letter-spacing:.05em;margin-bottom:16px;}
+    .events-hub .page-hero h1 span{color:var(--orange);text-shadow:0 0 40px var(--orange-glow);}
+    .events-hub .page-hero p{font-size:.95rem;color:var(--grey);max-width:560px;margin:0 auto;}
+
+    /* ── CONTAINER ── */
+    .container{max-width:1200px;margin:0 auto;padding:0 24px;}
+
+    /* ── FILTER BAR ── */
+    .filter-bar{padding:28px 24px 0;max-width:1200px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .filter-search{padding:9px 16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--white);font-family:var(--font-body);font-size:.82rem;border-radius:4px;outline:none;min-width:190px;flex:1;transition:border-color .2s;}
+    .filter-search:focus{border-color:var(--orange);}
+    .filter-search::placeholder{color:#555;}
+    .filter-select{padding:9px 14px;border:1px solid rgba(255,255,255,.12);background:rgba(15,15,26,.95);color:var(--white);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-radius:4px;cursor:pointer;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%23888'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px;}
+    .filter-select:focus,.filter-select:hover{border-color:var(--orange);}
+    .filter-select option{background:#111;color:#fff;}
+    .events-hub .filter-btn{padding:9px 18px;border:1px solid rgba(255,255,255,.12);background:transparent;color:var(--grey);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;}
+    .events-hub .filter-btn:hover{border-color:var(--orange);color:var(--orange);}
+    .filter-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+    .filter-org-btn{display:inline-flex;align-items:center;padding:9px 18px;border:1px solid rgba(230,51,51,.5);background:transparent;color:var(--orange);font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;text-decoration:none;transition:all .2s;white-space:nowrap;}
+    .filter-org-btn:hover{background:rgba(230,51,51,.12);border-color:var(--orange);}
+
+    /* ── EVENTS GRID ── */
+    .events-section{padding:16px 24px 32px;max-width:1200px;margin:0 auto;}
+    .month-label{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.1em;color:var(--orange);margin:40px 0 20px;padding-bottom:8px;border-bottom:1px solid rgba(230,51,51,.15);}
+    .month-label:first-child{margin-top:0;}
+    .events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;margin-bottom:48px;}
+    @media(max-width:640px){.events-grid{grid-template-columns:1fr;}}
+
+    .ev-card{background:rgba(10,10,20,0.5);border:1px solid rgba(230,51,51,.12);border-radius:10px;overflow:hidden;transition:border-color .25s,transform .25s;display:flex;flex-direction:column;}
+    .ev-card:hover{border-color:rgba(230,51,51,.4);transform:translateY(-4px);}
+    .ev-card-header{padding:20px 22px 16px;border-bottom:1px solid rgba(255,255,255,.04);}
+    .ev-date-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .ev-date-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(230,51,51,.1);border:1px solid rgba(230,51,51,.2);border-radius:4px;padding:4px 10px;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);}
+    .ev-genre-tag{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#666;background:rgba(255,255,255,.05);padding:3px 8px;border-radius:3px;}
+    .ev-card h3{font-family:var(--font-head);font-size:1.7rem;letter-spacing:.04em;color:var(--white);line-height:1;margin-bottom:6px;}
+    .ev-card .ev-subtitle{font-size:.82rem;color:#999;margin-bottom:0;}
+    .ev-card-body{padding:16px 22px 20px;flex:1;}
+    .ev-venue{display:flex;align-items:flex-start;gap:8px;font-size:.83rem;color:#888;margin-bottom:10px;}
+    .ev-venue-icon{flex-shrink:0;margin-top:2px;}
+    .ev-acts-label{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#555;margin-bottom:6px;}
+    .ev-acts{font-size:.82rem;color:#999;line-height:1.6;}
+    .ev-acts strong{color:#ccc;}
+    .ev-footer{padding:14px 22px;background:rgba(0,0,0,.2);display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+    .ev-price{font-size:.78rem;font-weight:700;color:var(--orange);letter-spacing:.06em;}
+    .ev-ticket-link{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);text-decoration:none;opacity:.8;transition:opacity .2s;}
+    .ev-ticket-link:hover{opacity:1;}
+
+    /* ── FEATURED CARD ── */
+    .ev-card.featured{border-color:rgba(230,51,51,.3);background:rgba(10,10,20,0.6);}
+    .ev-card.featured h3{font-size:2rem;}
+    .ev-featured-tag{display:inline-block;background:var(--orange);color:#fff;font-size:.65rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:6px;}
+
+    /* ── PICKS ROW ── */
+    
+    
+    
+    
+    
+    .picks-row .ev-card{min-height:340px;}
+    /* ── KEEPITIL PICK top banner ── */
+    /* ev-pick-banner moved to PICKS ROW 9:16 section */
+    .ev-featured-tag{display:none;}
+    .picks-section-label{font-size:.65rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+    .picks-section-label::after{content:'';flex:1;height:1px;background:rgba(230,51,51,.2);}
+    .more-events-label{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#444;margin:28px 0 16px;padding-top:20px;border-top:1px solid rgba(255,255,255,.05);}
+    .month-section{margin-bottom:8px;}
+
+    /* ── SUBMIT CTA ── */
+    .submit-cta{background:linear-gradient(135deg,rgba(230,51,51,.08),rgba(180,0,255,.06));border:1px solid rgba(230,51,51,.2);border-radius:12px;padding:56px 40px;text-align:center;margin:0 24px 80px;max-width:1152px;margin-left:auto;margin-right:auto;}
+    .submit-cta h2{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.05em;margin-bottom:14px;}
+    .submit-cta h2 span{color:var(--orange);}
+    .submit-cta p{color:var(--grey);font-size:.95rem;max-width:520px;margin:0 auto 32px;}
+    .events-hub .btn-primary{display:inline-block;padding:14px 32px;background:var(--orange);color:#fff;font-family:var(--font-body);font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;text-decoration:none;transition:all .2s;}
+    .events-hub .btn-primary:hover{background:#ff4444;transform:translateY(-2px);}
+    .events-hub .btn-outline{display:inline-block;padding:14px 32px;background:transparent;color:var(--orange);font-family:var(--font-body);font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(230,51,51,.45);border-radius:4px;text-decoration:none;margin-left:12px;transition:all .2s;}
+    .events-hub .btn-outline:hover{background:rgba(230,51,51,.1);border-color:var(--orange);}
+
+    /* ── MONTH NAV ── */
+    .month-nav{display:flex;align-items:center;justify-content:space-between;padding:28px 24px 4px;max-width:1200px;margin:0 auto;}
+    .month-nav-btn{background:transparent;border:1px solid rgba(230,51,51,.3);color:var(--orange);padding:9px 22px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
+    .month-nav-btn:hover:not(:disabled){background:rgba(230,51,51,.1);border-color:var(--orange);}
+    .month-nav-btn:disabled{opacity:.2;cursor:default;pointer-events:none;}
+    .month-nav-title{font-family:var(--font-head);font-size:2rem;letter-spacing:.12em;color:var(--white);}
+
+
+    /* ── FLYER EVENT CARDS ── */
+    .ev-flyer-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;padding:0 24px;max-width:1200px;margin-left:auto;margin-right:auto;}
+    @media(max-width:1100px){.ev-flyer-grid{grid-template-columns:repeat(4,1fr);}}
+    @media(max-width:800px){.ev-flyer-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:540px){.ev-flyer-grid{grid-template-columns:repeat(2,1fr);}}
+    .ev-flyer-card{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:#0a0a14;border:1px solid rgba(230,51,51,.15);transition:transform .25s,border-color .25s;background-size:cover;background-position:center top;display:block;}
+    /* Save icon + badges are provided by keepitil-save.js (.kil-save / .kil-badge) — self-injecting, do not duplicate here */
+    .ev-flyer-card:hover{transform:translateY(-5px);border-color:rgba(230,51,51,.5);}
+    .ev-flyer-card::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.08) 40%,rgba(0,0,0,.08) 55%,rgba(0,0,0,.88) 100%);z-index:1;}
+    .ev-fc-date{position:absolute;top:9px;left:9px;z-index:2;background:rgba(230,51,51,.9);color:#fff;font-size:.58rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:3px;line-height:1.4;}
+    .ev-fc-genre{position:absolute;top:9px;right:9px;z-index:2;background:rgba(0,0,0,.65);color:#ddd;font-size:.52rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 7px;border-radius:3px;max-width:46%;text-align:right;line-height:1.3;}
+    .ev-fc-info{position:absolute;bottom:32px;left:9px;right:9px;z-index:2;}
+    .ev-fc-title{font-family:var(--font-head);font-size:.95rem;letter-spacing:.04em;color:#fff;line-height:1.1;text-shadow:0 1px 4px rgba(0,0,0,.9);margin-bottom:2px;}
+    .ev-fc-venue{font-size:.56rem;color:#bbb;text-shadow:0 1px 3px rgba(0,0,0,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ev-fc-price{position:absolute;bottom:9px;left:9px;z-index:2;color:var(--orange);font-size:.63rem;font-weight:800;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.9);}
+    .ev-fc-ticket{position:absolute;bottom:7px;right:9px;z-index:2;background:rgba(230,51,51,.9);color:#fff;font-size:.56rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:4px 8px;border-radius:3px;text-decoration:none;transition:background .2s;white-space:nowrap;}
+    .ev-fc-ticket:hover{background:var(--orange);}
+    .show-more-wrap{text-align:center;padding:8px 0 28px;display:none;}
+    .show-more-btn{background:transparent;border:1px solid rgba(230,51,51,.3);color:var(--orange);padding:10px 32px;border-radius:4px;cursor:pointer;font-family:var(--font-body);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
+    .show-more-btn:hover{background:rgba(230,51,51,.1);border-color:var(--orange);}
+    /* ── EVENTS NAV V2 ── */
+    .events-nav-v2{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 24px 16px;max-width:1200px;margin:0 auto;}    .ev-nav-left{display:flex;align-items:center;gap:8px;}    .ev-nav-right{display:flex;align-items:center;gap:8px;}
+    .ev-nav-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .ev-nav-city{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.35);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:600;letter-spacing:.03em;padding:9px 10px;border-radius:4px;outline:none;width:130px;transition:border-color .2s;}
+    .ev-nav-city::placeholder{color:#666;}
+    .ev-nav-city:focus{border-color:rgba(230,51,51,.6);}
+    .ev-nav-month{font-family:var(--font-head);font-size:2rem;letter-spacing:.14em;color:var(--white);text-align:center;white-space:nowrap;}
+    .ev-nav-select{background:rgba(12,12,22,.95);border:1px solid rgba(230,51,51,.22);color:var(--white);font-family:var(--font-body);font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:9px 10px;border-radius:4px;cursor:pointer;outline:none;transition:border-color .2s;flex-shrink:0;}
+    .ev-nav-select:hover,.ev-nav-select:focus{border-color:rgba(230,51,51,.5);}
+    .ev-nav-select option{background:#0a0a14;color:#fff;}
+    @media(max-width:860px){.events-nav-v2{gap:6px;}.ev-nav-month{width:100%;font-size:1.7rem;margin-bottom:4px;}}
+    /* ── PICKS WITH FLYER BG ── */
+    .ev-card.has-flyer{background-size:cover;background-position:center top;position:relative;}
+    .ev-card.has-flyer::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.65) 0%,rgba(0,0,0,.45) 50%,rgba(0,0,0,.8) 100%);z-index:0;border-radius:9px;}
+    .ev-card.has-flyer>*{position:relative;z-index:1;}
+
+    /* ── PICKS ROW 9:16 ── */
+    /* picks-row defined above */
+    
+    
+    
+    .ev-pick-banner{position:absolute;top:0;left:0;right:0;z-index:3;background:linear-gradient(90deg,rgba(230,51,51,.97),rgba(140,0,220,.85));color:#fff;font-size:.6rem;font-weight:900;letter-spacing:.28em;text-transform:uppercase;padding:9px 22px;text-align:center;pointer-events:none;}
+    .ev-partner-banner{background:linear-gradient(90deg,rgba(0,180,255,.95),rgba(0,200,120,.85)) !important;letter-spacing:.22em;}
+    .ev-pick .ev-fc-info{bottom:46px;}
+    .ev-pick .ev-fc-title{font-size:1.1rem;}
+    /* ── GENRE GRADIENT FALLBACKS (no flyer image) ── */
+    .ev-flyer-card:not([style*="background-image"]){background:linear-gradient(160deg,#0d0d22 0%,#1c1035 55%,#0a0a14 100%);}
+    .ev-flyer-card[data-genre*="bass"]:not([style*="background-image"]){background:linear-gradient(155deg,#12001f 0%,#3a0068 45%,#5c0020 100%);}
+    .ev-flyer-card[data-genre*="dubstep"]:not([style*="background-image"]){background:linear-gradient(155deg,#0f0020 0%,#380060 45%,#600018 100%);}
+    .ev-flyer-card[data-genre*="house"]:not([style*="background-image"]){background:linear-gradient(155deg,#001828 0%,#003566 45%,#001828 100%);}
+    .ev-flyer-card[data-genre*="techno"]:not([style*="background-image"]){background:linear-gradient(155deg,#0a0a0a 0%,#1d1d1d 50%,#0d0d0d 100%);}
+    .ev-flyer-card[data-genre*="trance"]:not([style*="background-image"]){background:linear-gradient(155deg,#001230 0%,#0044bb 45%,#001230 100%);}
+    .ev-flyer-card[data-genre*="dnb"]:not([style*="background-image"]),.ev-flyer-card[data-genre*="jungle"]:not([style*="background-image"]){background:linear-gradient(155deg,#001800 0%,#1a4000 45%,#002800 100%);}
+    .ev-flyer-card[data-genre*="rnb"]:not([style*="background-image"]){background:linear-gradient(155deg,#1a0008 0%,#4d0024 45%,#1a0008 100%);}
+    .ev-flyer-card[data-genre*="garage"]:not([style*="background-image"]),.ev-flyer-card[data-genre*="ukg"]:not([style*="background-image"]){background:linear-gradient(155deg,#0a0020 0%,#1a005a 45%,#3a0068 100%);}
+    /* Noise texture overlay for gradient cards */
+    .ev-flyer-card:not([style*="background-image"])::after{content:'';position:absolute;inset:0;z-index:0;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px;}
+    /* Fix z-index for content on gradient cards */
+    .ev-flyer-card:not([style*="background-image"]) .ev-fc-date,.ev-flyer-card:not([style*="background-image"]) .ev-fc-genre,.ev-flyer-card:not([style*="background-image"]) .ev-fc-info,.ev-flyer-card:not([style*="background-image"]) .ev-fc-price,.ev-flyer-card:not([style*="background-image"]) .ev-fc-ticket,.ev-flyer-card:not([style*="background-image"]) .ev-pick-banner{z-index:4;}
+    /* ── PICKS ROW ── */
+    .picks-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;}
+    @media(max-width:840px){.picks-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.picks-row{grid-template-columns:1fr;}}
+    .ev-pick-flyer{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1;display:block;}
+    
+    .ev-pick .ev-pick-banner,.ev-pick .ev-fc-info,.ev-pick .ev-fc-price,.ev-pick .ev-fc-ticket{z-index:4 !important;}.ev-pick .ev-fc-date{z-index:4 !important;top:38px;left:9px;}.ev-pick .ev-fc-genre{z-index:4 !important;top:38px;right:9px;}
+    /* ── OLD FLYERS SECTION ── */
+    .flyers-section{padding:0 24px 32px;max-width:1200px;margin:0 auto;}
+    .flyers-heading{font-family:var(--font-head);font-size:clamp(2rem,5vw,3.2rem);letter-spacing:.08em;margin-bottom:6px;}
+    .flyers-sub{font-size:.8rem;color:var(--grey);margin-bottom:32px;letter-spacing:.04em;}
+    .flyers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;}
+    @media(max-width:640px){.flyers-grid{grid-template-columns:repeat(2,1fr);}}
+    .flyer-slot{aspect-ratio:2/3;background:#111;border:1px dashed rgba(255,255,255,.08);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:border-color .2s;}
+    .flyer-slot:hover{border-color:rgba(230,51,51,.35);}
+    .flyer-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+    .flyer-slot-inner{display:flex;flex-direction:column;align-items:center;gap:8px;}
+    .flyer-slot-icon{font-size:1.8rem;opacity:.18;}
+    .flyer-slot-label{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#333;}
 
     /* ── FOOTER ── */
-    .site-footer{
-      border-top:1px solid rgba(255,255,255,.05);
-      padding:40px 24px;text-align:center;
-    }
-    .site-footer p{font-size:.72rem;color:#444;line-height:1.8;}
-    .site-footer a{color:#666;text-decoration:none;}
-    .site-footer a:hover{color:var(--green);}
+    footer{background:var(--dark);border-top:1px solid rgba(230,51,51,.08);padding:48px 0 28px;}
+    .footer-inner{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;}
+    .footer-logo{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.12em;color:var(--orange);}
+    .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+    .footer-links a{font-size:.78rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#555;text-decoration:none;transition:color .2s;}
+    .footer-links a:hover{color:var(--orange);}
+    .footer-copy{font-size:.72rem;color:#444;margin-top:24px;text-align:center;max-width:1200px;margin-left:auto;margin-right:auto;padding:0 24px;}
+  
+  </style>
+  <style>
+  /* ── 4-Widget Spotlight Row ── */
+  :root {
+    --artist-color: #00b4ff;
+    --brand-color:  #00c853;
+    --org-color:    #ff6d00;
+    --culture-color:#aa00ff;
+  }
+  .spotlight-widgets-row {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto 32px;
+    padding: 0 24px;
+  }
+  .spot-widget {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 14px;
+    padding: 0;
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .spot-widget:hover { border-color: rgba(255,255,255,.18); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+  .spot-widget-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    padding: 16px 18px 40px;
+    border-bottom: none;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 3;
+    background: linear-gradient(to bottom, rgba(0,0,0,.85) 0%, transparent 100%);
+  }
+  .spot-widget-label {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.1rem;
+    letter-spacing:.12em;
+  }
+  .spot-widget-line {
+    flex:1;
+    height:1px;
+    background:currentColor;
+    opacity:.25;
+  }
+  /* Track: fills the whole widget */
+  .spot-widget-track {
+    position: absolute;
+    inset: 0;
+  }
+  .spot-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .55s ease, transform .55s ease;
+    pointer-events: none;
+  }
+  .spot-slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  /* Image — fills entire slide */
+  .spot-slide-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    overflow: hidden;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+  }
+  .spot-slide-img-fb {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:4rem;
+    letter-spacing:.05em;
+    opacity:.3;
+  }
+  .spot-slide-img img { position:absolute;inset:0;width:100%;height:100%;object-fit:cover;flex-shrink:0; }
+  /* Text overlay block at bottom */
+  .spot-slide-body {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 16px 18px 44px;
+    background: linear-gradient(to top, rgba(0,0,0,.96) 0%, rgba(0,0,0,.72) 55%, transparent 100%);
+    z-index: 2;
+  }
+  .spot-slide-name {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:1.45rem;
+    letter-spacing:.04em;
+    line-height:1.1;
+    margin-bottom:4px;
+  }
+  .spot-slide-tag {
+    font-size:.68rem;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    color:rgba(255,255,255,.55);
+    margin-bottom:9px;
+  }
+  .spot-slide-bio {
+    font-size:.78rem;
+    color:rgba(255,255,255,.7);
+    line-height:1.5;
+    margin-bottom:10px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .spot-slide-link {
+    font-size:.65rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    text-decoration:none;
+    padding:5px 11px;
+    border-radius:4px;
+    border:1px solid currentColor;
+    display:inline-block;
+    opacity:.8;
+    transition:opacity .2s, background .2s;
+  }
+  .spot-slide-link:hover{opacity:1;}
+  .spot-widget-dots {
+    position:absolute;
+    bottom:16px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:6px;
+    z-index:4;
+  }
+  .sw-dot {
+    width:5px;height:5px;
+    border-radius:50%;
+    background:rgba(255,255,255,.18);
+    cursor:pointer;
+    transition:background .3s, transform .3s;
+  }
+  .sw-dot.active{background:currentColor;transform:scale(1.4);}
+  @media(max-width:900px){
+    .spotlight-widgets-row{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:540px){
+    .spotlight-widgets-row{grid-template-columns:1fr;}
+  }
+  /* Events hub wrapper */
+  .events-hub { padding-top: 8px; }
+  /* Classic flyers header fix */
+  .classic-flyers-section .section-title { font-family:'Bebas Neue',sans-serif; }
+  </style>
+  <style id="nav-uniform">
+  /* ── UNIFORM NAV ── */
+  nav#main-nav,nav:not([class]) {
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    background:rgba(10,10,18,.93);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,.07);
+    padding:0;
+  }
+  .nav-inner {
+    display:flex;align-items:center;
+    max-width:1400px;margin:0 auto;padding:0 32px;height:66px;
+  }
+  .nav-logo {
+    display:flex;align-items:center;gap:10px;
+    text-decoration:none;flex-shrink:0;
+  }
+  .nav-brand {
+    font-family:'Bebas Neue',sans-serif;font-size:1.5rem;
+    letter-spacing:.13em;color:#fff;
+  }
+  .nav-links {
+    display:flex;list-style:none;
+    flex:1;justify-content:space-evenly;
+    margin:0;padding:0;
+  }
+  .nav-links li{list-style:none;}
+  .nav-links a {
+    font-family:'Bebas Neue',sans-serif;font-size:1.05rem;
+    letter-spacing:.14em;color:rgba(255,255,255,.75);
+    text-decoration:none;transition:color .2s;white-space:nowrap;
+  }
+  .nav-links a:hover,.nav-links a.active{color:#fff;}
+  .nav-inner > a.nav-cta {
+    font-family:'Bebas Neue',sans-serif;font-size:1rem;
+    letter-spacing:.14em;
+    color:#00b4ff !important;
+    background:transparent !important;
+    border:2px solid #00b4ff;
+    padding:7px 22px;border-radius:4px;
+    text-decoration:none;flex-shrink:0;
+    transition:background .2s,color .2s;white-space:nowrap;
+    display:inline-block;
+  }
+  .nav-inner > a.nav-cta:hover{background:#00b4ff !important;color:#000 !important;}
+  .nav-hamburger {
+    display:none;flex-direction:column;gap:5px;
+    background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;
+  }
+  .nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s;}
+  .mobile-menu {
+    display:none;position:fixed;top:66px;left:0;right:0;
+    background:rgba(10,10,18,.97);z-index:999;
+    flex-direction:column;padding:18px 28px;gap:0;
+    border-bottom:1px solid rgba(255,255,255,.1);
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a {
+    font-family:'Bebas Neue',sans-serif;font-size:1.2rem;
+    letter-spacing:.12em;color:rgba(255,255,255,.78);
+    text-decoration:none;padding:12px 0;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu .nav-cta{color:#00b4ff !important;border:none;padding:12px 0;background:transparent !important;}
+  @media(max-width:768px){
+    .nav-links{display:none;}
+    .nav-hamburger{display:flex;}
+    .nav-inner > a.nav-cta{display:none;}
+  }
+  body { padding-top: 66px !important; }
   </style>
 </head>
 <body>
 
-<!-- Staging Banner -->
-<div class="staging-banner">⚡ STAGING v5 · Atlas · Founder spec (month nav + KEEPITIL picks + day carousels) · INTERNAL ONLY · QA BEFORE PUSH</div>
 
-<!-- Nav -->
-<nav id="main-nav">
-<div class="nav-inner">
-  <a class="nav-logo" href="/">
-    <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;">
-    <span class="nav-brand">KEEPITIL</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="/artist/">ARTIST</a></li>
-    <li><a href="/brand/">BRAND</a></li>
-    <li><a href="/culture">CULTURE</a></li>
-    <li><a href="/organizer/">ORGANIZERS</a></li>
-  </ul>
-  <a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
-  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu">
-    <span></span><span></span><span></span>
-  </button>
-</div>
-</nav>
-
-<!-- Mobile Menu -->
-<div class="mobile-menu" id="mobile-menu">
-  <a href="/artist/" onclick="toggleMenu()">ARTIST</a>
-  <a href="/brand/" onclick="toggleMenu()">BRAND</a>
-  <a href="/culture" onclick="toggleMenu()">CULTURE</a>
-  <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
-  <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
-</div>
-
-<!-- Radio Bar -->
-<div class="radio-bar" id="radio-bar">
-  <div class="radio-inner">
-    <div class="radio-dot paused" id="radio-dot"></div>
-    <div class="radio-info">
-      <span class="radio-name">KEEPITIL RADIO</span>
-      <span class="radio-track" id="radio-track-lbl">Deep Frequencies 24/7 · Click ▶ to tune in</span>
-    </div>
-    <button class="radio-play-btn" id="radio-play-btn" onclick="toggleRadio()" aria-label="Play radio">▶</button>
-    <button class="radio-close-btn" onclick="hideRadio()" aria-label="Hide radio">✕</button>
+    <!-- Nav -->
+  <nav id="main-nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">
+      <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/artist/">ARTIST</a></li>
+      <li><a href="/brand/">BRAND</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/organizer/">ORGANIZERS</a></li>
+    </ul>
+    <a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
-</div>
+  </nav>
 
-<!-- Hero + Genre Filter -->
-<div class="page-hero">
-  <div class="eyebrow">OC · LA · San Diego · Staging Preview v5 · Atlas Directive</div>
-  <h1>UPCOMING <span>EVENTS</span></h1>
-  <div class="genre-filter" id="genre-filter">
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="/artist/" onclick="toggleMenu()">ARTIST</a>
+    <a href="/brand/" onclick="toggleMenu()">BRAND</a>
+    <a href="/culture" onclick="toggleMenu()">CULTURE</a>
+    <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
+    <a href="/apply.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+  </div>
+
+<!-- Hero -->
+  <section class="hero" id="home">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-holiday-bg" id="hero-holiday-bg"></div>
+    <div class="hero-overlay"></div>
+<div class="container">
+      <div class="hero-content">
+        <h1>
+          THE <span class="accent"><span class="typewriter" id="typewriter">VIBE</span></span><br/>STARTS HERE
+        </h1>
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.1vw,1.5rem);letter-spacing:.16em;color:var(--blue);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">WHERE STRAIGHT FROM THE UNDERGROUND GETS DISCOVERED</p>
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.18em;color:var(--white);margin-bottom:28px;opacity:.5;">CREATE LOUD. LIVE LOUDER. KEEPITIL.</p>
+        <div class="hero-actions">
+          <a href="https://keepitil.com/artist" class="btn btn-primary">Browse Artists</a>
+          <a href="https://keepitil.com/culture" class="btn btn-outline">Read the Latest</a>
+          <a href="/grow.html" class="btn btn-outline">GROW</a>
+        </div>
+        <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
+      </div>
+    </div>
+  </section>
+
+  <!-- SPOTLIGHT — 4 Category Widget Row -->
+  <section class="section" id="spotlight" style="padding-top:0;padding-bottom:0">
+    <div class="spotlight-widgets-row">
+
+      <!-- ARTIST widget (blue) -->
+      <div class="spot-widget" id="sw-artist">
+        <div class="spot-widget-header" style="color:var(--artist-color)">
+          <span class="spot-widget-label">ARTIST</span>
+          <span class="spot-widget-line"></span>
+        </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
+      </div>
+
+      <!-- BRAND widget (green) -->
+      <div class="spot-widget" id="sw-brand">
+        <div class="spot-widget-header" style="color:var(--brand-color)">
+          <span class="spot-widget-label">BRAND</span>
+          <span class="spot-widget-line"></span>
+        </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
+      </div>
+
+      <!-- ORGANIZER widget (orange) -->
+      <div class="spot-widget" id="sw-organizer">
+        <div class="spot-widget-header" style="color:var(--org-color)">
+          <span class="spot-widget-label">ORGANIZER</span>
+          <span class="spot-widget-line"></span>
+        </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
+      </div>
+
+      <!-- CULTURE widget (purple) -->
+      <div class="spot-widget" id="sw-culture">
+        <div class="spot-widget-header" style="color:var(--culture-color)">
+          <span class="spot-widget-label">CULTURE</span>
+          <span class="spot-widget-line"></span>
+        </div>
+        <div class="spot-widget-track"></div>
+        <div class="spot-widget-dots"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EVENTS (from events.html) -->
+  <div class="events-hub">
+<!-- EVENTS -->
+<div id="evx">
+  <div class="site-section" style="padding-bottom:0;">
+    <div class="sec-header">
+      <span class="sec-label">⚡ UPCOMING EVENTS</span>
+      <span class="sec-sub">OC · LA · San Diego</span>
+      <span class="sec-divider"></span>
+    </div>
+    <div class="genre-filter" id="genre-filter">
     <button class="gf-chip active" data-genre="">ALL</button>
     <button class="gf-chip" data-genre="house">HOUSE</button>
     <button class="gf-chip" data-genre="techno">TECHNO</button>
@@ -582,9 +1025,8 @@
     <button class="gf-chip" data-genre="hip-hop">HIP-HOP</button>
     <button class="gf-chip" data-genre="country">COUNTRY</button>
   </div>
-</div>
-
-<!-- Shared Month Selector -->
+  </div>
+  <!-- Shared Month Selector -->
 <div class="month-selector-wrap">
   <div class="month-selector" id="month-tabs"></div>
 </div>
@@ -622,39 +1064,439 @@
 
 <!-- Day List -->
 <div class="days-list" id="days-list"></div>
+</div>
 
-<!-- Echo Chat -->
-<div class="echo-chat-wrap">
-  <div class="echo-panel" id="echo-panel">
-    <div class="echo-panel-head">
-      <div class="echo-panel-title"><span>🧠</span> ECHO AI</div>
-      <button class="echo-panel-close" onclick="closeEcho()">✕</button>
-    </div>
-    <div class="echo-panel-body">
-      <p class="echo-greeting">Hey — I'm Echo, KEEPITIL's CEO AI. Looking for events, artist info, or site updates? I've got you.</p>
-      <a href="/echo-dashboard.html" target="_blank" rel="noopener" class="echo-dash-link">Open Mission Control →</a>
-    </div>
+<!-- CLASSIC flyers section removed 2026-07-01 per Founder directive (homepage v2: only Events + Classic change; Classic removed) -->
+
+<!-- SUBMIT CTA -->
+<section class="submit-cta">
+  <h2>JOIN <span>KEEPITIL</span></h2>
+  <p>Get discovered by the OC &amp; LA underground — claim your profile, list an event, partner with us, or upgrade your membership.</p>
+  <style>
+    .jk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px;text-align:left;}
+    .jk-card{display:flex;flex-direction:column;gap:6px;padding:20px 16px;border:1px solid rgba(0,180,255,.25);border-radius:12px;background:rgba(0,180,255,.04);text-decoration:none;transition:border-color .2s,transform .2s,background .2s;}
+    .jk-card:hover{border-color:var(--blue);background:rgba(0,180,255,.09);transform:translateY(-3px);}
+    .jk-ico{font-size:1.7rem;line-height:1;}
+    .jk-title{font-family:var(--font-head);font-size:1.25rem;letter-spacing:.04em;color:var(--white);}
+    .jk-desc{font-size:.8rem;color:var(--grey);line-height:1.35;}
+    @media(max-width:840px){.jk-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.jk-grid{grid-template-columns:1fr;}}
+  </style>
+  <div class="jk-grid">
+    <a class="jk-card" href="https://keepitil.com/apply-artist.html">
+      <span class="jk-ico">&#127908;</span><span class="jk-title">Claim Profile</span>
+      <span class="jk-desc">Build your page and get discovered.</span>
+    </a>
+    <a class="jk-card" href="https://keepitil.com/apply.html">
+      <span class="jk-ico">&#127914;</span><span class="jk-title">Submit Event</span>
+      <span class="jk-desc">List your party for the OC &amp; LA scene.</span>
+    </a>
+    <a class="jk-card" href="https://keepitil.com/apply-brand.html">
+      <span class="jk-ico">&#129309;</span><span class="jk-title">Become a Partner</span>
+      <span class="jk-desc">Brands &amp; organizers, work with us.</span>
+    </a>
+    <a class="jk-card" href="https://keepitil.com/grow.html">
+      <span class="jk-ico">&#128200;</span><span class="jk-title">Upgrade Membership</span>
+      <span class="jk-desc">Unlock more reach and tools.</span>
+    </a>
   </div>
-  <button class="echo-fab" onclick="toggleEcho()" title="Chat with Echo">🧠</button>
-</div>
-
-<!-- Floating Bottom Actions -->
-<div class="float-actions">
-  <button class="float-save" id="float-save-btn" onclick="toggleSave()" title="Save events">
-    <span class="ki-x-logo">X</span>
-  </button>
-  <a href="/portal.html" class="float-add">
-    <span>+</span> Add Event · Sign in
-  </a>
-</div>
-
+</section>
+  </div><!-- /.events-hub -->
 <!-- Footer -->
-<footer class="site-footer">
-  <p>Events sourced from Posh, Eventbrite, RA &amp; official pages. Verify dates on ticketing sites.<br>
-  Purchases handled by original platform. · <a href="/">KEEPITIL.COM</a></p>
-</footer>
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a class="logo" href="https://keepitil.com/" style="text-decoration:none;color:inherit;">
+            <img class="logo-img" src="/keepitil-x-blue.png" alt="Keep It IL Logo"/>
+            <span class="logo-text">KEEP IT IL</span>
+          </a>
+          <p>Underground EDM coverage, event listings, and artist spotlights for Orange County and Los Angeles. Representing SoCal's underground scene.</p>
+          <div class="footer-social">
+            <a href="https://www.instagram.com/keepitil/" target="_blank" class="social-link" title="Instagram">IG</a>
+            <a href="https://soundcloud.com/keepitil" target="_blank" class="social-link" title="SoundCloud">SC</a>
+            <a href="https://www.tiktok.com/@keepitil" target="_blank" class="social-link" title="TikTok">TT</a>
+            <a href="https://keepitil.com" target="_blank" class="social-link" title="keepitil.com">🔗</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Artists &amp; Culture</h5>
+          <ul>
+            <li><a href="https://keepitil.com/artist">Artist Roster</a></li>
+            <li><a href="https://keepitil.com/culture">Culture Blog</a></li>
+            <li><a href="https://keepitil.com/blog-rab3l.html">RAB3L</a></li>
+            <li><a href="https://keepitil.com/blog-groove-trooper.html">Groove Trooper</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Scene</h5>
+          <ul>
+            <li><a href="https://keepitil.com/organizer/">Organizers</a></li>
+            <li><a href="https://keepitil.com/brand/">Brands</a></li>
+            <li><a href="https://keepitil.com/apply.html">Apply to Join</a></li>
+            <li><a href="https://keepitil.com/signup.html">Subscribe</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="https://keepitil.com/about.html">About</a></li>
+            <li><a href="https://keepitil.com/contact.html">Contact</a></li>
+            <li><a href="https://keepitil.com" target="_blank">keepitil.com</a></li>
+            <li><a href="https://keepitil.com/privacy.html">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Keep It IL — <a href="https://keepitil.com">keepitil.com</a>. All rights reserved.</p>
+        <p>Built for the underground. 🎶</p>
+      </div>
+    </div>
+  </footer>
+
+  <button class="scroll-top" id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <script>
+  /* ── SUPABASE ── */
+  const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  /* Stats are hardcoded — Supabase data not reliable for artist/org/brand counts */
+  /* Subscribe form uses Supabase */
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    const _emIn = document.getElementById('email-input'); if(!_emIn){ console.warn('KEEPITIL: newsletter email input not found.'); return; } const email = _emIn.value.trim();
+    const phoneEl = document.getElementById('phone-input');
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    if (!email) return;
+    const btn = e.target.querySelector('button[type=submit]');
+    if (btn) btn.disabled = true;
+    const { error } = await supa.from('subscribers').insert({ email, phone: phone||null, source: 'website' });
+    if (btn) btn.disabled = false;
+    const note = document.querySelector('.subscribe-note');
+    if (error) {
+      if (error.code === '23505') {
+        if (note) { note.textContent = "You're already on the list!"; note.style.color = 'var(--blue)'; }
+      } else {
+        if (note) { note.textContent = 'Something went wrong. Try again.'; note.style.color = '#ff4444'; }
+      }
+    } else {
+      if (note) { note.textContent = "🎉 You're in! Watch your inbox."; note.style.color = '#00ff88'; }
+      e.target.reset();
+    }
+    setTimeout(() => { if (note) { note.textContent = 'Get early access to tickets before public sale. No spam.'; note.style.color = ''; } }, 4000);
+  }
+
+  /* ── NAV SCROLL ── */
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    const scrollBtn = document.getElementById('scroll-top');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 20);
+    if (scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  function toggleMenu() {
+    const h = document.getElementById('hamburger');
+    const m = document.getElementById('mobile-menu');
+    if (h) h.classList.toggle('open');
+    if (m) m.classList.toggle('open');
+  }
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+  </script>
+
+
+
+
+
+
+
+
+
+
 
 <script>
+/* ── 4-Widget Spotlight Cycling ── */
+(function(){
+  const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+
+  async function fetchTable(table, cols, limit) {
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/${table}?select=${cols}&limit=${limit}&order=id.desc`, {
+        headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY }
+      });
+      return r.ok ? await r.json() : [];
+    } catch(e) { return []; }
+  }
+
+  const CULTURE_ITEMS = [
+    { name:'Hard Techno Essentials 2026', tag:'SONGS', bio:'The tracks moving LA warehouse floors right now — a curated listen through the hard techno records defining the sound.', link:'/blog-song-hard-techno-essentials-2026.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
+    { name:'Festival Packing Guide', tag:'TIPS', bio:'What to bring to a SoCal rave — the essential packing list for outdoor festivals in the heat.', link:'/blog-tip-festival-packing-guide-socal.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1699161/pexels-photo-1699161.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
+    { name:'Hard Summer 2026 Preview', tag:'EVENTS', bio:'Everything you need to know about Hard Summer 2026 — lineup, stages, and what to expect.', link:'/blog-news-hard-summer-2026-preview.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
+    { name:'SoCal Playlist 2026', tag:'SONGS', bio:'Handpicked underground tracks dominating dance floors across Orange County and Los Angeles this season.', link:'/blog-song-socal-playlist-2026.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
+    { name:'New Artists: Summer 2026', tag:'FEATURES', bio:'The rising underground talent joining the KEEPITIL roster — new additions you need to follow.', link:'/blog-news-new-artists-summer-2026.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1036804/pexels-photo-1036804.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
+    { name:'State of the SoCal Underground', tag:'ORIGINALS', bio:'Dispatches from the underground — what is moving, who is moving it, and where the sound is heading in 2026.', link:'/blog-news-socal-underground-state-2026.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/2507025/pexels-photo-2507025.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
+  ];
+
+  function initials(name) {
+    const parts = (name||'').split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return (parts[0]||'?').slice(0,2).toUpperCase();
+  }
+  function buildWidget(el, items, color) {
+    const dotsEl = el.querySelector('.spot-widget-dots');
+    const trackEl = el.querySelector('.spot-widget-track');
+    if (!items.length) { trackEl.innerHTML = '<div class="spot-slide active"><div class="spot-slide-name" style="color:'+color+'">Coming Soon</div></div>'; return; }
+    items.forEach((item, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'spot-slide' + (i===0?' active':'');
+      const imgSrc = item.img ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="spot-slide-img-fb" style="display:none;color:${color}">${initials(item.name)}</span>` : `<span class="spot-slide-img-fb" style="color:${color}">${initials(item.name)}</span>`;
+      slide.innerHTML = `
+        <div class="spot-slide-img" style="background:${color}18">${imgSrc}</div>
+        <div class="spot-slide-body">
+          <div class="spot-slide-name" style="color:${color}">${item.name}</div>
+          <div class="spot-slide-tag">${item.tag}</div>
+          <div class="spot-slide-bio">${item.bio}</div>
+          <a class="spot-slide-link" style="color:${color};border-color:${color}44" href="${item.link}">View ${item.type||'Page'} →</a>
+        </div>`;
+      trackEl.appendChild(slide);
+      const dot = document.createElement('span');
+      dot.className = 'sw-dot' + (i===0?' active':'');
+      dot.style.color = color;
+      dot.onclick = () => goTo(el, i);
+      dotsEl.appendChild(dot);
+    });
+    let cur = 0, transitioning = false;
+    const timer = setInterval(() => goTo(el, (cur+1)%items.length), 4200);
+    el._goTo = (idx) => { cur=idx; };
+    function goTo(widget, idx) {
+      if (transitioning || idx === cur) return;
+      transitioning = true;
+      const slides = widget.querySelectorAll('.spot-slide');
+      const dots = widget.querySelectorAll('.sw-dot');
+      slides[cur].classList.remove('active');
+      dots[cur].classList.remove('active');
+      const next = idx;
+      setTimeout(() => {
+        cur = next;
+        slides[cur].classList.add('active');
+        dots[cur].classList.add('active');
+        transitioning = false;
+      }, 120);
+    }
+  }
+
+  async function initWidgets() {
+    // Artist widget
+    const artistEl = document.getElementById('sw-artist');
+    const artists = await fetchTable('artists', 'slug,name,genre,bio,img', 8);
+    const artistItems = artists.map(a => ({
+      name: a.name || 'Unknown Artist',
+      tag: a.genre || 'Underground',
+      bio: (a.bio||'').slice(0,120) || 'Bringing the underground sound to OC & LA.',
+      link: '/artist/' + (a.slug||''),
+      img: a.img || null,
+      type: 'Profile'
+    }));
+    if (artistItems.length) buildWidget(artistEl, artistItems, 'var(--artist-color)');
+    else buildWidget(artistEl, [
+      {name:'Groove Trooper', tag:'House · Techno', bio:'Deep cuts and heavy kicks from the OC underground pioneer. Resident selector and label founder.', link:'/artist/groove-trooper', img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg', type:'Profile'},
+      {name:'Aztekan', tag:'Bass · Electronic', bio:'Bass-forward productions pushing the underground sound of OC and LA into new territory.', link:'/artist/aztekan', img:'https://i1.sndcdn.com/avatars-65ANz1PFRKjujXrW-qWNxdw-t500x500.jpg', type:'Profile'},
+      {name:'DJ Trauma', tag:'Techno · Industrial', bio:'Dark and driving sets from one of the hardest selectors in the SoCal underground scene.', link:'/artist', img:'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Lila Nova', tag:'Deep House', bio:'Soulful, hypnotic deep house from an LA selector carving her own lane in the underground.', link:'/artist', img:'https://images.pexels.com/photos/1699161/pexels-photo-1699161.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Submerged', tag:'Dub Techno', bio:'Immersive dub techno journeys built for warehouse floors and late-night listening sessions.', link:'/artist', img:'https://images.pexels.com/photos/2507025/pexels-photo-2507025.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Mako Kojo', tag:'Afro · Percussion', bio:'Rhythmic explorations rooted in Afrobeat and electronic percussion. A rising voice in LA underground.', link:'/artist', img:'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+    ], 'var(--artist-color)');
+
+    // Brand widget
+    const brandEl = document.getElementById('sw-brand');
+    const brands = await fetchTable('brands', 'slug,name,category,description,img', 8);
+    const brandItems = brands.map(b => ({
+      name: b.name || 'Unknown Brand',
+      tag: b.category || 'Brand',
+      bio: (b.description||'').slice(0,120) || 'Shaping underground culture in OC & LA.',
+      link: '/brand/' + (b.slug||''),
+      img: b.img || null,
+      type: 'Profile'
+    }));
+    if (brandItems.length) buildWidget(brandEl, brandItems, 'var(--brand-color)');
+    else buildWidget(brandEl, [
+      {name:'KEEPITIL Merch', tag:'Apparel', bio:'Limited-run underground streetwear built for those who live the culture. Drop-only releases.', link:'/brand', img:'https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Sound & Vision OC', tag:'Production', bio:'Full-service audio and lighting for underground events across Orange County and Los Angeles.', link:'/brand', img:'https://images.pexels.com/photos/1036804/pexels-photo-1036804.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Concrete Jungle', tag:'Streetwear', bio:'OC-born streetwear brand rooted in rave culture, concrete, and community.', link:'/brand', img:'https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Bassline Supply', tag:'Audio Gear', bio:'Underground-focused gear shop stocking the tools selectors and producers actually use.', link:'/brand', img:'https://images.pexels.com/photos/274422/pexels-photo-274422.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Frequency Studios', tag:'Recording', bio:'Boutique studio space in LA offering recording, mixing and mastering for underground artists.', link:'/brand', img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Ritual Clothing', tag:'Fashion', bio:'Slow fashion for fast lives. Ritual makes pieces built to last past any single scene moment.', link:'/brand', img:'https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+    ], 'var(--brand-color)');
+
+    // Organizer widget
+    const orgEl = document.getElementById('sw-organizer');
+    const orgs = await fetchTable('organizers', 'slug,name,type,description,img', 8);
+    const orgItems = orgs.map(o => ({
+      name: o.name || 'Unknown Organizer',
+      tag: o.type || 'Promoter',
+      bio: (o.description||'').slice(0,120) || 'Curating underground events across OC & LA.',
+      link: '/organizer/' + (o.slug||''),
+      img: o.img || null,
+      type: 'Profile'
+    }));
+    if (orgItems.length) buildWidget(orgEl, orgItems, 'var(--org-color)');
+    else buildWidget(orgEl, [
+      {name:'Electric Carousel', tag:'Promoter', bio:'Monthly underground selectors series roaming OC and LA venues. No headliners, just selectors.', link:'/organizer', img:'https://images.pexels.com/photos/1916827/pexels-photo-1916827.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Flow State Events', tag:'Festival', bio:'Immersive underground experiences with a focus on community, art, and sound design.', link:'/organizer', img:'https://images.pexels.com/photos/787961/pexels-photo-787961.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Subterranean LA', tag:'Collective', bio:'A collective of artists, promoters and sound engineers building real underground culture in LA.', link:'/organizer', img:'https://images.pexels.com/photos/1682462/pexels-photo-1682462.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Wavelength Presents', tag:'Promoter', bio:'Curated underground events connecting OC selectors with dancers who know the difference.', link:'/organizer', img:'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'Cipher Collective', tag:'Crew', bio:'Multi-discipline crew bringing together DJs, visual artists and dancers under one roof.', link:'/organizer', img:'https://images.pexels.com/photos/3756942/pexels-photo-3756942.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+      {name:'The Bunker OC', tag:'Residency', bio:'Weekly underground residency series keeping the dance floor alive after the clubs close down.', link:'/organizer', img:'https://images.pexels.com/photos/2017111/pexels-photo-2017111.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
+    ], 'var(--org-color)');
+
+    // Culture widget
+    const cultureEl = document.getElementById('sw-culture');
+    buildWidget(cultureEl, CULTURE_ITEMS, 'var(--culture-color)');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWidgets);
+  } else {
+    initWidgets();
+  }
+})();
+</script>
+
+<script>
+  /* ── SUPABASE ── */
+  const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  /* Stats are hardcoded — Supabase data not reliable for artist/org/brand counts */
+  /* Subscribe form uses Supabase */
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    const _emIn = document.getElementById('email-input'); if(!_emIn){ console.warn('KEEPITIL: newsletter email input not found.'); return; } const email = _emIn.value.trim();
+    const phoneEl = document.getElementById('phone-input');
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    if (!email) return;
+    const btn = e.target.querySelector('button[type=submit]');
+    if (btn) btn.disabled = true;
+    const { error } = await supa.from('subscribers').insert({ email, phone: phone||null, source: 'website' });
+    if (btn) btn.disabled = false;
+    const note = document.querySelector('.subscribe-note');
+    if (error) {
+      if (error.code === '23505') {
+        if (note) { note.textContent = "You're already on the list!"; note.style.color = 'var(--blue)'; }
+      } else {
+        if (note) { note.textContent = 'Something went wrong. Try again.'; note.style.color = '#ff4444'; }
+      }
+    } else {
+      if (note) { note.textContent = "🎉 You're in! Watch your inbox."; note.style.color = '#00ff88'; }
+      e.target.reset();
+    }
+    setTimeout(() => { if (note) { note.textContent = 'Get early access to tickets before public sale. No spam.'; note.style.color = ''; } }, 4000);
+  }
+
+  /* ── NAV SCROLL ── */
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    const scrollBtn = document.getElementById('scroll-top');
+    if (nav) nav.classList.toggle('scrolled', window.scrollY > 20);
+    if (scrollBtn) scrollBtn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  function toggleMenu() {
+    const h = document.getElementById('hamburger');
+    const m = document.getElementById('mobile-menu');
+    if (h) h.classList.toggle('open');
+    if (m) m.classList.toggle('open');
+  }
+
+  /* ── TYPEWRITER ── */
+  const words = ['VIBE', 'PULSE', 'WAVE', 'SCENE', 'CULTURE', 'MOVEMENT'];
+  let wi = 0, ci = 0, deleting = false;
+  function typeLoop() {
+    const el = document.getElementById('typewriter');
+    if (!el) return;
+    const word = words[wi];
+    if (!deleting) {
+      el.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; setTimeout(typeLoop, 1800); return; }
+    } else {
+      el.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
+    }
+    setTimeout(typeLoop, deleting ? 60 : 100);
+  }
+  typeLoop();
+
+  /* ── HOLIDAY BACKGROUND SYSTEM ──────────────────────────────────────────
+   * To add a new holiday:
+   *   1. Add an entry to HOLIDAYS below
+   *   2. Drop the image in assets/ folder and match the img path
+   *   3. dateRange: [[startMonth0, startDay], [endMonth0, endDay]]  (month is 0-indexed: Jan=0 … Dec=11)
+   * ─────────────────────────────────────────────────────────────────────── */
+  const HOLIDAYS = [
+    {
+      name: 'july4',
+      label: 'Independence Day',
+      dateRange: [[5, 25], [6, 7]], // Jun 25 – Jul 7  (takes priority over summer)
+      img: 'assets/holiday-july4.jpg',
+      overlayOpacity: 0.55
+    },
+    {
+      name: 'summer',
+      label: 'Summer',
+      dateRange: [[5, 15], [8, 31]], // Jun 15 – Aug 31  (fallback when no other holiday active)
+      img: 'assets/holiday-summer.jpg',
+      overlayOpacity: 0.35            // lighter tint — summer is bright
+    },
+    // ── Future American holidays — add image + uncomment ──────────────────
+    // { name: 'memorial',     label: 'Memorial Day',   dateRange: [[4,23],[4,28]], img: 'assets/holiday-memorial.jpg',     overlayOpacity: 0.5 },
+    // { name: 'laborday',     label: 'Labor Day',      dateRange: [[7,29],[8, 3]], img: 'assets/holiday-laborday.jpg',     overlayOpacity: 0.5 },
+    // { name: 'halloween',    label: 'Halloween',      dateRange: [[9,24],[10,1]], img: 'assets/holiday-halloween.jpg',    overlayOpacity: 0.55 },
+    // { name: 'thanksgiving', label: 'Thanksgiving',   dateRange: [[10,19],[10,28]], img: 'assets/holiday-thanksgiving.jpg', overlayOpacity: 0.5 },
+    // { name: 'christmas',    label: 'Christmas',      dateRange: [[11,18],[12,26]], img: 'assets/holiday-christmas.jpg',   overlayOpacity: 0.55 },
+    // { name: 'newyear',      label: "New Year's",     dateRange: [[11,29],[0, 2]], img: 'assets/holiday-newyear.jpg',     overlayOpacity: 0.5 },
+    // { name: 'mlk',          label: 'MLK Day',        dateRange: [[0,12],[0,20]], img: 'assets/holiday-mlk.jpg',          overlayOpacity: 0.45 },
+  ];
+
+  (function initHolidayBg() {
+    var now = new Date(), m = now.getMonth(), d = now.getDate();
+    function inRange(r) {
+      var sm = r[0][0], sd = r[0][1], em = r[1][0], ed = r[1][1];
+      var cur = m * 100 + d, start = sm * 100 + sd, end = em * 100 + ed;
+      return start <= end ? (cur >= start && cur <= end) : (cur >= start || cur <= end);
+    }
+    var active = HOLIDAYS.find(function(h){ return inRange(h.dateRange); });
+    if (!active) return;
+    var bg = document.getElementById('hero-holiday-bg');
+    if (!bg) return;
+    bg.style.backgroundImage = "url('" + active.img + "')";
+    // Deepen overlay slightly so text stays legible over holiday art
+    var overlay = document.querySelector('.hero-overlay');
+    if (overlay && active.overlayOpacity) {
+      overlay.style.background = 'rgba(10,10,20,' + active.overlayOpacity + '),' + overlay.style.background;
+    }
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ bg.classList.add('active'); }); });
+  })();
+  /* ── END HOLIDAY BACKGROUND SYSTEM ── */
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+  </script>
+
+<script>
+
 (function(){
 'use strict';
 
@@ -896,7 +1738,7 @@ window.setActiveMonth=function(month){
 ─────────────────────────────── */
 function buildHighlights(){
   // KEEPITIL PICKS only — partner picks removed
-  var evs=(HIGHLIGHTS_BY_MONTH[activeMonth]||[]).filter(function(ev){return ev.ki;});
+  var _all=(HIGHLIGHTS_BY_MONTH[activeMonth]||[]);var _picks=_all.filter(function(ev){return ev.ki;});var _fill=_all.filter(function(ev){return !ev.ki;});var evs=_picks.concat(_fill).slice(0,Math.max(4,_picks.length));
   var html=evs.map(function(ev){
     return '<a href="'+h(ev.ticket)+'" target="_blank" rel="noopener" class="hl-card" style="background:'+ev.bg+'">'
       +'<div class="hl-topbar"><span class="hl-kp">⚡ KEEPITIL PICKS</span><span class="hl-gn">'+h(ev.genre)+'</span></div>'
@@ -1141,48 +1983,6 @@ document.getElementById('genre-filter').addEventListener('click',function(e){
 });
 
 /* ───────────────────────────────
-   SAVE TOGGLE
-─────────────────────────────── */
-window.toggleSave=function(){
-  document.getElementById('float-save-btn').classList.toggle('saved');
-};
-
-/* ───────────────────────────────
-   MOBILE HAMBURGER
-─────────────────────────────── */
-window.toggleMenu=function(){
-  document.getElementById('mobile-menu').classList.toggle('open');
-};
-
-/* ───────────────────────────────
-   RADIO
-─────────────────────────────── */
-var radioPlaying=false;
-window.toggleRadio=function(){
-  radioPlaying=!radioPlaying;
-  var btn=document.getElementById('radio-play-btn');
-  var dot=document.getElementById('radio-dot');
-  var lbl=document.getElementById('radio-track-lbl');
-  if(btn){btn.textContent=radioPlaying?'⏸':'▶';btn.classList.toggle('playing',radioPlaying);}
-  if(dot){dot.classList.toggle('paused',!radioPlaying);}
-  if(lbl){lbl.textContent=radioPlaying?'▶ Deep Frequencies 24/7 · Now streaming':'Deep Frequencies 24/7 · Click ▶ to tune in';}
-};
-window.hideRadio=function(){
-  var bar=document.getElementById('radio-bar');
-  if(bar){bar.style.display='none';}
-};
-
-/* ───────────────────────────────
-   ECHO CHAT
-─────────────────────────────── */
-window.toggleEcho=function(){
-  document.getElementById('echo-panel').classList.toggle('open');
-};
-window.closeEcho=function(){
-  document.getElementById('echo-panel').classList.remove('open');
-};
-
-/* ───────────────────────────────
    RESIZE
 ─────────────────────────────── */
 var resizeTimer;
@@ -1202,6 +2002,42 @@ buildRecentMonth(activeMonth);
 buildDays();
 
 })();
+
 </script>
+
+<script src="/keepitil-radio.js" defer></script>
+<script>
+/* Inline KEEPITIL-X save icon (staging preview self-contained; /keepitil-save.js not yet deployed) */
+(function(){
+  if(window.__kilSaveInit)return; window.__kilSaveInit=true;
+  var STORE='kilSavedEvents';
+  var css=document.createElement('style'); css.setAttribute('data-kil','save');
+  css.textContent='.kil-save{position:absolute;top:8px;left:8px;z-index:6;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(6,6,10,.55);border:1.5px solid #00ff88;color:#00ff88;font-size:.8rem;font-weight:900;line-height:1;padding:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .18s,color .18s,box-shadow .18s,transform .12s;}'+
+    '.kil-save:hover{background:rgba(0,255,136,.18);transform:scale(1.06);}'+
+    '.kil-save.saved{background:#00ff88;color:#06120a;box-shadow:0 0 10px rgba(0,255,136,.55);}'+
+    '.ev-flyer-card:not(.ev-pick).has-kilsave .ev-fc-date{left:44px;}'+
+    '.kil-save img{width:16px;height:16px;object-fit:contain;pointer-events:none;display:block;}'+
+    '.kil-save.saved img{filter:brightness(0);}';
+  document.head.appendChild(css);
+  function load(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{};}catch(e){return{};}}
+  function persist(o){try{localStorage.setItem(STORE,JSON.stringify(o));}catch(e){}}
+  var saved=load();
+  function enhance(card){
+    if(card.__kilDone)return; card.__kilDone=true;
+    var t=card.querySelector('.ev-fc-title'); var key=t?t.textContent.trim():''; if(!key)return;
+    card.classList.add('has-kilsave');
+    var b=document.createElement('button'); b.type='button'; b.className='kil-save'+(saved[key]?' saved':'');
+    b.setAttribute('aria-label',saved[key]?'Saved — tap to remove':'Save event'); b.innerHTML='<img src="https://keepitil.com/keepitil-x-green.png" alt="Save">';
+    b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();
+      if(saved[key]){delete saved[key];b.classList.remove('saved');b.setAttribute('aria-label','Save event');}
+      else{saved[key]=1;b.classList.add('saved');b.setAttribute('aria-label','Saved — tap to remove');}
+      persist(saved);});
+    card.appendChild(b);
+  }
+  function run(){document.querySelectorAll('.ev-flyer-card').forEach(enhance);}
+  if(document.readyState!=='loading')run(); document.addEventListener('DOMContentLoaded',run); setTimeout(run,1200);
+})();
+</script>
+<script src="/keepitil-ai.js" defer></script>
 </body>
 </html>
