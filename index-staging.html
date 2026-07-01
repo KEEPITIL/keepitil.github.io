@@ -2897,7 +2897,36 @@
 </script>
 
 <script src="/keepitil-radio.js" defer></script>
-<script src="/keepitil-save.js" defer></script>
+<script>
+/* Inline KEEPITIL-X save icon (staging preview self-contained; /keepitil-save.js not yet deployed) */
+(function(){
+  if(window.__kilSaveInit)return; window.__kilSaveInit=true;
+  var STORE='kilSavedEvents';
+  var css=document.createElement('style'); css.setAttribute('data-kil','save');
+  css.textContent='.kil-save{position:absolute;top:8px;left:8px;z-index:6;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(6,6,10,.55);border:1.5px solid #00ff88;color:#00ff88;font-size:.8rem;font-weight:900;line-height:1;padding:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:background .18s,color .18s,box-shadow .18s,transform .12s;}'+
+    '.kil-save:hover{background:rgba(0,255,136,.18);transform:scale(1.06);}'+
+    '.kil-save.saved{background:#00ff88;color:#06120a;box-shadow:0 0 10px rgba(0,255,136,.55);}'+
+    '.ev-flyer-card:not(.ev-pick).has-kilsave .ev-fc-date{left:44px;}';
+  document.head.appendChild(css);
+  function load(){try{return JSON.parse(localStorage.getItem(STORE)||'{}')||{};}catch(e){return{};}}
+  function persist(o){try{localStorage.setItem(STORE,JSON.stringify(o));}catch(e){}}
+  var saved=load();
+  function enhance(card){
+    if(card.__kilDone)return; card.__kilDone=true;
+    var t=card.querySelector('.ev-fc-title'); var key=t?t.textContent.trim():''; if(!key)return;
+    card.classList.add('has-kilsave');
+    var b=document.createElement('button'); b.type='button'; b.className='kil-save'+(saved[key]?' saved':'');
+    b.setAttribute('aria-label',saved[key]?'Saved — tap to remove':'Save event'); b.textContent='✕';
+    b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();
+      if(saved[key]){delete saved[key];b.classList.remove('saved');b.setAttribute('aria-label','Save event');}
+      else{saved[key]=1;b.classList.add('saved');b.setAttribute('aria-label','Saved — tap to remove');}
+      persist(saved);});
+    card.appendChild(b);
+  }
+  function run(){document.querySelectorAll('.ev-flyer-card').forEach(enhance);}
+  if(document.readyState!=='loading')run(); document.addEventListener('DOMContentLoaded',run); setTimeout(run,1200);
+})();
+</script>
 <script src="/keepitil-ai.js" defer></script>
 </body>
 </html>
