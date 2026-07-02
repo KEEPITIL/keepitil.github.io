@@ -533,9 +533,16 @@ supa.auth.onAuthStateChange(async (event, session) => {
 });
 
 async function init() {
+  const hash = location.hash || '';
+  const isRecovery = (hash.indexOf('type=recovery') > -1) || (hash.indexOf('access_token') > -1 && hash.indexOf('recovery') > -1);
   const { data: { session } } = await supa.auth.getSession();
   if (session) {
     await loadEditor(session.user);
+  } else if (isRecovery) {
+    show('reset');
+  } else {
+    // No session and not a recovery link → show the sign-in screen (was blank before)
+    show('login');
   }
 }
 init();
