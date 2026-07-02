@@ -1479,52 +1479,7 @@
     </div>
   </section>
 
-  <!-- SPOTLIGHT — 4 Category Widget Row -->
-  <section class="section" id="spotlight" style="padding-top:0;padding-bottom:0">
-    <div class="spotlight-widgets-row">
-
-      <!-- ARTIST widget (blue) -->
-      <div class="spot-widget" id="sw-artist">
-        <div class="spot-widget-header" style="color:var(--artist-color)">
-          <span class="spot-widget-label">ARTIST</span>
-          <span class="spot-widget-line"></span>
-        </div>
-        <div class="spot-widget-track"></div>
-        <div class="spot-widget-dots"></div>
-      </div>
-
-      <!-- BRAND widget (green) -->
-      <div class="spot-widget" id="sw-brand">
-        <div class="spot-widget-header" style="color:var(--brand-color)">
-          <span class="spot-widget-label">BRAND</span>
-          <span class="spot-widget-line"></span>
-        </div>
-        <div class="spot-widget-track"></div>
-        <div class="spot-widget-dots"></div>
-      </div>
-
-      <!-- ORGANIZER widget (orange) -->
-      <div class="spot-widget" id="sw-organizer">
-        <div class="spot-widget-header" style="color:var(--org-color)">
-          <span class="spot-widget-label">ORGANIZER</span>
-          <span class="spot-widget-line"></span>
-        </div>
-        <div class="spot-widget-track"></div>
-        <div class="spot-widget-dots"></div>
-      </div>
-
-      <!-- CULTURE widget (purple) -->
-      <div class="spot-widget" id="sw-culture">
-        <div class="spot-widget-header" style="color:var(--culture-color)">
-          <span class="spot-widget-label">CULTURE</span>
-          <span class="spot-widget-line"></span>
-        </div>
-        <div class="spot-widget-track"></div>
-        <div class="spot-widget-dots"></div>
-      </div>
-
-    </div>
-  </section>
+  <!-- SPOTLIGHT section removed 2026-07-01 per Founder directive (before go-live) -->
 
   <!-- EVENTS (from events.html) -->
   <div class="events-hub">
@@ -1751,6 +1706,7 @@
     return (parts[0]||'?').slice(0,2).toUpperCase();
   }
   function buildWidget(el, items, color) {
+    if (!el) return;
     const dotsEl = el.querySelector('.spot-widget-dots');
     const trackEl = el.querySelector('.spot-widget-track');
     if (!items.length) { trackEl.innerHTML = '<div class="spot-slide active"><div class="spot-slide-name" style="color:'+color+'">Coming Soon</div></div>'; return; }
@@ -2216,6 +2172,16 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
     if(ev.target.id==='kil-signin'||ev.target.id==='kil-signin-x'){ closeModal(); }
   });
   function setMsg(t){ var m=$('kil-msg'); if(m) m.textContent=t||''; }
+  function utmp(k){ try{ return new URLSearchParams(location.search).get(k)||null; }catch(e){ return null; } }
+  function captureLead(email,handle,source){
+    if(!sb||!email) return;
+    try{ sb.from('marketing_contacts').insert({
+      email:email, handle:handle||null, source:source,
+      landing_path:location.pathname, referrer:document.referrer||null,
+      utm_source:utmp('utm_source'), utm_medium:utmp('utm_medium'), utm_campaign:utmp('utm_campaign'),
+      user_agent:(navigator.userAgent||'').slice(0,400)
+    }).then(function(){}).catch(function(){}); }catch(e){}
+  }
   function showPane(which){
     var li=$('kil-pane-login'), su=$('kil-pane-signup');
     var tl=$('kil-tab-login'), ts=$('kil-tab-signup');
@@ -2274,6 +2240,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
         if(r&&r.error){ setMsg(r.error.message||'Could not create account.'); return; }
         var uid=(r&&r.data&&r.data.user)?r.data.user.id:null;
         if(uid && sb){ sb.from('app_users').insert({id:uid,handle:handle,display_name:handle}).then(function(){}).catch(function(){}); }
+        captureLead(email,handle,'signup');
         window.KIL_HANDLE=handle;
         setMsg('Welcome, @'+handle+'! You are in.');
       }).catch(function(){ setMsg('Could not create account.'); });
@@ -2286,6 +2253,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
     if(!email){ setMsg('Enter your email above first.'); return; }
     if(!sb){ setMsg('Coming soon.'); return; }
     setMsg('Sending…');
+    captureLead(email,null,'magic_link');
     sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(r){
       setMsg((r&&r.error)?'Could not send link.':'Check your email for your magic link!');
     }).catch(function(){ setMsg('Could not send link.'); });
