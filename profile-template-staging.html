@@ -158,8 +158,49 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .ad-footer-bar{text-align:center;padding:16px 24px;background:var(--surface);border-top:1px solid var(--line);}
 footer{text-align:center;padding:32px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);}
 footer a{color:var(--accent2);}
+/* ── ARTICLE FEED CAROUSEL + VIEWER ── */
+.feed-hd{font-family:var(--font-head);font-size:1.15rem;letter-spacing:.06em;color:var(--text);margin:2px 0 12px;}
+.carousel-wrap{position:relative;margin-bottom:20px;}
+.carousel{display:flex;gap:12px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;padding:2px 2px 8px;scroll-snap-type:x proximity;}
+.carousel::-webkit-scrollbar{display:none;}
+.art-card{flex:0 0 210px;scroll-snap-align:start;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface2);cursor:pointer;transition:transform .18s,border-color .18s;}
+.art-card:hover{transform:translateY(-3px);}
+.art-card.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.art-card img{width:100%;height:118px;object-fit:cover;display:block;}
+.art-card .cap{padding:10px 12px;}
+.art-card .cap .t{font-weight:700;font-size:.86rem;color:var(--text);line-height:1.25;}
+.art-card .cap .d{font-size:.66rem;color:var(--muted);margin-top:3px;letter-spacing:.06em;text-transform:uppercase;}
+.add-card{flex:0 0 132px;scroll-snap-align:start;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted);background:transparent;transition:border-color .18s,color .18s;min-height:170px;}
+.add-card:hover{border-color:var(--accent);color:var(--accent);}
+.add-card .plus{font-size:1.9rem;line-height:1;}
+.add-card span{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:0 6px;}
+.car-arrow{position:absolute;top:70px;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--text);cursor:pointer;font-size:1.4rem;line-height:1;display:flex;align-items:center;justify-content:center;z-index:4;box-shadow:0 3px 12px rgba(0,0,0,.35);}
+.car-arrow.left{left:-6px;}.car-arrow.right{right:-6px;}
+.car-arrow:hover{border-color:var(--accent);color:var(--accent);}
+.art-viewer{border-top:1px solid var(--line);padding-top:22px;}
+/* gallery add tile */
+.gal-add{aspect-ratio:1/1;border:2px dashed var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--muted);}
+.gal-add:hover{border-color:var(--accent);color:var(--accent);}
+.gal-add .plus{font-size:1.9rem;line-height:1;}.gal-add span{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+/* shows add */
+.show-add{display:flex;align-items:center;justify-content:center;gap:10px;border:2px dashed var(--line);border-radius:12px;padding:14px;margin-bottom:12px;cursor:pointer;color:var(--muted);font-family:var(--font-head);letter-spacing:.08em;font-size:1.05rem;}
+.show-add:hover{border-color:var(--accent);color:var(--accent);}
+/* chat list (IG-style) */
+.chat-list{display:flex;flex-direction:column;gap:2px;}
+.chat-item{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px;cursor:pointer;transition:background .15s;}
+.chat-item:hover{background:var(--surface);}
+.chat-item .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--surface2);}
+.chat-item .meta{flex:1;min-width:0;}
+.chat-item .nm{font-weight:700;font-size:.95rem;color:var(--text);}
+.chat-item .pv{font-size:.82rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chat-item .rt{font-size:.7rem;color:var(--muted);flex-shrink:0;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.chat-item .unread{min-width:18px;height:18px;line-height:18px;text-align:center;background:var(--accent);color:var(--onacc);font-size:.66rem;font-weight:800;border-radius:9px;padding:0 5px;}
+.chat-item.add{border:2px dashed var(--line);color:var(--muted);justify-content:center;font-family:var(--font-head);letter-spacing:.08em;margin-bottom:8px;padding:14px;}
+.chat-item.add:hover{border-color:var(--accent);color:var(--accent);}
+.chat-back{background:none;border:none;color:var(--accent2);font-weight:700;font-size:.9rem;cursor:pointer;padding:2px 0 14px;letter-spacing:.04em;}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
+  .car-arrow{display:none;}
   .theme-fab{top:70px;right:10px;}
   .pf-cover{height:200px;}.pf-head{margin-top:-64px;}.pf-avatar{width:104px;height:104px;}
   .pf-top{gap:14px;}.pf-actions{width:100%;}.pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
@@ -224,25 +265,13 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="kil-tag">★ KEEPITIL PRESENTS</div>
-  <div class="listen-section"><div class="listen-label">🎵 Listen to Groove Trooper</div>
-    <iframe height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/groove-trooper/el-recuerdo&color=%2300ff88&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+  <div class="feed-hd">Posts &amp; Articles</div>
+  <div class="carousel-wrap">
+    <button class="car-arrow left" onclick="scrollCar('art-car',-1)" aria-label="Scroll left">&#8249;</button>
+    <div class="carousel" id="art-car"></div>
+    <button class="car-arrow right" onclick="scrollCar('art-car',1)" aria-label="Scroll right">&#8250;</button>
   </div>
-  <p class="intro-text">Emilio Orrego started with a controller and an iPod nano in 2007. Two years later he was playing his first rave in Antigua, Guatemala — Atomic Pulse 2009. The moment that changed everything came in 2013, when Paul Van Dyk played his first rave and Emilio felt something lock into place. Since then, Groove Trooper has never stopped moving: from Garden Grove to Groove Cruise Miami, from military service to Avalon Memorial Day with 2,500 people on the floor. High energy. All smiles. Latin grooves.</p>
-  <div class="pull-quote">"Stage presence. The tracks drive the set, but my energy up there is unmatched."</div>
-  <div class="qa-section"><div class="qa-section-title">THE STORY</div>
-    <div class="qa-item"><div class="qa-q">When did you start and what inspired you?</div><div class="qa-a">2007 — started with a controller and iPod nano. First gig was Atomic Pulse 2009 in Antigua Guatemala. The moment that made it real was the first rave I ever attended in 2013, when Paul Van Dyk played. That was the moment I knew.</div></div>
-    <div class="qa-item"><div class="qa-q">Who influenced your sound the most?</div><div class="qa-a">Roger Sanchez, Eric Morillo, Scotty Boy, Armin Van Buuren, Paul Van Dyk. The architects of house music who never forgot where the groove came from.</div></div>
-  </div>
-  <div class="qa-section"><div class="qa-section-title">THE CRAFT</div>
-    <div class="qa-item"><div class="qa-q">What makes your sets different?</div><div class="qa-a">I play drops and breakdowns, combine build-ups, and push as many tracks as possible — creating a crescendo feel from open to close. Every set builds. Every set peaks.</div></div>
-    <div class="qa-item"><div class="qa-q">What can someone expect when they book you?</div><div class="qa-a">High energy, all smiles, Latin grooves. And stage presence that makes the tracks hit harder than they would from anyone else.</div></div>
-  </div>
-  <div class="pull-quote">"I'm my own worst enemy when it comes to production. I need to understand that art is never finished, it's abandoned."</div>
-  <div class="qa-section"><div class="qa-section-title">OFF THE DECKS</div>
-    <div class="qa-item"><div class="qa-q">Pre-set ritual?</div><div class="qa-a">Get a Modelo, kiss the wife, backstage, light stretch, jump three times, drink the Modelo. Every. Single. Time.</div></div>
-    <div class="qa-item"><div class="qa-q">What are you working on right now?</div><div class="qa-a">Rhythm &amp; Villainy Radio — my radio show. An Afro house release. And Kingdom at Catch One in August. The next move is always in motion.</div></div>
-  </div>
+  <div class="art-viewer" id="art-viewer"></div>
 </div>
 
 <div class="pf-panel" id="tab-gallery">
@@ -259,8 +288,12 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel" id="tab-chat">
-  <div class="gal-hint">Live scene room — fans talk, share photos, and plan meetups. Stays up after every show.</div>
-  <div class="chat-wrap"><iframe id="chat-frame" data-src="/event-chat.html?e=groove-trooper&t=Groove%20Trooper" title="Scene Room"></iframe></div>
+  <div class="gal-hint">Your scene rooms — tap a group to jump in. Each room stays live after the event.</div>
+  <div class="chat-list" id="chat-list"></div>
+  <div class="chat-open" id="chat-open" style="display:none;">
+    <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
+    <div class="chat-wrap"><iframe id="chat-frame" title="Scene Room"></iframe></div>
+  </div>
 </div>
 
 <!-- ONE COMBINED WIDGET: referral + affiliate links -->
@@ -294,7 +327,7 @@ markTheme();
 function showTab(name){
   document.querySelectorAll('.pf-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===name);});
   document.querySelectorAll('.pf-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);});
-  if(name==='chat'){var f=document.getElementById('chat-frame');if(f && !f.src){f.src=f.dataset.src;}}
+  if(name==='chat'){ if(typeof closeChatGroup==='function') closeChatGroup(); }
   var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
 }
 (function(){
@@ -305,12 +338,12 @@ function showTab(name){
 (function(){
   var g=document.getElementById('gal-grid');if(!g)return;
   var imgs=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
-  g.innerHTML=imgs.map(function(t){return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
+  g.innerHTML='<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>'+imgs.map(function(t){return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
 })();
 (function(){
   var el=document.getElementById('shows-list');if(!el)return;
   var shows=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
-  el.innerHTML=shows.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
+  el.innerHTML='<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>'+shows.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
 })();
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -335,6 +368,79 @@ function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn'
     return '<a class="scard"'+style+' href="'+it[3]+'" target="_blank" rel="noopener'+(it[6]?' sponsored':'')+'">'+bg+badge+'<div class="k">'+it[0]+'</div><div class="t">'+it[1]+'</div><div class="s">'+it[2]+'</div><div class="s" style="color:var(--accent);font-weight:700;margin-top:4px">'+cta+'</div></a>';
   }).join('');
 })();
+/* ── ADD CONTENT (demo) ── */
+function addContent(kind){
+  var choice=(kind && kind!=='menu') ? kind : prompt('Add to your profile — type: post, photo, or event','post');
+  if(choice){ alert('New '+choice+' — wire to create/upload. (Demo)'); }
+}
+/* ── ARTICLE CAROUSEL + VIEWER ── */
+var GT_ARTICLES=[
+  {t:'KEEPITIL Presents: Groove Trooper', d:'Feature · Jun 19', img:'https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg', html:`<div class="kil-tag">★ KEEPITIL PRESENTS</div>
+<div class="listen-section"><div class="listen-label">🎵 Listen to Groove Trooper</div>
+<iframe height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/groove-trooper/el-recuerdo&color=%2300ff88&auto_play=false&visual=true"></iframe></div>
+<p class="intro-text">Emilio Orrego started with a controller and an iPod nano in 2007. Two years later he was playing his first rave in Antigua, Guatemala — Atomic Pulse 2009. The moment that changed everything came in 2013, when Paul Van Dyk played his first rave and Emilio felt something lock into place. Since then, Groove Trooper has never stopped moving: from Garden Grove to Groove Cruise Miami, from military service to Avalon Memorial Day with 2,500 people on the floor. High energy. All smiles. Latin grooves.</p>
+<div class="pull-quote">"Stage presence. The tracks drive the set, but my energy up there is unmatched."</div>
+<div class="qa-section"><div class="qa-section-title">THE STORY</div>
+<div class="qa-item"><div class="qa-q">When did you start and what inspired you?</div><div class="qa-a">2007 — started with a controller and iPod nano. First gig was Atomic Pulse 2009 in Antigua Guatemala. The moment that made it real was the first rave I ever attended in 2013, when Paul Van Dyk played.</div></div>
+<div class="qa-item"><div class="qa-q">Who influenced your sound the most?</div><div class="qa-a">Roger Sanchez, Eric Morillo, Scotty Boy, Armin Van Buuren, Paul Van Dyk. The architects of house music who never forgot where the groove came from.</div></div></div>
+<div class="qa-section"><div class="qa-section-title">THE CRAFT</div>
+<div class="qa-item"><div class="qa-q">What makes your sets different?</div><div class="qa-a">I play drops and breakdowns, combine build-ups, and push as many tracks as possible — creating a crescendo feel from open to close. Every set builds. Every set peaks.</div></div>
+<div class="qa-item"><div class="qa-q">What can someone expect when they book you?</div><div class="qa-a">High energy, all smiles, Latin grooves. And stage presence that makes the tracks hit harder than they would from anyone else.</div></div></div>
+<div class="qa-section"><div class="qa-section-title">OFF THE DECKS</div>
+<div class="qa-item"><div class="qa-q">Pre-set ritual?</div><div class="qa-a">Get a Modelo, kiss the wife, backstage, light stretch, jump three times, drink the Modelo. Every. Single. Time.</div></div></div>`},
+  {t:'New Afro House Release', d:'Post · Aug', img:'https://images.ra.co/1bfc214a7b4917efac1afad318fd4dafa631a480.jpg', html:`<div class="kil-tag">★ NEW RELEASE</div>
+<p class="intro-text">Fresh out of the studio — a four-track warehouse EP leaning into Afro house textures and Latin percussion. Slower, heavier, more human. Out now on all platforms.</p>
+<div class="pull-quote">"Art is never finished, it's abandoned. This one felt ready."</div>
+<p class="intro-text"><a href="https://soundcloud.com/groove-trooper" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Listen on SoundCloud →</a></p>`},
+  {t:'Kingdom @ Catch One — Recap', d:'Post · Aug', img:'https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg', html:`<div class="kil-tag">★ RECAP</div>
+<p class="intro-text">Kingdom at Catch One in LA was a moment. Two hours of rolling Latin house into afro-tech, a room that never sat down, and a closing 20 minutes I'll be chasing for a while. Photos in the Gallery, full set coming to the radio.</p>
+<p class="intro-text"><a href="#" onclick="showTab('gallery');return false;" style="color:var(--accent);font-weight:700;">See the photos →</a></p>`},
+  {t:'Rhythm & Villainy Radio', d:'Series · Ongoing', img:'https://images.ra.co/234c570dd0c0ce4c93d62945d502ef1952b2cf31.jpg', html:`<div class="kil-tag">★ RADIO</div>
+<p class="intro-text">Rhythm &amp; Villainy Radio is my monthly show — unreleased edits, Guatemala roots, and guests from the SoCal underground. New episodes drop first in the scene rooms.</p>
+<p class="intro-text"><a href="#" onclick="showTab('chat');return false;" style="color:var(--accent);font-weight:700;">Join the chat for first listen →</a></p>`},
+  {t:'Shared: History of House Music', d:'Shared · KEEPITIL Blog', img:'https://images.ra.co/0eb69717593e6bb32225fec905e93762454a7894.jpg', html:`<div class="kil-tag">★ SHARED</div>
+<p class="intro-text">Groove Trooper shared this from the KEEPITIL culture blog — a deep dive on where house music came from and why the groove still matters.</p>
+<p class="intro-text"><a href="/culture" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
+];
+(function(){
+  var car=document.getElementById('art-car');if(!car)return;
+  var add='<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>';
+  car.innerHTML=add+GT_ARTICLES.map(function(a,i){return '<div class="art-card" id="artc'+i+'" onclick="openArticle('+i+')"><img src="'+a.img+'" alt="'+a.t+'" loading="lazy" onerror="this.style.background=\'#222\'"><div class="cap"><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';}).join('');
+  openArticle(0);
+})();
+function openArticle(i){
+  var v=document.getElementById('art-viewer');if(!v||!GT_ARTICLES[i])return;
+  v.innerHTML=GT_ARTICLES[i].html;
+  document.querySelectorAll('.art-card').forEach(function(c){c.classList.remove('on');});
+  var card=document.getElementById('artc'+i);if(card)card.classList.add('on');
+}
+function scrollCar(id,dir){var el=document.getElementById(id);if(el)el.scrollBy({left:dir*320,behavior:'smooth'});}
+/* ── CHAT GROUP LIST (IG-style) ── */
+var GT_CHATS=[
+  ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg'],
+  ['kingdom','Kingdom @ Catch One','Lineup just dropped','1h','','https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg'],
+  ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg'],
+  ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg']
+];
+(function(){
+  var list=document.getElementById('chat-list');if(!list)return;
+  var add='<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>';
+  list.innerHTML=add+GT_CHATS.map(function(c){
+    var unread=c[4]?'<span class="unread">'+c[4]+'</span>':'';
+    var nm=c[1].replace(/'/g,'');
+    return '<div class="chat-item" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><img class="av" src="'+c[5]+'" alt="" loading="lazy"><div class="meta"><div class="nm">'+c[1]+'</div><div class="pv">'+c[2]+'</div></div><div class="rt"><span>'+c[3]+'</span>'+unread+'</div></div>';
+  }).join('');
+})();
+function openChatGroup(slug,name){
+  var f=document.getElementById('chat-frame');if(f)f.src='/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name);
+  var l=document.getElementById('chat-list');if(l)l.style.display='none';
+  var o=document.getElementById('chat-open');if(o)o.style.display='block';
+}
+function closeChatGroup(){
+  var o=document.getElementById('chat-open');if(o)o.style.display='none';
+  var l=document.getElementById('chat-list');if(l)l.style.display='flex';
+  var f=document.getElementById('chat-frame');if(f)f.src='';
+}
 </script>
 <script src="/keepitil-radio.js" defer></script>
 <script src="/keepitil-ai.js" defer></script>
