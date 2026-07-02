@@ -2146,16 +2146,47 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
 </script>
 <script src="/keepitil-ai.js" defer></script>
 
+<style>
+.kil-tabs{display:flex;gap:6px;margin:6px 0 14px;}
+.kil-tab{flex:1;padding:9px 0;border:none;background:rgba(255,255,255,.06);color:#9aa;font-weight:700;font-size:.78rem;border-radius:8px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;}
+.kil-tab.on{background:#00b4ff;color:#001018;}
+.kil-pane input{width:100%;margin:0 0 10px;box-sizing:border-box;}
+.kil-handle-wrap{position:relative;}
+.kil-handle-wrap .kil-at{position:absolute;left:12px;top:12px;color:#3cf;font-weight:700;}
+.kil-handle-wrap input{padding-left:26px;}
+.kil-handle-status{position:absolute;right:12px;top:12px;font-size:.72rem;font-weight:700;}
+.kil-handle-status.ok{color:#00ff88;} .kil-handle-status.bad{color:#ff6b6b;}
+.kil-link-btn{background:none;border:none;color:#3cf;font-size:.78rem;cursor:pointer;text-decoration:underline;margin-top:4px;padding:0;}
+.kil-fine{font-size:.72rem;color:#8a8a99;margin:8px 0 0;line-height:1.45;}
+</style>
 <div class="kil-modal" id="kil-signin" hidden>
   <div class="kil-modal-card">
     <button class="kil-modal-x" id="kil-signin-x" aria-label="Close">✕</button>
     <div class="kil-modal-logo">⚡ KEEPITIL</div>
-    <h3>Save events &amp; join the scene</h3>
-    <p>Sign in or subscribe (free) to save events with the KEEPITIL-X, join event chats, share photos and plan meetups.</p>
-    <input type="email" id="kil-email" placeholder="you@email.com" autocomplete="email"/>
-    <button class="kil-modal-btn" id="kil-send">Email me a magic link</button>
+    <h3>Join the scene</h3>
+    <p>Save events, join scene rooms, share photos and plan meetups — free.</p>
+    <div class="kil-tabs">
+      <button class="kil-tab on" id="kil-tab-login" type="button">Log in</button>
+      <button class="kil-tab" id="kil-tab-signup" type="button">Sign up</button>
+    </div>
+    <div class="kil-pane" id="kil-pane-login">
+      <input type="email" id="kil-li-email" placeholder="you@email.com" autocomplete="email"/>
+      <input type="password" id="kil-li-pass" placeholder="Password" autocomplete="current-password"/>
+      <button class="kil-modal-btn" id="kil-login" type="button">Log in</button>
+      <button class="kil-link-btn" id="kil-magic" type="button">Email me a magic link instead</button>
+    </div>
+    <div class="kil-pane" id="kil-pane-signup" hidden>
+      <input type="email" id="kil-su-email" placeholder="you@email.com" autocomplete="email"/>
+      <div class="kil-handle-wrap">
+        <span class="kil-at">@</span>
+        <input type="text" id="kil-su-handle" placeholder="username" autocomplete="off" maxlength="24"/>
+        <span class="kil-handle-status" id="kil-handle-status"></span>
+      </div>
+      <input type="password" id="kil-su-pass" placeholder="Create a password (8+ characters)" autocomplete="new-password"/>
+      <button class="kil-modal-btn" id="kil-create" type="button">Create account</button>
+      <p class="kil-fine">Your @name shows on your profile and in scene rooms. You can verify your email later.</p>
+    </div>
     <div class="kil-modal-msg" id="kil-msg"></div>
-    <a class="kil-modal-alt" href="/signup.html">Or subscribe on the signup page →</a>
   </div>
 </div>
 <script>
@@ -2184,19 +2215,85 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
     document.querySelectorAll('#evx .evx-flyer.open').forEach(function(f){ f.classList.remove('open'); });
     if(ev.target.id==='kil-signin'||ev.target.id==='kil-signin-x'){ closeModal(); }
   });
-  var sendBtn=$('kil-send');
-  if(sendBtn) sendBtn.onclick=function(){
-    var email=($('kil-email')||{}).value||''; var msg=$('kil-msg');
-    if(!email){ if(msg) msg.textContent='Enter your email.'; return; }
-    if(!sb){ if(msg) msg.textContent='Sign-in is being set up — check back soon.'; return; }
-    if(msg) msg.textContent='Sending…';
-    sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(r){
-      if(msg) msg.textContent=(r&&r.error)?'Sign-in is not enabled yet - coming soon.':'Check your email for your magic link!';
-    }).catch(function(){ if(msg) msg.textContent='Sign-in is being set up — coming soon.'; });
+  function setMsg(t){ var m=$('kil-msg'); if(m) m.textContent=t||''; }
+  function showPane(which){
+    var li=$('kil-pane-login'), su=$('kil-pane-signup');
+    var tl=$('kil-tab-login'), ts=$('kil-tab-signup');
+    if(tl) tl.classList.toggle('on',which==='login');
+    if(ts) ts.classList.toggle('on',which==='signup');
+    if(li) li.hidden=(which!=='login');
+    if(su) su.hidden=(which!=='signup');
+    setMsg('');
+  }
+  function loadHandle(){ if(!sb||!session) return; sb.from('app_users').select('handle,display_name').eq('id',session.user.id).maybeSingle().then(function(r){ if(r&&r.data){ window.KIL_HANDLE=r.data.handle; } }).catch(function(){}); }
+  var hTimer=null;
+  function checkHandle(){
+    var el=$('kil-su-handle'), st=$('kil-handle-status'); if(!el||!st) return;
+    var v=el.value.replace(/[^a-zA-Z0-9_]/g,''); el.value=v;
+    st.className='kil-handle-status'; st.textContent='';
+    if(v.length<3){ if(v){ st.textContent='3+ chars'; st.className='kil-handle-status bad'; } return; }
+    if(!sb) return;
+    st.textContent='…';
+    clearTimeout(hTimer);
+    hTimer=setTimeout(function(){
+      sb.rpc('handle_available',{h:v}).then(function(r){
+        if(r&&r.data===true){ st.textContent='available'; st.className='kil-handle-status ok'; }
+        else if(r&&r.data===false){ st.textContent='taken'; st.className='kil-handle-status bad'; }
+        else { st.textContent=''; }
+      }).catch(function(){ st.textContent=''; });
+    },350);
+  }
+  var tl=$('kil-tab-login'); if(tl) tl.onclick=function(){ showPane('login'); };
+  var ts=$('kil-tab-signup'); if(ts) ts.onclick=function(){ showPane('signup'); };
+  var hIn=$('kil-su-handle'); if(hIn) hIn.addEventListener('input',checkHandle);
+
+  var loginBtn=$('kil-login');
+  if(loginBtn) loginBtn.onclick=function(){
+    var email=($('kil-li-email')||{}).value||''; var pass=($('kil-li-pass')||{}).value||'';
+    if(!email||!pass){ setMsg('Enter your email and password.'); return; }
+    if(!sb){ setMsg('Sign-in is being set up — check back soon.'); return; }
+    setMsg('Logging in…');
+    sb.auth.signInWithPassword({email:email,password:pass}).then(function(r){
+      if(r&&r.error){ setMsg(r.error.message||'Could not log in.'); } else { setMsg(''); }
+    }).catch(function(){ setMsg('Could not log in.'); });
   };
+
+  var createBtn=$('kil-create');
+  if(createBtn) createBtn.onclick=function(){
+    var email=($('kil-su-email')||{}).value||'';
+    var handle=(($('kil-su-handle')||{}).value||'').replace(/[^a-zA-Z0-9_]/g,'');
+    var pass=($('kil-su-pass')||{}).value||'';
+    if(!email||!handle||!pass){ setMsg('Fill in email, @name and password.'); return; }
+    if(handle.length<3){ setMsg('Your @name needs at least 3 characters.'); return; }
+    if(pass.length<8){ setMsg('Password must be at least 8 characters.'); return; }
+    if(!sb){ setMsg('Signup is being set up — check back soon.'); return; }
+    setMsg('Creating your account…');
+    sb.rpc('handle_available',{h:handle}).then(function(a){
+      if(a&&a.data===false){ setMsg('@'+handle+' is taken — try another.'); return; }
+      sb.auth.signUp({email:email,password:pass,options:{data:{handle:handle,display_name:handle}}}).then(function(r){
+        if(r&&r.error){ setMsg(r.error.message||'Could not create account.'); return; }
+        var uid=(r&&r.data&&r.data.user)?r.data.user.id:null;
+        if(uid && sb){ sb.from('app_users').insert({id:uid,handle:handle,display_name:handle}).then(function(){}).catch(function(){}); }
+        window.KIL_HANDLE=handle;
+        setMsg('Welcome, @'+handle+'! You are in.');
+      }).catch(function(){ setMsg('Could not create account.'); });
+    }).catch(function(){ setMsg('Could not create account.'); });
+  };
+
+  var magic=$('kil-magic');
+  if(magic) magic.onclick=function(){
+    var email=($('kil-li-email')||{}).value||'';
+    if(!email){ setMsg('Enter your email above first.'); return; }
+    if(!sb){ setMsg('Coming soon.'); return; }
+    setMsg('Sending…');
+    sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(r){
+      setMsg((r&&r.error)?'Could not send link.':'Check your email for your magic link!');
+    }).catch(function(){ setMsg('Could not send link.'); });
+  };
+
   if(sb){
-    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; loadSaves(); }).catch(function(){});
-    sb.auth.onAuthStateChange(function(_e,s){ session=s; closeModal(); loadSaves(); });
+    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; loadSaves(); loadHandle(); }).catch(function(){});
+    sb.auth.onAuthStateChange(function(_e,s){ session=s; closeModal(); loadSaves(); loadHandle(); });
   }
   var host=$('evx');
   if(host && window.MutationObserver){ new MutationObserver(function(){ markSaved(); }).observe(host,{childList:true,subtree:true}); }
