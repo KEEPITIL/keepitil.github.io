@@ -88,7 +88,8 @@
   var toggleBtn=document.getElementById('kr-toggle');
   var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,miniState=false,wakeLock=null;
   var isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0);
-  var DEFAULT_VOL=5;
+  var DEFAULT_VOL=isMobile?3:5;
+  savedVol=DEFAULT_VOL; if(volEl)volEl.value=DEFAULT_VOL;
   var SYNC_EPOCH=1735689600000; // 2026-01-01 00:00 UTC — fallback only
   var currentTrackIdx=0,currentPosition=0; // kept fresh for beforeunload handoff
 
