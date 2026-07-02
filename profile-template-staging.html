@@ -1,152 +1,169 @@
 <!DOCTYPE html>
 <!--
-  ╔══════════════════════════════════════════════════════════════════╗
-  ║  KEEPITIL — ARTIST PROFILE TEMPLATE                             ║
-  ║  File naming: blog-[slug].html                                  ║
-  ║  ⚠️  DESIGN FREEZE — DO NOT CHANGE CSS/LAYOUT                   ║
-  ║  Replace every {{PLACEHOLDER}} before pushing                   ║
-  ║  Reference: blog-groove-trooper.html                            ║
-  ╚══════════════════════════════════════════════════════════════════╝
-
-  REQUIRED BEFORE PUSH:
-  1. Replace ALL {{PLACEHOLDER}} values
-  2. hero img src = real photo (not circular avatar)
-  3. SoundCloud iframe = artist's actual embed URL
-  4. info-card links = confirmed Instagram / SoundCloud / booking email
-  5. pnav PREV/NEXT = correct adjacent slugs from Notion DB order
-  6. Run: python3 _scripts/qa_profiles.command (must pass 0 CRITICAL)
+  KEEPITIL — ARTIST PROFILE TEMPLATE  ·  STAGING WORKSPACE (noindex, not live)
+  IG + TikTok style header · tabbed content (Article / Gallery / Chat) · 3-widget monetization row
+  Redeploy with: _scripts/push/push-profile-staging.command
+  Demo content = "Nova Halcyon". Swap {{real}} data + real referral/Amazon links before any real profile.
 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="robots" content="noindex, nofollow"/>
-  <!-- ⚠️ STAGING WORKSPACE — not linked in nav, noindex. Edit design freely; nothing here is public. -->
   <title>[TEMPLATE WORKSPACE] Nova Halcyon — Artist Profile | KEEPITIL</title>
   <link rel="icon" type="image/png" href="/logo-green-nav.png"/>
-  <meta name="description" content="Nova Halcyon is a Santa Ana warehouse-techno DJ known for hypnotic, long-build sets. Discover their story, music and booking info on KEEPITIL."/>
-  <meta property="og:title" content="Nova Halcyon — Warehouse Techno From The OC Underground"/>
-  <meta property="og:description" content="Santa Ana warehouse-techno DJ Nova Halcyon — hypnotic sets, deep low end, and a story worth hearing."/>
-  <meta property="og:image" content="https://keepitil.com/logo-bg.jpg"/>
-  <meta property="og:type" content="article"/>
-  <meta property="og:url" content="https://keepitil.com/blog-template-staging.html"/>
-  <meta property="og:site_name" content="KEEPITIL"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Nova Halcyon — Warehouse Techno From The OC Underground"/>
-  <meta name="twitter:description" content="Santa Ana warehouse-techno DJ Nova Halcyon — hypnotic sets, deep low end, and a story worth hearing."/>
-  <meta name="twitter:image" content="https://keepitil.com/logo-bg.jpg"/>
-  <link rel="canonical" href="https://keepitil.com/blog-template-staging.html"/>
-
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "Nova Halcyon — Warehouse Techno From The OC Underground",
-    "description": "Nova Halcyon — Santa Ana warehouse techno on KEEPITIL.",
-    "image": "https://keepitil.com/logo-bg.jpg",
-    "datePublished": "2026-07-02",
-    "dateModified": "2026-07-02",
-    "author": {"@type":"Organization","name":"KEEPITIL","url":"https://keepitil.com"},
-    "publisher": {"@type":"Organization","name":"KEEPITIL","url":"https://keepitil.com","logo":{"@type":"ImageObject","url":"https://keepitil.com/logo-bg.jpg"}},
-    "mainEntityOfPage": {"@type":"WebPage","@id":"https://keepitil.com/blog-template-staging.html"}
-  }
-  </script>
-
   <style>
-/* ── NAV ── */
-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
-.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
-.nav-brand{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.13em;color:#fff;}
-.nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
-.nav-links li{list-style:none;}
-.nav-links a{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);text-decoration:none;transition:color .2s;white-space:nowrap;}
-.nav-links a:hover,.nav-links a.active{color:#fff;}
-.nav-inner>a.nav-cta{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.14em;color:#00b4ff!important;background:transparent!important;border:2px solid #00b4ff;padding:7px 22px;border-radius:4px;text-decoration:none;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;display:inline-block;}
-.nav-inner>a.nav-cta:hover{background:#00b4ff!important;color:#000!important;}
-.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;}
-.nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s;}
 /* ── RESET + VARS ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--black:#0b0b0b;--dark:#111;--dark2:#181818;--accent:#00ff88;--white:#f0f0f0;--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;}
+:root{--black:#0b0b0b;--dark:#111;--dark2:#181818;--card:#141420;--accent:#00ff88;--blue:#00b4ff;--white:#f0f0f0;--grey:#8a8a99;--line:rgba(255,255,255,.08);--font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;}
 html{scroll-behavior:smooth;}
 body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.7;overflow-x:hidden;}
 a{color:inherit;text-decoration:none;}
-/* ── HERO ── */
-.hero{width:100%;overflow:hidden;position:relative;}
-.hero img{width:100%;height:78vh;object-fit:cover;object-position:center 20%;display:block;filter:brightness(.7);}
-.hero-overlay{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(transparent,var(--black));}
-@media(max-width:600px){.hero img{height:52vh;}}
-/* ── ARTICLE ── */
-.article-wrap{max-width:800px;margin:0 auto;padding:0 24px 80px;}
-.article-header{padding:40px 0 32px;}
-.kil-tag{display:inline-block;background:var(--accent);color:var(--black);font-size:.68rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:3px;margin-bottom:16px;}
-.article-title{font-family:var(--font-head);font-size:clamp(2.4rem,6vw,4.2rem);line-height:1;letter-spacing:.04em;margin-bottom:12px;}
-.article-subtitle{font-size:1.05rem;color:var(--grey);margin-bottom:24px;font-style:italic;}
-.article-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:.78rem;color:var(--grey);letter-spacing:.06em;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.08);}
-.meta-item{display:flex;align-items:center;gap:6px;}
-.meta-item svg{width:13px;height:13px;fill:var(--accent);}
-/* ── MUSIC PLAYER ── */
-.listen-section{margin:28px 0;}
+img{display:block;max-width:100%;}
+/* ── NAV (universal) ── */
+nav#main-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.nav-brand{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
+.nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
+.nav-links li{list-style:none;}
+.nav-links a{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);text-decoration:none;transition:color .2s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:#fff;}
+.nav-inner>a.nav-cta{font-family:var(--font-head);font-size:1rem;letter-spacing:.14em;color:var(--blue)!important;background:transparent!important;border:2px solid var(--blue);padding:7px 22px;border-radius:4px;text-decoration:none;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;display:inline-block;}
+.nav-inner>a.nav-cta:hover{background:var(--blue)!important;color:#000!important;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;}
+.nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform .25s;}
+.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.97);z-index:999;flex-direction:column;padding:18px 28px;border-bottom:1px solid rgba(255,255,255,.1);}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:rgba(255,255,255,.78);padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.mobile-menu a:last-child{border-bottom:none;}
+
+/* ══ PROFILE HEADER (Instagram + TikTok) ══ */
+.pf-cover{position:relative;width:100%;height:300px;overflow:hidden;}
+.pf-cover img{width:100%;height:100%;object-fit:cover;filter:brightness(.62);}
+.pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--black));}
+.pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:-84px;}
+.pf-top{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;}
+.pf-avatar{width:150px;height:150px;border-radius:50%;border:4px solid var(--black);background:linear-gradient(135deg,var(--blue),#b400ff);object-fit:cover;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.6);}
+.pf-idblock{flex:1;min-width:240px;padding-bottom:6px;}
+.pf-verify{display:inline-flex;align-items:center;gap:6px;font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+.pf-name{font-family:var(--font-head);font-size:clamp(2.2rem,6vw,3.4rem);line-height:.95;letter-spacing:.03em;}
+.pf-handle{color:var(--grey);font-size:.92rem;margin-top:2px;}
+.pf-actions{display:flex;gap:10px;padding-bottom:8px;flex-wrap:wrap;}
+.pf-btn{font-family:var(--font-head);font-size:1rem;letter-spacing:.1em;padding:9px 26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .18s;white-space:nowrap;}
+.pf-btn.follow{background:var(--accent);color:#06120a;}
+.pf-btn.follow:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.pf-btn.book{background:transparent;border-color:var(--blue);color:var(--blue);}
+.pf-btn.book:hover{background:var(--blue);color:#000;}
+.pf-btn.icon{padding:9px 12px;border-color:var(--line);color:#fff;}
+.pf-btn.icon:hover{border-color:var(--accent);color:var(--accent);}
+.pf-btn svg{width:16px;height:16px;fill:currentColor;display:block;}
+/* stats + bio */
+.pf-meta{max-width:940px;margin:18px auto 0;padding:0 22px;}
+.pf-stats{display:flex;gap:34px;flex-wrap:wrap;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:14px;}
+.pf-stat b{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.04em;color:#fff;display:block;line-height:1;}
+.pf-stat span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);}
+.pf-bio{font-size:.98rem;color:rgba(240,240,240,.9);margin:16px 0 4px;max-width:680px;}
+.pf-bio .h{color:var(--accent);}
+
+/* ══ TAB BAR ══ */
+.pf-tabs{position:sticky;top:66px;z-index:60;max-width:940px;margin:22px auto 0;padding:0 12px;display:flex;gap:4px;background:rgba(11,11,11,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.pf-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 6px;font-family:var(--font-head);font-size:1.02rem;letter-spacing:.13em;color:var(--grey);cursor:pointer;border-bottom:3px solid transparent;transition:color .18s,border-color .18s;user-select:none;}
+.pf-tab svg{width:17px;height:17px;fill:currentColor;}
+.pf-tab:hover{color:#fff;}
+.pf-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.pf-tab .lbl-full{display:inline;}
+/* ══ PANELS ══ */
+.pf-panel{display:none;max-width:940px;margin:0 auto;padding:26px 22px 10px;}
+.pf-panel.active{display:block;animation:fade .3s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+/* article */
+.kil-tag{display:inline-block;background:var(--accent);color:var(--black);font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:3px;margin-bottom:14px;}
+.listen-section{margin:8px 0 26px;}
 .listen-label{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
 .listen-section iframe{width:100%;border:0;border-radius:10px;display:block;}
-/* ── CONTENT ── */
-.intro-text{font-size:1.08rem;color:rgba(240,240,240,.9);margin:28px 0;line-height:1.8;}
-.pull-quote{border-left:3px solid var(--accent);padding:16px 24px;margin:32px 0;font-size:1.1rem;font-style:italic;color:rgba(240,240,240,.9);background:rgba(0,255,136,.04);}
-.qa-section{margin:40px 0;}
-.qa-section-title{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.06em;color:var(--accent);margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,136,.2);}
-.qa-item{margin-bottom:28px;}
-.qa-q{font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.intro-text{font-size:1.06rem;color:rgba(240,240,240,.9);margin:22px 0;line-height:1.8;}
+.pull-quote{border-left:3px solid var(--accent);padding:16px 24px;margin:28px 0;font-size:1.08rem;font-style:italic;color:rgba(240,240,240,.9);background:rgba(0,255,136,.04);}
+.qa-section{margin:34px 0;}
+.qa-section-title{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.06em;color:var(--accent);margin-bottom:18px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,136,.2);}
+.qa-item{margin-bottom:24px;}
+.qa-q{font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:7px;}
 .qa-a{font-size:.95rem;color:rgba(240,240,240,.85);line-height:1.75;}
-/* ── INFO CARD ── */
-.info-card{background:var(--dark2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:28px;margin:40px 0;}
-.info-card-title{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.08em;margin-bottom:20px;color:var(--accent);}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:600px){.info-grid{grid-template-columns:1fr;}}
-.info-item label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:4px;}
-.info-item span{font-size:.9rem;}
-.info-links{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
-.info-link{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
-.info-link.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
-.info-link.ig:hover,.info-link.sc:hover,.info-link.book:hover,.info-link.sp:hover{opacity:.85;transform:translateY(-2px);}
-.info-link.sc{background:#ff5500;color:#fff;}
-.info-link.sp{background:#1db954;color:#fff;}
-.info-link.book{background:#00b4ff;color:#fff;}
-/* ── PNAV ── */
-#pnav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 18px;padding:22px 20px;border-top:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.3);margin-top:-76px;}
-.pnav-a{font-size:.9rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:opacity .18s;}
-.pnav-a:hover{opacity:.65;}
-.pnav-prev,.pnav-next{color:#888;}
-.pnav-back{color:#00ff88;}
-.pnav-index{color:#00b4ff;}
-.pnav-sep{color:rgba(255,255,255,.18);pointer-events:none;font-size:.9rem;}
-.pnav-off{font-size:.9rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#444;cursor:default;}
-@media(max-width:480px){#pnav{gap:8px 12px;}}
+/* gallery */
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.gal-tile{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;border:1px solid var(--line);display:flex;align-items:flex-end;padding:12px;font-size:.72rem;font-weight:600;letter-spacing:.04em;color:#fff;transition:transform .2s;}
+.gal-tile:hover{transform:scale(1.02);}
+.gal-tile span{position:relative;z-index:2;text-shadow:0 1px 6px #000;}
+.gal-hint{color:var(--grey);font-size:.8rem;margin-bottom:14px;}
+/* chat */
+.chat-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;height:620px;background:var(--dark2);}
+.chat-wrap iframe{width:100%;height:100%;border:0;display:block;}
+
+/* ══ 3-WIDGET MONETIZATION ROW ══ */
+.mrow-label{max-width:940px;margin:26px auto 0;padding:0 22px;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);}
+.mrow{max-width:940px;margin:12px auto 40px;padding:0 22px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:stretch;}
+.widget{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;min-height:290px;}
+.widget-h{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.08em;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.widget-h .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+/* carousel (referral + amazon) */
+.cycle{position:relative;flex:1;border-radius:10px;overflow:hidden;min-height:180px;}
+.cycle-slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;text-decoration:none;color:#fff;pointer-events:none;}
+.cycle-slide.on{opacity:1;pointer-events:auto;}
+.cycle-slide .tagline{font-size:.74rem;color:rgba(255,255,255,.85);}
+.cycle-slide .title{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;line-height:1;margin:2px 0 4px;}
+.cycle-slide .cta{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+.cycle-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+.cycle-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .2s;}
+.cycle-dots i.on{background:var(--accent);}
+.amz-slide{background:linear-gradient(160deg,#1a1a12,#0f0f0f);}
+.amz-slide .price{font-family:var(--font-head);font-size:1.3rem;color:#ffb300;letter-spacing:.04em;}
+.amz-badge{position:absolute;top:10px;right:10px;background:#ff9900;color:#000;font-size:.58rem;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:4px;z-index:3;pointer-events:none;}
+/* center info card */
+.info-list{display:flex;flex-direction:column;gap:12px;flex:1;}
+.info-item label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);}
+.info-item span{font-size:.92rem;color:#fff;}
+.info-icons{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .18s,filter .18s;flex-shrink:0;}
+.iconbtn:hover{transform:translateY(-3px);filter:brightness(1.12);}
+.iconbtn svg{width:20px;height:20px;fill:#fff;}
+.iconbtn.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);}
+.iconbtn.sc{background:#ff5500;}
+.iconbtn.sp{background:#1db954;}
+.iconbtn.bk{background:var(--blue);}
+
 /* ── FOOTER ── */
 .ad-footer-bar{text-align:center;padding:16px 24px;background:var(--dark);border-top:1px solid rgba(255,255,255,.05);}
 footer{text-align:center;padding:32px;color:var(--grey);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06);}
-footer a{color:#00b4ff;}
-/* ── MOBILE MENU ── */
-.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.97);z-index:999;flex-direction:column;padding:18px 28px;gap:0;border-bottom:1px solid rgba(255,255,255,.1);}
-.mobile-menu.open{display:flex;}
-.mobile-menu a{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.12em;color:rgba(255,255,255,.78);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);}
-.mobile-menu a:last-child{border-bottom:none;}
-.mobile-menu .nav-cta{color:#00b4ff!important;border:none;padding:12px 0;background:transparent!important;}
-@media(max-width:768px){.nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}}
+footer a{color:var(--blue);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
+  .pf-cover{height:200px;}
+  .pf-head{margin-top:-64px;}
+  .pf-avatar{width:104px;height:104px;}
+  .pf-top{gap:14px;}
+  .pf-actions{width:100%;}
+  .pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
+  .pf-stats{gap:22px;}
+  .pf-tab .lbl-full{display:none;}
+  .pf-tab{font-size:0;padding:14px 6px;}
+  .pf-tab svg{width:20px;height:20px;}
+  .mrow{grid-template-columns:1fr;}
+  .gal-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
+  .chat-wrap{height:560px;}
+}
   </style>
 </head>
 <body>
 
-<!-- ══ UNIVERSAL NAV HEADER ══ identical on every KEEPITIL page — DO NOT CHANGE ══ -->
+<!-- ══ UNIVERSAL NAV ══ -->
 <nav id="main-nav">
   <div class="nav-inner">
-    <a class="nav-logo" href="/">
-      <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
-    </a>
+    <a class="nav-logo" href="/"><img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
     <ul class="nav-links">
       <li><a href="/artist/">ARTIST</a></li>
       <li><a href="/brand/">BRAND</a></li>
@@ -158,157 +175,166 @@ footer a{color:#00b4ff;}
   </div>
 </nav>
 <div class="mobile-menu" id="mobile-menu">
-  <a href="/artist/" onclick="toggleMenu()">ARTIST</a>
-  <a href="/brand/" onclick="toggleMenu()">BRAND</a>
-  <a href="/culture" onclick="toggleMenu()">CULTURE</a>
-  <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
-  <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+  <a href="/artist/">ARTIST</a><a href="/brand/">BRAND</a><a href="/culture">CULTURE</a><a href="/organizer/">ORGANIZERS</a><a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
 </div>
 
-<!-- ═══ HERO — must be real photo, not avatar ═══ -->
-<div class="hero">
-  <img src="https://keepitil.com/logo-bg.jpg" alt="Nova Halcyon" onerror="this.parentNode.style.display='none'">
-  <div class="hero-overlay"></div>
-</div>
-
-<!-- ═══ CONTENT ═══ -->
-<div class="article-wrap">
-  <div class="article-header">
-    <div class="kil-tag">★ KEEPITIL PRESENTS</div>
-    <h1 class="article-title">Nova Halcyon</h1>
-    <p class="article-subtitle">Building cathedrals out of bass and fog.</p>
-    <div class="article-meta">
-      <div class="meta-item">
-        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-        Santa Ana, CA
-      </div>
-      <div class="meta-item">
-        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-        Techno · Warehouse
-      </div>
-      <div class="meta-item">
-        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
-        KEEPITIL Artist
-      </div>
+<!-- ══ PROFILE HEADER (cover + avatar) ══ -->
+<div class="pf-cover"><img src="https://keepitil.com/logo-bg.jpg" alt="Nova Halcyon cover"></div>
+<div class="pf-head">
+  <div class="pf-top">
+    <img class="pf-avatar" src="https://keepitil.com/keepitil-x-blue.png" alt="Nova Halcyon">
+    <div class="pf-idblock">
+      <span class="pf-verify">★ KEEPITIL Artist</span>
+      <h1 class="pf-name">Nova Halcyon</h1>
+      <div class="pf-handle">@nova_halcyon · Santa Ana, CA</div>
+    </div>
+    <div class="pf-actions">
+      <button class="pf-btn follow" onclick="alert('Follow — wire to Save/Follow')">+ FOLLOW</button>
+      <a class="pf-btn book" href="mailto:booking@keepitil.com">BOOK</a>
+      <button class="pf-btn icon" onclick="navigator.share ? navigator.share({title:'Nova Halcyon',url:location.href}) : alert('Share')" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
     </div>
   </div>
+</div>
+<div class="pf-meta">
+  <div class="pf-bio">Warehouse techno from the OC underground. Hypnotic, long-build sets — deep low end, real arcs, one moment of darkness before the release. <span class="h">Building cathedrals out of bass and fog.</span></div>
+  <div class="pf-stats">
+    <div class="pf-stat"><b>128</b><span>Shows</span></div>
+    <div class="pf-stat"><b>47</b><span>Tracks</span></div>
+    <div class="pf-stat"><b>12.4K</b><span>Fans</span></div>
+    <div class="pf-stat"><b>Techno</b><span>· Warehouse</span></div>
+  </div>
+</div>
 
-  <!-- ═══ MUSIC PLAYER — get embed URL from SoundCloud share → Embed ═══ -->
+<!-- ══ TAB BAR ══ -->
+<div class="pf-tabs" id="pf-tabs">
+  <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span class="lbl-full">ARTICLE</span></div>
+  <div class="pf-tab" data-tab="gallery" onclick="showTab('gallery')"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg><span class="lbl-full">GALLERY</span></div>
+  <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span class="lbl-full">CHAT</span></div>
+</div>
+
+<!-- ══ PANEL: ARTICLE ══ -->
+<div class="pf-panel active" id="tab-article">
+  <div class="kil-tag">★ KEEPITIL PRESENTS</div>
   <div class="listen-section">
     <div class="listen-label">🎵 Listen to Nova Halcyon</div>
-    <iframe width="100%" height="300" scrolling="no" frameborder="no" allow="autoplay; encrypted-media"
+    <iframe height="300" scrolling="no" frameborder="no" allow="autoplay"
       src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fkeepitil-radio&color=%2300ff88&auto_play=false&visual=true"></iframe>
   </div>
-
-  <!-- ═══ INTRO — 2-3 sentences, voice of a scene insider ═══ -->
   <p class="intro-text">Nova Halcyon builds sets like buildings — foundation first, then floor after floor of rolling low end until the whole room is somewhere else. Raised on the citrus-packing warehouses of Santa Ana, they turned borrowed gear and empty industrial rooms into a signature sound the SoCal underground now travels for.</p>
-
-  <!-- ═══ PULL QUOTE — best quote from interview ═══ -->
   <div class="pull-quote">"A set isn't a playlist. It's a room full of strangers agreeing to go somewhere together — my job is just to lead."</div>
-
-  <!-- ═══ QA SECTIONS — 3-5 sections, each 2-5 qa-items ═══ -->
-  <!-- Section names should match the artist's story arc — see groove-trooper for example -->
-
   <div class="qa-section">
     <div class="qa-section-title">THE STORY</div>
-    <div class="qa-item">
-      <div class="qa-q">When did you start and what got you into it?</div>
-      <div class="qa-a">I started spinning at 16 in a friend's garage in Santa Ana — cheap controller, borrowed monitors, way too much fog. The first time a room actually moved to something I built, I was hooked for life.</div>
-    </div>
-    <div class="qa-item">
-      <div class="qa-q">Who influenced your sound most?</div>
-      <div class="qa-a">Early on it was the raw Detroit and Berlin techno records my older cousin left behind. Later, the SoCal warehouse crews taught me that a set is a story, not a playlist.</div>
-    </div>
+    <div class="qa-item"><div class="qa-q">When did you start and what got you into it?</div><div class="qa-a">I started spinning at 16 in a friend's garage in Santa Ana — cheap controller, borrowed monitors, way too much fog. The first time a room actually moved to something I built, I was hooked for life.</div></div>
+    <div class="qa-item"><div class="qa-q">Who influenced your sound most?</div><div class="qa-a">Early on it was the raw Detroit and Berlin techno records my older cousin left behind. Later, the SoCal warehouse crews taught me that a set is a story, not a playlist.</div></div>
   </div>
-
   <div class="qa-section">
     <div class="qa-section-title">THE CRAFT</div>
-    <div class="qa-item">
-      <div class="qa-q">How would you describe your sound?</div>
-      <div class="qa-a">Hypnotic, physical warehouse techno — rolling low end, long builds, and one moment near the end where the whole room drops into darkness before the release.</div>
-    </div>
-    <div class="qa-item">
-      <div class="qa-q">What energy do you bring to a set?</div>
-      <div class="qa-a">Patience and pressure. I hold tension longer than most, so when the kick finally lands the payoff hits twice as hard. I read the floor and build for the people actually dancing.</div>
-    </div>
-    <div class="qa-item">
-      <div class="qa-q">What can someone expect when they book you?</div>
-      <div class="qa-a">A journey. I don't do peak-time-the-whole-time. Expect a real arc — a slow burn, a climb, and a finish people remember on the drive home.</div>
-    </div>
+    <div class="qa-item"><div class="qa-q">How would you describe your sound?</div><div class="qa-a">Hypnotic, physical warehouse techno — rolling low end, long builds, and one moment near the end where the whole room drops into darkness before the release.</div></div>
+    <div class="qa-item"><div class="qa-q">What can someone expect when they book you?</div><div class="qa-a">A journey. I don't do peak-time-the-whole-time. Expect a real arc — a slow burn, a climb, and a finish people remember on the drive home.</div></div>
   </div>
-
-  <div class="qa-section">
-    <div class="qa-section-title">THE HIGHLIGHTS</div>
-    <div class="qa-item">
-      <div class="qa-q">Best set you've played?</div>
-      <div class="qa-a">A 4am closing set at an abandoned citrus-packing plant off the 55. 300 people, no phones up, everyone locked in. Still the best 90 minutes of my life.</div>
-    </div>
-    <div class="qa-item">
-      <div class="qa-q">Biggest crowd?</div>
-      <div class="qa-a">About 2,400 at a desert gathering last spring. Terrifying for the first record, then it becomes the only thing in the world.</div>
-    </div>
-    <div class="qa-item">
-      <div class="qa-q">Dream venue or festival?</div>
-      <div class="qa-a">Bass Coast, or a night at Berghain's Panorama Bar. Somewhere the sound system is treated like a religion.</div>
-    </div>
-  </div>
-
   <div class="qa-section">
     <div class="qa-section-title">OFF THE DECKS</div>
-    <div class="qa-item">
-      <div class="qa-q">Something people don't know about you?</div>
-      <div class="qa-a">I score short films during the week — a lot of the textures in my sets start as film cues. The dance floor is just where they finally get loud.</div>
-    </div>
-    <div class="qa-item">
-      <div class="qa-q">What are you working on right now?</div>
-      <div class="qa-a">A four-track warehouse EP and a live hardware set I can take on the road without a laptop. Slower, heavier, more human.</div>
-    </div>
+    <div class="qa-item"><div class="qa-q">What are you working on right now?</div><div class="qa-a">A four-track warehouse EP and a live hardware set I can take on the road without a laptop. Slower, heavier, more human.</div></div>
   </div>
+</div>
 
-  <!-- ═══ INFO CARD — always last in article-wrap ═══ -->
-  <div class="info-card">
-    <div class="info-card-title">BOOK NOVA HALCYON</div>
-    <div class="info-grid">
+<!-- ══ PANEL: GALLERY (images / flyers / content) ══ -->
+<div class="pf-panel" id="tab-gallery">
+  <div class="gal-hint">Flyers, set photos, clips — the artist's visual feed. (Demo tiles — real uploads pull from storage.)</div>
+  <div class="gal-grid" id="gal-grid"></div>
+</div>
+
+<!-- ══ PANEL: CHAT (Scene Room) ══ -->
+<div class="pf-panel" id="tab-chat">
+  <div class="gal-hint">Live scene room — fans talk, share photos, and plan meetups. Stays up after every show.</div>
+  <div class="chat-wrap"><iframe id="chat-frame" data-src="/event-chat.html?e=nova-halcyon&t=Nova%20Halcyon" title="Scene Room"></iframe></div>
+</div>
+
+<!-- ══ 3-WIDGET MONETIZATION ROW ══ -->
+<div class="mrow-label">— Support &amp; Gear —</div>
+<div class="mrow">
+  <!-- LEFT: cycling referral images (hyperlinked) -->
+  <div class="widget">
+    <div class="widget-h"><span class="dot"></span>PARTNERS</div>
+    <div class="cycle" id="cyc-ref">
+      <a class="cycle-slide on" href="https://posh.vip" target="_blank" rel="noopener" style="background:linear-gradient(160deg,#241a3a,#120b22);"><div class="tagline">Discover &amp; sell event tickets</div><div class="title">POSH</div><div class="cta">Get tickets →</div></a>
+      <a class="cycle-slide" href="https://distrokid.com" target="_blank" rel="noopener" style="background:linear-gradient(160deg,#0e2a24,#08130f);"><div class="tagline">Put your music everywhere</div><div class="title">DISTROKID</div><div class="cta">Release music →</div></a>
+      <a class="cycle-slide" href="https://freecash.com" target="_blank" rel="noopener" style="background:linear-gradient(160deg,#2a220e,#141007);"><div class="tagline">Earn cash for the next festival</div><div class="title">FREECASH</div><div class="cta">Start earning →</div></a>
+    </div>
+    <div class="cycle-dots" data-for="cyc-ref"></div>
+  </div>
+  <!-- CENTER: info card w/ icon buttons -->
+  <div class="widget">
+    <div class="widget-h"><span class="dot"></span>BOOK / CONNECT</div>
+    <div class="info-list">
       <div class="info-item"><label>City</label><span>Santa Ana, CA</span></div>
       <div class="info-item"><label>Genres</label><span>Techno · Warehouse</span></div>
       <div class="info-item"><label>Scene</label><span>Underground / Warehouse</span></div>
       <div class="info-item"><label>Residency</label><span>Packing Plant Sessions (OC)</span></div>
     </div>
-    <div class="info-links">
-      <!-- Add only links that are confirmed. Remove any that are blank. -->
-      <a class="info-link ig" href="https://instagram.com/novahalcyon" target="_blank" rel="noopener">INSTAGRAM</a>
-      <a class="info-link sc" href="https://soundcloud.com/keepitil-radio" target="_blank" rel="noopener">SOUNDCLOUD</a>
-      <!-- <a class="info-link sp" href="{{SPOTIFY URL}}" target="_blank" rel="noopener">SPOTIFY</a> -->
-      <a class="info-link book" href="mailto:booking@keepitil.com">BOOK</a>
+    <div class="info-icons">
+      <a class="iconbtn ig" href="https://instagram.com/novahalcyon" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
+      <a class="iconbtn sc" href="https://soundcloud.com/keepitil-radio" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
+      <a class="iconbtn sp" href="https://open.spotify.com" target="_blank" rel="noopener" aria-label="Spotify"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm4.6 14.4a.62.62 0 01-.86.21c-2.35-1.44-5.3-1.76-8.79-.96a.62.62 0 11-.28-1.21c3.81-.87 7.09-.5 9.72 1.1.3.18.39.57.21.86zm1.23-2.74a.78.78 0 01-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.78.78 0 11-.45-1.49c3.63-1.1 8.15-.56 11.24 1.33.37.23.49.71.25 1.07zm.11-2.85C14.83 8.96 9.5 8.78 6.42 9.71a.93.93 0 11-.54-1.79c3.53-1.07 9.42-.86 13.13 1.34a.94.94 0 01-.96 1.61z"/></svg></a>
+      <a class="iconbtn bk" href="mailto:booking@keepitil.com" aria-label="Book"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
     </div>
   </div>
-
-</div><!-- /article-wrap -->
-
-<div class="ad-footer-bar"><!-- AdSense: End of Article --></div>
-
-<!-- ══ UNIVERSAL PNAV (profile end nav bar) ══ change only PREV_SLUG / NEXT_SLUG ══ -->
-<div id="pnav">
-  <!-- If no previous: replace <a> with <span class="pnav-off">&larr; PREVIOUS</span> -->
-  <a href="/blog-groove-trooper.html" class="pnav-a pnav-prev">&larr; PREVIOUS</a>
-  <span class="pnav-sep">|</span>
-  <a href="/culture" class="pnav-a pnav-back">Back to Culture</a>
-  <span class="pnav-sep">|</span>
-  <a href="/artist/" class="pnav-a pnav-index">All Artists</a>
-  <span class="pnav-sep">|</span>
-  <!-- If no next: replace <a> with <span class="pnav-off">NEXT &rarr;</span> -->
-  <a href="/blog-casper-grey.html" class="pnav-a pnav-next">NEXT &rarr;</a>
+  <!-- RIGHT: Amazon affiliate product carousel -->
+  <div class="widget">
+    <div class="widget-h"><span class="dot"></span>RAVE ESSENTIALS</div>
+    <div class="cycle" id="cyc-amz">
+      <span class="amz-badge">Amazon</span>
+      <a class="cycle-slide amz-slide on" href="https://www.amazon.com/s?k=led+gloves+rave&tag=tuitea-20" target="_blank" rel="noopener sponsored"><div class="tagline">Light show in your hands</div><div class="title">LED Gloves</div><div class="price">$19.99</div><div class="cta">Shop on Amazon →</div></a>
+      <a class="cycle-slide amz-slide" href="https://www.amazon.com/s?k=rave+hydration+pack&tag=tuitea-20" target="_blank" rel="noopener sponsored"><div class="tagline">Stay hydrated all night</div><div class="title">Hydration Pack</div><div class="price">$34.99</div><div class="cta">Shop on Amazon →</div></a>
+      <a class="cycle-slide amz-slide" href="https://www.amazon.com/s?k=hi+fi+ear+plugs+concert&tag=tuitea-20" target="_blank" rel="noopener sponsored"><div class="tagline">Protect your ears, keep the fidelity</div><div class="title">Hi-Fi Ear Plugs</div><div class="price">$24.99</div><div class="cta">Shop on Amazon →</div></a>
+      <a class="cycle-slide amz-slide" href="https://www.amazon.com/s?k=kandi+rave+kit&tag=tuitea-20" target="_blank" rel="noopener sponsored"><div class="tagline">Trade PLUR on the floor</div><div class="title">Kandi Kit</div><div class="price">$15.99</div><div class="cta">Shop on Amazon →</div></a>
+    </div>
+    <div class="cycle-dots" data-for="cyc-amz"></div>
+  </div>
 </div>
 
-<!-- ══ UNIVERSAL FOOTER ══ identical on every KEEPITIL page — DO NOT CHANGE ══ -->
-<footer>
-  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> — OC &amp; LA Underground EDM &middot; <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p>
-</footer>
+<div class="ad-footer-bar"><!-- AdSense: End of Profile --></div>
+<footer><p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> — OC &amp; LA Underground EDM &middot; <a href="https://keepitil.com/privacy.html">Privacy Policy</a> &middot; <em>As an Amazon Associate KEEPITIL earns from qualifying purchases.</em></p></footer>
 
 <script>
-function toggleMenu(){var h=document.querySelector('.nav-hamburger');var m=document.getElementById('mobile-menu');if(h)h.classList.toggle('open');if(m)m.classList.toggle('open');}
+function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
+
+/* ── TAB SWITCHING ── */
+function showTab(name){
+  document.querySelectorAll('.pf-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===name);});
+  document.querySelectorAll('.pf-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);});
+  if(name==='chat'){ var f=document.getElementById('chat-frame'); if(f && !f.src){ f.src=f.dataset.src; } }
+  var tabs=document.querySelector('.pf-tabs'); if(tabs){ window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'}); }
+}
+
+/* ── GALLERY DEMO TILES ── */
+(function(){
+  var g=document.getElementById('gal-grid'); if(!g) return;
+  var tiles=[
+    ['🎛️','Packing Plant Set','#241a3a,#120b22'],['📸','Desert Gathering','#0e2a24,#08130f'],['🔊','Warehouse Rig','#2a220e,#141007'],
+    ['🎟️','Next Flyer','#241a3a,#120b22'],['🌫️','Fog & Lasers','#0e2a24,#08130f'],['💿','New EP Art','#2a1a1a,#140b0b'],
+    ['🎧','Studio Session','#1a2430,#0b1420'],['🕶️','Crowd 4AM','#241a3a,#120b22'],['⚡','Live Clip','#2a220e,#141007']
+  ];
+  g.innerHTML=tiles.map(function(t){
+    return '<div class="gal-tile" style="background:linear-gradient(160deg,'+t[2]+');" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><span>'+t[0]+'  '+t[1]+'</span></div>';
+  }).join('');
+})();
+
+/* ── CAROUSELS (referral + amazon) ── */
+function initCycle(id, interval){
+  var box=document.getElementById(id); if(!box) return;
+  var slides=box.querySelectorAll('.cycle-slide'); if(slides.length<2) return;
+  var dotsWrap=document.querySelector('.cycle-dots[data-for="'+id+'"]');
+  var i=0, timer;
+  function paint(){ slides.forEach(function(s,k){s.classList.toggle('on',k===i);}); if(dotsWrap){dotsWrap.querySelectorAll('i').forEach(function(d,k){d.classList.toggle('on',k===i);});} }
+  function reset(){ clearInterval(timer); timer=setInterval(function(){ i=(i+1)%slides.length; paint(); }, interval); }
+  function go(k){ i=k; paint(); reset(); }
+  if(dotsWrap){ dotsWrap.innerHTML=''; slides.forEach(function(_,k){ var d=document.createElement('i'); if(k===0)d.className='on'; d.onclick=function(){go(k);}; dotsWrap.appendChild(d); }); }
+  paint(); reset();
+}
+initCycle('cyc-ref', 4200);
+initCycle('cyc-amz', 3600);
 </script>
-<!-- ══ UNIVERSAL RADIO PLAYER + AI WIDGET ══ both scripts required on every page ══ -->
 <script src="/keepitil-radio.js" defer></script>
 <script src="/keepitil-ai.js" defer></script>
 </body>
