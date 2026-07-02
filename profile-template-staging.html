@@ -1,139 +1,186 @@
 <!DOCTYPE html>
 <!--
-  KEEPITIL — ARTIST PROFILE TEMPLATE  ·  STAGING WORKSPACE (noindex, not live)
-  TRUE MOCKUP DRAFT filled with a REAL KEEPITIL artist (Groove Trooper) — real photo, track, bio, links.
-  IG + TikTok style header · tabbed content (Article / Gallery / Chat) · 3-widget monetization row.
-  Redeploy with: _scripts/push/push-profile-staging.command
-  Gallery tiles use real rave flyers as stand-ins; real profiles pull the artist's own uploads.
+  KEEPITIL — ARTIST PROFILE TEMPLATE · STAGING WORKSPACE (noindex, not live)
+  TRUE MOCKUP filled with a REAL artist (Groove Trooper).
+  Features: IG/TikTok header · story highlights · sticky section tabs (Article/Gallery/Shows/Chat)
+  · edmtrain-style tour dates · 3-widget monetization row · multi-theme switcher (light/dark/color).
+  Redeploy: _scripts/push/push-profile-staging.command
 -->
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="robots" content="noindex, nofollow"/>
   <title>[WORKSPACE] Groove Trooper — Artist Profile | KEEPITIL</title>
   <link rel="icon" type="image/png" href="/logo-green-nav.png"/>
+  <!-- no-flash theme init -->
+  <script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
+/* ── THEME TOKENS ── */
+:root,html[data-theme="dark"]{--bg:#0b0b0b;--surface:#141420;--surface2:#1b1b28;--text:#f0f0f0;--text-soft:rgba(240,240,240,.86);--muted:#8a8a99;--line:rgba(255,255,255,.09);--accent:#00ff88;--accent2:#00b4ff;--nav:rgba(11,11,11,.95);--onacc:#06120a;}
+html[data-theme="light"]{--bg:#f4f5fa;--surface:#ffffff;--surface2:#eceef5;--text:#141621;--text-soft:#33384a;--muted:#6b7080;--line:rgba(0,0,0,.10);--accent:#00b36b;--accent2:#0077ff;--nav:rgba(255,255,255,.92);--onacc:#ffffff;}
+html[data-theme="midnight"]{--bg:#070d1c;--surface:#0f1730;--surface2:#141d3a;--text:#eaf0ff;--text-soft:rgba(234,240,255,.86);--muted:#7f8db3;--line:rgba(120,160,255,.15);--accent:#38bdf8;--accent2:#818cf8;--nav:rgba(7,13,28,.95);--onacc:#04101f;}
+html[data-theme="synthwave"]{--bg:#150018;--surface:#210630;--surface2:#2b0a3d;--text:#ffe9ff;--text-soft:rgba(255,233,255,.86);--muted:#b58ac9;--line:rgba(255,60,210,.18);--accent:#ff2bd6;--accent2:#7c4dff;--nav:rgba(21,0,24,.95);--onacc:#1a0016;}
+html[data-theme="sunset"]{--bg:#160d07;--surface:#241408;--surface2:#2e190a;--text:#fff2e6;--text-soft:rgba(255,242,230,.86);--muted:#b9946f;--line:rgba(255,150,0,.18);--accent:#ff8a2b;--accent2:#ff4d6d;--nav:rgba(22,13,7,.95);--onacc:#1a0d02;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--black:#0b0b0b;--dark:#111;--dark2:#181818;--card:#141420;--accent:#00ff88;--blue:#00b4ff;--white:#f0f0f0;--grey:#8a8a99;--line:rgba(255,255,255,.08);--font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;}
+:root{--font-head:'Bebas Neue',sans-serif;--font-body:'Space Grotesk',sans-serif;}
 html{scroll-behavior:smooth;}
-body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.7;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.7;overflow-x:hidden;transition:background .3s,color .3s;}
 a{color:inherit;text-decoration:none;}
 img{display:block;max-width:100%;}
-nav#main-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+/* ── NAV (kept) ── */
+nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
-.nav-brand{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-brand{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;color:var(--text);}
 .nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
-.nav-links li{list-style:none;}
-.nav-links a{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);text-decoration:none;transition:color .2s;white-space:nowrap;}
-.nav-links a:hover{color:#fff;}
-.nav-inner>a.nav-cta{font-family:var(--font-head);font-size:1rem;letter-spacing:.14em;color:var(--blue)!important;background:transparent!important;border:2px solid var(--blue);padding:7px 22px;border-radius:4px;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;display:inline-block;}
-.nav-inner>a.nav-cta:hover{background:var(--blue)!important;color:#000!important;}
+.nav-links a{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.14em;color:var(--text-soft);transition:color .2s;white-space:nowrap;opacity:.8;}
+.nav-links a:hover{opacity:1;}
+.nav-inner>a.nav-cta{font-family:var(--font-head);font-size:1rem;letter-spacing:.14em;color:var(--accent2)!important;background:transparent!important;border:2px solid var(--accent2);padding:7px 22px;border-radius:4px;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;}
+.nav-inner>a.nav-cta:hover{background:var(--accent2)!important;color:#fff!important;}
 .nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;}
-.nav-hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;}
-.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.97);z-index:999;flex-direction:column;padding:18px 28px;border-bottom:1px solid rgba(255,255,255,.1);}
+.nav-hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;}
+.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:var(--nav);z-index:999;flex-direction:column;padding:18px 28px;border-bottom:1px solid var(--line);}
 .mobile-menu.open{display:flex;}
-.mobile-menu a{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:rgba(255,255,255,.78);padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);}
-.mobile-menu a:last-child{border-bottom:none;}
-/* HEADER */
-.pf-cover{position:relative;width:100%;height:300px;overflow:hidden;background:#111;}
+.mobile-menu a{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:var(--text-soft);padding:12px 0;border-bottom:1px solid var(--line);}
+/* ── THEME SWITCHER ── */
+.theme-fab{position:fixed;top:78px;right:14px;z-index:95;display:flex;flex-direction:column;align-items:flex-end;}
+.theme-fab .toggle{width:42px;height:42px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--text);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:1.15rem;display:flex;align-items:center;justify-content:center;}
+.theme-fab .swatches{display:none;margin-top:8px;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:9px;gap:9px;flex-direction:column;box-shadow:0 10px 28px rgba(0,0,0,.45);}
+.theme-fab.open .swatches{display:flex;}
+.tsw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;position:relative;}
+.tsw.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
+/* ── HEADER ── */
+.pf-cover{position:relative;width:100%;height:300px;overflow:hidden;background:var(--surface2);}
 .pf-cover img{width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62);}
-.pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--black));}
+.pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
 .pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:-84px;}
 .pf-top{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;}
-.pf-avatar{width:150px;height:150px;border-radius:50%;border:4px solid var(--black);background:#222;object-fit:cover;object-position:center 20%;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.6);}
+.pf-avatar{width:150px;height:150px;border-radius:50%;border:4px solid var(--bg);background:var(--surface2);object-fit:cover;object-position:center 20%;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.55);}
 .pf-idblock{flex:1;min-width:240px;padding-bottom:6px;}
-.pf-verify{display:inline-flex;align-items:center;gap:6px;font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);padding:3px 10px;border-radius:20px;margin-bottom:8px;}
-.pf-name{font-family:var(--font-head);font-size:clamp(2.2rem,6vw,3.4rem);line-height:.95;letter-spacing:.03em;}
-.pf-handle{color:var(--grey);font-size:.92rem;margin-top:2px;}
+.pf-verify{display:inline-flex;align-items:center;gap:6px;font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+.pf-name{font-family:var(--font-head);font-size:clamp(2.2rem,6vw,3.4rem);line-height:.95;letter-spacing:.03em;color:var(--text);}
+.pf-handle{color:var(--muted);font-size:.92rem;margin-top:2px;}
 .pf-actions{display:flex;gap:10px;padding-bottom:8px;flex-wrap:wrap;}
 .pf-btn{font-family:var(--font-head);font-size:1rem;letter-spacing:.1em;padding:9px 26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .18s;white-space:nowrap;}
-.pf-btn.follow{background:var(--accent);color:#06120a;}
-.pf-btn.follow:hover{filter:brightness(1.1);transform:translateY(-1px);}
-.pf-btn.book{background:transparent;border-color:var(--blue);color:var(--blue);}
-.pf-btn.book:hover{background:var(--blue);color:#000;}
-.pf-btn.icon{padding:9px 12px;border-color:var(--line);color:#fff;}
+.pf-btn.follow{background:var(--accent);color:var(--onacc);}
+.pf-btn.follow:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.pf-btn.book{background:transparent;border-color:var(--accent2);color:var(--accent2);}
+.pf-btn.book:hover{background:var(--accent2);color:#fff;}
+.pf-btn.icon{padding:9px 12px;border-color:var(--line);color:var(--text);}
 .pf-btn.icon:hover{border-color:var(--accent);color:var(--accent);}
 .pf-btn svg{width:16px;height:16px;fill:currentColor;display:block;}
 .pf-meta{max-width:940px;margin:18px auto 0;padding:0 22px;}
-.pf-stats{display:flex;gap:34px;flex-wrap:wrap;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:14px;}
-.pf-stat b{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.04em;color:#fff;display:block;line-height:1;}
-.pf-stat span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);}
-.pf-bio{font-size:.98rem;color:rgba(240,240,240,.9);margin:16px 0 4px;max-width:680px;}
+.pf-bio{font-size:.98rem;color:var(--text-soft);margin:16px 0 4px;max-width:680px;}
 .pf-bio .h{color:var(--accent);}
-/* TABS */
-.pf-tabs{position:sticky;top:66px;z-index:60;max-width:940px;margin:22px auto 0;padding:0 12px;display:flex;gap:4px;background:rgba(11,11,11,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
-.pf-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 6px;font-family:var(--font-head);font-size:1.02rem;letter-spacing:.13em;color:var(--grey);cursor:pointer;border-bottom:3px solid transparent;transition:color .18s,border-color .18s;user-select:none;}
-.pf-tab svg{width:17px;height:17px;fill:currentColor;}
-.pf-tab:hover{color:#fff;}
+.pf-stats{display:flex;gap:34px;flex-wrap:wrap;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:14px;}
+.pf-stat b{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.04em;color:var(--text);display:block;line-height:1;}
+.pf-stat span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+/* ── STORY HIGHLIGHTS (IG) ── */
+.hl-row{max-width:940px;margin:16px auto 0;padding:6px 22px 2px;display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;}
+.hl-row::-webkit-scrollbar{display:none;}
+.hl{flex:0 0 auto;text-align:center;cursor:pointer;width:74px;}
+.hl-c{width:66px;height:66px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));margin:0 auto 6px;}
+.hl-c img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--bg);}
+.hl span{font-size:.66rem;color:var(--text-soft);letter-spacing:.03em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* ── TABS (sticky lock — kept) ── */
+.pf-tabs{position:sticky;top:66px;z-index:60;max-width:940px;margin:20px auto 0;padding:0 8px;display:flex;gap:2px;background:var(--nav);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.pf-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:15px 4px;font-family:var(--font-head);font-size:1rem;letter-spacing:.1em;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:color .18s,border-color .18s;user-select:none;}
+.pf-tab svg{width:16px;height:16px;fill:currentColor;}
+.pf-tab:hover{color:var(--text);}
 .pf-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 .pf-panel{display:none;max-width:940px;margin:0 auto;padding:26px 22px 10px;}
 .pf-panel.active{display:block;animation:fade .3s ease;}
 @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
-.kil-tag{display:inline-block;background:var(--accent);color:var(--black);font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:3px;margin-bottom:14px;}
-.listen-section{margin:8px 0 26px;}
-.listen-label{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+/* article */
+.kil-tag{display:inline-block;background:var(--accent);color:var(--onacc);font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:3px;margin-bottom:14px;}
+.listen-label{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin:8px 0 10px;}
 .listen-section iframe{width:100%;border:0;border-radius:10px;display:block;}
-.intro-text{font-size:1.06rem;color:rgba(240,240,240,.9);margin:22px 0;line-height:1.8;}
-.pull-quote{border-left:3px solid var(--accent);padding:16px 24px;margin:28px 0;font-size:1.08rem;font-style:italic;color:rgba(240,240,240,.9);background:rgba(0,255,136,.04);}
+.intro-text{font-size:1.06rem;color:var(--text-soft);margin:22px 0;line-height:1.8;}
+.pull-quote{border-left:3px solid var(--accent);padding:16px 24px;margin:28px 0;font-size:1.08rem;font-style:italic;color:var(--text-soft);background:color-mix(in srgb,var(--accent) 6%,transparent);}
 .qa-section{margin:34px 0;}
-.qa-section-title{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.06em;color:var(--accent);margin-bottom:18px;padding-bottom:8px;border-bottom:1px solid rgba(0,255,136,.2);}
+.qa-section-title{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.06em;color:var(--accent);margin-bottom:18px;padding-bottom:8px;border-bottom:1px solid color-mix(in srgb,var(--accent) 25%,transparent);}
 .qa-item{margin-bottom:24px;}
 .qa-q{font-size:.76rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:7px;}
-.qa-a{font-size:.95rem;color:rgba(240,240,240,.85);line-height:1.75;}
+.qa-a{font-size:.95rem;color:var(--text-soft);line-height:1.75;}
+/* gallery */
+.gal-hint{color:var(--muted);font-size:.8rem;margin-bottom:14px;}
 .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .gal-tile{position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;cursor:pointer;border:1px solid var(--line);}
 .gal-tile img{width:100%;height:100%;object-fit:cover;transition:transform .25s;}
 .gal-tile:hover img{transform:scale(1.05);}
 .gal-tile span{position:absolute;left:10px;bottom:9px;z-index:2;font-size:.72rem;font-weight:600;color:#fff;text-shadow:0 1px 6px #000;}
+.gal-tile .views{position:absolute;right:9px;bottom:9px;z-index:2;font-size:.68rem;font-weight:700;color:#fff;text-shadow:0 1px 5px #000;display:flex;align-items:center;gap:3px;}
 .gal-tile::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.6));}
-.gal-hint{color:var(--grey);font-size:.8rem;margin-bottom:14px;}
-.chat-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;height:620px;background:var(--dark2);}
+/* shows (edmtrain) */
+.alert-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:18px;}
+.alert-bar .txt{font-size:.9rem;color:var(--text-soft);}
+.alert-bar .txt b{color:var(--text);}
+.alert-btn{font-family:var(--font-head);font-size:.95rem;letter-spacing:.1em;background:var(--accent);color:var(--onacc);border:none;border-radius:6px;padding:9px 20px;cursor:pointer;white-space:nowrap;transition:filter .15s,transform .15s;}
+.alert-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.alert-btn.on{background:transparent;border:2px solid var(--accent);color:var(--accent);}
+.show-card{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;transition:border-color .18s,transform .18s;}
+.show-card:hover{border-color:color-mix(in srgb,var(--accent) 45%,transparent);transform:translateY(-1px);}
+.show-date{flex:0 0 auto;width:60px;text-align:center;border-right:1px solid var(--line);padding-right:14px;}
+.show-date b{display:block;font-family:var(--font-head);font-size:.95rem;letter-spacing:.1em;color:var(--accent);}
+.show-date span{display:block;font-family:var(--font-head);font-size:1.8rem;line-height:.9;color:var(--text);}
+.show-date i{font-style:normal;font-size:.6rem;color:var(--muted);letter-spacing:.1em;}
+.show-info{flex:1;min-width:0;}
+.show-title{font-weight:700;font-size:1rem;color:var(--text);}
+.show-venue{font-size:.82rem;color:var(--muted);margin-top:2px;}
+.show-tags{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-top:5px;}
+.show-tix{flex:0 0 auto;font-family:var(--font-head);font-size:.9rem;letter-spacing:.1em;background:var(--accent2);color:#fff;border-radius:6px;padding:9px 18px;white-space:nowrap;transition:filter .15s,transform .15s;}
+.show-tix:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.show-tix.sold{background:transparent;border:1px solid var(--line);color:var(--muted);pointer-events:none;}
+/* chat */
+.chat-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;height:620px;background:var(--surface2);}
 .chat-wrap iframe{width:100%;height:100%;border:0;display:block;}
-/* MONETIZATION ROW */
-.mrow-label{max-width:940px;margin:26px auto 0;padding:0 22px;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);}
+/* monetization row */
+.mrow-label{max-width:940px;margin:26px auto 0;padding:0 22px;font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
 .mrow{max-width:940px;margin:12px auto 40px;padding:0 22px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:stretch;}
-.widget{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;min-height:290px;}
-.widget-h{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.08em;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;min-height:290px;}
+.widget-h{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.08em;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .widget-h .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
-.cycle{position:relative;flex:1;border-radius:10px;overflow:hidden;min-height:180px;background:#0f0f16;}
-.cycle-slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;text-decoration:none;color:#fff;pointer-events:none;}
+.cycle{position:relative;flex:1;border-radius:10px;overflow:hidden;min-height:180px;background:var(--surface2);}
+.cycle-slide{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;color:#fff;pointer-events:none;}
 .cycle-slide.on{opacity:1;pointer-events:auto;}
-.cycle-slide .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:brightness(.68);}
-.cycle-slide .ov{position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 40%,rgba(0,0,0,.75));}
+.cycle-slide .bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:brightness(.7);}
+.cycle-slide .ov{position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 40%,rgba(0,0,0,.78));}
 .cycle-slide>*{position:relative;z-index:2;}
 .cycle-slide .tagline{font-size:.74rem;color:rgba(255,255,255,.9);}
-.cycle-slide .title{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;line-height:1;margin:2px 0 4px;}
+.cycle-slide .title{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;line-height:1;margin:2px 0 4px;color:#fff;}
 .cycle-slide .cta{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
 .cycle-dots{display:flex;gap:6px;justify-content:center;margin-top:10px;}
-.cycle-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .2s;}
+.cycle-dots i{width:6px;height:6px;border-radius:50%;background:var(--line);cursor:pointer;}
 .cycle-dots i.on{background:var(--accent);}
 .amz-slide{background:linear-gradient(160deg,#1a1a12,#0f0f0f);}
 .amz-slide .price{font-family:var(--font-head);font-size:1.3rem;color:#ffb300;letter-spacing:.04em;}
 .amz-badge{position:absolute;top:10px;right:10px;background:#ff9900;color:#000;font-size:.58rem;font-weight:800;letter-spacing:.08em;padding:3px 8px;border-radius:4px;z-index:5;pointer-events:none;}
 .info-list{display:flex;flex-direction:column;gap:12px;flex:1;}
-.info-item label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);}
-.info-item span{font-size:.92rem;color:#fff;}
+.info-item label{display:block;font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+.info-item span{font-size:.92rem;color:var(--text);}
 .info-icons{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
 .iconbtn{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .18s,filter .18s;flex-shrink:0;}
 .iconbtn:hover{transform:translateY(-3px);filter:brightness(1.12);}
 .iconbtn svg{width:20px;height:20px;fill:#fff;}
 .iconbtn.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);}
 .iconbtn.sc{background:#ff5500;}
-.iconbtn.bk{background:var(--blue);}
-.ad-footer-bar{text-align:center;padding:16px 24px;background:var(--dark);border-top:1px solid rgba(255,255,255,.05);}
-footer{text-align:center;padding:32px;color:var(--grey);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06);}
-footer a{color:var(--blue);}
+.iconbtn.bk{background:var(--accent2);}
+/* footer */
+.ad-footer-bar{text-align:center;padding:16px 24px;background:var(--surface);border-top:1px solid var(--line);}
+footer{text-align:center;padding:32px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--line);}
+footer a{color:var(--accent2);}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
+  .theme-fab{top:70px;right:10px;}
   .pf-cover{height:200px;}.pf-head{margin-top:-64px;}.pf-avatar{width:104px;height:104px;}
   .pf-top{gap:14px;}.pf-actions{width:100%;}.pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
-  .pf-stats{gap:22px;}.pf-tab{font-size:0;padding:14px 6px;}.pf-tab svg{width:20px;height:20px;}
+  .pf-stats{gap:22px;}.pf-tab{font-size:0;padding:14px 4px;}.pf-tab svg{width:19px;height:19px;}
   .mrow{grid-template-columns:1fr;}.gal-grid{gap:6px;}.chat-wrap{height:560px;}
+  .show-tix{padding:8px 14px;font-size:.82rem;}
 }
   </style>
 </head>
@@ -148,6 +195,18 @@ footer a{color:var(--blue);}
   </div>
 </nav>
 <div class="mobile-menu" id="mobile-menu"><a href="/artist/">ARTIST</a><a href="/brand/">BRAND</a><a href="/culture">CULTURE</a><a href="/organizer/">ORGANIZERS</a><a href="/apply.html" class="nav-cta">SUBSCRIBE</a></div>
+
+<!-- THEME SWITCHER -->
+<div class="theme-fab" id="theme-fab">
+  <button class="toggle" onclick="document.getElementById('theme-fab').classList.toggle('open')" aria-label="Change theme" title="Change theme">🎨</button>
+  <div class="swatches">
+    <button class="tsw" data-t="dark" title="Dark" style="background:#0b0b0b"></button>
+    <button class="tsw" data-t="light" title="Light" style="background:#f4f5fa"></button>
+    <button class="tsw" data-t="midnight" title="Midnight" style="background:#0f1730"></button>
+    <button class="tsw" data-t="synthwave" title="Synthwave" style="background:#210630"></button>
+    <button class="tsw" data-t="sunset" title="Sunset" style="background:#241408"></button>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="pf-cover"><img src="https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg" alt="Groove Trooper cover" onerror="this.style.display='none'"></div>
@@ -176,44 +235,35 @@ footer a{color:var(--blue);}
   </div>
 </div>
 
+<!-- STORY HIGHLIGHTS -->
+<div class="hl-row" id="hl-row"></div>
+
 <!-- TABS -->
 <div class="pf-tabs" id="pf-tabs">
   <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>ARTICLE</span></div>
   <div class="pf-tab" data-tab="gallery" onclick="showTab('gallery')"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg><span>GALLERY</span></div>
+  <div class="pf-tab" data-tab="shows" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 00-2 2v13a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7zm12 8v9H5v-9h14z"/></svg><span>SHOWS</span></div>
   <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>CHAT</span></div>
 </div>
 
 <!-- ARTICLE -->
 <div class="pf-panel active" id="tab-article">
   <div class="kil-tag">★ KEEPITIL PRESENTS</div>
-  <div class="listen-section">
-    <div class="listen-label">🎵 Listen to Groove Trooper</div>
-    <iframe height="300" scrolling="no" frameborder="no" allow="autoplay"
-      src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/groove-trooper/el-recuerdo&color=%2300ff88&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
+  <div class="listen-section"><div class="listen-label">🎵 Listen to Groove Trooper</div>
+    <iframe height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/groove-trooper/el-recuerdo&color=%2300ff88&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true"></iframe>
   </div>
   <p class="intro-text">Emilio Orrego started with a controller and an iPod nano in 2007. Two years later he was playing his first rave in Antigua, Guatemala — Atomic Pulse 2009. The moment that changed everything came in 2013, when Paul Van Dyk played his first rave and Emilio felt something lock into place. Since then, Groove Trooper has never stopped moving: from Garden Grove to Groove Cruise Miami, from military service to Avalon Memorial Day with 2,500 people on the floor. High energy. All smiles. Latin grooves.</p>
   <div class="pull-quote">"Stage presence. The tracks drive the set, but my energy up there is unmatched."</div>
-  <div class="qa-section">
-    <div class="qa-section-title">THE STORY</div>
-    <div class="qa-item"><div class="qa-q">When did you start and what inspired you?</div><div class="qa-a">2007 — started with a controller and iPod nano. First gig was Atomic Pulse 2009 in Antigua Guatemala. The moment that made it real was the first rave I ever attended in 2013, in Guatemala, when Paul Van Dyk played. That was the moment I knew.</div></div>
-    <div class="qa-item"><div class="qa-q">Who influenced your sound the most?</div><div class="qa-a">Roger Sanchez, Eric Morillo, Scotty Boy, Armin Van Buuren, Paul Van Dyk. The architects of house music who never forgot where the groove came from. That lineage runs through everything I play.</div></div>
+  <div class="qa-section"><div class="qa-section-title">THE STORY</div>
+    <div class="qa-item"><div class="qa-q">When did you start and what inspired you?</div><div class="qa-a">2007 — started with a controller and iPod nano. First gig was Atomic Pulse 2009 in Antigua Guatemala. The moment that made it real was the first rave I ever attended in 2013, when Paul Van Dyk played. That was the moment I knew.</div></div>
+    <div class="qa-item"><div class="qa-q">Who influenced your sound the most?</div><div class="qa-a">Roger Sanchez, Eric Morillo, Scotty Boy, Armin Van Buuren, Paul Van Dyk. The architects of house music who never forgot where the groove came from.</div></div>
   </div>
-  <div class="qa-section">
-    <div class="qa-section-title">THE CRAFT</div>
-    <div class="qa-item"><div class="qa-q">What makes your sets different?</div><div class="qa-a">I play drops and breakdowns, combine build-ups, and push as many tracks as possible — creating a crescendo feel from open to close. Every set builds. Every set peaks. Nothing is random.</div></div>
-    <div class="qa-item"><div class="qa-q">What energy do you bring?</div><div class="qa-a">A lot of drums, tribal, and Latin heavy set lists. I always pay homage to Guatemala — it's where the fire started. You can hear it in every set.</div></div>
+  <div class="qa-section"><div class="qa-section-title">THE CRAFT</div>
+    <div class="qa-item"><div class="qa-q">What makes your sets different?</div><div class="qa-a">I play drops and breakdowns, combine build-ups, and push as many tracks as possible — creating a crescendo feel from open to close. Every set builds. Every set peaks.</div></div>
     <div class="qa-item"><div class="qa-q">What can someone expect when they book you?</div><div class="qa-a">High energy, all smiles, Latin grooves. And stage presence that makes the tracks hit harder than they would from anyone else.</div></div>
   </div>
   <div class="pull-quote">"I'm my own worst enemy when it comes to production. I need to understand that art is never finished, it's abandoned."</div>
-  <div class="qa-section">
-    <div class="qa-section-title">THE HIGHLIGHTS</div>
-    <div class="qa-item"><div class="qa-q">Best set you've played?</div><div class="qa-a">Groove Cruise Miami 2020, Casino stage. An ocean vessel full of house music people — that's the ultimate room. Energy that has nowhere to go except into the music.</div></div>
-    <div class="qa-item"><div class="qa-q">Biggest crowd?</div><div class="qa-a">2,500 people at Avalon Hollywood, Memorial Day 2023. The room was alive in a way you don't forget. That's the standard I chase every time.</div></div>
-    <div class="qa-item"><div class="qa-q">Dream venue or festival?</div><div class="qa-a">Academy LA, Time, Day Trip, Nocturnal Festival. Vegas venues too. And the radio show — Rhythm &amp; Villainy Radio — is part of that next chapter.</div></div>
-  </div>
-  <div class="qa-section">
-    <div class="qa-section-title">OFF THE DECKS</div>
-    <div class="qa-item"><div class="qa-q">Something people don't know about you?</div><div class="qa-a">Outside of music, I serve in the military — both in and out of uniform. The discipline carries over. Every show is a mission.</div></div>
+  <div class="qa-section"><div class="qa-section-title">OFF THE DECKS</div>
     <div class="qa-item"><div class="qa-q">Pre-set ritual?</div><div class="qa-a">Get a Modelo, kiss the wife, backstage, light stretch, jump three times, drink the Modelo. Every. Single. Time.</div></div>
     <div class="qa-item"><div class="qa-q">What are you working on right now?</div><div class="qa-a">Rhythm &amp; Villainy Radio — my radio show. An Afro house release. And Kingdom at Catch One in August. The next move is always in motion.</div></div>
   </div>
@@ -221,8 +271,17 @@ footer a{color:var(--blue);}
 
 <!-- GALLERY -->
 <div class="pf-panel" id="tab-gallery">
-  <div class="gal-hint">Flyers, set photos, clips — the artist's visual feed. (Sample rave flyers shown; real profiles pull the artist's own uploads.)</div>
+  <div class="gal-hint">Flyers, set photos, clips — the artist's visual feed. (Sample flyers; real profiles pull the artist's own uploads.)</div>
   <div class="gal-grid" id="gal-grid"></div>
+</div>
+
+<!-- SHOWS (edmtrain-style) -->
+<div class="pf-panel" id="tab-shows">
+  <div class="alert-bar">
+    <div class="txt"><b>🔔 Never miss a set.</b> Get alerts when Groove Trooper plays near you.</div>
+    <button class="alert-btn" id="alertBtn" onclick="toggleAlert()">GET ALERTS</button>
+  </div>
+  <div id="shows-list"></div>
 </div>
 
 <!-- CHAT -->
@@ -275,36 +334,67 @@ footer a{color:var(--blue);}
 
 <script>
 function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
+/* THEME */
+function markTheme(){var cur=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('.tsw').forEach(function(b){b.classList.toggle('on',b.dataset.t===cur);});}
+document.querySelectorAll('.tsw').forEach(function(b){b.onclick=function(){var t=b.dataset.t;document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('kil-theme',t);}catch(e){}markTheme();};});
+markTheme();
+/* TABS */
 function showTab(name){
   document.querySelectorAll('.pf-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===name);});
   document.querySelectorAll('.pf-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);});
-  if(name==='chat'){ var f=document.getElementById('chat-frame'); if(f && !f.src){ f.src=f.dataset.src; } }
-  var tabs=document.querySelector('.pf-tabs'); if(tabs){ window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'}); }
+  if(name==='chat'){var f=document.getElementById('chat-frame');if(f && !f.src){f.src=f.dataset.src;}}
+  var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
 }
+/* STORY HIGHLIGHTS */
 (function(){
-  var g=document.getElementById('gal-grid'); if(!g) return;
-  var imgs=[
-    ['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set'],
-    ['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session'],
-    ['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest']
+  var r=document.getElementById('hl-row');if(!r)return;
+  var hl=[
+    ['0c08978993ce4ba443b61b007d1de45445ddced3','Groove Cruise'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon'],
+    ['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom'],
+    ['1bfc214a7b4917efac1afad318fd4dafa631a480','Studio'],['0eb69717593e6bb32225fec905e93762454a7894','Festivals']
   ];
-  g.innerHTML=imgs.map(function(t){
-    return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#1a1a2a\'"><span>'+t[1]+'</span></div>';
+  r.innerHTML=hl.map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="https://images.ra.co/'+h[0]+'.jpg" alt="'+h[1]+'" loading="lazy"></div><span>'+h[1]+'</span></div>';}).join('');
+})();
+/* GALLERY */
+(function(){
+  var g=document.getElementById('gal-grid');if(!g)return;
+  var imgs=[
+    ['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],
+    ['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],
+    ['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']
+  ];
+  g.innerHTML=imgs.map(function(t){return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">▶ '+t[2]+'</span></div>';}).join('');
+})();
+/* SHOWS (edmtrain-style tour dates — real Posh ticket links) */
+(function(){
+  var el=document.getElementById('shows-list');if(!el)return;
+  var shows=[
+    ['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura',0],
+    ['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room',0],
+    ['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed',0],
+    ['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer',0],
+    ['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles',1]
+  ];
+  el.innerHTML=shows.map(function(s){
+    var tix=s[8]?'<span class="show-tix sold">SOLD OUT</span>':'<a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a>';
+    return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div>'+tix+'</div>';
   }).join('');
 })();
-function initCycle(id, interval){
-  var box=document.getElementById(id); if(!box) return;
-  var slides=box.querySelectorAll('.cycle-slide'); if(slides.length<2) return;
+var _alerts=false;
+function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You\\'ll get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow/notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
+/* CAROUSELS */
+function initCycle(id,interval){
+  var box=document.getElementById(id);if(!box)return;
+  var slides=box.querySelectorAll('.cycle-slide');if(slides.length<2)return;
   var dotsWrap=document.querySelector('.cycle-dots[data-for="'+id+'"]');
-  var i=0, timer;
-  function paint(){ slides.forEach(function(s,k){s.classList.toggle('on',k===i);}); if(dotsWrap){dotsWrap.querySelectorAll('i').forEach(function(d,k){d.classList.toggle('on',k===i);});} }
-  function reset(){ clearInterval(timer); timer=setInterval(function(){ i=(i+1)%slides.length; paint(); }, interval); }
-  function go(k){ i=k; paint(); reset(); }
-  if(dotsWrap){ dotsWrap.innerHTML=''; slides.forEach(function(_,k){ var d=document.createElement('i'); if(k===0)d.className='on'; d.onclick=function(){go(k);}; dotsWrap.appendChild(d); }); }
-  paint(); reset();
+  var i=0,timer;
+  function paint(){slides.forEach(function(s,k){s.classList.toggle('on',k===i);});if(dotsWrap){dotsWrap.querySelectorAll('i').forEach(function(d,k){d.classList.toggle('on',k===i);});}}
+  function reset(){clearInterval(timer);timer=setInterval(function(){i=(i+1)%slides.length;paint();},interval);}
+  function go(k){i=k;paint();reset();}
+  if(dotsWrap){dotsWrap.innerHTML='';slides.forEach(function(_,k){var d=document.createElement('i');if(k===0)d.className='on';d.onclick=function(){go(k);};dotsWrap.appendChild(d);});}
+  paint();reset();
 }
-initCycle('cyc-ref', 4200);
-initCycle('cyc-amz', 3600);
+initCycle('cyc-ref',4200);initCycle('cyc-amz',3600);
 </script>
 <script src="/keepitil-radio.js" defer></script>
 <script src="/keepitil-ai.js" defer></script>
