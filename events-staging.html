@@ -2038,6 +2038,7 @@ function flyer(e,showPick){
   var vip=/club|lounge|nightclub|rooftop|exchange|avalon|catch one|time nightclub|\bsound\b/i.test(e.venue||'');
   var saved=(window.KIL_SAVED&&window.KIL_SAVED.has(slug))?' on':'';
   var chat='event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title);
+  var epage='event.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title)+'&v='+encodeURIComponent(e.venue||'')+'&c='+encodeURIComponent(e.city||'')+'&d='+encodeURIComponent(e.date||'')+'&g='+encodeURIComponent(e.genre||'')+'&img='+encodeURIComponent(e.img||'')+'&tix='+encodeURIComponent(e.ticket||'')+(vip?'&vip=1':'');
   return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
     +'<span class="evx-genre">'+h(e.genre)+'</span>'
@@ -2050,6 +2051,7 @@ function flyer(e,showPick){
       +'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>'
       +(vip?'<a class="evx-act evx-act-vip" data-kt="vip_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
       +'<a class="evx-act evx-act-chat" data-kt="chat_join" data-event-slug="'+slug+'" href="'+chat+'">💬 Join Event Chat</a>'
+      +'<a class="evx-act evx-act-page" data-kt="event_view" data-event-slug="'+slug+'" href="'+epage+'">ℹ️ Event Details</a>'
     +'</div></div>';
 }
 function buildMonths(){
@@ -2114,7 +2116,8 @@ function markScroll(){document.querySelectorAll('#evx .evx-carousel').forEach(up
 function gotoMonth(mk){activeMonth=mk;document.querySelectorAll('#evx .evx-mo').forEach(function(b){b.classList.toggle('active',b.dataset.m===mk);});buildMustSee();buildRecent();var mh=document.getElementById('evx-mh-'+mk);if(mh)mh.scrollIntoView({behavior:'smooth',block:'start'});}
 function setGenre(g){activeGenre=g;document.querySelectorAll('#evx .evx-gn').forEach(function(b){b.classList.toggle('active',b.dataset.g===g);});buildMustSee();buildRecent();buildDays();}
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(markScroll,120);});
-buildMonths();buildGenres();buildMustSee();buildRecent();buildDays();
+function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDays();}
+(function(){try{if(window.supabase){var _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');_sb.from('events').select('*').eq('status','upcoming').order('starts_at',{ascending:true}).then(function(r){if(r&&r.data&&r.data.length>=200){EVENTS=r.data.map(function(e){return {title:e.title,date:(e.starts_at||'').slice(0,10),venue:e.venue,city:e.city,genre:e.genre,gcat:e.gcat,img:e.img,ticket:e.ticket,price:e.price,pick:e.pick};});MONTHS=(function(){var s={};EVENTS.forEach(function(x){s[x.date.slice(0,7)]=1;});return Object.keys(s).sort();})();activeMonth=MONTHS[0]||activeMonth;}boot();}).catch(function(){boot();});}else{boot();}}catch(e){boot();}})();
 })();
 </script>
 
