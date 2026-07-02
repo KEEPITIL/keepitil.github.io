@@ -1887,23 +1887,27 @@
     if (m) m.classList.toggle('open');
   }
 
-  /* ── TYPEWRITER ── */
-  const words = ['VIBE', 'PULSE', 'WAVE', 'SCENE', 'CULTURE', 'MOVEMENT'];
-  let wi = 0, ci = 0, deleting = false;
-  function typeLoop() {
-    const el = document.getElementById('typewriter');
-    if (!el) return;
-    const word = words[wi];
-    if (!deleting) {
-      el.textContent = word.slice(0, ++ci);
-      if (ci === word.length) { deleting = true; setTimeout(typeLoop, 1800); return; }
-    } else {
-      el.textContent = word.slice(0, --ci);
-      if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
+  /* ── TYPEWRITER (self-scoped so nothing on the page can freeze it) ── */
+  (function(){
+    var twWords = ['VIBE','PULSE','WAVE','SCENE','CULTURE','MOVEMENT'];
+    var twI = 0, twC = 0, twDel = false;
+    function twTick(){
+      var el = document.getElementById('typewriter');
+      if (!el) { setTimeout(twTick, 300); return; }
+      var w = twWords[twI];
+      if (!twDel) {
+        twC++; el.textContent = w.slice(0, twC);
+        if (twC >= w.length) { twDel = true; setTimeout(twTick, 1500); return; }
+        setTimeout(twTick, 110);
+      } else {
+        twC--; el.textContent = w.slice(0, twC);
+        if (twC <= 0) { twDel = false; twI = (twI + 1) % twWords.length; setTimeout(twTick, 320); return; }
+        setTimeout(twTick, 55);
+      }
     }
-    setTimeout(typeLoop, deleting ? 60 : 100);
-  }
-  typeLoop();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(twTick, 300); });
+    else setTimeout(twTick, 300);
+  })();
 
   /* ── HOLIDAY BACKGROUND SYSTEM ──────────────────────────────────────────
    * To add a new holiday:
