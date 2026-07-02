@@ -31,6 +31,29 @@ All concepts keep the dark base + neon-green brand core intact and treat Hallowe
 
 ---
 
+### ✅ APPROVED PLAN — Countdown Escalation (Founder request → Echo approved 2026-07-01)
+
+Founder chose to use ALL 3 concepts. Instead of random rotation, they run as a progressive **countdown escalation** (each phase layers on top of the prior; the site visibly intensifies toward Halloween weekend, then auto-reverts). Echo-refined dates:
+
+| Phase | Dates | Theme | Adds |
+|-------|-------|-------|------|
+| 🎃 **Phase 1 — Neon Haunt** | **Oct 1–14** | Season begins | Orange neon logo glow, subtle accents only, no layout change |
+| 👻 **Phase 2 — Underground Séance** | **Oct 15–25** | Event discovery | Halloween banner → Must-Rave Guide, seasonal event highlights, editorial Halloween Picks (Phase 1 styling continues) |
+| 🌑 **Phase 3 — Blackout Rave** | **Oct 26–Nov 1** | Peak weekend | Hero fog effect, purple/orange wordmark, weekend countdown, featured Halloween events (all prior layers continue) |
+| — **Revert** | **Nov 2** | Normal | Automatic return to standard theme — no manual cleanup |
+
+**Echo addition — content evolves with the theme (not just decoration):**
+- "Featured This Month" → "Halloween Must-See Events"
+- Scene Rooms for Halloween events get seasonal badges
+- Radio highlights feature Halloween mixes
+- Must-Rave Guide becomes the primary editorial destination
+
+**Standing design rule (Echo):** no seasonal theme may change navigation, page layout, user workflows, readability, or performance. Halloween is a brand overlay, not a redesign.
+
+**Implementation:** Opus-Atlas builds the whole sequence behind a simple **date-based activation** so it triggers automatically each year with minimal maintenance. **Gate:** Fable-Atlas prepares 3 rendered mockups (one per phase) for Founder approval BEFORE any implementation begins.
+
+---
+
 ## 2. Event Campaign Plan
 
 Halloween weekend defined as **Thursday Oct 29 – Sunday Nov 1, 2026** (captures pre-parties, the Saturday main night, and Sunday recovery/day parties — matches how the LA underground scene actually spreads the weekend).
