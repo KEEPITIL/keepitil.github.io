@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- GA4 (staging-guarded) · G-9WZ40PV823 -->
+<script>(function(){if(location.pathname.indexOf('-staging')>-1)return;var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-9WZ40PV823';document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments);};gtag('js',new Date());gtag('config','G-9WZ40PV823');})();</script>
   <title>KEEPITIL — OC & LA Underground EDM Events, Artists & Culture</title>
   <meta name="description" content="Discover OC, LA & San Diego underground EDM events, artists and culture on KEEPITIL. Browse the events calendar by month, genre and day — save your KEEPITIL picks and grab tickets."/>
   <link rel="canonical" href="https://keepitil.com/"/>
@@ -2039,15 +2041,15 @@ function flyer(e,showPick){
   return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
     +'<span class="evx-genre">'+h(e.genre)+'</span>'
-    +'<button class="evx-save'+saved+'" data-slug="'+slug+'" data-title="'+h(e.title)+'" aria-label="Save event"><img src="https://keepitil.com/keepitil-x-green.png" alt=""/></button>'
+    +'<button class="evx-save'+saved+'" data-kt="save_event" data-event-slug="'+slug+'" data-slug="'+slug+'" data-title="'+h(e.title)+'" aria-label="Save event"><img src="https://keepitil.com/keepitil-x-green.png" alt=""/></button>'
     +'<div class="evx-body"><div class="evx-date">'+h(fmtLong(e.date))+'</div>'
     +'<div class="evx-title">'+h(e.title)+'</div>'
     +'<div class="evx-venue">📍 '+h(e.venue)+(e.city?' · '+h(e.city):'')+'</div>'
     +'<div class="evx-foot"><span class="evx-price">'+pr+'</span><span class="evx-cta">Details</span></div></div>'
     +'<div class="evx-actions">'
-      +'<a class="evx-act evx-act-tix" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>'
-      +(vip?'<a class="evx-act evx-act-vip" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
-      +'<a class="evx-act evx-act-chat" href="'+chat+'">💬 Join Event Chat</a>'
+      +'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>'
+      +(vip?'<a class="evx-act evx-act-vip" data-kt="vip_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
+      +'<a class="evx-act evx-act-chat" data-kt="chat_join" data-event-slug="'+slug+'" href="'+chat+'">💬 Join Event Chat</a>'
     +'</div></div>';
 }
 function buildMonths(){
@@ -2207,5 +2209,6 @@ buildMonths();buildGenres();buildMustSee();buildRecent();buildDays();
   if(host && window.MutationObserver){ new MutationObserver(function(){ markSaved(); }).observe(host,{childList:true,subtree:true}); }
 })();
 </script>
+<script src="/assets/js/kt-analytics.js" defer></script>
 </body>
 </html>
