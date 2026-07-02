@@ -244,7 +244,7 @@ footer a{color:var(--blue);}
     <p><strong id="sent-email-display"></strong></p>
     <p style="margin-top:8px;">Click the link to set a new password.</p>
     <p style="margin-top:6px;font-size:.82rem;color:var(--grey2);">Check your spam folder if you don't see it within a minute.</p>
-    <p style="margin-top:24px;"><a href="#" onclick="show('login');return false;" style="color:var(--blue);font-size:.88rem;">← Back to sign in</a></p>
+    <p style="margin-top:24px;"><a href="#" onclick="portalShow('login');return false;" style="color:var(--blue);font-size:.88rem;">← Back to sign in</a></p>
   </div>
 </div>
 
@@ -442,7 +442,7 @@ let currentEmail = '';
 let currentProfile = null;
 
 /* ════════ SHOW STATE ════════ */
-function show(state) {
+function portalShow(state) {
   stateLogin.style.display  = state === 'login'  ? '' : 'none';
   stateSent.style.display   = state === 'sent'   ? '' : 'none';
   stateEditor.style.display = state === 'editor' ? '' : 'none';
@@ -496,7 +496,7 @@ document.getElementById('reset-btn').addEventListener('click', async () => {
   });
   if (error) { msgEl.textContent = error.message; return; }
   sentEmailEl.textContent = email;
-  show('sent');
+  portalShow('sent');
 });
 
 /* ════════ SIGN OUT ════════ */
@@ -505,7 +505,7 @@ signoutBtn.addEventListener('click', async () => {
   currentProfile = null;
   loginBtn.disabled = false;
   loginBtn.textContent = 'SIGN IN';
-  show('login');
+  portalShow('login');
 });
 
 /* ════════ SET NEW PASSWORD (after reset link) ════════ */
@@ -526,7 +526,7 @@ document.getElementById('save-pw-btn').addEventListener('click', async () => {
 /* ════════ AUTH STATE CHANGE ════════ */
 supa.auth.onAuthStateChange(async (event, session) => {
   if (event === 'PASSWORD_RECOVERY') {
-    show('reset');
+    portalShow('reset');
   } else if (session) {
     await loadEditor(session.user);
   }
@@ -537,7 +537,7 @@ async function init() {
   const isRecovery = (hash.indexOf('type=recovery') > -1) || (hash.indexOf('access_token') > -1 && hash.indexOf('recovery') > -1);
   // Show the correct default view SYNCHRONOUSLY so the page is never blank,
   // even if the session check below is slow or never resolves.
-  show(isRecovery ? 'reset' : 'login');
+  portalShow(isRecovery ? 'reset' : 'login');
   if (isRecovery) return;
   try {
     const { data: { session } } = await supa.auth.getSession();
@@ -548,7 +548,7 @@ init();
 
 /* ════════ LOAD EDITOR ════════ */
 async function loadEditor(user) {
-  show('editor');
+  portalShow('editor');
   currentEmail = user.email;
 
   // Try to load the user's profile from applications table
@@ -749,6 +749,17 @@ function showSaveError(msg) {
   saveBtn.disabled = false;
   saveBtn.textContent = 'SAVE CHANGES';
 }
+
+/* ════════ SAFETY NET ════════ */
+/* The page must never be blank: if no view is visible shortly after load
+   (e.g. an auth/session hiccup left every state hidden), default to sign-in. */
+setTimeout(function () {
+  try {
+    var anyVisible = [stateLogin, stateSent, stateReset, stateEditor]
+      .some(function (el) { return el && getComputedStyle(el).display !== 'none'; });
+    if (!anyVisible) portalShow('login');
+  } catch (e) {}
+}, 800);
 </script>
 
 <script src="/keepitil-radio.js" defer></script>
