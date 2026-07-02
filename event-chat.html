@@ -50,6 +50,9 @@
   .gate input{width:100%;max-width:320px;padding:11px 13px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:#fff;margin-bottom:10px;}
   .gate button{padding:11px 20px;border-radius:9px;background:var(--green);color:#06120a;font-weight:800;text-transform:uppercase;font-size:.76rem;letter-spacing:.06em;border:none;cursor:pointer;}
   .gate .msg2{min-height:16px;font-size:.74rem;color:var(--green);margin-top:8px;}
+  .gate button.linky{display:block;margin:8px auto 0;background:none;color:#3cf;text-transform:none;letter-spacing:0;font-weight:600;font-size:.76rem;text-decoration:underline;padding:0;}
+  .gate .mini{font-size:.74rem;color:var(--grey);margin-top:10px;}
+  .gate .mini a{color:#3cf;}
 </style>
 </head>
 <body>
@@ -76,10 +79,13 @@
 <div class="gate" id="gate">
   <div class="card">
     <h4>Join the room</h4>
-    <p>You can read the scene room freely. Sign in or subscribe (free) to post, share photos and plan meetups.</p>
-    <input type="email" id="gemail" placeholder="you@email.com" autocomplete="email"/><br/>
-    <button id="gsend">Email me a magic link</button>
+    <p>You can read the scene room freely. Log in to post, share photos and plan meetups.</p>
+    <input type="email" id="gemail" placeholder="you@email.com" autocomplete="email"/>
+    <input type="password" id="gpass" placeholder="Password" autocomplete="current-password"/>
+    <button id="glogin">Log in</button>
+    <button id="gsend" class="linky">Email me a magic link instead</button>
     <div class="msg2" id="gmsg"></div>
+    <p class="mini">New here? <a href="/#evx">Create your free account</a> on the homepage.</p>
   </div>
 </div>
 
@@ -123,7 +129,9 @@
     if(session){ $('gate').style.display='none'; $('composer').style.display='block'; }
     else { $('gate').style.display='block'; $('composer').style.display='none'; }
   }
-  function handle(){ return session && session.user ? (session.user.email||'raver').split('@')[0] : 'raver'; }
+  var myHandle=null;
+  function loadHandle(){ if(!sb||!session) return; sb.from('app_users').select('handle').eq('id',session.user.id).maybeSingle().then(function(r){ if(r&&r.data&&r.data.handle) myHandle=r.data.handle; }).catch(function(){}); }
+  function handle(){ if(myHandle) return myHandle; return session && session.user ? (session.user.email||'raver').split('@')[0] : 'raver'; }
   function post(body,imageUrl){
     if(!session||!sb) return;
     sb.from('event_messages').insert({event_slug:slug,user_id:session.user.id,handle:handle(),body:body||null,image_url:imageUrl||null}).then(function(r){ if(!(r&&r.error)) load(); }).catch(function(){});
@@ -141,17 +149,25 @@
       post(null,(pub&&pub.data)?pub.data.publicUrl:null);
     }).catch(function(){});
   };
+  var glogin=$('glogin');
+  if(glogin) glogin.onclick=function(){
+    var email=$('gemail').value||''; var pass=($('gpass')||{}).value||''; var m=$('gmsg');
+    if(!email||!pass){ m.textContent='Enter your email and password.'; return; }
+    if(!sb){ m.textContent='Sign-in is being set up — check back soon.'; return; }
+    m.textContent='Logging in…';
+    sb.auth.signInWithPassword({email:email,password:pass}).then(function(r){ m.textContent=(r&&r.error)?(r.error.message||'Could not log in.'):''; }).catch(function(){ m.textContent='Could not log in.'; });
+  };
   var gsend=$('gsend');
   if(gsend) gsend.onclick=function(){
     var email=$('gemail').value||''; var m=$('gmsg');
-    if(!email){ m.textContent='Enter your email.'; return; }
+    if(!email){ m.textContent='Enter your email above first.'; return; }
     if(!sb){ m.textContent='Sign-in is being set up — check back soon.'; return; }
     m.textContent='Sending…';
-    sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(r){ m.textContent=(r&&r.error)?'Sign-in is not enabled yet - coming soon.':'Check your email for your magic link!'; }).catch(function(){ m.textContent='Sign-in is being set up — coming soon.'; });
+    sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.href}}).then(function(r){ m.textContent=(r&&r.error)?'Could not send link.':'Check your email for your magic link!'; }).catch(function(){ m.textContent='Could not send link.'; });
   };
   if(sb){
-    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; setAuthUI(); }).catch(function(){ setAuthUI(); });
-    sb.auth.onAuthStateChange(function(_e,s){ session=s; setAuthUI(); });
+    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; setAuthUI(); loadHandle(); }).catch(function(){ setAuthUI(); });
+    sb.auth.onAuthStateChange(function(_e,s){ session=s; setAuthUI(); loadHandle(); });
     load(); subscribe();
   } else { setAuthUI(); $('conn').textContent='Chat backend is being set up — check back soon.'; }
 })();
