@@ -56,7 +56,8 @@
       --font-head:'Bebas Neue',sans-serif; --font-body:'Inter',sans-serif;
     }
     html{scroll-behavior:smooth;overflow-x:hidden;}
-    body{background:#0a0a0f url('logo-bg.jpg') center/cover no-repeat fixed;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
+    body{background:#0a0a0f;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:#0a0a0f url('logo-bg.jpg') center/cover no-repeat;}
     a{color:inherit;text-decoration:none;}
     img{max-width:100%;display:block;}
     .container{max-width:1180px;margin:0 auto;padding:0 24px;}
@@ -345,7 +346,8 @@
 #evx .evx-nav{position:sticky;top:64px;z-index:40;background:rgba(8,8,13,.97);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);margin-top:34px;padding:9px 0 4px;}
 #evx .evx-nav-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;max-width:1180px;margin:0 auto;padding:5px 24px;align-items:center;}
 #evx .evx-nav-row::-webkit-scrollbar{display:none;}
-#evx #evx-months{gap:10px;overflow:visible;}
+#evx #evx-months{gap:10px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;}
+#evx #evx-months::-webkit-scrollbar{display:none;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:0;text-align:center;}
 #evx .evx-nav-tag{flex-shrink:0;font-size:.54rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#3a4550;margin-right:2px;}
 #evx .evx-mo{flex-shrink:0;padding:8px 17px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#7a8a99;font-family:var(--font-body);font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap;}
@@ -1003,7 +1005,7 @@
       --font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;
     }
     html{scroll-behavior:smooth;}
-    body{background:#0a0a0f url('logo-bg.jpg') center/cover no-repeat fixed;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+    body{background:#0a0a0f;color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
 
 
     /* ── NAV ── */
@@ -1424,12 +1426,23 @@
   }
   .mobile-menu a:last-child{border-bottom:none;}
   .mobile-menu .nav-cta{color:#00b4ff !important;border:none;padding:12px 0;background:transparent !important;}
+  .nav-emoji{display:none;}
+  .nav-only-mobile{display:none;}
   @media(max-width:768px){
-    .nav-links{display:none;}
-    .nav-hamburger{display:flex;}
+    .nav-hamburger{display:none !important;}
+    .mobile-menu{display:none !important;}
     .nav-inner > a.nav-cta{display:none;}
+    .nav-inner{flex-wrap:wrap;row-gap:4px;padding-bottom:4px;}
+    .nav-links{display:flex !important;order:3;flex-basis:100%;width:100%;justify-content:space-between;gap:2px;margin:0;padding:2px 2px 0;overflow-x:auto;scrollbar-width:none;}
+    .nav-links::-webkit-scrollbar{display:none;}
+    .nav-links li{flex:1 1 0;min-width:56px;list-style:none;}
+    .nav-links a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.54rem;letter-spacing:.02em;line-height:1.05;color:rgba(255,255,255,.82);text-align:center;padding:2px 0;}
+    .nav-emoji{display:block;font-size:1.2rem;line-height:1;}
+    .nav-only-mobile{display:block;}
+    body{padding-top:98px !important;}
+    #evx .evx-nav{top:94px;}
   }
-  body { padding-top: 66px !important; }
+  @media(min-width:769px){ body { padding-top: 66px !important; } }
   </style>
 </head>
 <body>
@@ -1442,10 +1455,11 @@
       <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
-      <li><a href="/artist/">ARTIST</a></li>
-      <li><a href="/brand/">BRAND</a></li>
-      <li><a href="/culture">CULTURE</a></li>
-      <li><a href="/organizer/">ORGANIZERS</a></li>
+      <li><a href="/artist/"><span class="nav-emoji" aria-hidden="true">🎤</span>ARTIST</a></li>
+      <li><a href="/brand/"><span class="nav-emoji" aria-hidden="true">🏷️</span>BRAND</a></li>
+      <li><a href="/culture"><span class="nav-emoji" aria-hidden="true">🎭</span>CULTURE</a></li>
+      <li><a href="/organizer/"><span class="nav-emoji" aria-hidden="true">🎪</span>ORGANIZERS</a></li>
+      <li class="nav-only-mobile"><a href="/apply.html"><span class="nav-emoji" aria-hidden="true">✉️</span>SUBSCRIBE</a></li>
     </ul>
     <a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
@@ -1471,7 +1485,7 @@
         <h1>
           THE <span class="accent"><span class="typewriter" id="typewriter">VIBE</span></span><br/>STARTS HERE
         </h1>
-        <p style="font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.1vw,1.5rem);letter-spacing:.16em;color:var(--blue);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">WHERE STRAIGHT FROM THE UNDERGROUND GETS DISCOVERED</p>
+        <p style="font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.1vw,1.5rem);letter-spacing:.16em;color:var(--blue);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">STRAIGHT FROM THE UNDERGROUND</p>
         <p style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.18em;color:var(--white);margin-bottom:28px;opacity:.5;">CREATE LOUD. LIVE LOUDER. KEEPITIL.</p>
         <!-- hero actions removed per Founder -->
         <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
@@ -1873,23 +1887,27 @@
     if (m) m.classList.toggle('open');
   }
 
-  /* ── TYPEWRITER ── */
-  const words = ['VIBE', 'PULSE', 'WAVE', 'SCENE', 'CULTURE', 'MOVEMENT'];
-  let wi = 0, ci = 0, deleting = false;
-  function typeLoop() {
-    const el = document.getElementById('typewriter');
-    if (!el) return;
-    const word = words[wi];
-    if (!deleting) {
-      el.textContent = word.slice(0, ++ci);
-      if (ci === word.length) { deleting = true; setTimeout(typeLoop, 1800); return; }
-    } else {
-      el.textContent = word.slice(0, --ci);
-      if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
+  /* ── TYPEWRITER (self-scoped so nothing on the page can freeze it) ── */
+  (function(){
+    var twWords = ['VIBE','PULSE','WAVE','SCENE','CULTURE','MOVEMENT'];
+    var twI = 0, twC = 0, twDel = false;
+    function twTick(){
+      var el = document.getElementById('typewriter');
+      if (!el) { setTimeout(twTick, 300); return; }
+      var w = twWords[twI];
+      if (!twDel) {
+        twC++; el.textContent = w.slice(0, twC);
+        if (twC >= w.length) { twDel = true; setTimeout(twTick, 1500); return; }
+        setTimeout(twTick, 110);
+      } else {
+        twC--; el.textContent = w.slice(0, twC);
+        if (twC <= 0) { twDel = false; twI = (twI + 1) % twWords.length; setTimeout(twTick, 320); return; }
+        setTimeout(twTick, 55);
+      }
     }
-    setTimeout(typeLoop, deleting ? 60 : 100);
-  }
-  typeLoop();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(twTick, 300); });
+    else setTimeout(twTick, 300);
+  })();
 
   /* ── HOLIDAY BACKGROUND SYSTEM ──────────────────────────────────────────
    * To add a new holiday:
