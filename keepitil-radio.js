@@ -43,7 +43,16 @@
     '.radio-mini #scroll-top{bottom:92px!important;}'+
     // Nav logo: bigger across all pages (overrides inline height:30px)
     'a.nav-logo img,#main-nav img,nav img[src*="keepitil-x-"]{height:44px!important;width:auto!important;}'+
-    '@media(max-width:600px){#kil-track{display:none;}.kil-submit{display:none;}#kr-vol{width:46px;}}'+
+    '@media(max-width:600px){'+
+      '.kil-live,.kil-brand-live,.kil-divider{display:none!important;}'+   /* far left = logo + RADIO only */
+      '#kil-track{display:block!important;flex:1 1 auto;min-width:0;text-align:center;font-size:.62rem;padding:0 6px;color:rgba(255,255,255,.7);}'+  /* center: song title + artist */
+      '.kil-submit{display:none!important;}'+
+      '#kr-toggle{display:none!important;}'+   /* volume + speaker become the far-right controls */
+      '.kil-brand{gap:5px;}'+
+      '.kr-controls{gap:9px;margin-left:auto;flex-shrink:0;}'+
+      '#kr-vol{width:74px;height:20px;}'+
+      '#kil-radio{gap:8px;padding:0 12px;}'+
+    '}'+
     '@media(max-width:480px){#kilo-btn{bottom:66px!important;right:16px!important;}.radio-mini #kilo-btn{bottom:88px!important;right:16px!important;}.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}';
   document.head.appendChild(css);
 
