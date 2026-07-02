@@ -1445,7 +1445,14 @@
     .nav-only-mobile{display:block;}
     body{padding-top:56px !important;}
     #evx .evx-nav{top:52px;}
+    /* Mobile hero: animated typed tagline replaces the two static lines */
+    .hero-sub-static{display:none !important;}
+    .hero-anim{display:block;font-family:'Bebas Neue',sans-serif;letter-spacing:.14em;line-height:1.12;min-height:3.5em;margin:0 0 26px;transition:opacity .55s ease;}
+    .hero-anim.ph1{color:#00b4ff;font-size:1.9rem;text-shadow:0 0 18px rgba(0,180,255,.45);}
+    .hero-anim.ph2{color:#f0f0f0;font-size:1.9rem;}
+    .hero-anim .cur{color:#00b4ff;font-weight:400;animation:blink .7s step-end infinite;}
   }
+  .hero-anim{display:none;}
   @media(min-width:769px){ body { padding-top: 66px !important; } }
   </style>
 </head>
@@ -1489,8 +1496,9 @@
         <h1>
           THE <span class="accent"><span class="typewriter" id="typewriter">VIBE</span></span><br/>STARTS HERE
         </h1>
-        <p style="font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.1vw,1.5rem);letter-spacing:.16em;color:var(--blue);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">STRAIGHT FROM THE UNDERGROUND</p>
-        <p style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.18em;color:var(--white);margin-bottom:28px;opacity:.5;">CREATE LOUD. LIVE LOUDER. KEEPITIL.</p>
+        <p class="hero-sub-static" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.1vw,1.5rem);letter-spacing:.16em;color:var(--blue);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">STRAIGHT FROM THE UNDERGROUND</p>
+        <p class="hero-sub-static" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.18em;color:var(--white);margin-bottom:28px;opacity:.5;">CREATE LOUD. LIVE LOUDER. KEEPITIL.</p>
+        <div class="hero-anim" id="hero-anim" aria-hidden="true"></div>
         <!-- hero actions removed per Founder -->
         <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
       </div>
@@ -2292,5 +2300,36 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
 })();
 </script>
 <script src="/assets/js/kt-analytics.js" defer></script>
+<script>
+/* Mobile-only hero tagline: type stacked phrase 1, fade, type + keep phrase 2 */
+(function(){
+  try{ if(!window.matchMedia || !matchMedia('(max-width:768px)').matches) return; }catch(e){ return; }
+  function run(){
+    var el=document.getElementById('hero-anim'); if(!el) return;
+    var p1=['STRAIGHT','FROM THE','UNDERGROUND'];
+    var p2=['CREATE LOUD.','LIVE LOUDER.','KEEPITIL.'];
+    function typePhrase(lines,cls,done){
+      el.className='hero-anim '+cls; el.style.opacity='1';
+      var li=0,ci=0;
+      function step(){
+        if(li>=lines.length){ el.innerHTML=lines.join('<br>'); if(done) done(); return; }
+        var head=lines.slice(0,li).join('<br>'); if(li>0) head+='<br>';
+        el.innerHTML=head+lines[li].slice(0,ci)+'<span class="cur">|</span>';
+        ci++;
+        if(ci>lines[li].length){ li++; ci=0; setTimeout(step,240); }
+        else setTimeout(step,70);
+      }
+      step();
+    }
+    typePhrase(p1,'ph1',function(){
+      setTimeout(function(){ el.style.opacity='0';
+        setTimeout(function(){ typePhrase(p2,'ph2'); },600);
+      },1200);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(run,500); });
+  else setTimeout(run,500);
+})();
+</script>
 </body>
 </html>
