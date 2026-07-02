@@ -698,3 +698,50 @@
   }
 
 })();
+
+/* ── KEEPITIL universal MOBILE nav: single-row logo + emoji categories (mobile only) ── */
+(function(){
+  function injectMobileNav(){
+    try{ if(!window.matchMedia || !matchMedia('(max-width:768px)').matches) return; }catch(e){ return; }
+    if(document.querySelector('.nav-links .nav-emoji')) return; /* homepage already has the emoji nav */
+    var ul=document.querySelector('ul.nav-links')||document.querySelector('.nav-links');
+    if(!ul) return;
+    if(!document.getElementById('kil-mnav-css')){
+      var st=document.createElement('style'); st.id='kil-mnav-css';
+      st.textContent="@media(max-width:768px){"
+        +".nav-hamburger{display:none!important;}.mobile-menu{display:none!important;}"
+        +".nav-inner>a.nav-cta{display:none!important;}.nav-brand{display:none!important;}"
+        +".nav-inner{flex-wrap:nowrap!important;gap:6px;align-items:center;padding:4px 6px;}"
+        +".nav-logo{flex-shrink:0;}.nav-logo img{height:30px!important;}"
+        +".nav-links{display:flex!important;flex:1 1 auto;min-width:0;justify-content:space-between;gap:1px;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;list-style:none;}"
+        +".nav-links::-webkit-scrollbar{display:none;}"
+        +".nav-links li{flex:1 1 0;min-width:46px;list-style:none;}"
+        +".nav-links a{display:flex!important;flex-direction:column;align-items:center;gap:2px;font-size:.46rem;letter-spacing:.01em;line-height:1;color:rgba(255,255,255,.85)!important;text-align:center;padding:2px 0;white-space:normal;}"
+        +".kil-nav-emoji{display:block;font-size:1.12rem;line-height:1;}"
+        +"}";
+      document.head.appendChild(st);
+    }
+    var map=[['/artist','🎤'],['/brand','🏷️'],['/culture','🎭'],['/organizer','🎪'],['/apply','✉️'],['/signup','✉️'],['/grow','📈']];
+    function emojiFor(href){ href=(href||'').toLowerCase(); for(var i=0;i<map.length;i++){ if(href.indexOf(map[i][0])>-1) return map[i][1]; } return '🔗'; }
+    ul.querySelectorAll('a').forEach(function(a){
+      if(a.querySelector('.kil-nav-emoji')) return;
+      var s=document.createElement('span'); s.className='kil-nav-emoji'; s.setAttribute('aria-hidden','true');
+      s.textContent=emojiFor(a.getAttribute('href'));
+      a.insertBefore(s, a.firstChild);
+    });
+    var hasSub=false;
+    ul.querySelectorAll('a').forEach(function(a){ if((a.getAttribute('href')||'').toLowerCase().indexOf('/apply')>-1) hasSub=true; });
+    if(!hasSub){
+      var cta=document.querySelector('.nav-inner > a.nav-cta')||document.querySelector('a.nav-cta');
+      if(cta){
+        var li=document.createElement('li');
+        var a=document.createElement('a'); a.href=cta.getAttribute('href')||'/apply.html';
+        var s=document.createElement('span'); s.className='kil-nav-emoji'; s.setAttribute('aria-hidden','true'); s.textContent='✉️';
+        a.appendChild(s); a.appendChild(document.createTextNode('SUBSCRIBE'));
+        li.appendChild(a); ul.appendChild(li);
+      }
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', injectMobileNav);
+  else injectMobileNav();
+})();
