@@ -9,7 +9,18 @@
 Answer, with data: which events get clicks, which CTAs convert, where subscribers come from, and which affiliate links earn. Everything below is one GA4 property + one small JS snippet.
 
 ## 1. Foundation
-- **GA4 property** for keepitil.com (create if not present; Founder owns the Google account).
+- **GA4 property LIVE (2026-07-01):** account "KEEPITIL" → property "KEEPITIL Website" → web stream "KEEPITIL Web" (https://keepitil.com, stream ID 15185180805). **Measurement ID: `G-9WZ40PV823`**. Enhanced measurement ON (page views, scrolls, outbound clicks +4). Data-sharing settings: all optional sharing OFF.
+- Base tag for every production page `<head>`:
+```html
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9WZ40PV823"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9WZ40PV823');
+</script>
+```
 - One shared snippet `assets/js/kt-analytics.js`, included on every page **before** `</body>`. No layout/CSS impact (design freeze safe).
 - Staging pages (`*-staging.html`) must NOT send events — guard: `if (location.pathname.includes('-staging')) return;`
 
@@ -60,4 +71,4 @@ Scheduled weekly report (existing scheduled-task infra) posts to Notion Strategy
 - [ ] First weekly rollup posted to Strategy Log
 
 ## Open item for Founder
-GA4 requires the Founder's Google account to create the property and share measurement ID — flagging per `keepitil-open-items` (click-tracking decision).
+~~GA4 requires the Founder's Google account~~ **RESOLVED 2026-07-01** — property created with Founder at the wheel; Measurement ID `G-9WZ40PV823` above. Sprint 1 is unblocked for Opus-Atlas.
