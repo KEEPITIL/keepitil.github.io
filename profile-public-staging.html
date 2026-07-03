@@ -208,6 +208,21 @@ footer a{color:var(--accent2);}
   .gal-grid{gap:6px;}.chat-wrap{height:560px;}.show-tix{padding:8px 14px;font-size:.82rem;}
   #pnav{gap:8px 12px;font-size:.8rem;}
 }
+  /* ── ADD-CONTENT MODAL ── */
+  .kil-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:9999;padding:18px;}
+  .kil-modal{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:16px;width:100%;max-width:460px;max-height:90vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.5);}
+  .kil-mh{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;font-family:var(--font-head);font-size:1.25rem;letter-spacing:.04em;border-bottom:1px solid var(--line);}
+  .kil-mx{background:none;border:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;}
+  .kil-mb{padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+  .kil-mf{display:flex;flex-direction:column;gap:6px;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+  .kil-mf input[type=text],.kil-mf textarea{font-family:inherit;font-size:.95rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;box-sizing:border-box;}
+  .kil-mf input[type=text]:focus,.kil-mf textarea:focus{outline:none;border-color:var(--accent);}
+  .kil-mf input[type=file]{font-size:.8rem;color:var(--muted);}
+  .kil-prev{display:none;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover;}
+  .kil-mfoot{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line);}
+  .kil-mcancel{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;border-radius:9px;font-weight:700;cursor:pointer;}
+  .kil-msave{background:var(--accent);color:var(--onacc,#04120c);border:none;padding:10px 22px;border-radius:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;}
+  .kil-msave:hover{filter:brightness(1.08);}
   </style>
 </head>
 <body>
@@ -337,16 +352,17 @@ function showTab(name){
   var hl=[['0c08978993ce4ba443b61b007d1de45445ddced3','Groove Cruise'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Studio'],['0eb69717593e6bb32225fec905e93762454a7894','Festivals']];
   r.innerHTML=hl.map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="https://images.ra.co/'+h[0]+'.jpg" alt="'+h[1]+'" loading="lazy"></div><span>'+h[1]+'</span></div>';}).join('');
 })();
-(function(){
+function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0)?v:'https://images.ra.co/'+v+'.jpg';}
+var GAL_IMGS=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
+function renderGallery(){
   var g=document.getElementById('gal-grid');if(!g)return;
-  var imgs=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
-  g.innerHTML=(IS_OWNER?'<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>':'')+imgs.map(function(t){return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
-})();
-(function(){
+  g.innerHTML=(IS_OWNER?'<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>':'')+GAL_IMGS.map(function(t){return '<div class="gal-tile"><img src="'+galSrc(t[0])+'" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
+}
+var GT_SHOWS=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
+function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
-  var shows=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
-  el.innerHTML=(IS_OWNER?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+shows.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
-})();
+  el.innerHTML=(IS_OWNER?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+GT_SHOWS.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
+}
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
 /* COMBINED SUPPORT & GEAR SHELF: referral + affiliate links in one widget */
@@ -370,10 +386,112 @@ function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn'
     return '<a class="scard"'+style+' href="'+it[3]+'" target="_blank" rel="noopener'+(it[6]?' sponsored':'')+'">'+bg+badge+'<div class="k">'+it[0]+'</div><div class="t">'+it[1]+'</div><div class="s">'+it[2]+'</div><div class="s" style="color:var(--accent);font-weight:700;margin-top:4px">'+cta+'</div></a>';
   }).join('');
 })();
-/* ── ADD CONTENT (demo) ── */
+/* ── ADD CONTENT — real modal engine + local persistence ── */
+var PROFILE_KEY='kil-profile-gt';
+var ADDED={photos:[],shows:[],articles:[],chats:[]};
+function loadStored(){
+  try{var s=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(s){ADDED={photos:s.photos||[],shows:s.shows||[],articles:s.articles||[],chats:s.chats||[]};}}catch(e){}
+  ADDED.photos.forEach(function(p){GAL_IMGS.unshift(p);});
+  ADDED.shows.forEach(function(s){GT_SHOWS.push(s);});
+  ADDED.articles.forEach(function(a){GT_ARTICLES.unshift(a);});
+  ADDED.chats.forEach(function(c){GT_CHATS.unshift(c);});
+}
+function saveStored(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(ADDED));}catch(e){}}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)||('group-'+Date.now());}
+
+/* generic modal: fields=[{name,label,type,ph,req,val}], returns values via cb */
+function openModal(title,fields,cb){
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  var rows=fields.map(function(f){
+    var id='mf_'+f.name;
+    if(f.type==='textarea') return '<label class="kil-mf"><span>'+esc(f.label)+'</span><textarea id="'+id+'" rows="4" placeholder="'+esc(f.ph||'')+'">'+esc(f.val||'')+'</textarea></label>';
+    if(f.type==='file') return '<label class="kil-mf"><span>'+esc(f.label)+'</span><input type="file" accept="image/*" id="'+id+'" data-target="'+esc(f.target||'')+'"><img class="kil-prev" id="'+id+'_prev" alt=""></label>';
+    return '<label class="kil-mf"><span>'+esc(f.label)+'</span><input type="text" id="'+id+'" placeholder="'+esc(f.ph||'')+'" value="'+esc(f.val||'')+'"></label>';
+  }).join('');
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">'+esc(title)+'<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb">'+rows+'</div><div class="kil-mfoot"><button class="kil-mcancel" onclick="closeModal()">Cancel</button><button class="kil-msave" id="kilSave">Publish</button></div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  fields.forEach(function(f){ if(f.type==='file'){ var inp=document.getElementById('mf_'+f.name); inp.addEventListener('change',function(){ var file=inp.files&&inp.files[0]; if(!file)return; var rd=new FileReader(); rd.onload=function(){ inp.dataset.dataurl=rd.result; var pv=document.getElementById('mf_'+f.name+'_prev'); if(pv){pv.src=rd.result;pv.style.display='block';} }; rd.readAsDataURL(file); }); } });
+  document.getElementById('kilSave').onclick=function(){
+    var vals={};
+    fields.forEach(function(f){ var el=document.getElementById('mf_'+f.name); if(f.type==='file'){ vals[f.name]=el.dataset.dataurl||''; } else { vals[f.name]=el.value.trim(); } });
+    var missing=fields.filter(function(f){return f.req && !vals[f.name];});
+    if(missing.length){ alert('Please fill: '+missing.map(function(f){return f.label;}).join(', ')); return; }
+    closeModal(); cb(vals);
+  };
+  setTimeout(function(){var first=ov.querySelector('input,textarea');if(first)first.focus();},30);
+}
+function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();}
+
 function addContent(kind){
-  var choice=(kind && kind!=='menu') ? kind : prompt('Add to your profile — type: post, photo, or event','post');
-  if(choice){ alert('New '+choice+' — wire to create/upload. (Demo)'); }
+  if(!IS_OWNER)return;
+  if(!kind||kind==='menu'){
+    openModal('Add to your profile',[{name:'type',label:'What do you want to add?',type:'text',ph:'post, photo, or event',val:'post',req:true}],function(v){
+      var t=v.type.toLowerCase();
+      if(t.indexOf('photo')>-1||t.indexOf('pic')>-1)addContent('photo');
+      else if(t.indexOf('event')>-1||t.indexOf('show')>-1)addContent('event');
+      else if(t.indexOf('chat')>-1||t.indexOf('group')>-1)addContent('chat group');
+      else addContent('post');
+    });
+    return;
+  }
+  if(kind==='post'){
+    openModal('New Post',[
+      {name:'title',label:'Title',type:'text',ph:'e.g. New Warehouse EP',req:true},
+      {name:'meta',label:'Label / date',type:'text',ph:'Post · Jul',val:'Post · Jul'},
+      {name:'body',label:'Body',type:'textarea',ph:'Write your update...',req:true},
+      {name:'imgurl',label:'Cover image URL (optional)',type:'text',ph:'https://...'},
+      {name:'imgfile',label:'…or upload a cover',type:'file'}
+    ],function(v){
+      var img=v.imgfile||v.imgurl||'https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg';
+      var art={t:v.title,d:v.meta||'Post',img:img,html:'<div class="kil-tag">★ POST</div><p class="intro-text">'+esc(v.body).replace(/\n/g,'<br>')+'</p>'};
+      GT_ARTICLES.unshift(art);ADDED.articles.unshift(art);saveStored();renderArticles();openArticle(0);
+      var tp=document.querySelector('.pf-tab[data-tab="article"]');if(tp)showTab('article');
+    });
+    return;
+  }
+  if(kind==='photo'){
+    openModal('Add Photo',[
+      {name:'label',label:'Caption',type:'text',ph:'e.g. Avalon Hollywood',req:true},
+      {name:'views',label:'Views/likes label',type:'text',ph:'0',val:'New'},
+      {name:'imgurl',label:'Image URL',type:'text',ph:'https://...'},
+      {name:'imgfile',label:'…or upload from device',type:'file'}
+    ],function(v){
+      var src=v.imgfile||v.imgurl;if(!src){alert('Add an image URL or upload a file.');return;}
+      var row=[src,v.label,v.views||'New'];GAL_IMGS.unshift(row);ADDED.photos.unshift(row);saveStored();renderGallery();showTab('gallery');
+    });
+    return;
+  }
+  if(kind==='event'){
+    openModal('Add Event',[
+      {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
+      {name:'day',label:'Day',type:'text',ph:'16',req:true},
+      {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
+      {name:'title',label:'Event title',type:'text',ph:'KEEPITIL Summer',req:true},
+      {name:'venue',label:'Venue · city · age',type:'text',ph:'Venue · Orange County, CA · 21+',req:true},
+      {name:'tags',label:'Genre tags',type:'text',ph:'Latin House · Techno'},
+      {name:'tix',label:'Ticket link',type:'text',ph:'https://posh.vip/e/...'}
+    ],function(v){
+      var row=[v.month.toUpperCase(),v.day,(v.dow||'').toUpperCase(),v.title,v.venue,v.tags||'',v.tix||'#'];
+      GT_SHOWS.push(row);ADDED.shows.push(row);saveStored();renderShows();showTab('shows');
+    });
+    return;
+  }
+  if(kind==='chat group'){
+    openModal('New Chat Group',[
+      {name:'name',label:'Group name',type:'text',ph:'OC Techno Heads',req:true},
+      {name:'preview',label:'First message / topic',type:'text',ph:'Warehouse location?'},
+      {name:'avatarurl',label:'Avatar image URL',type:'text',ph:'https://...'},
+      {name:'avatarfile',label:'…or upload an avatar',type:'file'}
+    ],function(v){
+      var av=v.avatarfile||v.avatarurl||'https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg';
+      var row=[slugify(v.name),v.name,v.preview||'New group','now','',av];
+      GT_CHATS.unshift(row);ADDED.chats.unshift(row);saveStored();renderChats();showTab('chat');
+    });
+    return;
+  }
 }
 /* ── ARTICLE CAROUSEL + VIEWER ── */
 var GT_ARTICLES=[
@@ -404,12 +522,11 @@ var GT_ARTICLES=[
 <p class="intro-text">Groove Trooper shared this from the KEEPITIL culture blog — a deep dive on where house music came from and why the groove still matters.</p>
 <p class="intro-text"><a href="/culture" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
 ];
-(function(){
+function renderArticles(){
   var car=document.getElementById('art-car');if(!car)return;
   var add=IS_OWNER?'<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>':'';
   car.innerHTML=add+GT_ARTICLES.map(function(a,i){return '<div class="art-card" id="artc'+i+'" onclick="openArticle('+i+')"><img src="'+a.img+'" alt="'+a.t+'" loading="lazy" onerror="this.style.background=\'#222\'"><div class="cap"><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';}).join('');
-  openArticle(0);
-})();
+}
 function openArticle(i){
   var v=document.getElementById('art-viewer');if(!v||!GT_ARTICLES[i])return;
   v.innerHTML=GT_ARTICLES[i].html;
@@ -424,7 +541,7 @@ var GT_CHATS=[
   ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg'],
   ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg']
 ];
-(function(){
+function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
   var add=IS_OWNER?'<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>':'';
   list.innerHTML=add+GT_CHATS.map(function(c){
@@ -432,7 +549,7 @@ var GT_CHATS=[
     var nm=c[1].replace(/'/g,'');
     return '<div class="chat-item" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><img class="av" src="'+c[5]+'" alt="" loading="lazy"><div class="meta"><div class="nm">'+c[1]+'</div><div class="pv">'+c[2]+'</div></div><div class="rt"><span>'+c[3]+'</span>'+unread+'</div></div>';
   }).join('');
-})();
+}
 function openChatGroup(slug,name){
   var f=document.getElementById('chat-frame');if(f)f.src='/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name);
   var l=document.getElementById('chat-list');if(l)l.style.display='none';
@@ -443,6 +560,12 @@ function closeChatGroup(){
   var l=document.getElementById('chat-list');if(l)l.style.display='flex';
   var f=document.getElementById('chat-frame');if(f)f.src='';
 }
+/* ── INIT: load saved content, render all sections ── */
+(function(){
+  loadStored();
+  renderGallery();renderShows();renderArticles();renderChats();
+  if(GT_ARTICLES.length)openArticle(0);
+})();
 </script>
 <script src="/keepitil-radio.js" defer></script>
 <script src="/keepitil-ai.js" defer></script>
