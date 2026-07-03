@@ -5,7 +5,7 @@
   · sticky tabs (Article/Gallery/Shows/Chat) · edmtrain tour dates · ONE combined Support&Gear shelf
   · bottom prev/next profile nav · multi-theme switcher. Redeploy: push-profile-staging.command
 -->
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-view="owner">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -321,6 +321,8 @@ footer a{color:var(--accent2);}
 
 <script>
 function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
+/* OWNER (subscriber, can edit/add) vs PUBLIC (customer-facing, read-only) */
+var IS_OWNER = document.documentElement.getAttribute('data-view')!=='public' && location.search.indexOf('view=public')===-1;
 function markTheme(){var cur=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('.tsw').forEach(function(b){b.classList.toggle('on',b.dataset.t===cur);});}
 document.querySelectorAll('.tsw').forEach(function(b){b.onclick=function(){var t=b.dataset.t;document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('kil-theme',t);}catch(e){}markTheme();};});
 markTheme();
@@ -338,12 +340,12 @@ function showTab(name){
 (function(){
   var g=document.getElementById('gal-grid');if(!g)return;
   var imgs=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
-  g.innerHTML='<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>'+imgs.map(function(t){return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
+  g.innerHTML=(IS_OWNER?'<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>':'')+imgs.map(function(t){return '<div class="gal-tile" onclick="alert(\'Opens '+t[1]+' — wire to lightbox/upload\')"><img src="https://images.ra.co/'+t[0]+'.jpg" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
 })();
 (function(){
   var el=document.getElementById('shows-list');if(!el)return;
   var shows=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
-  el.innerHTML='<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>'+shows.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
+  el.innerHTML=(IS_OWNER?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+shows.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
 })();
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -404,7 +406,7 @@ var GT_ARTICLES=[
 ];
 (function(){
   var car=document.getElementById('art-car');if(!car)return;
-  var add='<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>';
+  var add=IS_OWNER?'<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>':'';
   car.innerHTML=add+GT_ARTICLES.map(function(a,i){return '<div class="art-card" id="artc'+i+'" onclick="openArticle('+i+')"><img src="'+a.img+'" alt="'+a.t+'" loading="lazy" onerror="this.style.background=\'#222\'"><div class="cap"><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';}).join('');
   openArticle(0);
 })();
@@ -424,7 +426,7 @@ var GT_CHATS=[
 ];
 (function(){
   var list=document.getElementById('chat-list');if(!list)return;
-  var add='<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>';
+  var add=IS_OWNER?'<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>':'';
   list.innerHTML=add+GT_CHATS.map(function(c){
     var unread=c[4]?'<span class="unread">'+c[4]+'</span>':'';
     var nm=c[1].replace(/'/g,'');
