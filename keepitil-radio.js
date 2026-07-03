@@ -22,7 +22,11 @@
     '.kil-brand-live{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
     '.kil-brand-logo{height:28px;width:auto;filter:drop-shadow(0 0 4px rgba(255,80,120,.7));}'+
     '.kil-brand-radio{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
-    '#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
+    '#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:0 1 auto;max-width:210px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
+    '.kil-ad{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;}'+
+    '.kil-ad a{display:inline-flex;align-items:center;gap:7px;font-size:.66rem;font-weight:700;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.4);color:#00ff88;padding:5px 12px;border-radius:20px;white-space:nowrap;transition:opacity .5s;}'+
+    '.kil-ad .rlabel{opacity:.6;font-weight:600;}'+
+    '#kil-radio.kil-mini .kil-ad{display:none!important;}'+
     '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
     '.kr-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}'+
     '.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.85rem;line-height:1;padding:2px 4px;transition:opacity .2s;flex-shrink:0;}'+
@@ -44,6 +48,7 @@
     // Nav logo: bigger across all pages (overrides inline height:30px)
     'a.nav-logo img,#main-nav img,nav img[src*="keepitil-x-"]{height:44px!important;width:auto!important;}'+
     '@media(max-width:600px){'+
+      '.kil-ad{display:none!important;}'+
       '.kil-live,.kil-brand-live,.kil-divider{display:none!important;}'+   /* far left = logo + RADIO only */
       '#kil-track{display:block!important;flex:1 1 auto;min-width:0;text-align:center;font-size:.62rem;padding:0 6px;color:rgba(255,255,255,.7);}'+  /* center: song title + artist */
       '.kil-submit{display:none!important;}'+
@@ -70,6 +75,7 @@
       '</div>'+
       '<span class="kil-divider">·</span>'+
       '<span id="kil-track">Loading...</span>'+
+      '<div class="kil-ad"><a href="https://distrokid.com/vip/seven/11538316" id="kil-ad-link" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click"><span class="rlabel">Partner:</span> <span id="kil-ad-text">🎵 Release on DistroKid</span></a></div>'+
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>'+
         '<input type="range" id="kr-vol" min="0" max="100" value="5" title="Volume"/>'+
@@ -77,6 +83,22 @@
       '<a href="/signup.html" class="kil-submit" target="_blank">🎵 Play your song?</a>'+
       '<button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>';
     document.body.appendChild(bar);
+    // ── rotating referral ad (middle of the bar) ──
+    (function(){
+      var link=document.getElementById('kil-ad-link'),txt=document.getElementById('kil-ad-text');
+      if(!link||!txt)return;
+      var ads=[
+        {t:'🎵 Release on DistroKid',u:'https://distrokid.com/vip/seven/11538316'},
+        {t:'🎟 List Your Event · Posh',u:'https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt'},
+        {t:'💸 Earn on FreeCash',u:'https://freecash.com/r/Tuitea'},
+        {t:'🛒 Shop Rave Gear',u:'https://keepitil.com/shop.html'}
+      ];
+      var i=0;
+      setInterval(function(){
+        i=(i+1)%ads.length;link.style.opacity=0;
+        setTimeout(function(){txt.textContent=ads[i].t;link.href=ads[i].u;link.style.opacity=1;},400);
+      },5000);
+    })();
 
     var sc=document.createElement('iframe');
     sc.id='kil-sc';
