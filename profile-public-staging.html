@@ -62,6 +62,7 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .pf-btn{font-family:var(--font-head);font-size:1rem;letter-spacing:.1em;padding:9px 26px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;}
 .pf-btn.follow{background:var(--accent);color:var(--onacc);}
 .pf-btn.follow:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.pf-btn.follow.following{background:transparent;border-color:var(--accent);color:var(--accent);}
 .pf-btn.book{background:transparent;border-color:var(--accent2);color:var(--accent2);}
 .pf-btn.book:hover{background:var(--accent2);color:#fff;}
 .pf-btn.icon{padding:9px 11px;border-color:var(--line);color:var(--text);}
@@ -278,7 +279,7 @@ footer a{color:var(--accent2);}
 <div class="pf-meta">
   <div class="pf-bio" id="pfBio">Garden Grove's Latin House veteran — from Antigua Guatemala raves to Avalon Hollywood. High energy, all smiles, Latin grooves. <span class="h">The stage is the mission.</span></div>
   <div class="pf-cta">
-    <button class="pf-btn follow" onclick="alert('Follow — wire to Save/Follow')">+ FOLLOW</button>
+    <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfEdit" style="display:none" onclick="openEditProfile()">✎ EDIT PROFILE</button>
     <a class="pf-btn book" id="pfBook" href="mailto:gtbookings626@gmail.com">BOOK</a>
     <a class="pf-btn icon" id="pfIG" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
@@ -522,7 +523,41 @@ function loadProfileMeta(){
     applyProfile();
   }).catch(function(){ applyProfile(); });
 }
-function updateOwnerUI(){ var e=document.getElementById('pfEdit'); if(e)e.style.display=CAN_EDIT()?'':'none'; }
+function updateOwnerUI(){
+  var e=document.getElementById('pfEdit'); if(e)e.style.display=CAN_EDIT()?'':'none';
+  var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
+}
+/* ── FOLLOW (fans follow a profile) ── */
+var FOLLOWING=false, FOLLOWERS=0;
+function renderFollowBtn(){
+  var b=document.getElementById('pfFollow'); if(!b)return;
+  b.textContent=(FOLLOWING?'✓ FOLLOWING':'+ FOLLOW')+(FOLLOWERS>0?' · '+FOLLOWERS:'');
+  b.classList.toggle('following',FOLLOWING);
+}
+function loadFollow(){
+  if(!SB)return;
+  SB.from('follows').select('follower_id',{count:'exact'}).eq('profile_slug',PROFILE_SLUG).then(function(r){
+    if(r&&!r.error){ FOLLOWERS=(typeof r.count==='number')?r.count:(r.data?r.data.length:0);
+      FOLLOWING = !!(SESSION && r.data && r.data.some(function(x){return x.follower_id===SESSION.user.id;}));
+      renderFollowBtn();
+    }
+  }).catch(function(){});
+}
+function toggleFollow(){
+  if(!SB||!SESSION){ toast('Sign in to follow this profile.'); return; }
+  var b=document.getElementById('pfFollow'); if(b)b.disabled=true;
+  if(FOLLOWING){
+    SB.from('follows').delete().eq('profile_slug',PROFILE_SLUG).eq('follower_id',SESSION.user.id).then(function(r){
+      if(!(r&&r.error)){ FOLLOWING=false; FOLLOWERS=Math.max(0,FOLLOWERS-1); renderFollowBtn(); }
+      if(b)b.disabled=false;
+    }).catch(function(){ if(b)b.disabled=false; });
+  } else {
+    SB.from('follows').insert({profile_slug:PROFILE_SLUG,follower_id:SESSION.user.id}).then(function(r){
+      if(!(r&&r.error)){ FOLLOWING=true; FOLLOWERS=FOLLOWERS+1; renderFollowBtn(); toast('You are following '+PROFILE.name+'.'); }
+      if(b)b.disabled=false;
+    }).catch(function(){ if(b)b.disabled=false; });
+  }
+}
 
 /* ── EDIT PROFILE (owner-only) ── */
 function editHighlightsHTML(){
@@ -774,8 +809,8 @@ function closeChatGroup(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
   applyProfile(); renderAll();
   if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); }).catch(function(){ loadProfileMeta(); loadFromDB(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); }); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
