@@ -223,6 +223,22 @@ footer a{color:var(--accent2);}
   .kil-mcancel{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;border-radius:9px;font-weight:700;cursor:pointer;}
   .kil-msave{background:var(--accent);color:var(--onacc,#04120c);border:none;padding:10px 22px;border-radius:9px;font-weight:800;letter-spacing:.04em;cursor:pointer;}
   .kil-msave:hover{filter:brightness(1.08);}
+  .kil-modal.kil-wide{max-width:600px;}
+  .kil-sec{font-family:var(--font-head);font-size:1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:6px 0 2px;padding-top:8px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
+  .kil-sec:first-child{border-top:none;padding-top:0;}
+  .kil-photos{display:flex;gap:14px;flex-wrap:wrap;}.kil-photos .kil-mf{flex:1;min-width:180px;}
+  .kil-row2{display:flex;gap:12px;flex-wrap:wrap;}.kil-row2 .kil-mf{flex:1;min-width:150px;}
+  .kil-mf input[type=password]{font-family:inherit;font-size:.95rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;box-sizing:border-box;}
+  .kil-mf input[type=password]:focus{outline:none;border-color:var(--accent);}
+  .kil-prev.on{display:block;}
+  .kil-hls{display:flex;flex-direction:column;gap:8px;}
+  .kil-hl{display:flex;align-items:center;gap:8px;}
+  .kil-hl img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--surface2);flex:0 0 auto;}
+  .kil-hl .hl-label{flex:1;min-width:60px;font-size:.9rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .kil-hl .hl-file{font-size:.72rem;color:var(--muted);max-width:120px;}
+  .kil-hl .hl-del{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;}
+  .kil-addhl{background:var(--accent);color:var(--onacc,#04120c);border:none;border-radius:7px;padding:4px 10px;font-size:.72rem;font-weight:800;letter-spacing:.04em;cursor:pointer;}
+  .kil-note{font-size:.75rem;color:var(--muted);line-height:1.4;margin-top:2px;}
   </style>
 </head>
 <body>
@@ -249,23 +265,24 @@ footer a{color:var(--accent2);}
 </div>
 
 <!-- HEADER (social icons now live here) -->
-<div class="pf-cover"><img src="https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg" alt="Groove Trooper cover" onerror="this.style.display='none'"></div>
+<div class="pf-cover"><img id="pfCover" src="https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg" alt="Groove Trooper cover" onerror="this.style.display='none'"></div>
 <div class="pf-head">
   <div class="pf-top">
-    <img class="pf-avatar" src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="Groove Trooper">
+    <img id="pfAvatar" class="pf-avatar" src="https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg" alt="Groove Trooper">
     <div class="pf-idblock">
-      <h1 class="pf-name">Groove Trooper</h1>
-      <div class="pf-handle">@Groove_Trooper · Garden Grove, CA</div>
+      <h1 class="pf-name" id="pfName">Groove Trooper</h1>
+      <div class="pf-handle" id="pfHandle">@Groove_Trooper · Garden Grove, CA</div>
     </div>
   </div>
 </div>
 <div class="pf-meta">
-  <div class="pf-bio">Garden Grove's Latin House veteran — from Antigua Guatemala raves to Avalon Hollywood. High energy, all smiles, Latin grooves. <span class="h">The stage is the mission.</span></div>
+  <div class="pf-bio" id="pfBio">Garden Grove's Latin House veteran — from Antigua Guatemala raves to Avalon Hollywood. High energy, all smiles, Latin grooves. <span class="h">The stage is the mission.</span></div>
   <div class="pf-cta">
     <button class="pf-btn follow" onclick="alert('Follow — wire to Save/Follow')">+ FOLLOW</button>
-    <a class="pf-btn book" href="mailto:gtbookings626@gmail.com">BOOK</a>
-    <a class="pf-btn icon" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
-    <a class="pf-btn icon" href="https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
+    <button class="pf-btn book" id="pfEdit" style="display:none" onclick="openEditProfile()">✎ EDIT PROFILE</button>
+    <a class="pf-btn book" id="pfBook" href="mailto:gtbookings626@gmail.com">BOOK</a>
+    <a class="pf-btn icon" id="pfIG" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
+    <a class="pf-btn icon" id="pfSC" href="https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
     <button class="pf-btn icon" onclick="navigator.share ? navigator.share({title:'Groove Trooper',url:location.href}) : alert('Share')" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
   </div>
 </div>
@@ -363,11 +380,10 @@ function showTab(name){
   if(name==='chat'){ if(typeof closeChatGroup==='function') closeChatGroup(); }
   var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
 }
-(function(){
+function renderHighlights(){
   var r=document.getElementById('hl-row');if(!r)return;
-  var hl=[['0c08978993ce4ba443b61b007d1de45445ddced3','Groove Cruise'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Studio'],['0eb69717593e6bb32225fec905e93762454a7894','Festivals']];
-  r.innerHTML=hl.map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="https://images.ra.co/'+h[0]+'.jpg" alt="'+h[1]+'" loading="lazy"></div><span>'+h[1]+'</span></div>';}).join('');
-})();
+  r.innerHTML=(PROFILE.highlights||[]).map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="'+h.img+'" alt="'+esc(h.label)+'" loading="lazy" onerror="this.style.opacity=.12"></div><span>'+esc(h.label)+'</span></div>';}).join('');
+}
 function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0)?v:'https://images.ra.co/'+v+'.jpg';}
 var GAL_IMGS=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
 function renderGallery(){
@@ -468,6 +484,127 @@ function uploadImage(file,cb){
 }
 function resolveImg(vals,fileKey,urlKey,dflt,cb){ uploadImage(vals[fileKey+'_file'],function(pub){ cb(pub||vals[fileKey]||vals[urlKey]||dflt||''); }); }
 function toast(msg){ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--line);padding:11px 18px;border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.45);z-index:10000;font-size:.85rem;max-width:90%;text-align:center;'; document.body.appendChild(t); setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';},2600); setTimeout(function(){t.remove();},3200); }
+
+/* ── PROFILE META (header/bio/links/highlights) — editable by the owner ── */
+var PROFILE={
+  name:'Groove Trooper', handle:'Groove_Trooper', location:'Garden Grove, CA',
+  bio:"Garden Grove's Latin House veteran — from Antigua Guatemala raves to Avalon Hollywood. High energy, all smiles, Latin grooves.",
+  tagline:'The stage is the mission.', pronouns:'',
+  avatar:'https://img1.wsimg.com/isteam/ip/403cc31a-6001-42de-a0a3-68f197acd538/680248119_960171736974630_4503929345921155632_.jpg',
+  cover:'https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg',
+  book_email:'gtbookings626@gmail.com',
+  socials:{instagram:'https://instagram.com/Groove_Trooper',soundcloud:'https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj',website:'',tiktok:''},
+  highlights:[{label:'Groove Cruise',img:'https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg'},{label:'Avalon',img:'https://images.ra.co/095b3c97c806dfa2326c4bc5a8239907b4a24815.jpg'},{label:'R&V Radio',img:'https://images.ra.co/234c570dd0c0ce4c93d62945d502ef1952b2cf31.jpg'},{label:'Kingdom',img:'https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg'},{label:'Studio',img:'https://images.ra.co/1bfc214a7b4917efac1afad318fd4dafa631a480.jpg'},{label:'Festivals',img:'https://images.ra.co/0eb69717593e6bb32225fec905e93762454a7894.jpg'}]
+};
+function applyProfile(){
+  var g=function(id){return document.getElementById(id);};
+  if(g('pfCover'))g('pfCover').src=PROFILE.cover;
+  if(g('pfAvatar'))g('pfAvatar').src=PROFILE.avatar;
+  if(g('pfName'))g('pfName').textContent=PROFILE.name;
+  if(g('pfHandle'))g('pfHandle').textContent='@'+PROFILE.handle+(PROFILE.location?' · '+PROFILE.location:'')+(PROFILE.pronouns?' · '+PROFILE.pronouns:'');
+  if(g('pfBio'))g('pfBio').innerHTML=esc(PROFILE.bio)+(PROFILE.tagline?' <span class="h">'+esc(PROFILE.tagline)+'</span>':'');
+  if(g('pfBook'))g('pfBook').href='mailto:'+(PROFILE.book_email||'');
+  var s=PROFILE.socials||{};
+  if(g('pfIG'))g('pfIG').style.display=s.instagram?'':'none', g('pfIG')&&(g('pfIG').href=s.instagram||'#');
+  if(g('pfSC'))g('pfSC').style.display=s.soundcloud?'':'none', g('pfSC')&&(g('pfSC').href=s.soundcloud||'#');
+  renderHighlights();
+}
+function loadProfileMeta(){
+  if(!SB) return Promise.resolve();
+  return SB.from('profile_meta').select('*').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
+    if(r&&r.data){var d=r.data;
+      PROFILE.name=d.display_name||PROFILE.name; PROFILE.handle=d.handle||PROFILE.handle; PROFILE.location=d.location||PROFILE.location;
+      PROFILE.bio=(d.bio!=null?d.bio:PROFILE.bio); PROFILE.tagline=(d.tagline!=null?d.tagline:PROFILE.tagline); PROFILE.pronouns=d.pronouns||PROFILE.pronouns;
+      PROFILE.avatar=d.avatar_url||PROFILE.avatar; PROFILE.cover=d.cover_url||PROFILE.cover; PROFILE.book_email=d.book_email||PROFILE.book_email;
+      if(d.socials&&typeof d.socials==='object')PROFILE.socials=Object.assign({},PROFILE.socials,d.socials);
+      if(Array.isArray(d.highlights)&&d.highlights.length)PROFILE.highlights=d.highlights;
+    }
+    applyProfile();
+  }).catch(function(){ applyProfile(); });
+}
+function updateOwnerUI(){ var e=document.getElementById('pfEdit'); if(e)e.style.display=CAN_EDIT()?'':'none'; }
+
+/* ── EDIT PROFILE (owner-only) ── */
+function editHighlightsHTML(){
+  return (PROFILE.highlights||[]).map(function(h,i){
+    return '<div class="kil-hl" data-i="'+i+'"><img src="'+(h.img||'')+'" onerror="this.style.opacity=.12"><input class="hl-label" type="text" value="'+esc(h.label||'')+'" placeholder="Label"><input class="hl-file" type="file" accept="image/*"><button type="button" class="hl-del" onclick="this.parentNode.remove()">✕</button></div>';
+  }).join('');
+}
+function openEditProfile(){
+  if(!CAN_EDIT()){ toast('Only the profile owner can edit.'); return; }
+  closeModal();
+  var s=PROFILE.socials||{};
+  var html=''+
+  '<div class="kil-modal kil-wide"><div class="kil-mh">Edit Profile<button class="kil-mx" onclick="closeModal()">&times;</button></div>'+
+  '<div class="kil-mb">'+
+    '<div class="kil-sec">Photos</div>'+
+    '<div class="kil-photos"><label class="kil-mf"><span>Profile photo</span><img class="kil-prev on" id="epAvatarPrev" src="'+PROFILE.avatar+'"><input type="file" accept="image/*" id="epAvatarFile"><input type="text" id="epAvatarUrl" placeholder="…or image URL"></label>'+
+    '<label class="kil-mf"><span>Backdrop / cover</span><img class="kil-prev on" id="epCoverPrev" src="'+PROFILE.cover+'"><input type="file" accept="image/*" id="epCoverFile"><input type="text" id="epCoverUrl" placeholder="…or image URL"></label></div>'+
+    '<div class="kil-sec">Profile</div>'+
+    '<label class="kil-mf"><span>Display name</span><input type="text" id="epName" value="'+esc(PROFILE.name)+'"></label>'+
+    '<div class="kil-row2"><label class="kil-mf"><span>@ Handle</span><input type="text" id="epHandle" value="'+esc(PROFILE.handle)+'"></label>'+
+    '<label class="kil-mf"><span>Location</span><input type="text" id="epLoc" value="'+esc(PROFILE.location||'')+'"></label></div>'+
+    '<label class="kil-mf"><span>Pronouns (optional)</span><input type="text" id="epPro" value="'+esc(PROFILE.pronouns||'')+'" placeholder="she/her, they/them…"></label>'+
+    '<label class="kil-mf"><span>About me</span><textarea id="epBio" rows="3">'+esc(PROFILE.bio||'')+'</textarea></label>'+
+    '<label class="kil-mf"><span>Tagline (highlighted line)</span><input type="text" id="epTag" value="'+esc(PROFILE.tagline||'')+'"></label>'+
+    '<label class="kil-mf"><span>Booking email</span><input type="text" id="epBook" value="'+esc(PROFILE.book_email||'')+'"></label>'+
+    '<div class="kil-sec">Links</div>'+
+    '<div class="kil-row2"><label class="kil-mf"><span>Instagram</span><input type="text" id="epIG" value="'+esc(s.instagram||'')+'"></label>'+
+    '<label class="kil-mf"><span>SoundCloud</span><input type="text" id="epSC" value="'+esc(s.soundcloud||'')+'"></label></div>'+
+    '<div class="kil-row2"><label class="kil-mf"><span>TikTok</span><input type="text" id="epTT" value="'+esc(s.tiktok||'')+'"></label>'+
+    '<label class="kil-mf"><span>Website</span><input type="text" id="epWeb" value="'+esc(s.website||'')+'"></label></div>'+
+    '<div class="kil-sec">Story highlights <button type="button" class="kil-addhl" onclick="var d=document.createElement(\'div\');d.className=\'kil-hl\';d.innerHTML=\'<img><input class=&quot;hl-label&quot; type=text placeholder=Label><input class=&quot;hl-file&quot; type=file accept=image/*><button type=button class=&quot;hl-del&quot; onclick=&quot;this.parentNode.remove()&quot;>✕</button>\';document.getElementById(\'epHls\').appendChild(d);">+ Add</button></div>'+
+    '<div id="epHls" class="kil-hls">'+editHighlightsHTML()+'</div>'+
+    '<div class="kil-sec">Account &amp; login</div>'+
+    '<label class="kil-mf"><span>Login email</span><input type="text" id="epEmail" value="'+esc((SESSION&&SESSION.user&&SESSION.user.email)||'')+'"></label>'+
+    '<div class="kil-row2"><label class="kil-mf"><span>New password</span><input type="password" id="epPass" placeholder="leave blank to keep"></label>'+
+    '<label class="kil-mf"><span>Confirm password</span><input type="password" id="epPass2" placeholder="repeat new password"></label></div>'+
+    '<div class="kil-note">Account name = your @handle above. Email/password changes are applied to your login when you Save.</div>'+
+  '</div>'+
+  '<div class="kil-mfoot"><button class="kil-mcancel" onclick="closeModal()">Cancel</button><button class="kil-msave" id="epSave">Save changes</button></div></div>';
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';ov.innerHTML=html;document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  function bindPrev(fileId,prevId){var f=document.getElementById(fileId);if(!f)return;f.addEventListener('change',function(){var file=f.files&&f.files[0];if(!file)return;var rd=new FileReader();rd.onload=function(){var p=document.getElementById(prevId);if(p)p.src=rd.result;};rd.readAsDataURL(file);});}
+  bindPrev('epAvatarFile','epAvatarPrev'); bindPrev('epCoverFile','epCoverPrev');
+  document.getElementById('epSave').onclick=saveEditProfile;
+}
+function saveEditProfile(){
+  var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+  var btn=document.getElementById('epSave'); if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  // gather highlights
+  var hlNodes=[].slice.call(document.querySelectorAll('#epHls .kil-hl'));
+  var avatarFile=(document.getElementById('epAvatarFile')||{}).files; avatarFile=avatarFile&&avatarFile[0];
+  var coverFile=(document.getElementById('epCoverFile')||{}).files; coverFile=coverFile&&coverFile[0];
+  uploadImage(avatarFile,function(avUrl){
+    uploadImage(coverFile,function(cvUrl){
+      var hlDone=[], pending=hlNodes.length;
+      function finalize(){
+        var meta={ slug:PROFILE_SLUG, display_name:g('epName'), handle:g('epHandle').replace(/^@/,''), location:g('epLoc'), bio:g('epBio'), tagline:g('epTag'), pronouns:g('epPro'), book_email:g('epBook'),
+          avatar_url: avUrl || g('epAvatarUrl') || PROFILE.avatar,
+          cover_url: cvUrl || g('epCoverUrl') || PROFILE.cover,
+          socials:{ instagram:g('epIG'), soundcloud:g('epSC'), tiktok:g('epTT'), website:g('epWeb') },
+          highlights: hlDone, updated_at:new Date().toISOString() };
+        if(!SB||!SESSION){ Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,socials:meta.socials,highlights:meta.highlights}); applyProfile(); closeModal(); toast('Saved locally — sign in as owner to publish.'); return; }
+        SB.from('profile_meta').upsert(meta).then(function(r){
+          if(r&&r.error){ toast('Could not save profile: '+(r.error.message||'')); if(btn){btn.disabled=false;btn.textContent='Save changes';} return; }
+          Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,socials:meta.socials,highlights:meta.highlights});
+          applyProfile();
+          // account email/password
+          var email=g('epEmail'), pass=g('epPass'), pass2=g('epPass2'), upd={};
+          if(email && SESSION.user && email!==SESSION.user.email) upd.email=email;
+          if(pass){ if(pass!==pass2){ toast('Profile saved. Passwords did not match — password unchanged.'); closeModal(); return; } upd.password=pass; }
+          if(Object.keys(upd).length){ SB.auth.updateUser(upd).then(function(a){ closeModal(); toast(a&&a.error?('Profile saved. Account: '+a.error.message):'Profile + account updated.'+(upd.email?' Check your email to confirm the new address.':'')); }).catch(function(){ closeModal(); toast('Profile saved. Account update failed.'); }); }
+          else { closeModal(); toast('Profile updated.'); }
+        }).catch(function(){ if(btn){btn.disabled=false;btn.textContent='Save changes';} toast('Could not save profile.'); });
+      }
+      if(!pending){ finalize(); return; }
+      hlNodes.forEach(function(node){
+        var label=(node.querySelector('.hl-label')||{}).value||''; var existing=(node.querySelector('img')||{}).src||''; var fileEl=node.querySelector('.hl-file'); var file=fileEl&&fileEl.files&&fileEl.files[0];
+        uploadImage(file,function(u){ var img=u|| (existing.indexOf('data:')===0?existing:existing) ; if(label||img)hlDone.push({label:label,img:img}); pending--; if(pending===0)finalize(); });
+      });
+    });
+  });
+}
 function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)||('group-'+Date.now());}
 
 /* generic modal: fields=[{name,label,type,ph,req,val}], returns values via cb */
@@ -635,11 +772,11 @@ function closeChatGroup(){
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
-  renderAll();
+  applyProfile(); renderAll();
   if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ loadFromDB(); }).catch(function(){ loadFromDB(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ loadFromDB(); }); });
-  } else { loadFromDB(); }
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); }).catch(function(){ loadProfileMeta(); loadFromDB(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); }); });
+  } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
 <script src="/keepitil-radio.js" defer></script>
