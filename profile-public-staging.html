@@ -344,7 +344,16 @@ var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 var PROFILE_SLUG='groove-trooper';
 var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
-var SESSION=null, DB_OK=false;
+var SESSION=null, DB_OK=false, OWNS=false;
+/* Edit controls show only in the owner variant AND when the signed-in user actually owns this profile. */
+function CAN_EDIT(){ return IS_OWNER && OWNS; }
+function checkOwnership(){
+  OWNS=false;
+  if(!SB||!SESSION) return Promise.resolve(false);
+  return SB.from('profile_owners').select('owner_id').eq('profile_slug',PROFILE_SLUG).maybeSingle().then(function(r){
+    OWNS = !!(r&&r.data&&r.data.owner_id===SESSION.user.id); return OWNS;
+  }).catch(function(){ OWNS=false; return false; });
+}
 function markTheme(){var cur=document.documentElement.getAttribute('data-theme')||'dark';document.querySelectorAll('.tsw').forEach(function(b){b.classList.toggle('on',b.dataset.t===cur);});}
 document.querySelectorAll('.tsw').forEach(function(b){b.onclick=function(){var t=b.dataset.t;document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem('kil-theme',t);}catch(e){}markTheme();};});
 markTheme();
@@ -363,12 +372,12 @@ function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0)?v:'htt
 var GAL_IMGS=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
 function renderGallery(){
   var g=document.getElementById('gal-grid');if(!g)return;
-  g.innerHTML=(IS_OWNER?'<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>':'')+GAL_IMGS.map(function(t){return '<div class="gal-tile"><img src="'+galSrc(t[0])+'" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
+  g.innerHTML=(CAN_EDIT()?'<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>':'')+GAL_IMGS.map(function(t){return '<div class="gal-tile"><img src="'+galSrc(t[0])+'" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
 }
 var GT_SHOWS=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
 function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
-  el.innerHTML=(IS_OWNER?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+GT_SHOWS.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
+  el.innerHTML=(CAN_EDIT()?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+GT_SHOWS.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
 }
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -487,7 +496,7 @@ function openModal(title,fields,cb){
 function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();}
 
 function addContent(kind){
-  if(!IS_OWNER)return;
+  if(!CAN_EDIT()){ if(IS_OWNER&&SB&&!SESSION){toast('Sign in as the profile owner to add content.');} else if(IS_OWNER&&SESSION&&!OWNS){toast('Only this profile’s owner can add content.');} return; }
   if(!kind||kind==='menu'){
     openModal('Add to your profile',[{name:'type',label:'What do you want to add?',type:'text',ph:'post, photo, or event',val:'post',req:true}],function(v){
       var t=v.type.toLowerCase();
@@ -587,7 +596,7 @@ var GT_ARTICLES=[
 ];
 function renderArticles(){
   var car=document.getElementById('art-car');if(!car)return;
-  var add=IS_OWNER?'<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>':'';
+  var add=CAN_EDIT()?'<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>':'';
   car.innerHTML=add+GT_ARTICLES.map(function(a,i){return '<div class="art-card" id="artc'+i+'" onclick="openArticle('+i+')"><img src="'+a.img+'" alt="'+a.t+'" loading="lazy" onerror="this.style.background=\'#222\'"><div class="cap"><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';}).join('');
 }
 function openArticle(i){
@@ -606,7 +615,7 @@ var GT_CHATS=[
 ];
 function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
-  var add=IS_OWNER?'<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>':'';
+  var add=CAN_EDIT()?'<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>':'';
   list.innerHTML=add+GT_CHATS.map(function(c){
     var unread=c[4]?'<span class="unread">'+c[4]+'</span>':'';
     var nm=c[1].replace(/'/g,'');
@@ -628,10 +637,9 @@ function closeChatGroup(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
   renderAll();
   if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; }).catch(function(){});
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; });
-  }
-  loadFromDB();
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ loadFromDB(); }).catch(function(){ loadFromDB(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ loadFromDB(); }); });
+  } else { loadFromDB(); }
 })();
 </script>
 <script src="/keepitil-radio.js" defer></script>
