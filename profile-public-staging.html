@@ -360,7 +360,8 @@ var IS_OWNER = document.documentElement.getAttribute('data-view')!=='public' && 
 /* ── Supabase: shared, cross-device persistence for owner-authored content ── */
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
-var PROFILE_SLUG='groove-trooper';
+var PROFILE_SLUG=(function(){try{var m=(location.pathname.split('/').pop()||'').replace(/\.html$/,'').replace(/^profile-/,'');if(!m||m==='template-staging'||m==='public-staging')return 'groove-trooper';return m;}catch(e){return 'groove-trooper';}})();
+var IS_DEMO=(PROFILE_SLUG==='groove-trooper');
 var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 var SESSION=null, DB_OK=false, OWNS=false;
 /* Edit controls show only in the owner variant AND when the signed-in user actually owns this profile. */
@@ -420,7 +421,7 @@ function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn'
   }).join('');
 })();
 /* ── ADD CONTENT — real modal engine + local persistence ── */
-var PROFILE_KEY='kil-profile-gt';
+var PROFILE_KEY='kil-profile-'+PROFILE_SLUG;
 var ADDED={photos:[],shows:[],articles:[],chats:[]};
 function loadStored(){
   try{var s=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(s){ADDED={photos:s.photos||[],shows:s.shows||[],articles:s.articles||[],chats:s.chats||[]};}}catch(e){}
@@ -499,6 +500,7 @@ var PROFILE={
 };
 function applyProfile(){
   var g=function(id){return document.getElementById(id);};
+  try{document.title=(PROFILE.name?PROFILE.name+' — ':'')+'Artist Profile | KEEPITIL';}catch(e){}
   if(g('pfCover'))g('pfCover').src=PROFILE.cover;
   if(g('pfAvatar'))g('pfAvatar').src=PROFILE.avatar;
   if(g('pfName'))g('pfName').textContent=PROFILE.name;
@@ -804,6 +806,8 @@ function closeChatGroup(){
   var l=document.getElementById('chat-list');if(l)l.style.display='flex';
   var f=document.getElementById('chat-frame');if(f)f.src='';
 }
+/* Non-demo profiles start EMPTY; real data loads from Supabase (prevents Groove Trooper demo data bleeding into a fresh/unclaimed profile). */
+if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
