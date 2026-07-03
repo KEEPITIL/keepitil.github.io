@@ -1139,6 +1139,49 @@ var state = {
 
 function saveState(key){ save(key, state[key]); }
 
+// ── ATLAS DATA SEED — refreshes the dashboard snapshot. Bump SEED_VERSION whenever Atlas updates the status; on next load it overwrites stale localStorage once. ──
+var SEED_VERSION = '2026-07-02T1710';
+(function(){
+  try{
+    if(localStorage.getItem('ki_mc_seed_v') === SEED_VERSION) return;
+    state.inbox = [
+      {type:'decision',from:'sentinel',subject:'NOVA agent — bless persona + approve profile',body:'New synthetic-subscriber agent built (approval-gated): QA-roams the live site (buttons/links resolve + branding + template integrity) AND grows into an in-world EDM influencer with her own profile, posts, and flyers. Nothing public until you approve. Echo directives requested on name/vibe (default Nova), profile type (default "KEEPITIL Voice"), and critical-finding routing.',time:'2026-07-02T23:55:00.000Z',archived:false},
+      {type:'decision',from:'atlas',subject:'Blog template — one final review',body:'Founder wants a last pass on the canonical royal-purple LIGHT article template (MARKETING/mockup-monetization-layout-light.html) before Opus rolls it site-wide. 4 monetization placements wired (mid product, radio referral chip, bottom L/R cycling widgets, exit popup). Approve to lock.',time:'2026-07-02T23:30:00.000Z',archived:false},
+      {type:'decision',from:'sentinel',subject:'Content approval queue — 61 drafts awaiting review',body:'Library at 262/300 (201 published + 61 drafts). Nothing publishes without Founder approval. Founder starting approvals soon.',time:'2026-07-02T23:20:00.000Z',archived:false},
+      {type:'decision',from:'atlas',subject:'Re-auth HubSpot + Slack connectors',body:'Marketing connectors show as needing re-authorization. Not blocking today, but Echo Module 6 reads HubSpot for new subscribers — reconnect when convenient.',time:'2026-07-02T23:10:00.000Z',archived:false},
+      {type:'ready',from:'atlas',subject:'Task accuracy audit complete — all gaps closed',body:'Fixed dynamic workspace-path resolution across all daily tasks, corrected money links to keepitil.com, rewrote keepitil-echo + 4 Pulse legacy tasks (Slack/Asana retired → Notion Strategy Log), recreated the Pulse charter. Zero remaining accuracy gaps.',time:'2026-07-02T23:00:00.000Z',archived:false},
+      {type:'brief',from:'echo',subject:'Daily Executive Brief — whole team unified',body:'All daily department tasks now fire together (~4:44 PM window) and run daily. Focus shifting from building systems to improving outcomes: discovery, engagement, conversion. Revenue baseline $0 — rails live, awaiting traffic + published content.',time:'2026-07-02T22:50:00.000Z',archived:false}
+    ];
+    state.projects = [
+      {id:'p-web',dept:'atlas',name:'Website engineering & site health',status:'active'},
+      {id:'p-content',dept:'sentinel',name:'Content engine → 300 (262/300)',status:'active'},
+      {id:'p-monet',dept:'pulse',name:'Monetization rollout — theme locked, template pending',status:'active'},
+      {id:'p-team',dept:'echo',name:'Executive AI team automation — daily cadence',status:'active'},
+      {id:'p-partner',dept:'nexus',name:'Partnership research pipeline (research-only)',status:'active'},
+      {id:'p-audit',dept:'atlas',name:'Scheduled-task accuracy audit',status:'complete'}
+    ];
+    state.comms = [
+      {from:'atlas',to:'echo',text:'Ops accuracy audit + status: fixed dynamic paths, keepitil.com links, direct ASINs. Verified all Notion DB IDs + approval gates.',time:'2026-07-02T22:19:00.000Z'},
+      {from:'echo',to:'atlas',text:'Infrastructure is mature enough — next phase is making the ecosystem work together. Shift from building systems to continuously improving outcomes.',time:'2026-07-02T22:25:00.000Z'},
+      {from:'atlas',to:'echo',text:'"Fix the rest" done: keepitil-echo rewritten, all 4 Pulse legacy tasks → Strategy Log (Slack + Asana retired), pulse-cro-agent.md charter recreated. Zero gaps.',time:'2026-07-02T23:32:00.000Z'}
+    ];
+    state.activity = [
+      {text:'NOVA agent created — live-site QA roamer + in-world influencer persona (approval-gated)',dept:'sentinel',deptName:'Sentinel',color:'#ff6b00',time:'2026-07-02T23:55:00.000Z'},
+      {text:'Whole team unified to one daily schedule (~4:44 PM) — everyone runs together',dept:'atlas',deptName:'Atlas',color:'#00b4ff',time:'2026-07-02T23:40:00.000Z'},
+      {text:'Pulse charter recreated at agent/pulse-cro-agent.md',dept:'pulse',deptName:'Pulse',color:'#00ff88',time:'2026-07-02T23:35:00.000Z'},
+      {text:'All 4 Pulse legacy tasks fixed → report to Notion Strategy Log (Slack/Asana retired)',dept:'atlas',deptName:'Atlas',color:'#00b4ff',time:'2026-07-02T23:32:00.000Z'},
+      {text:'keepitil-echo rewritten — dynamic workspace path + keepitil.com links',dept:'echo',deptName:'Echo',color:'#b400ff',time:'2026-07-02T23:05:00.000Z'},
+      {text:'Content engine at 262/300 — 61 drafts awaiting Founder approval',dept:'sentinel',deptName:'Sentinel',color:'#ff6b00',time:'2026-07-02T22:40:00.000Z'},
+      {text:'Task accuracy audit complete — 3 systemic fixes applied',dept:'atlas',deptName:'Atlas',color:'#00b4ff',time:'2026-07-02T22:15:00.000Z'},
+      {text:'Nexus partnership research — qualified leads added to Partnerships DB',dept:'nexus',deptName:'Nexus',color:'#ffaa00',time:'2026-07-02T20:15:00.000Z'},
+      {text:'Pulse generated engagement-optimized monetization widget cards',dept:'pulse',deptName:'Pulse',color:'#00ff88',time:'2026-07-02T20:18:00.000Z'}
+    ];
+    save('inbox',state.inbox); save('projects',state.projects);
+    save('comms',state.comms); save('activity',state.activity);
+    localStorage.setItem('ki_mc_seed_v', SEED_VERSION);
+  }catch(e){}
+})();
+
 // ── AUTH ──
 var ACCESS_CODE = 'KEEPITIL';
 function doLogin(){
