@@ -25,7 +25,7 @@
     '#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
     '.kil-hasad #kil-track{flex:0 1 auto;max-width:210px;}'+
     '.kil-ad{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;}'+
-    '.kil-ad a{display:inline-flex;align-items:center;gap:7px;font-size:.66rem;font-weight:700;background:rgba(0,255,136,.12);border:1px solid rgba(0,255,136,.4);color:#00ff88;padding:5px 12px;border-radius:20px;white-space:nowrap;transition:opacity .5s;}'+
+    '.kil-ad a{display:inline-flex;align-items:center;gap:8px;font-size:1.15rem;font-weight:800;letter-spacing:.01em;background:rgba(0,255,136,.14);border:1px solid rgba(0,255,136,.45);color:#00ff88;padding:8px 22px;border-radius:12px;white-space:nowrap;line-height:1;transition:opacity .5s;}'+
     '.kil-ad .rlabel{opacity:.6;font-weight:600;}'+
     '#kil-radio.kil-mini .kil-ad{display:none!important;}'+
     '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
@@ -66,8 +66,8 @@
   if(!document.getElementById('kil-radio')){
     var bar=document.createElement('div');
     bar.id='kil-radio';
-    var __ad=!!window.KIL_RADIO_AD; if(__ad)bar.className='kil-hasad';
-    var adHTML=__ad?'<div class="kil-ad"><a href="https://distrokid.com/vip/seven/11538316" id="kil-ad-link" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click"><span class="rlabel">Partner:</span> <span id="kil-ad-text">🎵 Release on DistroKid</span></a></div>':'';
+    var __ad=true; bar.className='kil-hasad';
+    var adHTML='<div class="kil-ad"><a href="https://distrokid.com/vip/seven/11538316" id="kil-ad-link" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click"><span id="kil-ad-text">🎵 Release on DistroKid</span></a></div>';
     bar.innerHTML=
       '<div id="kil-mini-dot">♬</div>'+
       '<div class="kil-live off" id="kil-led"></div>'+
