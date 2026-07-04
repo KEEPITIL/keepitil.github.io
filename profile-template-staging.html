@@ -522,8 +522,18 @@ function loadProfileMeta(){
       if(d.socials&&typeof d.socials==='object')PROFILE.socials=Object.assign({},PROFILE.socials,d.socials);
       if(Array.isArray(d.highlights)&&d.highlights.length)PROFILE.highlights=d.highlights;
     }
-    applyProfile();
+    applyProfile(); loadCategories();
   }).catch(function(){ applyProfile(); });
+}
+function loadCategories(){
+  if(!SB) return;
+  SB.from('profile_content').select('data').eq('profile_slug',PROFILE_SLUG).eq('kind','profile_categories').limit(1).then(function(r){
+    if(r&&r.data&&r.data[0]&&r.data[0].data){ var cd=r.data[0].data; PROFILE.categories=cd.categories||[]; PROFILE.cat_details=cd.details||{}; renderCategories(); }
+  }).catch(function(){});
+}
+function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)return;
+  var L={artist:'Artist',brand:'Brand',organizer:'Organizer',venue:'Venue'};
+  box.innerHTML=(PROFILE.categories||[]).map(function(k){return '<span class="pf-catbadge '+k+'">'+L[k]+'</span>';}).join('');
 }
 function updateOwnerUI(){
   var e=document.getElementById('pfEdit'); if(e)e.style.display=CAN_EDIT()?'':'none';
@@ -592,6 +602,37 @@ function openEditProfile(){
     '<label class="kil-mf"><span>Website</span><input type="text" id="epWeb" value="'+esc(s.website||'')+'"></label></div>'+
     '<div class="kil-sec">Story highlights <button type="button" class="kil-addhl" onclick="var d=document.createElement(\'div\');d.className=\'kil-hl\';d.innerHTML=\'<img><input class=&quot;hl-label&quot; type=text placeholder=Label><input class=&quot;hl-file&quot; type=file accept=image/*><button type=button class=&quot;hl-del&quot; onclick=&quot;this.parentNode.remove()&quot;>✕</button>\';document.getElementById(\'epHls\').appendChild(d);">+ Add</button></div>'+
     '<div id="epHls" class="kil-hls">'+editHighlightsHTML()+'</div>'+
+    '<div class="kil-sec">Categories — pick what you are</div>'+
+    '<div class="kil-cats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+
+      '<label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" class="epCat" value="artist" onchange="toggleCat()"> Artist</label>'+
+      '<label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" class="epCat" value="brand" onchange="toggleCat()"> Brand</label>'+
+      '<label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" class="epCat" value="organizer" onchange="toggleCat()"> Organizer</label>'+
+      '<label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" class="epCat" value="venue" onchange="toggleCat()"> Venue</label>'+
+    '</div>'+
+    '<div class="kil-catbox" data-cat="artist" style="display:none">'+
+      '<div class="kil-row2"><label class="kil-mf"><span>Genres</span><input type="text" id="epArtGenre" placeholder="House · Techno · Bass"></label>'+
+      '<label class="kil-mf"><span>Artist type</span><input type="text" id="epArtType" placeholder="DJ / Producer / Live"></label></div>'+
+      '<div class="kil-row2"><label class="kil-mf"><span>Spotify</span><input type="text" id="epArtSpot" placeholder="https://open.spotify.com/…"></label>'+
+      '<label class="kil-mf"><span>Latest release</span><input type="text" id="epArtRel" placeholder="link"></label></div>'+
+    '</div>'+
+    '<div class="kil-catbox" data-cat="brand" style="display:none">'+
+      '<div class="kil-row2"><label class="kil-mf"><span>Brand type</span><input type="text" id="epBrType" placeholder="Apparel / Gear / Media / Label"></label>'+
+      '<label class="kil-mf"><span>Shop / website</span><input type="text" id="epBrShop" placeholder="https://…"></label></div>'+
+      '<div class="kil-row2"><label class="kil-mf"><span>What you make</span><input type="text" id="epBrDesc" placeholder="1–2 lines"></label>'+
+      '<label class="kil-mf"><span>Discount code (optional)</span><input type="text" id="epBrCode" placeholder="KEEPITIL10"></label></div>'+
+    '</div>'+
+    '<div class="kil-catbox" data-cat="organizer" style="display:none">'+
+      '<div class="kil-row2"><label class="kil-mf"><span>Organizer type</span><input type="text" id="epOrgType" placeholder="Promoter / Production / Collective"></label>'+
+      '<label class="kil-mf"><span>Ticketing link</span><input type="text" id="epOrgTix" placeholder="Posh / other"></label></div>'+
+      '<label class="kil-mf"><span>Event types</span><input type="text" id="epOrgEvents" placeholder="Warehouse · desert · club nights…"></label>'+
+    '</div>'+
+    '<div class="kil-catbox" data-cat="venue" style="display:none">'+
+      '<div class="kil-row2"><label class="kil-mf"><span>Venue type</span><input type="text" id="epVenType" placeholder="Nightclub / Warehouse / Theater"></label>'+
+      '<label class="kil-mf"><span>Capacity</span><input type="text" id="epVenCap" placeholder="e.g. 500"></label></div>'+
+      '<div class="kil-row2"><label class="kil-mf"><span>Address</span><input type="text" id="epVenAddr" placeholder="street · city"></label>'+
+      '<label class="kil-mf"><span>Age policy</span><input type="text" id="epVenAge" placeholder="18+ / 21+ / All ages"></label></div>'+
+      '<label class="kil-mf"><span>Events / calendar link</span><input type="text" id="epVenCal" placeholder="https://…"></label>'+
+    '</div>'+
     '<div class="kil-sec">Account &amp; login</div>'+
     '<label class="kil-mf"><span>Login email</span><input type="text" id="epEmail" value="'+esc((SESSION&&SESSION.user&&SESSION.user.email)||'')+'"></label>'+
     '<div class="kil-row2"><label class="kil-mf"><span>New password</span><input type="password" id="epPass" placeholder="leave blank to keep"></label>'+
@@ -604,6 +645,35 @@ function openEditProfile(){
   function bindPrev(fileId,prevId){var f=document.getElementById(fileId);if(!f)return;f.addEventListener('change',function(){var file=f.files&&f.files[0];if(!file)return;var rd=new FileReader();rd.onload=function(){var p=document.getElementById(prevId);if(p)p.src=rd.result;};rd.readAsDataURL(file);});}
   bindPrev('epAvatarFile','epAvatarPrev'); bindPrev('epCoverFile','epCoverPrev');
   document.getElementById('epSave').onclick=saveEditProfile;
+  // prefill categories + per-category details
+  var cats=(PROFILE.categories||[]), det=(PROFILE.cat_details||{});
+  document.querySelectorAll('.epCat').forEach(function(c){ c.checked=cats.indexOf(c.value)>-1; });
+  function sv(id,val){var e=document.getElementById(id); if(e&&val) e.value=val;}
+  var a=det.artist||{},b=det.brand||{},o=det.organizer||{},v=det.venue||{};
+  sv('epArtGenre',a.genre);sv('epArtType',a.type);sv('epArtSpot',a.spotify);sv('epArtRel',a.release);
+  sv('epBrType',b.type);sv('epBrShop',b.shop);sv('epBrDesc',b.desc);sv('epBrCode',b.code);
+  sv('epOrgType',o.type);sv('epOrgTix',o.tix);sv('epOrgEvents',o.events);
+  sv('epVenType',v.type);sv('epVenCap',v.capacity);sv('epVenAddr',v.address);sv('epVenAge',v.age);sv('epVenCal',v.calendar);
+  toggleCat();
+}
+function toggleCat(){ document.querySelectorAll('.kil-catbox').forEach(function(box){ var on=document.querySelector('.epCat[value="'+box.getAttribute('data-cat')+'"]'); box.style.display=(on&&on.checked)?'block':'none'; }); }
+function gatherCategories(){
+  var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+  var cats=[].slice.call(document.querySelectorAll('.epCat:checked')).map(function(c){return c.value;});
+  var det={ artist:{genre:g('epArtGenre'),type:g('epArtType'),spotify:g('epArtSpot'),release:g('epArtRel')},
+    brand:{type:g('epBrType'),shop:g('epBrShop'),desc:g('epBrDesc'),code:g('epBrCode')},
+    organizer:{type:g('epOrgType'),tix:g('epOrgTix'),events:g('epOrgEvents')},
+    venue:{type:g('epVenType'),capacity:g('epVenCap'),address:g('epVenAddr'),age:g('epVenAge'),calendar:g('epVenCal')} };
+  return {categories:cats,details:det};
+}
+function saveCategories(){
+  if(!SB||!SESSION) return;
+  var cd=gatherCategories();
+  PROFILE.categories=cd.categories; PROFILE.cat_details=cd.details;
+  // proven pattern: profile_content row (delete old of this kind, then insert)
+  SB.from('profile_content').delete().eq('profile_slug',PROFILE_SLUG).eq('kind','profile_categories').then(function(){
+    SB.from('profile_content').insert({profile_slug:PROFILE_SLUG,kind:'profile_categories',data:cd,created_by:SESSION.user.id});
+  }).catch(function(){});
 }
 function saveEditProfile(){
   var g=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
@@ -626,6 +696,7 @@ function saveEditProfile(){
           if(r&&r.error){ toast('Could not save profile: '+(r.error.message||'')); if(btn){btn.disabled=false;btn.textContent='Save changes';} return; }
           Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,socials:meta.socials,highlights:meta.highlights});
           applyProfile();
+          saveCategories();
           // account email/password
           var email=g('epEmail'), pass=g('epPass'), pass2=g('epPass2'), upd={};
           if(email && SESSION.user && email!==SESSION.user.email) upd.email=email;
