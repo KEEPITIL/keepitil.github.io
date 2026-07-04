@@ -1,0 +1,33 @@
+name: tv_remote
+description: >-
+  Cross-platform TV remote. Abstract protocol layer with brand-specific
+  implementations (LG/webOS first). Phase 1: discover, pair, and control an LG TV.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # WebSocket transport. We use dart:io's WebSocket.connect with a custom
+  # HttpClient (badCertificateCallback) so LG's self-signed cert on wss:3001
+  # is accepted, then wrap it in an IOWebSocketChannel from this package.
+  web_socket_channel: ^3.0.1
+
+  # Secure, OS-backed storage for the returned webOS client-key (Keychain on
+  # iOS, Keystore on Android) so we can reconnect silently without re-pairing.
+  flutter_secure_storage: ^9.2.2
+
+  # Lightweight state management: keeps UI, protocol logic, and state separate.
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

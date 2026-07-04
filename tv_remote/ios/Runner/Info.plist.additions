@@ -1,0 +1,45 @@
+<!--
+  iOS local-network permission keys for TV Remote.
+
+  These are NOT a standalone file — they are the keys you must MERGE into the
+  real ios/Runner/Info.plist that `flutter create .` generates. iOS 14+ blocks
+  all local-network traffic (our SSDP multicast + the SSAP WebSocket) until the
+  user grants the permission prompt, and it fails SILENTLY if these keys are
+  missing or malformed: discovery simply finds nothing.
+
+  Paste every <key>…</key> pair below inside the top-level <dict> of Info.plist.
+-->
+
+<!-- 1. Why we need the local network (shown in the iOS permission prompt). -->
+<key>NSLocalNetworkUsageDescription</key>
+<string>TV Remote needs local network access to find and control your TV on Wi-Fi.</string>
+
+<!-- 2. Bonjour service types we browse. iOS requires every service type used
+     with the local network to be declared here. SSDP itself is raw UDP, but
+     declaring these is required for the permission to cover our discovery and
+     is needed once we add Bonjour/mDNS-based discovery. -->
+<key>NSBonjourServices</key>
+<array>
+  <string>_ssdp._udp</string>
+  <string>_lg-smart-device._tcp</string>
+  <string>_lgsmartdevice._tcp</string>
+  <string>_airplay._tcp</string>
+</array>
+
+<!--
+  IMPORTANT — also required for the multicast M-SEARCH send:
+
+  Sending to 239.255.255.250:1900 needs the "Multicast Networking" capability
+  (com.apple.developer.networking.multicast). Steps:
+    1. Enable it for your App ID in the Apple Developer portal
+       (https://developer.apple.com/account -> Identifiers -> your App ID ->
+        Additional Capabilities -> Multicast Networking). This requires a
+        one-time request/approval from Apple.
+    2. In Xcode: Runner target -> Signing & Capabilities -> + Capability ->
+       add the multicast entitlement, which writes:
+         <key>com.apple.developer.networking.multicast</key><true/>
+       into Runner.entitlements.
+
+  Without the multicast entitlement, RawDatagramSocket.send() to the multicast
+  group is dropped by iOS and no TVs are found — even with the keys above set.
+-->
