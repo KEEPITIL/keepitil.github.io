@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../core/models/connection_status.dart';
 import '../core/models/tv_command.dart';
 import '../core/models/tv_device.dart';
+import '../core/models/tv_input.dart';
 import '../core/protocol/tv_protocol.dart';
 import '../services/protocol_factory.dart';
 
@@ -86,6 +87,20 @@ class RemoteController extends ChangeNotifier {
     } catch (e) {
       lastError = e.toString();
       notifyListeners();
+    }
+  }
+
+  /// Fetch the connected TV's inputs for the picker. Returns an empty list if
+  /// not connected or the TV doesn't report inputs.
+  Future<List<TvInput>> listInputs() async {
+    final protocol = _activeProtocol;
+    if (protocol == null || !protocol.isConnected) return const [];
+    try {
+      return await protocol.listInputs();
+    } catch (e) {
+      lastError = e.toString();
+      notifyListeners();
+      return const [];
     }
   }
 

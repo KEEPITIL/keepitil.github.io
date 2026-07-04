@@ -109,8 +109,9 @@ flutter run -d <your-iphone>
 
 - Discovery identifies TVs by IP for Phase 1; fetching the SSDP `LOCATION` XML
   for a friendly name is a small later add (matters only with multiple LG TVs).
-- The input picker offers common fixed inputs; `LgWebosProtocol.listInputs()`
-  already fetches the real list (`getExternalInputList`) for wiring up next.
+- The input picker fetches the TV's real inputs via `getExternalInputList`
+  (exposed as `TvProtocol.listInputs`) and falls back to common fixed inputs if
+  the TV reports none or the query fails.
 - Very old webOS firmware may require the legacy signed manifest — see the note
   at the bottom of [`lg_manifest.dart`](lib/protocols/lg_webos/lg_manifest.dart).
 

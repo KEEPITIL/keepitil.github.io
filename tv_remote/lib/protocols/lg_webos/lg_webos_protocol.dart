@@ -3,6 +3,7 @@ import 'dart:async';
 import '../../core/models/connection_status.dart';
 import '../../core/models/tv_command.dart';
 import '../../core/models/tv_device.dart';
+import '../../core/models/tv_input.dart';
 import '../../core/protocol/tv_protocol.dart';
 import '../../services/secure_key_store.dart';
 import 'ssap_client.dart';
@@ -121,15 +122,23 @@ class LgWebosProtocol implements TvProtocol {
     }
   }
 
-  /// Convenience: list external inputs so the UI can offer a picker.
-  Future<List<Map<String, dynamic>>> listInputs() async {
+  @override
+  Future<List<TvInput>> listInputs() async {
     final client = _client;
     if (client == null || !isConnected) {
       throw const TvProtocolException('Not connected to a TV');
     }
     final payload = await client.request(SsapUri.getExternalInputList);
     final devices = (payload['devices'] as List?) ?? const [];
-    return devices.cast<Map<String, dynamic>>();
+    return devices.whereType<Map>().map((raw) {
+      final d = raw.cast<String, dynamic>();
+      final id = d['id']?.toString() ?? d['appId']?.toString() ?? '';
+      return TvInput(
+        id: id,
+        label: d['label']?.toString() ?? id,
+        connected: d['connected'] as bool?,
+      );
+    }).where((input) => input.id.isNotEmpty).toList();
   }
 
   @override

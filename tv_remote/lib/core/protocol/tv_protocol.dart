@@ -1,6 +1,7 @@
 import '../models/connection_status.dart';
 import '../models/tv_command.dart';
 import '../models/tv_device.dart';
+import '../models/tv_input.dart';
 
 /// The single seam every TV brand plugs into.
 ///
@@ -30,6 +31,10 @@ abstract interface class TvProtocol {
 
   /// Send a brand-agnostic command over the live connection.
   Future<void> sendCommand(TvCommand command, {TvCommandArgs? args});
+
+  /// List the TV's selectable inputs/sources for a picker. Requires an active
+  /// connection. Brands that can't enumerate inputs may return an empty list.
+  Future<List<TvInput>> listInputs();
 
   /// Close the connection and release resources.
   Future<void> disconnect();

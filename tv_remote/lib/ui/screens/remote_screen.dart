@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/models/connection_status.dart';
 import '../../core/models/tv_command.dart';
+import '../../core/models/tv_input.dart';
 import '../../state/remote_controller.dart';
 import '../widgets/remote_button.dart';
 
@@ -95,12 +96,13 @@ class RemoteScreen extends StatelessWidget {
   }
 
   void _pickInput(BuildContext context) {
-    // Phase 1 offers the common fixed inputs. A later phase will populate this
-    // from the LG protocol's getExternalInputList (already available as
-    // LgWebosProtocol.listInputs) so the picker reflects the actual TV.
+    final controller = context.read<RemoteController>();
     showModalBottomSheet<void>(
       context: context,
-      builder: (_) => const _InputPickerSheet(),
+      builder: (_) => ChangeNotifierProvider.value(
+        value: controller,
+        child: const _InputPickerSheet(),
+      ),
     );
   }
 }
@@ -138,37 +140,70 @@ class _ConnectionBanner extends StatelessWidget {
   }
 }
 
-/// Placeholder input picker. Wired to fetch real inputs from the LG protocol in
-/// a later phase; the switchInput command already accepts an inputId.
-class _InputPickerSheet extends StatelessWidget {
+/// Input picker that fetches the TV's real input list (getExternalInputList via
+/// the protocol). Falls back to common fixed inputs if the TV reports none or
+/// the query fails, so the button is always useful.
+class _InputPickerSheet extends StatefulWidget {
   const _InputPickerSheet();
 
-  static const _commonInputs = {
-    'HDMI 1': 'HDMI_1',
-    'HDMI 2': 'HDMI_2',
-    'HDMI 3': 'HDMI_3',
-    'Live TV': 'TV',
-  };
+  @override
+  State<_InputPickerSheet> createState() => _InputPickerSheetState();
+}
+
+class _InputPickerSheetState extends State<_InputPickerSheet> {
+  static const _fallbackInputs = [
+    TvInput(id: 'HDMI_1', label: 'HDMI 1'),
+    TvInput(id: 'HDMI_2', label: 'HDMI 2'),
+    TvInput(id: 'HDMI_3', label: 'HDMI 3'),
+    TvInput(id: 'TV', label: 'Live TV'),
+  ];
+
+  bool _loading = true;
+  List<TvInput> _inputs = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final inputs = await context.read<RemoteController>().listInputs();
+    if (!mounted) return;
+    setState(() {
+      _inputs = inputs.isNotEmpty ? inputs : _fallbackInputs;
+      _loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: _commonInputs.entries.map((e) {
-          return ListTile(
-            leading: const Icon(Icons.input),
-            title: Text(e.key),
-            onTap: () {
-              context.read<RemoteController>().send(
-                    TvCommand.switchInput,
-                    args: TvCommandArgs(inputId: e.value),
-                  );
-              Navigator.of(context).pop();
-            },
-          );
-        }).toList(),
-      ),
+      child: _loading
+          ? const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _inputs.map((input) {
+                return ListTile(
+                  leading: const Icon(Icons.input),
+                  title: Text(input.label),
+                  trailing: input.connected == true
+                      ? const Icon(Icons.check_circle,
+                          size: 18, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    context.read<RemoteController>().send(
+                          TvCommand.switchInput,
+                          args: TvCommandArgs(inputId: input.id),
+                        );
+                    Navigator.of(context).pop();
+                  },
+                );
+              }).toList(),
+            ),
     );
   }
 }
