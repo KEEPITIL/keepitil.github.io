@@ -4,125 +4,140 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="robots" content="noindex,nofollow"/>
-<title>KEEPITIL — Directory (staging)</title>
+<title>KEEPITIL — Scene / Directory (staging)</title>
 <link rel="icon" type="image/png" href="/logo-purple-nav.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0a0a0f;--bg2:#0f0f18;--panel:rgba(255,255,255,.035);--panel-brd:rgba(255,255,255,.09);
+  --bg:#0a0a0f;--panel:rgba(255,255,255,.035);--panel-brd:rgba(255,255,255,.09);
   --ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;
-  --artist:#8b5cff;--brand:#00e0a4;--organizer:#ff8a3d;--cyan:#00b4ff;
+  --artist:#8b5cff;--brand:#00e0a4;--organizer:#ff8a3d;--promoter:#ff4d8d;--venue:#00b4ff;--cyan:#00b4ff;
   --fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;
 }
 html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:72px;}
 a{color:inherit;text-decoration:none;}
-/* ===== NEW UNIVERSAL NAV ===== */
-.kn{position:sticky;top:0;z-index:200;background:rgba(10,10,15,.72);backdrop-filter:blur(18px) saturate(140%);border-bottom:1px solid rgba(255,255,255,.07);}
-.kn-in{max-width:1360px;margin:0 auto;height:70px;display:flex;align-items:center;gap:28px;padding:0 30px;}
-.kn-logo{display:flex;align-items:center;gap:11px;flex-shrink:0;}
-.kn-logo img{height:38px;width:auto;filter:drop-shadow(0 0 8px rgba(0,180,255,.5));mix-blend-mode:screen;}
-.kn-brand{font-family:var(--fh);font-size:1.5rem;letter-spacing:.16em;}
-.kn-links{display:flex;gap:6px;margin-left:8px;flex:1;}
-.kn-links a{position:relative;font-family:var(--fh);font-size:1.06rem;letter-spacing:.15em;color:var(--ink2);padding:9px 16px;border-radius:9px;transition:color .2s,background .2s;}
-.kn-links a:hover{color:#fff;background:rgba(255,255,255,.05);}
-.kn-links a.on{color:#fff;}
-.kn-links a.on::after{content:"";position:absolute;left:16px;right:16px;bottom:2px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--artist),var(--cyan));}
-.kn-cta{font-family:var(--fh);font-size:1.02rem;letter-spacing:.14em;padding:9px 22px;border-radius:10px;color:#07070c;background:linear-gradient(120deg,var(--cyan),var(--artist));flex-shrink:0;transition:transform .15s,box-shadow .2s;box-shadow:0 6px 20px rgba(90,60,255,.28);}
-.kn-cta:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(90,60,255,.42);}
-.kn-burg{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:6px;}
-.kn-burg span{width:24px;height:2px;background:#fff;border-radius:2px;}
-.kn-mob{display:none;flex-direction:column;padding:14px 24px 20px;background:rgba(12,12,20,.98);border-bottom:1px solid rgba(255,255,255,.08);}
-.kn-mob.open{display:flex;}
-.kn-mob a{font-family:var(--fh);font-size:1.25rem;letter-spacing:.12em;color:var(--ink2);padding:12px 4px;border-bottom:1px solid rgba(255,255,255,.05);}
-@media(max-width:860px){.kn-links{display:none;}.kn-cta{display:none;}.kn-burg{display:flex;margin-left:auto;}}
+/* ===== UNIVERSAL DARK NAV (same as current template; new links only) ===== */
+nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;}
+.nav-brand{font-family:var(--fh);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
+.nav-links{display:flex;list-style:none;flex:1;justify-content:center;gap:44px;margin:0;padding:0;}
+.nav-links li{list-style:none;}
+.nav-links a{font-family:var(--fh);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);transition:color .2s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:#fff;}
+.nav-inner>a.nav-cta{font-family:var(--fh);font-size:1rem;letter-spacing:.14em;color:#00b4ff!important;background:transparent!important;border:2px solid #00b4ff;padding:7px 22px;border-radius:4px;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;}
+.nav-inner>a.nav-cta:hover{background:#00b4ff!important;color:#000!important;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;}
+.nav-hamburger span{display:block;width:24px;height:2px;background:#fff;border-radius:2px;}
+.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.98);z-index:199;flex-direction:column;padding:14px 26px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-family:var(--fh);font-size:1.3rem;letter-spacing:.12em;color:rgba(255,255,255,.8);padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.mobile-menu a:last-child{border-bottom:none;color:#00b4ff!important;}
+@media(max-width:820px){.nav-links{display:none;}.nav-inner>a.nav-cta{display:none;}.nav-hamburger{display:flex;margin-left:auto;}}
 /* ===== HERO ===== */
-.hero{position:relative;padding:64px 30px 30px;max-width:1360px;margin:0 auto;overflow:hidden;}
+.hero{position:relative;padding:58px 30px 26px;max-width:1360px;margin:0 auto;overflow:hidden;}
 .hero::before{content:"";position:absolute;top:-160px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,255,.30),transparent 62%);filter:blur(20px);z-index:-1;}
-.hero::after{content:"";position:absolute;top:-90px;right:-120px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,164,.20),transparent 62%);filter:blur(20px);z-index:-1;}
-.eyebrow{font-family:var(--fh);letter-spacing:.34em;font-size:.85rem;color:var(--cyan);margin-bottom:10px;}
-.hero h1{font-family:var(--fh);font-size:clamp(3rem,9vw,6.4rem);line-height:.92;letter-spacing:.02em;background:linear-gradient(120deg,#fff 20%,#c9bcff 55%,#8b5cff);-webkit-background-clip:text;background-clip:text;color:transparent;}
-.hero p{max-width:640px;color:var(--ink2);margin-top:14px;font-size:1.05rem;}
-.stats{display:flex;gap:26px;margin-top:22px;flex-wrap:wrap;}
-.stat b{font-family:var(--fh);font-size:2rem;letter-spacing:.02em;}
-.stat span{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-top:-2px;}
-.stat.a b{color:var(--artist);}.stat.b b{color:var(--brand);}.stat.o b{color:var(--organizer);}
+.hero::after{content:"";position:absolute;top:-90px;right:-120px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,164,.18),transparent 62%);filter:blur(20px);z-index:-1;}
+.eyebrow{font-family:var(--fh);letter-spacing:.34em;font-size:.85rem;color:var(--cyan);margin-bottom:8px;}
+.hero h1{font-family:var(--fh);font-size:clamp(3rem,9vw,6rem);line-height:.92;letter-spacing:.02em;background:linear-gradient(120deg,#fff 20%,#c9bcff 55%,#8b5cff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{max-width:640px;color:var(--ink2);margin-top:12px;font-size:1.02rem;}
+.stats{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap;}
+.stat b{font-family:var(--fh);font-size:1.7rem;letter-spacing:.02em;}
+.stat span{display:block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-top:-2px;}
+.stat.artist b{color:var(--artist);}.stat.brand b{color:var(--brand);}.stat.organizer b{color:var(--organizer);}.stat.promoter b{color:var(--promoter);}.stat.venue b{color:var(--venue);}
 /* ===== CONTROLS ===== */
-.controls{position:sticky;top:70px;z-index:100;background:rgba(10,10,15,.82);backdrop-filter:blur(14px);max-width:1360px;margin:22px auto 0;padding:14px 30px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
-.seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:4px;}
-.seg button{font-family:var(--fh);font-size:1rem;letter-spacing:.1em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s;}
+.controls{position:sticky;top:66px;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(14px);max-width:1360px;margin:20px auto 0;padding:12px 30px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
+.controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:4px;flex-wrap:wrap;}
+.seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 15px;border-radius:9px;transition:all .18s;}
 .seg button:hover{color:#fff;}
-.seg button.on{color:#0a0a0f;}
-.seg button[data-k=all].on{background:#fff;}
+.seg button[data-k=all].on{background:#fff;color:#0a0a0f;}
 .seg button[data-k=artist].on{background:var(--artist);color:#fff;}
 .seg button[data-k=brand].on{background:var(--brand);color:#053a2c;}
 .seg button[data-k=organizer].on{background:var(--organizer);color:#3a1e08;}
+.seg button[data-k=promoter].on{background:var(--promoter);color:#3a0820;}
+.seg button[data-k=venue].on{background:var(--venue);color:#052436;}
 .search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:10px 16px;}
 .search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--fb);font-size:.95rem;outline:none;}
 .search input::placeholder{color:var(--ink3);}
-.count{font-size:.78rem;color:var(--ink3);letter-spacing:.04em;white-space:nowrap;}
+.count{font-size:.76rem;color:var(--ink3);white-space:nowrap;}
+/* sub-filters row */
+.subfilters{display:none;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.05);}
+.subfilters.show{display:flex;}
+.sf-label{font-family:var(--fh);font-size:.8rem;letter-spacing:.13em;color:var(--ink3);margin-right:2px;}
+.chip{font-size:.76rem;font-weight:600;color:var(--ink2);background:rgba(255,255,255,.05);border:1px solid var(--panel-brd);border-radius:20px;padding:5px 13px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.chip:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+.chip.on{background:var(--cyan);color:#04222f;border-color:var(--cyan);}
 /* ===== GRID ===== */
-.grid{max-width:1360px;margin:26px auto 60px;padding:0 30px;display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:20px;}
-.card{position:relative;background:var(--panel);border:1px solid var(--panel-brd);border-radius:18px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;opacity:0;animation:fade .4s forwards;}
-@keyframes fade{to{opacity:1;}}
+.grid{max-width:1360px;margin:24px auto 60px;padding:0 30px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;}
+.card{position:relative;background:var(--panel);border:1px solid var(--panel-brd);border-radius:16px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;}
 .card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.2);box-shadow:0 18px 40px rgba(0,0,0,.5);}
 .card .imgw{position:relative;aspect-ratio:1/1;overflow:hidden;background:#15151f;}
 .card .imgw img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
 .card:hover .imgw img{transform:scale(1.06);}
-.card .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:3rem;letter-spacing:.04em;color:#fff;}
-.kind{position:absolute;top:12px;left:12px;font-family:var(--fh);font-size:.72rem;letter-spacing:.14em;padding:4px 11px;border-radius:20px;color:#07070c;backdrop-filter:blur(4px);}
-.kind.artist{background:var(--artist);color:#fff;}.kind.brand{background:var(--brand);color:#053a2c;}.kind.organizer{background:var(--organizer);color:#3a1e08;}
-.card .body{padding:14px 15px 16px;}
-.card .nm{font-family:var(--fh);font-size:1.4rem;letter-spacing:.02em;line-height:1;margin-bottom:6px;}
-.card .desc{font-size:.78rem;color:var(--ink2);line-height:1.4;min-height:2.2em;}
-.card .loc{font-size:.72rem;color:var(--ink3);margin-top:8px;display:flex;align-items:center;gap:5px;}
-.card .ig{margin-top:9px;font-size:.72rem;color:var(--cyan);letter-spacing:.02em;}
-.empty{grid-column:1/-1;text-align:center;color:var(--ink3);padding:60px 0;font-family:var(--fh);font-size:1.6rem;letter-spacing:.08em;}
-footer{border-top:1px solid rgba(255,255,255,.06);padding:34px 30px;text-align:center;color:var(--ink3);font-size:.82rem;}
+.card .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:2.6rem;color:#fff;}
+.kind{position:absolute;top:11px;left:11px;font-family:var(--fh);font-size:.7rem;letter-spacing:.13em;padding:4px 10px;border-radius:20px;}
+.kind.artist{background:var(--artist);color:#fff;}.kind.brand{background:var(--brand);color:#053a2c;}.kind.organizer{background:var(--organizer);color:#3a1e08;}.kind.promoter{background:var(--promoter);color:#3a0820;}.kind.venue{background:var(--venue);color:#052436;}
+.card .body{padding:13px 14px 15px;}
+.card .nm{font-family:var(--fh);font-size:1.32rem;letter-spacing:.02em;line-height:1;margin-bottom:5px;}
+.card .desc{font-size:.76rem;color:var(--ink2);line-height:1.4;min-height:2.1em;}
+.card .loc{font-size:.7rem;color:var(--ink3);margin-top:7px;}
+.card .ig{margin-top:8px;font-size:.7rem;color:var(--cyan);}
+.empty{grid-column:1/-1;text-align:center;color:var(--ink3);padding:56px 0;}
+.empty .big{font-family:var(--fh);font-size:1.7rem;letter-spacing:.06em;color:var(--ink2);}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 30px;text-align:center;color:var(--ink3);font-size:.82rem;}
 footer a{color:var(--artist);}
 </style>
 </head>
 <body>
 
-<nav class="kn">
-  <div class="kn-in">
-    <a class="kn-logo" href="/"><img src="/keepitil-x-blue.png" alt="KEEPITIL"/><span class="kn-brand">KEEPITIL</span></a>
-    <div class="kn-links">
-      <a href="/">HOME</a>
-      <a href="#" class="on">DIRECTORY</a>
-      <a href="/culture">CULTURE</a>
-      <a href="/">EVENTS</a>
-    </div>
-    <a class="kn-cta" href="/apply.html">SUBSCRIBE</a>
-    <button class="kn-burg" onclick="document.getElementById('knmob').classList.toggle('open')"><span></span><span></span><span></span></button>
-  </div>
-  <div class="kn-mob" id="knmob">
-    <a href="/">HOME</a><a href="#">DIRECTORY</a><a href="/culture">CULTURE</a><a href="/">EVENTS</a><a href="/apply.html">SUBSCRIBE</a>
+<nav id="main-nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/"><img src="/keepitil-x-blue.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
+    <ul class="nav-links">
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="#" class="active">SCENE</a></li>
+      <li><a href="/shop.html">SHOP</a></li>
+    </ul>
+    <a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
+    <button class="nav-hamburger" onclick="document.getElementById('mm').classList.toggle('open')" aria-label="Menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
+<div class="mobile-menu" id="mm">
+  <a href="/culture">CULTURE</a><a href="#" onclick="document.getElementById('mm').classList.remove('open')">SCENE</a><a href="/shop.html">SHOP</a><a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
+</div>
 
 <header class="hero">
   <div class="eyebrow">OC · LA · SOCAL UNDERGROUND</div>
-  <h1>THE DIRECTORY</h1>
-  <p>Every artist, brand, and organizer in the KEEPITIL network — one place. Search the scene, filter by who they are, and pull up a profile.</p>
+  <h1>THE SCENE</h1>
+  <p>Every artist, brand, organizer, promoter, and venue in the KEEPITIL network — one place. Filter by who they are, narrow it down, and pull up a profile.</p>
   <div class="stats">
-    <div class="stat a"><b id="cA">0</b><span>Artists</span></div>
-    <div class="stat b"><b id="cB">0</b><span>Brands</span></div>
-    <div class="stat o"><b id="cO">0</b><span>Organizers</span></div>
+    <div class="stat artist"><b id="cA">0</b><span>Artists</span></div>
+    <div class="stat brand"><b id="cB">0</b><span>Brands</span></div>
+    <div class="stat organizer"><b id="cO">0</b><span>Organizers</span></div>
+    <div class="stat promoter"><b id="cP">0</b><span>Promoters</span></div>
+    <div class="stat venue"><b id="cV">0</b><span>Venues</span></div>
   </div>
 </header>
 
 <div class="controls">
-  <div class="seg" id="seg">
-    <button data-k="all" class="on">All</button>
-    <button data-k="artist">Artists</button>
-    <button data-k="brand">Brands</button>
-    <button data-k="organizer">Organizers</button>
+  <div class="controls-row">
+    <div class="seg" id="seg">
+      <button data-k="all" class="on">All</button>
+      <button data-k="artist">Artists</button>
+      <button data-k="brand">Brands</button>
+      <button data-k="organizer">Organizers</button>
+      <button data-k="promoter">Promoters</button>
+      <button data-k="venue">Venues</button>
+    </div>
+    <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="q" type="text" placeholder="Search by name, city, or genre…"/></label>
+    <div class="count" id="count"></div>
   </div>
-  <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="q" type="text" placeholder="Search by name, city, or genre…"/></label>
-  <div class="count" id="count"></div>
+  <div class="subfilters" id="subs"></div>
 </div>
 
 <main class="grid" id="grid"></main>
@@ -130,7 +145,7 @@ footer a{color:var(--artist);}
 <footer>KEEPITIL — OC &amp; LA Underground EDM · <a href="/">keepitil.com</a> · <span style="color:#6b6588">staging preview (noindex)</span></footer>
 
 <script>
-const ART = [
+const ART=[
   // === KEEPITIL FEATURED (with blog pages) ===
   {name:'RAB3L',         city:'Torrance',      county:'Los Angeles County',    genre:'Bass House / Tech House / UKG / Bassline', ig:'dj_rab3l_r3mix',       img:'https://i1.sndcdn.com/avatars-Z5V6LqAjRIN9MyRX-HjzMWg-t500x500.jpg',       color:'#6600ff', blog:'blog-rab3l.html',          keepitil:true, type:'DJ'},
   {name:'Groove Trooper',city:'Garden Grove',  county:'Orange County',         genre:'Latin House / Tech House',                 ig:'Groove_Trooper',        img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg', color:'#00b4ff', blog:'blog-groove-trooper.html', keepitil:true, type:'DJ'},
@@ -188,8 +203,7 @@ const ART = [
   {name:'Echo West',    city:'Long Beach',    county:'Los Angeles County',    genre:'House / Deep House / Soulful House',       ig:'echo.west.lb',          img:'https://images.pexels.com/photos/226737/pexels-photo-226737.jpeg?auto=compress&cs=tinysrgb&w=600',          color:'#ff6600', blog:'blog-echo-west.html',      keepitil:true, type:'DJ'},
   {name:'Josh Billings', city:'Newport Beach', county:'Orange County',         genre:'House / Tech House / Deep House',          ig:'josh_billings',         img:'https://i1.sndcdn.com/avatars-000019027814-30us3e-t500x500.jpg',         color:'#00b4ff', blog:'blog-josh-billings.html',  keepitil:true, type:'DJ'},
   {name:'ANOLUXX',      city:'Los Angeles',   county:'Los Angeles County',    genre:'Hard Techno',                              ig:'anoluxx',               img:'https://i1.sndcdn.com/avatars-RkdORUhOkFphidW6-5KFBhA-t500x500.jpg',               color:'#ff2200', blog:'blog-anoluxx.html',        keepitil:true, type:'DJ'},
-];
-const BRND = [
+], BRND=[
   // === OC ===
   {name:'Cube World Media',     city:'Huntington Beach', county:'Orange County',       category:'Event Production / Venue',  ig:'cubeworldmedia',      img:'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&w=600', color:'#00ff88', blog:'blog-org-cube-world-media.html'},
   {name:'Neon District Lights', city:'Anaheim',          county:'Orange County',       category:'Lighting & Visual Effects', ig:'neondistrictoc',      img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600', color:'#00b4ff', blog:'blog-brand-neon-district.html'},
@@ -239,8 +253,7 @@ const BRND = [
   {name:'Night Market Collective',city:'Los Angeles',      county:'Los Angeles County',  category:'Vendor Collective',         ig:'nightmarket.collective',img:'https://images.pexels.com/photos/1058277/pexels-photo-1058277.jpeg?auto=compress&cs=tinysrgb&w=600', color:'#ff0080', blog:'blog-brand-night-market-collective.html'},
   {name:'Underground Prints',     city:'Los Angeles',      county:'Los Angeles County',  category:'Print & Design',            ig:'undergroundprints.la',img:'https://images.pexels.com/photos/3747139/pexels-photo-3747139.jpeg?auto=compress&cs=tinysrgb&w=600', color:'#ffb400', blog:'blog-brand-underground-prints.html'},
   {name:'Bass Coast Gear',        city:'San Diego',        county:'San Diego County',    category:'Bass Music Apparel',        ig:'basscoastgear', img:'https://i1.sndcdn.com/avatars-tkEC1u2xLYxWF4M7-Jb4lyA-t500x500.jpg',       color:'#6600ff', blog:'blog-brand-bass-coast-gear.html'},
-];
-const ORG = [
+], ORG=[
   // === KEEPITIL FEATURED ORGANIZERS ===
   {name:"Cube World Media", city:"Huntington Beach", county:"Orange County", type:"Underground / Afters", ig:"cubeworldmedia", color:"#ff6600", blog:"profile-org-cube-world-media.html", img:"https://unavatar.io/instagram/cubeworldmedia"},
   {name:"Merge the Music", city:"Huntington Beach", county:"Orange County", type:"Underground / Multi-Genre", ig:"mergethemusic", color:"#b400ff", blog:"profile-org-merge-the-music.html", img:"https://unavatar.io/instagram/mergethemusic"},
@@ -428,41 +441,82 @@ const ORG = [
   {name:"BLUDHAUND RECORDS", city:"San Bernardino", county:"San Bernardino County", type:'Events & Nightlife', ig:"", color:"#4a7195", posh:"bludhaund-records", img:"https://images.posh.vip/originals/6a31ec66e60eb0bed6f87a7c"},
   {name:"Mar Wave Productions", city:"San Bernardino", county:"San Bernardino County", type:'Events & Nightlife', ig:"", color:"#db0f33", posh:"mar-wave-productions", img:"https://images.posh.vip/images/7e19a772-16fa-4ffe-9d79-7871f7c0d7ed.jpg"},
   {name:"LA SONIDERA PARTY", city:"Hollywood", county:"Los Angeles County", type:'Events & Nightlife', ig:"", color:"#72e204", posh:"lasonideraparty", img:"https://images.posh.vip/alts/67f0182b920232e6dbf0b4e1/600x600.webp"}
-];
-const DATA = [].concat(
+], VEN=[
+  {name:'Academy LA', city:'Hollywood', county:'Los Angeles County', type:'Nightclub / Funktion-One', blog:'blog-academy-la.html'},
+  {name:'Avalon Hollywood', city:'Hollywood', county:'Los Angeles County', type:'Historic Nightclub', blog:'blog-avalon-hollywood.html'},
+  {name:'Exchange LA', city:'Downtown LA', county:'Los Angeles County', type:'Nightclub'},
+  {name:'Sound Nightclub', city:'Hollywood', county:'Los Angeles County', type:'Nightclub'},
+  {name:'Catch One', city:'Mid-City LA', county:'Los Angeles County', type:'Nightclub'},
+  {name:'Time Nightclub', city:'Costa Mesa', county:'Orange County', type:'Nightclub'},
+  {name:'The Regent Theater', city:'Downtown LA', county:'Los Angeles County', type:'Theater'},
+  {name:'The Belasco', city:'Downtown LA', county:'Los Angeles County', type:'Theater'}
+], PROMO=[];
+const DATA=[].concat(
   ART.map(x=>Object.assign({},x,{kind:'artist'})),
   BRND.map(x=>Object.assign({},x,{kind:'brand'})),
-  ORG.map(x=>Object.assign({},x,{kind:'organizer'}))
+  ORG.map(x=>Object.assign({},x,{kind:'organizer'})),
+  PROMO.map(x=>Object.assign({},x,{kind:'promoter'})),
+  VEN.map(x=>Object.assign({},x,{kind:'venue'}))
 );
-document.getElementById('cA').textContent=ART.length;
-document.getElementById('cB').textContent=BRND.length;
-document.getElementById('cO').textContent=ORG.length;
-const KL={artist:'Artist',brand:'Brand',organizer:'Organizer'};
+cA.textContent=ART.length;cB.textContent=BRND.length;cO.textContent=ORG.length;cP.textContent=PROMO.length;cV.textContent=VEN.length;
+const KL={artist:'Artist',brand:'Brand',organizer:'Organizer',promoter:'Promoter',venue:'Venue'};
 function desc(x){return x.genre||x.category||x.type||'';}
 function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
-function card(x,i){
-  const d=desc(x);const ig=x.ig?('@'+x.ig):'';
-  const href=x.blog?('/'+x.blog):'#';
-  const img=x.img?('<img loading="lazy" src="'+x.img+'" alt="'+(x.name||'').replace(/"/g,'')+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/>'):'';
-  const fb='<div class="fallback" style="display:'+(x.img?'none':'flex')+';background:linear-gradient(135deg,'+(x.color||'#8b5cff')+',#111)">'+initials(x.name)+'</div>';
-  return '<a class="card" href="'+href+'" style="animation-delay:'+Math.min(i*8,300)+'ms">'
+// facets per kind
+function splitv(s){return (s||'').split('/').map(t=>t.trim()).filter(Boolean);}
+function facets(kind){
+  const items=DATA.filter(x=>x.kind===kind);
+  if(kind==='artist'){
+    const types=[...new Set(items.map(x=>x.type).filter(Boolean))].sort();
+    const genres=[...new Set(items.flatMap(x=>splitv(x.genre)))].sort();
+    return [['Type',types],['Genre',genres]];
+  }
+  const t=[...new Set(items.flatMap(x=>splitv(x.category||x.type)))].sort();
+  return [['Type',t]];
+}
+let kind='all',q='',sub='';
+function card(x){
+  const d=desc(x);const ig=x.ig?('@'+x.ig):'';const href=x.blog?('/'+x.blog):'#';
+  const img=x.img?('<img loading="lazy" src="'+x.img+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/>'):'';
+  const fb='<div class="fallback" style="display:'+(x.img?'none':'flex')+';background:linear-gradient(135deg,'+(x.color||'#6d28d9')+',#111)">'+initials(x.name)+'</div>';
+  return '<a class="card" href="'+href+'">'
     +'<div class="imgw"><span class="kind '+x.kind+'">'+KL[x.kind]+'</span>'+img+fb+'</div>'
-    +'<div class="body"><div class="nm">'+(x.name||'')+'</div>'
-    +'<div class="desc">'+d+'</div>'
+    +'<div class="body"><div class="nm">'+(x.name||'')+'</div><div class="desc">'+d+'</div>'
     +(x.city?'<div class="loc">◍ '+x.city+(x.county?' · '+x.county.replace(' County',' Co.'):'')+'</div>':'')
     +(ig?'<div class="ig">'+ig+'</div>':'')+'</div></a>';
 }
-let kind='all',q='';
+function renderSubs(){
+  const box=document.getElementById('subs');
+  if(kind==='all'){box.classList.remove('show');box.innerHTML='';return;}
+  const fs=facets(kind);const parts=[];
+  fs.forEach(([lab,vals])=>{
+    if(!vals.length)return;
+    parts.push('<span class="sf-label">'+lab+'</span>');
+    vals.forEach(v=>parts.push('<button class="chip'+(sub===v?' on':'')+'" data-v="'+v.replace(/"/g,'')+'">'+v+'</button>'));
+  });
+  box.innerHTML=parts.join('')||'';
+  box.classList.toggle('show',parts.length>0);
+}
 function render(){
   const ql=q.trim().toLowerCase();
-  const list=DATA.filter(x=>(kind==='all'||x.kind===kind) && (!ql || (x.name||'').toLowerCase().includes(ql) || (x.city||'').toLowerCase().includes(ql) || desc(x).toLowerCase().includes(ql)));
+  const list=DATA.filter(x=>{
+    if(kind!=='all'&&x.kind!==kind)return false;
+    if(sub){const hay=((x.type||'')+' '+(x.genre||'')+' '+(x.category||'')).toLowerCase();if(!hay.includes(sub.toLowerCase()))return false;}
+    if(ql){const h=((x.name||'')+' '+(x.city||'')+' '+desc(x)).toLowerCase();if(!h.includes(ql))return false;}
+    return true;
+  });
   const g=document.getElementById('grid');
-  g.innerHTML=list.length?list.map(card).join(''):'<div class="empty">No matches — try another search.</div>';
+  if(!list.length){
+    g.innerHTML='<div class="empty"><div class="big">'+(kind==='promoter'?'Promoter profiles coming soon':'No matches')+'</div><div>'+(kind==='promoter'?'We\'re onboarding promoter collectives now.':'Try another search or filter.')+'</div></div>';
+  } else { g.innerHTML=list.map(card).join(''); }
   document.getElementById('count').textContent=list.length+' of '+DATA.length;
 }
-document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;kind=b.dataset.k;[...e.currentTarget.children].forEach(c=>c.classList.toggle('on',c===b));render();});
+document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;kind=b.dataset.k;sub='';[...e.currentTarget.children].forEach(c=>c.classList.toggle('on',c===b));renderSubs();render();});
+document.getElementById('subs').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;sub=(sub===c.dataset.v)?'':c.dataset.v;renderSubs();render();});
 document.getElementById('q').addEventListener('input',e=>{q=e.target.value;render();});
-render();
+renderSubs();render();
 </script>
+<script src="/keepitil-radio.js" defer></script>
+<script src="/keepitil-ai.js" defer></script>
 </body>
 </html>
