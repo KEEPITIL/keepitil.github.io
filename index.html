@@ -2546,11 +2546,20 @@
    *   3. dateRange: [[startMonth0, startDay], [endMonth0, endDay]]  (month is 0-indexed: Jan=0 … Dec=11)
    * ─────────────────────────────────────────────────────────────────────── */
   const HOLIDAYS = [
-    // Holiday hero backgrounds DISABLED per Founder (2026-07-04): keep the original
-    // animated-text head with no background photo. Re-enable by adding an entry below
-    // AND dropping the matching image in assets/ (missing image = broken hero).
-    // { name:'july4', label:'Independence Day', dateRange:[[5,25],[6,7]], img:'assets/holiday-july4.jpg', overlayOpacity:0.55 },
-    // { name:'summer', label:'Summer', dateRange:[[5,15],[8,31]], img:'assets/holiday-summer.jpg', overlayOpacity:0.35 },
+    {
+      name: 'july4',
+      label: 'Independence Day',
+      dateRange: [[5, 25], [6, 7]], // Jun 25 – Jul 7  (takes priority over summer)
+      img: 'assets/holiday-july4.jpg',
+      overlayOpacity: 0.55
+    },
+    {
+      name: 'summer',
+      label: 'Summer',
+      dateRange: [[5, 15], [8, 31]], // Jun 15 – Aug 31  (fallback when no other holiday active)
+      img: 'assets/holiday-summer.jpg',
+      overlayOpacity: 0.35            // lighter tint — summer is bright
+    },
     // ── Future American holidays — add image + uncomment ──────────────────
     // { name: 'memorial',     label: 'Memorial Day',   dateRange: [[4,23],[4,28]], img: 'assets/holiday-memorial.jpg',     overlayOpacity: 0.5 },
     // { name: 'laborday',     label: 'Labor Day',      dateRange: [[7,29],[8, 3]], img: 'assets/holiday-laborday.jpg',     overlayOpacity: 0.5 },
