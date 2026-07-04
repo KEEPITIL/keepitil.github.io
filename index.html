@@ -2327,5 +2327,25 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   else setTimeout(run,500);
 })();
 </script>
+<script id="kil-home-holiday-js">(function(){
+function pick(){var d=new Date(),m=d.getMonth()+1,day=d.getDate();
+  if(m===7&&day>=1&&day<=5)return '/assets/bg-4th-july.jpg';   /* Jul 1-5; auto-swaps to summer Mon Jul 6 */
+  if(m>=6&&m<=8)return '/assets/bg-summer.jpg';return null;}
+var src=pick();if(!src)return;
+try{var pl=document.createElement('link');pl.rel='preload';pl.as='image';pl.href=src;document.head.appendChild(pl);}catch(e){}
+function styleOnce(){if(document.getElementById('kil-home-holiday'))return;
+  var st=document.createElement('style');st.id='kil-home-holiday';
+  st.textContent='#hero-holiday-bg{background:#07070c url('+src+') center center/cover no-repeat!important;opacity:1!important;transform:none!important;}'
+    +'#hero-canvas{opacity:0!important;}'
+    +'.hero .hero-content h1,.hero .hero-content>p{opacity:0!important;}';
+  document.head.appendChild(st);}
+function apply(){styleOnce();var el=document.getElementById('hero-holiday-bg');
+  if(el){el.classList.add('active');el.style.setProperty('background-image','url('+src+')','important');el.style.setProperty('opacity','1','important');}}
+apply();
+document.addEventListener('DOMContentLoaded',apply);
+window.addEventListener('load',apply);
+window.addEventListener('pageshow',apply);
+var n=0,iv=setInterval(function(){apply();if(++n>24)clearInterval(iv);},200);
+})();</script>
 </body>
 </html>
