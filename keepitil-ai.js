@@ -721,7 +721,7 @@
         +"}";
       document.head.appendChild(st);
     }
-    var map=[['/artist','🎤'],['/brand','🏷️'],['/culture','🎭'],['/organizer','🎪'],['/apply','✉️'],['/signup','✉️'],['/grow','📈']];
+    var map=[['/scene','🎧'],['/culture','🎭'],['amazon','🛒'],['/shop','🛒'],['/apply','✉️'],['/signup','✉️'],['/grow','📈'],['/artist','🎤'],['/brand','🏷️'],['/organizer','🎪']];
     function emojiFor(href){ href=(href||'').toLowerCase(); for(var i=0;i<map.length;i++){ if(href.indexOf(map[i][0])>-1) return map[i][1]; } return '🔗'; }
     ul.querySelectorAll('a').forEach(function(a){
       if(a.querySelector('.kil-nav-emoji')) return;
