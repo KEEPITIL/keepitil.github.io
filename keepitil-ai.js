@@ -755,7 +755,7 @@
   if(!onMain) return;
   function pick(){
     var d=new Date(), m=d.getMonth()+1, day=d.getDate();
-    if(m===7 && day>=1 && day<=7) return '/assets/bg-4th-july.jpg';   /* Independence Day week */
+    if(m===7 && day>=1 && day<=5) return '/assets/bg-4th-july.jpg';   /* Independence Day weekend, thru Sun Jul 5; auto-swaps to summer Mon Jul 6 */
     if(m>=6 && m<=8) return '/assets/bg-summer.jpg';                   /* summer seasonal alt */
     return null;
   }
