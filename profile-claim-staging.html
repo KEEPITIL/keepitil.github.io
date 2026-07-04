@@ -152,8 +152,12 @@ footer a{color:var(--artist);}
 
 <footer>KEEPITIL — OC &amp; LA Underground EDM · <a href="/">keepitil.com</a> · <span style="color:#6b6588">staging demo · claim = manual approval via review queue (noindex)</span></footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 const params=new URLSearchParams(location.search);
+const SLUG=params.get('slug')||'groove-trooper';
 const claimed=params.get('claimed')==='1';
 document.getElementById('tUn').classList.toggle('on',!claimed);
 document.getElementById('tCl').classList.toggle('on',claimed);
@@ -162,14 +166,30 @@ document.getElementById('claimedBlock').style.display=claimed?'block':'none';
 document.getElementById('claimtag').style.display=claimed?'inline-flex':'none';
 function openClaim(){document.getElementById('overlay').classList.add('open');}
 function closeClaim(){document.getElementById('overlay').classList.remove('open');document.getElementById('formView').style.display='block';document.getElementById('doneView').style.display='none';}
-function submitClaim(){
-  // Manual-approval flow: POST the claim to the review queue (Supabase applications / profile_owners status=pending).
-  // TODO(wire): insert {slug, name, handle, email, proof, categories, status:'pending'} using the real anon key,
-  //             then it surfaces in the Notion profile-review queue for Founder approval.
+async function submitClaim(){
   const cats=[...document.querySelectorAll('.cats input:checked')].map(c=>c.value);
-  console.log('CLAIM (demo, not yet persisted):',{name:fName.value,handle:fHandle.value,email:fEmail.value,proof:fProof.value,categories:cats});
-  document.getElementById('formView').style.display='none';
-  document.getElementById('doneView').style.display='block';
+  const name=fName.value.trim(), handle=fHandle.value.trim(), email=fEmail.value.trim(), proof=fProof.value.trim();
+  if(!name||!email){ alert('Please add your name and email.'); return; }
+  const btn=document.querySelector('#formView .actions .btn:last-child'); btn.textContent='Submitting…'; btn.disabled=true;
+  // Manual-approval flow → insert into applications with status:'pending' (same review queue apply/portal use).
+  const rec={
+    name:name, type:(cats[0]||'artist'), slug:SLUG, status:'pending',
+    website: (/^https?:/.test(proof)&&!/instagram\.com/i.test(proof))?proof:'',
+    instagram: /instagram\.com/i.test(proof)?proof:'',
+    bio:'PROFILE CLAIM · @'+handle+' · '+email+' · categories: '+(cats.join(', ')||'—')+' · proof: '+(proof||'—')
+  };
+  try{
+    if(window.supabase){
+      const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+      const {error}=await sb.from('applications').insert(rec);
+      if(error) throw error;
+    }
+    document.getElementById('formView').style.display='none';
+    document.getElementById('doneView').style.display='block';
+  }catch(e){
+    btn.textContent='Submit claim'; btn.disabled=false;
+    alert('Could not submit the claim: '+(e.message||e)+'\nPlease try again in a moment.');
+  }
 }
 </script>
 <script src="/keepitil-radio.js" defer></script>
