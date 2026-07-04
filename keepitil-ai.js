@@ -745,3 +745,52 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', injectMobileNav);
   else injectMobileNav();
 })();
+
+/* ── KEEPITIL holiday / seasonal HERO TAKEOVER (home + scene + culture) ──
+   Image-guarded: if the asset isn't uploaded yet it is a no-op (never a broken image).
+   Drop /assets/bg-4th-july.jpg (or /assets/bg-summer.jpg) and it activates automatically. */
+(function(){
+  var p=location.pathname.replace(/index\.html$/,'');
+  var onMain = (p==='/'||p===''||p==='/scene.html'||p.indexOf('/culture')===0);
+  if(!onMain) return;
+  function pick(){
+    var d=new Date(), m=d.getMonth()+1, day=d.getDate();
+    if(m===7 && day>=1 && day<=7) return '/assets/bg-4th-july.jpg';   /* Independence Day week */
+    if(m>=6 && m<=8) return '/assets/bg-summer.jpg';                   /* summer seasonal alt */
+    return null;
+  }
+  function apply(hero, src){
+    if(!hero || hero.querySelector('.kil-holiday-bg')) return;
+    var cs=getComputedStyle(hero); if(cs.position==='static') hero.style.position='relative';
+    hero.style.overflow='hidden';
+    var bg=document.createElement('div'); bg.className='kil-holiday-bg';
+    bg.style.cssText='position:absolute;inset:0;z-index:1;background:#07070c url("'+src+'") center/cover no-repeat;';
+    var ov=document.createElement('div'); ov.className='kil-holiday-ov';
+    ov.style.cssText='position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(130% 100% at 50% 42%,transparent 40%,rgba(6,6,12,.55));';
+    hero.insertBefore(ov, hero.firstChild);
+    hero.insertBefore(bg, hero.firstChild);
+    /* push existing decorative layers behind the banner */
+    ['#hero-canvas','.hero-overlay','#hero-holiday-bg','canvas'].forEach(function(sel){
+      hero.querySelectorAll(sel).forEach(function(el){ if(!el.classList.contains('kil-holiday-bg')) el.style.zIndex='0'; });
+    });
+    /* real content above the banner; the site's own big headline/eyebrow hides (banner has its own text) */
+    [].forEach.call(hero.children, function(c){ if(!c.classList.contains('kil-holiday-bg')&&!c.classList.contains('kil-holiday-ov')){ if(getComputedStyle(c).position==='static') c.style.position='relative'; c.style.zIndex='5'; }});
+    if(!document.getElementById('kil-holiday-css')){
+      var st=document.createElement('style'); st.id='kil-holiday-css';
+      st.textContent='.kil-holiday .eyebrow,.kil-holiday>h1,.kil-holiday .hero-content>h1,.kil-holiday .hero-content>p:not(.hero-actions),.kil-holiday>p{opacity:0!important;}';
+      document.head.appendChild(st);
+    }
+    hero.classList.add('kil-holiday');
+    if(hero.offsetHeight<360) hero.style.minHeight='440px';
+  }
+  function run(){
+    var src=pick(); if(!src) return;
+    var hero=document.querySelector('section.hero')||document.querySelector('header.hero')||document.querySelector('.hero')||document.getElementById('home');
+    if(!hero) return;
+    var img=new Image();
+    img.onload=function(){ apply(hero, src); };
+    img.onerror=function(){ /* asset not uploaded yet — no-op */ };
+    img.src=src;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
