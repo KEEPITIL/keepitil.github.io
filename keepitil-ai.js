@@ -751,7 +751,7 @@
    preloads the image, and self-heals to nothing if the asset is ever missing. */
 (function(){
   var p=location.pathname.replace(/index\.html$/,'');
-  if(!(p==='/'||p===''||p==='/scene.html'||p.indexOf('/culture')===0)) return;
+  if(!(p==='/scene.html'||p.indexOf('/culture')===0)) return;   /* homepage handled inline in index.html */
   function pick(){var d=new Date(),m=d.getMonth()+1,day=d.getDate();
     if(m===7&&day>=1&&day<=5) return '/assets/bg-4th-july.jpg';   /* Jul 1-5; auto-swaps to summer Mon Jul 6 */
     if(m>=6&&m<=8) return '/assets/bg-summer.jpg';
