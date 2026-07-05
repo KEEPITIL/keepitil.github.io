@@ -2267,10 +2267,12 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
       sb.auth.signUp({email:email,password:pass,options:{data:{handle:handle,display_name:handle}}}).then(function(r){
         if(r&&r.error){ var em=(r.error.message||''); if(/regist|already|exists/i.test(em)){ setMsg('That email already has an account — log in below, or tap Forgot password.'); showPane('login'); } else { setMsg(em||'Could not create account.'); } return; }
         var uid=(r&&r.data&&r.data.user)?r.data.user.id:null;
+        var sess=(r&&r.data)?r.data.session:null;
         if(uid && sb){ sb.from('app_users').insert({id:uid,handle:handle,display_name:handle}).then(function(){}).catch(function(){}); }
         captureLead(email,handle,'signup');
         window.KIL_HANDLE=handle;
-        setMsg('Welcome, @'+handle+'! You are in.');
+        if(sess){ setMsg('Welcome, @'+handle+'! You are in.'); }
+        else { setMsg('Account created! Check your email (and spam) for a confirmation link to finish, then log in below.'); showPane('login'); }
       }).catch(function(){ setMsg('Could not create account.'); });
     }).catch(function(){ setMsg('Could not create account.'); });
   };
