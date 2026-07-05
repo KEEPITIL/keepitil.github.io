@@ -442,11 +442,13 @@ let currentEmail = '';
 let currentProfile = null;
 
 /* ════════ SHOW STATE ════════ */
+/* Null-safe: a missing panel element must NOT throw and blank the whole page. */
 function portalShow(state) {
-  stateLogin.style.display  = state === 'login'  ? '' : 'none';
-  stateSent.style.display   = state === 'sent'   ? '' : 'none';
-  stateEditor.style.display = state === 'editor' ? '' : 'none';
-  stateReset.style.display  = state === 'reset'  ? '' : 'none';
+  const set = (el, show) => { if (el) el.style.display = show ? '' : 'none'; };
+  set(stateLogin,  state === 'login');
+  set(stateSent,   state === 'sent');
+  set(stateEditor, state === 'editor');
+  set(stateReset,  state === 'reset');
 }
 
 /* ════════ SIGN IN ════════ */
@@ -546,30 +548,61 @@ async function init() {
 }
 init();
 
+/* ════════ NEVER-BLANK SAFETY NET ════════
+   If anything above threw and left every panel hidden, fall back to the login
+   panel so the portal is never a blank screen. Also re-checks shortly after load. */
+function portalSafetyNet() {
+  try {
+    const panels = [stateLogin, stateSent, stateEditor, stateReset];
+    const anyVisible = panels.some(el => el && getComputedStyle(el).display !== 'none');
+    if (!anyVisible && stateLogin) stateLogin.style.display = '';
+  } catch (_) {}
+}
+window.addEventListener('error', function(){ setTimeout(portalSafetyNet, 50); });
+setTimeout(portalSafetyNet, 1200);
+
 /* ════════ LOAD EDITOR ════════ */
 async function loadEditor(user) {
   portalShow('editor');
   currentEmail = user.email;
 
-  // Try to load the user's profile from applications table
-  const { data, error } = await supa
-    .from('applications')
-    .select('*')
-    .eq('email', user.email)
-    .maybeSingle();
+  // Sensible header immediately so the editor is NEVER blank, even before/if the query fails.
+  const npp = document.getElementById('no-profile-panel');
+  const pvl = document.getElementById('preview-profile-link');
+  try {
+    document.getElementById('editor-display-name').textContent = (user.email || '').split('@')[0] || 'Your Profile';
+    document.getElementById('editor-initials').textContent = ((user.email || '?')[0] || '?').toUpperCase();
+    document.getElementById('editor-sub-line').textContent = 'Loading your profile…';
+  } catch (_) {}
 
-  if (data) {
-    currentProfile = data;
-    populateForm(data);
-    noProfilePanel.style.display = 'none';
-  } else {
-    // No profile yet — show claim panel + blank form
-    noProfilePanel.style.display = 'block';
-    document.getElementById('editor-display-name').textContent = user.email.split('@')[0];
-    document.getElementById('editor-initials').textContent = user.email[0].toUpperCase();
+  // Try to load the user's profile from applications table (resilient — a query error must not blank the page)
+  let data = null;
+  try {
+    const res = await supa
+      .from('applications')
+      .select('*')
+      .eq('email', user.email)
+      .maybeSingle();
+    data = res && res.data ? res.data : null;
+  } catch (e) { data = null; }
+
+  try {
+    if (data) {
+      currentProfile = data;
+      populateForm(data);
+      if (npp) npp.style.display = 'none';
+    } else {
+      // No linked profile yet — show the claim panel so the user always has an action.
+      if (npp) npp.style.display = 'block';
+      document.getElementById('editor-sub-line').textContent = 'Profile not linked yet';
+      if (pvl) { pvl.href = '/apply.html'; pvl.textContent = 'APPLY →'; }
+    }
+  } catch (e) {
+    // Absolute fail-safe: never leave a blank screen.
+    if (npp) npp.style.display = 'block';
     document.getElementById('editor-sub-line').textContent = 'Profile not linked yet';
-    previewLink.href = '/apply.html';
-    previewLink.textContent = 'APPLY →';
+    const ce = document.getElementById('claim-error');
+    if (ce) ce.textContent = 'We couldn’t load your profile automatically. Enter your profile slug below to claim it, or apply.';
   }
 }
 
