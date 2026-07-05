@@ -542,6 +542,16 @@ supa.auth.onAuthStateChange(async (event, session) => {
 async function init() {
   const hash = location.hash || '';
   const isRecovery = (hash.indexOf('type=recovery') > -1) || (hash.indexOf('access_token') > -1 && hash.indexOf('recovery') > -1);
+  const isExpired  = hash.indexOf('otp_expired') > -1 || hash.indexOf('error_code=access_denied') > -1 || (hash.indexOf('error') > -1 && hash.indexOf('expired') > -1);
+  // Expired / invalid link → don't dead-end. Show the "get a fresh link" form with a clear message.
+  if (isExpired) {
+    portalShow('login');
+    const ss = document.getElementById('signin-section'); if (ss) ss.style.display = 'none';
+    const fs = document.getElementById('forgot-section'); if (fs) fs.style.display = '';
+    const rm = document.getElementById('reset-msg'); if (rm) { rm.style.color = '#00b4ff'; rm.textContent = 'That link expired. Enter your email to get a fresh reset link.'; }
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    return;
+  }
   // Show the correct default view SYNCHRONOUSLY so the page is never blank,
   // even if the session check below is slow or never resolves.
   portalShow(isRecovery ? 'reset' : 'login');
