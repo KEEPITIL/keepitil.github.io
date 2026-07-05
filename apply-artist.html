@@ -418,8 +418,8 @@
         const { error: authError } = await supa.auth.signUp({ email, password });
         if (authError && !authError.message.includes('already registered')) throw authError;
 
-        // Sign them in immediately (works when email confirmation is disabled)
-        await supa.auth.signInWithPassword({ email, password });
+        // Try to sign them in immediately (works when email confirmation is disabled)
+        const { error: signInErr } = await supa.auth.signInWithPassword({ email, password });
 
         // Background backup to Google Sheets (fire-and-forget)
         fetch(APPS_SCRIPT_URL, {
@@ -427,6 +427,17 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ Role: 'Artist', ...data })
         }).catch(() => {});
+
+        if (signInErr) {
+          // Email confirmation is ON in Supabase — the account was created but must be
+          // confirmed before sign-in works. Tell the user instead of dumping them at a login they can't pass.
+          btn.textContent = 'SUBMIT APPLICATION';
+          btn.disabled = false;
+          errEl.style.color = '#00e08a';
+          errEl.innerHTML = '✅ Application received! One more step — check your email (and spam) for a confirmation link from KEEPITIL, click it, then sign in at <a href="/portal.html" style="color:#00e08a;text-decoration:underline;">your portal</a> to edit your profile.';
+          errEl.style.display = 'block';
+          return;
+        }
 
         // Redirect straight to portal editor
         window.location.href = 'https://keepitil.com/portal.html';
