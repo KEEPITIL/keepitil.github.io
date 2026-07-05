@@ -370,13 +370,22 @@
         const { error: authError } = await supa.auth.signUp({ email, password });
         if (authError && !authError.message.includes('already registered')) throw authError;
 
-        await supa.auth.signInWithPassword({ email, password });
+        const { error: signInErr } = await supa.auth.signInWithPassword({ email, password });
 
         fetch(APPS_SCRIPT_URL, {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ Role: 'Brand', ...data })
         }).catch(() => {});
+
+        if (signInErr) {
+          btn.textContent = 'SUBMIT APPLICATION';
+          btn.disabled = false;
+          errEl.style.color = '#00e08a';
+          errEl.innerHTML = '✅ Application received! One more step — check your email (and spam) for a confirmation link from KEEPITIL, click it, then sign in at <a href="/portal.html" style="color:#00e08a;text-decoration:underline;">your portal</a> to edit your profile.';
+          errEl.style.display = 'block';
+          return;
+        }
 
         window.location.href = 'https://keepitil.com/portal.html';
 
