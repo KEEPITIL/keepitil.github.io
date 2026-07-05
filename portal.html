@@ -466,9 +466,14 @@ async function signIn() {
   loginBtn.textContent = 'SIGNING IN…';
   const { error } = await supa.auth.signInWithPassword({ email, password });
   if (error) {
-    loginError.textContent = error.message === 'Invalid login credentials'
-      ? 'Wrong email or password. Use "Forgot password?" to reset it.'
-      : error.message;
+    const m = error.message || '';
+    if (/email not confirmed|not confirmed|confirm your email/i.test(m)) {
+      loginError.textContent = 'Your email isn’t confirmed yet — check your inbox (and spam) for the confirmation link from KEEPITIL, then sign in. No email? Use “Forgot password?” to set a password and confirm your account.';
+    } else if (m === 'Invalid login credentials') {
+      loginError.textContent = 'Wrong email or password. Use “Forgot password?” to reset it (this also confirms your account if you signed up recently).';
+    } else {
+      loginError.textContent = m;
+    }
     loginBtn.disabled = false;
     loginBtn.textContent = 'SIGN IN';
   }
