@@ -442,9 +442,11 @@ let currentEmail = '';
 let currentProfile = null;
 
 /* ════════ SHOW STATE ════════ */
-/* Null-safe: a missing panel element must NOT throw and blank the whole page. */
+/* Null-safe AND override-safe: the active panel must be forced VISIBLE with an explicit
+   'block' — several panels (e.g. #state-editor) are `display:none` in CSS, so setting ''
+   would revert to none and leave the page blank for logged-in users. */
 function portalShow(state) {
-  const set = (el, show) => { if (el) el.style.display = show ? '' : 'none'; };
+  const set = (el, show) => { if (el) el.style.display = show ? 'block' : 'none'; };
   set(stateLogin,  state === 'login');
   set(stateSent,   state === 'sent');
   set(stateEditor, state === 'editor');
