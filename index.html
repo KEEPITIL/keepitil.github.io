@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
-  <!-- Password-recovery guard: if Supabase bounced a recovery token to the homepage, forward to the reset page -->
-  <script>(function(){try{var h=location.hash||'';if(h.indexOf('type=recovery')>-1||(h.indexOf('access_token=')>-1&&h.indexOf('recovery')>-1)){location.replace('/reset-password.html'+h);}}catch(e){}})();</script>
+  <!-- Password-recovery guard: forward Supabase recovery tokens to the reset page; forward expired/invalid links to the portal's "get a fresh link" screen instead of dead-ending here -->
+  <script>(function(){try{var h=location.hash||'';
+    if(h.indexOf('type=recovery')>-1||(h.indexOf('access_token=')>-1&&h.indexOf('recovery')>-1)){location.replace('/reset-password.html'+h);}
+    else if(h.indexOf('otp_expired')>-1||h.indexOf('error_code=access_denied')>-1||(h.indexOf('error')>-1&&h.indexOf('expired')>-1)){location.replace('/portal.html'+h);}
+  }catch(e){}})();</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <!-- GA4 (staging-guarded) · G-9WZ40PV823 -->
 <script>(function(){if(location.pathname.indexOf('-staging')>-1)return;var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-9WZ40PV823';document.head.appendChild(s);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments);};gtag('js',new Date());gtag('config','G-9WZ40PV823');})();</script>
