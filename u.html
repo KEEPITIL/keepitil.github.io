@@ -778,16 +778,7 @@ function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();
 
 function addContent(kind){
   if(!CAN_EDIT()){ if(IS_OWNER&&SB&&!SESSION){toast('Sign in as the profile owner to add content.');} else if(IS_OWNER&&SESSION&&!OWNS){toast('Only this profile’s owner can add content.');} return; }
-  if(!kind||kind==='menu'){
-    openModal('Add to your profile',[{name:'type',label:'What do you want to add?',type:'text',ph:'post, photo, or event',val:'post',req:true}],function(v){
-      var t=v.type.toLowerCase();
-      if(t.indexOf('photo')>-1||t.indexOf('pic')>-1)addContent('photo');
-      else if(t.indexOf('event')>-1||t.indexOf('show')>-1)addContent('event');
-      else if(t.indexOf('chat')>-1||t.indexOf('group')>-1)addContent('chat group');
-      else addContent('post');
-    });
-    return;
-  }
+  if(!kind||kind==='menu'){ addContent('post'); return; }
   if(kind==='post'){
     openModal('New Post',[
       {name:'title',label:'Title',type:'text',ph:'e.g. New Warehouse EP',req:true},
