@@ -537,8 +537,8 @@ var PROFILE={
 function applyProfile(){
   var g=function(id){return document.getElementById(id);};
   try{document.title=(PROFILE.name?PROFILE.name+' — ':'')+'Artist Profile | KEEPITIL';}catch(e){}
-  if(g('pfCover'))g('pfCover').src=PROFILE.cover;
-  if(g('pfAvatar'))g('pfAvatar').src=PROFILE.avatar;
+  var _cv=g('pfCover'); if(_cv){ if(PROFILE.cover){ _cv.style.display=''; _cv.src=PROFILE.cover; } else { _cv.style.display='none'; } }
+  var _av=g('pfAvatar'); if(_av && PROFILE.avatar){ _av.style.display=''; _av.src=PROFILE.avatar; }
   if(g('pfName'))g('pfName').textContent=PROFILE.name;
   if(g('pfHandle'))g('pfHandle').textContent='@'+PROFILE.handle+(PROFILE.location?' · '+PROFILE.location:'')+(PROFILE.pronouns?' · '+PROFILE.pronouns:'');
   if(g('pfBio'))g('pfBio').innerHTML=esc(PROFILE.bio)+(PROFILE.tagline?' <span class="h">'+esc(PROFILE.tagline)+'</span>':'');
