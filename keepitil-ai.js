@@ -737,21 +737,18 @@
     var map=[['/scene','scene'],['/culture','culture'],['amazon','shop'],['/shop','shop'],['/apply','login'],['/signup','login'],['/grow','grow'],['/artist','artist'],['/brand','brand'],['/organizer','organizer']];
     function iconName(href){ href=(href||'').toLowerCase(); for(var i=0;i<map.length;i++){ if(href.indexOf(map[i][0])>-1) return map[i][1]; } return 'link'; }
     function makeIco(name){ var s=document.createElement('span'); s.className='kil-nav-ico'; s.setAttribute('aria-hidden','true'); s.innerHTML='<svg viewBox="0 0 24 24">'+(ICON[name]||ICON.link)+'</svg>'; return s; }
-    ul.querySelectorAll('a').forEach(function(a){
-      if(a.querySelector('.kil-nav-ico')) return;
-      a.insertBefore(makeIco(iconName(a.getAttribute('href'))), a.firstChild);
+    /* Build ONE canonical mobile header on EVERY page: Culture · Scene · Login (logo = home) */
+    if(ul.getAttribute('data-kil-mnav')) return;
+    ul.setAttribute('data-kil-mnav','1');
+    var CANON=[['/culture','CULTURE','culture'],['/scene.html','SCENE','scene'],['/apply.html','LOGIN','login']];
+    ul.innerHTML='';
+    CANON.forEach(function(it){
+      var li=document.createElement('li');
+      var a=document.createElement('a'); a.href=it[0];
+      a.appendChild(makeIco(it[2]));
+      a.appendChild(document.createTextNode(it[1]));
+      li.appendChild(a); ul.appendChild(li);
     });
-    var hasSub=false;
-    ul.querySelectorAll('a').forEach(function(a){ if((a.getAttribute('href')||'').toLowerCase().indexOf('/apply')>-1) hasSub=true; });
-    if(!hasSub){
-      var cta=document.querySelector('.nav-inner > a.nav-cta')||document.querySelector('a.nav-cta');
-      if(cta){
-        var li=document.createElement('li');
-        var a=document.createElement('a'); a.href=cta.getAttribute('href')||'/apply.html';
-        a.appendChild(makeIco('login')); a.appendChild(document.createTextNode('LOGIN'));
-        li.appendChild(a); ul.appendChild(li);
-      }
-    }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', injectMobileNav);
   else injectMobileNav();
