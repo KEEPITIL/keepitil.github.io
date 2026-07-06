@@ -353,6 +353,9 @@ footer a{color:var(--accent2);}
 <footer><p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> — OC &amp; LA Underground EDM &middot; <a href="https://keepitil.com/privacy.html">Privacy Policy</a> &middot; <em>As an Amazon Associate KEEPITIL earns from qualifying purchases.</em></p></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Nudity / explicit-content moderation for image uploads (in-browser, no keys) -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/nsfwjs@3.0.0/dist/nsfwjs.min.js" defer></script>
 <script>
 function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
 /* OWNER (subscriber, can edit/add) vs PUBLIC (customer-facing, read-only) */
@@ -475,14 +478,47 @@ function publish(kind,data){
     if(SB){ toast('Saved as a local preview. Sign in to publish it for everyone.'); }
   }
 }
+/* ── NUDITY / EXPLICIT-CONTENT MODERATION (client-side, NSFWJS + TF.js) ──
+   Every image upload is screened before it is stored. Blocks porn/hentai/explicit.
+   Fails OPEN (allows) only if the model can't load, so uploads never hard-break;
+   server-side moderation is the recommended hardening layer on top of this. */
+var _nsfwModel=null, _nsfwLoading=null;
+function getNsfwModel(){
+  if(_nsfwModel) return Promise.resolve(_nsfwModel);
+  if(_nsfwLoading) return _nsfwLoading;
+  if(typeof nsfwjs==='undefined') return Promise.resolve(null);
+  _nsfwLoading = nsfwjs.load().then(function(m){ _nsfwModel=m; return m; }).catch(function(){ return null; });
+  return _nsfwLoading;
+}
+function isImageSafe(file){
+  return getNsfwModel().then(function(model){
+    if(!model) return true; // model unavailable → fail open
+    return new Promise(function(resolve){
+      var img=new Image(); var url=URL.createObjectURL(file);
+      img.onload=function(){
+        model.classify(img).then(function(preds){
+          URL.revokeObjectURL(url);
+          var p={}; preds.forEach(function(x){ p[x.className]=x.probability; });
+          var blocked=(p.Porn||0)>0.45 || (p.Hentai||0)>0.45 || (p.Sexy||0)>0.75;
+          resolve(!blocked);
+        }).catch(function(){ URL.revokeObjectURL(url); resolve(true); });
+      };
+      img.onerror=function(){ URL.revokeObjectURL(url); resolve(true); };
+      img.src=url;
+    });
+  });
+}
 function uploadImage(file,cb){
   if(!file||!SB||!SESSION){ cb(null); return; }
-  var path='profiles/'+PROFILE_SLUG+'/'+Date.now()+'-'+file.name.replace(/[^a-z0-9.\-]+/gi,'_');
-  SB.storage.from('chat-images').upload(path,file).then(function(r){
-    if(r&&r.error){ cb(null); return; }
-    var pub=SB.storage.from('chat-images').getPublicUrl(path);
-    cb((pub&&pub.data)?pub.data.publicUrl:null);
-  }).catch(function(){ cb(null); });
+  isImageSafe(file).then(function(safe){
+    if(!safe){ toast('⛔ Image blocked — nudity or explicit content is not allowed on KEEPITIL.'); cb(null); return; }
+    var path='profiles/'+PROFILE_SLUG+'/'+Date.now()+'-'+file.name.replace(/[^a-z0-9.\-]+/gi,'_');
+    SB.storage.from('chat-images').upload(path,file).then(function(r){
+      if(r&&r.error){ cb(null); return; }
+      var pub=SB.storage.from('chat-images').getPublicUrl(path);
+      cb((pub&&pub.data)?pub.data.publicUrl:null);
+    }).catch(function(){ cb(null); });
+  });
 }
 function resolveImg(vals,fileKey,urlKey,dflt,cb){ uploadImage(vals[fileKey+'_file'],function(pub){ cb(pub||vals[fileKey]||vals[urlKey]||dflt||''); }); }
 function toast(msg){ var t=document.createElement('div'); t.textContent=msg; t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--line);padding:11px 18px;border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.45);z-index:10000;font-size:.85rem;max-width:90%;text-align:center;'; document.body.appendChild(t); setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';},2600); setTimeout(function(){t.remove();},3200); }
