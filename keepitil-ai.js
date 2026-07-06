@@ -717,17 +717,29 @@
         +".nav-links::-webkit-scrollbar{display:none;}"
         +".nav-links li{flex:1 1 0;min-width:46px;list-style:none;}"
         +".nav-links a{display:flex!important;flex-direction:column;align-items:center;gap:2px;font-size:.46rem;letter-spacing:.01em;line-height:1;color:rgba(255,255,255,.85)!important;text-align:center;padding:2px 0;white-space:normal;}"
-        +".kil-nav-emoji{display:block;font-size:1.12rem;line-height:1;}"
+        +".kil-nav-ico{display:block;width:19px;height:19px;}"
+        +".kil-nav-ico svg{width:100%;height:100%;display:block;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none;}"
         +"}";
       document.head.appendChild(st);
     }
-    var map=[['/scene','🎧'],['/culture','🎭'],['amazon','🛒'],['/shop','🛒'],['/apply','✉️'],['/signup','✉️'],['/grow','📈'],['/artist','🎤'],['/brand','🏷️'],['/organizer','🎪']];
-    function emojiFor(href){ href=(href||'').toLowerCase(); for(var i=0;i<map.length;i++){ if(href.indexOf(map[i][0])>-1) return map[i][1]; } return '🔗'; }
+    /* ── Original KEEPITIL monoline nav icons (drawn in-house, currentColor stroke) ── */
+    var ICON={
+      scene:'<path d="M4 13v-1a8 8 0 0 1 16 0v1"/><rect x="3" y="13" width="4" height="7" rx="1.5"/><rect x="17" y="13" width="4" height="7" rx="1.5"/>',
+      culture:'<path d="M12 6c-1.8-1.2-4-1.6-6.5-1.4A1 1 0 0 0 4.5 5.6v11a1 1 0 0 0 1.1 1c2.3-.2 4.6.2 6.4 1.4 1.8-1.2 4.1-1.6 6.4-1.4a1 1 0 0 0 1.1-1v-11a1 1 0 0 0-1-1.1C16 4.4 13.8 4.8 12 6Z"/><path d="M12 6v12"/>',
+      shop:'<path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+      login:'<path d="M15 4h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-3"/><path d="M10 8l4 4-4 4"/><path d="M14 12H4"/>',
+      grow:'<path d="M4 20V4M4 20h16"/><path d="M7 15l3-3 3 2 5-6"/><path d="M15 8h3v3"/>',
+      artist:'<rect x="9" y="3" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v3M9 20h6"/>',
+      brand:'<path d="M4 4h7l9 9-7 7-9-9V4Z"/><circle cx="8" cy="8" r="1.3"/>',
+      organizer:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/>',
+      link:'<path d="M9 15l6-6"/><path d="M10 6l1-1a4 4 0 0 1 6 6l-1 1"/><path d="M14 18l-1 1a4 4 0 0 1-6-6l1-1"/>'
+    };
+    var map=[['/scene','scene'],['/culture','culture'],['amazon','shop'],['/shop','shop'],['/apply','login'],['/signup','login'],['/grow','grow'],['/artist','artist'],['/brand','brand'],['/organizer','organizer']];
+    function iconName(href){ href=(href||'').toLowerCase(); for(var i=0;i<map.length;i++){ if(href.indexOf(map[i][0])>-1) return map[i][1]; } return 'link'; }
+    function makeIco(name){ var s=document.createElement('span'); s.className='kil-nav-ico'; s.setAttribute('aria-hidden','true'); s.innerHTML='<svg viewBox="0 0 24 24">'+(ICON[name]||ICON.link)+'</svg>'; return s; }
     ul.querySelectorAll('a').forEach(function(a){
-      if(a.querySelector('.kil-nav-emoji')) return;
-      var s=document.createElement('span'); s.className='kil-nav-emoji'; s.setAttribute('aria-hidden','true');
-      s.textContent=emojiFor(a.getAttribute('href'));
-      a.insertBefore(s, a.firstChild);
+      if(a.querySelector('.kil-nav-ico')) return;
+      a.insertBefore(makeIco(iconName(a.getAttribute('href'))), a.firstChild);
     });
     var hasSub=false;
     ul.querySelectorAll('a').forEach(function(a){ if((a.getAttribute('href')||'').toLowerCase().indexOf('/apply')>-1) hasSub=true; });
