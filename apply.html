@@ -34,6 +34,7 @@ main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 
 .btn-login:disabled{opacity:.6;cursor:default;}
 .login-err{color:#ff5c5c;font-size:.82rem;margin:11px 0 0;min-height:1em;line-height:1.4;}
 .forgot{display:inline-block;margin-top:16px;font-size:.82rem;}
+.portal-note{display:none;margin-top:14px;font-size:.82rem;color:var(--grey);}
 .divider{display:flex;align-items:center;gap:12px;color:var(--grey);font-size:.72rem;letter-spacing:.1em;margin:22px 0 18px;}
 .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--dark3);}
 .signup-row{font-size:.86rem;color:var(--grey);}
@@ -55,18 +56,19 @@ footer a{margin:0 5px;}
     <div id="signin-box">
       <div class="login-logo">KEEPITIL</div>
       <div class="login-sub">Log in to your account</div>
-      <input type="email" id="email" placeholder="Email" autocomplete="email"/>
-      <input type="password" id="password" placeholder="Password" autocomplete="current-password"/>
+      <input type="text" id="login-id" placeholder="Username or email" autocapitalize="none" autocorrect="off" spellcheck="false"/>
+      <input type="password" id="password" placeholder="Password"/>
       <button class="btn-login" id="login-btn">LOG IN</button>
       <div class="login-err" id="err"></div>
       <a href="#" class="forgot" id="forgot-link">Forgot password?</a>
+      <a href="/portal.html" class="portal-note" id="portal-note">You're already signed in — go to your portal &rarr;</a>
       <div class="divider">OR</div>
       <div class="signup-row">Don't have an account? <a href="/signup.html">Sign up</a></div>
     </div>
     <div id="reset-box">
       <div class="login-logo">KEEPITIL</div>
       <div class="login-sub">Reset your password</div>
-      <input type="email" id="reset-email" placeholder="Your email" autocomplete="email"/>
+      <input type="email" id="reset-email" placeholder="Your email" autocapitalize="none" autocorrect="off" spellcheck="false"/>
       <button class="btn-login" id="reset-btn">SEND RESET LINK</button>
       <div class="login-err" id="reset-msg" style="color:var(--blue)"></div>
       <a href="#" class="forgot" id="back-link">&larr; Back to log in</a>
@@ -83,30 +85,48 @@ var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
+
+/* Always show the login form. If a session already exists, just OFFER the portal — never auto-redirect / auto-sign-in. */
 if(supa){
-  supa.auth.getSession().then(function(r){ if(r&&r.data&&r.data.session) location.replace('/portal.html'); }).catch(function(){});
-  supa.auth.onAuthStateChange(function(e,s){ if(s) location.replace('/portal.html'); });
+  supa.auth.getSession().then(function(r){
+    if(r&&r.data&&r.data.session){ var p=$('portal-note'); if(p) p.style.display='inline-block'; }
+  }).catch(function(){});
 }
+
+/* Accept a username OR an email. Emails (contain "@") are used directly; a username is resolved to its email. */
+function resolveEmail(id){
+  if(id.indexOf('@')>-1) return Promise.resolve(id);
+  var handle=id.replace(/^@/,'');
+  if(!supa||!supa.from) return Promise.resolve(null);
+  return supa.from('app_users').select('email').eq('handle',handle).maybeSingle()
+    .then(function(r){ return (r&&r.data&&r.data.email)?r.data.email:null; })
+    .catch(function(){ return null; });
+}
+
 function signIn(){
   if(!supa){ $('err').textContent='Sign-in is loading — try again in a moment.'; return; }
-  var email=($('email').value||'').trim(), pw=$('password').value||'';
+  var id=($('login-id').value||'').trim(), pw=$('password').value||'';
   $('err').textContent='';
-  if(!email){ $('err').textContent='Enter your email.'; return; }
+  if(!id){ $('err').textContent='Enter your username or email.'; return; }
   if(!pw){ $('err').textContent='Enter your password.'; return; }
   var b=$('login-btn'); b.disabled=true; b.textContent='LOGGING IN…';
-  supa.auth.signInWithPassword({email:email,password:pw}).then(function(r){
-    if(r&&r.error){
-      var m=r.error.message||'';
-      if(/email not confirmed|not confirmed/i.test(m)) $('err').textContent='Your email isn’t confirmed yet — check your inbox (and spam), or use Forgot password.';
-      else if(m==='Invalid login credentials') $('err').textContent='Wrong email or password. Try “Forgot password?”.';
-      else $('err').textContent=m;
-      b.disabled=false; b.textContent='LOG IN';
-    } else { location.replace('/portal.html'); }
+  resolveEmail(id).then(function(email){
+    if(!email){ $('err').textContent='Couldn’t find that username. Try logging in with your email.'; b.disabled=false; b.textContent='LOG IN'; return; }
+    return supa.auth.signInWithPassword({email:email,password:pw}).then(function(r){
+      if(r&&r.error){
+        var m=r.error.message||'';
+        if(/email not confirmed|not confirmed/i.test(m)) $('err').textContent='Your email isn’t confirmed yet — check your inbox (and spam), or use Forgot password.';
+        else if(m==='Invalid login credentials') $('err').textContent='Wrong username/email or password. Try “Forgot password?”.';
+        else $('err').textContent=m;
+        b.disabled=false; b.textContent='LOG IN';
+      } else { location.replace('/portal.html'); }
+    });
   }).catch(function(){ $('err').textContent='Could not log in — try again.'; b.disabled=false; b.textContent='LOG IN'; });
 }
+
 $('login-btn').addEventListener('click',signIn);
 $('password').addEventListener('keydown',function(e){ if(e.key==='Enter') signIn(); });
-$('email').addEventListener('keydown',function(e){ if(e.key==='Enter') signIn(); });
+$('login-id').addEventListener('keydown',function(e){ if(e.key==='Enter') signIn(); });
 $('forgot-link').addEventListener('click',function(e){ e.preventDefault(); $('signin-box').style.display='none'; $('reset-box').style.display='block'; });
 $('back-link').addEventListener('click',function(e){ e.preventDefault(); $('reset-box').style.display='none'; $('signin-box').style.display='block'; });
 $('reset-btn').addEventListener('click',function(){
