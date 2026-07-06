@@ -198,6 +198,16 @@ footer a{color:var(--accent2);}
 .chat-item .unread{min-width:18px;height:18px;line-height:18px;text-align:center;background:var(--accent);color:var(--onacc);font-size:.66rem;font-weight:800;border-radius:9px;padding:0 5px;}
 .chat-item.add{border:2px dashed var(--line);color:var(--muted);justify-content:center;font-family:var(--font-head);letter-spacing:.08em;margin-bottom:8px;padding:14px;}
 .chat-item.add:hover{border-color:var(--accent);color:var(--accent);}
+.dm-head{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 14px;}
+.dm-head .dm-title{font-family:var(--font-head);font-size:1.25rem;letter-spacing:.06em;color:var(--text);}
+.dm-head .dm-new{background:none;border:none;color:var(--accent2);cursor:pointer;padding:4px;display:flex;}
+.dm-head .dm-new svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.dm-empty{text-align:center;color:var(--muted);padding:48px 20px;}
+.dm-empty svg{width:54px;height:54px;stroke:currentColor;fill:none;stroke-width:1.4;opacity:.45;margin-bottom:12px;}
+.dm-empty .t{font-family:var(--font-head);font-size:1.25rem;letter-spacing:.05em;color:var(--text);margin-bottom:4px;}
+.dm-empty .s{font-size:.85rem;margin-bottom:16px;line-height:1.5;}
+.dm-start{background:var(--accent);color:var(--onacc);border:none;border-radius:9px;font-family:var(--font-head);letter-spacing:.06em;font-size:.95rem;padding:10px 24px;cursor:pointer;}
+.chat-item .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;}
 .chat-back{background:none;border:none;color:var(--accent2);font-weight:700;font-size:.9rem;cursor:pointer;padding:2px 0 14px;letter-spacing:.04em;}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
@@ -321,7 +331,7 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel" id="tab-chat">
-  <div class="gal-hint">Your scene rooms — tap a group to jump in. Each room stays live after the event.</div>
+  <div class="dm-head"><span class="dm-title">Messages</span><button class="dm-new" id="dm-new" title="New message" onclick="addContent('chat group')" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
   <div class="chat-list" id="chat-list"></div>
   <div class="chat-open" id="chat-open" style="display:none;">
     <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
@@ -887,11 +897,15 @@ var GT_CHATS=[
 ];
 function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
-  var add=CAN_EDIT()?'<div class="chat-item add" onclick="addContent(\'chat group\')">+ New Chat Group</div>':'';
-  list.innerHTML=add+GT_CHATS.map(function(c){
-    var unread=c[4]?'<span class="unread">'+c[4]+'</span>':'';
+  var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
+  if(!GT_CHATS.length){
+    list.innerHTML='<div class="dm-empty"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z"/></svg><div class="t">No messages yet</div><div class="s">'+(CAN_EDIT()?'Start a scene room to talk with your community — it stays live after the event.':'Check back when this artist opens a room.')+'</div>'+(CAN_EDIT()?'<button class="dm-start" onclick="addContent(\'chat group\')">Start a chat</button>':'')+'</div>';
+    return;
+  }
+  list.innerHTML=GT_CHATS.map(function(c){
+    var dot=c[4]?'<span class="dot"></span>':'';
     var nm=c[1].replace(/'/g,'');
-    return '<div class="chat-item" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><img class="av" src="'+c[5]+'" alt="" loading="lazy"><div class="meta"><div class="nm">'+c[1]+'</div><div class="pv">'+c[2]+'</div></div><div class="rt"><span>'+c[3]+'</span>'+unread+'</div></div>';
+    return '<div class="chat-item" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><img class="av" src="'+c[5]+'" alt="" loading="lazy"><div class="meta"><div class="nm">'+c[1]+'</div><div class="pv">'+c[2]+'</div></div><div class="rt"><span>'+c[3]+'</span>'+dot+'</div></div>';
   }).join('');
 }
 function openChatGroup(slug,name){
