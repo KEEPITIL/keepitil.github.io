@@ -737,7 +737,7 @@
         var li=document.createElement('li');
         var a=document.createElement('a'); a.href=cta.getAttribute('href')||'/apply.html';
         var s=document.createElement('span'); s.className='kil-nav-emoji'; s.setAttribute('aria-hidden','true'); s.textContent='✉️';
-        a.appendChild(s); a.appendChild(document.createTextNode('SUBSCRIBE'));
+        a.appendChild(s); a.appendChild(document.createTextNode('LOGIN'));
         li.appendChild(a); ul.appendChild(li);
       }
     }
