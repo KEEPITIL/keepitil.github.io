@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>KEEPITIL — Light Theme Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  /* ROYAL PURPLE theme — matches the purple culture page. Soft lavender bg, royal-purple accents. */
+  --page:#f0eafb;         /* light lavender page bg */
+  --surface:#ffffff;      /* white content cards pop on the tint */
+  --surface2:#f5f0fd;
+  --ink:#1c1830;          /* body text (warm dark, slight purple) */
+  --ink2:#605878;         /* muted */
+  --line:rgba(40,20,80,.10);
+  --chrome:#0f0f1a;       /* dark nav/radio (keeps blue logo + neon) */
+  --blue:#6d28d9;         /* royal purple — links/tags on light */
+  --blue-neon:#00b4ff;    /* neon blue — DARK chrome only (nav cta + radio) */
+  --orange:#7c3aed;       /* royal purple accent — badges/headings/buttons */
+  --royal-deep:#5b21b6;
+  --fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;
+}
+body{background:linear-gradient(180deg,#f2ecfd 0%,#ece4fb 55%,#f0eafb 100%);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.7;padding-bottom:74px;}
+a{color:inherit;text-decoration:none;}
+.mock-banner{background:#e7f3fb;border-bottom:1px solid var(--blue);color:#0a5a86;text-align:center;font-size:.78rem;padding:8px 14px;letter-spacing:.03em;}
+/* DARK CHROME NAV (unchanged brand) */
+nav{position:sticky;top:0;z-index:60;background:var(--chrome);border-bottom:1px solid rgba(0,180,255,.25);}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 24px;height:60px;}
+.nav-brand{font-family:var(--fh);font-size:1.4rem;letter-spacing:.13em;color:#fff;margin-left:10px;}
+.nav-links{display:flex;list-style:none;flex:1;justify-content:center;gap:26px;margin:0 24px;}
+.nav-links a{font-family:var(--fh);font-size:1rem;letter-spacing:.14em;color:rgba(255,255,255,.8);}
+.nav-cta{font-family:var(--fh);letter-spacing:.14em;color:var(--blue-neon);border:2px solid var(--blue-neon);padding:6px 18px;border-radius:4px;}
+.hero{width:100%;height:320px;object-fit:cover;display:block;}
+.wrap{max-width:800px;margin:0 auto;padding:0 24px;}
+.cat-badge{display:inline-block;background:var(--orange);color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;padding:5px 14px;border-radius:3px;margin:34px 0 14px;}
+.wrap h1{font-family:var(--fh);font-size:clamp(2rem,5vw,3.4rem);line-height:1.03;letter-spacing:.03em;margin-bottom:12px;color:#12131a;}
+.meta{display:flex;gap:16px;font-size:.74rem;color:var(--ink2);border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:22px;}
+.meta .by{color:var(--orange);font-weight:700;}
+.wrap h2{font-family:var(--fh);font-size:1.6rem;letter-spacing:.05em;color:var(--orange);margin:34px 0 12px;}
+.wrap p{margin:16px 0;color:#33363f;}
+.disclosure{font-size:.72rem;color:var(--ink2);font-style:italic;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:9px 13px;margin:20px 0;}
+/* mid-page product */
+.mid-prod{display:flex;gap:16px;align-items:center;background:linear-gradient(135deg,#f3ecfd,#ffffff);border:1px solid rgba(124,58,237,.35);border-radius:14px;padding:18px;margin:30px 0;box-shadow:0 6px 20px rgba(40,20,80,.07);}
+.mid-prod .thumb{width:88px;height:88px;flex-shrink:0;border-radius:10px;background:linear-gradient(135deg,#efe7fd,#e4d8fb);display:flex;align-items:center;justify-content:center;font-size:1.8rem;}
+.mid-prod .mp-tag{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--orange);}
+.mid-prod .mp-name{font-family:var(--fh);font-size:1.35rem;letter-spacing:.03em;margin:2px 0 4px;color:#12131a;}
+.mid-prod .mp-btn{display:inline-block;background:var(--orange);color:#fff;font-weight:800;font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;padding:9px 16px;border-radius:6px;margin-top:6px;}
+.sources{margin-top:34px;padding:18px 22px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;font-size:.84rem;color:var(--ink2);}
+.sources h4{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:10px;}
+/* bottom L/R widgets */
+.botrow{max-width:800px;margin:44px auto 0;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+.bot-col .rail-label{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2);margin:0 0 8px;text-align:center;}
+.widget{position:relative;width:100%;aspect-ratio:1/1;border-radius:14px;overflow:hidden;border:1px solid var(--line);box-shadow:0 6px 20px rgba(20,22,34,.06);}
+.w-card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:18px;opacity:0;transition:opacity .6s;}
+.w-card.on{opacity:1;}
+.w-card .tag{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;align-self:flex-start;padding:3px 8px;border-radius:6px;}
+.w-card .name{font-family:var(--fh);font-size:1.5rem;line-height:1.05;letter-spacing:.03em;color:#fff;}
+.w-card .cta{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#fff;color:#12131a;padding:8px 12px;border-radius:6px;text-align:center;}
+/* DARK radio bar (unchanged brand) */
+.radiobar{position:fixed;left:0;right:0;bottom:0;z-index:70;height:58px;background:rgba(9,9,14,.98);border-top:1px solid rgba(0,180,255,.3);display:flex;align-items:center;gap:14px;padding:0 16px;}
+.radiobar .play{width:34px;height:34px;border-radius:50%;background:var(--blue-neon);color:#0f0f1a;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.radiobar .now{font-size:.74rem;color:#f0f0f8;white-space:nowrap;overflow:hidden;}
+.radiobar .now b{color:var(--blue-neon);}
+.radiobar .ref-chip{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:700;background:rgba(0,180,255,.14);border:1px solid rgba(0,180,255,.4);color:var(--blue-neon);padding:7px 13px;border-radius:20px;white-space:nowrap;transition:opacity .5s;}
+.radiobar .ref-chip .rlabel{opacity:.7;font-weight:600;}
+/* popup */
+.pop-overlay{position:fixed;inset:0;z-index:90;background:rgba(20,22,34,.5);display:none;align-items:center;justify-content:center;padding:20px;}
+.pop-overlay.show{display:flex;}
+.popup{max-width:380px;width:100%;background:var(--surface);border:1px solid rgba(124,58,237,.45);border-radius:16px;padding:26px;text-align:center;position:relative;box-shadow:0 20px 50px rgba(40,20,80,.25);}
+.popup .x{position:absolute;top:12px;right:14px;color:var(--ink2);cursor:pointer;font-size:1.2rem;}
+.popup .p-tag{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--orange);}
+.popup .p-thumb{width:120px;height:120px;margin:12px auto;border-radius:12px;background:linear-gradient(135deg,#eaf6ff,#dfeefc);display:flex;align-items:center;justify-content:center;font-size:2.6rem;}
+.popup h3{font-family:var(--fh);font-size:1.5rem;letter-spacing:.04em;margin-bottom:6px;color:#12131a;}
+.popup p{font-size:.82rem;color:var(--ink2);margin-bottom:16px;}
+.popup .p-btn{display:inline-block;background:var(--orange);color:#fff;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.8rem;padding:12px 26px;border-radius:8px;}
+.support{max-width:800px;margin:40px auto 0;padding:0 24px;}
+.support-inner{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:0 6px 20px rgba(20,22,34,.05);}
+.support h4{font-family:var(--fh);font-size:1.3rem;letter-spacing:.06em;color:#12131a;margin-bottom:6px;}
+.support p{font-size:.82rem;color:var(--ink2);margin:0 0 14px;}
+.support-links{display:flex;flex-wrap:wrap;gap:10px;}
+.support-links a{font-size:.78rem;font-weight:700;padding:9px 14px;border-radius:8px;border:1px solid rgba(0,136,204,.35);color:var(--blue);background:rgba(0,136,204,.06);}
+/* pnav (original end nav) — light */
+#pnav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 18px;padding:22px 20px;border-top:1px solid var(--line);background:var(--surface2);margin-top:44px;}
+.pnav-a{font-size:.9rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;}
+.pnav-prev,.pnav-next{color:var(--ink2);}.pnav-back{color:var(--orange);}.pnav-index{color:var(--blue);}.pnav-sep{color:rgba(20,22,34,.18);}
+footer{text-align:center;padding:30px 32px 34px;color:var(--ink2);font-size:.8rem;border-top:1px solid var(--line);background:var(--surface2);}
+footer a{color:var(--orange);}
+.socials{display:flex;justify-content:center;gap:14px;margin-bottom:18px;}
+.soc-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);color:var(--ink2);background:var(--surface);transition:all .2s;}
+.soc-icon:hover{color:#fff;background:var(--blue);border-color:var(--blue);transform:translateY(-2px);}
+.soc-icon svg{width:21px;height:21px;}
+@media(max-width:640px){.botrow{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="mock-banner">🔒 MOCKUP — ROYAL PURPLE theme (matches the culture page). Soft lavender bg + royal-purple accents · dark chrome nav + original radio bar kept · socials in footer · no Support bar.</div>
+
+<nav><div class="nav-inner">
+  <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:40px;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
+  <ul class="nav-links"><li><a href="#">ARTIST</a></li><li><a href="#">BRAND</a></li><li><a href="#">CULTURE</a></li><li><a href="#">ORGANIZERS</a></li></ul>
+  <a href="#" class="nav-cta">LOGIN</a>
+</div></nav>
+
+<img class="hero" src="/assets/article-covers/history-of-house-music.png" alt="History of House Music"/>
+
+<div class="wrap">
+  <div class="cat-badge">History</div>
+  <h1>The History of House Music: From Chicago to California</h1>
+  <div class="meta"><span class="by">KEEPITIL</span><span>June 15, 2026</span><span>OC &amp; LA Underground</span></div>
+  <p>House music is now a global language — but it started in one specific place, for one specific community, for very specific reasons. Understanding that origin still matters when you're in a room in Orange County at 2AM feeling something you can't quite name.</p>
+  <h2>Chicago, 1977–1985</h2>
+  <p>The Warehouse opened on South Jefferson Street in 1977. Its DJ, Frankie Knuckles, played Philly soul, European disco, and synth-driven dance music for a crowd pushed out of mainstream nightlife. What he did to that music — editing tape, extending breakdowns, layering drum machines — was house before it had a name.</p>
+
+  <p class="disclosure">Disclosure: affiliate links — we may earn a small commission at no cost to you.</p>
+  <div class="mid-prod">
+    <div class="thumb">🎧</div>
+    <div><div class="mp-tag">🔥 Trending on Amazon</div><div class="mp-name">Loop Experience 2 Ear Plugs</div>
+      <a class="mp-btn" href="https://www.amazon.com/dp/B0D4DFQTMJ?tag=tuitea-20" target="_blank" rel="noopener sponsored nofollow">Check price →</a></div>
+  </div>
+
+  <h2>The Chicago Sound Takes Shape</h2>
+  <p>By 1983 the Music Box opened with Ron Hardy — rawer and more experimental. Jesse Saunders pressed the first house record in 1984; Larry Heard's "Can You Feel It" (1986) still sounds current. These tracks circulated as cassettes before anyone released them.</p>
+  <h2>California's Relationship With House</h2>
+  <p>California built its own house culture — LA's soul and funk tradition, Latin rhythms, and the demographics of Southern California shaped a distinct West Coast sound through the 1990s and beyond.</p>
+
+  <div class="sources"><h4>Sources</h4>Resident Advisor · Wikipedia (History of House) · Mixmag. Written by KEEPITIL; facts verified against these.</div>
+  <span id="end-sentinel"></span>
+</div>
+
+<section class="botrow">
+  <div class="bot-col"><p class="rail-label">◀ Support KEEPITIL · Referrals</p>
+    <div class="widget" id="refWidget">
+      <div class="w-card on" style="background:linear-gradient(135deg,#ff7a1a,#c94e00);"><span class="tag" style="background:#fff;color:#c94e00;">Referral</span><div class="name">List Your Event on Posh</div><a class="cta" href="#">Get started →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#0aa2e6,#0071a8);"><span class="tag" style="background:#fff;color:#0071a8;">Referral</span><div class="name">Release Music · DistroKid</div><a class="cta" href="#">$10 off →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#16c979,#0a8a52);"><span class="tag" style="background:#fff;color:#0a8a52;">Referral</span><div class="name">Earn on FreeCash</div><a class="cta" href="#">Sign up →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#a24bff,#6c1fbf);"><span class="tag" style="background:#fff;color:#6c1fbf;">Hub</span><div class="name">All KEEPITIL Links</div><a class="cta" href="#">Open hub →</a></div>
+    </div>
+  </div>
+  <div class="bot-col"><p class="rail-label">Rave Gear · Amazon ▶</p>
+    <div class="widget" id="amzWidget">
+      <div class="w-card on" style="background:linear-gradient(135deg,#f5b300,#c98f00);"><span class="tag" style="background:#fff;color:#c98f00;">Amazon</span><div class="name" style="color:#1a1a1a;">Loop Ear Plugs</div><a class="cta" href="#">Shop →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#0aa2e6,#0071a8);"><span class="tag" style="background:#fff;color:#0071a8;">Amazon</span><div class="name">Anker Power Bank</div><a class="cta" href="#">Shop →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#16c979,#0a8a52);"><span class="tag" style="background:#fff;color:#0a8a52;">Amazon</span><div class="name">KUYOU Hydration Pack</div><a class="cta" href="#">Shop →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#a24bff,#6c1fbf);"><span class="tag" style="background:#fff;color:#6c1fbf;">Amazon</span><div class="name">XISFORX LED Gloves</div><a class="cta" href="#">Shop →</a></div>
+      <div class="w-card" style="background:linear-gradient(135deg,#ff4d7d,#c9265a);"><span class="tag" style="background:#fff;color:#c9265a;">Amazon</span><div class="name">GloFX Diffraction Glasses</div><a class="cta" href="#">Shop →</a></div>
+    </div>
+  </div>
+</section>
+
+<div id="pnav">
+  <a href="#" class="pnav-a pnav-prev">&larr; PREVIOUS</a><span class="pnav-sep">|</span>
+  <a href="/culture" class="pnav-a pnav-back">Back to Culture</a><span class="pnav-sep">|</span>
+  <a href="/culture" class="pnav-a pnav-index">All Posts</a><span class="pnav-sep">|</span>
+  <a href="#" class="pnav-a pnav-next">NEXT &rarr;</a>
+</div>
+<footer>
+  <div class="socials">
+    <a class="soc-icon" href="https://instagram.com/keepitil" target="_blank" rel="noopener" aria-label="KEEPITIL on Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a class="soc-icon" href="https://tiktok.com/@keepitil" target="_blank" rel="noopener" aria-label="KEEPITIL on TikTok">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.8 3c.35 2.06 1.7 3.53 3.7 3.86v2.55c-1.35.03-2.63-.38-3.7-1.13v6.36a5.06 5.06 0 1 1-5.06-5.06c.28 0 .56.02.83.07v2.65a2.42 2.42 0 1 0 1.7 2.31V3h2.53z"/></svg>
+    </a>
+    <a class="soc-icon" href="https://soundcloud.com/keepitil" target="_blank" rel="noopener" aria-label="KEEPITIL on SoundCloud">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12.5" width="1.3" height="5" rx=".65"/><rect x="5.6" y="10.8" width="1.3" height="6.7" rx=".65"/><rect x="8.2" y="9.5" width="1.3" height="8" rx=".65"/><path d="M11.2 9.2c.4-.15.85-.2 1.3-.2a4.4 4.4 0 0 1 4.35 3.75c.35-.12.72-.2 1.1-.2A2.75 2.75 0 0 1 18 18h-6.8V9.2z"/></svg>
+    </a>
+  </div>
+  <p>&copy; 2026 <a href="#">KEEPITIL</a> — OC &amp; LA Underground EDM · <a href="#">Privacy Policy</a></p>
+</footer>
+
+<div class="radiobar">
+  <div class="play">▶</div>
+  <div class="now">KEEPITIL RADIO · <b>now playing:</b> Underground House Mix</div>
+  <a class="ref-chip" id="radioRef" href="#" target="_blank" rel="noopener sponsored nofollow"><span class="rlabel">Partner:</span> <span id="radioRefText">🎵 Release on DistroKid</span></a>
+</div>
+
+<div class="pop-overlay" id="popOverlay"><div class="popup">
+  <span class="x" id="popX">✕</span><div class="p-tag">🔥 Trending for house heads</div><div class="p-thumb">🎧</div>
+  <h3>Protect Your Ears</h3><p>Those Warehouse systems were loud. High-fidelity plugs lower the volume without killing the sound.</p>
+  <a class="p-btn" href="https://www.amazon.com/dp/B0D4DFQTMJ?tag=tuitea-20" target="_blank" rel="noopener sponsored nofollow">Loop Experience 2 →</a>
+</div></div>
+
+<script>
+function cycle(id,ms){var w=document.getElementById(id);if(!w)return;var c=w.querySelectorAll('.w-card'),i=0;setInterval(function(){c[i].classList.remove('on');i=(i+1)%c.length;c[i].classList.add('on');},ms);}
+cycle('refWidget',4000);cycle('amzWidget',3500);
+var refs=[{t:'🎵 Release on DistroKid',u:'https://distrokid.com/vip/seven/11538316'},{t:'🎟 List Your Event · Posh',u:'https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt'},{t:'💸 Earn on FreeCash',u:'https://freecash.com/r/Tuitea'}];
+var ri=0,rc=document.getElementById('radioRef'),rt=document.getElementById('radioRefText');
+setInterval(function(){ri=(ri+1)%refs.length;rc.style.opacity=0;setTimeout(function(){rt.textContent=refs[ri].t;rc.href=refs[ri].u;rc.style.opacity=1;},400);},5000);
+var shown=false,s=document.getElementById('end-sentinel');
+if('IntersectionObserver' in window){new IntersectionObserver(function(e){if(e[0].isIntersecting&&!shown){shown=true;document.getElementById('popOverlay').classList.add('show');}}).observe(s);}
+document.getElementById('popX').onclick=function(){document.getElementById('popOverlay').classList.remove('show');};
+document.getElementById('popOverlay').onclick=function(e){if(e.target.id==='popOverlay')this.classList.remove('show');};
+</script>
+</body>
+</html>
