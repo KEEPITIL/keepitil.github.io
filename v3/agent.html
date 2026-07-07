@@ -39,6 +39,18 @@ section{margin-top:34px}
 .owns span{font-size:.8rem;font-weight:700;color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);
   border:1px solid color-mix(in srgb,var(--ac) 40%,var(--line,rgba(255,255,255,.1)));border-radius:999px;padding:7px 13px}
 
+/* content sections */
+.thisweek{margin-top:28px;background:color-mix(in srgb,var(--ac) 12%,var(--surface,#15151f));border:1px solid color-mix(in srgb,var(--ac) 40%,var(--line,rgba(255,255,255,.1)));border-radius:14px;padding:14px 18px;font-size:1rem;color:#fff}
+.thisweek b{color:var(--ac);font-weight:800;letter-spacing:.05em;font-size:.7rem;text-transform:uppercase;display:block;margin-bottom:5px}
+.cols{display:grid;gap:20px;grid-template-columns:1fr 1fr;margin-top:6px}
+@media(max-width:600px){.cols{grid-template-columns:1fr}}
+.klist{list-style:none;margin-top:2px}
+.klist li{position:relative;padding:7px 0 7px 20px;color:#dfe1ea;font-size:.97rem;border-bottom:1px solid var(--line,rgba(255,255,255,.06))}
+.klist li:last-child{border-bottom:0}
+.klist li::before{content:"";position:absolute;left:2px;top:13px;width:7px;height:7px;border-radius:2px;background:var(--ac)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{font-size:.82rem;font-weight:700;color:var(--ac);background:color-mix(in srgb,var(--ac) 12%,transparent);border:1px solid color-mix(in srgb,var(--ac) 40%,var(--line,rgba(255,255,255,.1)));border-radius:999px;padding:7px 13px}
+
 /* gallery + posts */
 .gal{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
 .gal .cell{aspect-ratio:1/1;border-radius:14px;border:1px solid var(--line,rgba(255,255,255,.09));overflow:hidden;position:relative;
@@ -80,6 +92,18 @@ section{margin-top:34px}
   <section><div class="sec-h">Charge</div><div class="charge" id="aCharge"></div><div class="bio" id="aBio"></div>
     <div class="owns" id="aOwns"></div></section>
 
+  <div class="thisweek" id="aThisWeek"></div>
+
+  <div class="cols">
+    <section><div class="sec-h">Current initiatives</div><ul class="klist" id="aInit"></ul></section>
+    <section><div class="sec-h">Department goals</div><ul class="klist" id="aGoals"></ul></section>
+  </div>
+  <div class="cols">
+    <section><div class="sec-h">Achievements</div><ul class="klist" id="aAch"></ul></section>
+    <section><div class="sec-h">Upcoming</div><ul class="klist" id="aUp"></ul></section>
+  </div>
+  <section><div class="sec-h">On rotation</div><div class="chips" id="aGenres"></div></section>
+
   <section><div class="sec-h">Gallery</div>
     <div class="gal" id="aGal"></div></section>
 
@@ -110,6 +134,10 @@ section{margin-top:34px}
   document.getElementById('pfpImg').src='/v3/agents/portrait/'+a.slug+'.png';
   document.getElementById('coverImg').src='/v3/agents/bg/'+a.slug+'.jpg';
   var ow=document.getElementById('aOwns'); a.owns.forEach(function(o){var s=document.createElement('span');s.textContent=o;ow.appendChild(s);});
+  document.getElementById('aThisWeek').innerHTML='<b>This week</b>'+(a.thisWeek||'');
+  function fill(id,arr){var el=document.getElementById(id);(arr||[]).forEach(function(t){var li=document.createElement('li');li.textContent=t;el.appendChild(li);});}
+  fill('aInit',a.initiatives); fill('aGoals',a.goals); fill('aAch',a.achievements); fill('aUp',a.upcoming);
+  var gc=document.getElementById('aGenres');(a.genres||[]).forEach(function(t){var s=document.createElement('span');s.textContent=t;gc.appendChild(s);});
   var gal=document.getElementById('aGal');
   for(var g=1;g<=6;g++){var c=document.createElement('div');c.className='cell';
     c.innerHTML='<img src="/v3/agents/gallery/'+a.slug+'-'+g+'.png" alt="" onerror="this.style.display=\'none\'"/><span class="ph">Art '+g+'</span>';gal.appendChild(c);}
