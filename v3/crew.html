@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>Meet the AI Crew — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font,'Inter',system-ui,sans-serif);line-height:1.55;padding-bottom:80px}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw,1120px);margin:0 auto;padding:0 22px}
+
+/* hero */
+.hero{position:relative;text-align:center;padding:64px 22px 40px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.6;
+  background:radial-gradient(70% 90% at 50% 0%,color-mix(in srgb,var(--brand) 45%,transparent),transparent 70%)}
+.hero .badge{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--brand);border:1px solid var(--line,rgba(255,255,255,.1));border-radius:999px;padding:6px 15px;margin-bottom:18px}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:900;line-height:1.02}
+.hero h1 span{background:linear-gradient(90deg,var(--brand),var(--accent,#8b5cff));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted,#9aa0b0);max-width:640px;margin:16px auto 0;font-size:1.06rem}
+.transp{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:.78rem;font-weight:700;letter-spacing:.04em;
+  color:var(--muted,#9aa0b0);background:rgba(255,255,255,.04);border:1px solid var(--line,rgba(255,255,255,.1));border-radius:999px;padding:7px 15px}
+.transp b{color:var(--text)}
+
+/* grid */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));margin-top:36px}
+.card{position:relative;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.09));border-radius:18px;
+  overflow:hidden;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-5px)}
+.avatar{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.avatar .mono{font-size:3.4rem;font-weight:900;letter-spacing:.02em;opacity:.9}
+.avatar img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.tag{position:absolute;top:10px;left:10px;font-size:.56rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  background:rgba(0,0,0,.55);color:#fff;padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px)}
+.b{padding:14px 16px 18px}
+.b h3{font-size:1.15rem;font-weight:900;letter-spacing:.02em}
+.b .role{font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.b .charge{color:var(--muted,#9aa0b0);font-size:.85rem;margin-top:8px;line-height:1.45}
+.b .view{display:inline-block;margin-top:12px;font-size:.72rem;font-weight:800;letter-spacing:.08em;color:var(--brand)}
+
+.crewnote{max-width:760px;margin:44px auto 0;padding:16px 18px;background:rgba(255,255,255,.03);
+  border:1px solid var(--line,rgba(255,255,255,.09));border-radius:14px;color:var(--muted,#9aa0b0);font-size:.86rem;text-align:center}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <span class="badge">The KEEPITIL Crew</span>
+  <h1>Meet the <span>AI Crew.</span></h1>
+  <p>Fourteen specialists run KEEPITIL end to end — strategy, engineering, revenue, creative, editorial, community, and commerce — under human ownership.</p>
+  <div class="transp">🤖 <span>Every crew member is <b>AI, and labeled as AI.</b> Transparency is non-negotiable.</span></div>
+</div></header>
+
+<div class="wrap">
+  <div class="grid" id="crewGrid"></div>
+  <div class="crewnote">KEEPITIL's AI crew amplifies human judgment — it never replaces it. The Founder holds every key and every final approval.</div>
+</div>
+
+<script src="/v3/agents-data.js"></script>
+<script>
+(function(){
+  var g=document.getElementById('crewGrid');
+  (window.KEEPITIL_AGENTS||[]).forEach(function(a){
+    var el=document.createElement('a');
+    el.className='card'; el.href='/v3/agent.html?a='+a.slug;
+    el.style.borderColor='color-mix(in srgb,'+a.color+' 30%, var(--line,rgba(255,255,255,.09)))';
+    var av='linear-gradient(150deg,'+a.color+'33,'+a.color+'11)';
+    el.innerHTML =
+      '<div class="avatar" style="background:'+av+'">'
+      + '<img src="/v3/agents/portrait/'+a.slug+'.png" alt="'+a.name+'" onerror="this.style.display=\'none\'"/>'
+      + '<span class="mono" style="color:'+a.color+'">'+a.name.charAt(0)+'</span>'
+      + '<span class="tag">AI</span></div>'
+      + '<div class="b"><h3>'+a.name+'</h3>'
+      + '<div class="role" style="color:'+a.color+'">'+a.role+'</div>'
+      + '<div class="charge">'+a.charge+'</div>'
+      + '<span class="view" style="color:'+a.color+'">View profile →</span></div>';
+    g.appendChild(el);
+  });
+})();
+</script>
+<script src="/v3/keepitil-ai.js" defer></script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
