@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Subscriber Portal — KEEPITIL</title>
+  <link rel="icon" type="image/png" href="/v3/keepitil-x-logo.png"/>
+  <meta name="description" content="Edit your KEEPITIL profile — update your bio, links, music, and image. Changes go live instantly."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0b0b0f;
+  --dark:#111118;
+  --dark2:#18181f;
+  --dark3:#22222c;
+  --blue:#00b4ff;
+  --green:#00ff88;
+  --white:#f0f0f0;
+  --grey:#888;
+  --grey2:#555;
+  --font-head:'Bebas Neue',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;min-height:100vh;}
+a{color:var(--blue);text-decoration:none;}
+a:hover{text-decoration:underline;}
+img{max-width:100%;display:block;}
+input,select,textarea,button{font-family:var(--font-body);}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(11,11,15,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,180,255,.12);padding:0 20px;height:62px;display:flex;align-items:center;}
+.nav-inner{max-width:760px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-logo img{height:38px;width:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 5px #00b4ff);}
+.nav-brand{font-family:var(--font-head);font-size:1.35rem;letter-spacing:.13em;color:#fff;}
+.nav-tag{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);background:rgba(0,180,255,.1);border:1px solid rgba(0,180,255,.25);padding:3px 10px;border-radius:20px;}
+
+/* ── LAYOUT ── */
+.wrap{max-width:520px;margin:0 auto;padding:0 20px;}
+
+/* ── STATE: LOGIN ── */
+#state-login{padding:52px 0 80px;}
+.portal-hero{text-align:center;margin-bottom:40px;}
+.portal-badge{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);background:rgba(0,180,255,.08);border:1px solid rgba(0,180,255,.22);padding:4px 14px;border-radius:20px;margin-bottom:18px;}
+.portal-hero h1{font-family:var(--font-head);font-size:clamp(2.4rem,8vw,3.6rem);letter-spacing:.04em;line-height:.95;margin-bottom:14px;}
+.portal-hero h1 span{color:var(--blue);}
+.portal-hero p{color:var(--grey);font-size:.95rem;max-width:400px;margin:0 auto;}
+
+.login-card{background:var(--dark2);border:1px solid rgba(0,180,255,.14);border-radius:12px;padding:32px 28px;}
+.login-card label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;}
+.login-card input[type="email"],
+.login-card input[type="password"]{
+  width:100%;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  color:var(--white);font-size:1rem;padding:13px 16px;outline:none;transition:border-color .2s;
+}
+.login-card input[type="email"]:focus,
+.login-card input[type="password"]:focus{border-color:var(--blue);}
+.login-card input[type="email"]::placeholder,
+.login-card input[type="password"]::placeholder{color:var(--grey2);}
+.login-card label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-bottom:8px;margin-top:14px;}
+.login-card label:first-child{margin-top:0;}
+.btn-magic{
+  width:100%;margin-top:14px;padding:15px;background:var(--blue);color:#fff;
+  border:none;border-radius:8px;font-family:var(--font-head);font-size:1.3rem;
+  letter-spacing:.12em;cursor:pointer;box-shadow:0 0 22px rgba(0,180,255,.35);
+  transition:all .2s;
+}
+.btn-magic:hover{background:#0088cc;box-shadow:0 0 38px rgba(0,180,255,.55);transform:translateY(-1px);}
+.btn-magic:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.login-hint{text-align:center;margin-top:14px;font-size:.8rem;color:var(--grey);}
+
+.divider{display:flex;align-items:center;gap:14px;margin:32px 0 24px;color:var(--grey2);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08);}
+
+.claim-card{background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:12px;padding:22px 22px;}
+.claim-card h3{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.06em;color:var(--green);margin-bottom:6px;}
+.claim-card p{font-size:.85rem;color:var(--grey);margin-bottom:16px;}
+.btn-claim{
+  display:inline-block;padding:11px 24px;background:transparent;color:var(--green);
+  border:1.5px solid var(--green);border-radius:8px;font-family:var(--font-head);
+  font-size:1.1rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;text-decoration:none;
+}
+.btn-claim:hover{background:rgba(0,255,136,.1);text-decoration:none;}
+
+.msg-error{margin-top:12px;color:#ff4d4d;font-size:.82rem;text-align:center;min-height:20px;}
+
+/* ── STATE: SENT ── */
+#state-sent{display:none;padding:80px 0;text-align:center;}
+.sent-icon{font-size:3.5rem;margin-bottom:20px;}
+#state-sent h2{font-family:var(--font-head);font-size:2.4rem;letter-spacing:.06em;margin-bottom:12px;}
+#state-sent p{color:var(--grey);font-size:.95rem;margin-bottom:6px;}
+#state-sent strong{color:var(--white);}
+.resend-wrap{margin-top:28px;}
+.btn-resend{background:none;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:var(--grey);font-size:.82rem;padding:9px 20px;cursor:pointer;transition:all .2s;}
+.btn-resend:hover:not(:disabled){border-color:var(--blue);color:var(--blue);}
+.btn-resend:disabled{opacity:.4;cursor:not-allowed;}
+#resend-timer{font-size:.75rem;color:var(--grey2);margin-top:8px;}
+
+/* ── STATE: EDITOR ── */
+#state-editor{display:none;padding:32px 0 80px;}
+
+.editor-header{display:flex;align-items:center;gap:16px;margin-bottom:32px;padding:20px;background:var(--dark2);border:1px solid rgba(255,255,255,.07);border-radius:12px;flex-wrap:wrap;}
+.editor-avatar{width:60px;height:60px;border-radius:10px;object-fit:cover;background:var(--dark3);border:1px solid rgba(0,180,255,.25);flex-shrink:0;overflow:hidden;}
+.editor-avatar img{width:100%;height:100%;object-fit:cover;}
+.editor-avatar-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:1.4rem;color:var(--blue);}
+.editor-info{flex:1;min-width:0;}
+.editor-name{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.05em;line-height:1;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.editor-sub{font-size:.78rem;color:var(--grey);}
+.editor-actions{display:flex;gap:10px;margin-left:auto;flex-shrink:0;}
+.btn-preview{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);background:rgba(0,180,255,.1);border:1px solid rgba(0,180,255,.25);border-radius:6px;padding:7px 14px;text-decoration:none;white-space:nowrap;}
+.btn-preview:hover{background:rgba(0,180,255,.18);text-decoration:none;}
+.btn-signout{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--grey);background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:7px 14px;cursor:pointer;white-space:nowrap;}
+.btn-signout:hover{border-color:rgba(255,255,255,.3);color:var(--white);}
+
+/* ── FORM SECTIONS ── */
+.form-section{margin-bottom:28px;}
+.section-label{font-size:.65rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:rgba(0,180,255,.18);}
+
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-bottom:6px;}
+.field label .req{color:var(--blue);}
+.field-hint{font-size:.73rem;color:var(--grey2);margin-top:4px;}
+.field input[type="text"],
+.field input[type="url"],
+.field input[type="email"],
+.field select,
+.field textarea{
+  width:100%;background:var(--dark2);border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  color:var(--white);font-size:.95rem;padding:12px 14px;outline:none;transition:border-color .2s;
+  -webkit-appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);}
+.field input::placeholder,.field textarea::placeholder{color:var(--grey2);}
+.field select option{background:var(--dark2);}
+.field textarea{resize:vertical;min-height:110px;line-height:1.55;}
+.char-count{font-size:.72rem;color:var(--grey2);text-align:right;margin-top:3px;}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.field-row{grid-template-columns:1fr;}}
+
+/* Image preview */
+.img-preview-wrap{display:flex;gap:14px;align-items:flex-start;}
+.img-preview-box{width:72px;height:72px;border-radius:10px;background:var(--dark3);border:1px solid rgba(255,255,255,.1);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--grey2);font-size:.7rem;text-align:center;}
+.img-preview-box img{width:100%;height:100%;object-fit:cover;}
+.img-preview-box.has-img{border-color:rgba(0,180,255,.3);}
+.img-preview-field{flex:1;}
+
+/* Save button */
+.save-wrap{margin-top:8px;position:relative;}
+.btn-save{
+  width:100%;padding:16px;background:var(--green);color:#06121a;
+  border:none;border-radius:8px;font-family:var(--font-head);font-size:1.5rem;
+  letter-spacing:.1em;cursor:pointer;box-shadow:0 0 24px rgba(0,255,136,.3);
+  transition:all .25s;
+}
+.btn-save:hover{box-shadow:0 0 40px rgba(0,255,136,.5);transform:translateY(-1px);}
+.btn-save:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.save-status{text-align:center;margin-top:10px;font-size:.82rem;min-height:20px;}
+.save-status.ok{color:var(--green);}
+.save-status.err{color:#ff4d4d;}
+
+/* No profile yet */
+#no-profile-panel{display:none;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:12px;padding:24px;margin-bottom:28px;}
+#no-profile-panel h3{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.06em;color:var(--green);margin-bottom:8px;}
+#no-profile-panel p{font-size:.85rem;color:var(--grey);margin-bottom:16px;}
+.slug-claim-row{display:flex;gap:10px;}
+.slug-claim-row input{flex:1;background:var(--dark3);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--white);font-size:.9rem;padding:10px 13px;outline:none;}
+.slug-claim-row input:focus{border-color:var(--green);}
+.btn-do-claim{padding:10px 18px;background:var(--green);color:#06121a;border:none;border-radius:8px;font-family:var(--font-head);font-size:1rem;letter-spacing:.08em;cursor:pointer;}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:28px 20px;border-top:1px solid rgba(255,255,255,.06);color:var(--grey);font-size:.78rem;}
+footer a{color:var(--blue);}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="/v3/">
+      <img src="/v3/keepitil-x-blue.png" alt="KEEPITIL" style="height:38px;">
+      <span class="nav-brand">KEEPITIL</span>
+    </a>
+    <span class="nav-tag">SUBSCRIBER PORTAL</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     STATE 1 — LOGIN
+════════════════════════════════════════════════════ -->
+<div id="state-login">
+  <div class="wrap">
+    <div class="portal-hero">
+      <div class="portal-badge">MEMBER LOGIN</div>
+      <h1>YOUR<br><span>KEEPITIL</span><br>PROFILE</h1>
+      <p>Edit your bio, music links, and image. All changes go live on your profile instantly.</p>
+    </div>
+
+    <!-- Sign In -->
+    <div class="login-card" id="signin-section">
+      <label for="email-input">Email address</label>
+      <input type="email" id="email-input" placeholder="you@email.com" autocomplete="email"/>
+      <label for="password-input">Password</label>
+      <input type="password" id="password-input" placeholder="Your password" autocomplete="current-password"/>
+      <button class="btn-magic" id="login-btn" style="margin-top:14px;">SIGN IN</button>
+      <p class="login-hint"><a href="#" id="forgot-link" style="color:var(--blue);">Forgot password?</a></p>
+      <div class="msg-error" id="login-error"></div>
+    </div>
+
+    <!-- Forgot Password -->
+    <div class="login-card" id="forgot-section" style="display:none;">
+      <p style="font-size:.88rem;color:var(--grey);margin-bottom:14px;margin-top:0;">We'll send you a link to reset your password.</p>
+      <label for="reset-email">Email address</label>
+      <input type="email" id="reset-email" placeholder="you@email.com"/>
+      <button class="btn-magic" id="reset-btn" style="margin-top:14px;">SEND RESET LINK</button>
+      <p class="login-hint"><a href="#" id="back-signin" style="color:var(--blue);">← Back to sign in</a></p>
+      <div class="msg-error" id="reset-msg" style="text-align:left;"></div>
+    </div>
+
+    <div class="divider">New to KEEPITIL?</div>
+
+    <div class="claim-card">
+      <h3>JOIN KEEPITIL</h3>
+      <p>Apply as an artist, brand, or event organizer. You'll create your password during the application.</p>
+      <a href="/v3/apply.html" class="btn-claim">APPLY NOW</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STATE 2 — RESET LINK SENT
+════════════════════════════════════════════════════ -->
+<div id="state-sent">
+  <div class="wrap">
+    <div class="sent-icon">📬</div>
+    <h2>CHECK YOUR EMAIL</h2>
+    <p>We sent a password reset link to</p>
+    <p><strong id="sent-email-display"></strong></p>
+    <p style="margin-top:8px;">Click the link to set a new password.</p>
+    <p style="margin-top:6px;font-size:.82rem;color:var(--grey2);">Check your spam folder if you don't see it within a minute.</p>
+    <p style="margin-top:24px;"><a href="#" onclick="portalShow('login');return false;" style="color:var(--blue);font-size:.88rem;">← Back to sign in</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STATE 2b — SET NEW PASSWORD (after reset link)
+════════════════════════════════════════════════════ -->
+<div id="state-reset" style="display:none;padding:64px 0 80px;">
+  <div class="wrap">
+    <div class="portal-hero">
+      <div class="portal-badge">SET NEW PASSWORD</div>
+      <h1>RESET YOUR<br><span>PASSWORD</span></h1>
+    </div>
+    <div class="login-card">
+      <label for="new-password">New password</label>
+      <input type="password" id="new-password" placeholder="Min. 8 characters"/>
+      <label for="confirm-password">Confirm new password</label>
+      <input type="password" id="confirm-password" placeholder="Repeat your password"/>
+      <button class="btn-magic" id="save-pw-btn" style="margin-top:14px;">SET PASSWORD</button>
+      <div class="msg-error" id="reset-pw-msg" style="text-align:left;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STATE 3 — PROFILE EDITOR
+════════════════════════════════════════════════════ -->
+<div id="state-editor">
+  <div class="wrap">
+
+    <!-- Header row -->
+    <div class="editor-header">
+      <div class="editor-avatar" id="editor-avatar-wrap">
+        <div class="editor-avatar-placeholder" id="editor-initials">KL</div>
+      </div>
+      <div class="editor-info">
+        <div class="editor-name" id="editor-display-name">Loading…</div>
+        <div class="editor-sub" id="editor-sub-line">KEEPITIL Member</div>
+      </div>
+      <div class="editor-actions">
+        <a href="#" id="preview-profile-link" target="_blank" class="btn-preview">VIEW PROFILE →</a>
+        <button class="btn-signout" id="signout-btn">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- No profile panel (shown when user has no record yet) -->
+    <div id="no-profile-panel">
+      <h3>PROFILE NOT LINKED YET</h3>
+      <p>If you're already on KEEPITIL, enter your profile slug below to claim it. Otherwise, submit a new application from the <a href="/v3/apply.html">apply page</a>.</p>
+      <div class="slug-claim-row">
+        <input type="text" id="slug-claim-input" placeholder="e.g. groove-trooper"/>
+        <button class="btn-do-claim" id="slug-claim-btn">CLAIM</button>
+      </div>
+      <div class="msg-error" id="claim-error" style="margin-top:8px;text-align:left;"></div>
+    </div>
+
+    <!-- Profile form -->
+    <form id="profile-form" novalidate>
+
+      <div class="form-section">
+        <div class="section-label">IDENTITY</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Display name <span class="req">*</span></label>
+            <input type="text" name="name" id="f-name" placeholder="DJ Example" maxlength="60" required/>
+          </div>
+          <div class="field">
+            <label>Type <span class="req">*</span></label>
+            <select name="type" id="f-type" required>
+              <option value="">Select…</option>
+              <option value="artist">Artist / DJ</option>
+              <option value="brand">Brand / Label</option>
+              <option value="organizer">Event Organizer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Genre / Style</label>
+            <input type="text" name="genre" id="f-genre" placeholder="House · Techno" maxlength="60"/>
+          </div>
+          <div class="field">
+            <label>City</label>
+            <input type="text" name="city" id="f-city" placeholder="Orange County, CA" maxlength="60"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">BIO</div>
+        <div class="field">
+          <label>About you <span class="req">*</span></label>
+          <textarea name="bio" id="f-bio" placeholder="Write 2–4 sentences about your sound, background, and what makes your sets stand out in the SoCal underground scene." maxlength="600" required></textarea>
+          <div class="char-count"><span id="bio-count">0</span> / 600</div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">PROFILE IMAGE</div>
+        <div class="field">
+          <div class="img-preview-wrap">
+            <div class="img-preview-box" id="img-preview-box">
+              <span>No image</span>
+            </div>
+            <div class="img-preview-field">
+              <label>Image URL</label>
+              <input type="url" name="image_url" id="f-image" placeholder="https://…" maxlength="400"/>
+              <div class="field-hint">Paste a direct image URL (Google Drive, Dropbox public link, Imgur, etc.). Recommended: square, min 400×400px.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">MUSIC LINKS</div>
+        <div class="field">
+          <label>SoundCloud URL</label>
+          <input type="url" name="music" id="f-music" placeholder="https://soundcloud.com/…"/>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Spotify</label>
+            <input type="url" name="spotify" id="f-spotify" placeholder="https://open.spotify.com/…"/>
+          </div>
+          <div class="field">
+            <label>YouTube / Mixcloud</label>
+            <input type="url" name="youtube" id="f-youtube" placeholder="https://youtube.com/…"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label">SOCIAL &amp; CONTACT</div>
+        <div class="field">
+          <label>Instagram URL</label>
+          <input type="url" name="instagram" id="f-instagram" placeholder="https://instagram.com/…"/>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Website</label>
+            <input type="url" name="website" id="f-website" placeholder="https://…"/>
+          </div>
+          <div class="field">
+            <label>Booking email</label>
+            <input type="email" name="booking_email" id="f-booking" placeholder="booking@…"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="save-wrap">
+        <button type="submit" class="btn-save" id="save-btn">SAVE CHANGES</button>
+        <div class="save-status" id="save-status"></div>
+      </div>
+
+    </form>
+
+  </div><!-- /wrap -->
+</div><!-- /state-editor -->
+
+<footer>
+  <a href="/v3/">KEEPITIL</a> 
+  <a href="/v3/privacy.html">Privacy Policy</a> &nbsp;·&nbsp;
+  <a href="/v3/apply.html">Apply to Join</a>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ════════════════════════════════════════════════
+   KEEPITIL SUBSCRIBER PORTAL
+   Supabase magic-link auth + live profile editing
+════════════════════════════════════════════════ */
+
+const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+/* ── DOM refs ── */
+const stateLogin  = document.getElementById('state-login');
+const stateSent   = document.getElementById('state-sent');
+const stateEditor = document.getElementById('state-editor');
+const stateReset  = document.getElementById('state-reset');
+const loginBtn    = document.getElementById('login-btn');
+const emailInput  = document.getElementById('email-input');
+const loginError  = document.getElementById('login-error');
+const sentEmailEl = document.getElementById('sent-email-display');
+const signoutBtn  = document.getElementById('signout-btn');
+const profileForm = document.getElementById('profile-form');
+const saveBtn     = document.getElementById('save-btn');
+const saveStatus  = document.getElementById('save-status');
+const noProfilePanel = document.getElementById('no-profile-panel');
+const previewLink = document.getElementById('preview-profile-link');
+
+let currentEmail = '';
+let currentProfile = null;
+
+/* ════════ SHOW STATE ════════ */
+/* Null-safe AND override-safe: the active panel must be forced VISIBLE with an explicit
+   'block' — several panels (e.g. #state-editor) are `display:none` in CSS, so setting ''
+   would revert to none and leave the page blank for logged-in users. */
+function portalShow(state) {
+  const set = (el, show) => { if (el) el.style.display = show ? 'block' : 'none'; };
+  set(stateLogin,  state === 'login');
+  set(stateSent,   state === 'sent');
+  set(stateEditor, state === 'editor');
+  set(stateReset,  state === 'reset');
+}
+
+/* ════════ SIGN IN ════════ */
+loginBtn.addEventListener('click', signIn);
+emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+document.getElementById('password-input').addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+
+async function signIn() {
+  const email = emailInput.value.trim();
+  const password = document.getElementById('password-input').value;
+  loginError.textContent = '';
+  if (!email) { loginError.textContent = 'Enter your email.'; return; }
+  if (!password) { loginError.textContent = 'Enter your password.'; return; }
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'SIGNING IN…';
+  const { error } = await supa.auth.signInWithPassword({ email, password });
+  if (error) {
+    const m = error.message || '';
+    if (/email not confirmed|not confirmed|confirm your email/i.test(m)) {
+      loginError.textContent = 'Your email isn’t confirmed yet — check your inbox (and spam) for the confirmation link from KEEPITIL, then sign in. No email? Use “Forgot password?” to set a password and confirm your account.';
+    } else if (m === 'Invalid login credentials') {
+      loginError.textContent = 'Wrong email or password. Use “Forgot password?” to reset it (this also confirms your account if you signed up recently).';
+    } else {
+      loginError.textContent = m;
+    }
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'SIGN IN';
+  }
+  // success → onAuthStateChange → loadEditor()
+}
+
+/* ════════ FORGOT PASSWORD ════════ */
+document.getElementById('forgot-link').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('signin-section').style.display = 'none';
+  document.getElementById('forgot-section').style.display = '';
+  loginError.textContent = '';
+});
+document.getElementById('back-signin').addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('forgot-section').style.display = 'none';
+  document.getElementById('signin-section').style.display = '';
+});
+document.getElementById('reset-btn').addEventListener('click', async () => {
+  const email = document.getElementById('reset-email').value.trim();
+  const msgEl = document.getElementById('reset-msg');
+  msgEl.style.color = '#ff4d4d';
+  if (!email) { msgEl.textContent = 'Enter your email.'; return; }
+  msgEl.textContent = '';
+  const { error } = await supa.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://keepitil.com/portal.html'
+  });
+  if (error) { msgEl.textContent = error.message; return; }
+  sentEmailEl.textContent = email;
+  portalShow('sent');
+});
+
+/* ════════ SIGN OUT ════════ */
+signoutBtn.addEventListener('click', async () => {
+  await supa.auth.signOut();
+  currentProfile = null;
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'SIGN IN';
+  portalShow('login');
+});
+
+/* ════════ SET NEW PASSWORD (after reset link) ════════ */
+document.getElementById('save-pw-btn').addEventListener('click', async () => {
+  const pw  = document.getElementById('new-password').value;
+  const pw2 = document.getElementById('confirm-password').value;
+  const msgEl = document.getElementById('reset-pw-msg');
+  msgEl.style.color = '#ff4d4d';
+  if (pw.length < 8) { msgEl.textContent = 'Password must be at least 8 characters.'; return; }
+  if (pw !== pw2) { msgEl.textContent = 'Passwords do not match.'; return; }
+  const { error } = await supa.auth.updateUser({ password: pw });
+  if (error) { msgEl.textContent = error.message; return; }
+  // After password update, session is active — go straight to editor
+  const { data: { session } } = await supa.auth.getSession();
+  if (session) await loadEditor(session.user);
+});
+
+/* ════════ AUTH STATE CHANGE ════════ */
+supa.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    portalShow('reset');
+  } else if (session) {
+    await loadEditor(session.user);
+  }
+});
+
+async function init() {
+  const hash = location.hash || '';
+  const isRecovery = (hash.indexOf('type=recovery') > -1) || (hash.indexOf('access_token') > -1 && hash.indexOf('recovery') > -1);
+  const isExpired  = hash.indexOf('otp_expired') > -1 || hash.indexOf('error_code=access_denied') > -1 || (hash.indexOf('error') > -1 && hash.indexOf('expired') > -1);
+  // Expired / invalid link → don't dead-end. Show the "get a fresh link" form with a clear message.
+  if (isExpired) {
+    portalShow('login');
+    const ss = document.getElementById('signin-section'); if (ss) ss.style.display = 'none';
+    const fs = document.getElementById('forgot-section'); if (fs) fs.style.display = '';
+    const rm = document.getElementById('reset-msg'); if (rm) { rm.style.color = '#00b4ff'; rm.textContent = 'That link expired. Enter your email to get a fresh reset link.'; }
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    return;
+  }
+  // Show the correct default view SYNCHRONOUSLY so the page is never blank,
+  // even if the session check below is slow or never resolves.
+  portalShow(isRecovery ? 'reset' : 'login');
+  if (isRecovery) return;
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    if (session) { await loadEditor(session.user); }
+  } catch (e) { /* stay on login screen */ }
+}
+init();
+
+/* ════════ NEVER-BLANK SAFETY NET ════════
+   If anything above threw and left every panel hidden, fall back to the login
+   panel so the portal is never a blank screen. Also re-checks shortly after load. */
+function portalSafetyNet() {
+  try {
+    const panels = [stateLogin, stateSent, stateEditor, stateReset];
+    const anyVisible = panels.some(el => el && getComputedStyle(el).display !== 'none');
+    if (!anyVisible && stateLogin) stateLogin.style.display = '';
+  } catch (_) {}
+}
+window.addEventListener('error', function(){ setTimeout(portalSafetyNet, 50); });
+setTimeout(portalSafetyNet, 1200);
+
+/* ════════ LOAD EDITOR ════════ */
+async function loadEditor(user) {
+  portalShow('editor');
+  currentEmail = user.email;
+
+  // Sensible header immediately so the editor is NEVER blank, even before/if the query fails.
+  const npp = document.getElementById('no-profile-panel');
+  const pvl = document.getElementById('preview-profile-link');
+  try {
+    document.getElementById('editor-display-name').textContent = (user.email || '').split('@')[0] || 'Your Profile';
+    document.getElementById('editor-initials').textContent = ((user.email || '?')[0] || '?').toUpperCase();
+    document.getElementById('editor-sub-line').textContent = 'Loading your profile…';
+  } catch (_) {}
+
+  // Try to load the user's profile from applications table (resilient — a query error must not blank the page)
+  let data = null;
+  try {
+    const res = await supa
+      .from('applications')
+      .select('*')
+      .eq('email', user.email)
+      .maybeSingle();
+    data = res && res.data ? res.data : null;
+  } catch (e) { data = null; }
+
+  try {
+    if (data) {
+      currentProfile = data;
+      populateForm(data);
+      if (npp) npp.style.display = 'none';
+    } else {
+      // No linked profile yet — show the claim panel so the user always has an action.
+      if (npp) npp.style.display = 'block';
+      document.getElementById('editor-sub-line').textContent = 'Profile not linked yet';
+      if (pvl) { pvl.href = '/apply.html'; pvl.textContent = 'APPLY →'; }
+    }
+  } catch (e) {
+    // Absolute fail-safe: never leave a blank screen.
+    if (npp) npp.style.display = 'block';
+    document.getElementById('editor-sub-line').textContent = 'Profile not linked yet';
+    const ce = document.getElementById('claim-error');
+    if (ce) ce.textContent = 'We couldn’t load your profile automatically. Enter your profile slug below to claim it, or apply.';
+  }
+}
+
+function populateForm(p) {
+  document.getElementById('editor-display-name').textContent = p.name || 'Your Name';
+  document.getElementById('editor-sub-line').textContent =
+    [p.type ? p.type.charAt(0).toUpperCase()+p.type.slice(1) : '', p.city].filter(Boolean).join(' · ');
+
+  const initials = (p.name||'').split(/\s+/).filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase() || '?';
+  document.getElementById('editor-initials').textContent = initials;
+
+  if (p.image_url) {
+    setAvatarImage(p.image_url);
+    setImgPreview(p.image_url);
+  }
+
+  const slug = p.slug || '';
+  const profileUrl = slug ? `/profile.html?slug=${slug}` : '/apply.html';
+  previewLink.href = profileUrl;
+  previewLink.textContent = slug ? 'VIEW PROFILE →' : 'APPLY →';
+
+  setValue('f-name', p.name);
+  setValue('f-type', p.type);
+  setValue('f-genre', p.genre);
+  setValue('f-city', p.city);
+  setValue('f-bio', p.bio);
+  setValue('f-image', p.image_url);
+  setValue('f-music', p.music);
+  setValue('f-spotify', p.spotify);
+  setValue('f-youtube', p.youtube);
+  setValue('f-instagram', p.instagram);
+  setValue('f-website', p.website);
+  setValue('f-booking', p.booking_email);
+  updateBioCount();
+}
+
+function setValue(id, val) {
+  const el = document.getElementById(id);
+  if (el && val != null) el.value = val;
+}
+
+/* ════════ BIO CHAR COUNT ════════ */
+document.getElementById('f-bio').addEventListener('input', updateBioCount);
+function updateBioCount() {
+  const len = document.getElementById('f-bio').value.length;
+  document.getElementById('bio-count').textContent = len;
+}
+
+/* ════════ IMAGE PREVIEW ════════ */
+document.getElementById('f-image').addEventListener('input', e => {
+  setImgPreview(e.target.value);
+});
+function setImgPreview(url) {
+  const box = document.getElementById('img-preview-box');
+  if (url) {
+    box.innerHTML = `<img src="${url}" onerror="this.parentNode.innerHTML='<span>Bad URL</span>'" alt="Preview"/>`;
+    box.classList.add('has-img');
+  } else {
+    box.innerHTML = '<span>No image</span>';
+    box.classList.remove('has-img');
+  }
+}
+function setAvatarImage(url) {
+  const wrap = document.getElementById('editor-avatar-wrap');
+  if (url) {
+    wrap.innerHTML = `<img src="${url}" onerror="this.style.display='none'" alt="Avatar"/>`;
+  }
+}
+
+/* ════════ HEADER LIVE UPDATES ════════ */
+document.getElementById('f-name').addEventListener('input', e => {
+  document.getElementById('editor-display-name').textContent = e.target.value || 'Your Name';
+  const words = e.target.value.split(/\s+/).filter(Boolean);
+  const initials = words.slice(0,2).map(w=>w[0]).join('').toUpperCase() || '?';
+  if (!document.getElementById('editor-avatar-wrap').querySelector('img')) {
+    document.getElementById('editor-initials').textContent = initials;
+  }
+});
+
+/* ════════ CLAIM EXISTING PROFILE ════════ */
+document.getElementById('slug-claim-btn').addEventListener('click', claimProfile);
+async function claimProfile() {
+  const slug = document.getElementById('slug-claim-input').value.trim().toLowerCase().replace(/\s+/g,'-');
+  const claimErr = document.getElementById('claim-error');
+  if (!slug) { claimErr.textContent = 'Enter your KEEPITIL slug.'; return; }
+  claimErr.textContent = '';
+
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) return;
+
+  // Check slug isn't already taken by someone else
+  const { data: existing } = await supa.from('applications').select('email').eq('slug', slug).maybeSingle();
+  if (existing && existing.email.toLowerCase() !== session.user.email.toLowerCase()) {
+    claimErr.textContent = 'That slug is already claimed by a different account. Contact info@keepitil.com.';
+    return;
+  }
+
+  // Insert a claim row
+  const { error } = await supa.from('applications').upsert({
+    slug,
+    email: session.user.email,
+    status: 'claimed',
+    type: 'artist',
+    name: slug.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())
+  }, { onConflict: 'slug' });
+
+  if (error) { claimErr.textContent = 'Claim failed: ' + error.message; return; }
+
+  // Reload
+  const { data } = await supa.from('applications').select('*').eq('email', session.user.email).maybeSingle();
+  if (data) {
+    currentProfile = data;
+    populateForm(data);
+    noProfilePanel.style.display = 'none';
+    saveStatus.textContent = '✅ Profile claimed! Fill in your details and save.';
+    saveStatus.className = 'save-status ok';
+  }
+}
+
+/* ════════ SAVE PROFILE ════════ */
+profileForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const { data: { session } } = await supa.auth.getSession();
+  if (!session) { saveStatus.textContent = 'Session expired. Please sign in again.'; saveStatus.className='save-status err'; return; }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'SAVING…';
+  saveStatus.textContent = '';
+  saveStatus.className = 'save-status';
+
+  const payload = {
+    name:          document.getElementById('f-name').value.trim(),
+    type:          document.getElementById('f-type').value,
+    genre:         document.getElementById('f-genre').value.trim(),
+    city:          document.getElementById('f-city').value.trim(),
+    bio:           document.getElementById('f-bio').value.trim(),
+    image_url:     document.getElementById('f-image').value.trim(),
+    music:         document.getElementById('f-music').value.trim(),
+    spotify:       document.getElementById('f-spotify').value.trim(),
+    youtube:       document.getElementById('f-youtube').value.trim(),
+    instagram:     document.getElementById('f-instagram').value.trim(),
+    website:       document.getElementById('f-website').value.trim(),
+    booking_email: document.getElementById('f-booking').value.trim(),
+    email:         session.user.email,
+  };
+
+  if (!payload.name) { showSaveError('Name is required.'); return; }
+  if (!payload.bio)  { showSaveError('Bio is required.'); return; }
+
+  try {
+    let error;
+    if (currentProfile) {
+      // Update existing row
+      ({ error } = await supa.from('applications').update(payload).eq('email', session.user.email));
+    } else {
+      // Insert new (shouldn't normally reach here, but safety net)
+      const slug = payload.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      ({ error } = await supa.from('applications').insert({ ...payload, slug, status: 'pending' }));
+    }
+    if (error) throw error;
+
+    currentProfile = { ...currentProfile, ...payload };
+    populateForm(currentProfile);
+
+    saveStatus.textContent = '✅ Saved! Your profile is updated.';
+    saveStatus.className = 'save-status ok';
+    saveBtn.textContent = 'SAVED ✓';
+    setTimeout(() => { saveBtn.textContent = 'SAVE CHANGES'; saveBtn.disabled = false; }, 2500);
+  } catch(err) {
+    showSaveError(err.message || 'Save failed. Try again.');
+  }
+});
+
+function showSaveError(msg) {
+  saveStatus.textContent = '⚠️ ' + msg;
+  saveStatus.className = 'save-status err';
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'SAVE CHANGES';
+}
+
+/* ════════ SAFETY NET ════════ */
+/* The page must never be blank: if no view is visible shortly after load
+   (e.g. an auth/session hiccup left every state hidden), default to sign-in. */
+setTimeout(function () {
+  try {
+    var anyVisible = [stateLogin, stateSent, stateReset, stateEditor]
+      .some(function (el) { return el && getComputedStyle(el).display !== 'none'; });
+    if (!anyVisible) portalShow('login');
+  } catch (e) {}
+}, 800);
+</script>
+
+<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-ai.js" defer></script>
+</body>
+</html>
