@@ -701,7 +701,7 @@
 
 /* ── KEEPITIL universal MOBILE nav: single-row logo + emoji categories (mobile only) ── */
 (function(){
-  function injectMobileNav(){
+  function injectMobileNav(){return;
     try{ if(!window.matchMedia || !matchMedia('(max-width:768px)').matches) return; }catch(e){ return; }
     if(document.querySelector('.nav-links .nav-emoji')) return; /* homepage already has the emoji nav */
     var ul=document.querySelector('ul.nav-links')||document.querySelector('.nav-links');
