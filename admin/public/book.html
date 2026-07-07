@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Book a DJ — KEEPITIL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#080808;
+  --surface:#111;
+  --surface2:#181818;
+  --border:rgba(255,255,255,.08);
+  --accent:#00b4ff;
+  --accent-dim:rgba(0,180,255,.1);
+  --success:#00cc55;
+  --danger:#ff3b3b;
+  --white:#f0f0f0;
+  --grey:#777;
+  --font-head:'Bebas Neue',sans-serif;
+  --font:'Inter',sans-serif;
+}
+html,body{min-height:100%;background:var(--bg);color:var(--white);font-family:var(--font);font-size:15px;}
+
+/* ── HEADER ── */
+.site-header{
+  border-bottom:1px solid var(--border);
+  padding:20px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.wordmark{font-family:var(--font-head);font-size:1.6rem;letter-spacing:.16em;color:var(--accent);}
+.header-tag{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;
+  padding:60px 24px 48px;
+  max-width:680px;
+  margin:0 auto;
+}
+.hero h1{
+  font-family:var(--font-head);font-size:3.2rem;letter-spacing:.06em;
+  color:var(--white);line-height:1;margin-bottom:14px;
+}
+.hero h1 span{color:var(--accent);}
+.hero p{
+  font-size:.92rem;color:var(--grey);line-height:1.75;max-width:500px;margin:0 auto;
+}
+
+/* ── FORM CARD ── */
+.form-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:40px 48px;
+  max-width:700px;
+  margin:0 auto 60px;
+}
+@media(max-width:640px){.form-card{padding:28px 20px;}.site-header{padding:16px 20px;}.hero{padding:40px 20px 32px;}}
+
+/* ── FORM FIELDS ── */
+.form-section{
+  border-bottom:1px solid var(--border);
+  padding-bottom:28px;
+  margin-bottom:28px;
+}
+.form-section:last-of-type{border-bottom:none;padding-bottom:0;margin-bottom:0;}
+.section-title{
+  font-size:.65rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:18px;
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:560px){.form-row{grid-template-columns:1fr;}}
+.form-group{margin-bottom:16px;}
+.form-group:last-child{margin-bottom:0;}
+.form-label{
+  display:block;font-size:.68rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--grey);margin-bottom:7px;
+}
+.form-label .req{color:var(--accent);}
+.form-input,.form-select,.form-textarea{
+  width:100%;background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:8px;padding:11px 14px;
+  color:var(--white);font-family:var(--font);font-size:.88rem;
+  outline:none;transition:border-color .2s;
+  appearance:none;-webkit-appearance:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);}
+.form-input::placeholder,.form-textarea::placeholder{color:#444;}
+.form-textarea{resize:vertical;min-height:100px;line-height:1.6;}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
+.form-select option{background:var(--surface2);}
+
+/* ── BUDGET PILLS ── */
+.budget-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.budget-pill{
+  padding:8px 16px;border-radius:20px;
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--grey);font-size:.75rem;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;transition:all .15s;
+}
+.budget-pill:hover{border-color:var(--accent);color:var(--accent);}
+.budget-pill.selected{background:var(--accent);border-color:var(--accent);color:#000;}
+input[name="budget_hidden"]{display:none;}
+
+/* ── SUBMIT ── */
+.submit-area{margin-top:32px;text-align:center;}
+.btn-submit{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  background:var(--accent);color:#000;
+  font-family:var(--font);font-size:.88rem;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;border:none;cursor:pointer;
+  padding:16px 48px;border-radius:8px;
+  transition:opacity .2s,transform .15s;
+  width:100%;max-width:320px;
+}
+.btn-submit:hover{opacity:.88;transform:translateY(-1px);}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.submit-note{font-size:.72rem;color:var(--grey);margin-top:10px;}
+
+/* ── SUCCESS / ERROR STATES ── */
+.result-box{
+  display:none;
+  border-radius:10px;
+  padding:28px 32px;
+  text-align:center;
+  margin-bottom:24px;
+}
+.result-box.success{background:rgba(0,204,85,.08);border:1px solid rgba(0,204,85,.25);}
+.result-box.error{background:rgba(255,59,59,.08);border:1px solid rgba(255,59,59,.25);}
+.result-icon{font-size:2.4rem;margin-bottom:12px;}
+.result-title{font-family:var(--font-head);font-size:1.8rem;letter-spacing:.06em;margin-bottom:8px;}
+.result-body{font-size:.85rem;color:var(--grey);line-height:1.7;}
+.result-box.success .result-title{color:var(--success);}
+.result-box.error .result-title{color:var(--danger);}
+
+/* ── TRUST BAR ── */
+.trust-bar{
+  display:flex;justify-content:center;gap:32px;flex-wrap:wrap;
+  padding:28px 24px;border-top:1px solid var(--border);
+  margin-top:0;
+}
+.trust-item{font-size:.72rem;color:var(--grey);display:flex;align-items:center;gap:7px;}
+.trust-item .icon{font-size:1rem;}
+
+/* ── FOOTER ── */
+.site-footer{
+  text-align:center;padding:20px;
+  font-size:.7rem;color:#333;
+  border-top:1px solid var(--border);
+}
+.site-footer a{color:var(--grey);text-decoration:none;}
+.site-footer a:hover{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="wordmark">KEEPITIL</div>
+  <div class="header-tag">Artist Booking</div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Book a <span>KEEPITIL</span> Artist</h1>
+  <p>Connect with curated DJs and electronic music artists for private parties, corporate events, club nights, and more. Submit your request and we'll match you within 48 hours.</p>
+</section>
+
+<!-- FORM -->
+<main style="padding:0 24px;">
+  <div class="form-card">
+
+    <!-- SUCCESS -->
+    <div class="result-box success" id="result-success">
+      <div class="result-icon">✅</div>
+      <div class="result-title">Request Received!</div>
+      <div class="result-body">
+        We'll review your booking request and get back to you within 48 hours at the email you provided.<br/><br/>
+        Questions? Email us at <strong>info@keepitil.com</strong>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="result-box error" id="result-error">
+      <div class="result-icon">⚠️</div>
+      <div class="result-title">Submission Failed</div>
+      <div class="result-body" id="error-body">
+        Something went wrong. Please email us directly at <strong>info@keepitil.com</strong>
+      </div>
+    </div>
+
+    <form id="booking-form" onsubmit="submitBooking(event)">
+
+      <!-- CONTACT -->
+      <div class="form-section">
+        <div class="section-title">Your Contact Info</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="req">*</span></label>
+            <input class="form-input" name="name" type="text" placeholder="Jane Smith" required/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email <span class="req">*</span></label>
+            <input class="form-input" name="email" type="email" placeholder="jane@company.com" required/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone (optional)</label>
+          <input class="form-input" name="phone" type="tel" placeholder="+1 (555) 000-0000"/>
+        </div>
+      </div>
+
+      <!-- EVENT DETAILS -->
+      <div class="form-section">
+        <div class="section-title">Event Details</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Event Type <span class="req">*</span></label>
+            <select class="form-select" name="event_type" required>
+              <option value="" disabled selected>Select type…</option>
+              <option value="Private Party">Private Party</option>
+              <option value="Corporate Event">Corporate Event</option>
+              <option value="Club Night">Club Night / Venue</option>
+              <option value="Festival / Outdoor">Festival / Outdoor Event</option>
+              <option value="Birthday Party">Birthday Party</option>
+              <option value="Wedding">Wedding / Reception</option>
+              <option value="Rooftop / Day Party">Rooftop / Day Party</option>
+              <option value="Pop-Up / Brand Event">Pop-Up / Brand Event</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Event Date <span class="req">*</span></label>
+            <input class="form-input" name="event_date" type="date" required/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Venue / Location</label>
+          <input class="form-input" name="venue" type="text" placeholder="The Vortex Lounge, Los Angeles, CA"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Expected Headcount</label>
+            <select class="form-select" name="headcount">
+              <option value="" disabled selected>Select range…</option>
+              <option value="Under 50">Under 50</option>
+              <option value="50–150">50–150</option>
+              <option value="150–300">150–300</option>
+              <option value="300–500">300–500</option>
+              <option value="500–1000">500–1,000</option>
+              <option value="1000+">1,000+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Performance Hours</label>
+            <select class="form-select" name="hours">
+              <option value="" disabled selected>Select hours…</option>
+              <option value="1 hour">1 hour</option>
+              <option value="2 hours">2 hours</option>
+              <option value="3 hours">3 hours</option>
+              <option value="4 hours">4 hours</option>
+              <option value="5+ hours">5+ hours</option>
+              <option value="TBD">TBD / Flexible</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- MUSIC + BUDGET -->
+      <div class="form-section">
+        <div class="section-title">Music &amp; Budget</div>
+        <div class="form-group">
+          <label class="form-label">Genre / Vibe <span class="req">*</span></label>
+          <select class="form-select" name="genre" required>
+            <option value="" disabled selected>Select genre…</option>
+            <option value="House">House</option>
+            <option value="Tech House">Tech House</option>
+            <option value="Afro House">Afro House</option>
+            <option value="Deep House">Deep House</option>
+            <option value="Melodic House / Techno">Melodic House / Techno</option>
+            <option value="Techno">Techno</option>
+            <option value="Latin / Reggaeton">Latin / Reggaeton</option>
+            <option value="Hip-Hop / R&B">Hip-Hop / R&amp;B</option>
+            <option value="Top 40 / Open Format">Top 40 / Open Format</option>
+            <option value="Electronic / Mixed">Electronic / Mixed</option>
+            <option value="Open to suggestions">Open to suggestions</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Budget Range</label>
+          <div class="budget-pills" id="budget-pills">
+            <div class="budget-pill" onclick="selectBudget(this,'Under $500')">Under $500</div>
+            <div class="budget-pill" onclick="selectBudget(this,'$500–$1,000')">$500–$1,000</div>
+            <div class="budget-pill" onclick="selectBudget(this,'$1,000–$2,500')">$1,000–$2,500</div>
+            <div class="budget-pill" onclick="selectBudget(this,'$2,500–$5,000')">$2,500–$5,000</div>
+            <div class="budget-pill" onclick="selectBudget(this,'$5,000+')">$5,000+</div>
+            <div class="budget-pill" onclick="selectBudget(this,'Flexible / TBD')">Flexible / TBD</div>
+          </div>
+          <input type="hidden" name="budget" id="budget-val"/>
+        </div>
+      </div>
+
+      <!-- NOTES -->
+      <div class="form-section">
+        <div class="section-title">Additional Notes</div>
+        <div class="form-group">
+          <label class="form-label">Tell us more (optional)</label>
+          <textarea class="form-textarea" name="notes" placeholder="Specific artist requests, equipment needs, dress code, vibe description, anything helpful…"></textarea>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="submit-area">
+        <button class="btn-submit" type="submit" id="submit-btn">
+          <span id="submit-label">Submit Booking Request</span>
+        </button>
+        <div class="submit-note">We respond within 48 hours · info@keepitil.com</div>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item"><span class="icon">🎧</span>Curated KEEPITIL artists only</div>
+  <div class="trust-item"><span class="icon">⚡</span>Response within 48 hours</div>
+  <div class="trust-item"><span class="icon">📍</span>SoCal specialist</div>
+  <div class="trust-item"><span class="icon">🔒</span>No spam, no pressure</div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <a href="https://keepitil.com" target="_blank">keepitil.com</a> &nbsp;·&nbsp; info@keepitil.com &nbsp;·&nbsp; © 2026 KEEPITIL
+</footer>
+
+<script>
+function selectBudget(el, value) {
+  document.querySelectorAll('.budget-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('budget-val').value = value;
+}
+
+async function submitBooking(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const label = document.getElementById('submit-label');
+  btn.disabled = true;
+  label.textContent = 'Submitting…';
+
+  const form = e.target;
+  const data = {};
+  new FormData(form).forEach((v, k) => { if (v) data[k] = v; });
+
+  try {
+    const r = await fetch('/api/booking-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const res = await r.json();
+
+    if (res.success) {
+      form.style.display = 'none';
+      document.getElementById('result-success').style.display = 'block';
+    } else {
+      document.getElementById('error-body').textContent = res.error || 'Something went wrong. Email info@keepitil.com';
+      document.getElementById('result-error').style.display = 'block';
+      btn.disabled = false;
+      label.textContent = 'Submit Booking Request';
+    }
+  } catch(err) {
+    document.getElementById('error-body').textContent = 'Network error. Please email info@keepitil.com';
+    document.getElementById('result-error').style.display = 'block';
+    btn.disabled = false;
+    label.textContent = 'Submit Booking Request';
+  }
+}
+</script>
+<script src="/keepitil-ai.js" defer></script>
+</body>
+</html>
