@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  KEEPITIL — MAIN PAGE TEMPLATE                                   ║
+  ║  For: home, artist directory, brand directory, culture index,    ║
+  ║       organizer directory, subscriber / signup page              ║
+  ║  ⚠️  DESIGN FREEZE — DO NOT CHANGE CSS/LAYOUT                   ║
+  ║  Replace every {{PLACEHOLDER}} before pushing                   ║
+  ╚══════════════════════════════════════════════════════════════════╝
+
+  UNIVERSAL COMPONENTS IN THIS TEMPLATE:
+  ① NAV HEADER    → <nav id="main-nav"> ... </nav> + .mobile-menu
+  ② RADIO PLAYER  → keepitil-radio.js (injects fixed bottom bar)
+  ③ AI WIDGET     → keepitil-ai.js (injects Echo + auto-loads radio)
+  ④ FOOTER        → <footer> ... </footer>
+  NOTE: Main pages do NOT have pnav (no profile-to-profile nav).
+
+  DESIGN DIFFERENCES FROM PROFILE TEMPLATES:
+  - Blue accent (#00b4ff) instead of green (#00ff88)
+  - Font: Inter instead of Space Grotesk
+  - Layout: section + .container instead of article-wrap
+  - Scroll reveal: add class="reveal" to any element to animate in
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{{PAGE TITLE}} | KEEPITIL — OC &amp; LA Underground EDM</title>
+  <link rel="icon" type="image/png" href="/keepitil-x-logo.png"/>
+  <meta name="description" content="{{SEO description — under 160 chars}}"/>
+  <meta property="og:title" content="{{PAGE TITLE}} | KEEPITIL"/>
+  <meta property="og:description" content="{{OG description}}"/>
+  <meta property="og:image" content="https://keepitil.com/logo-bg.jpg"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://keepitil.com/{{SLUG}}"/>
+  <meta property="og:site_name" content="KEEPITIL"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="canonical" href="https://keepitil.com/{{SLUG}}"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+/* ── RESET + VARS ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0f0f1a;
+  --dark:#111;
+  --dark2:#181818;
+  --dark3:#222;
+  --blue:#00b4ff;
+  --blue-dim:#0088cc;
+  --white:#f0f0f0;
+  --grey:#888;
+  --font-head:'Bebas Neue',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+
+/* ── LAYOUT ── */
+.container{max-width:1180px;margin:0 auto;padding:0 24px;}
+section{padding:64px 0;}
+.section-label{font-size:.69rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+.section-title{font-family:var(--font-head);font-size:clamp(2.2rem,5vw,3.6rem);letter-spacing:.04em;color:var(--white);margin-bottom:24px;}
+.section-body{font-size:1rem;color:rgba(240,240,240,.8);line-height:1.75;max-width:680px;}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .55s ease,transform .55s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-left{opacity:0;transform:translateX(-28px);transition:opacity .55s ease,transform .55s ease;}
+.reveal-left.visible{opacity:1;transform:none;}
+.reveal-right{opacity:0;transform:translateX(28px);transition:opacity .55s ease,transform .55s ease;}
+.reveal-right.visible{opacity:1;transform:none;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-block;padding:12px 28px;border-radius:3px;font-family:var(--font-body);font-weight:600;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:all .2s;border:none;}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 0 18px rgba(0,180,255,.35);}
+.btn-primary:hover{background:var(--blue-dim);box-shadow:0 0 32px var(--blue);transform:translateY(-2px);}
+.btn-outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}
+.btn-outline:hover{background:var(--blue);color:#fff;transform:translateY(-2px);}
+
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;margin-top:32px;}
+.card{background:var(--dark2);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;transition:border-color .2s,transform .2s;}
+.card:hover{border-color:rgba(0,180,255,.3);transform:translateY(-3px);}
+.card-img{width:100%;height:200px;object-fit:cover;}
+.card-body{padding:20px;}
+.card-label{font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;}
+.card-title{font-family:var(--font-head);font-size:1.4rem;letter-spacing:.04em;margin-bottom:8px;}
+.card-text{font-size:.85rem;color:var(--grey);line-height:1.6;}
+
+/* ── HERO SECTION ── */
+.hero-section{padding:80px 0 64px;position:relative;}
+.hero-section h1{font-family:var(--font-head);font-size:clamp(3rem,8vw,6rem);letter-spacing:.04em;line-height:.95;margin-bottom:20px;}
+.hero-section .kicker{font-size:.72rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--blue);margin-bottom:16px;}
+.hero-section .subtitle{font-size:1.05rem;color:rgba(240,240,240,.7);max-width:560px;line-height:1.7;}
+.hero-ctas{display:flex;gap:16px;margin-top:32px;flex-wrap:wrap;}
+
+/* ── SCROLL-TO-TOP BUTTON ── */
+#scroll-top{position:fixed;bottom:72px;left:24px;right:auto;width:40px;height:40px;border-radius:50%;background:rgba(0,180,255,.15);border:1px solid rgba(0,180,255,.3);color:var(--blue);font-size:1.1rem;cursor:pointer;opacity:0;transition:opacity .3s;z-index:50;display:flex;align-items:center;justify-content:center;}
+#scroll-top.visible{opacity:1;}
+#scroll-top:hover{background:rgba(0,180,255,.3);}
+
+/* ── NAV — LOCKED ── */
+nav{position:sticky;top:0;z-index:100;background:rgba(15,15,26,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+nav.scrolled{box-shadow:0 4px 40px rgba(0,0,0,.9);}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:66px;}
+.nav-logo{flex-shrink:0;text-decoration:none;display:flex;align-items:center;gap:10px;}
+.nav-brand{color:#fff;font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;}
+.nav-links{display:flex;flex:1;justify-content:space-evenly;align-items:center;list-style:none;padding:0;}
+.nav-links li{list-style:none;}
+.nav-links a{color:rgba(255,255,255,.75);text-decoration:none;font-family:var(--font-head);font-size:1.05rem;font-weight:normal;letter-spacing:.14em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:#fff;}
+.nav-inner>a.nav-cta{font-family:var(--font-head);font-size:1rem;letter-spacing:.14em;color:#00b4ff!important;background:transparent!important;border:2px solid #00b4ff;padding:7px 22px;border-radius:4px;text-decoration:none;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;display:inline-block;}
+.nav-inner>a.nav-cta:hover{background:#00b4ff!important;color:#000!important;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;margin-left:14px;}
+.nav-hamburger span{display:block;width:24px;height:2px;background:var(--blue);border-radius:2px;transition:all .3s;}
+.nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-hamburger.open span:nth-child(2){opacity:0;}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+/* ── MOBILE MENU ── */
+.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.97);z-index:999;flex-direction:column;padding:18px 28px;gap:0;border-bottom:1px solid rgba(255,255,255,.1);}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:rgba(255,255,255,.78);text-decoration:none;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.mobile-menu a:last-child{border-bottom:none;}
+.mobile-menu .nav-cta{color:#00b4ff!important;border:none;padding:12px 0;background:transparent!important;}
+@media(max-width:768px){.nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:32px;color:var(--grey);font-size:.8rem;border-top:1px solid rgba(255,255,255,.06);}
+footer a{color:#00b4ff;}
+  </style>
+</head>
+<body>
+
+<!-- ══ UNIVERSAL NAV HEADER ══ identical on every KEEPITIL page — DO NOT CHANGE ══ -->
+<nav id="main-nav">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">
+      <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px #00b4ff);mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
+    </a>
+    <ul class="nav-links">
+      <!-- Add class="active" to the link matching this page -->
+      <li><a href="/artist/">ARTIST</a></li>
+      <li><a href="/brand/">BRAND</a></li>
+      <li><a href="/culture">CULTURE</a></li>
+      <li><a href="/organizer/">ORGANIZERS</a></li>
+    </ul>
+    <a href="/apply.html" class="nav-cta">SUBSCRIBE</a>
+    <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="/artist/" onclick="toggleMenu()">ARTIST</a>
+  <a href="/brand/" onclick="toggleMenu()">BRAND</a>
+  <a href="/culture" onclick="toggleMenu()">CULTURE</a>
+  <a href="/organizer/" onclick="toggleMenu()">ORGANIZERS</a>
+  <a href="/signup.html" onclick="toggleMenu()" class="nav-cta">SUBSCRIBE</a>
+</div>
+
+<!-- ═══ PAGE CONTENT — replace everything below with actual page sections ═══ -->
+
+<main>
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="container">
+      <p class="kicker reveal">{{SECTION LABEL — e.g. "OC &amp; LA UNDERGROUND"}}</p>
+      <h1 class="reveal">{{PAGE HEADING}}</h1>
+      <p class="subtitle reveal">{{One or two sentences. What this page is about and who it's for.}}</p>
+      <div class="hero-ctas reveal">
+        <a href="{{PRIMARY CTA URL}}" class="btn btn-primary">{{PRIMARY CTA TEXT}}</a>
+        <a href="{{SECONDARY CTA URL}}" class="btn btn-outline">{{SECONDARY CTA TEXT}}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID SECTION — remove or repeat as needed -->
+  <section>
+    <div class="container">
+      <p class="section-label reveal">{{GRID SECTION LABEL}}</p>
+      <h2 class="section-title reveal">{{GRID HEADING}}</h2>
+      <p class="section-body reveal">{{Optional paragraph intro.}}</p>
+      <div class="card-grid">
+        <!-- CARD EXAMPLE — copy/paste and fill for each item -->
+        <a class="card reveal" href="/{{SLUG}}.html">
+          <img class="card-img" src="{{IMAGE URL}}" alt="{{ALT TEXT}}" loading="lazy"/>
+          <div class="card-body">
+            <p class="card-label">{{CARD LABEL}}</p>
+            <h3 class="card-title">{{CARD TITLE}}</h3>
+            <p class="card-text">{{One sentence about this item.}}</p>
+          </div>
+        </a>
+        <!-- /CARD EXAMPLE -->
+      </div>
+    </div>
+  </section>
+
+  <!-- TEXT SECTION — remove if not needed -->
+  <section>
+    <div class="container">
+      <div style="max-width:720px;margin:0 auto;">
+        <p class="section-label reveal">{{LABEL}}</p>
+        <h2 class="section-title reveal">{{HEADING}}</h2>
+        <p class="section-body reveal">{{Body text.}}</p>
+        <div style="margin-top:24px;" class="reveal">
+          <a href="{{CTA URL}}" class="btn btn-primary">{{CTA TEXT}}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ UNIVERSAL FOOTER ══ identical on every KEEPITIL page — DO NOT CHANGE ══ -->
+<footer>
+  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> <a href="https://keepitil.com/privacy.html">Privacy Policy</a></p>
+</footer>
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+function toggleMenu(){var h=document.querySelector('.nav-hamburger');var m=document.getElementById('mobile-menu');if(h)h.classList.toggle('open');if(m)m.classList.toggle('open');}
+window.addEventListener('scroll',function(){
+  var btn=document.getElementById('scroll-top');
+  if(btn)btn.classList.toggle('visible',window.scrollY>400);
+  var nav=document.getElementById('main-nav');
+  if(nav)nav.classList.toggle('scrolled',window.scrollY>10);
+});
+var observer=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(function(el){observer.observe(el);});
+</script>
+<!-- ══ UNIVERSAL RADIO PLAYER + AI WIDGET ══ both scripts required on every page ══ -->
+<script src="/keepitil-radio.js" defer></script>
+<script src="/keepitil-ai.js" defer></script>
+</body>
+</html>
