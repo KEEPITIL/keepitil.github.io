@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="default">
 <head>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <meta name="robots" content="noindex,nofollow">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -17,8 +18,8 @@
   --dark:#111118;
   --dark2:#18181f;
   --dark3:#22222c;
-  --blue:#00b4ff;
-  --green:#00ff88;
+  --blue:var(--brand);
+  --green:var(--live);
   --white:#f0f0f0;
   --grey:#888;
   --grey2:#555;
@@ -36,7 +37,7 @@ input,select,textarea,button{font-family:var(--font-body);}
 nav{position:sticky;top:0;z-index:100;background:rgba(11,11,15,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,180,255,.12);padding:0 20px;height:62px;display:flex;align-items:center;}
 .nav-inner{max-width:760px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
-.nav-logo img{height:38px;width:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 5px #00b4ff);}
+.nav-logo img{height:38px;width:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--brand));}
 .nav-brand{font-family:var(--font-head);font-size:1.35rem;letter-spacing:.13em;color:#fff;}
 .nav-tag{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);background:rgba(0,180,255,.1);border:1px solid rgba(0,180,255,.25);padding:3px 10px;border-radius:20px;}
 
@@ -550,7 +551,7 @@ async function init() {
     portalShow('login');
     const ss = document.getElementById('signin-section'); if (ss) ss.style.display = 'none';
     const fs = document.getElementById('forgot-section'); if (fs) fs.style.display = '';
-    const rm = document.getElementById('reset-msg'); if (rm) { rm.style.color = '#00b4ff'; rm.textContent = 'That link expired. Enter your email to get a fresh reset link.'; }
+    const rm = document.getElementById('reset-msg'); if (rm) { rm.style.color = 'var(--brand)'; rm.textContent = 'That link expired. Enter your email to get a fresh reset link.'; }
     try { history.replaceState(null, '', location.pathname); } catch (_) {}
     return;
   }
