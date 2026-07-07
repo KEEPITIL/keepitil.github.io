@@ -4,40 +4,153 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta name="robots" content="noindex,nofollow"/>
 <title>Discover — KEEPITIL</title>
+<meta name="description" content="KEEPITIL Discover — events, culture, artists, and the SoCal underground, all in one place."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.55;padding-bottom:72px}
+a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--sp-3)}
-.hero{padding:var(--sp-6) 0 var(--sp-4);text-align:center;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;background:radial-gradient(60% 80% at 50% 0%,color-mix(in srgb,var(--glow) 50%,transparent),transparent 70%)}
-.eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:var(--tracking-wide);color:var(--brand);border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 14px;margin-bottom:var(--sp-3)}
-h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:900;line-height:1.03}
-h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);max-width:620px;margin:var(--sp-3) auto 0}
-.grid{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(230px,1fr));padding:var(--sp-4) 0 var(--sp-6)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp-4);transition:transform .2s,border-color .2s;display:block;color:inherit;text-decoration:none}
-.card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
-.card h3{font-size:1.15rem;font-weight:800;margin-bottom:var(--sp-1)}
-.card p{color:var(--muted);font-size:.9rem}
+img{display:block;max-width:100%}
+
+/* hero */
+.dh-hero{position:relative;padding:var(--sp-6) 0 var(--sp-5);text-align:center;overflow:hidden}
+.dh-hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.6;background:radial-gradient(70% 90% at 50% 0%,color-mix(in srgb,var(--glow) 55%,transparent),transparent 72%)}
+.dh-eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:var(--tracking-wide);color:var(--brand);border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 15px;margin-bottom:var(--sp-3)}
+.dh-hero h1{font-size:clamp(2.4rem,6.5vw,4.6rem);font-weight:900;line-height:1.0;letter-spacing:.01em}
+.dh-hero h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.dh-hero p{color:var(--muted);max-width:600px;margin:var(--sp-3) auto var(--sp-4)}
+.dh-search{max-width:640px;margin:0 auto;display:flex;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 6px 6px 20px}
+.dh-search input{flex:1;background:none;border:0;color:var(--text);font-family:var(--font);font-size:1rem;outline:none}
+.dh-search input::placeholder{color:var(--muted)}
+.dh-search button{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:var(--radius-pill);font-weight:800;font-size:.85rem;letter-spacing:.06em;padding:11px 22px;cursor:pointer}
+.dh-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:var(--sp-3)}
+.dh-chips a{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius-pill);padding:8px 15px;font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--muted)}
+.dh-chips a:hover{color:var(--brand);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
+
+/* section */
+section{padding:var(--sp-5) 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:var(--sp-3)}
+.sec-head h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;letter-spacing:.01em}
+.sec-head a{color:var(--brand);font-weight:700;font-size:.8rem;letter-spacing:.08em}
+.row{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.row.small{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+
+/* event card */
+.ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s,border-color .2s;position:relative}
+.ev:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
+.ev .thumb{aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 40%,var(--surface-2)),color-mix(in srgb,var(--brand-2) 45%,var(--surface-2)));display:flex;align-items:center;justify-content:center;color:color-mix(in srgb,var(--text) 60%,transparent);font-weight:800;letter-spacing:.14em;font-size:.7rem}
+.ev .pick{position:absolute;top:10px;left:10px;background:var(--gold);color:#111;font-size:.6rem;font-weight:800;letter-spacing:.1em;padding:5px 9px;border-radius:6px}
+.ev .body{padding:var(--sp-3)}
+.ev .date{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--brand)}
+.ev h3{font-size:1.05rem;font-weight:800;margin:4px 0 6px}
+.ev .meta{color:var(--muted);font-size:.82rem}
+.ev .foot{display:flex;justify-content:space-between;align-items:center;margin-top:var(--sp-2)}
+.ev .price{font-weight:800;font-size:.95rem}
+.ev .tix{border:1.5px solid var(--brand);color:var(--brand);border-radius:var(--radius-pill);padding:6px 14px;font-size:.72rem;font-weight:800;letter-spacing:.06em}
+
+/* tiles (directory) */
+.tiles{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp-4);transition:transform .2s,border-color .2s}
+.tile:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
+.tile .k{font-size:.66rem;font-weight:800;letter-spacing:.12em;color:var(--brand)}
+.tile h3{font-size:1.2rem;font-weight:800;margin:6px 0 4px}
+.tile p{color:var(--muted);font-size:.86rem}
+
+/* article card */
+.art{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s,border-color .2s}
+.art:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--purple) 55%,var(--line))}
+.art .ph{aspect-ratio:16/9;background:linear-gradient(135deg,var(--purple),var(--purple-2))}
+.art .b{padding:var(--sp-3)}
+.art .cat{font-size:.66rem;font-weight:800;letter-spacing:.1em;color:var(--purple-2)}
+.art h3{font-size:1.02rem;font-weight:800;margin:5px 0 6px}
+.art p{color:var(--muted);font-size:.84rem}
+
+/* challenge card */
+.chal{background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 22%,var(--surface)),color-mix(in srgb,var(--accent) 22%,var(--surface)));border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp-4)}
+.chal .k{font-size:.66rem;font-weight:800;letter-spacing:.12em;color:var(--gold)}
+.chal h3{font-size:1.15rem;font-weight:800;margin:6px 0 6px}
+.chal p{color:var(--muted);font-size:.86rem;margin-bottom:var(--sp-2)}
+.chal a.join{display:inline-block;background:var(--brand);color:#04121b;font-weight:800;font-size:.74rem;letter-spacing:.06em;padding:8px 16px;border-radius:var(--radius-pill)}
+
+/* seasonal promo band */
+.promo{background:linear-gradient(100deg,var(--brand),var(--brand-2));color:#0a0a0f;border-radius:var(--radius-lg);padding:var(--sp-5);text-align:center;margin:var(--sp-4) 0}
+.promo h2{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:900}
+.promo p{opacity:.85;font-weight:600;margin:8px 0 var(--sp-3)}
+.promo a{background:#0a0a0f;color:var(--brand);font-weight:800;letter-spacing:.06em;padding:12px 26px;border-radius:var(--radius-pill);font-size:.85rem}
 </style>
 </head>
 <body>
-<header class="hero"><div class="wrap">
-  <span class="eyebrow">DISCOVER THE UNDERGROUND</span>
-  <h1>FIND THE <span>SCENE.</span></h1>
-  <p>Events, artists, venues, and the culture behind SoCal's underground. Everything worth knowing, in one place.</p>
+
+<!-- HERO -->
+<header class="dh-hero"><div class="wrap">
+  <span class="dh-eyebrow">DISCOVER · SoCal UNDERGROUND</span>
+  <h1>SHOW ME<br><span>WHAT'S HAPPENING.</span></h1>
+  <p>Events, culture, artists, and the whole underground scene — one front page for OC &amp; LA.</p>
+  <form class="dh-search" onsubmit="return false"><input type="search" placeholder="Search events, artists, venues, articles…"/><button>Search</button></form>
+  <div class="dh-chips"><a href="/v3/scene.html">Events</a><a href="/v3/scene.html">Artists</a><a href="/v3/scene.html">Venues</a><a href="/v3/culture">Culture</a><a href="/v3/connect.html">Community</a></div>
 </div></header>
-<div class="wrap"><div class="grid">
-  <a class="card" href="/v3/scene.html"><h3>Events</h3><p>What's happening across OC &amp; LA — 6 months out.</p></a>
-  <a class="card" href="/v3/scene.html"><h3>Artists</h3><p>DJs and producers repping the underground.</p></a>
-  <a class="card" href="/v3/scene.html"><h3>Venues</h3><p>Warehouses, clubs, and the rooms that matter.</p></a>
-  <a class="card" href="/v3/scene.html"><h3>Brands</h3><p>Labels, collectives, and gear in the scene.</p></a>
-  <a class="card" href="/v3/scene.html"><h3>Organizers</h3><p>Promoters and crews throwing the parties.</p></a>
-  <a class="card" href="/v3/culture"><h3>Culture</h3><p>Stories, guides, and editorial from the scene.</p></a>
-  <a class="card" href="/v3/scene.html"><h3>Search &amp; Explore</h3><p>Filter by genre, area, date, and vibe.</p></a>
-</div></div>
+
+<div class="wrap">
+
+  <!-- MUST-SEE EVENTS -->
+  <section>
+    <div class="sec-head"><h2>Must-See Events</h2><a href="/v3/scene.html">All events →</a></div>
+    <div class="row">
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><span class="pick">KEEPITIL PICK</span><div class="body"><div class="date">FRI · THIS WEEK</div><h3>Warehouse Takeover</h3><div class="meta">DTLA · Techno / Bass</div><div class="foot"><span class="price">$25</span><span class="tix">Tickets</span></div></div></a>
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><span class="pick">KEEPITIL PICK</span><div class="body"><div class="date">SAT · THIS WEEK</div><h3>Rooftop Sessions</h3><div class="meta">OC · House / Melodic</div><div class="foot"><span class="price">$30</span><span class="tix">Tickets</span></div></div></a>
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><span class="pick">KEEPITIL PICK</span><div class="body"><div class="date">SUN · THIS WEEK</div><h3>Day Party</h3><div class="meta">Long Beach · Open Format</div><div class="foot"><span class="price">Free</span><span class="tix">RSVP</span></div></div></a>
+    </div>
+  </section>
+
+  <!-- TRENDING -->
+  <section>
+    <div class="sec-head"><h2>Trending Now</h2><a href="/v3/scene.html">See more →</a></div>
+    <div class="row small">
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><div class="body"><div class="date">NEXT FRI</div><h3>Basement</h3><div class="meta">LA · Dubstep</div></div></a>
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><div class="body"><div class="date">NEXT SAT</div><h3>Afters</h3><div class="meta">OC · Techno</div></div></a>
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><div class="body"><div class="date">JUL 19</div><h3>Beach Set</h3><div class="meta">Ventura · Trance</div></div></a>
+      <a class="ev" href="/v3/event.html"><div class="thumb">FLYER</div><div class="body"><div class="date">JUL 26</div><h3>Loft</h3><div class="meta">DTLA · Deep House</div></div></a>
+    </div>
+  </section>
+
+  <!-- CULTURE -->
+  <section>
+    <div class="sec-head"><h2>From the Culture</h2><a href="/v3/culture">All articles →</a></div>
+    <div class="row">
+      <a class="art" href="/v3/blog-groove-trooper.html"><div class="ph"></div><div class="b"><div class="cat">ARTIST SPOTLIGHT</div><h3>Inside the SoCal Underground</h3><p>The artists and crews shaping OC &amp; LA's after-dark sound.</p></div></a>
+      <a class="art" href="/v3/culture"><div class="ph"></div><div class="b"><div class="cat">GUIDE</div><h3>Rave Etiquette 101</h3><p>PLUR, prep, and how to show up right to your first warehouse.</p></div></a>
+      <a class="art" href="/v3/culture"><div class="ph"></div><div class="b"><div class="cat">SCENE</div><h3>Anatomy of a Warehouse Party</h3><p>What actually goes into throwing an underground night.</p></div></a>
+    </div>
+  </section>
+
+  <!-- THE SCENE (directory) -->
+  <section>
+    <div class="sec-head"><h2>The Scene</h2><a href="/v3/scene.html">Browse directory →</a></div>
+    <div class="tiles">
+      <a class="tile" href="/v3/scene.html"><div class="k">DIRECTORY</div><h3>Artists</h3><p>DJs &amp; producers repping the underground.</p></a>
+      <a class="tile" href="/v3/scene.html"><div class="k">DIRECTORY</div><h3>Venues</h3><p>Warehouses, clubs, and the rooms that matter.</p></a>
+      <a class="tile" href="/v3/scene.html"><div class="k">DIRECTORY</div><h3>Brands</h3><p>Labels, collectives, and gear.</p></a>
+      <a class="tile" href="/v3/scene.html"><div class="k">DIRECTORY</div><h3>Organizers</h3><p>Promoters and crews throwing the parties.</p></a>
+    </div>
+  </section>
+
+  <!-- COMMUNITY + CHALLENGES -->
+  <section>
+    <div class="sec-head"><h2>Community &amp; Challenges</h2><a href="/v3/connect.html">Join the community →</a></div>
+    <div class="row">
+      <div class="chal"><div class="k">CHALLENGE</div><h3>Flyer of the Month</h3><p>Submit your best event flyer — winner gets featured on Discover.</p><a class="join" href="/v3/connect.html">Join</a></div>
+      <div class="chal"><div class="k">CHALLENGE</div><h3>30-Sec Set Clip</h3><p>Drop a 30-second clip of your set. Community votes the top spins.</p><a class="join" href="/v3/connect.html">Join</a></div>
+      <a class="tile" href="/v3/connect.html"><div class="k">SCENE ROOMS</div><h3>Live Chat</h3><p>Jump into rooms around tonight's events.</p></a>
+    </div>
+  </section>
+
+  <!-- SEASONAL PROMO -->
+  <div class="promo"><h2>STRAIGHT FROM THE UNDERGROUND</h2><p>New drops, events, and culture every week.</p><a href="/v3/create.html">Create your profile</a></div>
+
+</div>
+
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
