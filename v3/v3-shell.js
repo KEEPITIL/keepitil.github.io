@@ -2,8 +2,7 @@
    (Discover/Connect/Create/Grow/Earn) + footer on every /v3 page. Themed via
    tokens. Replaces per-page headers/footers; keepitil-ai.js nav is neutralized. */
 (function(){
-  var NAV=[['/v3/discover.html','Discover'],['/v3/connect.html','Connect'],
-           ['/v3/create.html','Create'],['/v3/grow.html','Grow'],['/v3/earn.html','Earn']];
+  var NAV=[['/v3/','Home'],['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
   function build(){
     try{
       // remove existing header nav(s) + footer(s) + any injected mobile nav
@@ -23,8 +22,8 @@
       var f = document.createElement('footer'); f.id='v3-footer';
       f.innerHTML =
         '<div class="v3-foot-inner"><a href="/v3/" class="v3-foot-brand">KEEPITIL</a>'
-        +'<nav class="v3-foot-links"><a href="/v3/discover.html">Discover</a><a href="/v3/connect.html">Connect</a>'
-        +'<a href="/v3/create.html">Create</a><a href="/v3/grow.html">Grow</a><a href="/v3/earn.html">Earn</a>'
+        +'<nav class="v3-foot-links"><a href="/v3/">Home</a><a href="/v3/culture">Culture</a>'
+        +'<a href="/v3/scene.html">Scene</a><a href="/v3/shop.html">Shop</a>'
         +'<a href="/v3/apply.html">Login</a></nav>'
         +'<div class="v3-foot-social">IG · SC · TT</div></div>';
       document.body.appendChild(f);
