@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>Shop — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.55;padding-bottom:72px}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--sp-3)}
+
+/* subfilter tabs */
+#shop-tabs{position:sticky;top:var(--nav-h,66px);z-index:400;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+#shop-tabs .in{max-width:var(--maxw);margin:0 auto;display:flex;gap:6px;padding:8px var(--sp-3);overflow-x:auto;scrollbar-width:none}
+#shop-tabs .in::-webkit-scrollbar{display:none}
+.st{flex:0 0 auto;background:none;border:0;color:var(--muted);font-family:var(--font);font-weight:800;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;padding:9px 16px;border-radius:var(--radius-pill);cursor:pointer;white-space:nowrap}
+.st.active{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
+.st:not(.active):hover{color:var(--text)}
+.sep{flex:0 0 auto;width:1px;height:22px;background:var(--line);margin:0 4px}
+.chip{flex:0 0 auto;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);font-weight:700;font-size:.74rem;padding:7px 13px;border-radius:var(--radius-pill);cursor:pointer;white-space:nowrap}
+.chip.on,.chip:hover{color:var(--brand);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
+
+.hero{padding:var(--sp-5) 0 var(--sp-3);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.55;background:radial-gradient(65% 85% at 50% 0%,color-mix(in srgb,var(--glow) 50%,transparent),transparent 72%)}
+.eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:var(--tracking-wide);color:var(--brand);border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 15px;margin-bottom:var(--sp-3)}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:900;line-height:1.0}
+.hero h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:560px;margin:var(--sp-3) auto 0}
+
+section{padding:var(--sp-4) 0}
+.view{display:none}.view.on{display:block}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:var(--sp-3)}
+.sec-head h2{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800}
+.sec-head a{color:var(--brand);font-weight:700;font-size:.78rem;letter-spacing:.08em}
+
+/* product / listing grid */
+.grid{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s,border-color .2s;position:relative}
+.card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
+.card .ph{aspect-ratio:1/1;background:linear-gradient(150deg,color-mix(in srgb,var(--brand) 35%,var(--surface-2)),color-mix(in srgb,var(--accent) 35%,var(--surface-2)));display:flex;align-items:center;justify-content:center;color:color-mix(in srgb,var(--text) 55%,transparent);font-weight:800;letter-spacing:.14em;font-size:.66rem}
+.card.mkt .ph{background:linear-gradient(150deg,color-mix(in srgb,var(--purple) 40%,var(--surface-2)),color-mix(in srgb,var(--brand-2) 35%,var(--surface-2)))}
+.card .tag{position:absolute;top:8px;left:8px;background:var(--gold);color:#111;font-size:.58rem;font-weight:800;letter-spacing:.08em;padding:4px 8px;border-radius:6px}
+.card .b{padding:12px}
+.card h3{font-size:.95rem;font-weight:800}
+.card .price{font-weight:900;font-size:1.05rem;margin-top:2px}
+.card .meta{color:var(--muted);font-size:.74rem;margin-top:3px}
+
+/* sell banner */
+.sell{background:linear-gradient(100deg,var(--brand),var(--brand-2));color:#0a0a0f;border-radius:var(--radius-lg);padding:var(--sp-4);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
+.sell b{font-size:1.15rem;font-weight:900}
+.sell p{font-size:.85rem;font-weight:600;opacity:.85}
+.sell a{background:#0a0a0f;color:var(--brand);font-weight:800;font-size:.8rem;letter-spacing:.05em;padding:11px 22px;border-radius:var(--radius-pill)}
+</style>
+</head>
+<body>
+
+<!-- SHOP SUBFILTER TABS -->
+<nav id="shop-tabs"><div class="in" id="shopIn">
+  <button class="st active" data-view="apparel">KEEPITIL Apparel</button>
+  <button class="st" data-view="market">Marketplace</button>
+  <span class="sep"></span>
+  <span class="chip on" data-c="all">All</span>
+  <span class="chip" data-c="gear">Gear</span>
+  <span class="chip" data-c="tickets">Tickets</span>
+  <span class="chip" data-c="vinyl">Vinyl</span>
+  <span class="chip" data-c="merch">Merch</span>
+  <span class="chip" data-c="services">Services</span>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="eyebrow">THE SHOP</span>
+  <h1>WEAR THE <span>UNDERGROUND.</span></h1>
+  <p>Official KEEPITIL apparel, plus a community marketplace where members buy and sell their gear.</p>
+</div></header>
+
+<!-- APPAREL (Shopify) -->
+<div class="view on" id="view-apparel"><div class="wrap">
+  <section><div class="sec-head"><h2>KEEPITIL Apparel</h2><a href="https://www.illestratedlifestyle.com" target="_blank" rel="noopener">Shopify store →</a></div>
+    <div class="grid" id="apparelGrid"></div>
+  </section>
+</div></div>
+
+<!-- COMMUNITY MARKETPLACE -->
+<div class="view" id="view-market"><div class="wrap">
+  <div class="sell"><div><b>Sell your stuff on KEEPITIL</b><p>Gear, tickets, vinyl, merch, services — list it to the community.</p></div><a href="/v3/apply.html">Start selling</a></div>
+  <section><div class="grid" id="marketGrid"></div></section>
+</div></div>
+
+<script>
+(function(){
+  var tabs=document.querySelectorAll('.st'), views={apparel:'view-apparel',market:'view-market'};
+  function setView(v){tabs.forEach(function(t){t.classList.toggle('active',t.dataset.view===v);});Object.keys(views).forEach(function(k){document.getElementById(views[k]).classList.toggle('on',k===v);});window.scrollTo({top:0});}
+  tabs.forEach(function(t){t.addEventListener('click',function(){setView(t.dataset.view);});});
+  document.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});c.classList.add('on');});});
+
+  // KEEPITIL apparel (from Shopify, POD) — representative until wired to live catalog
+  var AP=[['Logo Tee','$32','Black · Tee'],['Underground Hoodie','$58','Black · Hoodie'],['SoCal Crewneck','$50','Bone · Crewneck'],['KEEPITIL Dad Hat','$30','Black · Hat'],['Straight From The Underground Tee','$34','Black · Tee'],['Techno Line Tee','$32','Black · Tee'],['Beanie','$28','Black · Beanie'],['Festival Oversized Tee','$36','Bone · Tee']];
+  var g=document.getElementById('apparelGrid');
+  AP.forEach(function(p){var d=document.createElement('a');d.className='card';d.href='https://www.illestratedlifestyle.com';d.target='_blank';d.rel='noopener';d.innerHTML='<div class="ph">KEEPITIL</div><div class="b"><h3>'+p[0]+'</h3><div class="price">'+p[1]+'</div><div class="meta">'+p[2]+'</div></div>';g.appendChild(d);});
+
+  // community marketplace listings — representative (Facebook-Marketplace style)
+  var MK=[['Pioneer CDJ-2000 (pair)','$1,400','@djnova · LA · Gear'],['2x EDC Tickets','$320','@raver_oc · OC · Tickets'],['Vinyl bundle — techno','$85','@wax_la · DTLA · Vinyl'],['KAOSS Pad KP3','$180','@beatsmith · Long Beach · Gear'],['Custom flyer design','$60','@design_kid · Remote · Services'],['Rave kandi lot','$25','@plur_life · OC · Merch'],['Beyond Wonderland ticket','$150','@festhead · SD · Tickets'],['DJ lessons (1hr)','$40','@mixmaster · LA · Services'],['Used monitor speaker','$90','@studio_rat · LA · Gear'],['Signed poster','$45','@collector · OC · Merch']];
+  var m=document.getElementById('marketGrid');
+  MK.forEach(function(p){var d=document.createElement('a');d.className='card mkt';d.href='/v3/apply.html';d.innerHTML='<div class="ph">PHOTO</div><span class="tag">FOR SALE</span><div class="b"><h3>'+p[0]+'</h3><div class="price">'+p[1]+'</div><div class="meta">'+p[2]+'</div></div>';m.appendChild(d);});
+})();
+</script>
+<script src="/v3/keepitil-ai.js" defer></script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
