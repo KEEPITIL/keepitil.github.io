@@ -24,6 +24,7 @@
         '<div class="v3-foot-inner"><a href="/v3/" class="v3-foot-brand">KEEPITIL</a>'
         +'<nav class="v3-foot-links"><a href="/v3/">Home</a><a href="/v3/culture">Culture</a>'
         +'<a href="/v3/scene.html">Scene</a><a href="/v3/shop.html">Shop</a>'
+        +'<a href="/v3/compete.html">Seasons</a><a href="/v3/crew.html">AI Crew</a>'
         +'<a href="/v3/apply.html">Login</a></nav>'
         +'<div class="v3-foot-social">IG · SC · TT</div></div>';
       document.body.appendChild(f);
