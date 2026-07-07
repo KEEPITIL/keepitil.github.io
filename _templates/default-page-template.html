@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAGE TITLE | KEEPITIL</title>
+  <meta name="description" content="PAGE DESCRIPTION — underground music, SoCal rave scene.">
+  <link rel="canonical" href="https://keepitil.com/PAGE-PATH">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="PAGE TITLE | KEEPITIL">
+  <meta property="og:description" content="PAGE DESCRIPTION">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://keepitil.com/PAGE-PATH">
+  <meta property="og:image" content="https://keepitil.com/logo-purple-nav.png">
+
+  <!-- AdSense (keep on all public pages) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── TOKENS ── */
+    :root {
+      --bg:      #0b0b0b;
+      --card:    #111111;
+      --border:  rgba(180,0,255,.15);
+      --purple:  #b400ff;
+      --grey:    #aaaaaa;
+      --white:   #f0f0f0;
+    }
+
+    /* ── BASE ── */
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      padding-bottom: 90px; /* room for SoundCloud bar */
+    }
+
+    /* ── NAV-STD ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,11,11,.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; height: 60px;
+    }
+    .nav-logo { flex-shrink: 0; text-decoration: none; }
+    .nav-links {
+      display: flex; flex: 1; justify-content: space-between;
+      align-items: center; list-style: none; padding-left: 32px;
+    }
+    .nav-links a {
+      color: var(--grey); text-decoration: none;
+      font-size: .85rem; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--purple); }
+    .nav-cta {
+      background: var(--purple) !important;
+      color: #fff !important;
+      padding: 7px 16px; border-radius: 4px;
+    }
+    .nav-cta:hover { opacity: .85; }
+    @media(max-width: 768px) { .nav-links { display: none; } }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 64px 24px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      letter-spacing: .05em;
+      color: var(--white);
+    }
+    .hero p {
+      margin-top: 12px;
+      color: var(--grey);
+      font-size: .95rem;
+      max-width: 600px;
+      margin-left: auto; margin-right: auto;
+    }
+
+    /* ── SECTION ── */
+    .section { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem; letter-spacing: .08em;
+      color: var(--purple);
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── CARDS GRID ── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex; flex-direction: column;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover {
+      border-color: var(--purple);
+      transform: translateY(-2px);
+    }
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem; letter-spacing: .06em;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .card-body { flex: 1; color: var(--grey); font-size: .875rem; }
+    .card-footer { margin-top: auto; padding-top: 16px; }
+    .card-link {
+      display: inline-block;
+      color: var(--purple);
+      font-size: .8rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      text-decoration: none;
+    }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── SOUNDCLOUD PLAYER BAR ── */
+    #radio-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: 80px; z-index: 200;
+      background: rgba(11,11,11,.97);
+      border-top: 1px solid var(--border);
+    }
+    #sc-player { width: 100%; height: 80px; border: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="/">
+        <img src="/logo-purple-nav.png" alt="KEEPITIL"
+             style="height:30px;width:auto;filter:drop-shadow(0 0 6px #b400ff);">
+      </a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/spotlight">Spotlight</a></li>
+        <li><a href="/artist/">Artists</a></li>
+        <li><a href="/brand">Brands</a></li>
+        <li><a href="/organizer">Organizers</a></li>
+        <li><a href="/events">Events</a></li>
+        <li><a href="/culture">Culture</a></li>
+        <li><a href="/apply.html" class="nav-cta">Apply</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <h1>PAGE HEADING</h1>
+    <p>Page subtitle / description text goes here.</p>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="section">
+    <h2 class="section-title">SECTION HEADING</h2>
+
+    <div class="cards-grid">
+      <!-- Card example -->
+      <div class="card">
+        <div class="card-title">Card Title</div>
+        <div class="card-body">Card description text goes here.</div>
+        <div class="card-footer">
+          <a class="card-link" href="/page-link">View →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── SOUNDCLOUD PLAYER ── -->
+  <!--
+    IMPORTANT: Keep this player on every section/index page.
+    It streams KEEPITIL radio 24/7. Do NOT remove.
+    auto_play=true ensures music resumes on each page load.
+    See SOP: _docs/SOUNDCLOUD-SOP.md
+  -->
+  <div id="radio-bar">
+    <iframe id="sc-player"
+      src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/PLAYLIST_ID&color=%23b400ff&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false"
+      allow="autoplay">
+    </iframe>
+  </div>
+
+  <!-- ── SCHEMA ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "PAGE TITLE | KEEPITIL",
+    "url": "https://keepitil.com/PAGE-PATH",
+    "description": "PAGE DESCRIPTION",
+    "publisher": {
+      "@type": "Organization",
+      "name": "KEEPITIL",
+      "url": "https://keepitil.com"
+    }
+  }
+  </script>
+
+<script src="/keepitil-ai.js" defer></script>
+</body>
+</html>
