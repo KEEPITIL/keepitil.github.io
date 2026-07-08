@@ -2,11 +2,13 @@
 <html lang="en" data-theme="default">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
 <meta name="robots" content="noindex,nofollow"/>
 <title>Article Title — KEEPITIL</title>
 <meta name="description" content="One-line SEO description of the article."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text,#f0f0f0);font-family:var(--font,'Inter',system-ui,sans-serif);line-height:1.7;padding-bottom:80px}
@@ -151,9 +153,23 @@ a.inline{color:var(--brand,#00b4ff);border-bottom:1px solid color-mix(in srgb,va
   C.reverse().forEach(function(c){var el=document.createElement('div');el.className='cmt';
     el.innerHTML='<div class="av">'+c[0]+'</div><div><div class="who">@'+c[1]+'<span>'+c[2]+'</span></div><div class="txt">'+c[3]+'</div></div>';
     box.insertBefore(el,cta);});
-  // Newsletter — wire to marketing_contacts on submit (placeholder handler)
+  // Newsletter — real capture into marketing_contacts (same pattern as index.html)
+  var KIL_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var KIL_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(KIL_URL,KIL_KEY); }catch(e){}
+  function utmp(k){ try{ return new URLSearchParams(location.search).get(k)||null; }catch(e){ return null; } }
+  function captureLead(email){
+    if(!sb||!email) return;
+    try{ sb.from('marketing_contacts').insert({
+      email:email, handle:null, source:'blog_newsletter',
+      landing_path:location.pathname, referrer:document.referrer||null,
+      utm_source:utmp('utm_source'), utm_medium:utmp('utm_medium'), utm_campaign:utmp('utm_campaign'),
+      user_agent:(navigator.userAgent||'').slice(0,400)
+    }).then(function(){}).catch(function(){}); }catch(e){}
+  }
   document.getElementById('nlForm').addEventListener('submit',function(){
     var e=document.getElementById('nlEmail').value; if(!e)return;
+    captureLead(e);
     this.innerHTML='<div style="color:var(--live,#00ff88);font-weight:800;padding:10px">You\'re on the list. See you in the underground.</div>';
   });
 })();
