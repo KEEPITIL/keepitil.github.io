@@ -960,10 +960,22 @@ function applyAgentProfile(){
 if(!IS_DEMO && !AGENT){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
+  /* Agent profile requested (?a=slug): resolve + render. NEVER bounce an agent URL to login —
+     if agents-data.js hasn't executed yet (load-order race on in-app navigations), retry until it has. */
+  if(AGENT_SLUG){
+    if(!AGENT && window.KEEPITIL_AGENTS){ AGENT=window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0]||null; }
+    if(AGENT){ applyAgentProfile(); return; }
+    var _at=0, _aiv=setInterval(function(){ _at++;
+      if(window.KEEPITIL_AGENTS){ var g=window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0];
+        if(g){ clearInterval(_aiv); AGENT=g; applyAgentProfile(); return; } }
+      if(_at>50){ clearInterval(_aiv); } /* ~5s; give up silently — never redirect an agent URL to login */
+    },100);
+    return;
+  }
   if(AGENT){ applyAgentProfile(); return; }
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
   applyProfile(); renderAll();
-  if(!PROFILE_SLUG){
+  if(!PROFILE_SLUG && !AGENT_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/create-profile.html'); } }).catch(function(){ location.replace('/create-profile.html'); }); }); }
     else { location.replace('/apply.html'); }
