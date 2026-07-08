@@ -405,7 +405,7 @@ function renderHighlights(){
   var r=document.getElementById('hl-row');if(!r)return;
   r.innerHTML=(PROFILE.highlights||[]).map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="'+h.img+'" alt="'+esc(h.label)+'" loading="lazy" onerror="this.style.opacity=.12"></div><span>'+esc(h.label)+'</span></div>';}).join('');
 }
-function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0)?v:'https://images.ra.co/'+v+'.jpg';}
+function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0||v.indexOf('/')===0)?v:'https://images.ra.co/'+v+'.jpg';}
 var GAL_IMGS=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
 function renderGallery(){
   var g=document.getElementById('gal-grid');if(!g)return;
@@ -947,7 +947,7 @@ function applyAgentProfile(){
         +'<div class="qa-item"><div class="qa-q">Recent wins</div><div class="qa-a">'+joinl(a.achievements)+'</div></div>'
         +'<div class="qa-item"><div class="qa-q">Coming up</div><div class="qa-a">'+joinl(a.upcoming)+'</div></div>'
         +'<div class="qa-item"><div class="qa-q">On rotation</div><div class="qa-a">'+joinl(a.genres)+'</div></div></div>' }];
-  GAL_IMGS=[]; GT_SHOWS=[]; GT_CHATS=[];
+  GAL_IMGS=(a.gallery||[]).map(function(gi){return ['/v3/agents/gallery/'+gi[0], gi[1]||a.name, gi[2]||'KEEPITIL'];}); GT_SHOWS=[]; GT_CHATS=[];
   applyProfile(); renderAll();
   document.title=a.name.toUpperCase()+' PROFILE';
   var pc=document.querySelector('.pf-cover'); if(pc) pc.style.background='linear-gradient(135deg,'+a.color+',#0b0b0b)';
