@@ -3,210 +3,67 @@
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
-  <meta name="description" content="KEEPITIL Shop — underground rave apparel and a member-to-member marketplace for the OC/LA EDM community.">
+  <meta name="description" content="KEEPITIL Shop — official underground rave apparel on our Shopify store. A member marketplace is coming soon.">
 <meta name="robots" content="noindex,nofollow"/>
 <title>Shop — KEEPITIL</title>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.55;padding-bottom:72px}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font);line-height:1.55;padding-bottom:72px}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--sp-3)}
-#shop-tabs{position:sticky;top:var(--nav-h,66px);z-index:400;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-#shop-tabs .in{max-width:var(--maxw);margin:0 auto;display:flex;gap:6px;padding:8px var(--sp-3);overflow-x:auto;scrollbar-width:none}
-#shop-tabs .in::-webkit-scrollbar{display:none}
-.st{flex:0 0 auto;background:none;border:0;color:var(--muted);font-family:var(--font);font-weight:800;font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;padding:9px 16px;border-radius:var(--radius-pill);cursor:pointer;white-space:nowrap}
-.st.active{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
-.st:not(.active):hover{color:var(--text)}
-.sep{flex:0 0 auto;width:1px;height:22px;background:var(--line);margin:0 4px}
-.chip{flex:0 0 auto;background:var(--surface-2);border:1px solid var(--line);color:var(--muted);font-weight:700;font-size:.74rem;padding:7px 13px;border-radius:var(--radius-pill);cursor:pointer;white-space:nowrap}
-.chip.on,.chip:hover{color:var(--brand);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
-.hero{padding:var(--sp-5) 0 var(--sp-3);text-align:center;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.55;background:radial-gradient(65% 85% at 50% 0%,color-mix(in srgb,var(--glow) 50%,transparent),transparent 72%)}
+.hero{padding:var(--sp-6) 0 var(--sp-4);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.6;background:radial-gradient(65% 85% at 50% 0%,color-mix(in srgb,var(--glow) 55%,transparent),transparent 72%)}
 .eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:var(--tracking-wide);color:var(--brand);border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 15px;margin-bottom:var(--sp-3)}
-.hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:900;line-height:1.0}
+.hero h1{font-size:clamp(2.4rem,6.5vw,4.4rem);font-weight:900;line-height:1.0}
 .hero h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);max-width:560px;margin:var(--sp-3) auto 0}
-section{padding:var(--sp-4) 0}
-.view{display:none}.view.on{display:block}
-.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:var(--sp-3)}
-.sec-head h2{font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800}
-.sec-head a{color:var(--brand);font-weight:700;font-size:.78rem;letter-spacing:.08em}
-.grid{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s,border-color .2s;position:relative}
-.card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
-.card .ph{aspect-ratio:1/1;background:linear-gradient(150deg,color-mix(in srgb,var(--brand) 35%,var(--surface-2)),color-mix(in srgb,var(--accent) 35%,var(--surface-2)));display:flex;align-items:center;justify-content:center;color:color-mix(in srgb,var(--text) 55%,transparent);font-weight:800;letter-spacing:.14em;font-size:.66rem;overflow:hidden}
-.card .ph img{width:100%;height:100%;object-fit:cover}
-.card.mkt .ph{background:linear-gradient(150deg,color-mix(in srgb,var(--purple) 40%,var(--surface-2)),color-mix(in srgb,var(--brand-2) 35%,var(--surface-2)))}
-.card .tag{position:absolute;top:8px;left:8px;background:var(--gold);color:#111;font-size:.58rem;font-weight:800;letter-spacing:.08em;padding:4px 8px;border-radius:6px;text-transform:uppercase}
-.card .b{padding:12px}
-.card h3{font-size:.95rem;font-weight:800}
-.card .price{font-weight:900;font-size:1.05rem;margin-top:2px}
-.card .meta{color:var(--muted);font-size:.74rem;margin-top:3px}
-.sell{background:linear-gradient(100deg,var(--brand),var(--brand-2));color:#0a0a0f;border-radius:var(--radius-lg);padding:var(--sp-4);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:var(--sp-3)}
-.sell b{font-size:1.15rem;font-weight:900}
-.sell p{font-size:.85rem;font-weight:600;opacity:.85}
-.sell button{background:#0a0a0f;color:var(--brand);font-weight:800;font-size:.8rem;letter-spacing:.05em;padding:11px 22px;border-radius:var(--radius-pill);border:0;cursor:pointer;font-family:var(--font)}
-.empty{text-align:center;color:var(--muted);padding:40px 20px;border:1px dashed var(--line);border-radius:var(--radius-lg)}
-/* list modal */
-.mov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px}
-.mov.on{display:flex}
-.modal{background:var(--surface);border:1px solid var(--line);border-radius:16px;width:100%;max-width:460px;max-height:90vh;overflow:auto}
-.mh{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;font-weight:900;font-size:1.15rem;border-bottom:1px solid var(--line)}
-.mx{background:none;border:0;color:var(--muted);font-size:1.5rem;cursor:pointer;line-height:1}
-.mb{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
-.mf{display:flex;flex-direction:column;gap:5px;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.mf input,.mf select,.mf textarea{font-family:var(--font);font-size:.95rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%}
-.mf input:focus,.mf select:focus,.mf textarea:focus{outline:none;border-color:var(--brand)}
-.mrow{display:flex;gap:10px}.mrow .mf{flex:1}
-.mfoot{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--line)}
-.mcancel{background:none;border:1px solid var(--line);color:var(--text);padding:10px 18px;border-radius:9px;font-weight:700;cursor:pointer}
-.msave{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;padding:10px 22px;border-radius:9px;font-weight:800;cursor:pointer}
-.mnote{font-size:.72rem;color:var(--muted);line-height:1.4}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--surface);color:var(--text);border:1px solid var(--line);padding:11px 18px;border-radius:10px;z-index:10000;font-size:.85rem}
+.hero p{color:var(--muted);max-width:560px;margin:var(--sp-3) auto 0;font-size:1.05rem}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:var(--sp-4)}
+.btn{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;letter-spacing:.02em;padding:16px 30px;border-radius:var(--radius-pill);transition:transform .15s,box-shadow .2s}
+.btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;box-shadow:0 10px 30px color-mix(in srgb,var(--brand) 40%,transparent)}
+.btn.primary:hover{transform:translateY(-2px)}
+.card{max-width:760px;margin:var(--sp-5) auto 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden}
+.card .band{height:200px;background:linear-gradient(135deg,color-mix(in srgb,var(--brand) 45%,var(--surface-2)),color-mix(in srgb,var(--accent) 45%,var(--surface-2)));display:flex;align-items:center;justify-content:center;position:relative}
+.card .band img{height:70px;width:auto;mix-blend-mode:screen;opacity:.95}
+.card .band .k{position:absolute;font-weight:900;font-size:6rem;letter-spacing:.1em;color:rgba(255,255,255,.08)}
+.card .b{padding:26px 28px;text-align:center}
+.card h2{font-size:1.5rem;font-weight:900}
+.card p{color:var(--muted);margin:8px auto 20px;max-width:480px}
+.soon{max-width:760px;margin:var(--sp-4) auto 0;background:color-mix(in srgb,var(--purple,#8b5cff) 8%,var(--surface));border:1px dashed color-mix(in srgb,var(--purple,#8b5cff) 40%,var(--line));border-radius:var(--radius-lg);padding:22px 26px;text-align:center}
+.soon .lbl{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent,#8b5cff)}
+.soon h3{font-size:1.15rem;font-weight:800;margin-top:6px}
+.soon p{color:var(--muted);font-size:.9rem;margin-top:6px}
 </style>
 </head>
 <body>
 
-<nav id="shop-tabs"><div class="in" id="shopIn">
-  <button class="st active" data-view="apparel">KEEPITIL Apparel</button>
-  <button class="st" data-view="market">Marketplace</button>
-  <span class="sep"></span>
-  <span class="chip on" data-c="all">All</span>
-  <span class="chip" data-c="gear">Gear</span>
-  <span class="chip" data-c="tickets">Tickets</span>
-  <span class="chip" data-c="vinyl">Vinyl</span>
-  <span class="chip" data-c="merch">Merch</span>
-  <span class="chip" data-c="services">Services</span>
-</div></nav>
-
 <header class="hero"><div class="wrap">
   <span class="eyebrow">THE SHOP</span>
   <h1>WEAR THE <span>UNDERGROUND.</span></h1>
-  <p>Official KEEPITIL apparel, plus a community marketplace where members buy and sell their gear.</p>
+  <p>Official KEEPITIL apparel — tees, hoodies, crewnecks, and headwear — on our Shopify store.</p>
+  <div class="cta-row">
+    <a class="btn primary" href="https://www.illestratedlifestyle.com" target="_blank" rel="noopener">Shop the KEEPITIL store &#8599;</a>
+  </div>
 </div></header>
 
-<div class="view on" id="view-apparel"><div class="wrap">
-  <section><div class="sec-head"><h2>KEEPITIL Apparel</h2><a href="https://www.illestratedlifestyle.com" target="_blank" rel="noopener">Shopify store →</a></div>
-    <div class="grid" id="apparelGrid"></div>
-  </section>
-</div></div>
-
-<div class="view" id="view-market"><div class="wrap">
-  <div class="sell"><div><b>Sell your stuff on KEEPITIL</b><p>Gear, tickets, vinyl, merch, services — list it, arrange local pickup with the community. Free.</p></div><button id="listBtn">List an item</button></div>
-  <section><div class="grid" id="marketGrid"></div></section>
-</div></div>
-
-<!-- LIST ITEM MODAL -->
-<div class="mov" id="listMov"><div class="modal">
-  <div class="mh">List an item<button class="mx" id="listX">&times;</button></div>
-  <div class="mb">
-    <label class="mf"><span>Title</span><input id="lTitle" type="text" placeholder="Pioneer CDJ-2000 (pair)" maxlength="80"/></label>
-    <div class="mrow">
-      <label class="mf"><span>Price (USD)</span><input id="lPrice" type="number" min="0" placeholder="200"/></label>
-      <label class="mf"><span>Category</span><select id="lCat"><option value="gear">Gear</option><option value="tickets">Tickets</option><option value="vinyl">Vinyl</option><option value="merch">Merch</option><option value="services">Services</option></select></label>
+<div class="wrap">
+  <a class="card" href="https://www.illestratedlifestyle.com" target="_blank" rel="noopener">
+    <div class="band"><span class="k">K</span><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/></div>
+    <div class="b">
+      <h2>KEEPITIL Apparel</h2>
+      <p>Straight-from-the-underground designs, printed on demand and shipped by our Shopify store, Illestrated Lifestyle.</p>
+      <span class="btn primary">Browse the full collection &#8599;</span>
     </div>
-    <label class="mf"><span>Location (city)</span><input id="lLoc" type="text" placeholder="Los Angeles, CA"/></label>
-    <label class="mf"><span>Description</span><textarea id="lDesc" rows="3" placeholder="Condition, details, meetup preference..."></textarea></label>
-    <label class="mf"><span>Photo URL (optional)</span><input id="lPhoto" type="text" placeholder="https://..."/></label>
-    <div class="mnote">Phase 1 is <b>local pickup</b> — you arrange the handoff and payment (cash) with the buyer in the chat. Shipped/escrow checkout comes next. Nothing explicit or prohibited.</div>
+  </a>
+
+  <div class="soon">
+    <div class="lbl">Coming soon &#183; V4</div>
+    <h3>KEEPITIL Member Marketplace</h3>
+    <p>A community marketplace to buy and sell gear, tickets, vinyl, and merch with other members — in the works for V4.</p>
   </div>
-  <div class="mfoot"><button class="mcancel" id="listCancel">Cancel</button><button class="msave" id="listSave">Post listing</button></div>
-</div></div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(function(){
-  var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
-  var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
-  var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
-  var SESSION=null;
-
-  var tabs=document.querySelectorAll('.st'), views={apparel:'view-apparel',market:'view-market'};
-  function setView(v){tabs.forEach(function(t){t.classList.toggle('active',t.dataset.view===v);});Object.keys(views).forEach(function(k){document.getElementById(views[k]).classList.toggle('on',k===v);});window.scrollTo({top:0});}
-  tabs.forEach(function(t){t.addEventListener('click',function(){setView(t.dataset.view);});});
-
-  var curCat='all';
-  document.querySelectorAll('.chip').forEach(function(c){c.addEventListener('click',function(){document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on');});c.classList.add('on');curCat=c.dataset.c;renderMarket();});});
-
-  // apparel (representative)
-  var AP=[['Logo Tee','$32','Black · Tee'],['Underground Hoodie','$58','Black · Hoodie'],['SoCal Crewneck','$50','Bone · Crewneck'],['KEEPITIL Dad Hat','$30','Black · Hat'],['Straight From The Underground Tee','$34','Black · Tee'],['Techno Line Tee','$32','Black · Tee'],['Beanie','$28','Black · Beanie'],['Festival Oversized Tee','$36','Bone · Tee']];
-  var g=document.getElementById('apparelGrid');
-  AP.forEach(function(p){var d=document.createElement('a');d.className='card';d.href='https://www.illestratedlifestyle.com';d.target='_blank';d.rel='noopener';d.innerHTML='<div class="ph">KEEPITIL</div><div class="b"><h3>'+p[0]+'</h3><div class="price">'+p[1]+'</div><div class="meta">'+p[2]+'</div></div>';g.appendChild(d);});
-
-  // sample listings (fallback until a real one is posted)
-  var SAMPLE=[
-    {title:'Pioneer CDJ-2000 (pair)',price:1400,category:'gear',location:'LA',handle:'djnova',photo:''},
-    {title:'2x EDC Tickets',price:320,category:'tickets',location:'OC',handle:'raver_oc',photo:''},
-    {title:'Vinyl bundle — techno',price:85,category:'vinyl',location:'DTLA',handle:'wax_la',photo:''},
-    {title:'KAOSS Pad KP3',price:180,category:'gear',location:'Long Beach',handle:'beatsmith',photo:''},
-    {title:'Custom flyer design',price:60,category:'services',location:'Remote',handle:'design_kid',photo:''},
-    {title:'Rave kandi lot',price:25,category:'merch',location:'OC',handle:'plur_life',photo:''},
-    {title:'DJ lessons (1hr)',price:40,category:'services',location:'LA',handle:'mixmaster',photo:''},
-    {title:'Signed poster',price:45,category:'merch',location:'OC',handle:'collector',photo:''}
-  ];
-  var LISTINGS=SAMPLE.slice();
-
-  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function money(n){return '$'+Number(n||0).toLocaleString();}
-  function renderMarket(){
-    var m=document.getElementById('marketGrid');
-    var list=LISTINGS.filter(function(l){return curCat==='all'||l.category===curCat;});
-    if(!list.length){m.innerHTML='<div class="empty">No listings in this category yet. <b>List an item</b> to be first.</div>';return;}
-    m.innerHTML=list.map(function(l){
-      var ph=l.photo?'<img src="'+esc(l.photo)+'" alt="" onerror="this.remove()">':'PHOTO';
-      var who='@'+esc(l.handle||'member')+' · '+esc(l.location||'Local')+' · '+esc((l.category||'').charAt(0).toUpperCase()+(l.category||'').slice(1));
-      var href=l.handle?('/u.html?slug='+encodeURIComponent(l.handle)):'/v3/apply.html';
-      return '<a class="card mkt" href="'+href+'"><div class="ph">'+ph+'</div><span class="tag">For sale</span><div class="b"><h3>'+esc(l.title)+'</h3><div class="price">'+money(l.price)+'</div><div class="meta">'+who+'</div></div></a>';
-    }).join('');
-  }
-  renderMarket();
-
-  // load real listings from Supabase (fallback keeps samples)
-  function loadListings(){
-    if(!SB)return;
-    SB.from('marketplace_listings').select('*').eq('status','active').order('created_at',{ascending:false}).then(function(r){
-      if(r&&!r.error&&r.data&&r.data.length){ LISTINGS=r.data.map(function(x){return {title:x.title,price:x.price_cents/100,category:x.category,location:x.location,handle:x.handle,photo:(x.photos&&x.photos[0])||''};}); renderMarket(); }
-    }).catch(function(){});
-  }
-  if(SB){ SB.auth.getSession().then(function(r){SESSION=(r&&r.data)?r.data.session:null;}); loadListings(); }
-
-  function toast(msg){var t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.remove();},2800);}
-
-  // list modal
-  var mov=document.getElementById('listMov');
-  function openList(){
-    if(!SB){ location.href='/v3/apply.html'; return; }
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null;
-      if(!SESSION){ toast('Log in to list an item.'); setTimeout(function(){location.href='/v3/apply.html';},900); return; }
-      mov.classList.add('on');
-    });
-  }
-  function closeList(){mov.classList.remove('on');}
-  document.getElementById('listBtn').addEventListener('click',openList);
-  document.getElementById('listX').addEventListener('click',closeList);
-  document.getElementById('listCancel').addEventListener('click',closeList);
-  mov.addEventListener('click',function(e){if(e.target===mov)closeList();});
-  document.getElementById('listSave').addEventListener('click',function(){
-    var title=document.getElementById('lTitle').value.trim();
-    var price=parseFloat(document.getElementById('lPrice').value)||0;
-    var cat=document.getElementById('lCat').value;
-    var loc=document.getElementById('lLoc').value.trim();
-    var desc=document.getElementById('lDesc').value.trim();
-    var photo=document.getElementById('lPhoto').value.trim();
-    if(!title||!price){toast('Add a title and price.');return;}
-    if(!SB||!SESSION){toast('Log in to list.');return;}
-    var row={title:title,price_cents:Math.round(price*100),category:cat,location:loc,description:desc,photos:photo?[photo]:[],type:'local',status:'active',seller_id:SESSION.user.id};
-    SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data) row.handle=rr.data; }).catch(function(){}).then(function(){
-      return SB.from('marketplace_listings').insert(row);
-    }).then(function(r){
-      if(r&&r.error){toast('Could not post: '+(r.error.message||'error'));return;}
-      toast('Listing posted.');closeList();loadListings();setView('market');
-    }).catch(function(){toast('Could not post the listing.');});
-  });
-})();
-</script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
