@@ -379,21 +379,14 @@
         });
     }
 
-    // Intercept link clicks
-    document.addEventListener('click',function(e){
-      var a=e.target.closest('a');
-      if(!a||!a.href)return;
-      var t=a.target;
-      if(t==='_blank'||t==='_parent'||t==='_top')return;
-      try{
-        var u=new URL(a.href,location.href);
-        if(u.origin!==location.origin)return;
-        if(SKIP.test(u.pathname))return;
-        if(u.pathname===location.pathname&&u.hash)return; // same-page anchor
-        e.preventDefault();
-        pjaxNav(u.href);
-      }catch(ex){}
-    },true);
+    // PJAX link interception DISABLED 2026-07-08 (Atlas). It swapped the page <body> without
+    // re-running EXTERNAL scripts, which (a) dropped the universal v3-shell nav/footer on every
+    // in-app navigation (P1) and (b) re-ran agent.html's init with the wrong location + without
+    // agents-data.js, bouncing crew-card clicks to login (P0). All internal links now do normal
+    // full navigations; the radio hands off its track/position across loads via the sessionStorage
+    // 'kil_hand' beforeunload→restore path, so playback stays continuous. pjaxNav() is left defined
+    // (unused) in case a shell-aware version is revived later.
+    /* pjax intercept removed — see note above */
 
     // Handle browser back/forward
     window.addEventListener('popstate',function(e){
