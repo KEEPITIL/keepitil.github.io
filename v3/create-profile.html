@@ -80,9 +80,9 @@ function say(t,ok){ MSG.textContent=t; MSG.className='msg '+(ok?'ok':'err'); }
   if(!supa) return;
   supa.auth.getSession().then(function(r){
     var s=r&&r.data?r.data.session:null;
-    if(!s){ location.replace('/apply.html'); return; }
+    if(!s){ location.replace('/v3/apply.html'); return; }
     supa.rpc('my_profile_slug').then(function(rr){
-      if(rr&&!rr.error&&rr.data){ location.replace('/u.html?slug='+encodeURIComponent(rr.data)); }
+      if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); }
     }).catch(function(){});
     var dn=(s.user.email||'').split('@')[0]||'';
     if(dn && !$('display').value) $('display').value = dn.replace(/[._-]+/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
@@ -106,13 +106,13 @@ $('create-btn').addEventListener('click',function(){
     if(r&&r.error){
       var m=r.error.message||'';
       if(/taken/i.test(m)) say('That handle is taken — try another.');
-      else if(/authenticated/i.test(m)){ say('Please log in again.'); setTimeout(function(){location.replace('/apply.html');},1200); }
+      else if(/authenticated/i.test(m)){ say('Please log in again.'); setTimeout(function(){location.replace('/v3/apply.html');},1200); }
       else say(m);
       b.disabled=false; b.textContent='CREATE PROFILE';
     } else {
       var slug=r.data||handle;
       say('Profile created! Opening it…',true);
-      location.replace('/u.html?slug='+encodeURIComponent(slug));
+      location.replace('/v3/u.html?slug='+encodeURIComponent(slug));
     }
   }).catch(function(){ say('Could not create profile — try again.'); b.disabled=false; b.textContent='CREATE PROFILE'; });
 });
