@@ -3,6 +3,11 @@
    tokens. Replaces per-page headers/footers; keepitil-ai.js nav is neutralized. */
 (function(){
   try{var _st=localStorage.getItem('kil-v3theme'); if(_st) document.documentElement.setAttribute('data-theme',_st);}catch(e){}
+  /* Google Analytics 4 — site-wide on V3 (property "keepitil", stream "KEEPITIL Web"). Added 2026-07-09. */
+  try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
+    var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
+    window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
+  } }catch(e){}
   var NAV=[['/v3/','Home'],['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
