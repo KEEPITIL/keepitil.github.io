@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Create an Event — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
+.wrap{max-width:760px;margin:0 auto;padding:0 var(--sp-3,20px)}
+.hero{padding:var(--sp-6,80px) 0 var(--sp-3,20px);text-align:center}
+.eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.14em;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:6px 15px;margin-bottom:16px}
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;line-height:1}
+h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);max-width:540px;margin:14px auto 0;font-size:1rem}
+.gate{max-width:460px;margin:40px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
+.gate h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.gate p{color:var(--muted);margin-bottom:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 24px;margin-top:24px}
+.card h3{font-size:1.05rem;font-weight:800;margin-bottom:4px}
+.card .note{color:var(--muted);font-size:.85rem;margin-bottom:16px}
+label{display:block;font-size:.8rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input,textarea,select{width:100%;background:var(--bg,#0d0d13);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:400 .95rem Inter,sans-serif;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--brand)}
+textarea{min-height:96px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+.tier{border:1px dashed var(--line);border-radius:14px;padding:16px;margin-top:14px;position:relative}
+.tier .rm{position:absolute;top:10px;right:12px;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem}
+.addtier{margin-top:14px;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer}
+.addtier:hover{border-color:var(--brand);color:var(--brand)}
+.hint{font-size:.78rem;color:var(--muted);margin-top:6px}
+.submit{width:100%;margin-top:22px;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:15px;font-weight:800;font-size:1rem;cursor:pointer}
+.submit:disabled{opacity:.6;cursor:default}
+.msg{margin-top:14px;font-size:.9rem;min-height:1.2em}
+.msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none}
+.btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
+.btn.ghost{border:2px solid var(--line);color:var(--text)}
+.done{max-width:520px;margin:44px auto;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:40px 28px}
+.done .big{font-size:3rem}
+.tier-badge{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);border:1px solid var(--line);border-radius:20px;padding:3px 9px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <span class="eyebrow">KEEPITIL EVENTS</span>
+  <h1>Create an <span>event</span></h1>
+  <p class="sub">List your event on KEEPITIL. We surface it across the Scene, homepage, radio bar, and your profile — and our AI crew can make you a free flyer + promo. Submit it and our team reviews before it goes live.</p>
+</div></header>
+
+<div class="wrap">
+  <!-- not-logged-in gate -->
+  <div class="gate" id="gate" style="display:none">
+    <h2>Log in to create an event</h2>
+    <p>You'll need a KEEPITIL account. Free members can list events; selling tickets is a Community perk.</p>
+    <a class="btn primary" href="/v3/apply.html">Log in / Join</a>
+  </div>
+
+  <!-- form -->
+  <form id="form" style="display:none">
+    <div class="card">
+      <h3>Event details</h3>
+      <div class="note">The essentials. You can edit after review.</div>
+      <label>Event title *</label>
+      <input id="title" maxlength="160" placeholder="e.g. KEEPITIL Presents: Warehouse 04" required/>
+      <label>Tagline</label>
+      <input id="tagline" placeholder="One line that sells it"/>
+      <div class="row">
+        <div><label>Date &amp; time *</label><input id="starts_at" type="datetime-local" required/></div>
+        <div><label>City</label><input id="city" placeholder="Los Angeles" value="Los Angeles"/></div>
+      </div>
+      <label>Venue</label>
+      <input id="venue" placeholder="Venue name / area (kept private until you choose to reveal)"/>
+      <label>Cover image URL</label>
+      <input id="cover_url" placeholder="https://…  (or leave blank — we can design one)"/>
+      <label>Genres</label>
+      <input id="genres" placeholder="Techno, Melodic, House…"/>
+      <label>Description</label>
+      <textarea id="description" placeholder="Lineup, vibe, what to expect…"></textarea>
+    </div>
+
+    <div class="card">
+      <h3>Tickets</h3>
+      <div class="note">Add one or more tiers. For each paid tier, paste a <b>Stripe Payment Link</b> (create it in your Stripe dashboard) — that's the checkout. Free/RSVP tiers can skip it. <em>Selling tickets requires a Community membership.</em></div>
+      <div id="tiers"></div>
+      <button type="button" class="addtier" id="addtier">+ Add ticket tier</button>
+    </div>
+
+    <button type="submit" class="submit" id="submitBtn">Submit event for review</button>
+    <div class="msg" id="msg"></div>
+    <div class="hint">By submitting you agree to the <a href="/v3/terms.html">Terms</a>. Nothing publishes until the KEEPITIL team approves it.</div>
+  </form>
+
+  <!-- success -->
+  <div class="done" id="done" style="display:none">
+    <div class="big">🎉</div>
+    <h2 style="font-size:1.4rem;font-weight:900;margin:8px 0">Submitted!</h2>
+    <p style="color:var(--muted);margin-bottom:20px">Your event is in review. Once approved it appears in the Scene, on your profile, and in the radio-bar "List Your Event" slot — and our crew can whip up a flyer + promo.</p>
+    <a class="btn ghost" href="/v3/scene.html">Back to the Scene</a>
+  </div>
+</div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+var MY_HANDLE=null;
+
+function tierHtml(i){
+  return '<div class="tier" data-i="'+i+'">'+(i>0?'<button type="button" class="rm" title="Remove">✕</button>':'')+
+    '<span class="tier-badge">Tier '+(i+1)+'</span>'+
+    '<label>Name</label><input class="t-name" placeholder="General Admission"/>'+
+    '<div class="row"><div><label>Price (USD)</label><input class="t-price" type="number" min="0" step="1" placeholder="0"/></div>'+
+    '<div><label>Quantity</label><input class="t-qty" type="number" min="1" step="1" placeholder="Unlimited"/></div></div>'+
+    '<label>Stripe Payment Link (for paid tiers)</label><input class="t-link" placeholder="https://buy.stripe.com/…"/>'+
+    '</div>';
+}
+var tierCount=0;
+function addTier(){ var d=document.createElement('div'); d.innerHTML=tierHtml(tierCount); var el=d.firstChild; $('tiers').appendChild(el); var rm=el.querySelector('.rm'); if(rm) rm.addEventListener('click',function(){el.remove();}); tierCount++; }
+
+function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,60)+'-'+Math.random().toString(36).slice(2,6); }
+
+async function init(){
+  if(!supa){ $('gate').style.display='block'; return; }
+  var r=await supa.auth.getSession().catch(function(){return null;});
+  var s=r&&r.data?r.data.session:null;
+  if(!s){ $('gate').style.display='block'; return; }
+  // resolve handle
+  try{ var email=s.user&&s.user.email; if(email){ var q=await supa.from('app_users').select('handle').eq('email',email).maybeSingle(); if(q&&q.data&&q.data.handle) MY_HANDLE=q.data.handle; } }catch(e){}
+  $('form').style.display='block'; addTier();
+}
+
+$('addtier').addEventListener('click',addTier);
+
+$('form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var msg=$('msg'); msg.className='msg'; msg.textContent='';
+  var title=$('title').value.trim();
+  if(!title){ msg.className='msg err'; msg.textContent='Add an event title.'; return; }
+  var b=$('submitBtn'); b.disabled=true; b.textContent='Submitting…';
+  try{
+    var ev={ slug:slugify(title), owner_handle:MY_HANDLE, title:title, tagline:$('tagline').value.trim()||null,
+      description:$('description').value.trim()||null, venue:$('venue').value.trim()||null, city:$('city').value.trim()||'Los Angeles',
+      starts_at:$('starts_at').value?new Date($('starts_at').value).toISOString():null, cover_url:$('cover_url').value.trim()||null,
+      genres:$('genres').value.trim()||null, status:'review' };
+    var ins=await supa.from('events').insert(ev).select('id').single();
+    if(ins.error) throw ins.error;
+    var eventId=ins.data.id;
+    var tiers=[];
+    document.querySelectorAll('#tiers .tier').forEach(function(t,idx){
+      var name=(t.querySelector('.t-name').value||'General Admission').trim();
+      var price=parseInt(t.querySelector('.t-price').value||'0',10)||0;
+      var qty=t.querySelector('.t-qty').value?parseInt(t.querySelector('.t-qty').value,10):null;
+      var link=(t.querySelector('.t-link').value||'').trim()||null;
+      tiers.push({event_id:eventId,name:name,price_cents:price*100,qty_total:qty,stripe_payment_link:link,sort:idx});
+    });
+    if(tiers.length){ var ti=await supa.from('ticket_tiers').insert(tiers); if(ti.error) throw ti.error; }
+    $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
+  }catch(err){
+    b.disabled=false; b.textContent='Submit event for review';
+    msg.className='msg err'; msg.textContent='Could not submit: '+(err.message||err)+'. If this persists, you may need a Community membership to create events.';
+  }
+});
+
+init();
+</script>
+<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
