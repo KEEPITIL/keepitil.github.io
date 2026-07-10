@@ -927,8 +927,8 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   applyProfile(); renderAll();
   if(!PROFILE_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
-    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/create-profile.html'); } }).catch(function(){ location.replace('/create-profile.html'); }); }); }
-    else { location.replace('/apply.html'); }
+    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v3/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
+    else { location.replace('/v3/apply.html'); }
   } else if(SB){
     SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
     SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); }); });
