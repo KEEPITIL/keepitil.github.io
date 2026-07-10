@@ -16,7 +16,7 @@
   try{ if(!window.__kilFeedbackLoad){ window.__kilFeedbackLoad=1;
     var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/v3/keepitil-feedback.js'; document.head.appendChild(_fb);
   } }catch(e){}
-  var NAV=[['/v3/','Home'],['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop'],['/v3/join.html','Join']];
+  var NAV=[['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
     try{
