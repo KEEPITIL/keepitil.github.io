@@ -94,7 +94,7 @@
         {t:'🎵 Release on DistroKid',u:'https://distrokid.com/vip/seven/11538316'},
         {t:'🎟 List Your Event · Posh',u:'https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt'},
         {t:'💸 Earn on FreeCash',u:'https://freecash.com/r/Tuitea'},
-        {t:'🛒 Shop Rave Gear',u:'https://keepitil.com/shop.html'}
+        {t:'🛒 Shop Rave Gear',u:'https://www.illestratedlifestyle.com'}
       ];
       var i=0;
       setInterval(function(){
