@@ -12,7 +12,7 @@
   try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
     (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
   } }catch(e){}
-  var NAV=[['/v3/','Home'],['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
+  var NAV=[['/v3/','Home'],['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop'],['/v3/join.html','Join']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
     try{
