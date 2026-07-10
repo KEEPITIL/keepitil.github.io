@@ -54,6 +54,50 @@ main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 
 footer{text-align:center;padding:22px;border-top:1px solid var(--dark3);color:var(--grey);font-size:.75rem;}
 footer a{margin:0 5px;}
 @media(max-width:600px){.nav-links{display:none;}}
+/* ---- New-user plan picker (Join merged into Login) ---- */
+.scrollcue{display:block;margin-top:18px;font-size:.82rem;color:var(--grey);}
+.scrollcue a{font-weight:700;}
+.plans{max-width:1000px;margin:0 auto;padding:20px 18px 60px;}
+.plans-head{text-align:center;margin:10px 0 26px;}
+.plans-head .eyebrow{display:inline-block;font-family:var(--font-head);letter-spacing:.16em;color:var(--blue);font-size:.9rem;border:1px solid var(--dark3);border-radius:999px;padding:5px 15px;margin-bottom:12px;}
+.plans-head h2{font-family:var(--font-head);letter-spacing:.06em;font-size:2.4rem;line-height:1;}
+.plans-head p{color:var(--grey);font-size:.95rem;margin-top:8px;}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:720px){.plan-grid{grid-template-columns:1fr;max-width:440px;margin:0 auto;}}
+.plan-card{background:var(--dark);border:1px solid var(--dark3);border-radius:18px;padding:28px 26px;display:flex;flex-direction:column;}
+.plan-card.pro{border-color:color-mix(in srgb,var(--blue) 50%,var(--dark3));box-shadow:0 0 46px color-mix(in srgb,var(--blue) 12%,transparent);}
+.plan-badge{align-self:flex-start;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:14px;}
+.plan-badge.free{background:color-mix(in srgb,var(--grey) 22%,transparent);color:#cfcfd6;}
+.plan-badge.pro{background:color-mix(in srgb,var(--blue) 20%,transparent);color:var(--blue);}
+.plan-name{font-family:var(--font-head);letter-spacing:.04em;font-size:2rem;}
+.plan-price{margin:2px 0 4px;color:var(--grey);font-size:.95rem;}
+.plan-price strong{font-size:2rem;color:var(--white);font-family:var(--font-head);}
+.plan-mission{color:var(--grey);font-size:.9rem;margin-bottom:16px;}
+.plan-card ul{list-style:none;margin:6px 0 20px;padding:0;}
+.plan-card li{padding:7px 0;font-size:.9rem;display:flex;gap:9px;align-items:flex-start;color:#e7e7ee;}
+.plan-card li::before{content:"✓";color:var(--blue);font-weight:800;}
+.plan-card li.no{opacity:.5;}
+.plan-card li.no::before{content:"–";color:var(--grey);}
+.plan-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:auto;font-family:var(--font-head);letter-spacing:.06em;font-size:1.1rem;padding:13px 20px;border-radius:10px;text-decoration:none;transition:transform .15s,opacity .2s;}
+.plan-cta.primary{background:var(--blue);color:#04121b;}
+.plan-cta.primary:hover{transform:translateY(-2px);}
+.plan-cta.ghost{border:2px solid var(--dark3);color:var(--white);}
+.plan-cta.ghost:hover{border-color:var(--blue);color:var(--blue);}
+.plan-fine{color:var(--grey);font-size:.75rem;text-align:center;margin-top:10px;}
+.perks{margin-top:40px;}
+.perks h3{text-align:center;font-family:var(--font-head);letter-spacing:.08em;font-size:1.5rem;margin-bottom:6px;}
+.perks .sub{text-align:center;color:var(--grey);font-size:.88rem;margin-bottom:22px;}
+.perk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+@media(max-width:860px){.perk-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.perk-grid{grid-template-columns:1fr;}}
+.perk{background:var(--dark2);border:1px solid var(--dark3);border-radius:14px;padding:18px 16px;text-align:center;}
+.perk .ic{font-size:1.6rem;}
+.perk .t{font-weight:700;margin:8px 0 4px;font-size:.95rem;}
+.perk .d{color:var(--grey);font-size:.8rem;line-height:1.45;}
+.rewards-note{max-width:760px;margin:30px auto 0;background:color-mix(in srgb,var(--blue) 7%,var(--dark2));border:1px dashed color-mix(in srgb,var(--blue) 40%,var(--dark3));border-radius:14px;padding:16px 20px;text-align:center;font-size:.86rem;color:var(--grey);}
+.rewards-note b{color:var(--white);}
+.plans-legal{text-align:center;margin-top:26px;font-size:.82rem;}
+.plans-legal a{margin:0 7px;}
 </style>
 </head>
 <body>
@@ -77,7 +121,7 @@ footer a{margin:0 5px;}
       <a href="#" class="forgot" id="forgot-link">Forgot password?</a>
       <a href="/v3/u.html" class="portal-note" id="portal-note">You're already signed in — go to your profile &rarr;</a>
       <div class="divider">OR</div>
-      <div class="signup-row">Don't have an account? <a href="/v3/signup.html">Sign up</a></div>
+      <div class="scrollcue">New to KEEPITIL? <a href="#plans">Choose a plan below ↓</a></div>
     </div>
     <div id="reset-box">
       <div class="login-logo">KEEPITIL</div>
@@ -89,6 +133,67 @@ footer a{margin:0 5px;}
     </div>
   </div>
 </main>
+
+<section class="plans" id="plans">
+  <div class="plans-head">
+    <span class="eyebrow">NEW TO KEEPITIL?</span>
+    <h2>Pick your plan</h2>
+    <p>Join free to discover and build. Go Community when you're ready to sell, collaborate, and earn.</p>
+  </div>
+  <div class="plan-grid">
+    <div class="plan-card">
+      <span class="plan-badge free">Free forever</span>
+      <div class="plan-name">KEEPITIL Free</div>
+      <div class="plan-price"><strong>$0</strong></div>
+      <div class="plan-mission">Discover, participate, and grow.</div>
+      <ul>
+        <li>Create your profile</li>
+        <li>Follow creators &amp; RSVP to events</li>
+        <li>Read the culture blog &amp; join Scene Rooms</li>
+        <li>Comment, save favorites, get the newsletter</li>
+        <li>Submit events &amp; blog drafts (reviewed)</li>
+        <li class="no">Sell tickets, products &amp; services</li>
+        <li class="no">Creator analytics &amp; dashboard</li>
+        <li class="no">VIP perks &amp; Community Rewards</li>
+      </ul>
+      <a class="plan-cta ghost" href="/v3/signup.html">Create free account</a>
+    </div>
+    <div class="plan-card pro">
+      <span class="plan-badge pro">Most popular</span>
+      <div class="plan-name">KEEPITIL Community</div>
+      <div class="plan-price"><strong>$60</strong> / year</div>
+      <div class="plan-mission">Turn your presence into a business.</div>
+      <ul>
+        <li>Everything in Free</li>
+        <li>Sell tickets, products &amp; services</li>
+        <li>Partner &amp; collab on events and apps</li>
+        <li>Free entry &amp; perks to VIP community events</li>
+        <li>Creator analytics &amp; business dashboard</li>
+        <li>Community badge, featured placement, priority verification</li>
+        <li>AI business tools &amp; creator education</li>
+        <li>Community Rewards eligibility <em>(after legal review)</em></li>
+      </ul>
+      <a class="plan-cta primary" href="https://buy.stripe.com/fZu00jagB8PM40l3xH14400" target="_blank" rel="noopener">Become a Community Member — $60/yr</a>
+      <div class="plan-fine">Secure checkout by Stripe · cancel anytime · renews yearly</div>
+    </div>
+  </div>
+
+  <div class="perks">
+    <h3>What Community unlocks</h3>
+    <div class="sub">A few of the perks paid members get.</div>
+    <div class="perk-grid">
+      <div class="perk"><div class="ic">🎟️</div><div class="t">Sell &amp; earn</div><div class="d">List tickets, merch &amp; services and get paid through KEEPITIL.</div></div>
+      <div class="perk"><div class="ic">⭐</div><div class="t">VIP access</div><div class="d">Free entry &amp; perks to KEEPITIL community events.</div></div>
+      <div class="perk"><div class="ic">📈</div><div class="t">Creator tools</div><div class="d">Analytics, a business dashboard, and AI creator tools.</div></div>
+      <div class="perk"><div class="ic">💸</div><div class="t">Community Rewards</div><div class="d">Share in a slice of platform revenue by transparent rules.</div></div>
+    </div>
+    <div class="rewards-note">🎟️ <b>Community Rewards</b> — a share of qualifying platform revenue (ads, affiliate, tickets, sponsorship) is distributed to contributing Community members by published rules. It's a rewards program, <b>not an investment</b>, and launches after legal review.</div>
+  </div>
+
+  <div class="plans-legal">
+    <a href="/v3/terms.html">Terms</a>·<a href="/v3/privacy.html">Privacy</a>·<a href="/v3/refund.html">Refunds</a>
+  </div>
+</section>
 
 <footer>
   <a href="/v3/">KEEPITIL</a> <a href="/privacy.html">Privacy</a> · <a href="/v3/scene.html">Scene</a> · <a href="/v3/culture">Culture</a>
