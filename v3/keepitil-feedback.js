@@ -22,7 +22,7 @@
     if (document.getElementById('kil-fb-style')) return;
     var s = el('style', { id: 'kil-fb-style' });
     s.textContent =
-      '#kil-fb-btn{position:fixed;right:16px;bottom:74px;z-index:99998;display:flex;align-items:center;gap:7px;'
+      '#kil-fb-btn{position:fixed;right:16px;bottom:190px;z-index:99998;display:flex;align-items:center;gap:7px;'
       +'background:#111;color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 15px;'
       +'font:700 13px/1 Inter,system-ui,sans-serif;letter-spacing:.03em;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.45)}'
       +'#kil-fb-btn:hover{border-color:#00b4ff;color:#00b4ff}'
@@ -47,7 +47,7 @@
       +'padding:13px;font:800 14px Inter,sans-serif;cursor:pointer}'
       +'.kil-fb-x{background:transparent;color:#9a9aa6;border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:13px 16px;cursor:pointer;font-weight:700}'
       +'#kil-fb-done{text-align:center;padding:12px 0}#kil-fb-done .big{font-size:2.4rem}'
-      +'@media(max-width:600px){#kil-fb-btn{bottom:82px;padding:8px 13px;font-size:12px}}';
+      +'@media(max-width:600px){#kil-fb-btn{bottom:198px;padding:8px 13px;font-size:12px}}';
     document.head.appendChild(s);
   }
 
