@@ -138,12 +138,24 @@
   try{
     if(window.supabase && ev.slug){
       var sb=window.supabase.createClient(URL,KEY);
-      sb.from('events').select('*').eq('slug',ev.slug).limit(1).then(function(r){
+      sb.from('events').select('*').eq('slug',ev.slug).eq('status','published').limit(1).then(function(r){
         if(r&&r.data&&r.data[0]){ var x=r.data[0];
           ev.title=x.title||ev.title; ev.venue=x.venue||ev.venue; ev.city=x.city||ev.city;
-          ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genre||ev.genre;
-          ev.img=x.img||ev.img; ev.ticket=x.ticket||ev.ticket; ev.price=x.price||ev.price; ev.vip=x.vip||ev.vip;
+          ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genres||ev.genre;
+          ev.img=x.cover_url||ev.img;
           paint();
+          /* render ticket tiers (each with its Stripe Payment Link) before the Scene Room CTA */
+          sb.from('ticket_tiers').select('*').eq('event_id',x.id).order('sort').then(function(tr){
+            if(tr&&tr.data&&tr.data.length){
+              var box=$('ev-ctas'), pre='';
+              tr.data.forEach(function(t){
+                var pl = t.price_cents>0 ? ('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')) : 'Free';
+                if(t.stripe_payment_link){ pre+='<a class="cta cta-tix" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(t.stripe_payment_link)+'" target="_blank" rel="noopener">🎟 '+esc(t.name)+' — '+pl+'</a>'; }
+                else { pre+='<span class="cta cta-tix" style="opacity:.55;cursor:default">🎟 '+esc(t.name)+' — '+pl+'</span>'; }
+              });
+              box.innerHTML = pre + box.innerHTML;
+            }
+          }).catch(function(){});
         }
       }).catch(function(){});
     }
