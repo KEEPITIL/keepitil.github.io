@@ -376,7 +376,7 @@
   // ── CSS injection ────────────────────────────────────────────────────────────
   function injectStyles() {
     var css = [
-      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:58px;height:58px;border-radius:50%;',
+      '#kilo-btn{position:fixed;bottom:132px;right:24px;z-index:99998;width:58px;height:58px;border-radius:50%;',
       'background:linear-gradient(135deg,#00b4ff,#00ff88);border:none;cursor:pointer;',
       'box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);',
       'display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;',
@@ -389,7 +389,7 @@
       '@keyframes kilo-pulse{0%,100%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);}',
       '50%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 8px rgba(0,180,255,0);}}',
 
-      '#kilo-panel{position:fixed;bottom:134px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
+      '#kilo-panel{position:fixed;bottom:200px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
       'height:520px;max-height:calc(100vh - 150px);',
       'background:#0f0f1a;border:1px solid rgba(0,180,255,.18);border-radius:16px;',
       'display:flex;flex-direction:column;overflow:hidden;',
@@ -414,6 +414,9 @@
       'border-radius:50%;transition:background .15s,color .15s;padding:0;}',
       '#kilo-close:hover{background:rgba(255,255,255,.07);color:#e8e8f0;}',
       '#kilo-close svg{width:16px;height:16px;stroke:currentColor;fill:none;}',
+      '#kilo-fb{background:none;border:none;cursor:pointer;color:#666;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background .15s,color .15s;padding:0;}',
+      '#kilo-fb:hover{background:rgba(0,180,255,.12);color:#00b4ff;}',
+      '#kilo-fb svg{width:17px;height:17px;}',
 
       '#kilo-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}',
       '#kilo-msgs::-webkit-scrollbar{width:4px;}',
@@ -467,8 +470,8 @@
       'flex-shrink:0;transition:opacity .18s,transform .15s;}',
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
-      '@media(max-width:480px){#kilo-panel{bottom:134px;right:12px;width:calc(100vw - 24px);}',
-      '#kilo-btn{bottom:66px;right:16px;}}',
+      '@media(max-width:480px){#kilo-panel{bottom:200px;right:12px;width:calc(100vw - 24px);}',
+      '#kilo-btn{bottom:132px;right:16px;}}',
     ].join('');
 
     var s = document.createElement('style');
@@ -505,6 +508,9 @@
           '<div id="kilo-hname">Echo</div>',
           '<div id="kilo-hsub">KEEPITIL Intelligence</div>',
         '</div>',
+        '<button id="kilo-fb" aria-label="Send feedback" title="Send feedback">',
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+        '</button>',
         '<button id="kilo-close" aria-label="Close">',
           '<svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
         '</button>',
@@ -631,6 +637,13 @@
     var input = document.getElementById('kilo-input');
     var send  = document.getElementById('kilo-send');
     msgs = document.getElementById('kilo-msgs');
+
+    // Feedback lives on the chat now (the standalone Feedback pill is hidden).
+    var fbBtn = document.getElementById('kilo-fb');
+    if (fbBtn) fbBtn.addEventListener('click', function(){
+      if (window.KILfeedbackOpen) { window.KILfeedbackOpen(); }
+      else { location.href = 'mailto:hello@keepitil.com?subject=KEEPITIL%20Feedback'; }
+    });
 
     var isOpen = false;
 
