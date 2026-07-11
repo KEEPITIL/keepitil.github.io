@@ -23,10 +23,16 @@
       // remove existing header nav(s) + footer(s) + any injected mobile nav
       document.querySelectorAll('#main-nav, nav#main-nav, nav.main-nav, #v3shell-nav, footer, #kil-mnav, .kil-mnav').forEach(function(el){ el.remove(); });
       var links = NAV.map(function(n){ return '<a href="'+n[0]+'">'+n[1]+'</a>'; }).join('');
+      var cur=document.documentElement.getAttribute('data-theme')||'default';
+      var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
       hdr.innerHTML =
         '<div class="v3s-inner">'
-        +'<a href="/v3/" class="v3s-brand"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL">KEEPITIL</a>'
+        +'<div class="v3s-brand">'
+          +'<button class="v3s-logobtn" id="v3s-logobtn" title="Change style" aria-label="Change site style"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL"></button>'
+          +'<a href="/v3/" class="v3s-brandtext">KEEPITIL</a>'
+          +'<div class="v3t-pop" id="v3t-pop">'+swatches+'</div>'
+        +'</div>'
         +'<div class="v3s-links">'+links+'</div>'
         +'<a href="/v3/apply.html" class="v3s-cta">LOGIN</a>'
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
@@ -45,20 +51,19 @@
         +'<div class="v3-foot-social">IG · SC · TT</div></div>';
       document.body.appendChild(f);
 
-      // site-wide theme-style switcher (skip if a page already ships its own, e.g. profile pages)
-      if(!document.querySelector('.theme-fab') && !document.getElementById('v3-theme')){
-        var cur=document.documentElement.getAttribute('data-theme')||'default';
-        var tf=document.createElement('div'); tf.id='v3-theme';
-        tf.innerHTML='<button class="v3t-btn" aria-label="Change style" title="Change style">🎨</button>'
-          +'<div class="v3t-pop">'+THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('')+'</div>';
-        document.body.appendChild(tf);
-        tf.querySelector('.v3t-btn').addEventListener('click',function(){ tf.classList.toggle('open'); });
-        tf.querySelectorAll('.v3t-sw').forEach(function(sw){ sw.addEventListener('click',function(){
+      // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
+      // The "KEEPITIL" text is the home link only. (Old bottom-left 🎨 fab removed.)
+      var lb=hdr.querySelector('#v3s-logobtn'), pop=hdr.querySelector('#v3t-pop');
+      if(lb&&pop){
+        lb.addEventListener('click',function(e){ e.stopPropagation(); pop.classList.toggle('open'); });
+        pop.querySelectorAll('.v3t-sw').forEach(function(sw){ sw.addEventListener('click',function(e){
+          e.stopPropagation();
           var k=sw.dataset.t; document.documentElement.setAttribute('data-theme',k);
           try{ localStorage.setItem('kil-v3theme',k); }catch(e){}
-          tf.querySelectorAll('.v3t-sw').forEach(function(x){ x.classList.toggle('on',x===sw); });
-          tf.classList.remove('open');
+          pop.querySelectorAll('.v3t-sw').forEach(function(x){ x.classList.toggle('on',x===sw); });
+          pop.classList.remove('open');
         }); });
+        document.addEventListener('click',function(){ pop.classList.remove('open'); });
       }
 
       style();
@@ -77,8 +82,16 @@
     s.textContent=
      '#v3shell-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,18,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07)}'
     +'#v3shell-nav .v3s-inner{max-width:1400px;margin:0 auto;height:66px;display:flex;align-items:center;padding:0 32px}'
-    +'#v3shell-nav .v3s-brand{display:flex;align-items:center;gap:10px;font-family:"Bebas Neue",sans-serif;font-weight:400;letter-spacing:.13em;font-size:1.5rem;text-decoration:none;color:#fff}'
+    +'#v3shell-nav .v3s-brand{position:relative;display:flex;align-items:center;gap:10px}'
+    +'#v3shell-nav .v3s-logobtn{background:none;border:0;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;line-height:0}'
+    +'#v3shell-nav .v3s-logobtn:hover{filter:drop-shadow(0 0 8px var(--brand,#00b4ff))}'
+    +'#v3shell-nav .v3s-brandtext{font-family:"Bebas Neue",sans-serif;font-weight:400;letter-spacing:.13em;font-size:1.5rem;text-decoration:none;color:#fff}'
     +'#v3shell-nav .v3s-logo{height:44px;width:auto;mix-blend-mode:screen}'
+    +'#v3shell-nav .v3t-pop{display:none;position:absolute;top:52px;left:0;flex-direction:row;gap:9px;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:10px 12px;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:1001}'
+    +'#v3shell-nav .v3t-pop.open{display:flex}'
+    +'#v3shell-nav .v3t-sw{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.22);cursor:pointer;padding:0;transition:transform .15s}'
+    +'#v3shell-nav .v3t-sw:hover{transform:scale(1.12)}'
+    +'#v3shell-nav .v3t-sw.on{border-color:#fff;box-shadow:0 0 0 2px #fff}'
     +'#v3shell-nav .v3s-links{flex:1;display:flex;justify-content:space-evenly;align-items:center}'
     +'#v3shell-nav .v3s-links a{font-family:"Bebas Neue",sans-serif;color:rgba(255,255,255,.75);font-weight:400;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;white-space:nowrap;transition:color .2s}'
     +'#v3shell-nav .v3s-links a:hover{color:#fff}'
