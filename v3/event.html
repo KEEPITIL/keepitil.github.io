@@ -150,7 +150,13 @@
               var box=$('ev-ctas'), pre='';
               tr.data.forEach(function(t){
                 var pl = t.price_cents>0 ? ('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')) : 'Free';
-                if(t.price_cents>0){ pre+='<button class="cta cta-tix" style="border:0;cursor:pointer;font:inherit" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" data-tier="'+t.id+'">🎟 '+esc(t.name)+' — '+pl+'</button>'; }
+                if(t.price_cents>0){
+                  if(t.stripe_payment_link){ /* direct Stripe Payment Link — works with no backend (resilient to Edge Function outages) */
+                    pre+='<a class="cta cta-tix" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(t.stripe_payment_link)+'" target="_blank" rel="noopener">🎟 '+esc(t.name)+' — '+pl+'</a>';
+                  } else { /* KEEPITIL Connect checkout (auto 5% + $0.99 fee split via create-checkout) */
+                    pre+='<button class="cta cta-tix" style="border:0;cursor:pointer;font:inherit" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" data-tier="'+t.id+'">🎟 '+esc(t.name)+' — '+pl+'</button>';
+                  }
+                }
                 else { pre+='<span class="cta cta-tix" style="opacity:.55;cursor:default">🎟 '+esc(t.name)+' — Free</span>'; }
               });
               if(tr.data.some(function(t){return t.price_cents>0;})) pre+='<div style="font-size:.72rem;opacity:.6;margin:8px 0 0;flex-basis:100%">By purchasing you agree to the <a href="/v3/ticket-terms.html" style="color:var(--brand-2)">Ticket Terms</a> &amp; <a href="/v3/refund.html" style="color:var(--brand-2)">Refund Policy</a>.</div>';
