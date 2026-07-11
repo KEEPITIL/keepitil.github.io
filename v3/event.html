@@ -165,6 +165,13 @@
                     .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
                 });
               });
+              /* KILL SWITCH (client): platform_config.ticketing_enabled='0' disables buy buttons + shows a paused notice. Fail-open on read error; create-checkout enforces it server-side regardless. */
+              sb.from('platform_config').select('value').eq('key','ticketing_enabled').maybeSingle().then(function(cfgr){
+                if(cfgr&&cfgr.data&&String(cfgr.data.value)==='0'){
+                  box.querySelectorAll('.cta-tix[data-tier]').forEach(function(b){ b.disabled=true; b.style.opacity=.5; b.style.cursor='default'; });
+                  var n=document.createElement('div'); n.style.cssText='font-size:.74rem;opacity:.8;margin:8px 0 0;flex-basis:100%'; n.textContent='⏸ Ticket sales are temporarily paused. Check back soon.'; box.appendChild(n);
+                }
+              }).catch(function(){});
             }
           }).catch(function(){});
         }
