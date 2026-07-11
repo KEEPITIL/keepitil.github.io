@@ -150,10 +150,20 @@
               var box=$('ev-ctas'), pre='';
               tr.data.forEach(function(t){
                 var pl = t.price_cents>0 ? ('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')) : 'Free';
-                if(t.stripe_payment_link){ pre+='<a class="cta cta-tix" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(t.stripe_payment_link)+'" target="_blank" rel="noopener">🎟 '+esc(t.name)+' — '+pl+'</a>'; }
-                else { pre+='<span class="cta cta-tix" style="opacity:.55;cursor:default">🎟 '+esc(t.name)+' — '+pl+'</span>'; }
+                if(t.price_cents>0){ pre+='<button class="cta cta-tix" style="border:0;cursor:pointer;font:inherit" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" data-tier="'+t.id+'">🎟 '+esc(t.name)+' — '+pl+'</button>'; }
+                else { pre+='<span class="cta cta-tix" style="opacity:.55;cursor:default">🎟 '+esc(t.name)+' — Free</span>'; }
               });
               box.innerHTML = pre + box.innerHTML;
+              /* Stripe Connect checkout: each paid tier POSTs to create-checkout and redirects to hosted checkout */
+              box.querySelectorAll('.cta-tix[data-tier]').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                  btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
+                  fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:1})})
+                    .then(function(r){return r.json();})
+                    .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
+                    .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
+                });
+              });
             }
           }).catch(function(){});
         }
