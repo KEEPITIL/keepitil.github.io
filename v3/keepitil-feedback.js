@@ -90,6 +90,8 @@
     css();
     var btn = el('button', { id: 'kil-fb-btn', 'aria-label': 'Send feedback' }, '💬 Feedback');
     btn.addEventListener('click', open);
+    btn.style.display = 'none';            // pill hidden — feedback now lives inside the chat (Echo) widget
+    window.KILfeedbackOpen = open;         // exposed so the chat's feedback button can open this form
     document.body.appendChild(btn);
 
     var ov = el('div', { id: 'kil-fb-ov' });
