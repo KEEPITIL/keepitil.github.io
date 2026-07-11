@@ -2341,10 +2341,14 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function fmt(iso){ if(!iso) return ''; try{return new Date(iso).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}catch(e){return '';} }
-  fetch(SU+'/rest/v1/events?status=eq.published&order=starts_at.asc&select=slug,title,tagline,venue,city,starts_at,cover_url,genres',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}})
-  .then(function(r){return r.json();}).then(function(rows){
-    if(!rows||!rows.length||!rows.forEach) return;
-    var host=document.getElementById('kil-live-events'); if(!host) return;
+  var DEMO = new URLSearchParams(location.search).get('demo')==='1';
+  var demoRows=[
+    {slug:'demo1',title:'KEEPITIL Presents: Warehouse 04',venue:'Secret DTLA warehouse',city:'Los Angeles',starts_at:'2026-07-25T21:00:00-07:00',cover_url:null,genres:'Techno'},
+    {slug:'demo2',title:'Melodic Sundown Rooftop',venue:'Arts District rooftop',city:'Los Angeles',starts_at:'2026-08-02T18:00:00-07:00',cover_url:null,genres:'Melodic'},
+    {slug:'demo3',title:'Bass Cathedral',venue:'Santa Ana',city:'Orange County',starts_at:'2026-08-15T22:00:00-07:00',cover_url:null,genres:'Dubstep'}
+  ];
+  function render(rows){
+    var host=document.getElementById('kil-live-events'); if(!host||!rows||!rows.length) return;
     host.innerHTML=rows.map(function(e){
       var params='e='+encodeURIComponent(e.slug)+'&t='+encodeURIComponent(e.title||'')+(e.venue?'&v='+encodeURIComponent(e.venue):'')+(e.city?'&c='+encodeURIComponent(e.city):'')+(e.starts_at?'&d='+encodeURIComponent((e.starts_at||'').slice(0,10)):'')+(e.cover_url?'&img='+encodeURIComponent(e.cover_url):'');
       var bg=e.cover_url?('background-image:url('+esc(e.cover_url)+');background-size:cover;background-position:center;'):'background:linear-gradient(135deg,#12121a,#1c1c28);';
@@ -2358,7 +2362,11 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
         +'</div></a>';
     }).join('');
     var sec=document.getElementById('kil-live-sec'); if(sec) sec.style.display='';
-  }).catch(function(){});
+  }
+  fetch(SU+'/rest/v1/events?status=eq.published&order=starts_at.asc&select=slug,title,tagline,venue,city,starts_at,cover_url,genres',{headers:{apikey:KEY,Authorization:'Bearer '+KEY}})
+  .then(function(r){return r.json();}).then(function(rows){
+    render((rows&&rows.length&&rows.forEach)?rows:(DEMO?demoRows:[]));
+  }).catch(function(){ if(DEMO) render(demoRows); });
 })();
 </script>
   <script src="/v3/keepitil-create-fab.js" defer></script>
