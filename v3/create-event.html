@@ -127,14 +127,32 @@ function addTier(){ var d=document.createElement('div'); d.innerHTML=tierHtml(ti
 
 function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,60)+'-'+Math.random().toString(36).slice(2,6); }
 
+async function startPayouts(btn){
+  try{
+    if(btn){ btn.disabled=true; btn.textContent='Opening Stripe…'; }
+    var r=await supa.auth.getSession(); var s=r&&r.data?r.data.session:null; if(!s) return;
+    var resp=await fetch(SUPA_URL+'/functions/v1/connect-onboard',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+s.access_token}});
+    var d=await resp.json();
+    if(d&&d.url){ location.href=d.url; } else { if(btn){btn.disabled=false;btn.textContent='Set up payouts';} alert(d&&d.error?('Payouts: '+d.error):'Could not start payout setup.'); }
+  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Set up payouts';} alert('Could not start payout setup.'); }
+}
+function payoutsPanel(connected){
+  var wrap=document.createElement('div'); wrap.className='card'; wrap.style.marginBottom='18px';
+  if(connected){ wrap.innerHTML='<div class="tier-badge">Payouts</div><h3>Payouts connected &#10003;</h3><p class="note">You can sell tickets — KEEPITIL keeps 5% + $0.99 and Stripe pays the rest to your bank.</p>'; }
+  else { wrap.innerHTML='<div class="tier-badge">Payouts</div><h3>Set up payouts to sell tickets</h3><p class="note">Connect a Stripe account (about 2 minutes) so paid ticket money lands in your bank. Free events don\'t need this.</p><button type="button" class="addtier" id="payoutsBtn">Set up payouts</button>'; }
+  var form=$('form'); form.parentNode.insertBefore(wrap, form);
+  var pb=document.getElementById('payoutsBtn'); if(pb) pb.addEventListener('click',function(){ startPayouts(pb); });
+}
 async function init(){
   if(!supa){ $('gate').style.display='block'; return; }
   var r=await supa.auth.getSession().catch(function(){return null;});
   var s=r&&r.data?r.data.session:null;
   if(!s){ $('gate').style.display='block'; return; }
-  // resolve handle
-  try{ var email=s.user&&s.user.email; if(email){ var q=await supa.from('app_users').select('handle').eq('email',email).maybeSingle(); if(q&&q.data&&q.data.handle) MY_HANDLE=q.data.handle; } }catch(e){}
+  var uid=s.user&&s.user.id, payok=false;
+  try{ if(uid){ var q=await supa.from('app_users').select('handle,payouts_enabled').eq('id',uid).maybeSingle(); if(q&&q.data){ if(q.data.handle) MY_HANDLE=q.data.handle; payok=!!q.data.payouts_enabled; } } }catch(e){}
+  try{ if(uid && new URLSearchParams(location.search).get('payouts')==='done' && !payok){ await supa.rpc('mark_payouts_enabled'); payok=true; } }catch(e){}
   $('form').style.display='block'; addTier();
+  payoutsPanel(payok);
 }
 
 $('addtier').addEventListener('click',addTier);
