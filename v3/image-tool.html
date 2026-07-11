@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<meta name="robots" content="noindex,nofollow"/>
+<meta name="description" content="KEEPITIL image formatter — drop one image, export it pre-sized for Instagram, TikTok, Stories/Reels, X, Facebook, and YouTube."/>
+<title>Image Formatter — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text,#f4f2fb);font-family:Inter,system-ui,sans-serif;line-height:1.6;padding-bottom:80px}
+.wrap{max-width:1100px;margin:0 auto;padding:48px 20px}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.4rem,6vw,4rem);letter-spacing:.02em;line-height:.95}
+.sub{color:var(--muted,#9a94b4);margin:6px 0 26px;max-width:640px}
+.drop{border:2px dashed color-mix(in srgb,var(--brand,#00b4ff) 45%,var(--line,#333));border-radius:18px;padding:44px 20px;text-align:center;cursor:pointer;background:color-mix(in srgb,var(--brand,#00b4ff) 5%,var(--surface,#15151f));transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--brand,#00b4ff);background:color-mix(in srgb,var(--brand,#00b4ff) 10%,var(--surface,#15151f))}
+.drop b{font-size:1.1rem}
+.drop small{display:block;color:var(--muted,#9a94b4);margin-top:6px}
+.bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:22px 0}
+.btn{font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;font-size:1rem;padding:11px 22px;border-radius:8px;border:2px solid var(--brand,#00b4ff);background:transparent;color:var(--brand,#00b4ff);cursor:pointer}
+.btn.primary{background:var(--brand,#00b4ff);color:#04121b}
+.btn:disabled{opacity:.45;cursor:default}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;margin-top:26px}
+.card{background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.09));border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.card .prev{background:#0b0b12;display:flex;align-items:center;justify-content:center;min-height:150px;padding:10px}
+.card .prev canvas{max-width:100%;max-height:210px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+.card .meta{padding:12px 14px}
+.card .nm{font-weight:800;font-size:.92rem}
+.card .dim{color:var(--muted,#9a94b4);font-size:.76rem;margin:2px 0 10px}
+.card .dl{display:block;text-align:center;text-decoration:none;font-weight:700;font-size:.82rem;padding:9px;border-radius:9px;background:color-mix(in srgb,var(--brand,#00b4ff) 16%,transparent);color:var(--brand,#00b4ff);border:1px solid color-mix(in srgb,var(--brand,#00b4ff) 40%,transparent)}
+.card .dl:hover{background:var(--brand,#00b4ff);color:#04121b}
+.note{color:var(--muted,#9a94b4);font-size:.82rem;margin-top:8px}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:28px 20px;text-align:center;color:var(--muted,#9a94b4);font-size:.82rem}
+footer a{color:var(--brand,#00b4ff)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Image Formatter</h1>
+  <p class="sub">Drop one image and get it auto-cropped to every platform's exact size — Instagram, TikTok, Stories/Reels, X, Facebook, YouTube, and the KEEPITIL flyer size. Everything happens in your browser; nothing is uploaded.</p>
+
+  <div class="drop" id="drop">
+    <b>Drop an image here, or click to choose</b>
+    <small>JPG or PNG · your flyer, poster, or photo</small>
+    <input type="file" id="file" accept="image/*" hidden/>
+  </div>
+
+  <div class="bar" id="bar" style="display:none">
+    <button class="btn primary" id="dlall">⬇ Download all</button>
+    <button class="btn" id="reset">Choose another</button>
+    <span class="note" id="src"></span>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<footer>KEEPITIL — <a href="/v3/create-event.html">Create an event</a> · <a href="/v3/">Home</a></footer>
+
+<script src="/v3/v3-shell.js" defer></script>
+<script>
+(function(){
+  var PRESETS=[
+    ['Instagram post (square)',1080,1080,'ig-square'],
+    ['Instagram / KEEPITIL flyer (portrait)',1080,1350,'ig-portrait'],
+    ['Story / Reel / TikTok',1080,1920,'story-reel-tiktok'],
+    ['X / Facebook (landscape)',1200,630,'x-facebook'],
+    ['YouTube thumbnail',1280,720,'youtube-thumb'],
+    ['Facebook / LinkedIn square',1200,1200,'square-1200']
+  ];
+  var $=function(id){return document.getElementById(id);};
+  var drop=$('drop'), file=$('file'), grid=$('grid'), bar=$('bar');
+  var img=null, baseName='keepitil';
+
+  drop.addEventListener('click',function(){ file.click(); });
+  ;['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.add('over'); }); });
+  ;['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev,function(e){ e.preventDefault(); drop.classList.remove('over'); }); });
+  drop.addEventListener('drop',function(e){ var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) load(f); });
+  file.addEventListener('change',function(){ if(file.files[0]) load(file.files[0]); });
+
+  function load(f){
+    if(!/^image\//.test(f.type)){ alert('Please choose an image (JPG or PNG).'); return; }
+    baseName=(f.name||'keepitil').replace(/\.[^.]+$/,'').replace(/[^a-zA-Z0-9_-]+/g,'-').slice(0,40)||'keepitil';
+    var url=URL.createObjectURL(f);
+    var im=new Image();
+    im.onload=function(){ img=im; render(); URL.revokeObjectURL(url); };
+    im.onerror=function(){ alert('Could not read that image.'); };
+    im.src=url;
+  }
+
+  function coverCrop(w,h){
+    var c=document.createElement('canvas'); c.width=w; c.height=h;
+    var ctx=c.getContext('2d'); ctx.fillStyle='#0b0b12'; ctx.fillRect(0,0,w,h);
+    var ir=img.width/img.height, tr=w/h, sw,sh,sx,sy;
+    if(ir>tr){ sh=img.height; sw=sh*tr; sx=(img.width-sw)/2; sy=0; }
+    else { sw=img.width; sh=sw/tr; sx=0; sy=(img.height-sh)/2; }
+    ctx.drawImage(img,sx,sy,sw,sh,0,0,w,h);
+    return c;
+  }
+
+  function render(){
+    grid.innerHTML=''; bar.style.display='flex';
+    $('src').textContent='Source: '+img.width+'×'+img.height+'px';
+    PRESETS.forEach(function(p){
+      var name=p[0], w=p[1], h=p[2], slug=p[3];
+      var canvas=coverCrop(w,h);
+      var card=document.createElement('div'); card.className='card';
+      var prev=document.createElement('div'); prev.className='prev'; prev.appendChild(canvas);
+      var meta=document.createElement('div'); meta.className='meta';
+      var dataUrl=canvas.toDataURL('image/jpeg',0.92);
+      meta.innerHTML='<div class="nm">'+name+'</div><div class="dim">'+w+' × '+h+'px</div>';
+      var a=document.createElement('a'); a.className='dl'; a.textContent='⬇ Download'; a.href=dataUrl; a.download=baseName+'-'+slug+'.jpg';
+      meta.appendChild(a);
+      card.appendChild(prev); card.appendChild(meta); grid.appendChild(card);
+    });
+  }
+
+  $('reset').addEventListener('click',function(){ img=null; grid.innerHTML=''; bar.style.display='none'; file.value=''; });
+  $('dlall').addEventListener('click',function(){
+    if(!img) return;
+    PRESETS.forEach(function(p,i){
+      setTimeout(function(){
+        var canvas=coverCrop(p[1],p[2]);
+        var a=document.createElement('a'); a.href=canvas.toDataURL('image/jpeg',0.92); a.download=baseName+'-'+p[3]+'.jpg';
+        document.body.appendChild(a); a.click(); a.remove();
+      }, i*350);
+    });
+  });
+})();
+</script>
+</body>
+</html>
