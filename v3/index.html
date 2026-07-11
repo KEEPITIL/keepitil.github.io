@@ -2089,7 +2089,43 @@ function gotoMonth(mk){activeMonth=mk;document.querySelectorAll('#evx .evx-mo').
 function setGenre(g){activeGenre=g;document.querySelectorAll('#evx .evx-gn').forEach(function(b){b.classList.toggle('active',b.dataset.g===g);});buildMustSee();buildRecent();buildDays();}
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(markScroll,120);});
 function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDays();}
-(function(){try{if(window.supabase){var _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');_sb.from('events').select('*').eq('status','upcoming').order('starts_at',{ascending:true}).then(function(r){if(r&&r.data&&r.data.length>=200){EVENTS=r.data.map(function(e){return {title:e.title,date:(e.starts_at||'').slice(0,10),venue:e.venue,city:e.city,genre:e.genre,gcat:e.gcat,img:e.img,ticket:e.ticket,price:e.price,pick:e.pick};});MONTHS=(function(){var s={};EVENTS.forEach(function(x){s[x.date.slice(0,7)]=1;});return Object.keys(s).sort();})();activeMonth=MONTHS[0]||activeMonth;}boot();}).catch(function(){boot();});}else{boot();}}catch(e){boot();}})();
+/* Calendar = external/Posh music events (baked EVENTS above) + KEEPITIL member-created events layered on top additively. Only Founder-approved (status='published') KEEPITIL events surface. */
+(function(){
+  function boot2(){try{boot();}catch(e){}}
+  function gcatOf(g){g=(g||'').toLowerCase();
+    if(/d\s?&?\s?b|dnb|drum\s?&?\s?bass|jungle/.test(g))return 'dnb';
+    if(/garage|ukg|bassline|speed garage/.test(g))return 'garage';
+    if(/dubstep|riddim|tearout|bass house|hybrid trap|\bbass\b/.test(g))return 'bass';
+    if(/tech\s?house|techno|acid|industrial|minimal|ghetto/.test(g))return 'techno';
+    if(/trance|psy/.test(g))return 'trance';
+    if(/disco|nu-?disco|funk/.test(g))return 'disco';
+    if(/hip.?hop|\brap\b|\btrap\b/.test(g))return 'hiphop';
+    if(/country/.test(g))return 'country';
+    if(/house|afro|latin|deep|melodic|organic|progressive|soulful/.test(g))return 'house';
+    return '';}
+  try{
+    if(window.supabase){
+      var _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+      _sb.from('events').select('*').eq('status','published').order('starts_at',{ascending:true}).then(function(r){
+        if(r&&r.data&&r.data.length){
+          var mine=r.data.filter(function(e){return e.starts_at;}).map(function(e){
+            var g=e.genres||e.genre||'';
+            return {title:e.title,date:(e.starts_at||'').slice(0,10),venue:e.venue||'',city:e.city||'',
+              genre:g||'KEEPITIL',gcat:gcatOf(g),img:e.cover_url||e.img||'',
+              ticket:'event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
+              pick:!!e.cover_url,keepitil:true,slug:e.slug};
+          });
+          var seen={};EVENTS.forEach(function(e){seen[(e.title+'|'+e.date).toLowerCase()]=1;});
+          mine.forEach(function(e){var k=(e.title+'|'+e.date).toLowerCase();if(!seen[k]){seen[k]=1;EVENTS.push(e);}});
+          EVENTS.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+          MONTHS=(function(){var s={};EVENTS.forEach(function(x){if(x.date)s[x.date.slice(0,7)]=1;});return Object.keys(s).sort();})();
+          if(MONTHS.indexOf(activeMonth)<0)activeMonth=MONTHS[0]||activeMonth;
+        }
+        boot2();
+      }).catch(boot2);
+    }else{boot2();}
+  }catch(e){boot2();}
+})();
 })();
 </script>
 
