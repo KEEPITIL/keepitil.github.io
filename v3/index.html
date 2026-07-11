@@ -2305,7 +2305,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
         if(r&&r.error){ var em=(r.error.message||''); if(/regist|already|exists/i.test(em)){ setMsg('That email already has an account — log in below, or tap Forgot password.'); showPane('login'); } else { setMsg(em||'Could not create account.'); } return; }
         var uid=(r&&r.data&&r.data.user)?r.data.user.id:null;
         var sess=(r&&r.data)?r.data.session:null;
-        if(uid && sb){ sb.from('app_users').insert({id:uid,handle:handle,display_name:handle}).then(function(){}).catch(function(){}); }
+        if(uid && sb){ sb.from('app_users').upsert({id:uid,handle:handle,display_name:handle},{onConflict:'id',ignoreDuplicates:true}).then(function(){}).catch(function(){}); }
         captureLead(email,handle,'signup');
         window.KIL_HANDLE=handle;
         if(sess){ setMsg('Welcome, @'+handle+'! You are in.'); }
@@ -2326,9 +2326,20 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
     }).catch(function(){ setMsg('Could not send link.'); });
   };
 
+  /* Self-heal: ensure every logged-in member has an app_users row (ticketing/payouts key on it).
+     Handle comes from signup auth metadata; inserts only if missing (won't clobber a chosen handle). */
+  function ensureAppUser(s){
+    try{
+      if(!sb||!s||!s.user) return;
+      var u=s.user, md=u.user_metadata||{};
+      var h=(md.handle||md.display_name||'').replace(/[^a-zA-Z0-9_]/g,'');
+      if(!h) return;
+      sb.from('app_users').upsert({id:u.id,handle:h,display_name:(md.display_name||h)},{onConflict:'id',ignoreDuplicates:true}).then(function(){}).catch(function(){});
+    }catch(e){}
+  }
   if(sb){
-    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; loadSaves(); loadHandle(); }).catch(function(){});
-    sb.auth.onAuthStateChange(function(_e,s){ session=s; closeModal(); loadSaves(); loadHandle(); });
+    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; ensureAppUser(session); loadSaves(); loadHandle(); }).catch(function(){});
+    sb.auth.onAuthStateChange(function(_e,s){ session=s; ensureAppUser(s); closeModal(); loadSaves(); loadHandle(); });
   }
   var host=$('evx');
   if(host && window.MutationObserver){ new MutationObserver(function(){ markSaved(); }).observe(host,{childList:true,subtree:true}); }
