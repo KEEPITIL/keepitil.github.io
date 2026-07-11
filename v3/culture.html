@@ -85,6 +85,23 @@ footer a{color:var(--purple);}
 .acard .cov{aspect-ratio:16/10;width:100%;background:linear-gradient(150deg,color-mix(in srgb,var(--ac) 32%,#14121c),color-mix(in srgb,var(--ac) 12%,#0d0b12));background-size:cover;background-position:center;}
 .acard .body{padding:15px 17px 17px;}
 .acard .cc{margin-top:0;}
+.ctypes{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:16px 0 2px;position:sticky;top:66px;z-index:130;background:rgba(10,10,15,.94);backdrop-filter:blur(14px);padding:12px 0}
+.ctchip{font-family:var(--fh,inherit);font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#cfc9e6;background:transparent;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:9px 15px;cursor:pointer;transition:all .2s;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.ctchip:hover{border-color:var(--brand);color:#fff}
+.ctchip.on{background:var(--brand);border-color:var(--brand);color:#04121b}
+.controls{top:118px !important}
+.ctpanel{padding:56px 20px}
+.ctpanel .ctp-in{max-width:580px;margin:0 auto;background:var(--panel,#15121e);border:1px solid var(--brd,rgba(255,255,255,.1));border-radius:18px;padding:46px 30px;text-align:center}
+.ctpanel .ctp-ico{font-size:3rem;line-height:1}
+.ctpanel h2{font-family:var(--fs,inherit);font-weight:600;font-size:1.9rem;margin:12px 0 8px;color:#fff}
+.ctpanel p{color:#a29ec0;line-height:1.55;max-width:460px;margin:0 auto}
+.ctpanel .ctp-cta{display:inline-block;margin-top:22px;background:var(--brand);color:#04121b;font-weight:800;padding:12px 22px;border-radius:999px;text-decoration:none}
+@media(max-width:680px){
+  .grid{grid-template-columns:1fr !important;gap:14px}
+  .ctypes{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}
+  .controls{top:112px !important;overflow-x:auto}
+  .ctpanel .ctp-in{padding:36px 22px}
+}
 </style></head><body>
 <nav id="main-nav"><div class="nav-inner">
   <a class="nav-logo" href="/v3/"><img src="/keepitil-x-blue.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
@@ -98,11 +115,19 @@ footer a{color:var(--purple);}
   <div class="masthead"><h1>California <em>Culture</em></h1><div class="sub">The stories, histories and guides behind the SoCal underground.</div></div>
   <div class="lead" id="lead"></div>
 </div>
-<div class="wrap"><div class="controls">
+<div class="wrap">
+<div class="ctypes" id="ctypes">
+  <button class="ctchip on" data-ct="blogs"><span>&#128221;</span>Blogs</button>
+  <button class="ctchip" data-ct="battles"><span>&#9876;&#65039;</span>Battles</button>
+  <button class="ctchip" data-ct="gallery"><span>&#128247;</span>Gallery</button>
+  <button class="ctchip" data-ct="hotspot"><span>&#128293;</span>Hotspot</button>
+</div>
+<div class="controls" id="blogControls">
   <div class="cats" id="cats"></div>
   <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="q" placeholder="Search stories…"/></label>
 </div>
-<main class="grid" id="grid"></main></div>
+<main class="grid" id="grid"></main>
+<div class="ctpanel" id="ctpanel" style="display:none"></div></div>
 <footer>KEEPITIL <a href="/v3/">keepitil.com</a></footer>
 <script>const COVERS={"academy-la":"/assets/article-covers/academy-la-hollywood-venue-guide.png","afterparty-culture-la":"/assets/article-covers/how-socal-became-dance-music-capital.png","anatomy-of-a-socal-rave":"/assets/article-covers/socal-festival-season-2026-guide.png","avalon-hollywood":"/assets/article-covers/sound-nightclub-hollywood-underground-guide.png","bass-music-101":"/assets/article-covers/history-of-house-music.jpg","bedroom-producer-guide-2026":"/assets/article-covers/best-entry-level-dj-controllers-2026.png","booking-underground-djs-guide":"/assets/article-covers/tip-networking-underground-events.jpg","brownies-lemonade-rise":"/assets/article-covers/brownies-and-lemonade-la-collective.png","building-your-brand-2026":"/assets/article-covers/iheartraves-festival-fashion-brand.png","crssd-fall-2026":"/assets/article-covers/crssd-festival-san-diego-guide.png","day-trip-festival-2026":"/assets/article-covers/day-trip-la-house-day-party.png","day-trip-festival-parks":"/assets/article-covers/day-trip-la-house-day-party.png","dj-equipment-guide-2026":"/assets/article-covers/best-entry-level-dj-controllers-2026.png","escape-halloween-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","factory-93-la-techno":"/assets/article-covers/john-tejada-la-underground-techno.png","festival-vs-club-night-guide":"/assets/article-covers/socal-festival-season-2026-guide.png","hard-summer-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","hard-techno-socal":"/assets/article-covers/socal-festival-season-2026-guide.png","history-of-drum-and-bass":"/assets/article-covers/history-of-dubstep-west-coast-bass.png","history-of-house-music":"/assets/article-covers/history-of-house-music.jpg","history-of-techno":"/assets/article-covers/history-of-trance.png","history-of-uk-garage":"/assets/article-covers/history-of-trance.png","house-techno-guide-2026":"/assets/article-covers/green-velvet-cajmere-house-techno.png","how-to-find-underground-raves":"/assets/article-covers/tip-networking-underground-events.jpg","how-to-get-booked-dj":"/assets/article-covers/best-entry-level-dj-controllers-2026.png","how-to-promote-your-event-oc-la":"/assets/article-covers/socal-festival-season-2026-guide.png","inland-empire-underground-scene":"/assets/article-covers/tip-networking-underground-events.jpg","juneteenth-underground-2026":"/assets/article-covers/tip-networking-underground-events.jpg","la-underground-music-guide":"/assets/article-covers/sacha-robotti-la-underground.png","local-vs-touring-djs-underground":"/assets/article-covers/tip-networking-underground-events.jpg","lost-in-dreams-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","mixing-techniques-beginners":"/assets/article-covers/best-dj-headphones-beginners-2026.png","nocturnal-wonderland-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","oc-underground-guide":"/assets/article-covers/tip-networking-underground-events.jpg","oc-underground-venue-guide":"/assets/article-covers/time-nightclub-oc-venue-guide.png","producer-spotlight-socal-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","rave-culture-california-history":"/assets/article-covers/plur-explained-rave-culture-code.png","rave-etiquette-guide":"/assets/article-covers/socal-festival-season-2026-guide.png","rave-flyer-culture":"/assets/article-covers/plur-explained-rave-culture-code.png","rave-photography-guide-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","rave-safety-guide-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","rising-artists-socal-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","san-diego-underground-scene":"/assets/article-covers/crssd-festival-san-diego-guide.png","socal-scene-future-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","summer-2026-events-guide":"/assets/article-covers/tip-networking-underground-events.jpg","summer-living-dead-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","summer-parties-oc-la-2026":"/assets/article-covers/socal-festival-season-2026-guide.png","tip-dj-instagram-brand-2026":"/assets/article-covers/tip-dj-instagram-brand-2026.png","tip-festival-packing-guide-socal":"/assets/article-covers/tip-festival-packing-guide-socal.jpg","tip-long-dj-set-guide":"/assets/article-covers/tip-long-dj-set-guide.jpg","tip-networking-underground-events":"/assets/article-covers/tip-networking-underground-events.jpg","tip-sound-system-guide":"/assets/article-covers/tip-sound-system-guide.jpg","ukgarage-socal":"/assets/article-covers/socal-festival-season-2026-guide.png","underground-perks-july-2026":"/assets/article-covers/socal-underground-edm-news-july-2026.jpg","warehouse-raves-la-2026":"/assets/article-covers/la-warehouse-rave-scene-2026.png","women-in-underground-music":"/assets/article-covers/history-of-house-music.jpg"};
 function cov(sl){return COVERS[sl]||'';}
@@ -113,7 +138,7 @@ const rail=POSTS.filter(p=>p!==lead).slice(0,4);
 function shade(hex){return hex;}
 document.getElementById('lead').innerHTML=
  '<a class="feature" style="--a1:'+col(lead.c)+';--a2:#1a1030'+(cov(lead.slug)?(";background-image:url("+cov(lead.slug)+")"):"")+'" href="/blog-'+lead.slug+'.html"><span class="kick">'+lead.c+'</span><h2>'+lead.t+'</h2><span class="rd">Read the story →</span></a>'
- +'<div class="rail"><div class="rt">Latest in the scene</div>'+rail.map(p=>'<a href="/blog-'+p.slug+'.html" style="--ac:'+col(p.c)+'">'+(cov(p.slug)?('<img class="rthumb" src="'+cov(p.slug)+'" alt="" loading="lazy">'):'')+'<div class="rtx"><span class="c">'+p.c+'</span><h3>'+p.t+'</h3></div></a>').join('')+'</div>';
+ +'<div class="rail"><div class="rt">Latest in the scene</div>'+rail.map(p=>'<a href="/blog-'+p.slug+'.html" style="--ac:'+col(p.c)+'">'+(cov(p.slug)?('<img class="rthumb" src="'+cov(p.slug)+'" alt="" loading="lazy" onerror="this.remove()">'):'')+'<div class="rtx"><span class="c">'+p.c+'</span><h3>'+p.t+'</h3></div></a>').join('')+'</div>';
 const seg=document.getElementById('cats');
 seg.innerHTML='<button class="cchip on" data-c="all">All</button>'+CATS.map(c=>'<button class="cchip" data-c="'+c+'">'+c+'</button>').join('');
 let cat='all',q='';
@@ -122,6 +147,24 @@ function render(){const ql=q.trim().toLowerCase();const list=POSTS.filter(p=>p!=
  document.getElementById('grid').innerHTML=list.length?list.map(card).join(''):'<div class="empty">No stories match.</div>';}
 seg.onclick=e=>{const b=e.target.closest('.cchip');if(!b)return;cat=b.dataset.c;[...seg.children].forEach(c=>c.classList.toggle('on',c===b));render();};
 document.getElementById('q').oninput=e=>{q=e.target.value;render();};render();
+/* Content-type subfilters: Blogs (live) + Battles/Gallery/Hotspot (coming soon placeholders) */
+var CTP={
+  battles:{i:'⚔️',t:'Battles',d:'DJ battles, art & photo contests, and community challenges — KEEPITIL-run and member-created. Compete, vote, and earn Community Rewards. Launching soon.'},
+  gallery:{i:'📷',t:'Gallery',d:'Community photos, flyers and moments from the SoCal underground. Upload yours once profiles + galleries go live. Coming soon.'},
+  hotspot:{i:'🔥',t:'Hotspot',d:'The top community-voted content — the best photos, blogs, flyers and events, ranked by the scene. Coming soon.'}
+};
+document.getElementById('ctypes').onclick=function(e){
+  var b=e.target.closest('.ctchip'); if(!b) return;
+  var ct=b.getAttribute('data-ct');
+  [].forEach.call(document.querySelectorAll('#ctypes .ctchip'),function(x){x.classList.toggle('on',x===b);});
+  var blogs=(ct==='blogs');
+  var lead=document.getElementById('lead'); if(lead) lead.style.display=blogs?'':'none';
+  document.getElementById('blogControls').style.display=blogs?'':'none';
+  document.getElementById('grid').style.display=blogs?'':'none';
+  var panel=document.getElementById('ctpanel');
+  if(blogs){ panel.style.display='none'; }
+  else{ var p=CTP[ct]; panel.style.display=''; panel.innerHTML='<div class="ctp-in"><div class="ctp-ico">'+p.i+'</div><h2>'+p.t+'</h2><p>'+p.d+'</p><a class="ctp-cta" href="/v3/apply.html#plans">Join the Community to get in early &rarr;</a></div>'; }
+};
 </script>
 <script src="/v3/keepitil-radio.js" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
