@@ -10,7 +10,7 @@
     var s=el('style',{id:'kil-cfab-style'});
     s.textContent=
       '#kil-cfab{position:fixed;right:16px;bottom:132px;z-index:99997;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px;font-family:var(--font,Inter,system-ui,sans-serif)}'
-     +'#kil-cfab .cfab-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border:0;border-radius:999px;padding:13px 20px;font-weight:900;letter-spacing:.04em;font-size:.9rem;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.45)}'
+     +'#kil-cfab .cfab-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border:0;border-radius:999px;padding:13px 20px;font-weight:900;letter-spacing:.04em;font-size:.9rem;cursor:pointer;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.45)}'
      +'#kil-cfab .cfab-btn .plus{font-size:1.15rem;line-height:1}'
      +'#kil-cfab .cfab-menu{display:none;flex-direction:column;gap:8px;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));border-radius:16px;padding:10px;box-shadow:0 14px 34px rgba(0,0,0,.55);min-width:240px}'
      +'#kil-cfab.open .cfab-menu{display:flex}'
@@ -25,16 +25,10 @@
   function build(){
     css();
     var wrap=el('div',{id:'kil-cfab'});
+    // Single button that navigates to the dedicated Create page (chooser: KEEPITIL vs Posh).
     wrap.innerHTML=
-      '<button class="cfab-btn" aria-label="Create an event"><span class="plus">+</span>CREATE</button>'
-     +'<div class="cfab-menu" role="menu">'
-     +'<a class="cfab-opt" href="/v3/create-event.html"><span class="ic">🎟️</span><span><span class="t">Create on KEEPITIL</span><span class="d">List &amp; sell here — free promo across the Scene, socials &amp; a free AI flyer. Member sign-in.</span></span></a>'
-     +'<a class="cfab-opt" href="'+POSH+'" target="_blank" rel="noopener"><span class="ic">↗</span><span><span class="t">Create &amp; sell on Posh</span><span class="d">Prefer Posh? Spin up an event there in seconds.</span></span></a>'
-     +'</div>';
+      '<a class="cfab-btn" href="/v3/create.html" aria-label="Create an event"><span class="plus">+</span>CREATE</a>';
     document.body.appendChild(wrap);
-    var btn=wrap.querySelector('.cfab-btn');
-    btn.addEventListener('click',function(e){e.stopPropagation();wrap.classList.toggle('open');});
-    document.addEventListener('click',function(e){ if(!wrap.contains(e.target)) wrap.classList.remove('open'); });
   }
   if(document.body) build(); else document.addEventListener('DOMContentLoaded',build);
 })();
