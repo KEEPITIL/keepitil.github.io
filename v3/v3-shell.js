@@ -48,7 +48,11 @@
         +'<a href="/v3/scene.html">Scene</a><a href="/v3/shop.html">Shop</a>'
         +'<a href="/v3/compete.html">Seasons</a><a href="/v3/crew.html">AI Crew</a>'
         +'<a href="/v3/apply.html">Login</a></nav>'
-        +'<div class="v3-foot-social">IG · SC · TT</div></div>';
+        +'<div class="v3-foot-social">IG · SC · TT</div></div>'
+        +'<div class="v3-foot-legal" style="max-width:var(--maxw,1400px);margin:14px auto 0;font-size:.78rem;opacity:.7;display:flex;gap:14px;flex-wrap:wrap;align-items:center">'
+        +'<a href="/v3/terms.html">Terms</a><a href="/v3/privacy.html">Privacy</a><a href="/v3/refund.html">Refunds</a>'
+        +'<a href="/v3/ticket-terms.html">Ticket Terms</a><a href="/v3/community-guidelines.html">Community Guidelines</a>'
+        +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
       document.body.appendChild(f);
 
       // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
