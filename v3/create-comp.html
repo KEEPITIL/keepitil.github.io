@@ -155,6 +155,70 @@ a{color:inherit;text-decoration:none}
   render('mix');
 })();
 </script>
+<style>
+.subform{max-width:520px;margin:0 auto 6px;display:none;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:14px;padding:14px}
+.subform.open{display:block}
+.subform input{width:100%;background:var(--bg,#0a0a0f);border:1px solid var(--line,rgba(255,255,255,.15));border-radius:10px;color:var(--text,#f0f0f0);font:inherit;font-size:.9rem;padding:10px 12px;margin-bottom:8px}
+.subform button{font-weight:800;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border:0;border-radius:999px;padding:9px 20px;cursor:pointer}
+</style>
+<div class="subform" id="subform">
+  <input id="sfTitle" placeholder="Entry title" maxlength="120"/>
+  <input id="sfMedia" placeholder="Media/cover URL (SoundCloud, image, etc.)"/>
+  <button id="sfGo">Submit to <span id="sfCat">Best DJ Mix</span></button>
+</div>
+<script>
+(function(){
+  var URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(URL,KEY); }catch(e){}
+  if(!sb) return;
+  var session=null,handle='member';
+  var month=new Date().toISOString().slice(0,7);
+  var CATNAME={mix:'Best DJ Mix',photo:'Best Photo',art:'Best Artwork',song:'Best Song'};
+  function esc(x){return String(x==null?'':x).replace(/</g,'&lt;');}
+  function curCat(){var b=document.querySelector('#cats .cchip.on');return b?b.getAttribute('data-c'):'mix';}
+  function entryCard(e){
+    var d=document.createElement('div'); d.className='entry';
+    d.innerHTML='<div class="m" style="background-image:url(\''+esc(e.media_url||'')+'\')"></div>'+
+      '<div class="b"><div class="by"><span class="av" style="background-image:url(\'/v3/logo-blue-nav.png\')"></span><span class="nm">@'+esc(e.handle||'member')+'</span></div>'+
+      '<div class="t">'+esc(e.title||'Entry')+'</div>'+
+      '<div class="vote"><button class="vbtn" data-id="'+esc(e.id)+'">▲ Vote</button><span class="vc" id="vc-'+esc(e.id)+'">0 votes</span></div></div>';
+    return d;
+  }
+  function loadCount(id){ sb.rpc('social_counts',{t_type:'entry',t_id:id}).then(function(r){var d=r&&r.data?r.data:{};var el=document.getElementById('vc-'+id);if(el)el.textContent=((d.vote||d.like||0))+' votes';}).catch(function(){}); }
+  function loadLive(cat){
+    sb.from('competition_entries').select('id,handle,category,title,media_url,created_at').eq('month',month).eq('category',cat).order('created_at',{ascending:false}).limit(50).then(function(r){
+      if(!r||!r.data||!r.data.length) return;
+      var grid=document.getElementById('grid'); var first=grid.firstChild;
+      r.data.forEach(function(e){ grid.insertBefore(entryCard(e), first); loadCount(e.id); });
+      if(session){ sb.from('social_actions').select('target_id').eq('user_id',session.user.id).eq('kind','vote').eq('target_type','entry').then(function(v){ if(v&&v.data) v.data.forEach(function(x){var b=grid.querySelector('.vbtn[data-id="'+x.target_id+'"]');if(b)b.classList.add('on');}); }).catch(function(){}); }
+    }).catch(function(){});
+  }
+  // reload live entries when category changes (defer so seed renders first)
+  document.getElementById('cats').addEventListener('click',function(e){ if(e.target.closest('.cchip')) setTimeout(function(){loadLive(curCat());updName();},30); });
+  function updName(){ var c=curCat(); var s=document.getElementById('sfCat'); if(s) s.textContent=CATNAME[c]||'this category'; }
+  sb.auth.getSession().then(function(r){
+    session=r&&r.data?r.data.session:null;
+    loadLive(curCat()); updName();
+    if(session){ sb.from('app_users').select('handle').eq('id',session.user.id).single().then(function(x){ handle=(x&&x.data&&x.data.handle)||(session.user.email||'member').split('@')[0]; }).catch(function(){ handle=(session.user.email||'member').split('@')[0]; }); }
+  });
+  // hook the "Submit your entry" button to reveal the inline form (or redirect if logged out)
+  var submitLink=document.querySelector('.submit a');
+  if(submitLink){ submitLink.addEventListener('click',function(ev){ ev.preventDefault(); if(!session){ location.href='/v3/apply.html?next=/v3/create-comp.html'; return; } var f=document.getElementById('subform'); f.classList.toggle('open'); updName(); }); }
+  var go=document.getElementById('sfGo');
+  if(go) go.addEventListener('click',function(){
+    if(!session){ location.href='/v3/apply.html?next=/v3/create-comp.html'; return; }
+    var title=(document.getElementById('sfTitle').value||'').trim(), media=(document.getElementById('sfMedia').value||'').trim(), cat=curCat();
+    if(!title){ document.getElementById('sfTitle').focus(); return; }
+    go.disabled=true; go.textContent='Submitting…';
+    sb.from('competition_entries').insert({user_id:session.user.id,handle:handle,category:cat,title:title,media_url:media||null,month:month}).then(function(res){
+      document.getElementById('sfTitle').value=''; document.getElementById('sfMedia').value='';
+      document.getElementById('subform').classList.remove('open');
+      go.disabled=false; go.innerHTML='Submit to <span id="sfCat">'+(CATNAME[cat]||'')+'</span>';
+      var grid=document.getElementById('grid'); var nc=entryCard({id:(res&&res.data&&res.data[0]&&res.data[0].id)||('tmp-'+Date.now()),handle:handle,title:title,media_url:media}); grid.insertBefore(nc, grid.firstChild);
+    }).catch(function(){ go.disabled=false; go.textContent='Submit'; });
+  });
+})();
+</script>
 <script src="/v3/keepitil-radio.js" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
