@@ -54,6 +54,19 @@
   .links .row{display:flex;flex-wrap:wrap;gap:9px;}
   .links a{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border:1px solid rgba(0,180,255,.28);border-radius:20px;}
   footer{border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center;color:#556;font-size:.75rem;}
+  /* registration / attendee-capture modal */
+  .kreg-ov{position:fixed;inset:0;background:rgba(4,4,10,.74);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;}
+  .kreg{background:#12121c;border:1px solid rgba(0,180,255,.25);border-radius:16px;max-width:440px;width:100%;padding:24px;max-height:88vh;overflow:auto;}
+  .kreg h3{font-family:var(--head);font-size:1.5rem;letter-spacing:.06em;margin-bottom:4px;}
+  .kreg p.sub{color:var(--grey);font-size:.82rem;margin-bottom:8px;}
+  .kreg label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9aa7b4;margin:12px 0 5px;}
+  .kreg input{width:100%;background:#0a0a12;border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:11px 12px;color:#fff;font:inherit;}
+  .kreg input:focus{outline:none;border-color:var(--brand);}
+  .kreg .req{color:#ff6b6b;}
+  .kreg .go{margin-top:18px;width:100%;background:var(--green);color:#06120a;border:0;border-radius:9px;padding:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font:inherit;}
+  .kreg .go:disabled{opacity:.6;cursor:default;}
+  .kreg .x{float:right;background:none;border:0;color:#889;font-size:1.5rem;cursor:pointer;line-height:1;}
+  .kreg .err{color:#ff6b6b;font-size:.8rem;margin-top:10px;min-height:1em;}
 </style>
 </head>
 <body>
@@ -138,6 +151,44 @@
     ld.organizer={"@type":"Organization","name":"KEEPITIL","url":"https://keepitil.com/"};
     $('ld-event').textContent=JSON.stringify(ld);
   }
+  /* attendee-data capture: name + email + organizer's custom questions → event_registrations. Fail-open (never blocks a sale). */
+  function regCapture(tierName, done){
+    var reg=Array.isArray(ev.reg)?ev.reg:[];
+    var ov=document.createElement('div'); ov.className='kreg-ov';
+    var qh='';
+    reg.forEach(function(q,i){
+      var t=({email:'email',number:'number',tel:'tel'})[q.type]||'text';
+      qh+='<label>'+esc(q.label)+(q.required?' <span class="req">*</span>':'')+'</label><input data-qi="'+i+'" type="'+t+'"'+(q.required?' data-req="1"':'')+'/>';
+    });
+    ov.innerHTML='<div class="kreg"><button class="x" aria-label="Close">&times;</button>'+
+      '<h3>Almost there</h3><p class="sub">Confirm your details'+(tierName?(' for <b>'+esc(tierName)+'</b>'):'')+'. Your info goes to the event organizer.</p>'+
+      '<label>Full name <span class="req">*</span></label><input id="kr-name" type="text" autocomplete="name"/>'+
+      '<label>Email <span class="req">*</span></label><input id="kr-email" type="email" autocomplete="email"/>'+
+      qh+'<div class="err" id="kr-err"></div><button class="go" id="kr-go">Continue</button></div>';
+    document.body.appendChild(ov);
+    function close(){ ov.remove(); }
+    ov.querySelector('.x').addEventListener('click',close);
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+    ov.querySelector('#kr-go').addEventListener('click',function(){
+      var name=(ov.querySelector('#kr-name').value||'').trim();
+      var email=(ov.querySelector('#kr-email').value||'').trim();
+      var er=ov.querySelector('#kr-err'); er.textContent='';
+      if(!name){ er.textContent='Please enter your name.'; return; }
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ er.textContent='Please enter a valid email.'; return; }
+      var answers={}, bad=null;
+      ov.querySelectorAll('input[data-qi]').forEach(function(inp){
+        var i=inp.getAttribute('data-qi'), v=(inp.value||'').trim();
+        if(inp.getAttribute('data-req')&&!v&&bad===null) bad=reg[i].label;
+        if(v) answers[reg[i].label]=v;
+      });
+      if(bad){ er.textContent='Please answer: '+bad; return; }
+      var go=ov.querySelector('#kr-go'); go.disabled=true; go.textContent='Saving…';
+      var rec={ event_slug:ev.slug, buyer_email:email, buyer_name:name, answers:Object.keys(answers).length?answers:null };
+      if(ev.id) rec.event_id=ev.id;
+      function proceed(){ close(); if(done) done(); }
+      try{ Promise.resolve(sb.from('event_registrations').insert(rec)).then(proceed, proceed); }catch(e){ proceed(); }
+    });
+  }
   paint();
   // Enhance from DB if the event exists there (richer/authoritative)
   try{
@@ -148,6 +199,7 @@
           ev.title=x.title||ev.title; ev.venue=x.venue||ev.venue; ev.city=x.city||ev.city;
           ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genres||ev.genre;
           ev.img=x.cover_url||ev.img;
+          ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           paint();
           /* render ticket tiers (each with its Stripe Payment Link) before the Scene Room CTA */
           sb.from('ticket_tiers').select('*').eq('event_id',x.id).order('sort').then(function(tr){
@@ -155,31 +207,38 @@
               var box=$('ev-ctas'), pre='';
               tr.data.forEach(function(t){
                 var pl = t.price_cents>0 ? ('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')) : 'Free';
+                var base='<button class="cta cta-tix" style="border:0;cursor:pointer;font:inherit" data-tname="'+esc(t.name)+'" data-event-slug="'+esc(ev.slug)+'"';
                 if(t.price_cents>0){
                   if(t.stripe_payment_link){ /* direct Stripe Payment Link — works with no backend (resilient to Edge Function outages) */
-                    pre+='<a class="cta cta-tix" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(t.stripe_payment_link)+'" target="_blank" rel="noopener">🎟 '+esc(t.name)+' — '+pl+'</a>';
+                    pre+=base+' data-kt="ticket_click" data-buy="'+esc(t.stripe_payment_link)+'">🎟 '+esc(t.name)+' — '+pl+'</button>';
                   } else { /* KEEPITIL Connect checkout (auto 5% + $0.99 fee split via create-checkout) */
-                    pre+='<button class="cta cta-tix" style="border:0;cursor:pointer;font:inherit" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" data-tier="'+t.id+'">🎟 '+esc(t.name)+' — '+pl+'</button>';
+                    pre+=base+' data-kt="ticket_click" data-tier="'+t.id+'">🎟 '+esc(t.name)+' — '+pl+'</button>';
                   }
                 }
-                else { pre+='<span class="cta cta-tix" style="opacity:.55;cursor:default">🎟 '+esc(t.name)+' — Free</span>'; }
+                else { pre+=base+' data-kt="rsvp" data-free="1">🎟 '+esc(t.name)+' — RSVP Free</button>'; }
               });
               if(tr.data.some(function(t){return t.price_cents>0;})) pre+='<div style="font-size:.72rem;opacity:.6;margin:8px 0 0;flex-basis:100%">By purchasing you agree to the <a href="/v3/ticket-terms.html" style="color:var(--brand-2)">Ticket Terms</a> &amp; <a href="/v3/refund.html" style="color:var(--brand-2)">Refund Policy</a>.</div>';
               box.innerHTML = pre + box.innerHTML;
-              /* Stripe Connect checkout: each paid tier POSTs to create-checkout and redirects to hosted checkout */
-              box.querySelectorAll('.cta-tix[data-tier]').forEach(function(btn){
+              /* every ticket/RSVP button first captures attendee data (name + email + custom questions), then proceeds to checkout / confirms RSVP */
+              box.querySelectorAll('.cta-tix[data-tier],.cta-tix[data-buy],.cta-tix[data-free]').forEach(function(btn){
                 btn.addEventListener('click', function(){
-                  btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
-                  fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:1})})
-                    .then(function(r){return r.json();})
-                    .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
-                    .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
+                  var tname=btn.getAttribute('data-tname')||'';
+                  regCapture(tname, function(){
+                    if(btn.hasAttribute('data-free')){ btn.textContent='✓ You’re on the list'; btn.disabled=true; btn.style.opacity=.7; return; }
+                    if(btn.hasAttribute('data-buy')){ window.open(btn.getAttribute('data-buy'),'_blank','noopener'); return; }
+                    /* Stripe Connect checkout: POST create-checkout and redirect to hosted checkout (auto 5% + $0.99 split) */
+                    btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
+                    fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:1})})
+                      .then(function(r){return r.json();})
+                      .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
+                      .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
+                  });
                 });
               });
-              /* KILL SWITCH (client): platform_config.ticketing_enabled='0' disables buy buttons + shows a paused notice. Fail-open on read error; create-checkout enforces it server-side regardless. */
+              /* KILL SWITCH (client): platform_config.ticketing_enabled='0' disables PAID buy buttons + shows a paused notice (free RSVP stays open). Fail-open on read error; create-checkout enforces it server-side regardless. */
               sb.from('platform_config').select('value').eq('key','ticketing_enabled').maybeSingle().then(function(cfgr){
                 if(cfgr&&cfgr.data&&String(cfgr.data.value)==='0'){
-                  box.querySelectorAll('.cta-tix[data-tier]').forEach(function(b){ b.disabled=true; b.style.opacity=.5; b.style.cursor='default'; });
+                  box.querySelectorAll('.cta-tix[data-tier],.cta-tix[data-buy]').forEach(function(b){ b.disabled=true; b.style.opacity=.5; b.style.cursor='default'; });
                   var n=document.createElement('div'); n.style.cssText='font-size:.74rem;opacity:.8;margin:8px 0 0;flex-basis:100%'; n.textContent='⏸ Ticket sales are temporarily paused. Check back soon.'; box.appendChild(n);
                 }
               }).catch(function(){});
