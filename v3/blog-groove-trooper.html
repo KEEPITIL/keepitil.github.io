@@ -57,7 +57,14 @@ a{color:inherit;text-decoration:none;}
 .info-item label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:4px;}
 .info-item span{font-size:.9rem;}
 .info-links{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
-.info-link{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:4px;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;}
+/* icon-only social/email (V3 gold standard — Tier 1) */
+.info-link{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;padding:0;border-radius:50%;transition:all .2s;}
+.info-link svg{width:22px;height:22px;fill:#fff;}
+/* claim-this-profile hook (Tier 1 — unclaimed researched profiles) */
+.claim-banner{margin:26px 0 4px;border:1px dashed rgba(0,180,255,.55);background:linear-gradient(180deg,rgba(0,180,255,.07),rgba(139,92,255,.06));border-radius:14px;padding:20px 22px;text-align:center;}
+.claim-banner .ct{font-size:1.1rem;font-weight:800;color:#fff;}
+.claim-banner .cs{color:var(--grey);font-size:.9rem;margin:6px 0 14px;max-width:460px;margin-left:auto;margin-right:auto;}
+.claim-banner .cc{display:inline-block;background:linear-gradient(90deg,var(--brand),#5cc8ff);color:#04121b;font-weight:800;font-size:.9rem;padding:12px 26px;border-radius:999px;text-decoration:none;}
 .info-link.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);color:#fff;}
 .info-link.ig:hover{opacity:.85;transform:translateY(-2px);}
 .info-link.sc{background:#ff5500;color:#fff;}
@@ -292,10 +299,16 @@ footer a{color:var(--brand);}
       <div class="info-item"><label>Biggest Crowd</label><span>2,500 — Avalon Hollywood</span></div>
     </div>
     <div class="info-links">
-      <a class="info-link ig" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener">INSTAGRAM</a>
-      <a class="info-link sc" href="https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj" target="_blank" rel="noopener">SOUNDCLOUD</a>
-      <a class="info-link book" href="mailto:gtbookings626@gmail.com">BOOK</a>
+      <a class="info-link ig" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
+      <a class="info-link sc" href="https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj" target="_blank" rel="noopener" aria-label="SoundCloud" title="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
+      <a class="info-link book" href="mailto:gtbookings626@gmail.com" aria-label="Book / Email" title="Book / Email"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
     </div>
+  </div>
+
+  <div class="claim-banner">
+    <div class="ct">✋ Is this you?</div>
+    <div class="cs">We built this profile from public research to spotlight the scene. Claim it and join KEEPITIL to run it yourself — post, get booked, and sell tickets.</div>
+    <a class="cc" href="/v3/apply.html">Claim &amp; join — Free / Community $60/yr</a>
   </div>
 
   </div>
