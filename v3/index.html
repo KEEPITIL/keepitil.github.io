@@ -58,10 +58,12 @@
       --orange:var(--brand); --blue:var(--brand); --blue-dim:#0088cc; --blue-glow:rgba(0,180,255,.35);
       --blue-glow2:rgba(0,180,255,.15); --white:var(--text); --grey:#888;
       --font-head:'Bebas Neue',sans-serif; --font-body:'Inter',sans-serif;
+      --bg-image-opacity:.55; /* homepage background image — lower = more faded/see-through, higher = more visible */
     }
     html{scroll-behavior:smooth;overflow-x:hidden;}
     body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
-    body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('logo-bg.jpg') center/cover no-repeat;}
+    body::before{content:"";position:fixed;inset:0;z-index:-2;background:var(--bg);}
+    body::after{content:"";position:fixed;inset:0;z-index:-1;background:url('logo-bg.jpg') center/cover no-repeat;opacity:var(--bg-image-opacity,.55);pointer-events:none;}
     a{color:inherit;text-decoration:none;}
     img{max-width:100%;display:block;}
     .container{max-width:1180px;margin:0 auto;padding:0 24px;}
@@ -1511,10 +1513,8 @@
     <div class="evx-hd"><span class="evx-eyebrow">Hand-picked by KEEPITIL</span><h2 class="evx-title-lg" id="evx-ms-label">MUST-SEE EVENTS</h2></div>
     <div class="evx-row" id="evx-mustsee"></div>
   </section>
-  <section class="evx-sec">
-    <div class="evx-hd"><span class="evx-eyebrow">Fresh drops · this month</span><h2 class="evx-title-lg">Recently Added</h2></div>
-    <div class="evx-row" id="evx-recent"></div>
-  </section>
+  <!-- "Recently Added" section removed per Founder 2026-07-12 -->
+
   <div class="evx-nav">
     <div class="evx-nav-row" id="evx-months"></div>
     <div class="evx-nav-row" id="evx-genres"></div>
@@ -2051,7 +2051,7 @@ function buildRecent(){
   var picks=EVENTS.filter(function(e){return e.date.slice(0,7)===activeMonth&&e.pick;});
   var evs=EVENTS.filter(function(e){return e.date.slice(0,7)===activeMonth&&inGenre(e)&&picks.indexOf(e)<0;});
   if(!evs.length)evs=EVENTS.filter(function(e){return e.date.slice(0,7)===activeMonth&&inGenre(e);});
-  document.getElementById('evx-recent').innerHTML=evs.length?evs.slice(0,14).map(function(e){return flyer(e);}).join(''):'<div class="evx-empty">Nothing new.</div>';
+  var _recentEl=document.getElementById('evx-recent'); if(_recentEl){_recentEl.innerHTML=evs.length?evs.slice(0,14).map(function(e){return flyer(e);}).join(''):'<div class="evx-empty">Nothing new.</div>';}
 }
 function dayRow(day,mk,i){
   var p=parts(day.date);var dt=new Date(Date.UTC(p.y,p.m-1,p.day));var used=false;
