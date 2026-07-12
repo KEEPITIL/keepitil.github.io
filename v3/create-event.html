@@ -92,6 +92,13 @@ textarea{min-height:96px;resize:vertical}
       <button type="button" class="addtier" id="addtier">+ Add ticket tier</button>
     </div>
 
+    <div class="card">
+      <h3>Attendee info to collect <span style="font-weight:600;color:var(--muted);font-size:.85rem">(optional)</span></h3>
+      <div class="note">Name &amp; email are always captured at checkout. Add any extra questions each attendee should answer — age, guest name, Instagram handle, dietary needs, etc. Answers land in your event's attendee list.</div>
+      <div id="qs"></div>
+      <button type="button" class="addtier" id="addq">+ Add question</button>
+    </div>
+
     <button type="submit" class="submit" id="submitBtn">Submit event for review</button>
     <div class="msg" id="msg"></div>
     <div class="hint">By submitting you agree to the <a href="/v3/terms.html">Terms</a>. Nothing publishes until the KEEPITIL team approves it.</div>
@@ -125,6 +132,17 @@ function tierHtml(i){
 var tierCount=0;
 function addTier(){ var d=document.createElement('div'); d.innerHTML=tierHtml(tierCount); var el=d.firstChild; $('tiers').appendChild(el); var rm=el.querySelector('.rm'); if(rm) rm.addEventListener('click',function(){el.remove();}); tierCount++; }
 
+function qHtml(i){
+  return '<div class="tier" data-i="'+i+'"><button type="button" class="rm" title="Remove">&#10005;</button>'+
+    '<span class="tier-badge">Question '+(i+1)+'</span>'+
+    '<label>Question</label><input class="q-label" placeholder="e.g. Age &nbsp;/&nbsp; Instagram handle &nbsp;/&nbsp; Guest name"/>'+
+    '<div class="row"><div><label>Answer type</label><select class="q-type"><option value="text">Short text</option><option value="email">Email</option><option value="number">Number</option><option value="tel">Phone</option></select></div>'+
+    '<div><label>Required?</label><select class="q-req"><option value="no">Optional</option><option value="yes">Required</option></select></div></div>'+
+    '</div>';
+}
+var qCount=0;
+function addQ(){ var d=document.createElement('div'); d.innerHTML=qHtml(qCount); var el=d.firstChild; $('qs').appendChild(el); var rm=el.querySelector('.rm'); if(rm) rm.addEventListener('click',function(){el.remove();}); qCount++; }
+
 function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,60)+'-'+Math.random().toString(36).slice(2,6); }
 
 async function startPayouts(btn){
@@ -156,6 +174,7 @@ async function init(){
 }
 
 $('addtier').addEventListener('click',addTier);
+$('addq').addEventListener('click',addQ);
 
 $('form').addEventListener('submit',async function(e){
   e.preventDefault();
@@ -168,6 +187,12 @@ $('form').addEventListener('submit',async function(e){
       description:$('description').value.trim()||null, venue:$('venue').value.trim()||null, city:$('city').value.trim()||'Los Angeles',
       starts_at:$('starts_at').value?new Date($('starts_at').value).toISOString():null, cover_url:$('cover_url').value.trim()||null,
       genres:$('genres').value.trim()||null, status:'review' };
+    var qs=[];
+    document.querySelectorAll('#qs .tier').forEach(function(q){
+      var lbl=(q.querySelector('.q-label').value||'').trim(); if(!lbl) return;
+      qs.push({ label:lbl, type:q.querySelector('.q-type').value, required:q.querySelector('.q-req').value==='yes' });
+    });
+    if(qs.length) ev.reg_questions=qs;
     var ins=await supa.from('events').insert(ev).select('id').single();
     if(ins.error) throw ins.error;
     var eventId=ins.data.id;
