@@ -109,6 +109,8 @@ textarea{min-height:96px;resize:vertical}
     <div class="big">🎉</div>
     <h2 style="font-size:1.4rem;font-weight:900;margin:8px 0">Submitted!</h2>
     <p style="color:var(--muted);margin-bottom:20px">Your event is in review. Once approved it appears in the Scene, on your profile, and in the radio-bar "List Your Event" slot — and our crew can whip up a flyer + promo.</p>
+    <a class="btn primary" id="mktg-link" href="/v3/campaigns.html" style="margin-bottom:10px">📣 Set up marketing</a>
+    <br/>
     <a class="btn ghost" href="/v3/scene.html">Back to the Scene</a>
   </div>
 </div>
@@ -206,6 +208,7 @@ $('form').addEventListener('submit',async function(e){
       tiers.push({event_id:eventId,name:name,price_cents:price*100,qty_total:qty,stripe_payment_link:link,sort:idx});
     });
     if(tiers.length){ var ti=await supa.from('ticket_tiers').insert(tiers); if(ti.error) throw ti.error; }
+    var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(ev.slug);
     $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
     b.disabled=false; b.textContent='Submit event for review';
