@@ -1911,8 +1911,10 @@
         setTimeout(twTick, 55);
       }
     }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(twTick, 300); });
-    else setTimeout(twTick, 300);
+    function twStart(){ if (window.__twStarted) return; window.__twStarted = 1; twTick(); }
+    if (document.readyState === 'complete') twStart();
+    else window.addEventListener('load', twStart);
+    setTimeout(twStart, 1500); // fallback: guarantees it starts even if load already fired
   })();
 
   /* ── HOLIDAY BACKGROUND SYSTEM ──────────────────────────────────────────
@@ -2160,7 +2162,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   if(document.readyState!=='loading')run(); document.addEventListener('DOMContentLoaded',run); setTimeout(run,1200);
 })();
 </script>
-<script src="/v3/keepitil-ai.js" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260712b" defer></script>
 
 <style>
 .kil-tabs{display:flex;gap:6px;margin:6px 0 14px;}
