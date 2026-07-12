@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Door Scanner — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
+.wrap{max-width:520px;margin:0 auto;padding:0 var(--sp-3,20px)}
+.hero{padding:var(--sp-6,72px) 0 var(--sp-2,8px);text-align:center}
+h1{font-size:clamp(1.8rem,5vw,2.4rem);font-weight:900;line-height:1}
+h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:10px auto 0;font-size:.95rem}
+.gate{max-width:440px;margin:40px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
+.gate h2{font-size:1.25rem;font-weight:800;margin-bottom:8px}.gate p{color:var(--muted);margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;cursor:pointer;border:0}
+.btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:20px}
+#reader{width:100%;border-radius:14px;overflow:hidden}
+.manual{display:flex;gap:8px;margin-top:14px}
+.manual input{flex:1;background:var(--bg,#0d0d13);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit}
+.manual button{background:var(--brand);color:#04121b;border:0;border-radius:10px;padding:0 16px;font-weight:800;cursor:pointer}
+.result{margin-top:18px;border-radius:16px;padding:20px;text-align:center;font-weight:700;display:none}
+.result.ok{display:block;background:rgba(34,227,155,.12);border:1px solid rgba(34,227,155,.5);color:#22e39b}
+.result.warn{display:block;background:rgba(255,180,60,.12);border:1px solid rgba(255,180,60,.5);color:#ffb43c}
+.result.err{display:block;background:rgba(255,59,107,.12);border:1px solid rgba(255,59,107,.5);color:#ff5b7e}
+.result .big{font-size:2.2rem;line-height:1}.result .l1{font-size:1.15rem;margin-top:8px;font-weight:900}.result .l2{font-size:.9rem;color:var(--text);font-weight:600;margin-top:4px}
+.stat{display:flex;justify-content:center;gap:20px;margin-top:14px;color:var(--muted);font-size:.82rem}
+.stat b{color:var(--text)}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <h1>Door <span>scanner</span></h1>
+  <p class="sub">Scan attendee QR codes to check them in.</p>
+</div></header>
+
+<div class="wrap">
+  <div class="gate" id="gate" style="display:none">
+    <h2>Log in as the organizer</h2>
+    <p>Sign in with the account that owns this event to scan tickets.</p>
+    <a class="btn primary" id="loginBtn" href="/v3/apply.html">Log in</a>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="card">
+      <div id="reader"></div>
+      <div class="manual">
+        <input id="man" placeholder="…or type a ticket code" autocomplete="off"/>
+        <button id="manBtn">Check</button>
+      </div>
+      <div class="stat">Checked in this session: <b id="cnt">0</b></div>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+</div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+var evCache={}, tierCache={}, count=0, busy=false, lastTok='', lastAt=0;
+
+function show(cls,big,l1,l2){ var r=$('result'); r.className='result '+cls; r.innerHTML='<div class="big">'+big+'</div><div class="l1">'+esc(l1)+'</div>'+(l2?('<div class="l2">'+esc(l2)+'</div>'):''); }
+
+async function evName(id){ if(evCache[id]!==undefined) return evCache[id]; try{ var r=await supa.from('events').select('title').eq('id',id).maybeSingle(); evCache[id]=r&&r.data?r.data.title:''; }catch(e){evCache[id]='';} return evCache[id]; }
+async function tierName(id){ if(tierCache[id]!==undefined) return tierCache[id]; try{ var r=await supa.from('ticket_tiers').select('name').eq('id',id).maybeSingle(); tierCache[id]=r&&r.data?r.data.name:''; }catch(e){tierCache[id]='';} return tierCache[id]; }
+
+async function validate(raw){
+  var tok=String(raw||'').trim().replace(/^KIL-/i,''); if(!tok) return;
+  var now=Date.now(); if(tok===lastTok && now-lastAt<3000) return; lastTok=tok; lastAt=now;
+  if(busy) return; busy=true;
+  try{
+    var r=await supa.from('event_orders').select('*').eq('qr_token',tok).limit(1);
+    var o=r&&r.data&&r.data[0];
+    if(!o){ show('err','✕','Not a valid ticket','Not found, or not for your event'); busy=false; return; }
+    if(o.status!=='paid'){ show('err','✕','Not paid','Status: '+o.status); busy=false; return; }
+    var ev=await evName(o.event_id), ti=await tierName(o.tier_id);
+    if(o.checked_in_at){ show('warn','⚠','Already checked in',(ev||'')+' · '+(ti||'GA')); busy=false; return; }
+    var up=await supa.from('event_orders').update({checked_in_at:new Date().toISOString()}).eq('id',o.id).select('id');
+    if(up.error){ show('err','✕','Could not check in','Try again'); busy=false; return; }
+    count++; $('cnt').textContent=count;
+    show('ok','✓','Checked in',(ev||'Event')+' · '+(ti||'GA')+(o.buyer_email?(' · '+o.buyer_email):''));
+  }catch(e){ show('err','✕','Error','Please try again'); }
+  busy=false;
+}
+
+function startScanner(){
+  try{
+    var h=new Html5Qrcode('reader');
+    h.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:240}},function(txt){ validate(txt); },function(){}).catch(function(){
+      $('reader').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem">Camera unavailable — use the code box below.</div>';
+    });
+  }catch(e){ $('reader').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem">Camera unavailable — use the code box below.</div>'; }
+}
+
+async function init(){
+  if(!supa){ $('gate').style.display='block'; return; }
+  var b=$('loginBtn'); if(b) b.href='/v3/apply.html?next='+encodeURIComponent(location.pathname);
+  var r=await supa.auth.getSession().catch(function(){return null;});
+  var s=r&&r.data?r.data.session:null;
+  if(!s){ $('gate').style.display='block'; return; }
+  $('app').style.display='block';
+  $('manBtn').addEventListener('click',function(){ validate($('man').value); $('man').value=''; });
+  $('man').addEventListener('keydown',function(e){ if(e.key==='Enter'){ validate($('man').value); $('man').value=''; } });
+  if(window.Html5Qrcode) startScanner(); else $('reader').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted);font-size:.85rem">Scanner loading… use the code box below if it doesn\'t appear.</div>';
+}
+init();
+</script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
