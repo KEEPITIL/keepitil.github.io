@@ -20,6 +20,10 @@
   try{ if(!window.__kilSocialLoad){ window.__kilSocialLoad=1;
     var _so=document.createElement('script'); _so.defer=true; _so.src='/v3/keepitil-social.js'; document.head.appendChild(_so);
   } }catch(e){}
+  /* In-app notification center (bell + panel + opt-in) — shows for logged-in members. Added 2026-07-12. */
+  try{ if(!window.__kilNotifyLoad){ window.__kilNotifyLoad=1;
+    var _no=document.createElement('script'); _no.defer=true; _no.src='/v3/keepitil-notify.js'; document.head.appendChild(_no);
+  } }catch(e){}
   var NAV=[['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
