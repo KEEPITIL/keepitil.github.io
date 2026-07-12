@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="default">
+<html lang="en" data-theme="default" data-cat="Scene">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
@@ -23,14 +23,18 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+/* --cat is set per-article by category (see script); tints the whole page */
 body{background:var(--bg,#0a0a0f);color:var(--text,#f0f0f0);font-family:var(--font,'Inter',system-ui,sans-serif);line-height:1.7;padding-bottom:80px}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+  linear-gradient(180deg,color-mix(in srgb,var(--cat,#00b4ff) 14%,transparent),transparent 620px),
+  radial-gradient(120% 60% at 100% 0%,color-mix(in srgb,var(--cat,#00b4ff) 8%,transparent),transparent 55%)}
 a{color:inherit;text-decoration:none}
 .art{max-width:720px;margin:0 auto;padding:0 22px}
 
 /* hero */
 .hero{max-width:900px;margin:0 auto;padding:52px 22px 6px;text-align:center;position:relative}
-.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;background:radial-gradient(60% 80% at 50% 0%,color-mix(in srgb,var(--brand,#00b4ff) 45%,transparent),transparent 72%)}
-.cat-badge{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#04121b;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));border-radius:999px;padding:6px 15px;margin-bottom:18px}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.55;background:radial-gradient(60% 80% at 50% 0%,color-mix(in srgb,var(--cat,#00b4ff) 55%,transparent),transparent 72%)}
+.cat-badge{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#04121b;background:var(--cat,#00b4ff);border-radius:999px;padding:6px 15px;margin-bottom:18px}
 .hero h1{font-size:clamp(2rem,5.2vw,3.2rem);font-weight:900;line-height:1.08}
 .hero .sub{color:var(--muted,#9aa0b0);font-size:1.12rem;margin:16px auto 0;max-width:600px}
 .meta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;color:var(--muted,#9aa0b0);font-size:.8rem;letter-spacing:.04em;margin-top:16px}
@@ -46,7 +50,7 @@ a{color:inherit;text-decoration:none}
 /* body */
 .art p{font-size:1.12rem;color:#e7e8ee;margin:22px 0}
 .art h2{font-size:1.5rem;font-weight:800;margin:44px 0 6px;line-height:1.25}
-.art h2 .n{color:var(--brand,#00b4ff)}
+.art h2 .n{color:var(--cat,#00b4ff)}
 .art .lead{font-size:1.24rem;color:#fff;font-weight:500}
 .art strong{color:#fff;font-weight:700}
 .art blockquote{margin:30px 0;padding:8px 0 8px 22px;border-left:3px solid var(--brand,#00b4ff);font-size:1.4rem;line-height:1.3;color:#fff;font-weight:600}
@@ -210,6 +214,10 @@ a.inline{color:var(--brand,#00b4ff);border-bottom:1px solid color-mix(in srgb,va
 
 <script>
 (function(){
+  /* Category-tinted background: --cat drives page glow, badge, section numbers */
+  var CAT_COLORS={Guides:'#00b4ff',Guide:'#00b4ff',Tips:'#00b4ff',History:'#8b5cff',News:'#ff8a3d',Scene:'#00e0a4',Artists:'#ff4d8d',Playlists:'#ffd23f',Culture:'#9a94b4',Community:'#2ee6c5',Reviews:'#ff4d8d',Review:'#ff4d8d',Interview:'#8b5cff'};
+  var cat=(document.documentElement.getAttribute('data-cat')||'Guides').trim();
+  document.documentElement.style.setProperty('--cat',CAT_COLORS[cat]||'#00b4ff');
   var EV=[['KEEPITIL PICK','Warehouse: Techno All-Night','Fri · DTLA','$25'],['','Backyard Bass Session','Sat · OC','$15'],['','Rooftop Sunset House','Sun · Long Beach','$30']];
   var g=document.getElementById('relEvents');
   EV.forEach(function(e){var a=document.createElement('a');a.className='ev';a.href='/v3/scene.html';
