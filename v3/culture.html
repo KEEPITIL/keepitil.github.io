@@ -24,6 +24,12 @@ a{color:inherit;text-decoration:none}
 body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0a0a0f) url('/v3/culture-hero.jpg') center/cover no-repeat;opacity:1}
 /* layout */
 .wrap{max-width:1360px;margin:0 auto;padding:0 26px}
+.chero-intro{min-height:calc(100vh - 132px);display:flex;align-items:flex-end;justify-content:center;padding:0 20px 42px}
+.chero-cue{display:flex;flex-direction:column;align-items:center;gap:7px;color:#fff;opacity:.82;text-shadow:0 2px 12px rgba(0,0,0,.55);cursor:pointer}
+.chero-cue span{font-family:var(--fh,inherit);font-size:.72rem;letter-spacing:.26em;font-weight:800}
+.chero-cue .arw{font-size:1.5rem;line-height:1;animation:cbounce 1.8s ease-in-out infinite}
+@keyframes cbounce{0%,100%{transform:translateY(0)}50%{transform:translateY(9px)}}
+@media(max-width:940px){.chero-intro{min-height:calc(100vh - 120px);padding-bottom:34px}}
 .merge{display:grid;grid-template-columns:minmax(440px,540px) minmax(0,1fr);gap:26px;margin:22px 0 40px;align-items:start}
 @media(max-width:940px){.merge{grid-template-columns:1fr}}
 /* LEFT feed */
@@ -35,7 +41,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 .toggle{display:inline-flex;background:rgba(255,255,255,.05);border:1px solid var(--brd);border-radius:999px;padding:3px}
 .toggle button{font-family:var(--fh);letter-spacing:.08em;font-size:.8rem;color:var(--ink2);background:none;border:0;padding:7px 15px;border-radius:999px;cursor:pointer}
 .toggle button.on{background:#fff;color:#07070c}
-.feed{display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 190px);overflow-y:auto;padding-right:4px;scrollbar-width:thin}
+.feed{display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 190px);overflow-y:auto;padding-right:4px;scrollbar-width:none;-ms-overflow-style:none}
+.feed::-webkit-scrollbar{display:none;width:0;height:0}
 @media(max-width:940px){.feed{max-height:none;overflow:visible}}
 .fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.82);border:1px solid var(--brd);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
 .fcard:hover{border-color:rgba(255,255,255,.22);transform:translateY(-2px)}
@@ -84,6 +91,12 @@ footer a{color:var(--purple)}
 <nav class="hubnav"><div class="in"><a href="/v3/connect.html" class="on">Connect</a><a href="/v3/create-comp.html">Create</a><a href="/v3/compete.html">Grow</a><a href="/v3/earn.html">Earn</a><a href="/v3/giveback.html">Give Back</a></div></nav>
 <nav id="main-nav"></nav>
 
+<section class="chero-intro">
+  <div class="chero-cue" onclick="document.querySelector('.wrap').scrollIntoView({behavior:'smooth'})">
+    <span>SCROLL INTO THE CULTURE</span>
+    <div class="arw">&#9662;</div>
+  </div>
+</section>
 
 <div class="wrap"><div class="merge">
   <!-- LEFT: live feed -->
