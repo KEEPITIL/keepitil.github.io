@@ -149,7 +149,8 @@ async function startPayouts(btn){
   try{
     if(btn){ btn.disabled=true; btn.textContent='Opening Stripe…'; }
     var r=await supa.auth.getSession(); var s=r&&r.data?r.data.session:null; if(!s) return;
-    var resp=await fetch(SUPA_URL+'/functions/v1/connect-onboard',{method:'POST',headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+s.access_token}});
+    /* NOTE: no 'apikey' header — connect-onboard's CORS allow-list is authorization+content-type only; adding apikey trips the preflight ("Failed to fetch"). The user JWT in Authorization is sufficient for the function. */
+    var resp=await fetch(SUPA_URL+'/functions/v1/connect-onboard',{method:'POST',headers:{'Authorization':'Bearer '+s.access_token}});
     var d=await resp.json();
     if(d&&d.url){ location.href=d.url; } else { if(btn){btn.disabled=false;btn.textContent='Set up payouts';} alert(d&&d.error?('Payouts: '+d.error):'Could not start payout setup.'); }
   }catch(e){ if(btn){btn.disabled=false;btn.textContent='Set up payouts';} alert('Could not start payout setup.'); }
