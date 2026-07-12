@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>My Tickets — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
+.wrap{max-width:720px;margin:0 auto;padding:0 var(--sp-3,20px)}
+.hero{padding:var(--sp-6,72px) 0 var(--sp-2,10px);text-align:center}
+h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:900;line-height:1}
+h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin:12px auto 0;font-size:1rem}
+.gate,.empty{max-width:460px;margin:40px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
+.gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
+.gate p,.empty p{color:var(--muted);margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;cursor:pointer;border:0}
+.btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
+.btn.ghost{border:2px solid var(--line);color:var(--text);background:transparent}
+.tk{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:20px}
+.tk-hero{padding:26px 22px;background:#0a0a12 center/cover no-repeat;position:relative}
+.tk-hero .eb{font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8fd6ff;text-shadow:0 1px 8px #000}
+.tk-hero .nm{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;letter-spacing:.02em;color:#fff;margin-top:4px;text-shadow:0 2px 14px #000}
+.tk-hero .mt{font-size:.85rem;color:#eaf4ff;margin-top:6px;text-shadow:0 1px 10px #000}
+.tk-body{display:flex;gap:18px;padding:20px 22px;flex-wrap:wrap;align-items:center}
+.tk-info{flex:1;min-width:180px}
+.tk-info .row{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.tk-info .row b{color:var(--text)}.tk-info .row span{color:var(--muted)}
+.tk-qr{text-align:center}
+.tk-qr img{background:#fff;border-radius:12px;padding:8px;display:block}
+.tk-qr .cap{font-size:.72rem;color:var(--muted);margin-top:6px}
+.tag{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-top:8px}
+.tag.paid{background:rgba(34,227,155,.14);color:#22e39b;border:1px solid rgba(34,227,155,.4)}
+.tag.used{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
+.loading{text-align:center;color:var(--muted);padding:40px}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <h1>My <span>tickets</span></h1>
+  <p class="sub">Your QR is your entry. Show it at the door.</p>
+</div></header>
+
+<div class="wrap">
+  <div class="loading" id="loading">Loading your tickets…</div>
+
+  <div class="gate" id="gate" style="display:none">
+    <h2>Log in to see your tickets</h2>
+    <p>Your tickets live in your KEEPITIL account. Log in with the account you used to buy.</p>
+    <a class="btn primary" id="loginBtn" href="/v3/apply.html">Log in / Join</a>
+  </div>
+
+  <div class="empty" id="empty" style="display:none">
+    <h2>No tickets yet</h2>
+    <p>When you grab tickets to an event, they'll show up here with your QR code.</p>
+    <a class="btn primary" href="/v3/">Browse events</a>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function fmt(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return ''; return DOW[d.getUTCDay()]+', '+MON[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }
+
+async function init(){
+  if(!supa){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
+  var r=await supa.auth.getSession().catch(function(){return null;});
+  var s=r&&r.data?r.data.session:null;
+  if(!s){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
+  try{
+    // RLS returns only THIS buyer's orders (matched to their account email)
+    var o=await supa.from('event_orders').select('*').eq('status','paid').order('id',{ascending:false});
+    var orders=(o&&o.data)||[];
+    if(!orders.length){ $('loading').style.display='none'; $('empty').style.display='block'; return; }
+    // fetch events + tiers referenced by these orders
+    var evIds=[].concat.apply([],orders.map(function(x){return x.event_id?[x.event_id]:[];}));
+    var tIds=[].concat.apply([],orders.map(function(x){return x.tier_id?[x.tier_id]:[];}));
+    var evs={},tiers={};
+    if(evIds.length){ var er=await supa.from('events').select('id,slug,title,venue,city,starts_at,cover_url').in('id',evIds); (er.data||[]).forEach(function(e){evs[e.id]=e;}); }
+    if(tIds.length){ var tr=await supa.from('ticket_tiers').select('id,name,price_cents').in('id',tIds); (tr.data||[]).forEach(function(t){tiers[t.id]=t;}); }
+    var html=orders.map(function(x){
+      var e=evs[x.event_id]||{}, t=tiers[x.tier_id]||{};
+      var used=!!x.checked_in_at;
+      var bg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"'),url('/v3/logo-bg.jpg')"):"background-image:url('/v3/logo-bg.jpg')";
+      var price=t.price_cents!=null?('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
+      return '<div class="tk">'+
+        '<div class="tk-hero" style="'+bg+'">'+
+          '<div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div>'+
+          '<div class="nm">'+esc(e.title||'Event')+'</div>'+
+          '<div class="mt">'+esc(fmt(e.starts_at))+(e.venue?(' · '+esc(e.venue)):'')+'</div>'+
+        '</div>'+
+        '<div class="tk-body">'+
+          '<div class="tk-info">'+
+            '<div class="row"><span>Ticket</span><b>'+esc(t.name||'General Admission')+'</b></div>'+
+            '<div class="row"><span>Quantity</span><b>'+(x.qty||1)+'</b></div>'+
+            (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
+            '<div class="row"><span>Order</span><b>#KIL-'+(10000+(x.id||0))+'</b></div>'+
+            '<div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div>'+
+          '</div>'+
+          '<div class="tk-qr">'+
+            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+encodeURIComponent('KIL-'+(x.qr_token||x.id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/>'+
+            '<div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    $('loading').style.display='none'; $('list').innerHTML=html;
+  }catch(err){ $('loading').textContent='Could not load tickets. Please refresh.'; }
+}
+
+// carry a ?next redirect target into the login button so users return here
+(function(){ var b=$('loginBtn'); if(b) b.href='/v3/apply.html?next='+encodeURIComponent(location.pathname); })();
+init();
+</script>
+<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
