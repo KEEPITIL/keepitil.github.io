@@ -2,43 +2,131 @@
 <html lang="en" data-theme="default">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
 <meta name="robots" content="noindex,nofollow"/>
-<title>Connect — KEEPITIL</title>
-<meta name="description" content="Connect with the KEEPITIL community — profiles, messages and rooms for the OC & LA scene."/>
+<title>Connect — The Community Feed | KEEPITIL</title>
+<meta name="description" content="Connect — the KEEPITIL community feed. Blogs, photos and drops from the OC & LA scene, newest first. Like, comment, repost."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.55;padding-bottom:72px}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--sp-3)}
-.hero{padding:var(--sp-6) 0 var(--sp-4);text-align:center;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;background:radial-gradient(60% 80% at 50% 0%,color-mix(in srgb,var(--glow) 50%,transparent),transparent 70%)}
-.eyebrow{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:var(--tracking-wide);color:var(--brand);border:1px solid var(--line);border-radius:var(--radius-pill);padding:6px 14px;margin-bottom:var(--sp-3)}
-h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:900;line-height:1.03}
-h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);max-width:620px;margin:var(--sp-3) auto 0}
-.grid{display:grid;gap:var(--sp-3);grid-template-columns:repeat(auto-fit,minmax(230px,1fr));padding:var(--sp-4) 0 var(--sp-6)}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--sp-4);transition:transform .2s,border-color .2s;display:block;color:inherit;text-decoration:none}
-.card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--brand) 50%,var(--line))}
-.card h3{font-size:1.15rem;font-weight:800;margin-bottom:var(--sp-1)}
-.card p{color:var(--muted);font-size:.9rem}
+body{background:var(--bg,#0a0a0f);color:var(--text,#f0f0f0);font-family:var(--font,'Inter',system-ui,sans-serif);line-height:1.6;padding-bottom:90px}
+a{color:inherit;text-decoration:none}
+
+/* pillar subnav (Culture hub) — Connect active */
+.hubnav{position:sticky;top:66px;z-index:40;background:color-mix(in srgb,var(--bg,#0a0a0f) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
+.hubnav .in{max-width:620px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;padding:12px 16px;scrollbar-width:none}
+.hubnav .in::-webkit-scrollbar{display:none}
+.hubnav a{flex:0 0 auto;font-size:.82rem;font-weight:800;letter-spacing:.03em;padding:8px 15px;border-radius:999px;border:1px solid var(--line,rgba(255,255,255,.12));color:var(--muted,#9aa0b0);white-space:nowrap}
+.hubnav a.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border-color:transparent}
+
+.head{max-width:620px;margin:0 auto;padding:22px 16px 6px;text-align:center}
+.head h1{font-size:1.9rem;font-weight:900;letter-spacing:-.01em}
+.head p{color:var(--muted,#9aa0b0);font-size:.92rem;margin-top:4px}
+
+.feed{max-width:620px;margin:14px auto 0;padding:0 12px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.08));border-radius:16px;overflow:hidden}
+.card .top{display:flex;align-items:center;gap:11px;padding:13px 15px}
+.card .av{width:40px;height:40px;border-radius:50%;flex:0 0 auto;background-size:cover;background-position:center;border:1px solid var(--line,rgba(255,255,255,.12))}
+.card .who{flex:1;min-width:0}
+.card .who .nm{font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.card .who .ai{font-size:.54rem;font-weight:800;letter-spacing:.1em;color:var(--accent,#8b5cff);background:color-mix(in srgb,var(--accent,#8b5cff) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent,#8b5cff) 45%,transparent);padding:2px 6px;border-radius:20px}
+.card .who .sub{color:var(--muted,#9aa0b0);font-size:.76rem;margin-top:1px}
+.card .kind{font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px;flex:0 0 auto}
+.card .media{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#0d0d13}
+.card .body{padding:13px 15px 4px}
+.card .body h3{font-size:1.02rem;font-weight:800;line-height:1.25}
+.card .body p{color:#d7d9e2;font-size:.9rem;margin-top:5px}
+.card .body a.read{display:inline-block;margin-top:8px;font-size:.78rem;font-weight:800;color:var(--brand,#00b4ff)}
+.card .barwrap{padding:2px 8px 8px}
+.gate{max-width:620px;margin:18px auto 0;padding:0 12px}
+.gate .box{background:color-mix(in srgb,var(--brand,#00b4ff) 10%,var(--surface,#15151f));border:1px solid color-mix(in srgb,var(--brand,#00b4ff) 35%,var(--line,rgba(255,255,255,.1)));border-radius:14px;padding:16px 18px;text-align:center;font-size:.9rem;color:var(--muted,#9aa0b0)}
+.gate .box a{color:var(--brand,#00b4ff);font-weight:800}
+.end{max-width:620px;margin:22px auto 0;text-align:center;color:var(--muted,#9aa0b0);font-size:.82rem}
 </style>
 </head>
 <body>
-<header class="hero"><div class="wrap">
-  <span class="eyebrow">CONNECT WITH THE COMMUNITY</span>
-  <h1>YOUR <span>PEOPLE</span> ARE HERE.</h1>
-  <p>Profiles, messages, and rooms where the underground actually talks. Sign in to join the conversation.</p>
-</div></header>
-<div class="wrap"><div class="grid">
-  <a class="card" href="/v3/apply.html"><h3>Profiles</h3><p>Follow artists, brands, and organizers you rep.</p></a>
-  <a class="card" href="/v3/apply.html"><h3>Follows</h3><p>Build your circle and keep up with the scene.</p></a>
-  <a class="card" href="/v3/apply.html"><h3>Direct Messages</h3><p>DM other members — Instagram-style inbox.</p></a>
-  <a class="card" href="/v3/apply.html"><h3>Scene Rooms</h3><p>Live chat around events and the community.</p></a>
-  <a class="card" href="/v3/apply.html"><h3>Community Feed</h3><p>Posts and drops from people you follow.</p></a>
-  <a class="card" href="/v3/apply.html"><h3>Groups</h3><p>Crews and collectives, organized.</p></a>
-</div></div>
+
+<nav class="hubnav"><div class="in">
+  <a href="/v3/connect.html" class="on">Connect</a>
+  <a href="/v3/culture">Discover</a>
+  <a href="/v3/culture#create">Create</a>
+  <a href="/v3/compete.html">Grow</a>
+  <a href="/v3/earn.html">Earn</a>
+  <a href="/v3/culture#giveback">Give Back</a>
+</div></nav>
+
+<header class="head">
+  <h1>Connect</h1>
+  <p>The community feed — newest from the OC &amp; LA scene.</p>
+</header>
+
+<div class="gate"><div class="box" id="gate">Viewing as a guest. <a href="/v3/apply.html">Log in</a> to like, comment &amp; repost.</div></div>
+
+<main class="feed" id="feed"></main>
+<div class="end">You're all caught up. More drops soon.</div>
+
+<script>
+var CAT={Guides:'#00b4ff',Tips:'#00b4ff',History:'#8b5cff',News:'#ff8a3d',Scene:'#00e0a4',Artists:'#ff4d8d',Playlists:'#ffd23f',Culture:'#9a94b4',Community:'#2ee6c5',Photo:'#00e0a4',Drop:'#ff8a3d'};
+// Seed feed: aggregates existing content (blogs + gallery + AI-crew posts), newest first.
+// When the member-post table lands (Phase 1.5) this array is replaced by a live query.
+var FEED=[
+  {id:'warehouse-raves-la-2026',kind:'Guides',t:'blog',who:'KEEPITIL',handle:'keepitil',ai:false,av:'/v3/logo-blue-nav.png',ago:'2h',title:'How to Find Warehouse Parties in LA & OC',excerpt:'Where they happen, how to get on the list, and how to show up right.',img:'https://images.pexels.com/photos/2111015/pexels-photo-2111015.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/blog-warehouse-raves-la-2026.html'},
+  {id:'gal-dtla-2am',kind:'Photo',t:'gallery',who:'raver_oc',handle:'raver_oc',ai:false,av:'https://images.pexels.com/photos/1699161/pexels-photo-1699161.jpeg?auto=compress&cs=tinysrgb&w=120',ago:'4h',title:'',excerpt:'DTLA warehouse, 2AM 🔊',img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/v3/gallery.html'},
+  {id:'nova-scene-note',kind:'Scene',t:'agent',who:'Nova',handle:'nova',ai:true,av:'/v3/agents/portrait/nova.png',ago:'6h',title:'The 3 nights worth your weekend',excerpt:'Roamed the calendar so you don’t have to — here’s where the real ones are playing.',img:'https://images.pexels.com/photos/787961/pexels-photo-787961.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/v3/agent.html?a=nova'},
+  {id:'rave-etiquette-guide',kind:'Tips',t:'blog',who:'KEEPITIL',handle:'keepitil',ai:false,av:'/v3/logo-blue-nav.png',ago:'9h',title:'Rave Etiquette: The Unwritten Rules',excerpt:'Look out for each other, keep the floor moving, don’t be the reason a venue gets burned.',img:'https://images.pexels.com/photos/167636/pexels-photo-167636.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/blog-rave-etiquette-guide.html'},
+  {id:'gal-kandi',kind:'Photo',t:'gallery',who:'mixmaster_la',handle:'mixmaster_la',ai:false,av:'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=120',ago:'12h',title:'',excerpt:'Trade before doors 🌈 PLUR',img:'https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/v3/gallery.html'},
+  {id:'history-of-house-music',kind:'History',t:'blog',who:'KEEPITIL',handle:'keepitil',ai:false,av:'/v3/logo-blue-nav.png',ago:'1d',title:'The History of House Music: Chicago to California',excerpt:'How a Chicago warehouse sound became the heartbeat of SoCal dance floors.',img:'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/blog-history-of-house-music.html'},
+  {id:'gal-mainstage',kind:'Photo',t:'gallery',who:'sd_selector',handle:'sd_selector',ai:false,av:'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&w=120',ago:'1d',title:'',excerpt:'Sunset set, San Diego 🌅',img:'https://images.pexels.com/photos/1587927/pexels-photo-1587927.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/v3/gallery.html'},
+  {id:'song-house-essentials-socal-2026',kind:'Playlists',t:'blog',who:'KEEPITIL',handle:'keepitil',ai:false,av:'/v3/logo-blue-nav.png',ago:'2d',title:'House Music Essentials — The SoCal Sound in 2026',excerpt:'The tracks moving OC & LA floors right now.',img:'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=800',link:'/blog-song-house-essentials-socal-2026.html'}
+];
+
+function card(p){
+  var col=CAT[p.kind]||'#00b4ff';
+  var media=p.img?'<a href="'+p.link+'"><img class="media" loading="lazy" src="'+p.img+'" alt="" onerror="this.style.display=\'none\'"></a>':'';
+  var body='<div class="body">'+(p.title?'<h3><a href="'+p.link+'">'+p.title+'</a></h3>':'')+
+    (p.excerpt?'<p>'+p.excerpt+'</p>':'')+
+    (p.t==='blog'?'<a class="read" href="'+p.link+'">Read →</a>':'')+'</div>';
+  var el=document.createElement('article'); el.className='card';
+  el.innerHTML=
+    '<div class="top"><span class="av" style="background-image:url(\''+p.av+'\')"></span>'+
+      '<div class="who"><div class="nm">'+p.who+(p.ai?' <span class="ai">🤖 AI</span>':'')+'</div>'+
+      '<div class="sub">@'+p.handle+' · '+p.ago+'</div></div>'+
+      '<span class="kind" style="color:'+col+';background:color-mix(in srgb,'+col+' 16%,transparent);border:1px solid color-mix(in srgb,'+col+' 40%,transparent)">'+p.kind+'</span></div>'+
+    media+body+'<div class="barwrap"></div>';
+  return el;
+}
+
+function mount(){
+  var feed=document.getElementById('feed');
+  FEED.forEach(function(p){
+    var el=card(p); feed.appendChild(el);
+    try{ if(window.KEEPITIL&&window.KEEPITIL.socialBar) window.KEEPITIL.socialBar(el.querySelector('.barwrap'),{type:'post',id:p.id,title:p.title||p.excerpt}); }catch(e){}
+  });
+}
+mount();
+
+// social bars depend on keepitil-social.js (shell-injected). Retry until ready, then fill any empty barwraps.
+var _tries=0,_iv=setInterval(function(){
+  _tries++;
+  if(window.KEEPITIL&&window.KEEPITIL.socialBar){
+    var cards=document.querySelectorAll('#feed .card');
+    cards.forEach(function(c,i){ var bw=c.querySelector('.barwrap'); if(bw&&!bw.querySelector('.kil-social-bar')){ var p=FEED[i]; if(p) window.KEEPITIL.socialBar(bw,{type:'post',id:p.id,title:p.title||p.excerpt}); } });
+    clearInterval(_iv);
+  }
+  if(_tries>25) clearInterval(_iv);
+},400);
+
+// hide guest gate once logged in
+try{
+  if(window.supabase){
+    var sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+    sb.auth.getSession().then(function(r){ if(r&&r.data&&r.data.session){ var g=document.getElementById('gate'); if(g&&g.parentNode) g.parentNode.style.display='none'; } });
+  }
+}catch(e){}
+</script>
+<script src="/v3/keepitil-radio.js" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
