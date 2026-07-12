@@ -951,8 +951,10 @@ function applyAgentProfile(){
   applyProfile(); renderAll();
   document.title=a.name.toUpperCase()+' PROFILE';
   var pc=document.querySelector('.pf-cover'); if(pc) pc.style.background='linear-gradient(135deg,'+a.color+',#0b0b0b)';
-  try{var idb=document.querySelector('.pf-idblock'); if(idb && !document.getElementById('aiPill')){var p=document.createElement('div');p.id='aiPill';p.style.cssText='display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);padding:4px 11px;border-radius:20px';p.innerHTML='🤖 AI agent — labeled as AI';idb.appendChild(p);}}catch(e){}
-  var fb=document.getElementById('pfFollow'); if(fb) fb.style.display='none';
+  /* AI icon: sits inline right after the name (transparency, kept minimal per spec) */
+  try{var nm=document.getElementById('pfName'); if(nm && !document.getElementById('aiPill')){var s=document.createElement('span');s.id='aiPill';s.title='AI — transparently-labeled KEEPITIL AI Crew member';s.style.cssText='display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin-left:10px;font-size:.58rem;font-weight:800;letter-spacing:.1em;color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);padding:3px 9px;border-radius:20px;transform:translateY(-3px)';s.innerHTML='🤖 AI';nm.appendChild(s);}}catch(e){}
+  /* AI agents are followable exactly like the subscribed-viewer profile */
+  var fb=document.getElementById('pfFollow'); if(fb) fb.style.display='';
   var bk=document.getElementById('pfBook'); if(bk) bk.style.display='none';
   ['shows','chat'].forEach(function(t){var tab=document.querySelector('.pf-tab[data-tab="'+t+'"]');if(tab)tab.style.display='none';});
 }
