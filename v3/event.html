@@ -54,6 +54,10 @@
   .links .row{display:flex;flex-wrap:wrap;gap:9px;}
   .links a{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border:1px solid rgba(0,180,255,.28);border-radius:20px;}
   footer{border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center;color:#556;font-size:.75rem;}
+  /* organizer announcement banners */
+  .ann{background:linear-gradient(90deg,rgba(0,180,255,.14),rgba(0,180,255,.04));border:1px solid rgba(0,180,255,.35);border-left:3px solid var(--brand);border-radius:12px;padding:12px 16px;margin-bottom:16px;}
+  .ann .t{font-weight:800;font-size:.9rem;color:var(--brand-2);margin-bottom:2px;}
+  .ann .b{font-size:.88rem;color:#c8d2dc;line-height:1.5;}
   /* registration / attendee-capture modal */
   .kreg-ov{position:fixed;inset:0;background:rgba(4,4,10,.74);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px;}
   .kreg{background:#12121c;border:1px solid rgba(0,180,255,.25);border-radius:16px;max-width:440px;width:100%;padding:24px;max-height:88vh;overflow:auto;}
@@ -73,6 +77,7 @@
 <header id="main-nav"><div class="hd"><a href="/v3/" class="brand">⚡ KEEPITIL</a> <a class="back" href="/v3/">← All events</a></div></header>
 <div class="wrap">
   <div class="crumbs"><a href="/v3/">Home</a> › <a href="/v3/">Events</a> › <span id="cr-title">Event</span></div>
+  <div id="ev-ann"></div>
   <div class="ev">
     <div class="flyer" id="ev-flyer"></div>
     <div>
@@ -201,6 +206,10 @@
           ev.img=x.cover_url||ev.img;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           paint();
+          /* organizer on-site announcements (public read) */
+          sb.from('event_announcements').select('title,body,active,created_at').eq('event_slug',ev.slug).eq('active',true).order('created_at',{ascending:false}).then(function(ar){
+            if(ar&&ar.data&&ar.data.length){ var box=document.getElementById('ev-ann'); if(box){ box.innerHTML=ar.data.map(function(a){ return '<div class="ann">'+(a.title?'<div class="t">'+esc(a.title)+'</div>':'')+'<div class="b">'+esc(a.body)+'</div></div>'; }).join(''); } }
+          }).catch(function(){});
           /* render ticket tiers (each with its Stripe Payment Link) before the Scene Room CTA */
           sb.from('ticket_tiers').select('*').eq('event_id',x.id).order('sort').then(function(tr){
             if(tr&&tr.data&&tr.data.length){
