@@ -142,9 +142,10 @@
     if(ev.vip && ev.ticket) c+='<a class="cta cta-vip" data-kt="vip_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>';
     c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
     $('ev-ctas').innerHTML=c;
-    /* social bar: like / repost / save / comment / share (activates once social-layer SQL is run) */
+    /* social bar: like / repost / save / comment / share — guarded so repeat paint() calls inject it only ONCE */
     (function ensureBar(){
-      if(window.KEEPITIL&&window.KEEPITIL.socialBar){ var h=document.createElement('div'); var box=$('ev-ctas'); box.parentNode.insertBefore(h, box.nextSibling); window.KEEPITIL.socialBar(h,{type:'event',id:ev.slug,title:ev.title}); }
+      if(window.__kilEvBar) return;
+      if(window.KEEPITIL&&window.KEEPITIL.socialBar){ window.__kilEvBar=true; var h=document.createElement('div'); var box=$('ev-ctas'); box.parentNode.insertBefore(h, box.nextSibling); window.KEEPITIL.socialBar(h,{type:'event',id:ev.slug,title:ev.title}); }
       else setTimeout(ensureBar,150);
     })();
     // JSON-LD
@@ -157,7 +158,7 @@
     $('ld-event').textContent=JSON.stringify(ld);
   }
   /* attendee-data capture: name + email + organizer's custom questions → event_registrations. Fail-open (never blocks a sale). */
-  function regCapture(tierName, done){
+  function regCapture(tierName, showPromo, done){
     var reg=Array.isArray(ev.reg)?ev.reg:[];
     var ov=document.createElement('div'); ov.className='kreg-ov';
     var qh='';
@@ -165,11 +166,12 @@
       var t=({email:'email',number:'number',tel:'tel'})[q.type]||'text';
       qh+='<label>'+esc(q.label)+(q.required?' <span class="req">*</span>':'')+'</label><input data-qi="'+i+'" type="'+t+'"'+(q.required?' data-req="1"':'')+'/>';
     });
+    var promoH=showPromo?'<label>Promo code <span style="text-transform:none;font-weight:400;color:#8a97a4">(optional)</span></label><input id="kr-promo" type="text" placeholder="EARLYBIRD" style="text-transform:uppercase"/>':'';
     ov.innerHTML='<div class="kreg"><button class="x" aria-label="Close">&times;</button>'+
       '<h3>Almost there</h3><p class="sub">Confirm your details'+(tierName?(' for <b>'+esc(tierName)+'</b>'):'')+'. Your info goes to the event organizer.</p>'+
       '<label>Full name <span class="req">*</span></label><input id="kr-name" type="text" autocomplete="name"/>'+
       '<label>Email <span class="req">*</span></label><input id="kr-email" type="email" autocomplete="email"/>'+
-      qh+'<div class="err" id="kr-err"></div><button class="go" id="kr-go">Continue</button></div>';
+      qh+promoH+'<div class="err" id="kr-err"></div><button class="go" id="kr-go">Continue</button></div>';
     document.body.appendChild(ov);
     function close(){ ov.remove(); }
     ov.querySelector('.x').addEventListener('click',close);
@@ -187,10 +189,11 @@
         if(v) answers[reg[i].label]=v;
       });
       if(bad){ er.textContent='Please answer: '+bad; return; }
+      var promo=showPromo?(((ov.querySelector('#kr-promo')||{}).value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'')||null):null;
       var go=ov.querySelector('#kr-go'); go.disabled=true; go.textContent='Saving…';
       var rec={ event_slug:ev.slug, buyer_email:email, buyer_name:name, answers:Object.keys(answers).length?answers:null };
       if(ev.id) rec.event_id=ev.id;
-      function proceed(){ close(); if(done) done(); }
+      function proceed(){ close(); if(done) done(promo); }
       try{ Promise.resolve(sb.from('event_registrations').insert(rec)).then(proceed, proceed); }catch(e){ proceed(); }
     });
   }
@@ -232,12 +235,13 @@
               box.querySelectorAll('.cta-tix[data-tier],.cta-tix[data-buy],.cta-tix[data-free]').forEach(function(btn){
                 btn.addEventListener('click', function(){
                   var tname=btn.getAttribute('data-tname')||'';
-                  regCapture(tname, function(){
+                  /* promo UI gated OFF until create-checkout applies discount_code server-side (Supabase Functions UI is mid-incident). Plumbing stays wired; flip to btn.hasAttribute('data-tier') to enable. */
+                  regCapture(tname, false, function(promo){
                     if(btn.hasAttribute('data-free')){ btn.textContent='✓ You’re on the list'; btn.disabled=true; btn.style.opacity=.7; return; }
                     if(btn.hasAttribute('data-buy')){ window.open(btn.getAttribute('data-buy'),'_blank','noopener'); return; }
-                    /* Stripe Connect checkout: POST create-checkout and redirect to hosted checkout (auto 5% + $0.99 split) */
+                    /* Stripe Connect checkout: POST create-checkout and redirect to hosted checkout (auto 5% + $0.99 split; optional promo code) */
                     btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
-                    fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:1})})
+                    fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:1,discount_code:promo||null})})
                       .then(function(r){return r.json();})
                       .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
                       .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
