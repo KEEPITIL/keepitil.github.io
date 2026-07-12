@@ -2378,5 +2378,21 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
 </script>
 <script src="/v3/v3-shell.js" defer></script>
   <script src="/v3/keepitil-create-fab.js" defer></script>
+  <!-- Founder fixes 2026-07-12: force chat FAB above the Create FAB, + bulletproof hero typewriter -->
+  <style>#kilo-btn{bottom:132px !important;}</style>
+  <script>
+  (function(){
+    function boot(){ if(window.__twBoot) return; window.__twBoot=1; window.__twStarted=1;
+      var W=['DISCOVER','CONNECT','CREATE','GROW','EARN'], i=0, c=0, del=false;
+      function t(){ var el=document.getElementById('typewriter'); if(!el){ return setTimeout(t,300); }
+        var w=W[i];
+        if(!del){ c++; el.textContent=w.slice(0,c); if(c>=w.length){ del=true; return setTimeout(t,1500);} setTimeout(t,110); }
+        else{ c--; el.textContent=w.slice(0,c); if(c<=0){ del=false; i=(i+1)%W.length; return setTimeout(t,320);} setTimeout(t,55); } }
+      t();
+    }
+    if(document.readyState==='complete') boot(); else window.addEventListener('load', boot);
+    setTimeout(boot, 1800);
+  })();
+  </script>
 </body>
 </html>
