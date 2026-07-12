@@ -126,6 +126,68 @@ try{
   }
 }catch(e){}
 </script>
+<style>
+.composer{max-width:620px;margin:14px auto 0;padding:0 12px;display:none}
+.composer .box{background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.1));border-radius:16px;padding:14px}
+.composer textarea{width:100%;background:var(--bg,#0a0a0f);border:1px solid var(--line,rgba(255,255,255,.15));border-radius:12px;color:var(--text,#f0f0f0);font:inherit;font-size:.95rem;padding:11px 13px;resize:vertical;min-height:58px}
+.composer .r{display:flex;gap:8px;margin-top:9px;align-items:center}
+.composer input{flex:1;background:var(--bg,#0a0a0f);border:1px solid var(--line,rgba(255,255,255,.15));border-radius:999px;color:var(--text,#f0f0f0);font:inherit;font-size:.85rem;padding:9px 13px}
+.composer button{font-weight:800;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border:0;border-radius:999px;padding:9px 20px;cursor:pointer}
+.composer button:disabled{opacity:.6}
+</style>
+<div class="composer" id="composer"><div class="box">
+  <textarea id="cpBody" placeholder="Share something with the scene…" maxlength="600"></textarea>
+  <div class="r"><input id="cpMedia" placeholder="Image URL (optional)"/><button id="cpPost">Post</button></div>
+</div></div>
+<script>
+(function(){
+  var URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co',KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(URL,KEY); }catch(e){}
+  if(!sb) return;
+  var session=null,handle='member';
+  function ago(ts){var s=(Date.now()-new Date(ts).getTime())/1000;if(s<60)return'now';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';}
+  function esc(x){return String(x==null?'':x).replace(/</g,'&lt;');}
+  function liveCard(p){
+    var el=document.createElement('article'); el.className='card';
+    var media=p.media_url?'<img class="media" loading="lazy" src="'+esc(p.media_url)+'" alt="" onerror="this.style.display=\'none\'">':'';
+    var body='<div class="body">'+(p.title?'<h3>'+esc(p.title)+'</h3>':'')+(p.body?'<p>'+esc(p.body)+'</p>':'')+'</div>';
+    el.innerHTML='<div class="top"><span class="av" style="background-image:url(\'/v3/logo-blue-nav.png\')"></span>'+
+      '<div class="who"><div class="nm">@'+esc(p.handle||'member')+'</div><div class="sub">·'+ago(p.created_at)+'</div></div>'+
+      '<span class="kind" style="color:var(--brand);background:color-mix(in srgb,var(--brand) 16%,transparent);border:1px solid color-mix(in srgb,var(--brand) 40%,transparent)">'+esc(p.kind||'post')+'</span></div>'+
+      media+body+'<div class="barwrap"></div>';
+    try{ if(window.KEEPITIL&&window.KEEPITIL.socialBar) window.KEEPITIL.socialBar(el.querySelector('.barwrap'),{type:'post',id:p.id,title:p.title||p.body||'post'}); }catch(e){}
+    return el;
+  }
+  function loadLive(){
+    sb.from('posts').select('id,handle,kind,title,body,media_url,created_at').order('created_at',{ascending:false}).limit(50).then(function(r){
+      if(!r||!r.data||!r.data.length) return;
+      var feed=document.getElementById('feed'); var first=feed.firstChild;
+      r.data.forEach(function(p){ feed.insertBefore(liveCard(p), first); });
+    }).catch(function(){});
+  }
+  sb.auth.getSession().then(function(r){
+    session=r&&r.data?r.data.session:null;
+    loadLive();
+    if(session){
+      document.getElementById('composer').style.display='block';
+      sb.from('app_users').select('handle').eq('id',session.user.id).single().then(function(x){ if(x&&x.data&&x.data.handle) handle=x.data.handle; else handle=(session.user.email||'member').split('@')[0]; }).catch(function(){ handle=(session.user.email||'member').split('@')[0]; });
+    }
+  });
+  var btn=document.getElementById('cpPost');
+  if(btn) btn.addEventListener('click',function(){
+    if(!session){ location.href='/v3/apply.html?next=/v3/connect.html'; return; }
+    var body=(document.getElementById('cpBody').value||'').trim(), media=(document.getElementById('cpMedia').value||'').trim();
+    if(!body && !media) return;
+    btn.disabled=true; btn.textContent='Posting…';
+    sb.from('posts').insert({user_id:session.user.id,handle:handle,kind:media?'photo':'text',body:body,media_url:media||null}).then(function(res){
+      document.getElementById('cpBody').value=''; document.getElementById('cpMedia').value='';
+      btn.disabled=false; btn.textContent='Post';
+      // prepend the new post immediately
+      var feed=document.getElementById('feed'); feed.insertBefore(liveCard({id:(res&&res.data&&res.data[0]&&res.data[0].id)||('tmp-'+Date.now()),handle:handle,kind:media?'photo':'text',body:body,media_url:media,created_at:new Date().toISOString()}), feed.firstChild);
+    }).catch(function(){ btn.disabled=false; btn.textContent='Post'; });
+  });
+})();
+</script>
 <script src="/v3/keepitil-radio.js" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
