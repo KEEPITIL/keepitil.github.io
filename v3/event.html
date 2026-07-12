@@ -118,6 +118,7 @@
     slug:g('e'), title:g('t')||'KEEPITIL Event', venue:g('v'), city:g('c'),
     date:g('d'), genre:g('g'), img:g('img'), ticket:g('tix'), price:g('pr'), vip:g('vip')==='1'
   };
+  var buyerEmail='';  /* logged-in buyer's account email — pre-fills checkout so the ticket links to their account */
   function paint(){
     var titledate = ev.title + (ev.date? (' — '+fmt(ev.date)) : '');
     var loc = [ev.venue, ev.city].filter(Boolean).join(', ');
@@ -170,7 +171,7 @@
     ov.innerHTML='<div class="kreg"><button class="x" aria-label="Close">&times;</button>'+
       '<h3>Almost there</h3><p class="sub">Confirm your details'+(tierName?(' for <b>'+esc(tierName)+'</b>'):'')+'. Your info goes to the event organizer.</p>'+
       '<label>Full name <span class="req">*</span></label><input id="kr-name" type="text" autocomplete="name"/>'+
-      '<label>Email <span class="req">*</span></label><input id="kr-email" type="email" autocomplete="email"/>'+
+      '<label>Email <span class="req">*</span></label><input id="kr-email" type="email" autocomplete="email" value="'+esc(buyerEmail||'')+'"'+(buyerEmail?' readonly style="opacity:.75"':'')+'/>'+
       qh+promoH+'<div class="err" id="kr-err"></div><button class="go" id="kr-go">Continue</button></div>';
     document.body.appendChild(ov);
     function close(){ ov.remove(); }
@@ -198,6 +199,8 @@
     });
   }
   paint();
+  /* returned from a successful checkout → surface the in-account ticket */
+  if(p.get('paid')==='1'){ try{ var _ann=document.getElementById('ev-ann'); if(_ann){ var _d=document.createElement('div'); _d.className='ann'; _d.style.cssText='border-left-color:#22e39b;background:linear-gradient(90deg,rgba(34,227,155,.14),rgba(34,227,155,.04));border-color:rgba(34,227,155,.4)'; _d.innerHTML='<div class="t" style="color:#22e39b">🎟 You\'re in!</div><div class="b">Your ticket is confirmed and saved to your account. <a href="/v3/tickets.html" style="color:#22e39b;font-weight:800">View your ticket →</a></div>'; _ann.parentNode.insertBefore(_d,_ann); } }catch(e){} }
   // Enhance from DB if the event exists there (richer/authoritative)
   try{
     if(window.supabase && ev.slug){
@@ -233,7 +236,12 @@
               box.innerHTML = pre + box.innerHTML;
               /* every ticket/RSVP button first captures attendee data (name + email + custom questions), then proceeds to checkout / confirms RSVP */
               box.querySelectorAll('.cta-tix[data-tier],.cta-tix[data-buy],.cta-tix[data-free]').forEach(function(btn){
-                btn.addEventListener('click', function(){
+                btn.addEventListener('click', async function(){
+                  /* require an account to get a ticket — tickets live in the buyer's KEEPITIL account (My Tickets) */
+                  var sr=await sb.auth.getSession().catch(function(){return null;});
+                  var sess=sr&&sr.data?sr.data.session:null;
+                  if(!sess){ location.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); return; }
+                  buyerEmail=(sess.user&&sess.user.email)||'';
                   var tname=btn.getAttribute('data-tname')||'';
                   /* promo UI gated OFF until create-checkout applies discount_code server-side (Supabase Functions UI is mid-incident). Plumbing stays wired; flip to btn.hasAttribute('data-tier') to enable. */
                   regCapture(tname, false, function(promo){
