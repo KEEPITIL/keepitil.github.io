@@ -1615,8 +1615,8 @@
         <div class="footer-col">
           <h5>Company</h5>
           <ul>
-            <li><a href="https://keepitil.com/about.html">About</a></li>
-            <li><a href="https://keepitil.com/contact.html">Contact</a></li>
+            <li><a href="/v3/about.html">About</a></li>
+            <li><a href="/v3/contact.html">Contact</a></li>
             <li><a href="https://keepitil.com" target="_blank">keepitil.com</a></li>
             <li><a href="/v3/privacy.html">Privacy Policy</a></li>
           </ul>
@@ -2010,7 +2010,7 @@ function flyer(e,showPick){
   var vip=/club|lounge|nightclub|rooftop|exchange|avalon|catch one|time nightclub|\bsound\b/i.test(e.venue||'');
   var saved=(window.KIL_SAVED&&window.KIL_SAVED.has(slug))?' on':'';
   var chat='event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title);
-  var epage='event.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title)+'&v='+encodeURIComponent(e.venue||'')+'&c='+encodeURIComponent(e.city||'')+'&d='+encodeURIComponent(e.date||'')+'&g='+encodeURIComponent(e.genre||'')+'&img='+encodeURIComponent(e.img||'')+'&tix='+encodeURIComponent(e.ticket||'')+(vip?'&vip=1':'');
+  var epage='/v3/event.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title)+'&v='+encodeURIComponent(e.venue||'')+'&c='+encodeURIComponent(e.city||'')+'&d='+encodeURIComponent(e.date||'')+'&g='+encodeURIComponent(e.genre||'')+'&img='+encodeURIComponent(e.img||'')+'&tix='+encodeURIComponent(e.ticket||'')+(vip?'&vip=1':'');
   return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
     +'<span class="evx-genre">'+h(e.genre)+'</span>'
@@ -2113,7 +2113,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
             var g=e.genres||e.genre||'';
             return {title:e.title,date:(e.starts_at||'').slice(0,10),venue:e.venue||'',city:e.city||'',
               genre:g||'KEEPITIL',gcat:gcatOf(g),img:e.cover_url||e.img||'',
-              ticket:'event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
+              ticket:'/v3/event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
               pick:!!e.cover_url,keepitil:true,slug:e.slug};
           });
           var seen={};EVENTS.forEach(function(e){seen[(e.title+'|'+e.date).toLowerCase()]=1;});
