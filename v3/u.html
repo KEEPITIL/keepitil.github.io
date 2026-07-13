@@ -335,6 +335,48 @@ footer a{color:var(--accent2);}
 .ev-add .plus{font-size:2rem;line-height:1;}
 .ev-add span{font-size:.72rem;font-weight:700;letter-spacing:.06em;}
 .ev-empty{font-size:.8rem;color:var(--muted);padding:6px 2px 2px;}
+
+/* ===== Unified tabs v3 — filter bar + 3-col grid (no carousels), all tabs same ===== */
+.pf-filter{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 16px;}
+.pf-chip{font-size:.74rem;font-weight:700;letter-spacing:.03em;padding:7px 15px;border-radius:999px;border:1px solid var(--line);color:var(--muted);cursor:pointer;background:transparent;white-space:nowrap;transition:all .15s;}
+.pf-chip:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));}
+.pf-chip.on{background:var(--accent);color:var(--onacc);border-color:transparent;}
+.pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pf-card{position:relative;aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f;cursor:pointer;transition:transform .18s,border-color .18s;}
+.pf-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
+.pf-card>img,.pf-card>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.pf-card::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 46%,rgba(0,0,0,.8));}
+.pc-type{position:absolute;top:8px;left:8px;z-index:3;font-size:.54rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:5px;color:#fff;}
+.pc-type.blog{background:#8b5cff;}.pc-type.article{background:#00b4ff;}.pc-type.video{background:#ff3b6b;}.pc-type.image{background:#00c07f;}
+.pc-body{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:10px;}
+.pc-t{font-weight:700;font-size:.8rem;color:#fff;line-height:1.22;text-shadow:0 1px 6px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pc-d{font-size:.6rem;color:rgba(255,255,255,.82);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;}
+.pf-add{aspect-ratio:9/16;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;color:var(--muted);text-align:center;padding:10px;}
+.pf-add:hover{border-color:var(--accent);color:var(--accent);}
+.pf-add .plus{font-size:2rem;line-height:1;}
+.pf-add span{font-size:.7rem;font-weight:700;letter-spacing:.05em;}
+.pf-empty{grid-column:1/-1;font-size:.82rem;color:var(--muted);padding:10px 2px;}
+.kil-post img,.kil-post video{max-width:100%;border-radius:12px;}
+/* chat cards share the 3-col grid but size to content */
+.chat-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .18s,border-color .18s;}
+.chat-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
+.chat-card .cc-top{display:flex;align-items:center;gap:10px;}
+.chat-card .cc-av{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--surface2);}
+.chat-card .cc-nm{font-weight:700;font-size:.86rem;color:var(--text);line-height:1.2;}
+.chat-card .cc-cat{font-size:.54rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block;}
+.cc-cat.primary{background:color-mix(in srgb,var(--accent2) 20%,transparent);color:var(--accent2);}
+.cc-cat.general{background:var(--surface2);color:var(--muted);}
+.cc-cat.events{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);}
+.chat-card .cc-pv{font-size:.78rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.chat-card .cc-rt{position:absolute;top:12px;right:12px;font-size:.66rem;color:var(--muted);}
+.chat-card .cc-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:6px;}
+@media(max-width:560px){.pf-grid{gap:7px;}.pc-t{font-size:.72rem;}}
+/* feed heading + info-icon popover (legend collapsed) */
+.feed-hd{position:relative;display:flex;align-items:center;gap:8px;}
+.feed-info{width:19px;height:19px;flex:0 0 auto;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:.72rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s;}
+.feed-info:hover{color:var(--accent);border-color:var(--accent);}
+.feed-legend{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:70;flex-direction:column;gap:10px;min-width:236px;margin:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.5);}
+.feed-legend.open{display:flex;}
 </style>
 </head>
 <body>
@@ -405,25 +447,21 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="feed-hd">FEED</div>
-  <div class="feed-legend" id="feed-legend">
-    <div class="lg blog"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm2 4v2h12V7H6zm0 4v2h12v-2H6zm0 4v2h8v-2H6z"/></svg></span><b>Blog</b> — long reads</div>
-    <div class="lg article"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg></span><b>Article</b> — posts &amp; updates</div>
-    <div class="lg video"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm6 4v8l6-4-6-4z"/></svg></span><b>Video</b> — clips &amp; sets</div>
-    <div class="lg image"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm2 12l3.5-4.5 2.5 3 3.5-4.5L20 16H6z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></span><b>Image</b> — photos &amp; flyers</div>
-    <div class="lnote">The kinds of posts you'll see in this feed.</div>
+  <div class="feed-hd">FEED<button class="feed-info" id="feed-info-btn" onclick="toggleLegend(event)" aria-label="What the feed types mean" title="Feed types">i</button>
+    <div class="feed-legend" id="feed-legend">
+      <div class="lg blog"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm2 4v2h12V7H6zm0 4v2h12v-2H6zm0 4v2h8v-2H6z"/></svg></span><b>Blog</b> — long reads</div>
+      <div class="lg article"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg></span><b>Article</b> — posts &amp; updates</div>
+      <div class="lg video"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm6 4v8l6-4-6-4z"/></svg></span><b>Video</b> — clips &amp; sets</div>
+      <div class="lg image"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm2 12l3.5-4.5 2.5 3 3.5-4.5L20 16H6z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></span><b>Image</b> — photos &amp; flyers</div>
+    </div>
   </div>
-  <div class="carousel-wrap">
-    <button class="car-arrow left" onclick="scrollCar('art-car',-1)" aria-label="Scroll left">&#8249;</button>
-    <div class="carousel" id="art-car"></div>
-    <button class="car-arrow right" onclick="scrollCar('art-car',1)" aria-label="Scroll right">&#8250;</button>
-  </div>
-  <div class="art-viewer" id="art-viewer"></div>
+  <div class="pf-grid" id="feed-grid"></div>
 </div>
 
 <div class="pf-panel" id="tab-gallery">
-  <div class="gal-hint">Flyers, set photos, clips — the artist's visual feed. (Sample flyers; real profiles pull the artist's own uploads.)</div>
-  <div class="gal-grid" id="gal-grid"></div>
+  <div class="feed-hd">GALLERY</div>
+  <div class="pf-filter" id="gal-filter"></div>
+  <div class="pf-grid" id="gal-grid"></div>
 </div>
 
 <div class="pf-panel" id="tab-shows">
@@ -431,12 +469,14 @@ footer a{color:var(--accent2);}
     <div class="txt"><b>🔔 Never miss a set.</b> Get alerts when Groove Trooper plays near you.</div>
     <button class="alert-btn" id="alertBtn" onclick="toggleAlert()">GET ALERTS</button>
   </div>
-  <div id="shows-list"></div>
+  <div class="pf-filter" id="ev-filter"></div>
+  <div class="pf-grid" id="shows-list"></div>
 </div>
 
 <div class="pf-panel" id="tab-chat">
   <div class="dm-head"><span class="dm-title">Messages</span><button class="dm-new" id="dm-new" title="New message" onclick="addContent('chat group')" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
-  <div class="chat-list" id="chat-list"></div>
+  <div class="pf-filter" id="chat-filter"></div>
+  <div class="pf-grid" id="chat-list"></div>
   <div class="chat-open" id="chat-open" style="display:none;">
     <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
     <div class="chat-wrap"><iframe id="chat-frame" title="Scene Room"></iframe></div>
@@ -507,14 +547,12 @@ function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0)?v:'htt
 var GAL_IMGS=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
 function renderGallery(){
   var g=document.getElementById('gal-grid');if(!g)return;
-  var add=CAN_EDIT()?'<div class="gal-add" onclick="openCreatePost(\'gallery\')"><span class="plus">+</span><span>New Post</span></div>':'';
-  g.innerHTML=add+GAL_IMGS.map(function(t){
-    var src=galSrc(t[0]); var mt=t[3]||'image';
-    var media=(mt==='video')
-      ? '<video src="'+src+'" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video><span class="mtype-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>VIDEO</span>'
-      : '<img src="'+src+'" alt="'+esc(t[1])+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'">';
-    return '<div class="gal-tile">'+media+'<span>'+esc(t[1])+'</span><span class="views">&#9654; '+esc(t[2])+'</span></div>';
-  }).join('');
+  var chips=[['all','All'],['blog','Blogs'],['article','Articles'],['image','Images'],['video','Videos']];
+  var bar=document.getElementById('gal-filter');
+  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(GAL_FILTER===c[0]?' on':'')+'" onclick="setGalFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'gallery\')"><span class="plus">+</span><span>New Post</span></div>':'';
+  var items=allPosts().filter(function(p){return GAL_FILTER==='all'||p.type===GAL_FILTER;});
+  g.innerHTML=add+(items.length?items.map(postCard).join(''):'<div class="pf-empty">Nothing here yet.</div>');
 }
 var GT_SHOWS=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
 function evFromArr(s){return {month:s[0],day:s[1],dow:s[2],title:s[3],venue:s[4],tags:s[5],tix:s[6],cover:s[7]||'',desc:s[8]||'',price:s[9]||'',kind:s[10]||'ext'};}
@@ -532,12 +570,18 @@ function evFlyer(o){
 function readEvStore(key){ try{var a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];} }
 function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
-  function grp(title,arr){ if(!arr||!arr.length)return ''; return '<div class="ev-group-h">'+title+'</div><div class="ev-grid">'+arr.map(evFlyer).join('')+'</div>'; }
-  var mine=GT_SHOWS.map(evFromArr);
-  var addCard='<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>';
-  var mineHtml='<div class="ev-group-h">My Events</div><div class="ev-grid">'+addCard+mine.map(evFlyer).join('')+'</div>';
-  // Saved / Joined / Battles — homepage & battles write these; profile reads them (homepage wiring next).
-  el.innerHTML=mineHtml+grp('Saved',readEvStore('kil-saved-events'))+grp('Joined',readEvStore('kil-joined-events'))+grp('Battles',readEvStore('kil-battles'));
+  var chips=[['all','All'],['external','External'],['inapp','In-app'],['saved','Saved'],['joined','Joined'],['battles','Battles']];
+  var bar=document.getElementById('ev-filter');
+  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(EV_FILTER===c[0]?' on':'')+'" onclick="setEvFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var all=[];
+  GT_SHOWS.map(evFromArr).forEach(function(o){o._src=(o.kind==='kil')?'inapp':'external';all.push(o);});
+  readEvStore('kil-saved-events').forEach(function(o){o._src='saved';all.push(o);});
+  readEvStore('kil-joined-events').forEach(function(o){o._src='joined';all.push(o);});
+  readEvStore('kil-battles').forEach(function(o){o._src='battles';all.push(o);});
+  var items=all.filter(function(o){return EV_FILTER==='all'||o._src===EV_FILTER;});
+  items.sort(function(a,b){return evKey(b)-evKey(a);}); // newest -> oldest
+  var add='<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>';
+  el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet — create one or save events from the homepage.</div>');
 }
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -576,14 +620,14 @@ function saveStored(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(ADDED)
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 /* ── Supabase-backed persistence (shared across devices + shown to visitors) ── */
 var SEED=null;
-function renderAll(){renderGallery();renderShows();renderArticles();renderChats();if(GT_ARTICLES.length)openArticle(0);}
+function renderAll(){renderGallery();renderShows();renderArticles();renderChats();}
 function rebuild(rows){
   GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();
   (rows||[]).forEach(function(r){var d=r.data||{};
     if(r.kind==='article')GT_ARTICLES.unshift({t:d.t,d:d.d,img:d.img,html:d.html,mtype:d.mtype,tags:d.tags,collab:d.collab,location:d.location,alt:d.alt});
     else if(r.kind==='photo')GAL_IMGS.unshift([d.src,d.label,d.views,d.mtype]);
     else if(r.kind==='show')GT_SHOWS.push([d.month,d.day,d.dow,d.title,d.venue,d.tags,d.tix,d.cover||'',d.desc||'',d.price||'',d.kind||'ext']);
-    else if(r.kind==='chat')GT_CHATS.unshift([d.slug,d.name,d.preview,'now','',d.avatar]);
+    else if(r.kind==='chat')GT_CHATS.unshift([d.slug,d.name,d.preview,'now','',d.avatar,d.category||'general']);
   });
   renderAll();
 }
@@ -603,7 +647,7 @@ function applyLocal(kind,data){
   if(kind==='article'){GT_ARTICLES.unshift(data);ADDED.articles.unshift(data);}
   else if(kind==='photo'){var r1=[data.src,data.label,data.views,data.mtype];GAL_IMGS.unshift(r1);ADDED.photos.unshift(r1);}
   else if(kind==='show'){var r2=[data.month,data.day,data.dow,data.title,data.venue,data.tags,data.tix,data.cover||'',data.desc||'',data.price||'',data.kind||'ext'];GT_SHOWS.push(r2);ADDED.shows.push(r2);}
-  else if(kind==='chat'){var r3=[data.slug,data.name,data.preview,'now','',data.avatar];GT_CHATS.unshift(r3);ADDED.chats.unshift(r3);}
+  else if(kind==='chat'){var r3=[data.slug,data.name,data.preview,'now','',data.avatar,data.category||'general'];GT_CHATS.unshift(r3);ADDED.chats.unshift(r3);}
   saveStored();renderAll();
 }
 function publish(kind,data){
@@ -1177,17 +1221,50 @@ var GT_ARTICLES=[
 <p class="intro-text">Groove Trooper shared this from the KEEPITIL culture blog — a deep dive on where house music came from and why the groove still matters.</p>
 <p class="intro-text"><a href="/v3/culture" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
 ];
+/* ── Unified post model (blog / article / image / video) shared by FEED + GALLERY ── */
+function postType(a){ if((a.mtype||'')==='video')return 'video'; if(/blog|shared/i.test(a.d||''))return 'blog'; return 'article'; }
+function allPosts(){
+  var out=[];
+  GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,src:'article',idx:i}); });
+  GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,src:'photo',idx:i}); });
+  return out;
+}
+function postCard(p){
+  var media=(p.mtype==='video')
+    ? '<video src="'+p.media+'" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video><span class="mtype-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>VIDEO</span>'
+    : '<img src="'+p.media+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.style.opacity=.15">';
+  var col=(p.collab&&p.collab.length)?'<span class="card-collab">✦ '+p.collab.map(function(h){return '@'+esc(h);}).join(', ')+'</span>':'';
+  return '<div class="pf-card" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'<span class="pc-type '+p.type+'">'+p.type+'</span>'+col
+    +'<div class="pc-body"><div class="pc-t">'+esc(p.title)+'</div>'+(p.sub?'<div class="pc-d">'+esc(p.sub)+'</div>':'')+'</div></div>';
+}
+function openPost(src,idx){
+  var html='';
+  if(src==='article'){ var a=GT_ARTICLES[idx]; if(!a)return; html=a.html; }
+  else { var t=GAL_IMGS[idx]; if(!t)return; var mt=t[3]||'image'; var m=(mt==='video')
+      ?'<video src="'+galSrc(t[0])+'" controls playsinline autoplay style="width:100%;border-radius:12px;background:#000"></video>'
+      :'<img src="'+galSrc(t[0])+'" alt="'+esc(t[1])+'" style="width:100%;border-radius:12px">';
+    html='<div class="kil-tag">'+((mt==='video')?'★ VIDEO':'★ IMAGE')+'</div>'+m+'<p class="intro-text">'+esc(t[1])+'</p>'; }
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Post<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb kil-post">'+html+'</div></div>';
+  document.body.appendChild(ov); ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+}
+/* feed-types info popover */
+function toggleLegend(e){ if(e){e.stopPropagation();} var l=document.getElementById('feed-legend'); if(l) l.classList.toggle('open'); }
+document.addEventListener('click',function(e){ var l=document.getElementById('feed-legend'); if(l&&l.classList.contains('open')){ var b=document.getElementById('feed-info-btn'); if(!l.contains(e.target)&&e.target!==b) l.classList.remove('open'); } });
+/* filter state for the unified tabs */
+var GAL_FILTER='all', EV_FILTER='all', CHAT_FILTER='all';
+function setGalFilter(f){GAL_FILTER=f;renderGallery();}
+function setEvFilter(f){EV_FILTER=f;renderShows();}
+function setChatFilter(f){CHAT_FILTER=f;renderChats();}
+var MONI=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function evKey(o){var mi=MONI.indexOf((o.month||'').toUpperCase());var d=parseInt(o.day||'0',10)||0;return (mi<0?-1:mi)*100+d;}
+/* FEED — all posts, 3-col grid */
 function renderArticles(){
-  var car=document.getElementById('art-car');if(!car)return;
-  var add=CAN_EDIT()?'<div class="add-card" onclick="openCreatePost(\'feed\')"><span class="plus">+</span><span>New Post</span></div>':'';
-  car.innerHTML=add+GT_ARTICLES.map(function(a,i){
-    var mt=a.mtype||'image';
-    var media=(mt==='video')
-      ? '<div class="media"><video src="'+a.img+'" muted loop playsinline preload="metadata"></video><span class="mtype-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>VIDEO</span></div>'
-      : '<div class="media"><img src="'+a.img+'" alt="'+esc(a.t)+'" loading="lazy" onerror="this.style.background=\'#222\'"></div>';
-    var col=(a.collab&&a.collab.length)?'<span class="card-collab">✦ '+a.collab.map(function(h){return '@'+esc(h);}).join(', ')+'</span>':'';
-    return '<div class="art-card" id="artc'+i+'" onclick="openArticle('+i+')">'+media+col+'<div class="cap"><div class="t">'+esc(a.t)+'</div><div class="d">'+esc(a.d)+'</div></div></div>';
-  }).join('');
+  var host=document.getElementById('feed-grid');if(!host)return;
+  var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'feed\')"><span class="plus">+</span><span>New Post</span></div>':'';
+  var posts=allPosts();
+  host.innerHTML=add+(posts.length?posts.map(postCard).join(''):(add?'':'<div class="pf-empty">No posts yet.</div>'));
 }
 function openArticle(i){
   var v=document.getElementById('art-viewer');if(!v||!GT_ARTICLES[i])return;
@@ -1198,22 +1275,24 @@ function openArticle(i){
 function scrollCar(id,dir){var el=document.getElementById(id);if(el)el.scrollBy({left:dir*320,behavior:'smooth'});}
 /* ── CHAT GROUP LIST (IG-style) ── */
 var GT_CHATS=[
-  ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg'],
-  ['kingdom','Kingdom @ Catch One','Lineup just dropped','1h','','https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg'],
-  ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg'],
-  ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg']
+  ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg','general'],
+  ['kingdom','Kingdom @ Catch One','Lineup just dropped','1h','','https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg','events'],
+  ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg','general'],
+  ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg','general']
 ];
+function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general':(/@|event/i.test(c[1])?'events':'primary'); }
 function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
   var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
-  if(!GT_CHATS.length){
-    list.innerHTML='<div class="dm-empty"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z"/></svg><div class="t">No messages yet</div><div class="s">'+(CAN_EDIT()?'Start a scene room to talk with your community — it stays live after the event.':'Check back when this artist opens a room.')+'</div>'+(CAN_EDIT()?'<button class="dm-start" onclick="addContent(\'chat group\')">Start a chat</button>':'')+'</div>';
-    return;
-  }
-  list.innerHTML=GT_CHATS.map(function(c){
-    var dot=c[4]?'<span class="dot"></span>':'';
-    var nm=c[1].replace(/'/g,'');
-    return '<div class="chat-item" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><img class="av" src="'+c[5]+'" alt="" loading="lazy"><div class="meta"><div class="nm">'+c[1]+'</div><div class="pv">'+c[2]+'</div></div><div class="rt"><span>'+c[3]+'</span>'+dot+'</div></div>';
+  var chips=[['all','All'],['primary','Primary'],['general','General'],['events','Events']];
+  var bar=document.getElementById('chat-filter');
+  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(CHAT_FILTER===c[0]?' on':'')+'" onclick="setChatFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var items=GT_CHATS.filter(function(c){return CHAT_FILTER==='all'||chatCat(c)===CHAT_FILTER;});
+  if(!items.length){ list.innerHTML='<div class="pf-empty">'+(CAN_EDIT()?'No messages here yet. Start a scene room to talk with your community.':'No chats here yet.')+(CAN_EDIT()?' <button class="pf-chip" style="margin-top:8px" onclick="addContent(\'chat group\')">Start a chat</button>':'')+'</div>'; return; }
+  list.innerHTML=items.map(function(c){
+    var cat=chatCat(c); var nm=c[1].replace(/'/g,'');
+    var dot=c[4]?'<span class="cc-dot"></span>':'';
+    return '<div class="chat-card" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><div class="cc-rt">'+esc(c[3])+dot+'</div><div class="cc-top"><img class="cc-av" src="'+c[5]+'" alt="" loading="lazy"><div><div class="cc-nm">'+esc(c[1])+'</div><span class="cc-cat '+cat+'">'+cat+'</span></div></div><div class="cc-pv">'+esc(c[2])+'</div></div>';
   }).join('');
 }
 function openChatGroup(slug,name){
@@ -1223,7 +1302,7 @@ function openChatGroup(slug,name){
 }
 function closeChatGroup(){
   var o=document.getElementById('chat-open');if(o)o.style.display='none';
-  var l=document.getElementById('chat-list');if(l)l.style.display='flex';
+  var l=document.getElementById('chat-list');if(l)l.style.display='';
   var f=document.getElementById('chat-frame');if(f)f.src='';
 }
 /* Non-demo profiles start EMPTY; real data loads from Supabase (prevents Groove Trooper demo data bleeding into a fresh/unclaimed profile). */
