@@ -357,6 +357,13 @@ footer a{color:var(--accent2);}
 .pf-add span{font-size:.7rem;font-weight:700;letter-spacing:.05em;}
 .pf-empty{grid-column:1/-1;font-size:.82rem;color:var(--muted);padding:10px 2px;}
 .pc-hidden{position:absolute;top:8px;right:8px;z-index:3;background:rgba(0,0,0,.66);color:#fff;font-size:.52rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:5px;}
+.collab-invite{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:color-mix(in srgb,var(--accent) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 34%,var(--line));border-radius:12px;padding:12px 16px;margin-bottom:12px;}
+.collab-invite .ci-txt{font-size:.86rem;color:var(--text-soft);}
+.collab-invite .ci-txt span{color:var(--muted);}
+.collab-invite .ci-btns{display:flex;gap:8px;flex:0 0 auto;}
+.ci-yes,.ci-no{font-family:var(--font-head);font-size:.82rem;letter-spacing:.06em;border-radius:7px;padding:8px 16px;cursor:pointer;border:1px solid var(--line);}
+.ci-yes{background:var(--accent);color:var(--onacc);border-color:transparent;}
+.ci-no{background:transparent;color:var(--muted);}
 .kil-post img,.kil-post video{max-width:100%;border-radius:12px;}
 /* chat cards share the 3-col grid but size to content */
 .chat-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .18s,border-color .18s;}
@@ -456,6 +463,7 @@ footer a{color:var(--accent2);}
       <div class="lg image"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm2 12l3.5-4.5 2.5 3 3.5-4.5L20 16H6z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></span><b>Image</b> — photos &amp; flyers</div>
     </div>
   </div>
+  <div id="collab-pending"></div>
   <div class="pf-grid" id="feed-grid"></div>
 </div>
 
@@ -1127,9 +1135,13 @@ function cpSubmit(){
       showTab(hideFeed?'gallery':'article');
     }
     if(collab.length){
-      // Record collab invites (shared to their profile). Feature-detected: needs post_collaborators table (see _sql/ACTIVATE-collab-posts.sql). Silent if absent.
-      if(SB&&SESSION){ try{ SB.from('post_collaborators').insert(collab.map(function(hh){return {source_slug:PROFILE_SLUG,collaborator_slug:hh,title:title,status:'pending',created_by:SESSION.user.id};})).then(function(){}).catch(function(){}); }catch(e){} }
-      toast('Posted. Collab request sent to '+collab.map(function(h){return '@'+h;}).join(', ')+'.');
+      // Collab invites — recipient must ACCEPT before it shows on their profile. Payload lets it render without a join.
+      // Feature-detected: needs post_collaborators table (see _sql/ACTIVATE-collab-posts.sql). Silent if absent.
+      if(SB&&SESSION){ try{
+        var payload={t:title,d:'Collab · @'+PROFILE_SLUG,img:media,html:cpBuildHtml(title,desc,media,mtype,tags,collab,loc),mtype:mtype};
+        SB.from('post_collaborators').insert(collab.map(function(hh){return {source_slug:PROFILE_SLUG,collaborator_slug:hh,title:title,payload:payload,status:'pending',created_by:SESSION.user.id};})).then(function(){}).catch(function(){});
+      }catch(e){} }
+      toast('Posted. Collab request sent to '+collab.map(function(h){return '@'+h;}).join(', ')+' — they must accept it.');
     }
   });
 }
@@ -1241,11 +1253,29 @@ function toggleHideFeed(src,idx){
   closeModal(); renderAll();
   toast(nowHidden?'Hidden from feed — still in your Gallery.':'Shown in feed again.');
 }
+var COLLAB_POSTS=[], COLLAB_PENDING=[];
 function allPosts(){
   var out=[];
   GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,hideFeed:a.hideFeed,src:'article',idx:i}); });
   GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,hideFeed:t[4],src:'photo',idx:i}); });
+  COLLAB_POSTS.forEach(function(c,i){ var d=c.payload||{}; out.push({type:(d.mtype==='video')?'video':(d.mtype==='image'?'image':'article'),title:d.t||c.title||'Collab',sub:'✦ Collab · @'+c.source_slug,media:d.img||'',mtype:d.mtype||'image',collab:[c.source_slug],hideFeed:false,src:'collab',idx:i}); });
   return out;
+}
+/* Collab READ side — a shared post shows on this profile only after the owner ACCEPTS it. */
+function loadCollab(){
+  if(!SB||typeof PROFILE_SLUG==='undefined'){ return; }
+  try{
+    SB.from('post_collaborators').select('*').eq('collaborator_slug',PROFILE_SLUG).then(function(r){
+      if(!r||r.error||!r.data){ return; }
+      COLLAB_POSTS=r.data.filter(function(x){return x.status==='accepted';});
+      COLLAB_PENDING=CAN_EDIT()?r.data.filter(function(x){return x.status==='pending';}):[];
+      renderArticles();
+    }).catch(function(){});
+  }catch(e){}
+}
+function collabRespond(id,status){
+  if(!SB){return;}
+  try{ SB.from('post_collaborators').update({status:status}).eq('id',id).then(function(){ toast(status==='accepted'?'Collab accepted — added to your feed.':'Collab declined.'); loadCollab(); }).catch(function(){}); }catch(e){}
 }
 function postCard(p){
   var media=(p.mtype==='video')
@@ -1258,13 +1288,14 @@ function postCard(p){
 }
 function openPost(src,idx){
   var html='';
-  if(src==='article'){ var a=GT_ARTICLES[idx]; if(!a)return; html=a.html; }
+  if(src==='collab'){ var c=COLLAB_POSTS[idx]; if(!c)return; html='<div class="kil-tag">✦ COLLAB · @'+esc(c.source_slug)+'</div>'+((c.payload&&c.payload.html)||('<p class="intro-text">'+esc(c.title||'')+'</p>')); }
+  else if(src==='article'){ var a=GT_ARTICLES[idx]; if(!a)return; html=a.html; }
   else { var t=GAL_IMGS[idx]; if(!t)return; var mt=t[3]||'image'; var m=(mt==='video')
       ?'<video src="'+galSrc(t[0])+'" controls playsinline autoplay style="width:100%;border-radius:12px;background:#000"></video>'
       :'<img src="'+galSrc(t[0])+'" alt="'+esc(t[1])+'" style="width:100%;border-radius:12px">';
     html='<div class="kil-tag">'+((mt==='video')?'★ VIDEO':'★ IMAGE')+'</div>'+m+'<p class="intro-text">'+esc(t[1])+'</p>'; }
   var foot='';
-  if(CAN_EDIT()){
+  if(CAN_EDIT()&&src!=='collab'){
     var pp=(src==='article')?{title:(GT_ARTICLES[idx]||{}).t,media:(GT_ARTICLES[idx]||{}).img}:{title:(GAL_IMGS[idx]||[])[1],media:galSrc((GAL_IMGS[idx]||[])[0]||'')};
     var hidden=isHiddenFromFeed(pp);
     foot='<div class="kil-mfoot"><button class="kil-mcancel" onclick="toggleHideFeed(\''+src+'\','+idx+')">'+(hidden?'👁 Show in feed':'🚫 Hide from feed')+'</button></div>';
@@ -1287,8 +1318,15 @@ function evKey(o){var mi=MONI.indexOf((o.month||'').toUpperCase());var d=parseIn
 /* FEED — all posts, 3-col grid */
 function renderArticles(){
   var host=document.getElementById('feed-grid');if(!host)return;
+  // owner-only pending collab invites — must accept before the post shows
+  var pend=document.getElementById('collab-pending');
+  if(pend){
+    pend.innerHTML=(CAN_EDIT()&&COLLAB_PENDING.length)?COLLAB_PENDING.map(function(c){
+      return '<div class="collab-invite"><div class="ci-txt"><b>@'+esc(c.source_slug)+'</b> wants to share a post to your profile: <span>"'+esc(c.title||'Untitled')+'"</span></div><div class="ci-btns"><button class="ci-yes" onclick="collabRespond(\''+c.id+'\',\'accepted\')">Accept</button><button class="ci-no" onclick="collabRespond(\''+c.id+'\',\'declined\')">Decline</button></div></div>';
+    }).join(''):'';
+  }
   var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'feed\')"><span class="plus">+</span><span>New Post</span></div>':'';
-  var posts=allPosts().filter(function(p){return !isHiddenFromFeed(p);}); // Feed = everything not hidden by the owner
+  var posts=allPosts().filter(function(p){return !isHiddenFromFeed(p);}); // Feed = everything (own + accepted collab) not hidden by the owner
   host.innerHTML=add+(posts.length?posts.map(postCard).join(''):(add?'':'<div class="pf-empty">No posts yet.</div>'));
 }
 function openArticle(i){
@@ -1341,8 +1379,8 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v3/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
     else { location.replace('/v3/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); }); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
