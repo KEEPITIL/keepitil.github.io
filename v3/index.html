@@ -422,7 +422,7 @@
 .faq-item{border-top:1px solid rgba(255,255,255,.06);padding:16px 0;max-width:840px;}
 .faq-item h3{font-family:var(--font-body);font-size:1rem;font-weight:700;color:#fff;margin:0 0 6px;}
 .faq-item p{margin:0;}
-#evx #evx-genres .evx-gn{flex:1 1 0;min-width:70px;text-align:center;justify-content:center;}
+#evx #evx-genres .evx-gn{flex:0 0 auto;text-align:center;justify-content:center;}
 #evx #evx-months{gap:8px;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:54px;padding:8px 4px;text-align:center;font-size:.66rem;letter-spacing:.06em;}
 #evx .evx-mhead{display:flex;align-items:baseline;gap:12px;max-width:1180px;margin:52px auto 2px;padding:0 24px;scroll-margin-top:150px;}
@@ -1986,7 +1986,7 @@ var EVENTS=[{"title": "Büff Long Beach", "venue": "TBA", "city": "FALCON NORTH 
 var MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 var MONF=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
 var DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-var GENRES=[['','ALL'],['house','HOUSE'],['techno','TECHNO'],['trance','TRANCE'],['bass','BASS'],['dnb','DnB'],['garage','GARAGE'],['hiphop','HIP-HOP'],['rnb','R&B'],['pop','POP'],['rock','ROCK'],['latin','LATIN'],['disco','DISCO'],['country','COUNTRY']];
+var GENRES=[['','ALL'],['house','HOUSE'],['techhouse','TECH HOUSE'],['deephouse','DEEP HOUSE'],['afrohouse','AFRO HOUSE'],['techno','TECHNO'],['melodic','MELODIC'],['minimal','MINIMAL'],['trance','TRANCE'],['psytrance','PSYTRANCE'],['progressive','PROGRESSIVE'],['bass','BASS'],['dubstep','DUBSTEP'],['futurebass','FUTURE BASS'],['dnb','DnB'],['garage','GARAGE'],['hardstyle','HARDSTYLE'],['hardcore','HARDCORE'],['electro','ELECTRO'],['disco','DISCO'],['downtempo','DOWNTEMPO'],['hiphop','HIP-HOP'],['rnb','R&B'],['latin','LATIN'],['amapiano','AMAPIANO'],['pop','POP'],['rock','ROCK'],['country','COUNTRY']];
 function h(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function parts(d){var p=(d||'2026-01-01').split('-');return {y:+p[0],m:+p[1],day:+p[2]};}
 function fmtLong(d){var p=parts(d);var dt=new Date(Date.UTC(p.y,p.m-1,p.day));return DOW[dt.getUTCDay()]+' · '+MON3[p.m-1]+' '+p.day;}
@@ -2034,7 +2034,7 @@ function buildMonths(){
 }
 function buildGenres(){
   var el=document.getElementById('evx-genres');
-  var __have={};EVENTS.forEach(function(e){__have[e.gcat]=1;});el.innerHTML=GENRES.filter(function(g){return g[0]===''||__have[g[0]];}).map(function(g){return '<button class="evx-gn'+(g[0]===activeGenre?' active':'')+'" data-g="'+g[0]+'">'+g[1]+'</button>';}).join('');
+  el.innerHTML=GENRES.map(function(g){return '<button class="evx-gn'+(g[0]===activeGenre?' active':'')+'" data-g="'+g[0]+'">'+g[1]+'</button>';}).join('');
   el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setGenre(b.dataset.g);};});
 }
 function daysOf(mk){
