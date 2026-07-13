@@ -436,6 +436,7 @@
 </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/v3/keepitil-events-store.js?v=20260713" defer></script>
   <!-- hardening: removed duplicate canonical/robots/OG/Twitter tags (primary set is in the head above; conflicting logo-bg.jpg og:image dropped in favor of keepitil-og.png) -->
   <script type="application/ld+json">
 {
@@ -2014,7 +2015,7 @@ function flyer(e,showPick){
   return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
     +'<span class="evx-genre">'+h(e.genre)+'</span>'
-    +'<button class="evx-save'+saved+'" data-kt="save_event" data-event-slug="'+slug+'" data-slug="'+slug+'" data-title="'+h(e.title)+'" aria-label="Save event"><img loading="lazy" decoding="async" src="https://keepitil.com/keepitil-x-green.png" alt=""/></button>'
+    +'<button class="evx-save'+saved+'" data-kt="save_event" data-event-slug="'+slug+'" data-slug="'+slug+'" data-title="'+h(e.title)+'" data-ev="'+h(JSON.stringify({title:e.title,date:e.date,venue:e.venue,city:e.city,genre:e.genre,img:e.img,ticket:e.ticket,price:e.price}))+'" aria-label="Save event"><img loading="lazy" decoding="async" src="https://keepitil.com/keepitil-x-green.png" alt=""/></button>'
     +'<div class="evx-body"><div class="evx-date">'+h(fmtLong(e.date))+'</div>'
     +'<div class="evx-title">'+h(e.title)+'</div>'
     +'<div class="evx-venue">📍 '+h(e.venue)+(e.city?' · '+h(e.city):'')+'</div>'
@@ -2223,14 +2224,21 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   function markSaved(){document.querySelectorAll('#evx .evx-save').forEach(function(b){b.classList.toggle('on',window.KIL_SAVED.has(b.getAttribute('data-slug')));});}
   function loadSaves(){ if(!sb||!session) return; sb.from('saved_events').select('event_slug').eq('user_id',session.user.id).then(function(r){ if(r&&r.data){ window.KIL_SAVED=new Set(r.data.map(function(x){return x.event_slug;})); markSaved(); } }).catch(function(){}); }
   function toggleSave(slug,title,btn){
-    if(!session){ openModal(); return; }
     var on=window.KIL_SAVED.has(slug); btn.classList.toggle('on',!on);
-    if(on){ window.KIL_SAVED.delete(slug); if(sb) sb.from('saved_events').delete().eq('user_id',session.user.id).eq('event_slug',slug).then(function(){}).catch(function(){}); }
-    else { window.KIL_SAVED.add(slug); if(sb) sb.from('saved_events').insert({user_id:session.user.id,event_slug:slug,event_title:title}).then(function(){}).catch(function(){}); }
+    var evo=null; try{ if(window.KILEvents){ var raw=btn.getAttribute('data-ev'); if(raw) evo=JSON.parse(raw); } }catch(e){}
+    if(on){ window.KIL_SAVED.delete(slug);
+      if(sb&&session) sb.from('saved_events').delete().eq('user_id',session.user.id).eq('event_slug',slug).then(function(){}).catch(function(){});
+      if(evo&&window.KILEvents) KILEvents.remove('saved',evo);
+    } else { window.KIL_SAVED.add(slug);
+      if(sb&&session) sb.from('saved_events').insert({user_id:session.user.id,event_slug:slug,event_title:title}).then(function(){}).catch(function(){});
+      if(evo&&window.KILEvents) KILEvents.add('saved',evo);
+    }
   }
   document.addEventListener('click',function(ev){
     var save=ev.target.closest('.evx-save');
     if(save){ ev.preventDefault(); ev.stopPropagation(); toggleSave(save.getAttribute('data-slug'),save.getAttribute('data-title'),save); return; }
+    var chatA=ev.target.closest('.evx-act-chat');
+    if(chatA){ try{ var cf=chatA.closest('.evx-flyer'); var cs=cf&&cf.querySelector('.evx-save'); if(cs&&window.KILEvents){ var craw=cs.getAttribute('data-ev'); if(craw) KILEvents.join(JSON.parse(craw)); } }catch(e){} /* allow navigation to event chat */ }
     if(ev.target.closest('.evx-act')){ ev.stopPropagation(); return; }
     var fly=ev.target.closest('#evx .evx-flyer');
     if(fly){ document.querySelectorAll('#evx .evx-flyer.open').forEach(function(f){ if(f!==fly) f.classList.remove('open'); }); fly.classList.toggle('open'); return; }
