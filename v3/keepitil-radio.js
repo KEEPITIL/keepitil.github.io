@@ -94,7 +94,7 @@
         {t:'🎵 Release on DistroKid',u:'https://distrokid.com/vip/seven/11538316'},
         {t:'🎟 List Your Event · Posh',u:'https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt'},
         {t:'💸 Earn on FreeCash',u:'https://freecash.com/r/Tuitea'},
-        {t:'🛒 Shop Rave Gear',u:'https://keepitil.com/shop.html'}
+        {t:'🛒 Shop Rave Gear',u:'https://www.illestratedlifestyle.com'}
       ];
       var i=0;
       setInterval(function(){
@@ -326,7 +326,11 @@
   // ── PJAX: keep radio alive during navigation (no iframe reload = no gap) ──
   (function(){
     var SKIP=/\.(pdf|zip|png|jpg|jpeg|gif|svg|mp3|mp4|webm|wav|ogg)$/i;
-    var KEEP=['kil-radio','kil-sc','kilo-btn','kilo-panel'];
+    // Elements preserved across a swap (never removed) → radio never stops, shell never drops.
+    var KEEP=['kil-radio','kil-sc','kilo-btn','kilo-panel','kil-cfab','v3shell-nav','v3-footer'];
+    // Only these community content pages use pjax; every other link does a normal full load.
+    var ALLOW=/^\/v3\/(culture(\.html)?|create-comp\.html|compete\.html|earn\.html|giveback\.html)$/;
+    function pjOK(u){try{return ALLOW.test(new URL(u,location.href).pathname);}catch(e){return false;}}
 
     function pjaxNav(url){
       fetch(url,{credentials:'same-origin'})
@@ -335,10 +339,15 @@
           var doc=new DOMParser().parseFromString(html,'text/html');
           document.title=doc.title;
 
-          // Swap inline head styles (keep data-kil + kilo-styles — our injected CSS)
-          document.head.querySelectorAll('style:not([data-kil]):not(#kilo-styles)').forEach(function(s){s.remove();});
+          // Swap inline head styles (keep data-kil + kilo-styles + the universal shell style)
+          document.head.querySelectorAll('style:not([data-kil]):not(#kilo-styles):not(#v3shell-style)').forEach(function(s){s.remove();});
           doc.head.querySelectorAll('style').forEach(function(s){
             var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);
+          });
+          // Pull in any stylesheet <link> the new page needs that we don't already have (e.g. fonts)
+          doc.head.querySelectorAll('link[rel="stylesheet"]').forEach(function(l){
+            var h=l.getAttribute('href');
+            if(h&&!document.head.querySelector('link[href="'+h+'"]')){var nl=document.createElement('link');nl.rel='stylesheet';nl.href=h;document.head.appendChild(nl);}
           });
 
           // Remove old body content except radio + echo elements
@@ -347,13 +356,15 @@
           });
           document.body.className=doc.body.className||'';
 
-          // Insert new content at the BEGINNING of body (before preserved elements)
-          // Using a DocumentFragment keeps DOM order and avoids preserved elements ending up mid-page
+          // Insert new content right AFTER the universal shell nav (kept alive), before the footer.
           var frag=document.createDocumentFragment();
           Array.from(doc.body.children).forEach(function(c){
             if(KEEP.indexOf(c.id)===-1)frag.appendChild(document.importNode(c,true));
           });
-          document.body.insertBefore(frag,document.body.firstChild);
+          var _shell=document.getElementById('v3shell-nav');
+          if(_shell&&_shell.nextSibling){document.body.insertBefore(frag,_shell.nextSibling);}
+          else{document.body.insertBefore(frag,document.body.firstChild);}
+          try{document.body.style.paddingTop='66px';}catch(e){}  // keep offset for the fixed shell nav
 
           // Re-run page-specific inline scripts (skip external + radio/sc scripts)
           doc.body.querySelectorAll('script').forEach(function(s){
@@ -379,14 +390,24 @@
         });
     }
 
-    // PJAX link interception DISABLED 2026-07-08 (Atlas). It swapped the page <body> without
-    // re-running EXTERNAL scripts, which (a) dropped the universal v3-shell nav/footer on every
-    // in-app navigation (P1) and (b) re-ran agent.html's init with the wrong location + without
-    // agents-data.js, bouncing crew-card clicks to login (P0). All internal links now do normal
-    // full navigations; the radio hands off its track/position across loads via the sessionStorage
-    // 'kil_hand' beforeunload→restore path, so playback stays continuous. pjaxNav() is left defined
-    // (unused) in case a shell-aware version is revived later.
-    /* pjax intercept removed — see note above */
+    // Shell-aware PJAX (revived 2026-07-12): intercept clicks ONLY between allow-listed community
+    // content pages (culture + 4 pillars). The universal shell nav/footer + radio + FABs are
+    // preserved across the swap (see KEEP), so the radio never stops and the nav never drops.
+    // Script-heavy pages (agent/crew/event/ticketing/checkout/etc.) are NOT allow-listed — links to
+    // them do normal full navigations (radio hands off via sessionStorage), so the old agent.html
+    // P0 cannot recur.
+    document.addEventListener('click',function(e){
+      if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+      var a=e.target.closest&&e.target.closest('a[href]'); if(!a)return;
+      if(a.target==='_blank'||a.hasAttribute('download'))return;
+      var href=a.getAttribute('href')||'';
+      if(!href||href.charAt(0)==='#'||/^(mailto:|tel:|javascript:)/i.test(href))return;
+      var u; try{u=new URL(href,location.href);}catch(_){return;}
+      if(u.origin!==location.origin||SKIP.test(u.pathname))return;
+      if(u.pathname===location.pathname)return;       // same page — let hash/anchor behave
+      if(!pjOK(u.href)||!pjOK(location.href))return;   // only pjax between allow-listed content pages
+      e.preventDefault(); pjaxNav(u.href);
+    },true);
 
     // Handle browser back/forward
     window.addEventListener('popstate',function(e){
