@@ -411,7 +411,7 @@ footer a{color:var(--accent2);}
     <div class="lg article"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg></span><b>Article</b> — posts &amp; updates</div>
     <div class="lg video"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm6 4v8l6-4-6-4z"/></svg></span><b>Video</b> — clips &amp; sets</div>
     <div class="lg image"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm2 12l3.5-4.5 2.5 3 3.5-4.5L20 16H6z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></span><b>Image</b> — photos &amp; flyers</div>
-    <div class="lnote">Feed types — final labels/icons pending Echo review.</div>
+    <div class="lnote">The kinds of posts you'll see in this feed.</div>
   </div>
   <div class="carousel-wrap">
     <button class="car-arrow left" onclick="scrollCar('art-car',-1)" aria-label="Scroll left">&#8249;</button>
@@ -1079,7 +1079,11 @@ function cpSubmit(){
       publish('article',{t:title,d:d,img:media,html:cpBuildHtml(title,desc,media,mtype,tags,collab,loc),mtype:mtype,tags:tags,collab:collab,location:loc,alt:alt,hideLikes:hideLikes,noComments:noComments});
       showTab('article');
     }
-    if(collab.length){ toast('Posted. Collab request sent to '+collab.map(function(h){return '@'+h;}).join(', ')+'.'); }
+    if(collab.length){
+      // Record collab invites (shared to their profile). Feature-detected: needs post_collaborators table (see _sql/ACTIVATE-collab-posts.sql). Silent if absent.
+      if(SB&&SESSION){ try{ SB.from('post_collaborators').insert(collab.map(function(hh){return {source_slug:PROFILE_SLUG,collaborator_slug:hh,title:title,status:'pending',created_by:SESSION.user.id};})).then(function(){}).catch(function(){}); }catch(e){} }
+      toast('Posted. Collab request sent to '+collab.map(function(h){return '@'+h;}).join(', ')+'.');
+    }
   });
 }
 
