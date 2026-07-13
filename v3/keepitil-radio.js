@@ -339,10 +339,12 @@
           var doc=new DOMParser().parseFromString(html,'text/html');
           document.title=doc.title;
 
-          // Swap inline head styles (keep data-kil + kilo-styles + the universal shell style)
-          document.head.querySelectorAll('style:not([data-kil]):not(#kilo-styles):not(#v3shell-style)').forEach(function(s){s.remove();});
+          // Swap page inline styles only — PRESERVE all widget styles (kil*, kilo-*, shell, data-kil)
+          // so the radio/chat/notify/social/feedback widgets keep their CSS across the swap.
+          document.head.querySelectorAll('style:not([data-kil]):not([id^="kil"]):not(#v3shell-style)').forEach(function(s){s.remove();});
           doc.head.querySelectorAll('style').forEach(function(s){
-            var n=document.createElement('style');n.textContent=s.textContent;document.head.appendChild(n);
+            if(s.id&&document.getElementById(s.id))return;  // don't duplicate an already-present (widget) style
+            var n=document.createElement('style');if(s.id)n.id=s.id;n.textContent=s.textContent;document.head.appendChild(n);
           });
           // Pull in any stylesheet <link> the new page needs that we don't already have (e.g. fonts)
           doc.head.querySelectorAll('link[rel="stylesheet"]').forEach(function(l){
