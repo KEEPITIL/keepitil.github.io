@@ -8,11 +8,12 @@
 <html lang="en" data-theme="dark" data-view="owner">
 <head>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<script src="/v3/agents-data.js"></script>
 <meta name="robots" content="noindex,nofollow">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="description" content="A KEEPITIL AI Crew member — a transparently-labeled AI specialist on the KEEPITIL team.">
   <title>Profile | KEEPITIL</title>
+<meta name="description" content="A KEEPITIL member profile — music, shows, links and more from the OC & LA scene."/>
   <link rel="icon" type="image/png" href="/v3/logo-green-nav.png"/>
   <script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -50,7 +51,9 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .theme-fab.open .swatches{display:flex;}
 .tsw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;}
 .tsw.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
-.pf-cover{position:relative;width:100%;height:300px;overflow:hidden;background:linear-gradient(135deg,var(--brand) 0%,var(--purple) 55%,var(--purple-2) 100%);}
+.pf-cover{position:relative;width:100%;aspect-ratio:16/9;max-height:60vh;overflow:hidden;background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;}
+/* Remove the global v3-tokens default.jpg themed backdrop on profiles */
+body::before{background:none!important;opacity:0!important;}
 .pf-cover img{width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62);}
 .pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
 .pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:-84px;}
@@ -70,6 +73,13 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .pf-btn.icon{padding:9px 11px;border-color:var(--line);color:var(--text);}
 .pf-btn.icon:hover{border-color:var(--accent);color:var(--accent);}
 .pf-btn svg{width:17px;height:17px;fill:currentColor;display:block;}
+.pf-share{position:relative;display:inline-flex;}
+.share-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:200;display:none;flex-direction:column;min-width:186px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 14px 34px rgba(0,0,0,.5);}
+.pf-share.open .share-menu{display:flex;}
+.share-menu a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;font-size:.9rem;color:var(--text-soft);cursor:pointer;transition:background .15s,color .15s;}
+.share-menu a:hover{background:var(--surface2);color:var(--text);}
+.share-menu a svg{width:17px;height:17px;fill:currentColor;flex:0 0 auto;}
+.share-menu .sm-head{font-family:var(--font-head);font-size:.8rem;letter-spacing:.14em;color:var(--muted);padding:6px 12px 8px;}
 .pf-meta{max-width:940px;margin:18px auto 0;padding:0 22px;}
 .pf-bio{font-size:.98rem;color:var(--text-soft);margin:16px 0 4px;max-width:680px;}
 .pf-bio .h{color:var(--accent);}
@@ -253,12 +263,136 @@ footer a{color:var(--accent2);}
   .kil-addhl{background:var(--accent);color:var(--onacc,#04120c);border:none;border-radius:7px;padding:4px 10px;font-size:.72rem;font-weight:800;letter-spacing:.04em;cursor:pointer;}
   .kil-note{font-size:.75rem;color:var(--muted);line-height:1.4;margin-top:2px;}
   </style>
+<style id="kil-feedv2">
+/* ===== FEED v2 — 9:16 universal cards, video, IG-style create, legend, events hub ===== */
+/* 9:16 gallery tiles + video */
+.gal-tile{aspect-ratio:9/16;}
+.gal-tile video{width:100%;height:100%;object-fit:cover;display:block;}
+.gal-add{aspect-ratio:9/16;}
+/* 9:16 feed cards + video */
+.art-card{flex:0 0 178px;background:var(--surface2);}
+.art-card .media{position:relative;width:100%;aspect-ratio:9/16;overflow:hidden;background:#0a0a0f;}
+.art-card .media img,.art-card .media video{width:100%;height:100%;object-fit:cover;display:block;}
+.add-card{flex:0 0 140px;aspect-ratio:9/16;min-height:0;}
+.car-arrow{top:50%;}
+/* media-type + collab badges */
+.mtype-badge{position:absolute;top:8px;right:8px;z-index:3;background:rgba(0,0,0,.6);color:#fff;font-size:.6rem;font-weight:800;letter-spacing:.05em;padding:3px 7px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;}
+.mtype-badge svg{width:11px;height:11px;fill:currentColor;}
+.card-collab{position:absolute;left:8px;bottom:8px;z-index:3;background:rgba(0,0,0,.62);color:#fff;font-size:.58rem;font-weight:700;padding:3px 7px;border-radius:6px;max-width:88%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* feed-type legend */
+.feed-legend{display:flex;flex-wrap:wrap;align-items:center;gap:9px 16px;margin:2px 0 16px;padding:11px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;}
+.feed-legend .lg{display:flex;align-items:center;gap:7px;font-size:.7rem;letter-spacing:.04em;color:var(--muted);}
+.feed-legend .lg b{color:var(--text-soft);font-weight:700;}
+.feed-legend .ic{width:21px;height:21px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.feed-legend .ic svg{width:12px;height:12px;fill:#fff;display:block;}
+.lg.blog .ic{background:#8b5cff;}.lg.article .ic{background:#00b4ff;}.lg.video .ic{background:#ff3b6b;}.lg.image .ic{background:#00c07f;}
+.feed-legend .lnote{width:100%;font-size:.6rem;color:var(--muted);opacity:.75;}
+/* IG-style create modal extras */
+.cp-drop{position:relative;border:2px dashed var(--line);border-radius:12px;aspect-ratio:9/16;max-height:300px;margin:0 auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);cursor:pointer;overflow:hidden;background:var(--surface2);}
+.cp-drop.has{border-style:solid;border-color:var(--accent);}
+.cp-drop .cp-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cp-drop .cp-plus{font-size:2.1rem;line-height:1;}
+.cp-drop .cp-hint{font-size:.74rem;letter-spacing:.03em;text-align:center;padding:0 14px;}
+.cp-orurl{display:flex;gap:8px;margin:-2px 0 12px;}
+.cp-orurl input{flex:1;}
+.cp-count{font-size:.62rem;color:var(--muted);text-align:right;margin-top:-2px;}
+.cp-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+.cp-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:.76rem;color:var(--text-soft);}
+.cp-chip b{color:var(--accent);font-weight:700;}
+.cp-chip .x{cursor:pointer;color:var(--muted);font-weight:800;line-height:1;}
+.cp-cap{font-size:.62rem;color:var(--muted);margin-top:4px;}
+.cp-toggles{display:flex;flex-direction:column;gap:9px;margin-top:10px;border-top:1px solid var(--line);padding-top:12px;}
+.cp-tog{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.84rem;color:var(--text-soft);}
+.cp-tog input[type=checkbox]{width:auto;transform:scale(1.15);}
+/* event chooser */
+.ev-choose{display:grid;gap:12px;}
+.ev-opt{display:flex;gap:14px;align-items:flex-start;text-align:left;border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;background:var(--surface2);transition:border-color .15s,transform .15s;width:100%;}
+.ev-opt:hover{border-color:var(--accent);transform:translateY(-1px);}
+.ev-opt .ei{width:42px;height:42px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent) 16%,transparent);}
+.ev-opt .ei svg{width:21px;height:21px;fill:var(--accent);}
+.ev-opt h4{font-family:var(--font-head);font-size:1.18rem;letter-spacing:.04em;color:var(--text);margin-bottom:3px;}
+.ev-opt p{font-size:.8rem;color:var(--muted);line-height:1.5;}
+/* EVENTS hub — 9:16 universal flyer cards */
+.ev-group-h{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.1em;color:var(--muted);margin:22px 0 12px;display:flex;align-items:center;gap:8px;}
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.ev-flyer{position:relative;aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;cursor:pointer;transition:transform .18s,border-color .18s;}
+.ev-flyer:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
+.ev-flyer .cov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.ev-flyer::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 34%,rgba(0,0,0,.86));}
+.ev-flyer>.c{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;}
+.ev-datechip{position:absolute;top:10px;left:10px;z-index:3;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);border-radius:9px;padding:6px 9px;text-align:center;line-height:1;}
+.ev-datechip b{display:block;font-family:var(--font-head);font-size:.72rem;letter-spacing:.08em;color:var(--accent);}
+.ev-datechip span{display:block;font-family:var(--font-head);font-size:1.5rem;color:#fff;}
+.ev-kind{position:absolute;top:10px;right:10px;z-index:3;font-size:.55rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:5px;}
+.ev-kind.kil{background:var(--accent);color:var(--onacc);}
+.ev-kind.ext{background:rgba(0,0,0,.6);color:#fff;border:1px solid rgba(255,255,255,.25);}
+.ev-flyer .et{font-family:var(--font-head);font-size:1.1rem;line-height:1;letter-spacing:.02em;color:#fff;margin-bottom:4px;}
+.ev-flyer .ev-v{font-size:.68rem;color:rgba(255,255,255,.86);margin-bottom:3px;}
+.ev-flyer .ev-g{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+.ev-flyer .ev-tix{display:block;text-align:center;font-family:var(--font-head);font-size:.82rem;letter-spacing:.08em;background:var(--accent2);color:#fff;border-radius:7px;padding:7px;}
+.ev-flyer .ev-tix:hover{filter:brightness(1.12);}
+.ev-add{aspect-ratio:9/16;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted);text-align:center;padding:10px;}
+.ev-add:hover{border-color:var(--accent);color:var(--accent);}
+.ev-add .plus{font-size:2rem;line-height:1;}
+.ev-add span{font-size:.72rem;font-weight:700;letter-spacing:.06em;}
+.ev-empty{font-size:.8rem;color:var(--muted);padding:6px 2px 2px;}
+
+/* ===== Unified tabs v3 — filter bar + 3-col grid (no carousels), all tabs same ===== */
+.pf-filter{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 16px;}
+.pf-chip{font-size:.74rem;font-weight:700;letter-spacing:.03em;padding:7px 15px;border-radius:999px;border:1px solid var(--line);color:var(--muted);cursor:pointer;background:transparent;white-space:nowrap;transition:all .15s;}
+.pf-chip:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));}
+.pf-chip.on{background:var(--accent);color:var(--onacc);border-color:transparent;}
+.pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.pf-card{position:relative;aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f;cursor:pointer;transition:transform .18s,border-color .18s;}
+.pf-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
+.pf-card>img,.pf-card>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.pf-card::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 46%,rgba(0,0,0,.8));}
+.pc-type{position:absolute;top:8px;left:8px;z-index:3;font-size:.54rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px;border-radius:5px;color:#fff;}
+.pc-type.blog{background:#8b5cff;}.pc-type.article{background:#00b4ff;}.pc-type.video{background:#ff3b6b;}.pc-type.image{background:#00c07f;}
+.pc-body{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:10px;}
+.pc-t{font-weight:700;font-size:.8rem;color:#fff;line-height:1.22;text-shadow:0 1px 6px #000;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.pc-d{font-size:.6rem;color:rgba(255,255,255,.82);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;}
+.pf-add{aspect-ratio:9/16;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;color:var(--muted);text-align:center;padding:10px;}
+.pf-add:hover{border-color:var(--accent);color:var(--accent);}
+.pf-add .plus{font-size:2rem;line-height:1;}
+.pf-add span{font-size:.7rem;font-weight:700;letter-spacing:.05em;}
+.pf-empty{grid-column:1/-1;font-size:.82rem;color:var(--muted);padding:10px 2px;}
+.pc-hidden{position:absolute;top:8px;right:8px;z-index:3;background:rgba(0,0,0,.66);color:#fff;font-size:.52rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:5px;}
+.collab-invite{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:color-mix(in srgb,var(--accent) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 34%,var(--line));border-radius:12px;padding:12px 16px;margin-bottom:12px;}
+.collab-invite .ci-txt{font-size:.86rem;color:var(--text-soft);}
+.collab-invite .ci-txt span{color:var(--muted);}
+.collab-invite .ci-btns{display:flex;gap:8px;flex:0 0 auto;}
+.ci-yes,.ci-no{font-family:var(--font-head);font-size:.82rem;letter-spacing:.06em;border-radius:7px;padding:8px 16px;cursor:pointer;border:1px solid var(--line);}
+.ci-yes{background:var(--accent);color:var(--onacc);border-color:transparent;}
+.ci-no{background:transparent;color:var(--muted);}
+.kil-post img,.kil-post video{max-width:100%;border-radius:12px;}
+/* chat cards share the 3-col grid but size to content */
+.chat-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .18s,border-color .18s;}
+.chat-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
+.chat-card .cc-top{display:flex;align-items:center;gap:10px;}
+.chat-card .cc-av{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--surface2);}
+.chat-card .cc-nm{font-weight:700;font-size:.86rem;color:var(--text);line-height:1.2;}
+.chat-card .cc-cat{font-size:.54rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block;}
+.cc-cat.primary{background:color-mix(in srgb,var(--accent2) 20%,transparent);color:var(--accent2);}
+.cc-cat.general{background:var(--surface2);color:var(--muted);}
+.cc-cat.events{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);}
+.chat-card .cc-pv{font-size:.78rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.chat-card .cc-rt{position:absolute;top:12px;right:12px;font-size:.66rem;color:var(--muted);}
+.chat-card .cc-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:6px;}
+@media(max-width:560px){.pf-grid{gap:7px;}.pc-t{font-size:.72rem;}}
+/* feed heading + info-icon popover (legend collapsed) */
+.feed-hd{position:relative;display:flex;align-items:center;gap:8px;}
+.feed-info{width:19px;height:19px;flex:0 0 auto;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:.72rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s;}
+.feed-info:hover{color:var(--accent);border-color:var(--accent);}
+.feed-legend{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:70;flex-direction:column;gap:10px;min-width:236px;margin:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.5);}
+.feed-legend.open{display:flex;}
+</style>
 </head>
 <body>
 
 <nav id="main-nav">
   <div class="nav-inner">
-    <a class="nav-logo" href="/v3/"><img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
+    <a class="nav-logo" href="/v3/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
     <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="/v3/scene.html">SCENE</a></li></ul>
     <a href="/v3/apply.html" class="nav-cta">LOGIN</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
@@ -293,35 +427,51 @@ footer a{color:var(--accent2);}
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfEdit" style="display:none" onclick="openEditProfile()">✎ EDIT PROFILE</button>
-    <a class="pf-btn book" id="pfBook" href="mailto:gtbookings626@gmail.com">BOOK</a>
+    <a class="pf-btn book" id="pfBook" href="mailto:gtbookings626@gmail.com">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
-    <button class="pf-btn icon" onclick="navigator.share ? navigator.share({title:'Groove Trooper',url:location.href}) : alert('Share')" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+    <div class="pf-share" id="pfShare">
+      <button class="pf-btn icon" onclick="toggleShare(event)" aria-label="Share" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+      <div class="share-menu" id="shareMenu" role="menu">
+        <div class="sm-head">SHARE TO</div>
+        <a role="menuitem" onclick="shareTo('x')"><svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.82-5.97 6.82H1.66l7.73-8.84L1.24 2.25h6.83l4.71 6.23 5.46-6.23zm-1.16 17.52h1.83L7.01 4.13H5.05l12.03 15.64z"/></svg>X (Twitter)</a>
+        <a role="menuitem" onclick="shareTo('fb')"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0022 12z"/></svg>Facebook</a>
+        <a role="menuitem" onclick="shareTo('wa')"><svg viewBox="0 0 24 24"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.45 1.34 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm5.8 14.06c-.24.68-1.4 1.3-1.94 1.34-.5.05-.5.4-3.15-.66-2.65-1.06-4.3-3.77-4.43-3.95-.13-.18-1.06-1.4-1.06-2.67 0-1.27.67-1.9.9-2.16.24-.26.52-.32.7-.32.17 0 .35 0 .5.01.16.01.38-.06.6.46.23.53.77 1.84.84 1.97.07.13.11.29.02.47-.09.18-.13.29-.26.44-.13.15-.27.34-.39.46-.13.13-.26.27-.11.53.15.26.66 1.09 1.42 1.77.98.87 1.8 1.15 2.06 1.28.26.13.41.11.56-.07.15-.18.65-.76.82-1.02.17-.26.35-.22.58-.13.24.09 1.52.72 1.78.85.26.13.43.2.5.3.06.11.06.62-.18 1.3z"/></svg>WhatsApp</a>
+        <a role="menuitem" onclick="shareTo('tg')"><svg viewBox="0 0 24 24"><path d="M21.9 4.3l-3.3 15.6c-.25 1.1-.9 1.37-1.82.85l-5.03-3.7-2.43 2.34c-.27.27-.5.5-1.02.5l.36-5.14L17.02 6.9c.41-.36-.09-.56-.63-.2L6.5 13.02l-4.9-1.53c-1.06-.33-1.08-1.06.22-1.57l19.16-7.39c.89-.33 1.67.2 1.72 1.77z"/></svg>Telegram</a>
+        <a role="menuitem" onclick="shareTo('email')"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Email</a>
+        <a role="menuitem" onclick="shareTo('sms')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 9H6V9h12v2zm0-3H6V6h12v2z"/></svg>Text (SMS)</a>
+        <a role="menuitem" onclick="shareTo('copy')"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 00-2 2v14h2V3h12V1zm3 4H8a2 2 0 00-2 2v14a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2zm0 16H8V7h11v14z"/></svg>Copy link</a>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="hl-row" id="hl-row"></div>
 
 <div class="pf-tabs" id="pf-tabs">
-  <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>ARTICLE</span></div>
+  <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>FEED</span></div>
   <div class="pf-tab" data-tab="gallery" onclick="showTab('gallery')"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg><span>GALLERY</span></div>
-  <div class="pf-tab" data-tab="shows" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 00-2 2v13a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7zm12 8v9H5v-9h14z"/></svg><span>SHOWS</span></div>
+  <div class="pf-tab" data-tab="shows" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 00-2 2v13a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7zm12 8v9H5v-9h14z"/></svg><span>EVENTS</span></div>
   <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>CHAT</span></div>
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="feed-hd">Posts &amp; Articles</div>
-  <div class="carousel-wrap">
-    <button class="car-arrow left" onclick="scrollCar('art-car',-1)" aria-label="Scroll left">&#8249;</button>
-    <div class="carousel" id="art-car"></div>
-    <button class="car-arrow right" onclick="scrollCar('art-car',1)" aria-label="Scroll right">&#8250;</button>
+  <div class="feed-hd">FEED<button class="feed-info" id="feed-info-btn" onclick="toggleLegend(event)" aria-label="What the feed types mean" title="Feed types">i</button>
+    <div class="feed-legend" id="feed-legend">
+      <div class="lg blog"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm2 4v2h12V7H6zm0 4v2h12v-2H6zm0 4v2h8v-2H6z"/></svg></span><b>Blog</b> — long reads</div>
+      <div class="lg article"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg></span><b>Article</b> — posts &amp; updates</div>
+      <div class="lg video"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm6 4v8l6-4-6-4z"/></svg></span><b>Video</b> — clips &amp; sets</div>
+      <div class="lg image"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm2 12l3.5-4.5 2.5 3 3.5-4.5L20 16H6z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></span><b>Image</b> — photos &amp; flyers</div>
+    </div>
   </div>
-  <div class="art-viewer" id="art-viewer"></div>
+  <div id="collab-pending"></div>
+  <div class="pf-grid" id="feed-grid"></div>
 </div>
 
 <div class="pf-panel" id="tab-gallery">
-  <div class="gal-hint">Flyers, set photos, clips — the artist's visual feed. (Sample flyers; real profiles pull the artist's own uploads.)</div>
-  <div class="gal-grid" id="gal-grid"></div>
+  <div class="feed-hd">GALLERY</div>
+  <div class="pf-filter" id="gal-filter"></div>
+  <div class="pf-grid" id="gal-grid"></div>
 </div>
 
 <div class="pf-panel" id="tab-shows">
@@ -329,12 +479,14 @@ footer a{color:var(--accent2);}
     <div class="txt"><b>🔔 Never miss a set.</b> Get alerts when Groove Trooper plays near you.</div>
     <button class="alert-btn" id="alertBtn" onclick="toggleAlert()">GET ALERTS</button>
   </div>
-  <div id="shows-list"></div>
+  <div class="pf-filter" id="ev-filter"></div>
+  <div class="pf-grid" id="shows-list"></div>
 </div>
 
 <div class="pf-panel" id="tab-chat">
   <div class="dm-head"><span class="dm-title">Messages</span><button class="dm-new" id="dm-new" title="New message" onclick="addContent('chat group')" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
-  <div class="chat-list" id="chat-list"></div>
+  <div class="pf-filter" id="chat-filter"></div>
+  <div class="pf-grid" id="chat-list"></div>
   <div class="chat-open" id="chat-open" style="display:none;">
     <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
     <div class="chat-wrap"><iframe id="chat-frame" title="Scene Room"></iframe></div>
@@ -368,13 +520,11 @@ footer a{color:var(--accent2);}
 <!-- Nudity / explicit-content moderation for image uploads (in-browser, no keys) -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/nsfwjs@3.0.0/dist/nsfwjs.min.js" defer></script>
-<script src="/v3/agents-data.js"></script>
 <script>
 function toggleMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('open');}
-/* ── AI CREW mode: ?a=<slug> renders a KEEPITIL AI agent on this same (Template A) profile ── */
+/* OWNER (subscriber, can edit/add) vs PUBLIC (customer-facing, read-only) */
 var AGENT_SLUG=(function(){try{return (new URLSearchParams(location.search).get('a')||'').toLowerCase().replace(/[^a-z0-9-]/g,'');}catch(e){return '';}})();
 var AGENT=(AGENT_SLUG&&window.KEEPITIL_AGENTS)?(window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0]||null):null;
-/* OWNER (subscriber, can edit/add) vs PUBLIC (customer-facing, read-only) */
 var IS_OWNER = !AGENT && document.documentElement.getAttribute('data-view')!=='public' && location.search.indexOf('view=public')===-1;
 /* ── Supabase: shared, cross-device persistence for owner-authored content ── */
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
@@ -405,16 +555,45 @@ function renderHighlights(){
   var r=document.getElementById('hl-row');if(!r)return;
   r.innerHTML=(PROFILE.highlights||[]).map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="'+h.img+'" alt="'+esc(h.label)+'" loading="lazy" onerror="this.style.opacity=.12"></div><span>'+esc(h.label)+'</span></div>';}).join('');
 }
-function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0||v.indexOf('/')===0)?v:'https://images.ra.co/'+v+'.jpg';}
+function galSrc(v){return (v.indexOf('http')===0||v.indexOf('data:')===0)?v:'https://images.ra.co/'+v+'.jpg';}
 var GAL_IMGS=[['07f9c05ddcb8a49e9f957760d870ec493b30a4d9','Latin House Night','12.4K'],['095b3c97c806dfa2326c4bc5a8239907b4a24815','Avalon Hollywood','48K'],['0c08978993ce4ba443b61b007d1de45445ddced3','Warehouse Set','9.1K'],['0eb69717593e6bb32225fec905e93762454a7894','Groove Cruise','22K'],['1641a2b8fddcee60bb204595abe0a3f20d8a0e51','Day Trip','7.7K'],['1bfc214a7b4917efac1afad318fd4dafa631a480','Rooftop Session','5.2K'],['233912b5340b79213e16e58647ecd297165d0a52','Kingdom @ Catch One','15K'],['234c570dd0c0ce4c93d62945d502ef1952b2cf31','R&V Radio','3.8K'],['288b5245302955ed0864e6f9dad31af0a092984c','Nocturnal Fest','31K']];
 function renderGallery(){
   var g=document.getElementById('gal-grid');if(!g)return;
-  g.innerHTML=(CAN_EDIT()?'<div class="gal-add" onclick="addContent(\'photo\')"><span class="plus">+</span><span>Add Photo</span></div>':'')+GAL_IMGS.map(function(t){return '<div class="gal-tile"><img src="'+galSrc(t[0])+'" alt="'+t[1]+'" loading="lazy" onerror="this.parentNode.style.background=\'#222\'"><span>'+t[1]+'</span><span class="views">&#9654; '+t[2]+'</span></div>';}).join('');
+  var chips=[['all','All'],['blog','Blogs'],['article','Articles'],['image','Images'],['video','Videos']];
+  var bar=document.getElementById('gal-filter');
+  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(GAL_FILTER===c[0]?' on':'')+'" onclick="setGalFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'gallery\')"><span class="plus">+</span><span>New Post</span></div>':'';
+  var items=allPosts().filter(function(p){return GAL_FILTER==='all'||p.type===GAL_FILTER;});
+  g.innerHTML=add+(items.length?items.map(postCard).join(''):'<div class="pf-empty">Nothing here yet.</div>');
 }
 var GT_SHOWS=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
+function evFromArr(s){return {month:s[0],day:s[1],dow:s[2],title:s[3],venue:s[4],tags:s[5],tix:s[6],cover:s[7]||'',desc:s[8]||'',price:s[9]||'',kind:s[10]||'ext'};}
+function evFlyer(o){
+  var cov=o.cover?'<img class="cov" src="'+o.cover+'" alt="" onerror="this.style.display=\'none\'">':'';
+  var kind=(o.kind==='kil')?'<span class="ev-kind kil">KEEPITIL</span>':'<span class="ev-kind ext">External</span>';
+  var tix=(o.tix&&o.tix!=='#')?'<a class="ev-tix" href="'+o.tix+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+((o.kind==='kil')?'TICKETS / RSVP':'TICKETS')+'</a>':'';
+  return '<div class="ev-flyer">'+cov
+    +'<div class="ev-datechip"><b>'+esc(o.month)+'</b><span>'+esc(o.day)+'</span></div>'+kind
+    +'<div class="c"><div class="et">'+esc(o.title)+'</div>'
+    +'<div class="ev-v">'+esc(o.venue)+(o.price?(' · '+esc(o.price)):'')+'</div>'
+    +(o.tags?'<div class="ev-g">'+esc(o.tags)+'</div>':'')
+    +tix+'</div></div>';
+}
+function readEvStore(key){ try{var a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];} }
 function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
-  el.innerHTML=(CAN_EDIT()?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+GT_SHOWS.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
+  var chips=[['all','All'],['external','External'],['inapp','In-app'],['saved','Saved'],['joined','Joined'],['battles','Battles']];
+  var bar=document.getElementById('ev-filter');
+  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(EV_FILTER===c[0]?' on':'')+'" onclick="setEvFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var all=[];
+  GT_SHOWS.map(evFromArr).forEach(function(o){o._src=(o.kind==='kil')?'inapp':'external';all.push(o);});
+  readEvStore('kil-saved-events').forEach(function(o){o._src='saved';all.push(o);});
+  readEvStore('kil-joined-events').forEach(function(o){o._src='joined';all.push(o);});
+  readEvStore('kil-battles').forEach(function(o){o._src='battles';all.push(o);});
+  var items=all.filter(function(o){return EV_FILTER==='all'||o._src===EV_FILTER;});
+  items.sort(function(a,b){return evKey(b)-evKey(a);}); // newest -> oldest
+  var add='<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>';
+  el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet — create one or save events from the homepage.</div>');
 }
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -453,14 +632,14 @@ function saveStored(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(ADDED)
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 /* ── Supabase-backed persistence (shared across devices + shown to visitors) ── */
 var SEED=null;
-function renderAll(){renderGallery();renderShows();renderArticles();renderChats();if(GT_ARTICLES.length)openArticle(0);}
+function renderAll(){renderGallery();renderShows();renderArticles();renderChats();}
 function rebuild(rows){
   GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();
   (rows||[]).forEach(function(r){var d=r.data||{};
-    if(r.kind==='article')GT_ARTICLES.unshift({t:d.t,d:d.d,img:d.img,html:d.html});
-    else if(r.kind==='photo')GAL_IMGS.unshift([d.src,d.label,d.views]);
-    else if(r.kind==='show')GT_SHOWS.push([d.month,d.day,d.dow,d.title,d.venue,d.tags,d.tix]);
-    else if(r.kind==='chat')GT_CHATS.unshift([d.slug,d.name,d.preview,'now','',d.avatar]);
+    if(r.kind==='article')GT_ARTICLES.unshift({t:d.t,d:d.d,img:d.img,html:d.html,mtype:d.mtype,tags:d.tags,collab:d.collab,location:d.location,alt:d.alt,hideFeed:d.hideFeed});
+    else if(r.kind==='photo')GAL_IMGS.unshift([d.src,d.label,d.views,d.mtype,d.hideFeed?1:0]);
+    else if(r.kind==='show')GT_SHOWS.push([d.month,d.day,d.dow,d.title,d.venue,d.tags,d.tix,d.cover||'',d.desc||'',d.price||'',d.kind||'ext']);
+    else if(r.kind==='chat')GT_CHATS.unshift([d.slug,d.name,d.preview,'now','',d.avatar,d.category||'general']);
   });
   renderAll();
 }
@@ -478,9 +657,9 @@ function fallbackLocal(){ GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos
 }
 function applyLocal(kind,data){
   if(kind==='article'){GT_ARTICLES.unshift(data);ADDED.articles.unshift(data);}
-  else if(kind==='photo'){var r1=[data.src,data.label,data.views];GAL_IMGS.unshift(r1);ADDED.photos.unshift(r1);}
-  else if(kind==='show'){var r2=[data.month,data.day,data.dow,data.title,data.venue,data.tags,data.tix];GT_SHOWS.push(r2);ADDED.shows.push(r2);}
-  else if(kind==='chat'){var r3=[data.slug,data.name,data.preview,'now','',data.avatar];GT_CHATS.unshift(r3);ADDED.chats.unshift(r3);}
+  else if(kind==='photo'){var r1=[data.src,data.label,data.views,data.mtype,data.hideFeed?1:0];GAL_IMGS.unshift(r1);ADDED.photos.unshift(r1);}
+  else if(kind==='show'){var r2=[data.month,data.day,data.dow,data.title,data.venue,data.tags,data.tix,data.cover||'',data.desc||'',data.price||'',data.kind||'ext'];GT_SHOWS.push(r2);ADDED.shows.push(r2);}
+  else if(kind==='chat'){var r3=[data.slug,data.name,data.preview,'now','',data.avatar,data.category||'general'];GT_CHATS.unshift(r3);ADDED.chats.unshift(r3);}
   saveStored();renderAll();
 }
 function publish(kind,data){
@@ -607,6 +786,29 @@ function loadFollow(){
     }
   }).catch(function(){});
 }
+/* ── SHARE: social platforms, email or SMS only ── */
+function toggleShare(e){ if(e){e.stopPropagation();} var w=document.getElementById('pfShare'); if(w) w.classList.toggle('open'); }
+document.addEventListener('click',function(e){ var w=document.getElementById('pfShare'); if(w&&w.classList.contains('open')&&!w.contains(e.target)) w.classList.remove('open'); });
+function shareTo(net){
+  var url=location.href;
+  var title=(typeof PROFILE!=='undefined'&&PROFILE.name)?PROFILE.name+' on KEEPITIL':document.title;
+  var u=encodeURIComponent(url), t=encodeURIComponent(title), body=encodeURIComponent(title+' — '+url);
+  var link='';
+  if(net==='x')      link='https://twitter.com/intent/tweet?text='+t+'&url='+u;
+  else if(net==='fb')link='https://www.facebook.com/sharer/sharer.php?u='+u;
+  else if(net==='wa')link='https://api.whatsapp.com/send?text='+body;
+  else if(net==='tg')link='https://t.me/share/url?url='+u+'&text='+t;
+  else if(net==='email')link='mailto:?subject='+t+'&body='+body;
+  else if(net==='sms')link='sms:?&body='+body;
+  else if(net==='copy'){
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){toast('Link copied.');}); }
+    else { try{var ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Link copied.');}catch(e){toast('Copy failed.');} }
+    var w0=document.getElementById('pfShare'); if(w0)w0.classList.remove('open'); return;
+  }
+  if(link) window.open(link,'_blank','noopener');
+  var w=document.getElementById('pfShare'); if(w)w.classList.remove('open');
+}
+
 function toggleFollow(){
   if(!SB||!SESSION){ toast('Sign in to follow this profile.'); return; }
   var b=document.getElementById('pfFollow'); if(b)b.disabled=true;
@@ -792,6 +994,161 @@ function openModal(title,fields,cb){
 }
 function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();}
 
+/* CREATE EVENT — opens a 2-option chooser (external EDMtrain-style / internal KEEPITIL). Publishing is gated to signed-in users by publish(). */
+function createEvent(){
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Create Event<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
+    +'<div class="kil-mb"><div class="ev-choose">'
+    +'<button type="button" class="ev-opt" onclick="eventExternal()"><span class="ei"><svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1h6zm11-3v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3h7z"/></svg></span><span><h4>Add external event</h4><p>Fill the flyer card for an event you found — EDMtrain / POSH / RA style — and link out to tickets.</p></span></button>'
+    +'<button type="button" class="ev-opt" onclick="eventInternal()"><span class="ei"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.9 6.2 19.9l.9-5.4L3.2 10.7l5.4-.8L12 2z"/></svg></span><span><h4>Create KEEPITIL event</h4><p>Host your own — cover flyer, date &amp; time, venue, description, price and ticket/RSVP link.</p></span></button>'
+    +'</div></div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+}
+function eventExternal(){
+  openModal('Add external event',[
+    {name:'cover',label:'Flyer image (optional)',type:'file'},
+    {name:'coverurl',label:'…or flyer image URL',type:'text',ph:'https://...'},
+    {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
+    {name:'day',label:'Day',type:'text',ph:'16',req:true},
+    {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
+    {name:'title',label:'Event title',type:'text',ph:'Kingdom @ Catch One',req:true},
+    {name:'venue',label:'Venue · city · age',type:'text',ph:'Catch One · Los Angeles, CA · 21+',req:true},
+    {name:'tags',label:'Genre tags',type:'text',ph:'Latin House · Techno'},
+    {name:'tix',label:'Ticket link',type:'text',ph:'https://posh.vip/e/...'}
+  ],function(v){
+    resolveImg(v,'cover','coverurl','',function(cov){
+      publish('show',{month:(v.month||'').toUpperCase(),day:v.day,dow:(v.dow||'').toUpperCase(),title:v.title,venue:v.venue,tags:v.tags||'',tix:v.tix||'#',cover:cov||'',desc:'',price:'',kind:'ext'});
+      showTab('shows');
+    });
+  });
+}
+function eventInternal(){
+  openModal('Create KEEPITIL event',[
+    {name:'cover',label:'Flyer image',type:'file'},
+    {name:'coverurl',label:'…or flyer image URL',type:'text',ph:'https://...'},
+    {name:'title',label:'Event name',type:'text',ph:'KEEPITIL Summer',req:true},
+    {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
+    {name:'day',label:'Day',type:'text',ph:'16',req:true},
+    {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
+    {name:'time',label:'Start time',type:'text',ph:'9:00 PM'},
+    {name:'venue',label:'Venue · city · age',type:'text',ph:'Secret OC Venue · Orange County, CA · 21+',req:true},
+    {name:'tags',label:'Genre tags',type:'text',ph:'Open Format'},
+    {name:'desc',label:'Description',type:'textarea',ph:'What to expect, lineup, the vibe...'},
+    {name:'price',label:'Price / entry',type:'text',ph:'$20 pre-sale'},
+    {name:'tix',label:'Ticket / RSVP link',type:'text',ph:'https://...'}
+  ],function(v){
+    resolveImg(v,'cover','coverurl','',function(cov){
+      var venue=v.venue+(v.time?(' · '+v.time):'');
+      publish('show',{month:(v.month||'').toUpperCase(),day:v.day,dow:(v.dow||'').toUpperCase(),title:v.title,venue:venue,tags:v.tags||'',tix:v.tix||'#',cover:cov||'',desc:v.desc||'',price:v.price||'',kind:'kil'});
+      showTab('shows');
+    });
+  });
+}
+
+/* ── INSTAGRAM / TIKTOK-STYLE CREATE POST — media first, then details ── */
+var CP={target:'feed',media:'',mtype:'',file:null,tags:[],collab:[]};
+function openCreatePost(target){
+  if(!CAN_EDIT()){ if(IS_OWNER&&SB&&!SESSION){toast('Sign in as the profile owner to post.');} else if(IS_OWNER&&SESSION&&!OWNS){toast('Only this profile’s owner can post.');} else {toast('Only KEEPITIL users can post — on their own profile.');} return; }
+  CP={target:target||'feed',media:'',mtype:'',file:null,tags:[],collab:[]};
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">New post<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
+    +'<div class="kil-mb">'
+    +'<div class="cp-drop" id="cpDrop" onclick="document.getElementById(\'cpFile\').click()"><div class="cp-plus">＋</div><div class="cp-hint">Tap to add a photo or video<br><small>Required — this comes first</small></div></div>'
+    +'<input type="file" id="cpFile" accept="image/*,video/*" style="display:none">'
+    +'<div class="cp-orurl"><input type="text" id="cpUrl" placeholder="…or paste an image / video URL"><button type="button" class="kil-mcancel" onclick="cpUseUrl()">Use</button></div>'
+    +'<label class="kil-mf"><span>Description</span><textarea id="cpDesc" rows="3" placeholder="Write a caption… length can vary" oninput="cpCount()"></textarea></label>'
+    +'<div class="cp-count" id="cpCount">0 characters</div>'
+    +'<label class="kil-mf"><span>Title</span><input type="text" id="cpTitle" placeholder="Give this post a title"></label>'
+    +'<label class="kil-mf"><span>Tag people</span><input type="text" id="cpTagIn" placeholder="@handle, then Enter" onkeydown="cpChipKey(event,\'tag\')"></label>'
+    +'<div class="cp-chips" id="cpTagChips"></div><div class="cp-cap" id="cpTagCap">0/10 tagged</div>'
+    +'<label class="kil-mf"><span>Collab — shared to their profile too</span><input type="text" id="cpColIn" placeholder="@handle, then Enter" onkeydown="cpChipKey(event,\'col\')"></label>'
+    +'<div class="cp-chips" id="cpColChips"></div><div class="cp-cap" id="cpColCap">0/5 collaborators</div>'
+    +'<label class="kil-mf"><span>Location</span><input type="text" id="cpLoc" placeholder="Add location"></label>'
+    +'<label class="kil-mf"><span>Alt text (accessibility)</span><input type="text" id="cpAlt" placeholder="Describe the photo or video"></label>'
+    +'<div class="cp-toggles"><label class="cp-tog"><span>Hide from feed <small style="color:var(--muted)">— show only in Gallery</small></span><input type="checkbox" id="cpHideFeed"></label>'
+    +'<label class="cp-tog"><span>Hide like counts on this post</span><input type="checkbox" id="cpHideLikes"></label>'
+    +'<label class="cp-tog"><span>Turn off commenting</span><input type="checkbox" id="cpNoComments"></label></div>'
+    +'</div><div class="kil-mfoot"><button class="kil-mcancel" onclick="closeModal()">Cancel</button><button class="kil-msave" onclick="cpSubmit()">Share</button></div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  document.getElementById('cpFile').addEventListener('change',function(){
+    var f=this.files&&this.files[0]; if(!f)return;
+    CP.file=f; CP.mtype=(f.type.indexOf('video')===0)?'video':'image';
+    var rd=new FileReader(); rd.onload=function(){ CP.media=rd.result; cpPreview(); }; rd.readAsDataURL(f);
+  });
+}
+function cpUseUrl(){
+  var u=(document.getElementById('cpUrl').value||'').trim(); if(!u)return;
+  CP.file=null; CP.media=u; CP.mtype=/\.(mp4|webm|mov|m4v)(\?|$)/i.test(u)?'video':'image'; cpPreview();
+}
+function cpPreview(){
+  var d=document.getElementById('cpDrop'); if(!d)return; d.classList.add('has');
+  d.innerHTML=(CP.mtype==='video')
+    ? '<video class="cp-media" src="'+CP.media+'" muted loop playsinline autoplay></video>'
+    : '<img class="cp-media" src="'+CP.media+'" alt="">';
+}
+function cpCount(){var t=document.getElementById('cpDesc'),c=document.getElementById('cpCount');if(t&&c)c.textContent=t.value.length+' characters';}
+function cpChipKey(e,which){
+  if(e.key!=='Enter'&&e.keyCode!==13)return; e.preventDefault();
+  var inp=e.target, val=(inp.value||'').replace(/^@+/,'').trim(); if(!val)return;
+  var arr=(which==='tag')?CP.tags:CP.collab, cap=(which==='tag')?10:5;
+  if(arr.length>=cap){ toast((which==='tag'?'Up to 10 tags':'Up to 5 collaborators')+' allowed.'); return; }
+  if(arr.indexOf(val)===-1)arr.push(val);
+  inp.value=''; cpRenderChips(which);
+}
+function cpRemoveChip(which,i){ (which==='tag'?CP.tags:CP.collab).splice(i,1); cpRenderChips(which); }
+function cpRenderChips(which){
+  var arr=(which==='tag')?CP.tags:CP.collab;
+  var wrap=document.getElementById(which==='tag'?'cpTagChips':'cpColChips');
+  var cap=document.getElementById(which==='tag'?'cpTagCap':'cpColCap');
+  if(wrap)wrap.innerHTML=arr.map(function(h,i){return '<span class="cp-chip"><b>@'+esc(h)+'</b><span class="x" onclick="cpRemoveChip(\''+which+'\','+i+')">×</span></span>';}).join('');
+  if(cap)cap.textContent=arr.length+'/'+(which==='tag'?10:5)+(which==='tag'?' tagged':' collaborators');
+}
+function cpBuildHtml(title,desc,media,mtype,tags,collab,loc){
+  var m=(mtype==='video')
+    ? '<video src="'+media+'" controls playsinline style="width:100%;border-radius:12px;display:block;margin-bottom:14px;background:#000"></video>'
+    : '<img src="'+media+'" alt="" style="width:100%;border-radius:12px;display:block;margin-bottom:14px">';
+  var col=(collab&&collab.length)?'<div class="kil-tag">✦ COLLAB · '+collab.map(function(h){return '@'+esc(h);}).join(', ')+'</div>':'';
+  var lc=loc?'<p class="intro-text" style="color:var(--muted);font-size:.82rem">📍 '+esc(loc)+'</p>':'';
+  var tg=(tags&&tags.length)?'<p class="intro-text" style="font-size:.9rem;color:var(--accent)">'+tags.map(function(h){return '@'+esc(h);}).join(' ')+'</p>':'';
+  return col+m+(desc?'<p class="intro-text">'+esc(desc).replace(/\n/g,'<br>')+'</p>':'')+lc+tg;
+}
+function cpResolveMedia(cb){ if(CP.file){ uploadImage(CP.file,function(pub){ cb(pub||CP.media||''); }); } else { cb(CP.media||''); } }
+function cpSubmit(){
+  if(!CP.media){ alert('Add a photo or video first — media comes first.'); return; }
+  var title=(document.getElementById('cpTitle').value||'').trim()||'New post';
+  var desc=(document.getElementById('cpDesc').value||'').trim();
+  var loc=(document.getElementById('cpLoc').value||'').trim();
+  var alt=(document.getElementById('cpAlt').value||'').trim();
+  var hideLikes=document.getElementById('cpHideLikes').checked, noComments=document.getElementById('cpNoComments').checked;
+  var hideFeed=document.getElementById('cpHideFeed').checked;
+  var tags=CP.tags.slice(), collab=CP.collab.slice(), mtype=CP.mtype||'image', target=CP.target;
+  closeModal();
+  cpResolveMedia(function(media){
+    if(!media){ toast('Could not attach media.'); return; }
+    if(target==='gallery'){
+      publish('photo',{src:media,label:title,views:'New',mtype:mtype,tags:tags,collab:collab,alt:alt,hideFeed:hideFeed});
+      showTab(hideFeed?'gallery':'gallery');
+    } else {
+      var d=(mtype==='video'?'Video':'Post')+' · '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      publish('article',{t:title,d:d,img:media,html:cpBuildHtml(title,desc,media,mtype,tags,collab,loc),mtype:mtype,tags:tags,collab:collab,location:loc,alt:alt,hideLikes:hideLikes,noComments:noComments,hideFeed:hideFeed});
+      showTab(hideFeed?'gallery':'article');
+    }
+    if(collab.length){
+      // Collab invites — recipient must ACCEPT before it shows on their profile. Payload lets it render without a join.
+      // Feature-detected: needs post_collaborators table (see _sql/ACTIVATE-collab-posts.sql). Silent if absent.
+      if(SB&&SESSION){ try{
+        var payload={t:title,d:'Collab · @'+PROFILE_SLUG,img:media,html:cpBuildHtml(title,desc,media,mtype,tags,collab,loc),mtype:mtype};
+        SB.from('post_collaborators').insert(collab.map(function(hh){return {source_slug:PROFILE_SLUG,collaborator_slug:hh,title:title,payload:payload,status:'pending',created_by:SESSION.user.id};})).then(function(){}).catch(function(){});
+      }catch(e){} }
+      toast('Posted. Collab request sent to '+collab.map(function(h){return '@'+h;}).join(', ')+' — they must accept it.');
+    }
+  });
+}
+
 function addContent(kind){
   if(!CAN_EDIT()){ if(IS_OWNER&&SB&&!SESSION){toast('Sign in as the profile owner to add content.');} else if(IS_OWNER&&SESSION&&!OWNS){toast('Only this profile’s owner can add content.');} return; }
   if(!kind||kind==='menu'){ addContent('post'); return; }
@@ -825,7 +1182,7 @@ function addContent(kind){
     return;
   }
   if(kind==='event'){
-    openModal('Add Event',[
+    openModal('Create Event',[
       {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
       {name:'day',label:'Day',type:'text',ph:'16',req:true},
       {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
@@ -882,10 +1239,98 @@ var GT_ARTICLES=[
 <p class="intro-text">Groove Trooper shared this from the KEEPITIL culture blog — a deep dive on where house music came from and why the groove still matters.</p>
 <p class="intro-text"><a href="/v3/culture" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
 ];
+/* ── Unified post model (blog / article / image / video) shared by FEED + GALLERY ── */
+function postType(a){ if((a.mtype||'')==='video')return 'video'; if(/blog|shared/i.test(a.d||''))return 'blog'; return 'article'; }
+/* owner can hide a post from the FEED (still shows in the GALLERY). Stored as an override map keyed by post signature so it works for seed/local/DB posts alike. */
+function hideKey(){return 'kil-feedhide-'+(typeof PROFILE_SLUG!=='undefined'?PROFILE_SLUG:'x');}
+function loadHides(){try{return JSON.parse(localStorage.getItem(hideKey())||'{}')||{};}catch(e){return{};}}
+function postSig(p){return ((p.title||'')+'|'+(p.media||'')).slice(0,140);}
+function isHiddenFromFeed(p){ return !!p.hideFeed || !!(loadHides()[postSig(p)]); }
+function toggleHideFeed(src,idx){
+  var p;
+  if(src==='article'){var a=GT_ARTICLES[idx];if(!a)return;p={title:a.t,media:a.img};}
+  else {var t=GAL_IMGS[idx];if(!t)return;p={title:t[1],media:galSrc(t[0])};}
+  var m=loadHides(), sig=postSig(p), nowHidden;
+  if(m[sig]){delete m[sig];nowHidden=false;} else {m[sig]=1;nowHidden=true;}
+  try{localStorage.setItem(hideKey(),JSON.stringify(m));}catch(e){}
+  closeModal(); renderAll();
+  toast(nowHidden?'Hidden from feed — still in your Gallery.':'Shown in feed again.');
+}
+var COLLAB_POSTS=[], COLLAB_PENDING=[];
+function allPosts(){
+  var out=[];
+  GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,hideFeed:a.hideFeed,src:'article',idx:i}); });
+  GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,hideFeed:t[4],src:'photo',idx:i}); });
+  COLLAB_POSTS.forEach(function(c,i){ var d=c.payload||{}; out.push({type:(d.mtype==='video')?'video':(d.mtype==='image'?'image':'article'),title:d.t||c.title||'Collab',sub:'✦ Collab · @'+c.source_slug,media:d.img||'',mtype:d.mtype||'image',collab:[c.source_slug],hideFeed:false,src:'collab',idx:i}); });
+  return out;
+}
+/* Collab READ side — a shared post shows on this profile only after the owner ACCEPTS it. */
+function loadCollab(){
+  if(!SB||typeof PROFILE_SLUG==='undefined'){ return; }
+  try{
+    SB.from('post_collaborators').select('*').eq('collaborator_slug',PROFILE_SLUG).then(function(r){
+      if(!r||r.error||!r.data){ return; }
+      COLLAB_POSTS=r.data.filter(function(x){return x.status==='accepted';});
+      COLLAB_PENDING=CAN_EDIT()?r.data.filter(function(x){return x.status==='pending';}):[];
+      renderArticles();
+    }).catch(function(){});
+  }catch(e){}
+}
+function collabRespond(id,status){
+  if(!SB){return;}
+  try{ SB.from('post_collaborators').update({status:status}).eq('id',id).then(function(){ toast(status==='accepted'?'Collab accepted — added to your feed.':'Collab declined.'); loadCollab(); }).catch(function(){}); }catch(e){}
+}
+function postCard(p){
+  var media=(p.mtype==='video')
+    ? '<video src="'+p.media+'" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video><span class="mtype-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>VIDEO</span>'
+    : '<img src="'+p.media+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.style.opacity=.15">';
+  var col=(p.collab&&p.collab.length)?'<span class="card-collab">✦ '+p.collab.map(function(h){return '@'+esc(h);}).join(', ')+'</span>':'';
+  var hid=(CAN_EDIT()&&isHiddenFromFeed(p))?'<span class="pc-hidden">Gallery only</span>':'';
+  return '<div class="pf-card" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'<span class="pc-type '+p.type+'">'+p.type+'</span>'+col+hid
+    +'<div class="pc-body"><div class="pc-t">'+esc(p.title)+'</div>'+(p.sub?'<div class="pc-d">'+esc(p.sub)+'</div>':'')+'</div></div>';
+}
+function openPost(src,idx){
+  var html='';
+  if(src==='collab'){ var c=COLLAB_POSTS[idx]; if(!c)return; html='<div class="kil-tag">✦ COLLAB · @'+esc(c.source_slug)+'</div>'+((c.payload&&c.payload.html)||('<p class="intro-text">'+esc(c.title||'')+'</p>')); }
+  else if(src==='article'){ var a=GT_ARTICLES[idx]; if(!a)return; html=a.html; }
+  else { var t=GAL_IMGS[idx]; if(!t)return; var mt=t[3]||'image'; var m=(mt==='video')
+      ?'<video src="'+galSrc(t[0])+'" controls playsinline autoplay style="width:100%;border-radius:12px;background:#000"></video>'
+      :'<img src="'+galSrc(t[0])+'" alt="'+esc(t[1])+'" style="width:100%;border-radius:12px">';
+    html='<div class="kil-tag">'+((mt==='video')?'★ VIDEO':'★ IMAGE')+'</div>'+m+'<p class="intro-text">'+esc(t[1])+'</p>'; }
+  var foot='';
+  if(CAN_EDIT()&&src!=='collab'){
+    var pp=(src==='article')?{title:(GT_ARTICLES[idx]||{}).t,media:(GT_ARTICLES[idx]||{}).img}:{title:(GAL_IMGS[idx]||[])[1],media:galSrc((GAL_IMGS[idx]||[])[0]||'')};
+    var hidden=isHiddenFromFeed(pp);
+    foot='<div class="kil-mfoot"><button class="kil-mcancel" onclick="toggleHideFeed(\''+src+'\','+idx+')">'+(hidden?'👁 Show in feed':'🚫 Hide from feed')+'</button></div>';
+  }
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Post<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb kil-post">'+html+'</div>'+foot+'</div>';
+  document.body.appendChild(ov); ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+}
+/* feed-types info popover */
+function toggleLegend(e){ if(e){e.stopPropagation();} var l=document.getElementById('feed-legend'); if(l) l.classList.toggle('open'); }
+document.addEventListener('click',function(e){ var l=document.getElementById('feed-legend'); if(l&&l.classList.contains('open')){ var b=document.getElementById('feed-info-btn'); if(!l.contains(e.target)&&e.target!==b) l.classList.remove('open'); } });
+/* filter state for the unified tabs */
+var GAL_FILTER='all', EV_FILTER='all', CHAT_FILTER='all';
+function setGalFilter(f){GAL_FILTER=f;renderGallery();}
+function setEvFilter(f){EV_FILTER=f;renderShows();}
+function setChatFilter(f){CHAT_FILTER=f;renderChats();}
+var MONI=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+function evKey(o){var mi=MONI.indexOf((o.month||'').toUpperCase());var d=parseInt(o.day||'0',10)||0;return (mi<0?-1:mi)*100+d;}
+/* FEED — all posts, 3-col grid */
 function renderArticles(){
-  var car=document.getElementById('art-car');if(!car)return;
-  var add=CAN_EDIT()?'<div class="add-card" onclick="addContent(\'menu\')"><span class="plus">+</span><span>Add Content</span></div>':'';
-  car.innerHTML=add+GT_ARTICLES.map(function(a,i){return '<div class="art-card" id="artc'+i+'" onclick="openArticle('+i+')"><img src="'+a.img+'" alt="'+a.t+'" loading="lazy" onerror="this.style.background=\'#222\'"><div class="cap"><div class="t">'+a.t+'</div><div class="d">'+a.d+'</div></div></div>';}).join('');
+  var host=document.getElementById('feed-grid');if(!host)return;
+  // owner-only pending collab invites — must accept before the post shows
+  var pend=document.getElementById('collab-pending');
+  if(pend){
+    pend.innerHTML=(CAN_EDIT()&&COLLAB_PENDING.length)?COLLAB_PENDING.map(function(c){
+      return '<div class="collab-invite"><div class="ci-txt"><b>@'+esc(c.source_slug)+'</b> wants to share a post to your profile: <span>"'+esc(c.title||'Untitled')+'"</span></div><div class="ci-btns"><button class="ci-yes" onclick="collabRespond(\''+c.id+'\',\'accepted\')">Accept</button><button class="ci-no" onclick="collabRespond(\''+c.id+'\',\'declined\')">Decline</button></div></div>';
+    }).join(''):'';
+  }
+  var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'feed\')"><span class="plus">+</span><span>New Post</span></div>':'';
+  var posts=allPosts().filter(function(p){return !isHiddenFromFeed(p);}); // Feed = everything (own + accepted collab) not hidden by the owner
+  host.innerHTML=add+(posts.length?posts.map(postCard).join(''):(add?'':'<div class="pf-empty">No posts yet.</div>'));
 }
 function openArticle(i){
   var v=document.getElementById('art-viewer');if(!v||!GT_ARTICLES[i])return;
@@ -896,22 +1341,24 @@ function openArticle(i){
 function scrollCar(id,dir){var el=document.getElementById(id);if(el)el.scrollBy({left:dir*320,behavior:'smooth'});}
 /* ── CHAT GROUP LIST (IG-style) ── */
 var GT_CHATS=[
-  ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg'],
-  ['kingdom','Kingdom @ Catch One','Lineup just dropped','1h','','https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg'],
-  ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg'],
-  ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg']
+  ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg','general'],
+  ['kingdom','Kingdom @ Catch One','Lineup just dropped','1h','','https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg','events'],
+  ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg','general'],
+  ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg','general']
 ];
+function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general':(/@|event/i.test(c[1])?'events':'primary'); }
 function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
   var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
-  if(!GT_CHATS.length){
-    list.innerHTML='<div class="dm-empty"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5Z"/></svg><div class="t">No messages yet</div><div class="s">'+(CAN_EDIT()?'Start a scene room to talk with your community — it stays live after the event.':'Check back when this artist opens a room.')+'</div>'+(CAN_EDIT()?'<button class="dm-start" onclick="addContent(\'chat group\')">Start a chat</button>':'')+'</div>';
-    return;
-  }
-  list.innerHTML=GT_CHATS.map(function(c){
-    var dot=c[4]?'<span class="dot"></span>':'';
-    var nm=c[1].replace(/'/g,'');
-    return '<div class="chat-item" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><img class="av" src="'+c[5]+'" alt="" loading="lazy"><div class="meta"><div class="nm">'+c[1]+'</div><div class="pv">'+c[2]+'</div></div><div class="rt"><span>'+c[3]+'</span>'+dot+'</div></div>';
+  var chips=[['all','All'],['primary','Primary'],['general','General'],['events','Events']];
+  var bar=document.getElementById('chat-filter');
+  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(CHAT_FILTER===c[0]?' on':'')+'" onclick="setChatFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var items=GT_CHATS.filter(function(c){return CHAT_FILTER==='all'||chatCat(c)===CHAT_FILTER;});
+  if(!items.length){ list.innerHTML='<div class="pf-empty">'+(CAN_EDIT()?'No messages here yet. Start a scene room to talk with your community.':'No chats here yet.')+(CAN_EDIT()?' <button class="pf-chip" style="margin-top:8px" onclick="addContent(\'chat group\')">Start a chat</button>':'')+'</div>'; return; }
+  list.innerHTML=items.map(function(c){
+    var cat=chatCat(c); var nm=c[1].replace(/'/g,'');
+    var dot=c[4]?'<span class="cc-dot"></span>':'';
+    return '<div class="chat-card" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><div class="cc-rt">'+esc(c[3])+dot+'</div><div class="cc-top"><img class="cc-av" src="'+c[5]+'" alt="" loading="lazy"><div><div class="cc-nm">'+esc(c[1])+'</div><span class="cc-cat '+cat+'">'+cat+'</span></div></div><div class="cc-pv">'+esc(c[2])+'</div></div>';
   }).join('');
 }
 function openChatGroup(slug,name){
@@ -921,21 +1368,26 @@ function openChatGroup(slug,name){
 }
 function closeChatGroup(){
   var o=document.getElementById('chat-open');if(o)o.style.display='none';
-  var l=document.getElementById('chat-list');if(l)l.style.display='flex';
+  var l=document.getElementById('chat-list');if(l)l.style.display='';
   var f=document.getElementById('chat-frame');if(f)f.src='';
 }
-/* ── KEEPITIL AI CREW: build this agent's profile on Template A from agents-data.js ── */
+/* Non-demo profiles start EMPTY; real data loads from Supabase (prevents Groove Trooper demo data bleeding into a fresh/unclaimed profile). */
+/* ── KEEPITIL AI CREW: render this agent on the gold-standard profile from agents-data.js ── */
 function applyAgentProfile(){
   var a=AGENT; if(!a) return;
-  document.documentElement.style.setProperty('--accent', a.color);
+  try{document.documentElement.style.setProperty('--accent', a.color);}catch(e){}
   var reports=(a.slug==='echo')?'The Founder':'Echo (CEO)';
   PROFILE={ name:a.name, handle:a.name, location:'KEEPITIL AI Crew', bio:a.bio, tagline:a.charge, pronouns:'',
     avatar:'/v3/agents/portrait/'+a.slug+'.png', cover:'/v3/agents/bg/'+a.slug+'.jpg', book_email:'', socials:{}, highlights:[] };
   function joinl(arr){return esc((arr||[]).join(' · '));}
-  GT_ARTICLES=[{ t:a.name+' — '+a.role, d:'KEEPITIL AI Crew', img:'/v3/agents/bg/'+a.slug+'.jpg',
+  var blog='/v3/blog-agent-'+a.slug+'.html';
+  GT_ARTICLES=[
+   { t:'Latest post — by '+a.name, d:'Blog · KEEPITIL AI Crew', img:'/v3/blog-default.jpg', mtype:'image',
+     html:'<div class="kil-tag">✦ AI CREW BLOG · LABELED AS AI</div><p class="intro-text">'+a.name+' published a new dispatch tied to their role and genre ('+joinl(a.genres)+').</p><p class="intro-text"><a href="'+blog+'" style="color:var(--accent);font-weight:700">Read '+a.name+"'s latest post →</a></p>" },
+   { t:a.name+' — '+a.role, d:'KEEPITIL AI Crew', img:'/v3/agents/bg/'+a.slug+'.jpg', mtype:'image',
     html:'<div class="kil-tag">★ KEEPITIL AI CREW · AI, LABELED AS AI</div>'
       +'<p class="intro-text">'+esc(a.bio)+'</p>'
-      +'<div class="pull-quote">“'+esc(a.charge)+'”</div>'
+      +'<blockquote>“'+esc(a.charge)+'”</blockquote>'
       +'<div class="qa-section"><div class="qa-section-title">THE ROLE</div>'
         +'<div class="qa-item"><div class="qa-q">Owns</div><div class="qa-a">'+joinl(a.owns)+'</div></div>'
         +'<div class="qa-item"><div class="qa-q">Skills</div><div class="qa-a">'+joinl(a.skills)+'</div></div>'
@@ -947,43 +1399,32 @@ function applyAgentProfile(){
         +'<div class="qa-item"><div class="qa-q">Recent wins</div><div class="qa-a">'+joinl(a.achievements)+'</div></div>'
         +'<div class="qa-item"><div class="qa-q">Coming up</div><div class="qa-a">'+joinl(a.upcoming)+'</div></div>'
         +'<div class="qa-item"><div class="qa-q">On rotation</div><div class="qa-a">'+joinl(a.genres)+'</div></div></div>' }];
-  GAL_IMGS=(a.gallery||[]).map(function(gi){return ['/v3/agents/gallery/'+gi[0], gi[1]||a.name, gi[2]||'KEEPITIL'];}); GT_SHOWS=[]; GT_CHATS=[];
-  applyProfile(); renderAll();
-  document.title=a.name.toUpperCase()+' PROFILE';
-  var pc=document.querySelector('.pf-cover'); if(pc) pc.style.background='linear-gradient(135deg,'+a.color+',#0b0b0b)';
-  /* AI icon: sits inline right after the name (transparency, kept minimal per spec) */
+  GAL_IMGS=(a.gallery||[]).map(function(gi){return ['/v3/agents/gallery/'+gi[0], gi[1]||a.name, gi[2]||'KEEPITIL','image'];}); GT_SHOWS=[]; GT_CHATS=[];
+  if(typeof applyProfile==='function') applyProfile();
+  renderAll();
+  document.title=a.name+' — KEEPITIL AI Crew';
   try{var nm=document.getElementById('pfName'); if(nm && !document.getElementById('aiPill')){var s=document.createElement('span');s.id='aiPill';s.title='AI — transparently-labeled KEEPITIL AI Crew member';s.style.cssText='display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin-left:10px;font-size:.58rem;font-weight:800;letter-spacing:.1em;color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);padding:3px 9px;border-radius:20px;transform:translateY(-3px)';s.innerHTML='🤖 AI';nm.appendChild(s);}}catch(e){}
-  /* AI agents are followable exactly like the subscribed-viewer profile */
-  var fb=document.getElementById('pfFollow'); if(fb) fb.style.display='';
   var bk=document.getElementById('pfBook'); if(bk) bk.style.display='none';
   ['shows','chat'].forEach(function(t){var tab=document.querySelector('.pf-tab[data-tab="'+t+'"]');if(tab)tab.style.display='none';});
 }
-/* Non-demo profiles start EMPTY; real data loads from Supabase (prevents Groove Trooper demo data bleeding into a fresh/unclaimed profile). */
 if(!IS_DEMO && !AGENT){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
-  /* Agent profile requested (?a=slug): resolve + render. NEVER bounce an agent URL to login —
-     if agents-data.js hasn't executed yet (load-order race on in-app navigations), retry until it has. */
-  if(AGENT_SLUG){
-    if(!AGENT && window.KEEPITIL_AGENTS){ AGENT=window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0]||null; }
-    if(AGENT){ applyAgentProfile(); return; }
-    var _at=0, _aiv=setInterval(function(){ _at++;
-      if(window.KEEPITIL_AGENTS){ var g=window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0];
-        if(g){ clearInterval(_aiv); AGENT=g; applyAgentProfile(); return; } }
-      if(_at>50){ clearInterval(_aiv); } /* ~5s; give up silently — never redirect an agent URL to login */
-    },100);
-    return;
-  }
-  if(AGENT){ applyAgentProfile(); return; }
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
   applyProfile(); renderAll();
-  if(!PROFILE_SLUG && !AGENT_SLUG){
+  if(!PROFILE_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
-    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/create-profile.html'); } }).catch(function(){ location.replace('/create-profile.html'); }); }); }
-    else { location.replace('/apply.html'); }
+    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v3/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
+    else { location.replace('/v3/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); }); });
+    if(AGENT_SLUG){
+      if(!AGENT && window.KEEPITIL_AGENTS){ AGENT=window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0]||null; }
+      if(AGENT){ applyAgentProfile(); }
+      else { var _tries=0,_iv=setInterval(function(){_tries++; if(window.KEEPITIL_AGENTS){var g=window.KEEPITIL_AGENTS.filter(function(x){return x.slug===AGENT_SLUG;})[0]; if(g){clearInterval(_iv);AGENT=g;applyAgentProfile();return;}} if(_tries>20)clearInterval(_iv);},150); }
+    } else {
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
+    }
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
