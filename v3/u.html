@@ -356,6 +356,7 @@ footer a{color:var(--accent2);}
 .pf-add .plus{font-size:2rem;line-height:1;}
 .pf-add span{font-size:.7rem;font-weight:700;letter-spacing:.05em;}
 .pf-empty{grid-column:1/-1;font-size:.82rem;color:var(--muted);padding:10px 2px;}
+.pc-hidden{position:absolute;top:8px;right:8px;z-index:3;background:rgba(0,0,0,.66);color:#fff;font-size:.52rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:5px;}
 .kil-post img,.kil-post video{max-width:100%;border-radius:12px;}
 /* chat cards share the 3-col grid but size to content */
 .chat-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .18s,border-color .18s;}
@@ -624,8 +625,8 @@ function renderAll(){renderGallery();renderShows();renderArticles();renderChats(
 function rebuild(rows){
   GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();
   (rows||[]).forEach(function(r){var d=r.data||{};
-    if(r.kind==='article')GT_ARTICLES.unshift({t:d.t,d:d.d,img:d.img,html:d.html,mtype:d.mtype,tags:d.tags,collab:d.collab,location:d.location,alt:d.alt});
-    else if(r.kind==='photo')GAL_IMGS.unshift([d.src,d.label,d.views,d.mtype]);
+    if(r.kind==='article')GT_ARTICLES.unshift({t:d.t,d:d.d,img:d.img,html:d.html,mtype:d.mtype,tags:d.tags,collab:d.collab,location:d.location,alt:d.alt,hideFeed:d.hideFeed});
+    else if(r.kind==='photo')GAL_IMGS.unshift([d.src,d.label,d.views,d.mtype,d.hideFeed?1:0]);
     else if(r.kind==='show')GT_SHOWS.push([d.month,d.day,d.dow,d.title,d.venue,d.tags,d.tix,d.cover||'',d.desc||'',d.price||'',d.kind||'ext']);
     else if(r.kind==='chat')GT_CHATS.unshift([d.slug,d.name,d.preview,'now','',d.avatar,d.category||'general']);
   });
@@ -645,7 +646,7 @@ function fallbackLocal(){ GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos
 }
 function applyLocal(kind,data){
   if(kind==='article'){GT_ARTICLES.unshift(data);ADDED.articles.unshift(data);}
-  else if(kind==='photo'){var r1=[data.src,data.label,data.views,data.mtype];GAL_IMGS.unshift(r1);ADDED.photos.unshift(r1);}
+  else if(kind==='photo'){var r1=[data.src,data.label,data.views,data.mtype,data.hideFeed?1:0];GAL_IMGS.unshift(r1);ADDED.photos.unshift(r1);}
   else if(kind==='show'){var r2=[data.month,data.day,data.dow,data.title,data.venue,data.tags,data.tix,data.cover||'',data.desc||'',data.price||'',data.kind||'ext'];GT_SHOWS.push(r2);ADDED.shows.push(r2);}
   else if(kind==='chat'){var r3=[data.slug,data.name,data.preview,'now','',data.avatar,data.category||'general'];GT_CHATS.unshift(r3);ADDED.chats.unshift(r3);}
   saveStored();renderAll();
@@ -1056,7 +1057,8 @@ function openCreatePost(target){
     +'<div class="cp-chips" id="cpColChips"></div><div class="cp-cap" id="cpColCap">0/5 collaborators</div>'
     +'<label class="kil-mf"><span>Location</span><input type="text" id="cpLoc" placeholder="Add location"></label>'
     +'<label class="kil-mf"><span>Alt text (accessibility)</span><input type="text" id="cpAlt" placeholder="Describe the photo or video"></label>'
-    +'<div class="cp-toggles"><label class="cp-tog"><span>Hide like counts on this post</span><input type="checkbox" id="cpHideLikes"></label>'
+    +'<div class="cp-toggles"><label class="cp-tog"><span>Hide from feed <small style="color:var(--muted)">— show only in Gallery</small></span><input type="checkbox" id="cpHideFeed"></label>'
+    +'<label class="cp-tog"><span>Hide like counts on this post</span><input type="checkbox" id="cpHideLikes"></label>'
     +'<label class="cp-tog"><span>Turn off commenting</span><input type="checkbox" id="cpNoComments"></label></div>'
     +'</div><div class="kil-mfoot"><button class="kil-mcancel" onclick="closeModal()">Cancel</button><button class="kil-msave" onclick="cpSubmit()">Share</button></div></div>';
   document.body.appendChild(ov);
@@ -1111,17 +1113,18 @@ function cpSubmit(){
   var loc=(document.getElementById('cpLoc').value||'').trim();
   var alt=(document.getElementById('cpAlt').value||'').trim();
   var hideLikes=document.getElementById('cpHideLikes').checked, noComments=document.getElementById('cpNoComments').checked;
+  var hideFeed=document.getElementById('cpHideFeed').checked;
   var tags=CP.tags.slice(), collab=CP.collab.slice(), mtype=CP.mtype||'image', target=CP.target;
   closeModal();
   cpResolveMedia(function(media){
     if(!media){ toast('Could not attach media.'); return; }
     if(target==='gallery'){
-      publish('photo',{src:media,label:title,views:'New',mtype:mtype,tags:tags,collab:collab,alt:alt});
-      showTab('gallery');
+      publish('photo',{src:media,label:title,views:'New',mtype:mtype,tags:tags,collab:collab,alt:alt,hideFeed:hideFeed});
+      showTab(hideFeed?'gallery':'gallery');
     } else {
       var d=(mtype==='video'?'Video':'Post')+' · '+new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      publish('article',{t:title,d:d,img:media,html:cpBuildHtml(title,desc,media,mtype,tags,collab,loc),mtype:mtype,tags:tags,collab:collab,location:loc,alt:alt,hideLikes:hideLikes,noComments:noComments});
-      showTab('article');
+      publish('article',{t:title,d:d,img:media,html:cpBuildHtml(title,desc,media,mtype,tags,collab,loc),mtype:mtype,tags:tags,collab:collab,location:loc,alt:alt,hideLikes:hideLikes,noComments:noComments,hideFeed:hideFeed});
+      showTab(hideFeed?'gallery':'article');
     }
     if(collab.length){
       // Record collab invites (shared to their profile). Feature-detected: needs post_collaborators table (see _sql/ACTIVATE-collab-posts.sql). Silent if absent.
@@ -1223,10 +1226,25 @@ var GT_ARTICLES=[
 ];
 /* ── Unified post model (blog / article / image / video) shared by FEED + GALLERY ── */
 function postType(a){ if((a.mtype||'')==='video')return 'video'; if(/blog|shared/i.test(a.d||''))return 'blog'; return 'article'; }
+/* owner can hide a post from the FEED (still shows in the GALLERY). Stored as an override map keyed by post signature so it works for seed/local/DB posts alike. */
+function hideKey(){return 'kil-feedhide-'+(typeof PROFILE_SLUG!=='undefined'?PROFILE_SLUG:'x');}
+function loadHides(){try{return JSON.parse(localStorage.getItem(hideKey())||'{}')||{};}catch(e){return{};}}
+function postSig(p){return ((p.title||'')+'|'+(p.media||'')).slice(0,140);}
+function isHiddenFromFeed(p){ return !!p.hideFeed || !!(loadHides()[postSig(p)]); }
+function toggleHideFeed(src,idx){
+  var p;
+  if(src==='article'){var a=GT_ARTICLES[idx];if(!a)return;p={title:a.t,media:a.img};}
+  else {var t=GAL_IMGS[idx];if(!t)return;p={title:t[1],media:galSrc(t[0])};}
+  var m=loadHides(), sig=postSig(p), nowHidden;
+  if(m[sig]){delete m[sig];nowHidden=false;} else {m[sig]=1;nowHidden=true;}
+  try{localStorage.setItem(hideKey(),JSON.stringify(m));}catch(e){}
+  closeModal(); renderAll();
+  toast(nowHidden?'Hidden from feed — still in your Gallery.':'Shown in feed again.');
+}
 function allPosts(){
   var out=[];
-  GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,src:'article',idx:i}); });
-  GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,src:'photo',idx:i}); });
+  GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,hideFeed:a.hideFeed,src:'article',idx:i}); });
+  GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,hideFeed:t[4],src:'photo',idx:i}); });
   return out;
 }
 function postCard(p){
@@ -1234,7 +1252,8 @@ function postCard(p){
     ? '<video src="'+p.media+'" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video><span class="mtype-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>VIDEO</span>'
     : '<img src="'+p.media+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.style.opacity=.15">';
   var col=(p.collab&&p.collab.length)?'<span class="card-collab">✦ '+p.collab.map(function(h){return '@'+esc(h);}).join(', ')+'</span>':'';
-  return '<div class="pf-card" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'<span class="pc-type '+p.type+'">'+p.type+'</span>'+col
+  var hid=(CAN_EDIT()&&isHiddenFromFeed(p))?'<span class="pc-hidden">Gallery only</span>':'';
+  return '<div class="pf-card" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'<span class="pc-type '+p.type+'">'+p.type+'</span>'+col+hid
     +'<div class="pc-body"><div class="pc-t">'+esc(p.title)+'</div>'+(p.sub?'<div class="pc-d">'+esc(p.sub)+'</div>':'')+'</div></div>';
 }
 function openPost(src,idx){
@@ -1244,9 +1263,15 @@ function openPost(src,idx){
       ?'<video src="'+galSrc(t[0])+'" controls playsinline autoplay style="width:100%;border-radius:12px;background:#000"></video>'
       :'<img src="'+galSrc(t[0])+'" alt="'+esc(t[1])+'" style="width:100%;border-radius:12px">';
     html='<div class="kil-tag">'+((mt==='video')?'★ VIDEO':'★ IMAGE')+'</div>'+m+'<p class="intro-text">'+esc(t[1])+'</p>'; }
+  var foot='';
+  if(CAN_EDIT()){
+    var pp=(src==='article')?{title:(GT_ARTICLES[idx]||{}).t,media:(GT_ARTICLES[idx]||{}).img}:{title:(GAL_IMGS[idx]||[])[1],media:galSrc((GAL_IMGS[idx]||[])[0]||'')};
+    var hidden=isHiddenFromFeed(pp);
+    foot='<div class="kil-mfoot"><button class="kil-mcancel" onclick="toggleHideFeed(\''+src+'\','+idx+')">'+(hidden?'👁 Show in feed':'🚫 Hide from feed')+'</button></div>';
+  }
   closeModal();
   var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
-  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Post<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb kil-post">'+html+'</div></div>';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Post<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb kil-post">'+html+'</div>'+foot+'</div>';
   document.body.appendChild(ov); ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
 }
 /* feed-types info popover */
@@ -1263,7 +1288,7 @@ function evKey(o){var mi=MONI.indexOf((o.month||'').toUpperCase());var d=parseIn
 function renderArticles(){
   var host=document.getElementById('feed-grid');if(!host)return;
   var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'feed\')"><span class="plus">+</span><span>New Post</span></div>':'';
-  var posts=allPosts();
+  var posts=allPosts().filter(function(p){return !isHiddenFromFeed(p);}); // Feed = everything not hidden by the owner
   host.innerHTML=add+(posts.length?posts.map(postCard).join(''):(add?'':'<div class="pf-empty">No posts yet.</div>'));
 }
 function openArticle(i){
