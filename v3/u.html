@@ -50,7 +50,9 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .theme-fab.open .swatches{display:flex;}
 .tsw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;}
 .tsw.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
-.pf-cover{position:relative;width:100%;height:300px;overflow:hidden;background:linear-gradient(135deg,var(--brand) 0%,var(--purple) 55%,var(--purple-2) 100%);}
+.pf-cover{position:relative;width:100%;aspect-ratio:16/9;max-height:60vh;overflow:hidden;background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;}
+/* Remove the global v3-tokens default.jpg themed backdrop on profiles */
+body::before{background:none!important;opacity:0!important;}
 .pf-cover img{width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62);}
 .pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
 .pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:-84px;}
@@ -70,6 +72,13 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .pf-btn.icon{padding:9px 11px;border-color:var(--line);color:var(--text);}
 .pf-btn.icon:hover{border-color:var(--accent);color:var(--accent);}
 .pf-btn svg{width:17px;height:17px;fill:currentColor;display:block;}
+.pf-share{position:relative;display:inline-flex;}
+.share-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:200;display:none;flex-direction:column;min-width:186px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 14px 34px rgba(0,0,0,.5);}
+.pf-share.open .share-menu{display:flex;}
+.share-menu a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;font-size:.9rem;color:var(--text-soft);cursor:pointer;transition:background .15s,color .15s;}
+.share-menu a:hover{background:var(--surface2);color:var(--text);}
+.share-menu a svg{width:17px;height:17px;fill:currentColor;flex:0 0 auto;}
+.share-menu .sm-head{font-family:var(--font-head);font-size:.8rem;letter-spacing:.14em;color:var(--muted);padding:6px 12px 8px;}
 .pf-meta{max-width:940px;margin:18px auto 0;padding:0 22px;}
 .pf-bio{font-size:.98rem;color:var(--text-soft);margin:16px 0 4px;max-width:680px;}
 .pf-bio .h{color:var(--accent);}
@@ -293,10 +302,22 @@ footer a{color:var(--accent2);}
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfEdit" style="display:none" onclick="openEditProfile()">✎ EDIT PROFILE</button>
-    <a class="pf-btn book" id="pfBook" href="mailto:gtbookings626@gmail.com">BOOK</a>
+    <a class="pf-btn book" id="pfBook" href="mailto:gtbookings626@gmail.com">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="https://instagram.com/Groove_Trooper" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="https://on.soundcloud.com/mSGGX5UHsrqxNEsRIj" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
-    <button class="pf-btn icon" onclick="navigator.share ? navigator.share({title:'Groove Trooper',url:location.href}) : alert('Share')" aria-label="Share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+    <div class="pf-share" id="pfShare">
+      <button class="pf-btn icon" onclick="toggleShare(event)" aria-label="Share" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
+      <div class="share-menu" id="shareMenu" role="menu">
+        <div class="sm-head">SHARE TO</div>
+        <a role="menuitem" onclick="shareTo('x')"><svg viewBox="0 0 24 24"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.82-5.97 6.82H1.66l7.73-8.84L1.24 2.25h6.83l4.71 6.23 5.46-6.23zm-1.16 17.52h1.83L7.01 4.13H5.05l12.03 15.64z"/></svg>X (Twitter)</a>
+        <a role="menuitem" onclick="shareTo('fb')"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0022 12z"/></svg>Facebook</a>
+        <a role="menuitem" onclick="shareTo('wa')"><svg viewBox="0 0 24 24"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.45 1.34 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm5.8 14.06c-.24.68-1.4 1.3-1.94 1.34-.5.05-.5.4-3.15-.66-2.65-1.06-4.3-3.77-4.43-3.95-.13-.18-1.06-1.4-1.06-2.67 0-1.27.67-1.9.9-2.16.24-.26.52-.32.7-.32.17 0 .35 0 .5.01.16.01.38-.06.6.46.23.53.77 1.84.84 1.97.07.13.11.29.02.47-.09.18-.13.29-.26.44-.13.15-.27.34-.39.46-.13.13-.26.27-.11.53.15.26.66 1.09 1.42 1.77.98.87 1.8 1.15 2.06 1.28.26.13.41.11.56-.07.15-.18.65-.76.82-1.02.17-.26.35-.22.58-.13.24.09 1.52.72 1.78.85.26.13.43.2.5.3.06.11.06.62-.18 1.3z"/></svg>WhatsApp</a>
+        <a role="menuitem" onclick="shareTo('tg')"><svg viewBox="0 0 24 24"><path d="M21.9 4.3l-3.3 15.6c-.25 1.1-.9 1.37-1.82.85l-5.03-3.7-2.43 2.34c-.27.27-.5.5-1.02.5l.36-5.14L17.02 6.9c.41-.36-.09-.56-.63-.2L6.5 13.02l-4.9-1.53c-1.06-.33-1.08-1.06.22-1.57l19.16-7.39c.89-.33 1.67.2 1.72 1.77z"/></svg>Telegram</a>
+        <a role="menuitem" onclick="shareTo('email')"><svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Email</a>
+        <a role="menuitem" onclick="shareTo('sms')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 9H6V9h12v2zm0-3H6V6h12v2z"/></svg>Text (SMS)</a>
+        <a role="menuitem" onclick="shareTo('copy')"><svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 00-2 2v14h2V3h12V1zm3 4H8a2 2 0 00-2 2v14a2 2 0 002 2h11a2 2 0 002-2V7a2 2 0 00-2-2zm0 16H8V7h11v14z"/></svg>Copy link</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -410,7 +431,7 @@ function renderGallery(){
 var GT_SHOWS=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
 function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
-  el.innerHTML=(CAN_EDIT()?'<div class="show-add" onclick="addContent(\'event\')">+ Add Event</div>':'')+GT_SHOWS.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
+  el.innerHTML='<div class="show-add" onclick="createEvent()">+ CREATE EVENT</div>'+GT_SHOWS.map(function(s){return '<div class="show-card"><div class="show-date"><b>'+s[0]+'</b><span>'+s[1]+'</span><i>'+s[2]+'</i></div><div class="show-info"><div class="show-title">'+s[3]+'</div><div class="show-venue">'+s[4]+'</div><div class="show-tags">'+s[5]+'</div></div><a class="show-tix" href="'+s[6]+'" target="_blank" rel="noopener">TICKETS</a></div>';}).join('');
 }
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -603,6 +624,29 @@ function loadFollow(){
     }
   }).catch(function(){});
 }
+/* ── SHARE: social platforms, email or SMS only ── */
+function toggleShare(e){ if(e){e.stopPropagation();} var w=document.getElementById('pfShare'); if(w) w.classList.toggle('open'); }
+document.addEventListener('click',function(e){ var w=document.getElementById('pfShare'); if(w&&w.classList.contains('open')&&!w.contains(e.target)) w.classList.remove('open'); });
+function shareTo(net){
+  var url=location.href;
+  var title=(typeof PROFILE!=='undefined'&&PROFILE.name)?PROFILE.name+' on KEEPITIL':document.title;
+  var u=encodeURIComponent(url), t=encodeURIComponent(title), body=encodeURIComponent(title+' — '+url);
+  var link='';
+  if(net==='x')      link='https://twitter.com/intent/tweet?text='+t+'&url='+u;
+  else if(net==='fb')link='https://www.facebook.com/sharer/sharer.php?u='+u;
+  else if(net==='wa')link='https://api.whatsapp.com/send?text='+body;
+  else if(net==='tg')link='https://t.me/share/url?url='+u+'&text='+t;
+  else if(net==='email')link='mailto:?subject='+t+'&body='+body;
+  else if(net==='sms')link='sms:?&body='+body;
+  else if(net==='copy'){
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){toast('Link copied.');}); }
+    else { try{var ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Link copied.');}catch(e){toast('Copy failed.');} }
+    var w0=document.getElementById('pfShare'); if(w0)w0.classList.remove('open'); return;
+  }
+  if(link) window.open(link,'_blank','noopener');
+  var w=document.getElementById('pfShare'); if(w)w.classList.remove('open');
+}
+
 function toggleFollow(){
   if(!SB||!SESSION){ toast('Sign in to follow this profile.'); return; }
   var b=document.getElementById('pfFollow'); if(b)b.disabled=true;
@@ -788,6 +832,17 @@ function openModal(title,fields,cb){
 }
 function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();}
 
+/* CREATE EVENT — visible to everyone, but only signed-in KEEPITIL users (the profile owner) can actually create one. */
+function createEvent(){
+  if(!CAN_EDIT()){
+    if(IS_OWNER&&SB&&!SESSION){ toast('Sign in as a KEEPITIL user to create an event.'); }
+    else if(IS_OWNER&&SESSION&&!OWNS){ toast('Only this profile’s owner can create events.'); }
+    else { toast('Only KEEPITIL users can create events — on their own profile.'); }
+    return;
+  }
+  addContent('event');
+}
+
 function addContent(kind){
   if(!CAN_EDIT()){ if(IS_OWNER&&SB&&!SESSION){toast('Sign in as the profile owner to add content.');} else if(IS_OWNER&&SESSION&&!OWNS){toast('Only this profile’s owner can add content.');} return; }
   if(!kind||kind==='menu'){ addContent('post'); return; }
@@ -821,7 +876,7 @@ function addContent(kind){
     return;
   }
   if(kind==='event'){
-    openModal('Add Event',[
+    openModal('Create Event',[
       {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
       {name:'day',label:'Day',type:'text',ph:'16',req:true},
       {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
