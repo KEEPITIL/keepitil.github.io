@@ -57,7 +57,7 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-ba
         <input id="man" placeholder="…or type a ticket code" autocomplete="off"/>
         <button id="manBtn">Check</button>
       </div>
-      <div class="stat">Checked in this session: <b id="cnt">0</b></div>
+      <div class="stat">Checked in: <b id="cnt">0</b></div>
     </div>
     <div class="result" id="result"></div>
   </div>
@@ -81,16 +81,19 @@ async function validate(raw){
   var now=Date.now(); if(tok===lastTok && now-lastAt<3000) return; lastTok=tok; lastAt=now;
   if(busy) return; busy=true;
   try{
-    var r=await supa.from('event_orders').select('*').eq('qr_token',tok).limit(1);
-    var o=r&&r.data&&r.data[0];
-    if(!o){ show('err','✕','Not a valid ticket','Not found, or not for your event'); busy=false; return; }
-    if(o.status!=='paid'){ show('err','✕','Not paid','Status: '+o.status); busy=false; return; }
-    var ev=await evName(o.event_id), ti=await tierName(o.tier_id);
-    if(o.checked_in_at){ show('warn','⚠','Already checked in',(ev||'')+' · '+(ti||'GA')); busy=false; return; }
-    var up=await supa.from('event_orders').update({checked_in_at:new Date().toISOString()}).eq('id',o.id).select('id');
-    if(up.error){ show('err','✕','Could not check in','Try again'); busy=false; return; }
-    count++; $('cnt').textContent=count;
-    show('ok','✓','Checked in',(ev||'Event')+' · '+(ti||'GA')+(o.buyer_email?(' · '+o.buyer_email):''));
+    // Organizer-verified, atomic check-in via SECURITY DEFINER RPC (prevents double entry
+    // and blocks checking in tickets that aren't for your event).
+    var r=await supa.rpc('check_in_ticket',{p_qr:tok});
+    if(r.error){ show('err','✕','Error','Please try again'); busy=false; return; }
+    var d=r.data||{};
+    var det=(d.event||'Event')+' · '+(d.tier||'GA')+(d.buyer?(' · '+d.buyer):'');
+    if(typeof d.checked_in!=='undefined'){ $('cnt').textContent=d.checked_in+' / '+d.sold; }
+    if(d.status==='valid'){ show('ok','✓','Checked in',det); if(navigator.vibrate)navigator.vibrate(60); }
+    else if(d.status==='already'){ show('warn','⚠','Already checked in',det); }
+    else if(d.status==='notpaid'){ show('err','✕','Not paid','Status: '+(d.order_status||'unpaid')); }
+    else if(d.status==='notyours'){ show('err','✕','Not your event','This ticket belongs to a different organizer'); }
+    else if(d.status==='unauth'){ show('err','✕','Sign in required','Log in as the organizer'); }
+    else { show('err','✕','Not a valid ticket','Ticket not found'); }
   }catch(e){ show('err','✕','Error','Please try again'); }
   busy=false;
 }
