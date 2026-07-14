@@ -221,22 +221,23 @@ $('form').addEventListener('submit',async function(e){
       qs.push({ label:lbl, type:q.querySelector('.q-type').value, required:q.querySelector('.q-req').value==='yes' });
     });
     if(qs.length) ev.reg_questions=qs;
-    var ins=await supa.from('events').insert(ev).select('id').single();
-    if(ins.error) throw ins.error;
-    var eventId=ins.data.id;
     var tiers=[];
-    document.querySelectorAll('#tiers .tier').forEach(function(t,idx){
+    document.querySelectorAll('#tiers .tier').forEach(function(t){
       var name=(t.querySelector('.t-name').value||'General Admission').trim();
       var price=parseInt(t.querySelector('.t-price').value||'0',10)||0;
       var qty=t.querySelector('.t-qty').value?parseInt(t.querySelector('.t-qty').value,10):null;
-      tiers.push({event_id:eventId,name:name,price_cents:price*100,qty_total:qty,stripe_payment_link:null,sort:idx});
+      tiers.push({name:name,price_cents:price*100,qty_total:qty});
     });
-    if(tiers.length){ var ti=await supa.from('ticket_tiers').insert(tiers); if(ti.error) throw ti.error; }
-    var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(ev.slug);
+    // Event creation goes through a SECURITY DEFINER RPC (create_event_with_tiers)
+    // which inserts the event + tiers server-side and forces status='review'.
+    var rc=await supa.rpc('create_event_with_tiers',{ ev:ev, tiers:tiers });
+    if(rc.error) throw rc.error;
+    var res=rc.data||{}; var newSlug=res.slug||ev.slug;
+    var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(newSlug);
     $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
     b.disabled=false; b.textContent='Submit event for review';
-    msg.className='msg err'; msg.textContent='Could not submit: '+(err.message||err)+'. If this persists, you may need a Community membership to create events.';
+    msg.className='msg err'; msg.textContent='Could not submit: '+(err.message||err)+'. Make sure you are signed in, then try again.';
   }
 });
 
