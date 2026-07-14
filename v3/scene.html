@@ -87,7 +87,8 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .card{position:relative;background:var(--panel);border:1px solid var(--panel-brd);border-radius:16px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;}
 .card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.2);box-shadow:0 18px 40px rgba(0,0,0,.5);}
 .card .imgw{position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--surface-2);}
-.card .imgw img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.card .imgw img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.card .imgw .fallback{position:absolute;inset:0;z-index:0;display:flex!important;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:2.2rem;letter-spacing:.06em;color:#fff;}
 .card:hover .imgw img{transform:scale(1.06);}
 .card .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:2.6rem;color:#fff;}
 .kinds{position:absolute;top:11px;left:11px;display:flex;gap:4px;flex-wrap:wrap;max-width:80%;}
@@ -106,7 +107,7 @@ footer a{color:var(--artist);}
 </head>
 <body>
 <nav id="main-nav"><div class="nav-inner">
-  <a class="nav-logo" href="/v3/"><img src="/keepitil-x-blue.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
+  <a class="nav-logo" href="/v3/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
   <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="#" class="active">SCENE</a></li></ul>
   <a href="/v3/apply.html" class="nav-cta">LOGIN</a>
   <button class="nav-hamburger" onclick="document.getElementById('mm').classList.toggle('open')" aria-label="Menu"><span></span><span></span><span></span></button>
@@ -475,8 +476,8 @@ function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('
 function desc(x){return x.genre||x.category||x.type||'';}
 function card(x){
   const d=desc(x);const ig=x.ig?('@'+x.ig):'';const href=x.blog?('/'+x.blog):'#';
-  const img=x.img?('<img loading="lazy" src="'+x.img+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/>'):'';
-  const fb='<div class="fallback" style="display:'+(x.img?'none':'flex')+';background:linear-gradient(135deg,'+(x.color||'#6d28d9')+',#111)">'+initials(x.name)+'</div>';
+  const img=x.img?('<img loading="lazy" referrerpolicy="no-referrer" src="'+x.img+'" alt="" onerror="this.style.display=\'none\'"/>'):'';
+  const fb='<div class="fallback" style="background:linear-gradient(135deg,'+(x.color||'#6d28d9')+',#111)">'+initials(x.name)+'</div>';
   const chips=x.kinds.map(k=>'<span class="kind '+k+'">'+KL[k]+'</span>').join('');
   return '<a class="card" href="'+href+'"><div class="imgw"><div class="kinds">'+chips+'</div>'+img+fb+'</div>'
     +'<div class="body"><div class="nm">'+(x.name||'')+'</div><div class="desc">'+d+'</div>'
@@ -518,7 +519,7 @@ document.getElementById('subs').addEventListener('click',e=>{const c=e.target.cl
 document.getElementById('q').addEventListener('input',e=>{q=e.target.value;render();});
 renderSubs();render();
 </script>
-<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
   <script src="/v3/keepitil-create-fab.js" defer></script>
