@@ -500,6 +500,14 @@ footer a{color:var(--accent2);}
     <div class="txt"><b>🔔 Never miss a set.</b> Get alerts when Groove Trooper plays near you.</div>
     <button class="alert-btn" id="alertBtn" onclick="toggleAlert()">GET ALERTS</button>
   </div>
+  <div class="mytix-wrap" id="myev-wrap" style="display:none">
+    <div class="mytix-h" id="myev-h">🎤 MY EVENTS</div>
+    <div class="mytix-car" id="myev-car">
+      <button class="mytix-arrow prev" aria-label="Scroll to previous events" onclick="myevScroll(-1)">&lsaquo;</button>
+      <div class="mytix-row" id="myev-row"></div>
+      <button class="mytix-arrow next" aria-label="Scroll to next events" onclick="myevScroll(1)">&rsaquo;</button>
+    </div>
+  </div>
   <div class="mytix-wrap" id="mytix-wrap" style="display:none">
     <div class="mytix-h">🎟 MY TICKETS <a href="/v3/tickets.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">View all &rarr;</a></div>
     <div class="mytix-car" id="mytix-car">
@@ -642,6 +650,29 @@ function loadMyTickets(){
   }).catch(function(){ wrap.style.display='none'; });
 }
 function goMyTix(i){ var t=MY_TIX[i]; if(!t)return; location.href='/v3/tickets.html?e='+encodeURIComponent(t.slug||''); }
+/* ── MY EVENTS carousel: events this profile created/hosts. Owner sees all statuses; public sees published. ── */
+function loadMyEvents(){
+  var wrap=document.getElementById('myev-wrap'); if(!wrap||!SB){ if(wrap)wrap.style.display='none'; return; }
+  var owner=(typeof CAN_EDIT==='function')&&CAN_EDIT();
+  SB.rpc('get_profile_events',{p_handle:PROFILE_SLUG}).then(function(r){
+    if(r&&r.error){ wrap.style.display='none'; return; }
+    var evs=(r&&r.data)?r.data:[];
+    if(!evs.length){ wrap.style.display='none'; return; }
+    var h=document.getElementById('myev-h');
+    if(h) h.innerHTML=(owner?'🎤 MY EVENTS':'🎤 HOSTING')+(owner?' <a href="/v3/dashboard.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">Dashboard &rarr;</a>':'');
+    var row=document.getElementById('myev-row'); if(!row){ wrap.style.display='none'; return; }
+    row.innerHTML=evs.map(function(e){
+      var img=e.cover_url?'<img class="tix-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
+      var st=(e.status||'').toLowerCase();
+      var ribbon = owner ? ('<div class="tix-ribbon" style="background:'+(st==='published'?'linear-gradient(90deg,rgba(0,255,136,.97),rgba(0,200,120,.55))':'linear-gradient(90deg,rgba(255,180,60,.97),rgba(255,150,40,.5))')+'"><b>'+(st==='published'?'Published':(st==='review'?'In review':(st||'Draft')))+'</b></div>') : '';
+      return '<div class="mytix-card" onclick="location.href=\'/v3/event.html?e='+encodeURIComponent(e.slug||'')+'\'">'+img+'<div class="tix-shade"></div>'+ribbon+'<div class="tix-body"><div class="tix-t">'+esc(e.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(e.starts_at))+(e.city?' · '+esc(e.city):'')+'</div></div></div>';
+    }).join('');
+    wrap.style.display='';
+    myevMark();
+  }).catch(function(){ wrap.style.display='none'; });
+}
+function myevScroll(dir){ var row=document.getElementById('myev-row'); if(!row)return; var c=row.querySelector('.mytix-card'); var w=c?(c.offsetWidth+15)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+15))):320; row.scrollBy({left:dir*w,behavior:'smooth'}); }
+function myevMark(){ var car=document.getElementById('myev-car'), row=document.getElementById('myev-row'); if(!car||!row)return; var prev=car.querySelector('.mytix-arrow.prev'), next=car.querySelector('.mytix-arrow.next'); function upd(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); if(prev)prev.disabled=row.scrollLeft<=2; if(next)next.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } upd(); row.onscroll=upd; }
 function mytixScroll(dir){ var row=document.getElementById('mytix-row'); if(!row)return; var c=row.querySelector('.mytix-card'); var w=c?(c.offsetWidth+15)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+15))):320; row.scrollBy({left:dir*w,behavior:'smooth'}); }
 function mytixMark(){ var car=document.getElementById('mytix-car'), row=document.getElementById('mytix-row'); if(!car||!row)return; var prev=car.querySelector('.mytix-arrow.prev'), next=car.querySelector('.mytix-arrow.next'); function upd(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); if(prev)prev.disabled=row.scrollLeft<=2; if(next)next.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } upd(); row.onscroll=upd; }
 function openTicket(i){
@@ -1447,8 +1478,8 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v3/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
     else { location.replace('/v3/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); }); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
