@@ -1412,8 +1412,9 @@ if(!IS_DEMO && !AGENT){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
   applyProfile(); renderAll();
-  if(!PROFILE_SLUG){
-    /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
+  if(!PROFILE_SLUG && !AGENT_SLUG){
+    /* No slug AND no agent (?a=): send a logged-in user to THEIR profile, or to create one; else to login.
+       Guard must include AGENT_SLUG so /agent.html?a=<crew> renders the agent instead of bouncing to the user's own profile. */
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v3/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
     else { location.replace('/v3/apply.html'); }
   } else if(SB){
