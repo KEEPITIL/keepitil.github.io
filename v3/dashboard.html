@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Organizer Dashboard — KEEPITIL</title>
+<meta name="description" content="Manage your KEEPITIL events — sales, check-ins, revenue, promotion."/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.55;padding-bottom:80px}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+.head{padding:28px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.head h1{font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em;font-size:2rem;line-height:1}
+.head h1 b{color:var(--brand,#00b4ff)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:800;padding:11px 18px;border-radius:11px;text-decoration:none;cursor:pointer;border:1px solid var(--line,#242433);background:transparent;color:var(--text);font:inherit;font-weight:800;white-space:nowrap}
+.btn.prim{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border:0}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 22px}
+.sum{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:14px;padding:14px 16px}
+.sum .n{font-size:1.6rem;font-weight:900;line-height:1}
+.sum .l{color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
+.ev{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:16px;overflow:hidden;margin-bottom:14px;display:flex;gap:0;flex-wrap:wrap}
+.ev-cov{width:150px;min-height:120px;object-fit:cover;background:#0a0a12;flex:0 0 150px}
+.ev-main{flex:1;min-width:240px;padding:16px 18px}
+.ev-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ev-title{font-size:1.15rem;font-weight:800}
+.ev-badge{font-size:.62rem;font-weight:800;letter-spacing:.06em;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.ev-badge.published{background:rgba(34,227,155,.15);color:#22e39b}
+.ev-badge.review{background:rgba(255,180,60,.15);color:#ffb43c}
+.ev-badge.draft{background:rgba(255,255,255,.08);color:var(--muted)}
+.ev-meta{color:var(--muted);font-size:.85rem;margin-top:3px}
+.ev-stats{display:flex;gap:22px;margin:12px 0}
+.ev-stats .s .n{font-size:1.25rem;font-weight:900;line-height:1}
+.ev-stats .s .l{color:var(--muted);font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+.ev-acts{display:flex;gap:8px;flex-wrap:wrap}
+.ev-acts a,.ev-acts button{font-size:.8rem;font-weight:800;padding:8px 12px;border-radius:9px;text-decoration:none;cursor:pointer;border:1px solid var(--line,#242433);background:transparent;color:var(--text);font-family:inherit}
+.ev-acts a.scan{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.gate,.empty{max-width:460px;margin:60px auto;text-align:center;background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:18px;padding:34px 28px}
+.gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}.gate p,.empty p{color:var(--muted);margin-bottom:18px}
+@media(max-width:560px){.summary{grid-template-columns:repeat(2,1fr)}.ev-cov{width:100%;flex:0 0 100%;height:140px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Organizer <b>Dashboard</b></h1>
+    <a class="btn prim" href="/v3/create-event.html">+ Create Event</a>
+  </div>
+  <div id="gate" class="gate" style="display:none">
+    <h2>Log in to manage your events</h2>
+    <p>Sign in with the account that hosts your events.</p>
+    <a class="btn prim" id="loginBtn" href="/v3/apply.html">Log in</a>
+  </div>
+  <div id="app" style="display:none">
+    <div class="summary" id="summary"></div>
+    <div id="list"></div>
+  </div>
+</div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function money(c){return '$'+((c||0)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(iso){ try{ if(!iso)return 'Date TBD'; return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
+
+function card(d){
+  var st=(d.status||'draft').toLowerCase();
+  var cov=d.cover?'<img class="ev-cov" src="'+esc(d.cover)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="ev-cov"></div>';
+  return '<div class="ev">'+cov+
+    '<div class="ev-main">'+
+      '<div class="ev-top"><span class="ev-title">'+esc(d.title||'Untitled')+'</span><span class="ev-badge '+st+'">'+esc(st)+'</span></div>'+
+      '<div class="ev-meta">'+fmtDate(d.starts_at)+(d.venue?' · '+esc(d.venue):(d.city?' · '+esc(d.city):''))+'</div>'+
+      '<div class="ev-stats">'+
+        '<div class="s"><div class="n">'+(d.sold||0)+'</div><div class="l">Sold</div></div>'+
+        '<div class="s"><div class="n">'+(d.checked_in||0)+'</div><div class="l">Checked in</div></div>'+
+        '<div class="s"><div class="n">'+money(d.revenue_cents)+'</div><div class="l">Revenue</div></div>'+
+      '</div>'+
+      '<div class="ev-acts">'+
+        '<a class="scan" href="/v3/scan.html">Door scanner</a>'+
+        (st==='published'?'<a href="/v3/event.html?e='+encodeURIComponent(d.slug)+'">View</a>':'')+
+        '<a href="/v3/campaigns.html?e='+encodeURIComponent(d.slug)+'">Promote</a>'+
+        '<button onclick="dup('+d.event_id+',this)">Duplicate</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+async function dup(id,btn){
+  if(btn){btn.disabled=true;btn.textContent='Duplicating…';}
+  try{ var r=await supa.rpc('duplicate_event',{p_event_id:id});
+    if(r&&r.data&&r.data.slug){ load(); } else { if(btn){btn.disabled=false;btn.textContent='Duplicate';} alert('Could not duplicate.'); }
+  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Duplicate';} }
+}
+
+async function load(){
+  try{
+    var r=await supa.rpc('organizer_dashboard');
+    var evs=(r&&r.data)||[];
+    var sold=0,rev=0,chk=0;
+    evs.forEach(function(e){ sold+=e.sold||0; rev+=e.revenue_cents||0; chk+=e.checked_in||0; });
+    $('summary').innerHTML=
+      '<div class="sum"><div class="n">'+evs.length+'</div><div class="l">Events</div></div>'+
+      '<div class="sum"><div class="n">'+sold+'</div><div class="l">Tickets sold</div></div>'+
+      '<div class="sum"><div class="n">'+chk+'</div><div class="l">Checked in</div></div>'+
+      '<div class="sum"><div class="n">'+money(rev)+'</div><div class="l">Revenue</div></div>';
+    $('list').innerHTML = evs.length ? evs.map(card).join('')
+      : '<div class="empty"><h2>No events yet</h2><p>Create your first event and start selling tickets.</p><a class="btn prim" href="/v3/create-event.html">+ Create Event</a></div>';
+  }catch(e){ $('list').innerHTML='<div class="empty"><h2>Couldn’t load</h2><p>Please refresh.</p></div>'; }
+}
+
+async function init(){
+  if(!supa){ $('gate').style.display='block'; return; }
+  var b=$('loginBtn'); if(b) b.href='/v3/apply.html?stay=1&next='+encodeURIComponent(location.pathname);
+  var r=await supa.auth.getSession().catch(function(){return null;});
+  if(!(r&&r.data&&r.data.session)){ $('gate').style.display='block'; return; }
+  $('app').style.display='block';
+  load();
+}
+init();
+</script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
