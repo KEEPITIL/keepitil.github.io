@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Your Ticket — KEEPITIL</title>
+<meta name="description" content="Your KEEPITIL ticket — show this QR at the door."/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.55;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 16px 60px}
+.brand{font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.06em;font-size:1.5rem;color:var(--text);margin-bottom:16px;text-decoration:none}
+.brand b{color:var(--brand,#00b4ff)}
+.tk{width:100%;max-width:400px;background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:22px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.tk-cover{width:100%;aspect-ratio:16/9;object-fit:cover;background:#0a0a12;display:block}
+.tk-body{padding:20px}
+.tk-badge{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.08em;color:var(--brand,#00b4ff);margin-bottom:6px}
+.tk-title{font-size:1.5rem;font-weight:900;line-height:1.1;margin-bottom:6px}
+.tk-meta{color:var(--muted);font-size:.9rem}
+.tk-meta span{display:block;margin-top:2px}
+.tk-qrwrap{margin:20px auto 6px;background:#fff;border-radius:16px;padding:16px;width:fit-content}
+.tk-qr img,.tk-qr canvas{display:block;width:200px;height:200px}
+.tk-tier{text-align:center;margin-top:10px}
+.tk-tier .t{font-weight:800;font-size:1.05rem}
+.tk-tier .q{color:var(--muted);font-size:.85rem}
+.tk-status{text-align:center;margin-top:12px;font-weight:800;letter-spacing:.04em;font-size:.9rem}
+.tk-status.paid{color:#22e39b}.tk-status.used{color:#ffb43c}
+.tk-ref{text-align:center;color:var(--muted);font-size:.66rem;margin-top:8px;word-break:break-all}
+.tk-actions{display:flex;gap:10px;margin-top:16px}
+.tk-actions a,.tk-actions button{flex:1;text-align:center;text-decoration:none;font:inherit;font-weight:800;padding:12px;border-radius:11px;cursor:pointer;border:1px solid var(--line,#242433);background:transparent;color:var(--text)}
+.tk-actions .prim{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border:0}
+.hint{color:var(--muted);font-size:.78rem;text-align:center;margin-top:14px;max-width:360px}
+.msg{margin-top:60px;text-align:center;color:var(--muted)}
+.msg h2{color:var(--text);font-size:1.3rem;margin-bottom:8px}
+.lookup{margin-top:18px;display:flex;gap:8px;width:100%;max-width:360px}
+.lookup input{flex:1;background:var(--surface,#12121c);color:var(--text);border:1px solid var(--line,#242433);border-radius:10px;padding:12px;font:inherit}
+.lookup button{background:var(--brand,#00b4ff);color:#04121b;border:0;border-radius:10px;padding:0 16px;font-weight:800;cursor:pointer}
+</style>
+</head>
+<body>
+<a href="/v3/" class="brand">KEEP<b>ITIL</b></a>
+<div id="root"><div class="msg"><h2>Loading your ticket…</h2></div></div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function qs(k){return new URLSearchParams(location.search).get(k);}
+function fmtDate(iso){ try{ if(!iso)return ''; return new Date(iso).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
+
+function lookupForm(note){
+  document.getElementById('root').innerHTML=
+    '<div class="msg"><h2>Find your ticket</h2><p>'+(note||'Paste your ticket code to view it.')+'</p></div>'+
+    '<div class="lookup"><input id="tk-in" placeholder="Ticket code" autocomplete="off"/><button id="tk-go">View</button></div>';
+  document.getElementById('tk-go').addEventListener('click',function(){ var v=(document.getElementById('tk-in').value||'').trim(); if(v) location.search='?t='+encodeURIComponent(v); });
+  document.getElementById('tk-in').addEventListener('keydown',function(e){ if(e.key==='Enter'){document.getElementById('tk-go').click();} });
+}
+
+function render(d){
+  var used=!!d.checked_in_at;
+  var cover=d.cover?'<img class="tk-cover" src="'+esc(d.cover)+'" alt="" onerror="this.style.display=\'none\'">':'';
+  var meta=fmtDate(d.starts_at)+(d.venue?'<span>📍 '+esc(d.venue)+'</span>':'')+(d.city&&!d.venue?'<span>📍 '+esc(d.city)+'</span>':'');
+  var ics='/v3/event.html?e='+encodeURIComponent(d.slug||'');
+  document.getElementById('root').innerHTML=
+    '<div class="tk">'+cover+
+      '<div class="tk-body">'+
+        '<div class="tk-badge">KEEPITIL TICKET</div>'+
+        '<div class="tk-title">'+esc(d.event||'Event')+'</div>'+
+        '<div class="tk-meta">'+meta+'</div>'+
+        '<div class="tk-qrwrap"><div class="tk-qr" id="qr"></div></div>'+
+        '<div class="tk-tier"><div class="t">'+esc(d.tier||'General Admission')+'</div><div class="q">Qty: '+(d.qty||1)+'</div></div>'+
+        '<div class="tk-status '+(used?'used':'paid')+'">'+(used?'✓ CHECKED IN':'✓ VALID · PAID')+'</div>'+
+        '<div class="tk-ref">'+esc(String(d.qr||'').slice(0,16))+'</div>'+
+        '<div class="tk-actions"><a class="prim" href="'+ics+'">Event &amp; chat</a><button id="tk-share">Share</button></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="hint">Screenshot this ticket so it works even with no signal at the door.</div>';
+  try{ new QRCode(document.getElementById('qr'), { text: String(d.qr||''), width:200, height:200, correctLevel: QRCode.CorrectLevel.M }); }catch(e){}
+  var sh=document.getElementById('tk-share'); if(sh) sh.addEventListener('click',function(){ var u=location.href; if(navigator.share){ navigator.share({title:'My KEEPITIL ticket',url:u}).catch(function(){}); } else { navigator.clipboard&&navigator.clipboard.writeText(u); sh.textContent='Copied ✓'; } });
+}
+
+async function init(){
+  var t=qs('t');
+  if(!t){ lookupForm('Paste the ticket code from your confirmation.'); return; }
+  if(!supa){ document.getElementById('root').innerHTML='<div class="msg"><h2>Offline</h2><p>Reconnect to load this ticket.</p></div>'; return; }
+  try{
+    var r=await supa.rpc('get_ticket',{p_qr:t});
+    var d=(r&&r.data)||{};
+    if(r.error || d.status==='notfound' || !d.event){ lookupForm('That ticket code wasn’t found. Check it and try again.'); return; }
+    render(d);
+  }catch(e){ lookupForm('Could not load that ticket. Try again.'); }
+}
+init();
+</script>
+</body>
+</html>
