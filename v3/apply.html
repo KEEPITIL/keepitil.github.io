@@ -322,9 +322,17 @@ function resolveEmail(id){
   if(id.indexOf('@')>-1) return Promise.resolve(id);
   var handle=id.replace(/^@/,'');
   if(!supa||!supa.from) return Promise.resolve(null);
-  return supa.from('app_users').select('email').eq('handle',handle).maybeSingle()
-    .then(function(r){ return (r&&r.data&&r.data.email)?r.data.email:null; })
-    .catch(function(){ return null; });
+  // Try a security-definer RPC first (works even if app_users.email is RLS-protected), then a
+  // case-insensitive direct lookup as fallback. Either resolves the handle to its login email.
+  return supa.rpc('email_for_handle',{h:handle}).then(function(rp){
+    if(rp&&!rp.error&&rp.data) return rp.data;
+    return supa.from('app_users').select('email').ilike('handle',handle).maybeSingle()
+      .then(function(r){ return (r&&r.data&&r.data.email)?r.data.email:null; });
+  }).catch(function(){
+    return supa.from('app_users').select('email').ilike('handle',handle).maybeSingle()
+      .then(function(r){ return (r&&r.data&&r.data.email)?r.data.email:null; })
+      .catch(function(){ return null; });
+  });
 }
 
 function signIn(){
