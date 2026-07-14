@@ -33,8 +33,8 @@ a:hover{text-decoration:underline;}
 img{max-width:100%;display:block;}
 input,select,textarea,button{font-family:var(--font-body);}
 
-/* ── NAV ── */
-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,15,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,180,255,.12);padding:0 20px;height:62px;display:flex;align-items:center;}
+/* ── NAV ── (scoped to #main-nav so it never leaks onto the injected #v3shell-nav / footer nav) */
+#main-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,15,.96);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,180,255,.12);padding:0 20px;height:62px;display:flex;align-items:center;}
 .nav-inner{max-width:760px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between;}
 .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
 .nav-logo img{height:38px;width:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 5px var(--brand));}
@@ -185,7 +185,7 @@ footer a{color:var(--blue);}
 <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/v3/">
-      <img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:38px;">
+      <img src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:38px;">
       <span class="nav-brand">KEEPITIL</span>
     </a>
     <span class="nav-tag">SUBSCRIBER PORTAL</span>
@@ -813,7 +813,7 @@ setTimeout(function () {
 }, 800);
 </script>
 
-<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
