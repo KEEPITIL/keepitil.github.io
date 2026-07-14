@@ -334,6 +334,18 @@ footer a{color:var(--accent2);}
 .ev-add:hover{border-color:var(--accent);color:var(--accent);}
 .ev-add .plus{font-size:2rem;line-height:1;}
 .ev-add span{font-size:.72rem;font-weight:700;letter-spacing:.06em;}
+/* MY TICKETS carousel (owner-only) */
+.mytix-wrap{margin:0 0 14px;}
+.mytix-h{font-size:.8rem;font-weight:800;letter-spacing:.08em;color:var(--accent);margin:0 0 8px;}
+.mytix-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;}
+.mytix-row::-webkit-scrollbar{display:none;}
+.mytix-card{flex:0 0 150px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s;}
+.mytix-card:hover{border-color:var(--accent);}
+.mytix-card .tix-img{width:100%;aspect-ratio:9/16;object-fit:cover;background:#0a0a12;display:block;}
+.mytix-card .tix-body{padding:8px 10px;}
+.mytix-card .tix-t{font-size:.82rem;font-weight:700;line-height:1.2;margin:0 0 3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mytix-card .tix-d{font-size:.68rem;color:var(--muted);}
+.mytix-card .tix-badge{display:inline-block;margin-top:4px;font-size:.62rem;font-weight:800;letter-spacing:.05em;color:#0a0a12;background:var(--accent);border-radius:5px;padding:2px 6px;}
 .ev-empty{font-size:.8rem;color:var(--muted);padding:6px 2px 2px;}
 
 /* ===== Unified tabs v3 — filter bar + 3-col grid (no carousels), all tabs same ===== */
@@ -391,7 +403,7 @@ footer a{color:var(--accent2);}
 
 <nav id="main-nav">
   <div class="nav-inner">
-    <a class="nav-logo" href="/v3/"><img src="/keepitil-x-blue.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
+    <a class="nav-logo" href="/v3/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
     <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="/v3/scene.html">SCENE</a></li></ul>
     <a href="/v3/apply.html" class="nav-cta">LOGIN</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
@@ -477,6 +489,10 @@ footer a{color:var(--accent2);}
   <div class="alert-bar">
     <div class="txt"><b>🔔 Never miss a set.</b> Get alerts when Groove Trooper plays near you.</div>
     <button class="alert-btn" id="alertBtn" onclick="toggleAlert()">GET ALERTS</button>
+  </div>
+  <div class="mytix-wrap" id="mytix-wrap" style="display:none">
+    <div class="mytix-h">🎟 MY TICKETS</div>
+    <div class="mytix-row" id="mytix-row"></div>
   </div>
   <div class="pf-filter" id="ev-filter"></div>
   <div class="pf-grid" id="shows-list"></div>
@@ -591,6 +607,39 @@ function renderShows(){
   items.sort(function(a,b){return evKey(b)-evKey(a);}); // newest -> oldest
   var add='<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>';
   el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet — create one or save events from the homepage.</div>');
+}
+/* ── MY TICKETS carousel (owner-only): every event the user bought a ticket to, newest→oldest ── */
+var MY_TIX=[];
+function fmtTixDate(iso){ try{ if(!iso)return ''; return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){ return ''; } }
+function loadMyTickets(){
+  var wrap=document.getElementById('mytix-wrap'); if(!wrap) return;
+  if(!SB||!SESSION||!CAN_EDIT()){ wrap.style.display='none'; return; }
+  SB.rpc('get_my_tickets').then(function(r){
+    if(r&&r.error){ wrap.style.display='none'; return; }
+    MY_TIX=(r&&r.data)?r.data:[];
+    if(!MY_TIX.length){ wrap.style.display='none'; return; }
+    var row=document.getElementById('mytix-row'); if(!row){ wrap.style.display='none'; return; }
+    row.innerHTML=MY_TIX.map(function(t,i){
+      var img=t.cover_url?'<img class="tix-img" src="'+esc(t.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
+      return '<div class="mytix-card" onclick="openTicket('+i+')">'+img+'<div class="tix-body"><div class="tix-t">'+esc(t.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(t.starts_at))+(t.city?' · '+esc(t.city):'')+'</div><span class="tix-badge">TICKET'+(t.qty>1?' ×'+t.qty:'')+'</span></div></div>';
+    }).join('');
+    wrap.style.display='';
+  }).catch(function(){ wrap.style.display='none'; });
+}
+function openTicket(i){
+  var t=MY_TIX[i]; if(!t) return; closeModal();
+  var qr='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(t.qr_token||t.slug||'');
+  var flyer=t.cover_url?'<img src="'+esc(t.cover_url)+'" alt="" style="width:100%;border-radius:12px;margin-bottom:12px;display:block" onerror="this.style.display=\'none\'">':'';
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Your Ticket<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb">'
+    +flyer
+    +'<h3 style="margin:0 0 4px">'+esc(t.title||'Event')+'</h3>'
+    +'<p class="note" style="margin:0 0 12px">'+esc(fmtTixDate(t.starts_at))+(t.venue?' · '+esc(t.venue):'')+(t.city?' · '+esc(t.city):'')+'</p>'
+    +'<div style="display:flex;gap:14px;align-items:center;margin:0 0 14px"><img src="'+qr+'" alt="Ticket QR" style="width:110px;height:110px;border-radius:10px;background:#fff;padding:6px"><div><div style="font-weight:800;font-size:.9rem">General Admission</div><div class="note">Qty: '+(t.qty||1)+'</div><div class="note" style="word-break:break-all;font-size:.66rem">Ref: '+esc(String(t.qr_token||'').slice(0,12))+'</div><div style="color:var(--accent);font-weight:800;font-size:.8rem;margin-top:4px">✓ PAID</div></div></div>'
+    +'<a class="kil-msave" style="display:block;text-align:center;text-decoration:none" href="/v3/event.html?e='+encodeURIComponent(t.slug||'')+'">Open event page &amp; chat →</a>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
 }
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -1379,12 +1428,12 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v3/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v3/u.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
     else { location.replace('/v3/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); }); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
-<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
