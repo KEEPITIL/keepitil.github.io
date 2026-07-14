@@ -91,9 +91,9 @@ async function init(){
   var session=s&&s.data?s.data.session:null;
   if(!session){ gate('Admins only','Log in with an admin account to view QA feedback.',true); return; }
   var who=$('who'); if(who) who.textContent='Signed in';
-  var adm=await supa.rpc('is_admin').catch(function(){return {data:false};});
+  var adm; try{ adm=await supa.rpc('is_admin'); }catch(e){ adm={data:false}; }
   if(!(adm&&adm.data)){ gate('Not an admin','Your account is signed in but is not a KEEPITIL admin. Ask the Founder to add you.',false); return; }
-  var r=await supa.rpc('get_qa_runs',{p_limit:40}).catch(function(){return {data:[]};});
+  var r; try{ r=await supa.rpc('get_qa_runs',{p_limit:40}); }catch(e){ r={data:[]}; }
   var runs=(r&&r.data)||[];
   if(!runs.length){ $('gate').style.display='none'; $('app').style.display='block';
     $('cards').innerHTML=''; $('latestMeta').textContent='';
