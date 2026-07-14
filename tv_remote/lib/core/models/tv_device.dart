@@ -1,19 +1,18 @@
 /// A TV discovered on the local network, independent of brand/protocol.
 ///
-/// Concrete protocol implementations (LG/webOS, later Samsung, Sony) produce
-/// these from their own discovery mechanism. The UI only ever sees this type.
+/// Aligned to the canonical wifi-remote tree: fields {id, name, host, brand}
+/// and the 5-brand [TvBrand] enum. Both the TCP-probe and SSDP discovery paths
+/// emit this shape; the UI only ever sees this type.
 class TvDevice {
   const TvDevice({
     required this.id,
     required this.name,
     required this.host,
     required this.brand,
-    this.modelName,
-    this.location,
   });
 
-  /// Stable identifier for this device (e.g. UPnP USN, or host as fallback).
-  /// Used as the key under which a per-device pairing key is stored.
+  /// Stable identifier. Discovery uses the host so a TV found by both the TCP
+  /// probe and SSDP dedupes to one entry.
   final String id;
 
   /// Human-friendly name to show in the device list.
@@ -24,12 +23,6 @@ class TvDevice {
 
   /// Which brand/protocol handles this device.
   final TvBrand brand;
-
-  /// Optional model string parsed from the device description.
-  final String? modelName;
-
-  /// Optional UPnP device-description URL (SSDP LOCATION header).
-  final String? location;
 
   @override
   String toString() => 'TvDevice($brand $name @ $host)';
@@ -42,11 +35,22 @@ class TvDevice {
   int get hashCode => Object.hash(id, host);
 }
 
-/// Supported TV brands. Add a value here + a [TvProtocol] implementation to
-/// onboard a new brand — nothing in the UI layer needs to change.
+/// Supported TV brands. `name` (the Dart enum-member name) is the stable id used
+/// by [fromName] and by SavedTv.brandName; `label` is the display string.
 enum TvBrand {
-  lgWebos('LG (webOS)');
+  lgWebos('LG'),
+  roku('Roku'),
+  samsungTizen('Samsung'),
+  vizioSmartcast('Vizio'),
+  sonyBravia('Sony');
 
   const TvBrand(this.label);
   final String label;
+
+  /// Resolves a brand from its enum-member name (e.g. 'samsungTizen'),
+  /// defaulting to [lgWebos] for null/unknown — matches the canonical tree.
+  static TvBrand fromName(String? name) => TvBrand.values.firstWhere(
+        (b) => b.name == name,
+        orElse: () => TvBrand.lgWebos,
+      );
 }

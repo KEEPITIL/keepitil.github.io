@@ -1,62 +1,42 @@
-/// DROP-IN for the canonical wifi-remote tree (adjust import paths + map
-/// [SsdpBrand] onto your own brand enum on integrate).
+/// DROP-IN for the canonical wifi-remote tree (adjust the tv_device.dart import
+/// path on integrate).
 ///
-/// SSDP (UPnP) discovery. Sends an `ssdp:all` M-SEARCH to 239.255.255.250:1900,
-/// dedupes responders, infers brand from the SSDP headers, and — when the
-/// headers are ambiguous — fetches the LOCATION device-description XML to read
-/// <manufacturer>/<friendlyName>/<modelName>.
+/// SSDP (UPnP) discovery that emits the SAME `TvDevice` shape as the TCP probe,
+/// so the two paths merge cleanly. Sends an `ssdp:all` M-SEARCH to
+/// 239.255.255.250:1900, dedupes responders by host, infers brand from the SSDP
+/// headers, and — when the headers are ambiguous — fetches the LOCATION
+/// device-description XML to read <manufacturer>/<friendlyName>/<modelName>.
+/// Responders that don't resolve to one of the 5 supported brands are dropped
+/// (ssdp:all is noisy — printers, routers, speakers all answer).
 ///
-/// GATING: this must only run when [kMulticastEntitlementGranted] is true (see
-/// entitlement_flags.dart). Without the multicast entitlement iOS drops the
-/// outbound M-SEARCH and you get nothing — keep TCP-probe discovery as the
-/// always-on fallback and call this only behind the flag.
+/// GATING: only call this when both the multicast entitlement is live AND the
+/// hosted config enables it — see `ssdpDiscoveryAllowed()` in
+/// entitlement_flags.dart. Without the entitlement iOS silently drops the
+/// outbound M-SEARCH; TCP-probe discovery stays the always-on fallback.
 library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-enum SsdpBrand { lg, samsung, sony, vizio, roku, unknown }
-
-class SsdpDevice {
-  const SsdpDevice({
-    required this.host,
-    required this.brand,
-    this.location,
-    this.friendlyName,
-    this.server,
-  });
-
-  final String host;
-  final SsdpBrand brand;
-  final String? location;
-  final String? friendlyName;
-  final String? server;
-
-  @override
-  String toString() => 'SsdpDevice($brand @ $host ${friendlyName ?? ''})';
-}
+import '../core/models/tv_device.dart';
 
 class SsdpDiscovery {
   static const _multicastAddress = '239.255.255.250';
   static const _multicastPort = 1900;
 
-  /// Yields each distinct device as it responds, until [timeout] elapses.
-  ///
-  /// [resolveBrandFromDescription] fetches the LOCATION XML for responders whose
-  /// headers don't name a brand (adds up to ~2s per unknown device, in
-  /// parallel). Turn it off for a header-only fast pass.
-  Stream<SsdpDevice> discover({
+  /// Yields each distinct supported TV as it responds, until [timeout] elapses.
+  /// Deduped by host. Matches the TCP-probe signature: `discover({timeout})`.
+  Stream<TvDevice> discover({
     Duration timeout = const Duration(seconds: 5),
-    bool resolveBrandFromDescription = true,
   }) async* {
-    final controller = StreamController<SsdpDevice>();
-    final seen = <String>{};
+    final controller = StreamController<TvDevice>();
+    final seenHosts = <String>{};
     final pending = <Future<void>>[];
     RawDatagramSocket? socket;
     Timer? deadline;
 
-    void emit(SsdpDevice d) {
+    void emit(TvDevice d) {
       if (!controller.isClosed) controller.add(d);
     }
 
@@ -75,8 +55,7 @@ class SsdpDiscovery {
 
         final headers = _parseHeaders(String.fromCharCodes(datagram.data));
         final host = datagram.address.address;
-        final key = headers['usn'] ?? headers['location'] ?? host;
-        if (!seen.add(key)) return; // dedupe repeat announcements
+        if (!seenHosts.add(host)) return; // dedupe by host, once
 
         final headerBrand = _brandFrom([
           headers['server'],
@@ -84,38 +63,31 @@ class SsdpDiscovery {
           headers['st'],
           headers['location'],
         ]);
-        final location = headers['location'];
 
-        if (headerBrand != SsdpBrand.unknown ||
-            !resolveBrandFromDescription ||
-            location == null) {
-          emit(SsdpDevice(
+        if (headerBrand != null) {
+          emit(TvDevice(
+            id: host,
+            name: headerBrand.label,
             host: host,
             brand: headerBrand,
-            location: location,
-            server: headers['server'],
           ));
           return;
         }
 
-        // Ambiguous header → resolve via the description XML (in parallel).
+        // Ambiguous headers — try the description XML (in parallel). If it still
+        // doesn't name a supported brand, drop it silently.
+        final location = headers['location'];
+        if (location == null) return;
         pending.add(
           _resolveViaDescription(location).then((info) {
-            emit(SsdpDevice(
+            if (info.brand == null) return;
+            emit(TvDevice(
+              id: host,
+              name: info.name ?? info.brand!.label,
               host: host,
-              brand: info.brand,
-              location: location,
-              friendlyName: info.name,
-              server: headers['server'],
+              brand: info.brand!,
             ));
-          }).catchError((_) {
-            emit(SsdpDevice(
-              host: host,
-              brand: SsdpBrand.unknown,
-              location: location,
-              server: headers['server'],
-            ));
-          }),
+          }).catchError((_) {/* unreachable host / bad XML → drop */}),
         );
       });
 
@@ -130,7 +102,6 @@ class SsdpDiscovery {
       }
 
       deadline = Timer(timeout, () async {
-        // Let in-flight description fetches finish before closing.
         await Future.wait(pending).catchError((_) => const <void>[]);
         if (!controller.isClosed) await controller.close();
       });
@@ -164,20 +135,22 @@ class SsdpDiscovery {
     return headers;
   }
 
-  /// Maps any collection of header/description strings onto a brand.
-  SsdpBrand _brandFrom(Iterable<String?> parts) {
+  /// Maps header/description strings onto a supported [TvBrand], or null.
+  TvBrand? _brandFrom(Iterable<String?> parts) {
     final s = parts.whereType<String>().join(' ').toLowerCase();
-    if (s.contains('roku')) return SsdpBrand.roku;
+    if (s.contains('roku')) return TvBrand.roku;
     if (s.contains('webos') || s.contains('lge') || s.contains('lg electronics')) {
-      return SsdpBrand.lg;
+      return TvBrand.lgWebos;
     }
-    if (s.contains('samsung') || s.contains('tizen')) return SsdpBrand.samsung;
-    if (s.contains('sony') || s.contains('bravia')) return SsdpBrand.sony;
-    if (s.contains('vizio') || s.contains('smartcast')) return SsdpBrand.vizio;
-    return SsdpBrand.unknown;
+    if (s.contains('samsung') || s.contains('tizen')) return TvBrand.samsungTizen;
+    if (s.contains('sony') || s.contains('bravia')) return TvBrand.sonyBravia;
+    if (s.contains('vizio') || s.contains('smartcast')) {
+      return TvBrand.vizioSmartcast;
+    }
+    return null;
   }
 
-  Future<({SsdpBrand brand, String? name})> _resolveViaDescription(
+  Future<({TvBrand? brand, String? name})> _resolveViaDescription(
     String location,
   ) async {
     final client = HttpClient()..connectionTimeout = const Duration(seconds: 2);

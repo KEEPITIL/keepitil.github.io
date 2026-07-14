@@ -17,12 +17,12 @@ import 'ssdp_discovery.dart';
 class LgWebosProtocol implements TvProtocol {
   LgWebosProtocol({
     SecureKeyStore? keyStore,
-    SsdpDiscovery? discovery,
+    LgSsdpDiscovery? discovery,
   })  : _keyStore = keyStore ?? SecureKeyStore(),
-        _discovery = discovery ?? SsdpDiscovery();
+        _discovery = discovery ?? LgSsdpDiscovery();
 
   final SecureKeyStore _keyStore;
-  final SsdpDiscovery _discovery;
+  final LgSsdpDiscovery _discovery;
 
   SsapClient? _client;
   final _statusController = StreamController<ConnectionStatus>.broadcast();

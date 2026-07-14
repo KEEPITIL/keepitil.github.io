@@ -1,16 +1,24 @@
 /// DROP-IN for the canonical wifi-remote tree.
 ///
 /// Wraps a subtree and fires [onResumed] every time the app returns to the
-/// foreground. Put your "if disconnected && lastHost != null →
-/// connectOrWake(lastHost)" logic in the callback. Uses `with
-/// WidgetsBindingObserver` (only overriding the lifecycle hook) so it stays
-/// robust across Flutter versions that add new observer methods.
+/// foreground. Uses `with WidgetsBindingObserver` (only overriding the
+/// lifecycle hook) so it stays robust across Flutter versions that add new
+/// observer methods.
 ///
-/// Integration (wrap the app root, or the home screen):
+/// Integration (wrap the app root, or the home screen) — exact guard against
+/// the canonical RemoteController: only re-arm when auto-connect is on, we have
+/// a last host, and we're not already connected/connecting:
 ///   ResumeReconnector(
 ///     onResumed: () {
 ///       final c = context.read<RemoteController>();
-///       if (!c.isConnected && c.lastHost != null) c.connectOrWake(c.lastHost!);
+///       final s = c.status;
+///       if (c.autoConnectAtStart &&
+///           c.lastHost != null &&
+///           (s == ConnectionStatus.idle ||
+///            s == ConnectionStatus.disconnected ||
+///            s == ConnectionStatus.error)) {
+///         c.connectOrWake(c.lastHost!);
+///       }
 ///     },
 ///     child: const HomeScreen(),
 ///   )

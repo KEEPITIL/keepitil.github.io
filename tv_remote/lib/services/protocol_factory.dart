@@ -18,6 +18,14 @@ class ProtocolFactory {
     switch (device.brand) {
       case TvBrand.lgWebos:
         return LgWebosProtocol();
+      case TvBrand.roku:
+      case TvBrand.samsungTizen:
+      case TvBrand.vizioSmartcast:
+      case TvBrand.sonyBravia:
+        throw UnsupportedError(
+          '${device.brand.label} is not implemented in this foundation branch; '
+          'it ships in the canonical multi-brand tree.',
+        );
     }
   }
 }

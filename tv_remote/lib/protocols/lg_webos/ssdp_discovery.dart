@@ -9,7 +9,11 @@ import '../../core/models/tv_device.dart';
 /// listens for unicast responses. LG TVs answer the webOS second-screen search
 /// target; we also accept any response whose SERVER/USN headers look like LG or
 /// whose device-description advertises webOS.
-class SsdpDiscovery {
+///
+/// Named `LgSsdpDiscovery` to avoid clashing with the brand-agnostic
+/// `SsdpDiscovery` under lib/discovery/ (the cross-brand drop-in). This LG-only
+/// variant is what `LgWebosProtocol.discover` uses in this foundation branch.
+class LgSsdpDiscovery {
   static const _multicastAddress = '239.255.255.250';
   static const _multicastPort = 1900;
 
@@ -56,8 +60,6 @@ class SsdpDiscovery {
           name: _deviceName(headers) ?? 'LG webOS TV',
           host: host,
           brand: TvBrand.lgWebos,
-          modelName: headers['server'],
-          location: headers['location'],
         ));
       });
 
