@@ -125,10 +125,10 @@ var TIX=[];       // [{order, ev, tier, slug, title}]
 var ACTIVE=0;
 
 function ticketCardHTML(x){
-  var e=x.ev, t=x.tier, o=x.order;
-  var used=!!o.checked_in_at;
+  var e=x.row;
+  var used=!!e.checked_in_at;
   var bg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"'),url('/v3/logo-bg.jpg')"):"background-image:url('/v3/logo-bg.jpg')";
-  var price=t.price_cents!=null?('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
+  var price=e.price_cents!=null?('$'+(e.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
   return '<div class="tk">'+
     '<div class="tk-hero" style="'+bg+'">'+
       '<div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div>'+
@@ -137,14 +137,14 @@ function ticketCardHTML(x){
     '</div>'+
     '<div class="tk-body">'+
       '<div class="tk-info">'+
-        '<div class="row"><span>Ticket</span><b>'+esc(t.name||'General Admission')+'</b></div>'+
-        '<div class="row"><span>Quantity</span><b>'+(o.qty||1)+'</b></div>'+
+        '<div class="row"><span>Ticket</span><b>'+esc(e.tier_name||'General Admission')+'</b></div>'+
+        '<div class="row"><span>Quantity</span><b>'+(e.qty||1)+'</b></div>'+
         (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
-        '<div class="row"><span>Order</span><b>#KIL-'+(10000+(o.id||0))+'</b></div>'+
+        '<div class="row"><span>Order</span><b>#KIL-'+(10000+(e.order_id||0))+'</b></div>'+
         '<div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div>'+
       '</div>'+
       '<div class="tk-qr">'+
-        '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+enc('KIL-'+(o.qr_token||o.id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/>'+
+        '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+enc('KIL-'+(e.qr_token||e.order_id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/>'+
         '<div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div>'+
       '</div>'+
     '</div>'+
@@ -170,7 +170,7 @@ function renderOthers(){
   $('others').style.display='';
   $('others-list').innerHTML=TIX.map(function(x,i){
     if(i===ACTIVE) return '';
-    var e=x.ev;
+    var e=x.row;
     var img=e.cover_url?'<img class="oth-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<div class="oth-img"></div>';
     return '<div class="other" onclick="setActive('+i+')">'+img+
       '<div class="oth-b"><div class="oth-t">'+esc(e.title||'Event')+'</div>'+
@@ -205,15 +205,12 @@ async function init(){
   var s=r&&r.data?r.data.session:null;
   if(!s){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
   try{
-    var o=await supa.from('event_orders').select('*').eq('status','paid').order('id',{ascending:false});
-    var orders=(o&&o.data)||[];
-    if(!orders.length){ $('loading').style.display='none'; $('empty').style.display='block'; return; }
-    var evIds=[].concat.apply([],orders.map(function(x){return x.event_id?[x.event_id]:[];}));
-    var tIds=[].concat.apply([],orders.map(function(x){return x.tier_id?[x.tier_id]:[];}));
-    var evs={},tiers={};
-    if(evIds.length){ var er=await supa.from('events').select('id,slug,title,venue,city,starts_at,cover_url').in('id',evIds); (er.data||[]).forEach(function(e){evs[e.id]=e;}); }
-    if(tIds.length){ var tr=await supa.from('ticket_tiers').select('id,name,price_cents').in('id',tIds); (tr.data||[]).forEach(function(t){tiers[t.id]=t;}); }
-    TIX=orders.map(function(x){ var e=evs[x.event_id]||{}, t=tiers[x.tier_id]||{}; return {order:x, ev:e, tier:t, slug:(e.slug||('event-'+x.event_id)), title:(e.title||'Event')}; });
+    // SECURITY DEFINER RPC: returns THIS buyer's paid tickets + event details, even for unpublished events
+    var r=await supa.rpc('get_my_tickets');
+    var rows=(r&&r.data)||[];
+    if(r&&r.error){ $('loading').textContent='Could not load tickets. Please refresh.'; return; }
+    if(!rows.length){ $('loading').style.display='none'; $('empty').style.display='block'; return; }
+    TIX=rows.map(function(x){ return {row:x, slug:(x.slug||('event-'+x.event_id)), title:(x.title||'Event')}; });
     // focus a specific event if ?e=<slug> was passed (from the profile card)
     var want=new URLSearchParams(location.search).get('e');
     if(want){ var idx=TIX.findIndex(function(x){return x.slug===want;}); if(idx>=0) ACTIVE=idx; }
