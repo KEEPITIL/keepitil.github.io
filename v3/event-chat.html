@@ -62,6 +62,10 @@
   .gate button.linky{display:block;margin:8px auto 0;background:none;color:#3cf;text-transform:none;letter-spacing:0;font-weight:600;font-size:.76rem;text-decoration:underline;padding:0;}
   .gate .mini{font-size:.74rem;color:var(--grey);margin-top:10px;}
   .gate .mini a{color:#3cf;}
+  /* Embed mode: used inside tickets.html — hide all chrome so only the room shows */
+  body.embed{padding-top:0!important;}
+  body.embed header#main-nav, body.embed #v3shell-nav, body.embed .ev-hd{display:none!important;}
+  body.embed #scroller{padding-top:8px;}
 </style>
 </head>
 <body>
@@ -106,6 +110,7 @@
   var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
   var p=new URLSearchParams(location.search);
   var slug=p.get('e')||'general'; var title=p.get('t')||'Event Chat';
+  if(p.get('embed')==='1'){ document.body.classList.add('embed'); }
   document.getElementById('ev-title').textContent=title;
   document.title=title+' — Event Chat · KEEPITIL';
   var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(URL,KEY); }catch(e){}
