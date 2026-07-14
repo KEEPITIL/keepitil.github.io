@@ -49,10 +49,10 @@
   .cta-chat{background:rgba(0,180,255,.16);color:var(--brand-2);border:1px solid rgba(0,180,255,.45);}
   .cta:hover{filter:brightness(1.12);}
   .desc{color:#b6c2ce;font-size:.95rem;line-height:1.75;margin:18px 0;max-width:640px;}
-  .links{border-top:1px solid rgba(255,255,255,.08);margin-top:26px;padding-top:20px;}
-  .links h3{font-family:var(--head);font-size:1.2rem;letter-spacing:.08em;margin-bottom:10px;}
-  .links .row{display:flex;flex-wrap:wrap;gap:9px;}
-  .links a{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border:1px solid rgba(0,180,255,.28);border-radius:20px;}
+  .ev-left{display:flex;flex-direction:column;gap:16px;}
+  .ev-qr{background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;text-align:center;}
+  .ev-qr img{width:180px;height:180px;background:#fff;border-radius:10px;padding:8px;display:block;margin:0 auto;}
+  .ev-qr .cap{color:#8a97a4;font-size:.72rem;font-weight:700;letter-spacing:.05em;margin-top:10px;}
   footer{border-top:1px solid rgba(255,255,255,.06);padding:30px 20px;text-align:center;color:#556;font-size:.75rem;}
   /* organizer announcement banners */
   .ann{background:linear-gradient(90deg,rgba(0,180,255,.14),rgba(0,180,255,.04));border:1px solid rgba(0,180,255,.35);border-left:3px solid var(--brand);border-radius:12px;padding:12px 16px;margin-bottom:16px;}
@@ -79,7 +79,10 @@
   <div class="crumbs"><a href="/v3/">Home</a> › <a href="/v3/">Events</a> › <span id="cr-title">Event</span></div>
   <div id="ev-ann"></div>
   <div class="ev">
-    <div class="flyer" id="ev-flyer"></div>
+    <div class="ev-left">
+      <div class="flyer" id="ev-flyer"></div>
+      <div class="ev-qr" id="ev-qr" style="display:none"></div>
+    </div>
     <div>
       <div class="eyebrow" id="ev-eyebrow">KEEPITIL Event</div>
       <h1 id="ev-title">Event</h1>
@@ -87,18 +90,7 @@
       <div class="meta" id="ev-venue"></div>
       <span class="genre" id="ev-genre" style="display:none;"></span>
       <div class="cta-row" id="ev-ctas"></div>
-      <p class="desc" id="ev-desc"></p>
-      <div class="links">
-        <h3>Discover more on KEEPITIL</h3>
-        <div class="row">
-          <a href="/v3/">Events Calendar</a>
-          <a href="/v3/scene.html">Artists</a>
-          <a href="/v3/scene.html">Brands</a>
-          <a href="/v3/scene.html">Organizers</a>
-          <a href="/v3/culture">Culture</a>
-          <a href="/v3/apply.html">Submit an Event</a>
-        </div>
-      </div>
+      <p class="desc" id="ev-desc" style="display:none"></p>
     </div>
   </div>
 </div>
@@ -136,19 +128,16 @@
     $('ev-venue').textContent = loc ? ('📍 '+loc) : '';
     if(ev.genre){ var gp=$('ev-genre'); gp.textContent=ev.genre; gp.style.display='inline-block'; }
     if(ev.img) $('ev-flyer').style.backgroundImage='url('+ev.img.replace(/"/g,'')+')';
-    $('ev-desc').textContent = descTxt;
+    /* show a REAL organizer description only; the generic filler is dropped from the page */
+    var _rd=ev.description||''; var _de=$('ev-desc'); if(_de){ if(_rd){ _de.textContent=_rd; _de.style.display=''; } else { _de.style.display='none'; } }
+    /* shareable event QR — scan to open this event page (works on flyers/print) */
+    var _qe=$('ev-qr'); if(_qe){ var _qu=(location.hostname==='keepitil.com')?location.href:('https://keepitil.com/v3/event.html?e='+encodeURIComponent(ev.slug||'')); _qe.innerHTML='<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data='+encodeURIComponent(_qu)+'" width="180" height="180" alt="Scan to open this event"/><div class="cap">📱 Scan to open &amp; share</div>'; _qe.style.display=''; }
     // CTAs
     var c='';
     if(ev.ticket && ev.ticket!=='#') c+='<a class="cta cta-tix" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>';
     if(ev.vip && ev.ticket) c+='<a class="cta cta-vip" data-kt="vip_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>';
     c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
     $('ev-ctas').innerHTML=c;
-    /* social bar: like / repost / save / comment / share — guarded so repeat paint() calls inject it only ONCE */
-    (function ensureBar(){
-      if(window.__kilEvBar) return;
-      if(window.KEEPITIL&&window.KEEPITIL.socialBar){ window.__kilEvBar=true; var h=document.createElement('div'); var box=$('ev-ctas'); box.parentNode.insertBefore(h, box.nextSibling); window.KEEPITIL.socialBar(h,{type:'event',id:ev.slug,title:ev.title}); }
-      else setTimeout(ensureBar,150);
-    })();
     // JSON-LD
     var ld={"@context":"https://schema.org","@type":"MusicEvent","name":ev.title,"url":canon,"eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode"};
     if(ev.date) ld.startDate=ev.date+"T20:00:00-07:00";
@@ -205,11 +194,11 @@
   try{
     if(window.supabase && ev.slug){
       var sb=window.supabase.createClient(URL,KEY);
-      sb.from('events').select('*').eq('slug',ev.slug).eq('status','published').limit(1).then(function(r){
+      sb.rpc('get_event_view',{p_slug:ev.slug}).then(function(r){
         if(r&&r.data&&r.data[0]){ var x=r.data[0];
           ev.title=x.title||ev.title; ev.venue=x.venue||ev.venue; ev.city=x.city||ev.city;
           ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genres||ev.genre;
-          ev.img=x.cover_url||ev.img;
+          ev.img=x.cover_url||ev.img; ev.description=x.description||ev.description;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           paint();
           /* organizer on-site announcements (public read) */
