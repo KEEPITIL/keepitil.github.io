@@ -53,6 +53,7 @@
       '<div class="kiln-panel">'+
         '<div class="kiln-head"><b>Notifications</b><label class="kiln-toggle"><input type="checkbox" id="kiln-opt"/> <span>Notify me</span></label></div>'+
         '<a class="kiln-quick" href="/v3/tickets.html">&#127903; My Tickets</a>'+
+        '<a class="kiln-quick" href="/v3/dashboard.html">&#128202; Organizer Dashboard</a>'+
         '<div class="kiln-list" id="kiln-list"><div class="kiln-empty">Loading…</div></div>'+
       '</div>';
     // Bell shows only when signed in; it sits beside the PROFILE button (v3-shell.js
