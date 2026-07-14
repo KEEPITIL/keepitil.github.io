@@ -449,7 +449,7 @@ const ART=[
   {name:'The Belasco', img:'/assets/article-covers/the-belasco-dtla-venue-guide.png', city:'Downtown LA', county:'Los Angeles County', type:'Theater'}
 ];
 // Each item carries kinds=[...]; multi-category profiles (once claimed) can list several.
-const DATA=[].concat(
+let DATA=[].concat(
   ART.map(x=>Object.assign({},x,{kinds:['artist']})),
   BRND.map(x=>Object.assign({},x,{kinds:['brand']})),
   ORG.map(x=>Object.assign({},x,{kinds:['organizer']})),
@@ -518,6 +518,30 @@ document.getElementById('seg').addEventListener('click',e=>{const b=e.target.clo
 document.getElementById('subs').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const f=c.dataset.f,v=c.dataset.v;sub=(sub&&sub.facet===f&&sub.val===v)?null:{facet:f,val:v};renderSubs();render();});
 document.getElementById('q').addEventListener('input',e=>{q=e.target.value;render();});
 renderSubs();render();
+/* ---- LIVE DIRECTORY: pull from Google Sheet master (1UU2). Founder edits sheet -> site reflects on refresh. Falls back to built-in roster if sheet unreachable. ---- */
+(function(){
+  var SHEET='1UU2rPPwsIRCFnZBgk6Uzb9IRcckcBmvYVORNVMFtIoo';
+  var TQ='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?sheet=Untitled&headers=1&tqx=out:json';
+  function cell(c,i){return (c&&c[i]&&c[i].v!=null)?String(c[i].v):'';}
+  fetch(TQ).then(function(r){return r.text();}).then(function(t){
+    var m=t.match(/setResponse\(([\s\S]*?)\);?\s*$/); if(!m) throw 0;
+    var j=JSON.parse(m[1]); var rows=(j.table&&j.table.rows)||[]; var live=[];
+    rows.forEach(function(row){
+      var c=row.c||[]; var kind=cell(c,1).toLowerCase().trim(); var name=cell(c,2).trim();
+      var lv=cell(c,9).toLowerCase().trim();
+      if(!name||!kind) return;
+      if(lv && lv!=='yes' && lv!=='true' && lv!=='1') return;              // live=no hides it
+      live.push({_order:parseFloat(cell(c,0))||9999, name:name, city:cell(c,3), county:cell(c,4),
+        genre:cell(c,5), ig:cell(c,6), img:cell(c,7), blog:cell(c,8),
+        type:(kind==='artist'?'DJ':''), kinds:[kind]});
+    });
+    if(!live.length) throw 0;
+    live.sort(function(a,b){return a._order-b._order;});
+    DATA=live;
+    cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue');
+    renderSubs();render();
+  }).catch(function(){/* sheet not shared/unreachable -> keep built-in roster */});
+})();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260713" defer></script>
 <script src="/v3/keepitil-ai.js" defer></script>
