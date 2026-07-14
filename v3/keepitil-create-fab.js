@@ -3,6 +3,11 @@
    Load: <script src="/v3/keepitil-create-fab.js" defer></script> */
 (function(){
   if(window.__kilCreateFab) return; window.__kilCreateFab=1;
+  /* HOMEPAGE ONLY — self-gate so a stray include on any other page can never
+     render the FAB (prevents overlap with the chat FAB). */
+  var _p=(location.pathname||'').replace(/\/+$/,'');   // strip trailing slash
+  var HOME = _p==='' || _p==='/v3' || _p==='/v3/index.html' || _p==='/index.html';
+  if(!HOME){ return; }
   var POSH='https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt';
   function el(t,a,h){var e=document.createElement(t);if(a)for(var k in a)e.setAttribute(k,a[k]);if(h!=null)e.innerHTML=h;return e;}
   function css(){
