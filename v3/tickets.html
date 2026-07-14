@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow"/>
 <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
 <title>My Tickets — KEEPITIL</title>
-<meta name="description" content="Your KEEPITIL tickets — view QR codes for events you have purchased."/>
+<meta name="description" content="Your KEEPITIL tickets — QR code, event info, and the live event chat, all in one place."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
 .wrap{max-width:720px;margin:0 auto;padding:0 var(--sp-3,20px)}
-.hero{padding:var(--sp-6,72px) 0 var(--sp-2,10px);text-align:center}
+.hero{padding:var(--sp-6,64px) 0 var(--sp-2,8px);text-align:center}
 h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:900;line-height:1}
 h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{color:var(--muted);margin:12px auto 0;font-size:1rem}
@@ -23,11 +23,15 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-ba
 .gate p,.empty p{color:var(--muted);margin-bottom:18px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;cursor:pointer;border:0}
 .btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
-.btn.ghost{border:2px solid var(--line);color:var(--text);background:transparent}
-.tk{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:20px}
+.loading{text-align:center;color:var(--muted);padding:40px}
+
+/* Active ticket card */
+.tk{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:18px}
 .tk-hero{padding:26px 22px;background:#0a0a12 center/cover no-repeat;position:relative}
+.tk-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75),rgba(0,0,0,.15) 60%,rgba(0,0,0,.35));z-index:0}
+.tk-hero>*{position:relative;z-index:1}
 .tk-hero .eb{font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8fd6ff;text-shadow:0 1px 8px #000}
-.tk-hero .nm{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;letter-spacing:.02em;color:#fff;margin-top:4px;text-shadow:0 2px 14px #000}
+.tk-hero .nm{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;letter-spacing:.02em;color:#fff;margin-top:4px;text-shadow:0 2px 14px #000}
 .tk-hero .mt{font-size:.85rem;color:#eaf4ff;margin-top:6px;text-shadow:0 1px 10px #000}
 .tk-body{display:flex;gap:18px;padding:20px 22px;flex-wrap:wrap;align-items:center}
 .tk-info{flex:1;min-width:180px}
@@ -39,13 +43,44 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-ba
 .tag{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-top:8px}
 .tag.paid{background:rgba(34,227,155,.14);color:#22e39b;border:1px solid rgba(34,227,155,.4)}
 .tag.used{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
-.loading{text-align:center;color:var(--muted);padding:40px}
+
+/* Chat section */
+.chat-sec{margin-top:14px}
+.chat-lbl{font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-2,#22e39b);margin:0 2px 8px;display:flex;align-items:center;gap:8px}
+.chat-lbl::after{content:"";flex:1;height:1px;background:rgba(0,180,255,.15)}
+.chat-frame{width:100%;height:520px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0a12}
+.chat-frame iframe{width:100%;height:100%;border:0;display:block}
+.open-chat{width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;letter-spacing:.03em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
+.open-chat:hover{background:rgba(0,180,255,.2)}
+.chat-desktop{display:block}
+.chat-mobile{display:none}
+@media(max-width:759px){.chat-desktop{display:none}.chat-mobile{display:block}}
+
+/* Other tickets */
+.others{margin-top:34px}
+.others-h{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 2px 12px;display:flex;align-items:center;gap:8px}
+.others-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.other{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,transform .15s}
+.other:hover{border-color:var(--brand,#00b4ff);transform:translateY(-2px)}
+.other .oth-img{width:60px;height:80px;flex:0 0 60px;border-radius:9px;object-fit:cover;background:#0a0a12}
+.other .oth-b{flex:1;min-width:0}
+.other .oth-t{font-weight:800;font-size:.95rem;line-height:1.15;color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.other .oth-d{font-size:.76rem;color:var(--muted);margin-top:3px}
+.other .oth-cta{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-2,#22e39b);margin-top:5px}
+
+/* Mobile full-screen chat overlay */
+.chat-ov{position:fixed;inset:0;z-index:3000;background:#0a0a12;display:none;flex-direction:column}
+.chat-ov.open{display:flex}
+.chat-ov .ovh{flex:0 0 auto;display:flex;align-items:center;gap:10px;height:54px;padding:0 12px;background:rgba(9,9,16,.98);border-bottom:1px solid rgba(255,255,255,.1)}
+.chat-ov .ovh .bk{font-size:1.7rem;color:#fff;background:none;border:0;cursor:pointer;line-height:1;padding:2px 10px 6px}
+.chat-ov .ovh .ovt{font-weight:800;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-ov iframe{flex:1;width:100%;border:0}
 </style>
 </head>
 <body>
 <header class="hero"><div class="wrap">
   <h1>My <span>tickets</span></h1>
-  <p class="sub">Your QR is your entry. Show it at the door.</p>
+  <p class="sub">Your QR is your entry. Show it at the door — then hang out in the room.</p>
 </div></header>
 
 <div class="wrap">
@@ -59,11 +94,21 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-ba
 
   <div class="empty" id="empty" style="display:none">
     <h2>No tickets yet</h2>
-    <p>When you grab tickets to an event, they'll show up here with your QR code.</p>
+    <p>When you grab tickets to an event, they'll show up here with your QR code and the event chat.</p>
     <a class="btn primary" href="/v3/">Browse events</a>
   </div>
 
-  <div id="list"></div>
+  <div id="active"></div>
+  <div class="others" id="others" style="display:none">
+    <div class="others-h">Your other tickets</div>
+    <div id="others-list"></div>
+  </div>
+</div>
+
+<!-- Mobile full-screen chat overlay -->
+<div class="chat-ov" id="chatOv">
+  <div class="ovh"><button class="bk" aria-label="Back to ticket" onclick="closeChat()">&larr;</button><span class="ovt" id="ovTitle">Event Chat</span></div>
+  <iframe id="ovFrame" title="Event chat" src="about:blank"></iframe>
 </div>
 
 <script>
@@ -72,8 +117,87 @@ var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function enc(s){return encodeURIComponent(String(s==null?'':s));}
 var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function fmt(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return ''; return DOW[d.getUTCDay()]+', '+MON[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }
+
+var TIX=[];       // [{order, ev, tier, slug, title}]
+var ACTIVE=0;
+
+function ticketCardHTML(x){
+  var e=x.ev, t=x.tier, o=x.order;
+  var used=!!o.checked_in_at;
+  var bg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"'),url('/v3/logo-bg.jpg')"):"background-image:url('/v3/logo-bg.jpg')";
+  var price=t.price_cents!=null?('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
+  return '<div class="tk">'+
+    '<div class="tk-hero" style="'+bg+'">'+
+      '<div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div>'+
+      '<div class="nm">'+esc(e.title||'Event')+'</div>'+
+      '<div class="mt">'+esc(fmt(e.starts_at))+(e.venue?(' · '+esc(e.venue)):'')+'</div>'+
+    '</div>'+
+    '<div class="tk-body">'+
+      '<div class="tk-info">'+
+        '<div class="row"><span>Ticket</span><b>'+esc(t.name||'General Admission')+'</b></div>'+
+        '<div class="row"><span>Quantity</span><b>'+(o.qty||1)+'</b></div>'+
+        (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
+        '<div class="row"><span>Order</span><b>#KIL-'+(10000+(o.id||0))+'</b></div>'+
+        '<div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div>'+
+      '</div>'+
+      '<div class="tk-qr">'+
+        '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+enc('KIL-'+(o.qr_token||o.id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/>'+
+        '<div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function chatSectionHTML(x){
+  var chatUrl='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
+  return '<div class="chat-sec">'+
+    '<div class="chat-lbl">💬 Event Chat · Scene Room</div>'+
+    '<div class="chat-desktop"><div class="chat-frame"><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div></div>'+
+    '<button class="open-chat chat-mobile" onclick="openChat()">💬 Open Event Chat</button>'+
+  '</div>';
+}
+
+function renderActive(){
+  var x=TIX[ACTIVE]; if(!x){ $('active').innerHTML=''; return; }
+  $('active').innerHTML=ticketCardHTML(x)+chatSectionHTML(x);
+}
+function renderOthers(){
+  var others=TIX.filter(function(_,i){return i!==ACTIVE;});
+  if(!others.length){ $('others').style.display='none'; return; }
+  $('others').style.display='';
+  $('others-list').innerHTML=TIX.map(function(x,i){
+    if(i===ACTIVE) return '';
+    var e=x.ev;
+    var img=e.cover_url?'<img class="oth-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<div class="oth-img"></div>';
+    return '<div class="other" onclick="setActive('+i+')">'+img+
+      '<div class="oth-b"><div class="oth-t">'+esc(e.title||'Event')+'</div>'+
+      '<div class="oth-d">'+esc(fmt(e.starts_at))+(e.city?(' · '+esc(e.city)):'')+'</div>'+
+      '<div class="oth-cta">View ticket &amp; open chat →</div></div></div>';
+  }).join('');
+}
+function setActive(i){
+  if(i<0||i>=TIX.length) return;
+  ACTIVE=i; renderActive(); renderOthers();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if($('chatOv').classList.contains('open')) openChat(); // refresh overlay if it was open
+}
+
+/* Mobile full-screen chat */
+function openChat(){
+  var x=TIX[ACTIVE]; if(!x) return;
+  $('ovTitle').textContent=x.title||'Event Chat';
+  $('ovFrame').src='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
+  $('chatOv').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeChat(){
+  $('chatOv').classList.remove('open');
+  $('ovFrame').src='about:blank';
+  document.body.style.overflow='';
+}
 
 async function init(){
   if(!supa){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
@@ -81,51 +205,28 @@ async function init(){
   var s=r&&r.data?r.data.session:null;
   if(!s){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
   try{
-    // RLS returns only THIS buyer's orders (matched to their account email)
     var o=await supa.from('event_orders').select('*').eq('status','paid').order('id',{ascending:false});
     var orders=(o&&o.data)||[];
     if(!orders.length){ $('loading').style.display='none'; $('empty').style.display='block'; return; }
-    // fetch events + tiers referenced by these orders
     var evIds=[].concat.apply([],orders.map(function(x){return x.event_id?[x.event_id]:[];}));
     var tIds=[].concat.apply([],orders.map(function(x){return x.tier_id?[x.tier_id]:[];}));
     var evs={},tiers={};
     if(evIds.length){ var er=await supa.from('events').select('id,slug,title,venue,city,starts_at,cover_url').in('id',evIds); (er.data||[]).forEach(function(e){evs[e.id]=e;}); }
     if(tIds.length){ var tr=await supa.from('ticket_tiers').select('id,name,price_cents').in('id',tIds); (tr.data||[]).forEach(function(t){tiers[t.id]=t;}); }
-    var html=orders.map(function(x){
-      var e=evs[x.event_id]||{}, t=tiers[x.tier_id]||{};
-      var used=!!x.checked_in_at;
-      var bg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"'),url('/v3/logo-bg.jpg')"):"background-image:url('/v3/logo-bg.jpg')";
-      var price=t.price_cents!=null?('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
-      return '<div class="tk">'+
-        '<div class="tk-hero" style="'+bg+'">'+
-          '<div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div>'+
-          '<div class="nm">'+esc(e.title||'Event')+'</div>'+
-          '<div class="mt">'+esc(fmt(e.starts_at))+(e.venue?(' · '+esc(e.venue)):'')+'</div>'+
-        '</div>'+
-        '<div class="tk-body">'+
-          '<div class="tk-info">'+
-            '<div class="row"><span>Ticket</span><b>'+esc(t.name||'General Admission')+'</b></div>'+
-            '<div class="row"><span>Quantity</span><b>'+(x.qty||1)+'</b></div>'+
-            (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
-            '<div class="row"><span>Order</span><b>#KIL-'+(10000+(x.id||0))+'</b></div>'+
-            '<div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div>'+
-          '</div>'+
-          '<div class="tk-qr">'+
-            '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+encodeURIComponent('KIL-'+(x.qr_token||x.id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/>'+
-            '<div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div>'+
-          '</div>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-    $('loading').style.display='none'; $('list').innerHTML=html;
+    TIX=orders.map(function(x){ var e=evs[x.event_id]||{}, t=tiers[x.tier_id]||{}; return {order:x, ev:e, tier:t, slug:(e.slug||('event-'+x.event_id)), title:(e.title||'Event')}; });
+    // focus a specific event if ?e=<slug> was passed (from the profile card)
+    var want=new URLSearchParams(location.search).get('e');
+    if(want){ var idx=TIX.findIndex(function(x){return x.slug===want;}); if(idx>=0) ACTIVE=idx; }
+    $('loading').style.display='none';
+    renderActive(); renderOthers();
   }catch(err){ $('loading').textContent='Could not load tickets. Please refresh.'; }
 }
 
-// carry a ?next redirect target into the login button so users return here
-(function(){ var b=$('loginBtn'); if(b) b.href='/v3/apply.html?next='+encodeURIComponent(location.pathname); })();
+(function(){ var b=$('loginBtn'); if(b) b.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); })();
 init();
 </script>
-<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
+<script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
 </html>
