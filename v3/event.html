@@ -74,7 +74,7 @@
 </style>
 </head>
 <body>
-<header id="main-nav"><div class="hd"><a href="/v3/" class="brand">⚡ KEEPITIL</a> <a class="back" href="/v3/">← All events</a></div></header>
+<header id="main-nav"><div class="hd"><a href="/v3/" class="brand">⚡ KEEPITIL</a> <a class="back" id="ev-back" href="/v3/">&larr; My events</a></div></header>
 <div class="wrap">
   <div class="crumbs"><a href="/v3/">Home</a> › <a href="/v3/">Events</a> › <span id="cr-title">Event</span></div>
   <div id="ev-ann"></div>
@@ -188,6 +188,8 @@
     });
   }
   paint();
+  /* back button → the logged-in user's own profile Events section (not "all events") */
+  try{ if(window.supabase){ var _bsb=window.supabase.createClient(URL,KEY); _bsb.auth.getSession().then(function(sr){ var s=sr&&sr.data?sr.data.session:null; var bk=document.getElementById('ev-back'); if(!bk||!s) return; _bsb.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ bk.setAttribute('href','/v3/u.html?slug='+encodeURIComponent(rr.data)+'&tab=shows'); } },function(){}); }); } }catch(e){}
   /* returned from a successful checkout → surface the in-account ticket */
   if(p.get('paid')==='1'){ try{ var _ann=document.getElementById('ev-ann'); if(_ann){ var _d=document.createElement('div'); _d.className='ann'; _d.style.cssText='border-left-color:#22e39b;background:linear-gradient(90deg,rgba(34,227,155,.14),rgba(34,227,155,.04));border-color:rgba(34,227,155,.4)'; _d.innerHTML='<div class="t" style="color:#22e39b">🎟 You\'re in!</div><div class="b">Your ticket is confirmed and saved to your account. <a href="/v3/tickets.html" style="color:#22e39b;font-weight:800">View your ticket →</a></div>'; _ann.parentNode.insertBefore(_d,_ann); } }catch(e){} }
   // Enhance from DB if the event exists there (richer/authoritative)
