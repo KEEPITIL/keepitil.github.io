@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>KEEPITIL — Self QA Audit</title>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0f;color:#eef;font-family:Inter,system-ui,sans-serif;line-height:1.5;padding:24px}
+h1{font-size:1.5rem;margin-bottom:4px}h1 b{color:#00b4ff}
+.sub{color:#9aa0b0;font-size:.9rem;margin-bottom:18px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+button{background:#00b4ff;color:#04121b;border:0;border-radius:8px;font:inherit;font-weight:800;padding:9px 18px;cursor:pointer}
+button.sec{background:transparent;color:#00b4ff;border:1px solid #00b4ff}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border-radius:10px;padding:8px 14px;font-weight:800;font-size:.85rem}
+.chip.pass{background:rgba(34,227,155,.14);color:#22e39b}
+.chip.fail{background:rgba(255,59,107,.16);color:#ff3b6b}
+.chip.run{background:rgba(255,180,60,.15);color:#ffb43c}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+th{color:#9aa0b0;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+td.st{font-weight:800;white-space:nowrap}
+td.st.PASS{color:#22e39b}td.st.FAIL{color:#ff3b6b}td.st.WARN{color:#ffb43c}td.st.RUN{color:#ffb43c}
+.detail{color:#9aa0b0;font-size:.8rem}
+code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;color:#cfe8ff;word-break:break-all}
+#frame{position:fixed;width:1000px;height:700px;left:-3000px;top:0;border:0}
+.note{color:#6a6678;font-size:.78rem;margin-top:16px;max-width:760px}
+</style>
+</head>
+<body>
+<h1>KEEPITIL <b>Self-QA</b> Audit</h1>
+<div class="sub">Loads every key route in a hidden frame, follows JS redirects, and reports where each one <em>actually</em> lands. Runs in your browser — no server, no Claude usage. Bookmark <code>/v3/qa-audit.html</code>.</div>
+<div class="bar">
+  <button id="run">▶ Run audit</button>
+  <button class="sec" id="copy">Copy report</button>
+  <span class="detail" id="progress"></span>
+</div>
+<div class="sum" id="sum"></div>
+<table><thead><tr><th>Check</th><th>Status</th><th>Lands / detail</th></tr></thead><tbody id="rows"></tbody></table>
+<div class="note">Note: results reflect <b>your</b> login state (agent/profile pages behave differently logged in vs out). Run it both ways. FAIL = the route redirected somewhere it shouldn't, failed to load, or an expected element/image was missing.</div>
+<iframe id="frame" sandbox="allow-same-origin allow-scripts"></iframe>
+
+<script>
+/* ---- Route registry: what SHOULD happen on each key route -------------------
+   expect.stay  = final URL must still contain this substring (i.e. must NOT redirect away)
+   expect.text  = (optional) this text must appear in the loaded page
+   expect.img   = (optional) at least one <img> must actually decode (naturalWidth>0)
+   type 'crew-agents' = special: open crew.html, then test EVERY agent card link      */
+var ROUTES = [
+  {label:'Homepage',                 url:'/v3/index.html',            stay:'index.html'},
+  {label:'Culture',                  url:'/v3/culture.html',          stay:'culture'},
+  {label:'Scene',                    url:'/v3/scene.html',            stay:'scene'},
+  {label:'Crew index',               url:'/v3/crew.html',             stay:'crew.html', text:'CREW'},
+  {label:'Events',                   url:'/v3/events.html',           stay:'events'},
+  {label:'Discover',                 url:'/v3/discover.html',         stay:'discover'},
+  {label:'Connect',                  url:'/v3/connect.html',          stay:'connect'},
+  {label:'Apply / Login',            url:'/v3/apply.html',            stay:'apply'},
+  {label:'Blog: Groove Trooper',     url:'/v3/blog-groove-trooper.html', stay:'blog-groove-trooper'},
+  {label:'Agent blog: Nova',         url:'/v3/blog-agent-nova.html',  stay:'blog-agent-nova', img:true},
+  {label:'Every crew profile link',  type:'crew-agents'}
+];
+
+var frame = document.getElementById('frame');
+var rows  = document.getElementById('rows');
+var sumEl = document.getElementById('sum');
+var results = [];
+
+function addRow(label){
+  var tr=document.createElement('tr');
+  tr.innerHTML='<td>'+label+'</td><td class="st RUN">RUN…</td><td class="detail"></td>';
+  rows.appendChild(tr); return tr;
+}
+function setRow(tr,status,detail){
+  var td=tr.children[1]; td.className='st '+status; td.textContent=status;
+  tr.children[2].innerHTML=detail;
+  results.push({label:tr.children[0].textContent,status:status,detail:detail.replace(/<[^>]+>/g,'')});
+}
+
+/* Load a URL in the hidden frame, wait for JS redirects to settle, return final state */
+function probe(url, settle){
+  return new Promise(function(res){
+    var done=false;
+    function finish(){ if(done) return; done=true;
+      var out={final:'',doc:null,err:null};
+      try{ out.final=frame.contentWindow.location.href; out.doc=frame.contentDocument; }
+      catch(e){ out.err=String(e); }
+      res(out);
+    }
+    frame.onload=function(){ setTimeout(finish, settle||2600); }; // wait out async auth redirects
+    setTimeout(finish, (settle||2600)+9000);                     // hard timeout
+    try{ frame.src=url; }catch(e){ res({final:'',doc:null,err:String(e)}); }
+  });
+}
+
+function tail(u){ try{return u.replace(location.origin,'');}catch(e){return u;} }
+
+async function testRoute(r){
+  var tr=addRow(r.label);
+  if(r.type==='crew-agents'){ return await testCrew(tr); }
+  var p=await probe(r.url);
+  if(r.err){ setRow(tr,'FAIL','frame error: '+r.err); return; }
+  var landed=p.final||'';
+  if(!landed){ setRow(tr,'WARN','could not read final URL (cross-origin?)'); return; }
+  if(r.stay && landed.indexOf(r.stay)===-1){
+    setRow(tr,'FAIL','⟶ redirected to <code>'+tail(landed)+'</code> (expected to stay on '+r.stay+')'); return;
+  }
+  var probs=[];
+  try{
+    var d=p.doc;
+    if(r.text && d && (d.body.innerText||'').toLowerCase().indexOf(r.text.toLowerCase())===-1) probs.push('missing text "'+r.text+'"');
+    if(r.img && d){ var im=d.querySelector('.cover img, .band img, img'); if(!im||!im.naturalWidth) probs.push('cover image not loaded'); }
+  }catch(e){}
+  if(probs.length) setRow(tr,'WARN','loaded <code>'+tail(landed)+'</code> · '+probs.join('; '));
+  else setRow(tr,'PASS','<code>'+tail(landed)+'</code>');
+}
+
+async function testCrew(tr){
+  var p=await probe('/v3/crew.html', 1500);
+  var cards=[];
+  try{ cards=[].slice.call(p.doc.querySelectorAll('a.card')).map(function(c){return c.getAttribute('href');}); }catch(e){}
+  if(!cards.length){ setRow(tr,'FAIL','no crew cards found on crew.html'); return; }
+  var bad=[], n=0;
+  for(var i=0;i<cards.length;i++){
+    var href=cards[i]; var slug=(href.match(/[?&]a=([a-z0-9-]+)/i)||[])[1]||'?';
+    document.getElementById('progress').textContent='Testing crew link '+(i+1)+'/'+cards.length+' ('+slug+')…';
+    var q=await probe(href, 2600); n++;
+    var land=q.final||'';
+    var ok = land.indexOf('agent.html')>-1 && land.indexOf('u.html')===-1 && land.indexOf('apply.html')===-1;
+    if(!ok) bad.push(slug+' ⟶ '+tail(land));
+  }
+  if(bad.length) setRow(tr,'FAIL',n+' links tested · '+bad.length+' bounced: <code>'+bad.join('</code> <code>')+'</code>');
+  else setRow(tr,'PASS','all '+n+' crew profiles open their own agent page (no bounce)');
+}
+
+function renderSummary(){
+  var pass=results.filter(function(r){return r.status==='PASS';}).length;
+  var fail=results.filter(function(r){return r.status==='FAIL';}).length;
+  var warn=results.filter(function(r){return r.status==='WARN';}).length;
+  sumEl.innerHTML='<span class="chip pass">PASS '+pass+'</span><span class="chip fail">FAIL '+fail+'</span><span class="chip run">WARN '+warn+'</span>';
+}
+
+async function run(){
+  rows.innerHTML=''; results=[]; sumEl.innerHTML='<span class="chip run">running…</span>';
+  document.getElementById('run').disabled=true;
+  for(var i=0;i<ROUTES.length;i++){
+    document.getElementById('progress').textContent='('+(i+1)+'/'+ROUTES.length+') '+ROUTES[i].label+'…';
+    await testRoute(ROUTES[i]);
+    renderSummary();
+  }
+  document.getElementById('progress').textContent='Done — '+results.length+' checks.';
+  document.getElementById('run').disabled=false;
+}
+document.getElementById('run').onclick=run;
+document.getElementById('copy').onclick=function(){
+  var t='KEEPITIL Self-QA '+new Date().toISOString()+'\n'+results.map(function(r){return r.status+'  '+r.label+' — '+r.detail;}).join('\n');
+  navigator.clipboard.writeText(t).then(function(){document.getElementById('copy').textContent='Copied ✓';setTimeout(function(){document.getElementById('copy').textContent='Copy report';},1500);});
+};
+run(); // auto-run on load
+</script>
+</body>
+</html>
