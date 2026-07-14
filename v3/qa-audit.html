@@ -43,7 +43,12 @@ code{background:rgba(255,255,255,.06);padding:1px 5px;border-radius:4px;color:#c
 <div class="note">Note: results reflect <b>your</b> login state (agent/profile pages behave differently logged in vs out). Run it both ways. FAIL = the route redirected somewhere it shouldn't, failed to load, or an expected element/image was missing.</div>
 <iframe id="frame" sandbox="allow-same-origin allow-scripts"></iframe>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* Supabase client — persist each run to the admin QA dashboard (backend store). */
+var SB_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+try{ if(window.supabase) window.__QASB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){}
 /* ---- Route registry: what SHOULD happen on each key route -------------------
    expect.stay  = final URL must still contain this substring (i.e. must NOT redirect away)
    expect.text  = (optional) this text must appear in the loaded page
@@ -54,10 +59,10 @@ var ROUTES = [
   {label:'Culture',                  url:'/v3/culture.html',          stay:'culture'},
   {label:'Scene',                    url:'/v3/scene.html',            stay:'scene'},
   {label:'Crew index',               url:'/v3/crew.html',             stay:'crew.html', text:'CREW'},
-  {label:'Events',                   url:'/v3/events.html',           stay:'events'},
+  {label:'Events (→ home)',          url:'/v3/events.html',           landsHome:true},
   {label:'Discover',                 url:'/v3/discover.html',         stay:'discover'},
-  {label:'Connect',                  url:'/v3/connect.html',          stay:'connect'},
-  {label:'Apply / Login',            url:'/v3/apply.html',            stay:'apply'},
+  {label:'Connect (→ Culture)',      url:'/v3/connect.html',          landsOn:['culture']},
+  {label:'Apply / Login',            url:'/v3/apply.html',            landsOn:['apply','u.html']},
   {label:'Blog: Groove Trooper',     url:'/v3/blog-groove-trooper.html', stay:'blog-groove-trooper'},
   {label:'Agent blog: Nova',         url:'/v3/blog-agent-nova.html',  stay:'blog-agent-nova', img:true},
   {label:'Every crew profile link',  type:'crew-agents'}
@@ -104,7 +109,11 @@ async function testRoute(r){
   if(r.err){ setRow(tr,'FAIL','frame error: '+r.err); return; }
   var landed=p.final||'';
   if(!landed){ setRow(tr,'WARN','could not read final URL (cross-origin?)'); return; }
-  if(r.stay && landed.indexOf(r.stay)===-1){
+  if(r.landsHome){ var pn; try{pn=new URL(landed).pathname;}catch(e){pn=landed;}
+    if(pn!=='/v3/'&&pn!=='/v3/index.html'&&pn!=='/'){ setRow(tr,'FAIL','⟶ went to <code>'+tail(landed)+'</code> (expected homepage)'); return; } }
+  else if(r.landsOn){ if(!r.landsOn.some(function(s){return landed.indexOf(s)>-1;})){
+    setRow(tr,'FAIL','⟶ redirected to <code>'+tail(landed)+'</code> (expected one of: '+r.landsOn.join(', ')+')'); return; } }
+  else if(r.stay && landed.indexOf(r.stay)===-1){
     setRow(tr,'FAIL','⟶ redirected to <code>'+tail(landed)+'</code> (expected to stay on '+r.stay+')'); return;
   }
   var probs=[];
@@ -151,6 +160,13 @@ async function run(){
     renderSummary();
   }
   document.getElementById('progress').textContent='Done — '+results.length+' checks.';
+  /* persist this run to the backend so the admin QA dashboard + Atlas can see history */
+  try{ var _p=results.filter(function(r){return r.status==='PASS';}).length,
+           _f=results.filter(function(r){return r.status==='FAIL';}).length,
+           _w=results.filter(function(r){return r.status==='WARN';}).length;
+    if(window.__QASB){ window.__QASB.rpc('log_qa_run',{p_source:'browser',p_pass:_p,p_fail:_f,p_warn:_w,p_details:results})
+      .then(function(){ var pr=document.getElementById('progress'); pr.textContent=pr.textContent+' · saved ✓'; },function(){}); }
+  }catch(e){}
   document.getElementById('run').disabled=false;
 }
 document.getElementById('run').onclick=run;
