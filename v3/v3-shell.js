@@ -45,7 +45,7 @@
         +'<a href="/v3/apply.html" class="v3s-cta">LOGIN</a>'
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
         +'</div>'
-        +'<div class="v3s-menu">'+links+'<a href="/v3/apply.html">Login</a></div>';
+        +'<div class="v3s-menu">'+links+'<a href="/v3/apply.html" id="v3s-mlogin">Login</a></div>';
       document.body.insertBefore(hdr, document.body.firstChild);
       try{ document.body.style.paddingTop='66px'; }catch(e){}  // offset for the fixed universal nav (matches homepage)
 
@@ -85,7 +85,31 @@
       style();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
       if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
+      authNav(hdr);   // signed in -> LOGIN becomes PROFILE (+ the notification bell shows)
     }catch(e){}
+  }
+  /* ── AUTH-AWARE NAV: the one CTA is LOGIN when logged out, PROFILE when logged in.
+     The session persists (Supabase stores it) — you stay signed in on this device until
+     you log out or trigger a global sign-out. The bell (keepitil-notify.js) only mounts
+     when signed in, so logged-out visitors see LOGIN only, no bell. ── */
+  var SB_URL="https://ovmqtzjfpzrbzrlkxwgw.supabase.co";
+  var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ";
+  function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
+  function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
+  function applyAuthState(hdr, s){
+    if(!hdr) return;
+    var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
+    if(cta){ cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
+    if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
+  }
+  function authNav(hdr){
+    ensureSB(function(){
+      var c=shellClient(); if(!c) return;
+      try{ c.auth.getSession().then(function(r){ applyAuthState(hdr, r&&r.data?r.data.session:null); }, function(){}); }catch(e){}
+      if(!window.__kilShellAuthSub){ window.__kilShellAuthSub=1;
+        try{ c.auth.onAuthStateChange(function(_e,session){ applyAuthState(document.getElementById('v3shell-nav'), session); }); }catch(e){}
+      }
+    });
   }
   function logoUrl(){
     try{ var v=getComputedStyle(document.documentElement).getPropertyValue('--theme-logo').trim();
