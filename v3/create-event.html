@@ -88,7 +88,7 @@ textarea{min-height:96px;resize:vertical}
 
     <div class="card">
       <h3>Tickets</h3>
-      <div class="note">Add one or more tiers. For each paid tier, paste a <b>Stripe Payment Link</b> (create it in your Stripe dashboard) — that's the checkout. Free/RSVP tiers can skip it. <em>Selling tickets requires a Community membership.</em></div>
+      <div class="note">Add one or more tiers. Paid tiers check out securely through <b>KEEPITIL</b> — we handle the payment and pay out to your bank (KEEPITIL keeps 5% + $0.99). Free/RSVP tiers are free to attend. <em>Selling tickets requires a Community membership.</em></div>
       <div id="tiers"></div>
       <button type="button" class="addtier" id="addtier">+ Add ticket tier</button>
     </div>
@@ -129,7 +129,6 @@ function tierHtml(i){
     '<label>Name</label><input class="t-name" placeholder="General Admission"/>'+
     '<div class="row"><div><label>Price (USD)</label><input class="t-price" type="number" min="0" step="1" placeholder="0"/></div>'+
     '<div><label>Quantity</label><input class="t-qty" type="number" min="1" step="1" placeholder="Unlimited"/></div></div>'+
-    '<label>Stripe Payment Link (for paid tiers)</label><input class="t-link" placeholder="https://buy.stripe.com/…"/>'+
     '</div>';
 }
 var tierCount=0;
@@ -205,8 +204,7 @@ $('form').addEventListener('submit',async function(e){
       var name=(t.querySelector('.t-name').value||'General Admission').trim();
       var price=parseInt(t.querySelector('.t-price').value||'0',10)||0;
       var qty=t.querySelector('.t-qty').value?parseInt(t.querySelector('.t-qty').value,10):null;
-      var link=(t.querySelector('.t-link').value||'').trim()||null;
-      tiers.push({event_id:eventId,name:name,price_cents:price*100,qty_total:qty,stripe_payment_link:link,sort:idx});
+      tiers.push({event_id:eventId,name:name,price_cents:price*100,qty_total:qty,stripe_payment_link:null,sort:idx});
     });
     if(tiers.length){ var ti=await supa.from('ticket_tiers').insert(tiers); if(ti.error) throw ti.error; }
     var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(ev.slug);
@@ -219,7 +217,8 @@ $('form').addEventListener('submit',async function(e){
 
 init();
 </script>
-<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
+<script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
 </html>
