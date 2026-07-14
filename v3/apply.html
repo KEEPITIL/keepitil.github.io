@@ -314,10 +314,14 @@ var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
 
-/* Always show the login form. If a session already exists, just OFFER the portal — never auto-redirect / auto-sign-in. */
+/* If already signed in, go STRAIGHT to the profile (you stay logged in on this device —
+   no re-login needed). Use ?stay=1 to remain on the login page (e.g. to switch accounts). */
 if(supa){
   supa.auth.getSession().then(function(r){
-    if(r&&r.data&&r.data.session){ var p=$('portal-note'); if(p) p.style.display='inline-block'; }
+    if(r&&r.data&&r.data.session){
+      if(new URLSearchParams(location.search).get('stay')==='1'){ var p=$('portal-note'); if(p) p.style.display='inline-block'; }
+      else { location.replace('/v3/u.html'); }
+    }
   }).catch(function(){});
 }
 
