@@ -335,17 +335,27 @@ footer a{color:var(--accent2);}
 .ev-add .plus{font-size:2rem;line-height:1;}
 .ev-add span{font-size:.72rem;font-weight:700;letter-spacing:.06em;}
 /* MY TICKETS carousel (owner-only) */
-.mytix-wrap{margin:0 0 14px;}
-.mytix-h{font-size:.8rem;font-weight:800;letter-spacing:.08em;color:var(--accent);margin:0 0 8px;}
-.mytix-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;}
+.mytix-wrap{margin:0 0 20px;}
+.mytix-h{font-size:.8rem;font-weight:800;letter-spacing:.08em;color:var(--accent);margin:0 0 10px;}
+.mytix-car{position:relative;}
+.mytix-row{display:flex;gap:15px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
 .mytix-row::-webkit-scrollbar{display:none;}
-.mytix-card{flex:0 0 150px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s;}
-.mytix-card:hover{border-color:var(--accent);}
-.mytix-card .tix-img{width:100%;aspect-ratio:9/16;object-fit:cover;background:#0a0a12;display:block;}
-.mytix-card .tix-body{padding:8px 10px;}
-.mytix-card .tix-t{font-size:.82rem;font-weight:700;line-height:1.2;margin:0 0 3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.mytix-card .tix-d{font-size:.68rem;color:var(--muted);}
-.mytix-card .tix-badge{display:inline-block;margin-top:4px;font-size:.62rem;font-weight:800;letter-spacing:.05em;color:#0a0a12;background:var(--accent);border-radius:5px;padding:2px 6px;}
+.mytix-card{position:relative;flex:0 0 220px;width:220px;aspect-ratio:2/3;background:#0a0a12;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.mytix-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 16px 44px rgba(0,0,0,.6);}
+.mytix-card .tix-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;}
+.mytix-card .tix-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,.9) 4%,rgba(0,0,0,.35) 40%,transparent 68%);}
+.mytix-card .tix-ribbon{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;padding:5px 11px;background:linear-gradient(90deg,rgba(0,255,136,.97),rgba(0,200,120,.55));}
+.mytix-card .tix-ribbon b{font-size:.55rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#06120a;}
+.mytix-card .tix-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:12px 12px 13px;}
+.mytix-card .tix-t{font-size:.95rem;font-weight:800;line-height:1.15;margin:0 0 3px;color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mytix-card .tix-d{font-size:.72rem;color:rgba(255,255,255,.82);}
+.mytix-arrow{position:absolute;top:calc(50% - 6px);z-index:6;width:34px;height:34px;border-radius:50%;background:rgba(12,12,22,.94);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:1.35rem;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 3px 14px rgba(0,0,0,.5);}
+.mytix-arrow:hover{border-color:var(--accent);color:var(--accent);}
+.mytix-arrow:disabled{opacity:.2;pointer-events:none;}
+.mytix-arrow.prev{left:-6px;}.mytix-arrow.next{right:-6px;}
+.mytix-car.scrollable .mytix-arrow{display:flex;}
+@media(max-width:680px){.mytix-car.scrollable .mytix-arrow{display:none;}}
+@media(max-width:520px){.mytix-card{flex:0 0 180px;width:180px;}}
 .ev-empty{font-size:.8rem;color:var(--muted);padding:6px 2px 2px;}
 
 /* ===== Unified tabs v3 — filter bar + 3-col grid (no carousels), all tabs same ===== */
@@ -492,7 +502,11 @@ footer a{color:var(--accent2);}
   </div>
   <div class="mytix-wrap" id="mytix-wrap" style="display:none">
     <div class="mytix-h">🎟 MY TICKETS <a href="/v3/tickets.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">View all &rarr;</a></div>
-    <div class="mytix-row" id="mytix-row"></div>
+    <div class="mytix-car" id="mytix-car">
+      <button class="mytix-arrow prev" aria-label="Scroll to previous tickets" onclick="mytixScroll(-1)">&lsaquo;</button>
+      <div class="mytix-row" id="mytix-row"></div>
+      <button class="mytix-arrow next" aria-label="Scroll to next tickets" onclick="mytixScroll(1)">&rsaquo;</button>
+    </div>
   </div>
   <div class="pf-filter" id="ev-filter"></div>
   <div class="pf-grid" id="shows-list"></div>
@@ -621,11 +635,14 @@ function loadMyTickets(){
     var row=document.getElementById('mytix-row'); if(!row){ wrap.style.display='none'; return; }
     row.innerHTML=MY_TIX.map(function(t,i){
       var img=t.cover_url?'<img class="tix-img" src="'+esc(t.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
-      return '<div class="mytix-card" onclick="openTicket('+i+')">'+img+'<div class="tix-body"><div class="tix-t">'+esc(t.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(t.starts_at))+(t.city?' · '+esc(t.city):'')+'</div><span class="tix-badge">TICKET'+(t.qty>1?' ×'+t.qty:'')+'</span></div></div>';
+      return '<div class="mytix-card" onclick="openTicket('+i+')">'+img+'<div class="tix-shade"></div><div class="tix-ribbon"><b>🎟 Ticket'+(t.qty>1?' ×'+t.qty:'')+'</b></div><div class="tix-body"><div class="tix-t">'+esc(t.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(t.starts_at))+(t.city?' · '+esc(t.city):'')+'</div></div></div>';
     }).join('');
     wrap.style.display='';
+    mytixMark();
   }).catch(function(){ wrap.style.display='none'; });
 }
+function mytixScroll(dir){ var row=document.getElementById('mytix-row'); if(!row)return; var c=row.querySelector('.mytix-card'); var w=c?(c.offsetWidth+15)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+15))):320; row.scrollBy({left:dir*w,behavior:'smooth'}); }
+function mytixMark(){ var car=document.getElementById('mytix-car'), row=document.getElementById('mytix-row'); if(!car||!row)return; var prev=car.querySelector('.mytix-arrow.prev'), next=car.querySelector('.mytix-arrow.next'); function upd(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); if(prev)prev.disabled=row.scrollLeft<=2; if(next)next.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } upd(); row.onscroll=upd; }
 function openTicket(i){
   var t=MY_TIX[i]; if(!t) return; closeModal();
   var qr='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(t.qr_token||t.slug||'');
