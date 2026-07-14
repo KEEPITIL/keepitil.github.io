@@ -635,12 +635,13 @@ function loadMyTickets(){
     var row=document.getElementById('mytix-row'); if(!row){ wrap.style.display='none'; return; }
     row.innerHTML=MY_TIX.map(function(t,i){
       var img=t.cover_url?'<img class="tix-img" src="'+esc(t.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
-      return '<div class="mytix-card" onclick="openTicket('+i+')">'+img+'<div class="tix-shade"></div><div class="tix-ribbon"><b>🎟 Ticket'+(t.qty>1?' ×'+t.qty:'')+'</b></div><div class="tix-body"><div class="tix-t">'+esc(t.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(t.starts_at))+(t.city?' · '+esc(t.city):'')+'</div></div></div>';
+      return '<div class="mytix-card" onclick="goMyTix('+i+')">'+img+'<div class="tix-shade"></div><div class="tix-ribbon"><b>🎟 Ticket'+(t.qty>1?' ×'+t.qty:'')+'</b></div><div class="tix-body"><div class="tix-t">'+esc(t.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(t.starts_at))+(t.city?' · '+esc(t.city):'')+'</div></div></div>';
     }).join('');
     wrap.style.display='';
     mytixMark();
   }).catch(function(){ wrap.style.display='none'; });
 }
+function goMyTix(i){ var t=MY_TIX[i]; if(!t)return; location.href='/v3/tickets.html?e='+encodeURIComponent(t.slug||''); }
 function mytixScroll(dir){ var row=document.getElementById('mytix-row'); if(!row)return; var c=row.querySelector('.mytix-card'); var w=c?(c.offsetWidth+15)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+15))):320; row.scrollBy({left:dir*w,behavior:'smooth'}); }
 function mytixMark(){ var car=document.getElementById('mytix-car'), row=document.getElementById('mytix-row'); if(!car||!row)return; var prev=car.querySelector('.mytix-arrow.prev'), next=car.querySelector('.mytix-arrow.next'); function upd(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); if(prev)prev.disabled=row.scrollLeft<=2; if(next)next.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } upd(); row.onscroll=upd; }
 function openTicket(i){
