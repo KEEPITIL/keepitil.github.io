@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>QA Dashboard — KEEPITIL Admin</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text,#eef);font-family:Inter,system-ui,sans-serif;line-height:1.5;padding-bottom:70px}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+.head{padding:26px 0 12px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.head h1{font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em;font-size:1.9rem;line-height:1}.head h1 b{color:var(--brand,#00b4ff)}
+.head .who{color:var(--muted,#9aa0b0);font-size:.8rem}
+.btn{display:inline-flex;align-items:center;gap:7px;font-weight:800;padding:9px 16px;border-radius:10px;text-decoration:none;cursor:pointer;border:1px solid var(--line,#242433);background:transparent;color:var(--text,#eef)}
+.btn.prim{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border:0}
+.gate{max-width:460px;margin:70px auto;text-align:center;background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:18px;padding:36px 28px}
+.gate h2{font-size:1.3rem;margin-bottom:8px}.gate p{color:var(--muted,#9aa0b0);margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:10px 0 8px}
+.card{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:14px;padding:16px}
+.card .n{font-size:1.9rem;font-weight:900;line-height:1}.card .l{color:var(--muted,#9aa0b0);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:5px}
+.card.pass .n{color:#22e39b}.card.fail .n{color:#ff3b6b}.card.warn .n{color:#ffb43c}
+.meta{color:var(--muted,#9aa0b0);font-size:.82rem;margin:2px 0 20px}
+h3{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#9aa0b0);margin:22px 0 10px}
+.issue{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-left:3px solid #ff3b6b;border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:.9rem}
+.issue.warn{border-left-color:#ffb43c}
+.issue b{font-weight:800}.issue .d{color:var(--muted,#9aa0b0);font-size:.82rem;margin-top:2px;word-break:break-word}
+.ok{background:rgba(34,227,155,.08);border:1px solid rgba(34,227,155,.25);color:#22e39b;border-radius:10px;padding:14px;font-weight:700}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line,#242433)}th{color:var(--muted,#9aa0b0);font-size:.7rem;letter-spacing:.05em;text-transform:uppercase}
+td .p{color:#22e39b}td .f{color:#ff3b6b}td .w{color:#ffb43c}
+@media(max-width:560px){.cards{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div><h1>QA <b>Dashboard</b></h1><div class="who" id="who"></div></div>
+    <a class="btn prim" href="/v3/qa-audit.html" target="_blank">▶ Run a fresh audit</a>
+  </div>
+  <div id="gate" class="gate" style="display:none">
+    <h2 id="gateTitle">Admins only</h2>
+    <p id="gateMsg">This dashboard is restricted to KEEPITIL admins and the AI crew.</p>
+    <a class="btn prim" id="gateBtn" href="/v3/apply.html?stay=1">Log in</a>
+  </div>
+  <div id="app" style="display:none">
+    <div class="cards" id="cards"></div>
+    <div class="meta" id="latestMeta"></div>
+    <h3>Open issues (latest run)</h3>
+    <div id="issues"></div>
+    <h3>Run history</h3>
+    <table><thead><tr><th>When</th><th>Source</th><th>Pass</th><th>Fail</th><th>Warn</th></tr></thead><tbody id="hist"></tbody></table>
+  </div>
+</div>
+
+<script>
+var SB_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SB_URL,SB_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function when(iso){try{var d=new Date(iso);return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){return iso;}}
+
+function gate(title,msg,showLogin){ $('gate').style.display='block'; $('app').style.display='none';
+  $('gateTitle').textContent=title; $('gateMsg').textContent=msg; $('gateBtn').style.display=showLogin?'inline-flex':'none'; }
+
+function render(runs){
+  $('gate').style.display='none'; $('app').style.display='block';
+  var latest=runs[0];
+  var d=latest.details||[];
+  $('cards').innerHTML=
+    '<div class="card"><div class="n">'+(latest.pass+latest.fail+latest.warn)+'</div><div class="l">Checks</div></div>'+
+    '<div class="card pass"><div class="n">'+latest.pass+'</div><div class="l">Pass</div></div>'+
+    '<div class="card fail"><div class="n">'+latest.fail+'</div><div class="l">Fail</div></div>'+
+    '<div class="card warn"><div class="n">'+latest.warn+'</div><div class="l">Warn</div></div>';
+  $('latestMeta').textContent='Latest run: '+when(latest.created_at)+' · source: '+latest.source;
+  var issues=d.filter(function(x){return x.status==='FAIL'||x.status==='WARN';});
+  $('issues').innerHTML = issues.length
+    ? issues.map(function(x){return '<div class="issue'+(x.status==='WARN'?' warn':'')+'"><b>'+esc(x.label)+'</b> — '+esc(x.status)+'<div class="d">'+esc(x.detail)+'</div></div>';}).join('')
+    : '<div class="ok">✅ No open issues in the latest run — every checked route lands where it should.</div>';
+  $('hist').innerHTML=runs.map(function(r){return '<tr><td>'+when(r.created_at)+'</td><td>'+esc(r.source)+'</td><td class="p">'+r.pass+'</td><td class="f">'+(r.fail?'<span class="f">'+r.fail+'</span>':0)+'</td><td class="w">'+r.warn+'</td></tr>';}).join('');
+}
+
+async function init(){
+  if(!supa){ gate('Unavailable','Could not initialise. Please refresh.',false); return; }
+  var s=await supa.auth.getSession().catch(function(){return null;});
+  var session=s&&s.data?s.data.session:null;
+  if(!session){ gate('Admins only','Log in with an admin account to view QA feedback.',true); return; }
+  var who=$('who'); if(who) who.textContent='Signed in';
+  var adm=await supa.rpc('is_admin').catch(function(){return {data:false};});
+  if(!(adm&&adm.data)){ gate('Not an admin','Your account is signed in but is not a KEEPITIL admin. Ask the Founder to add you.',false); return; }
+  var r=await supa.rpc('get_qa_runs',{p_limit:40}).catch(function(){return {data:[]};});
+  var runs=(r&&r.data)||[];
+  if(!runs.length){ $('gate').style.display='none'; $('app').style.display='block';
+    $('cards').innerHTML=''; $('latestMeta').textContent='';
+    $('issues').innerHTML='<div class="ok">No audit runs recorded yet. Click “Run a fresh audit”.</div>'; $('hist').innerHTML=''; return; }
+  render(runs);
+}
+init();
+</script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
