@@ -586,6 +586,8 @@ function showTab(name){
   if(name==='chat'){ if(typeof closeChatGroup==='function') closeChatGroup(); }
   var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
 }
+/* deep-link: /v3/u.html?slug=x&tab=shows opens the Events tab directly (used by the event-page back button) */
+window.addEventListener('load',function(){ try{ var _t=(new URLSearchParams(location.search).get('tab')||'').toLowerCase(); if(['article','gallery','shows','chat'].indexOf(_t)>-1){ setTimeout(function(){ showTab(_t); },300); } }catch(e){} });
 function renderHighlights(){
   var r=document.getElementById('hl-row');if(!r)return;
   r.innerHTML=(PROFILE.highlights||[]).map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="'+h.img+'" alt="'+esc(h.label)+'" loading="lazy" onerror="this.style.opacity=.12"></div><span>'+esc(h.label)+'</span></div>';}).join('');
