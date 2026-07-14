@@ -55,10 +55,9 @@
         '<a class="kiln-quick" href="/v3/tickets.html">&#127903; My Tickets</a>'+
         '<div class="kiln-list" id="kiln-list"><div class="kiln-empty">Loading…</div></div>'+
       '</div>';
+    // Bell shows only when signed in; it sits beside the PROFILE button (v3-shell.js
+    // relabels LOGIN -> PROFILE when signed in). Both are neon.
     if(cta) inner.insertBefore(wrap, cta); else if(burger) inner.insertBefore(wrap, burger); else inner.appendChild(wrap);
-    // Signed in → the neon bell REPLACES the LOGIN button (desktop + mobile menu).
-    if(cta) cta.style.display='none';
-    try{ var mLogin=nav.querySelector('.v3s-menu a[href="/v3/apply.html"]'); if(mLogin) mLogin.style.display='none'; }catch(e){}
     var bell=wrap.querySelector('.kiln-bell'), panel=wrap.querySelector('.kiln-panel'),
         badge=wrap.querySelector('.kiln-badge'), list=wrap.querySelector('#kiln-list'), opt=wrap.querySelector('#kiln-opt');
 
