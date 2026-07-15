@@ -132,26 +132,32 @@
   .tixrows{display:flex;flex-direction:column;gap:9px;max-height:320px;overflow-y:auto;scrollbar-width:thin;padding-right:2px;}
   .tixrows::-webkit-scrollbar{width:8px;}
   .tixrows::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px;}
-  .tixrow{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:11px 13px;transition:border-color .2s,background .2s;}
+  .tixrow{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:9px 12px;transition:border-color .2s,background .2s;}
   .tixrow:hover{border-color:var(--brand-2);background:rgba(0,180,255,.05);}
   .trtop{display:flex;align-items:center;gap:10px;}
-  .trname{font-weight:800;font-size:.95rem;color:#fff;flex:1;min-width:0;}
-  .trav.inline{font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--brand-2);white-space:nowrap;}
-  .trav.inline.low{color:var(--gold);}
-  .trprice{font-family:var(--head);font-size:1.2rem;color:var(--green);}
+  .trprice{font-family:var(--head);font-size:1.15rem;color:var(--green);flex:0 0 auto;min-width:46px;}
   .tixrow.free .trprice{color:var(--brand-2);}
+  .trname{font-weight:800;font-size:.9rem;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .trline{font-weight:800;font-size:.9rem;color:#fff;flex:0 0 auto;min-width:56px;text-align:right;}
+  .stp{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:9px;overflow:hidden;flex:0 0 auto;}
+  .stp button{background:transparent;border:0;color:#fff;width:30px;height:30px;font-size:1.2rem;cursor:pointer;line-height:1;}
+  .stp button:disabled{opacity:.3;cursor:default;}
+  .stp .num{min-width:26px;text-align:center;font-weight:800;font-size:.95rem;}
   .trmore{max-height:0;overflow:hidden;transition:max-height .25s ease;}
   .tixrow:hover .trmore{max-height:140px;}
-  .trdesc{color:#b6c2ce;font-size:.83rem;line-height:1.45;margin-top:8px;}
-  .trav.rev{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);margin-top:6px;}
-  .trstatus{font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);white-space:nowrap;}
-  .trctl{display:flex;align-items:center;gap:9px;margin-top:10px;}
-  .stp{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:9px;overflow:hidden;flex:0 0 auto;}
-  .stp button{background:transparent;border:0;color:#fff;width:34px;height:34px;font-size:1.25rem;cursor:pointer;line-height:1;}
-  .stp button:disabled{opacity:.3;cursor:default;}
-  .stp .num{min-width:30px;text-align:center;font-weight:800;font-size:.98rem;}
-  .trbuy{flex:1;background:var(--green);color:#06120a;border:0;border-radius:9px;padding:10px 12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:.72rem;cursor:pointer;}
-  .trbuy:disabled{opacity:.4;cursor:default;background:#2a2a38;color:#8a97a4;}
+  .trdesc{color:#b6c2ce;font-size:.82rem;line-height:1.45;margin-top:8px;}
+  .trav.rev{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--brand-2);margin-top:7px;}
+  .trav.rev.low{color:var(--gold);}
+  .trstatus{font-size:.64rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);white-space:nowrap;}
+  .tixrow.closed .trprice{color:var(--grey);}
+  /* order summary bar (single row) */
+  .tixfoot{display:flex;align-items:center;gap:14px;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.14);flex-wrap:wrap;}
+  .tf-count{font-weight:800;font-size:.82rem;color:#fff;}
+  .tf-sub{font-family:var(--head);font-size:1.25rem;color:#fff;}
+  .tf-tax{font-size:.7rem;color:var(--grey);letter-spacing:.02em;}
+  .tf-buy{margin-left:auto;background:var(--green);color:#06120a;border:0;border-radius:11px;padding:13px 30px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;font-size:.82rem;cursor:pointer;box-shadow:0 0 18px rgba(0,255,136,.45);}
+  .tf-buy:hover{filter:brightness(1.08);}
+  .tf-buy:disabled{opacity:.4;cursor:default;background:#2a2a38;color:#8a97a4;box-shadow:none;}
   .chatbar{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.92rem;letter-spacing:.03em;text-decoration:none;cursor:pointer;}
   .chatbar:hover{background:rgba(0,180,255,.2);}
   @media(max-width:760px){
@@ -187,6 +193,12 @@
         <div class="tixcard" id="sec-tickets" style="display:none">
           <div class="tixhd">Tickets</div>
           <div class="tixrows" id="ev-tickets"></div>
+          <div class="tixfoot" id="ev-tixfoot" style="display:none">
+            <span class="tf-count" id="tf-count">0 tickets</span>
+            <span class="tf-sub" id="tf-sub">$0.00</span>
+            <span class="tf-tax" id="tf-tax">Tax $0.00</span>
+            <button class="tf-buy" id="tf-buy" type="button" disabled>Buy</button>
+          </div>
           <div class="tix-terms" id="tix-terms" style="display:none">By purchasing you agree to the <a href="/v3/ticket-terms.html">Ticket Terms</a> &amp; <a href="/v3/refund.html">Refund Policy</a>.</div>
         </div>
         <a class="chatbar" id="ev-chatbar" href="/v3/event-chat.html">💬 Join Event Chat</a>
@@ -326,70 +338,82 @@
             var sec=$('sec-tickets'), box=$('ev-tickets'); if(!sec||!box) return;
             var now=Date.now(), anyPaid=tr.data.some(function(t){return t.price_cents>0;});
             box.innerHTML=tr.data.map(function(t){
-              var free=!(t.price_cents>0);
-              var pl=free?'Free':('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,''));
+              var free=!(t.price_cents>0); var unit=free?0:t.price_cents;
+              var pl=free?'Free':('$'+(unit/100).toFixed(2).replace(/\.00$/,''));
               var ss=t.sales_start?Date.parse(t.sales_start):null, se=t.sales_end?Date.parse(t.sales_end):null;
               var remaining=(t.qty_total!=null)?(t.qty_total-(t.qty_sold||0)):null;
               var dis=false, status='';
               if(ss&&now<ss){ dis=true; status='Starts '+fmtDT(ss); }
               else if(se&&now>se){ dis=true; status='Sales ended'; }
               else if(remaining!=null&&remaining<=0){ dis=true; status='Sold out'; }
-              var avTxt=''; if(remaining!=null){ avTxt=(remaining<=10?('Only '+remaining+' left'):(remaining+' available')); }
+              /* hidden until hover: available count (only if the organizer made it public) + description */
+              var avTxt=''; if(t.show_qty && remaining!=null){ avTxt=(remaining<=10?('Only '+remaining+' left'):(remaining+' available')); }
               var avLow=(remaining!=null&&remaining<=10);
-              var inlineAv=(t.show_qty && avTxt && !dis)?('<span class="trav inline'+(avLow?' low':'')+'">'+esc(avTxt)+'</span>'):'';
-              var statusTag=dis?('<span class="trstatus">'+esc(status)+'</span>'):'';
               var moreParts='';
+              if(avTxt) moreParts+='<div class="trav rev'+(avLow?' low':'')+'">'+esc(avTxt)+'</div>';
               if(t.description) moreParts+='<div class="trdesc">'+esc(t.description)+'</div>';
-              if(avTxt && !t.show_qty && !dis) moreParts+='<div class="trav rev">'+esc(avTxt)+'</div>';
               if(se && !dis) moreParts+='<div class="trav rev">Sales end '+esc(fmtDT(se))+'</div>';
               var more=moreParts?('<div class="trmore">'+moreParts+'</div>'):'';
-              var da='';
-              if(!dis){ if(free) da='data-free="1"'; else if(t.stripe_payment_link) da='data-kt="ticket_click" data-buy="'+esc(t.stripe_payment_link)+'"'; else da='data-kt="ticket_click" data-tier="'+t.id+'"'; }
               var maxq=(remaining!=null)?Math.max(0,remaining):99;
-              var base=free?'RSVP Free':'Buy — '+pl;
-              return '<div class="tixrow'+(free?' free':'')+(dis?' closed':'')+'" data-max="'+maxq+'">'+
-                '<div class="trtop"><span class="trname">'+esc(t.name)+'</span>'+inlineAv+statusTag+'<span class="trprice">'+pl+'</span></div>'+
-                more+
-                (dis?'':('<div class="trctl"><div class="stp"><button type="button" class="minus" disabled>−</button><span class="num">0</span><button type="button" class="plus">+</button></div>'+
-                  '<button type="button" class="trbuy cta-tix" data-tname="'+esc(t.name)+'" data-event-slug="'+esc(ev.slug)+'" data-base="'+esc(base)+'" '+da+' disabled>'+esc(base)+'</button></div>'))+
-                '</div>';
+              var right=dis?('<span class="trstatus">'+esc(status)+'</span>')
+                :('<div class="stp"><button type="button" class="minus" disabled>−</button><span class="num">0</span><button type="button" class="plus">+</button></div><span class="trline">$0</span>');
+              return '<div class="tixrow'+(free?' free':'')+(dis?' closed':'')+'" data-tier="'+t.id+'" data-unit="'+unit+'" data-free="'+(free?1:0)+'" data-max="'+maxq+'" data-name="'+esc(t.name)+'">'+
+                '<div class="trtop"><span class="trprice">'+esc(pl)+'</span><span class="trname">'+esc(t.name)+'</span>'+right+'</div>'+more+'</div>';
             }).join('');
-            sec.style.display=''; if(anyPaid){ var tt=$('tix-terms'); if(tt) tt.style.display=''; }
-            var ctas=$('ev-ctas'); if(ctas){ ctas.querySelectorAll('.cta-tix,.cta-vip').forEach(function(a){ if(!a.classList.contains('trbuy')) a.remove(); }); }
-            function updateBuy(row){ var buy=row.querySelector('.trbuy'); if(!buy) return; var n=parseInt(row.querySelector('.num').textContent,10)||0; var base=buy.getAttribute('data-base')||''; buy.textContent= base+(n>1?(' × '+n):''); buy.disabled=(n<=0); }
-            /* − 0 + steppers */
+            sec.style.display=''; $('ev-tixfoot').style.display='flex'; if(anyPaid){ var tt=$('tix-terms'); if(tt) tt.style.display=''; }
+            var ctas=$('ev-ctas'); if(ctas){ ctas.querySelectorAll('.cta-tix,.cta-vip').forEach(function(a){ a.remove(); }); }
+            function money(c){ var s=(c/100).toFixed(2); return '$'+s.replace(/\.00$/,''); }
+            function recalc(){
+              var count=0, sub=0;
+              box.querySelectorAll('.tixrow').forEach(function(row){
+                var numEl=row.querySelector('.num'); if(!numEl) return;
+                var n=parseInt(numEl.textContent,10)||0, unit=parseInt(row.getAttribute('data-unit'),10)||0;
+                count+=n; sub+=n*unit;
+                var lineEl=row.querySelector('.trline'); if(lineEl) lineEl.textContent=money(n*unit);
+              });
+              $('tf-count').textContent=count+' ticket'+(count===1?'':'s');
+              $('tf-sub').textContent=money(sub);
+              $('tf-tax').textContent='Tax $0.00 · fees included';
+              $('tf-buy').disabled=(count<=0);
+            }
+            /* − 0 + steppers update each line total + the order summary */
             box.querySelectorAll('.tixrow').forEach(function(row){
-              var max=parseInt(row.getAttribute('data-max')||'99',10); var numEl=row.querySelector('.num'); if(!numEl) return;
+              var numEl=row.querySelector('.num'); if(!numEl) return;
+              var max=parseInt(row.getAttribute('data-max')||'99',10);
               var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
-              function sync(){ var n=parseInt(numEl.textContent,10)||0; if(minus)minus.disabled=(n<=0); if(plus)plus.disabled=(max>0&&n>=max); updateBuy(row); }
+              function sync(){ var n=parseInt(numEl.textContent,10)||0; if(minus)minus.disabled=(n<=0); if(plus)plus.disabled=(max>0&&n>=max); recalc(); }
               if(plus) plus.addEventListener('click',function(){ var n=parseInt(numEl.textContent,10)||0; if(max>0&&n>=max) return; numEl.textContent=(n+1); sync(); });
               if(minus) minus.addEventListener('click',function(){ var n=parseInt(numEl.textContent,10)||0; if(n<=0) return; numEl.textContent=(n-1); sync(); });
-              sync();
             });
-            /* buy / RSVP — captures attendee data then checks out with the chosen quantity */
-            box.querySelectorAll('.trbuy[data-tier],.trbuy[data-buy],.trbuy[data-free]').forEach(function(btn){
-              btn.addEventListener('click', async function(){
-                var row=btn.closest('.tixrow'); var qty=parseInt(row.querySelector('.num').textContent,10)||0; if(qty<1) return;
-                var sr=await sb.auth.getSession().catch(function(){return null;});
-                var sess=sr&&sr.data?sr.data.session:null;
-                if(!sess){ location.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); return; }
-                buyerEmail=(sess.user&&sess.user.email)||'';
-                var tname=btn.getAttribute('data-tname')||'';
-                regCapture(tname, false, function(promo){
-                  if(btn.hasAttribute('data-free')){ btn.textContent='✓ You’re on the list'; btn.disabled=true; row.querySelectorAll('.stp button').forEach(function(b){b.disabled=true;}); return; }
-                  if(btn.hasAttribute('data-buy')){ window.open(btn.getAttribute('data-buy'),'_blank','noopener'); return; }
-                  btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
-                  fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:qty,discount_code:promo||null})})
-                    .then(function(r){return r.json();})
-                    .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
-                    .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
-                });
+            recalc();
+            /* SINGLE Buy button — bundles every selected tier into ONE order */
+            $('tf-buy').addEventListener('click', async function(){
+              var buy=this, paid=[], free=[], count=0;
+              box.querySelectorAll('.tixrow').forEach(function(row){
+                var numEl=row.querySelector('.num'); if(!numEl) return;
+                var n=parseInt(numEl.textContent,10)||0; if(n<1) return; count+=n;
+                var tier=row.getAttribute('data-tier'), isFree=row.getAttribute('data-free')==='1';
+                (isFree?free:paid).push({tier_id:tier,quantity:n});
+              });
+              if(count<1) return;
+              var sr=await sb.auth.getSession().catch(function(){return null;});
+              var sess=sr&&sr.data?sr.data.session:null;
+              if(!sess){ location.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); return; }
+              buyerEmail=(sess.user&&sess.user.email)||'';
+              regCapture('', false, function(){
+                if(!paid.length){ buy.textContent='✓ You’re on the list'; buy.disabled=true; return; }
+                buy.disabled=true; var old=buy.textContent; buy.textContent='Loading…';
+                fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({items:paid})})
+                  .then(function(r){return r.json();})
+                  .then(function(d){ if(d&&d.url){ location.href=d.url; } else { buy.disabled=false; buy.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
+                  .catch(function(){ buy.disabled=false; buy.textContent=old; alert('Could not start checkout — please try again.'); });
               });
             });
-            /* KILL SWITCH: platform_config.ticketing_enabled='0' pauses paid sales (free RSVP stays). Enforced server-side too. */
+            /* KILL SWITCH: platform_config.ticketing_enabled='0' pauses paid sales. Enforced server-side too. */
             sb.from('platform_config').select('value').eq('key','ticketing_enabled').maybeSingle().then(function(cfgr){
               if(cfgr&&cfgr.data&&String(cfgr.data.value)==='0'){
-                box.querySelectorAll('.tixrow:not(.free) .stp button,.tixrow:not(.free) .trbuy').forEach(function(b){ b.disabled=true; });
+                box.querySelectorAll('.tixrow:not(.free) .stp button').forEach(function(b){ b.disabled=true; });
+                var bb=$('tf-buy'); if(bb) bb.disabled=true;
                 var n=document.createElement('div'); n.style.cssText='font-size:.74rem;opacity:.8;margin:10px 0 0'; n.textContent='⏸ Ticket sales are temporarily paused. Check back soon.'; box.appendChild(n);
               }
             }).catch(function(){});
