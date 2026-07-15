@@ -82,6 +82,8 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <div id="postReview"></div>
     <div class="head2">Social Queue <span class="ct" id="socialCt"></span></div>
     <div id="socialReview"></div>
+    <div class="head2">Venue Bookings <span class="ct" id="bookCt"></span></div>
+    <div id="bookReview"></div>
   </div>
 </div>
 
@@ -148,8 +150,23 @@ async function loadAdminReview(){
   if(!isAdmin) return;
   try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
   $('adminReview').style.display='block';
-  loadPostReview(); loadSocialReview();
+  loadPostReview(); loadSocialReview(); loadBookingReview();
 }
+var BK_STAGES=['new','contacted','tour','quoted','deposit_pending','booked','declined'];
+async function loadBookingReview(){
+  var box=$('bookReview');
+  try{
+    var r=await supa.rpc('get_booking_requests',{p_venue_slug:null,p_limit:100}); var rows=(r&&r.data)||[];
+    $('bookCt').textContent=rows.length+' inquiries';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No booking requests yet. Venue inquiries from venue pages land here.</div>'; return; }
+    box.innerHTML=rows.map(function(b){
+      var opts=BK_STAGES.map(function(s){return '<option value="'+s+'"'+(b.status===s?' selected':'')+'>'+s.replace(/_/g,' ')+'</option>';}).join('');
+      var d=[b.venue_slug,b.room,b.event_type,(b.guest_count?b.guest_count+' guests':''),b.preferred_date].filter(Boolean).join(' · ');
+      return '<div class="rv"><div class="info"><div class="t">'+esc(b.contact_name)+' — '+esc(b.contact_email)+(b.contact_phone?(' · '+esc(b.contact_phone)):'')+'</div><div class="d">'+esc(d)+(b.notes?('<br>“'+esc(b.notes)+'”'):'')+'</div></div><div class="acts"><select onchange="setBooking('+b.id+',this.value)" style="font-size:.78rem;padding:8px 10px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--text)">'+opts+'</select></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load bookings.</div>'; }
+}
+async function setBooking(id,status){ try{ var r=await supa.rpc('set_booking_status',{p_id:id,p_status:status}); if(r.error)throw r.error; }catch(e){ alert('Could not update: '+(e.message||e)); } }
 async function loadPostReview(){
   var box=$('postReview');
   try{
