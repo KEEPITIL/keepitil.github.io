@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Venue — KEEPITIL</title>
+<meta name="description" id="mDesc" content="Book this venue on KEEPITIL — capacity, pricing, amenities, and a booking request in one place."/>
+<meta property="og:type" content="business.business"/>
+<meta property="og:site_name" content="KEEPITIL"/>
+<meta property="og:title" id="mOg" content="Venue — KEEPITIL"/>
+<meta property="og:image" id="mImg" content="https://keepitil.com/v3/logo-blue-nav.png"/>
+<link rel="canonical" id="mCanon" href="https://keepitil.com/v3/venue.html"/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script type="application/ld+json" id="ldjson">{"@context":"https://schema.org","@type":"EventVenue","name":"KEEPITIL Venue"}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.6;padding-bottom:90px}
+body::before{display:none!important}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+.loading{max-width:700px;margin:90px auto;text-align:center;color:var(--muted)}
+/* hero */
+.v-cover{height:300px;background:linear-gradient(130deg,color-mix(in srgb,var(--brand,#00b4ff) 34%,#0a0a12),color-mix(in srgb,var(--accent,#8b5cff) 40%,#0a0a12));position:relative;border-bottom:1px solid var(--line)}
+.v-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.v-head{margin-top:-64px;position:relative}
+.v-badge{display:inline-block;font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#04121b;background:var(--brand,#00b4ff);border-radius:999px;padding:5px 13px;margin-bottom:12px}
+.v-name{font-family:'Bebas Neue',Inter,sans-serif;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;letter-spacing:.02em}
+.v-tag{color:var(--muted);font-size:1.05rem;margin-top:6px;max-width:620px}
+.v-loc{color:var(--muted);font-size:.9rem;margin-top:8px}
+.v-cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--text);font-family:inherit;font-size:.95rem}
+.btn.prim{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border:0}
+.btn.neon{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff);background:transparent}
+/* quick answers */
+.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+.q{background:var(--surface,#15151f);border:1px solid var(--line);border-radius:14px;padding:16px}
+.q .k{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--brand,#00b4ff)}
+.q .val{font-weight:800;font-size:1.05rem;margin-top:5px;line-height:1.25}
+@media(max-width:640px){.quick{grid-template-columns:1fr}}
+/* sections */
+.sec{margin:34px 0}
+.sec h2{font-family:'Bebas Neue',Inter,sans-serif;font-size:1.7rem;letter-spacing:.03em;margin-bottom:12px}
+.card{background:var(--surface,#15151f);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.rooms{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.rooms{grid-template-columns:1fr}}
+.room .rn{font-weight:800;font-size:1.1rem}
+.room .rc{color:var(--muted);font-size:.88rem;margin:2px 0 10px}
+.room .price{display:flex;justify-content:space-between;font-size:.9rem;padding:5px 0;border-top:1px solid var(--line)}
+.room .price .p{font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surface,#15151f);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:.85rem;font-weight:600}
+.addon{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.addon:last-child{border-bottom:0}.addon .p{font-weight:800;color:var(--brand-2,#22e39b)}
+label{display:block;font-size:.76rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+input,select,textarea{width:100%;background:var(--bg,#0d0d13);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:400 .95rem Inter,sans-serif;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--brand)}
+textarea{min-height:90px;resize:vertical}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.frow{grid-template-columns:1fr}}
+.submit{width:100%;margin-top:16px;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:15px;font-weight:800;font-size:1rem;cursor:pointer}
+.msg{margin-top:12px;font-size:.9rem;min-height:1.1em}.msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
+.faq{border-bottom:1px solid var(--line);padding:14px 0}.faq:last-child{border-bottom:0}
+.faq .fq{font-weight:800;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
+.faq .fa{color:var(--muted);font-size:.92rem;margin-top:7px;display:none}
+.faq.open .fa{display:block}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.gal .ph{aspect-ratio:4/3;border-radius:12px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;text-align:center;padding:10px}
+.rev{color:var(--muted);font-size:.92rem}
+.svc{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:640px){.svc{grid-template-columns:1fr}}
+.svc .s{background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem}
+.svc .s b{display:block;margin-bottom:2px}
+/* ask */
+.ask-log{display:flex;flex-direction:column;gap:10px;min-height:40px;margin:10px 0}
+.ask-msg{max-width:88%;padding:11px 14px;border-radius:14px;font-size:.92rem;line-height:1.5}
+.ask-msg.you{align-self:flex-end;background:var(--brand,#00b4ff);color:#04121b;font-weight:600}
+.ask-msg.bot{align-self:flex-start;background:var(--surface,#15151f);border:1px solid var(--line)}
+.ask-bar{display:flex;gap:8px}
+.ask-bar input{flex:1;border-radius:999px}
+.ask-bar button{background:var(--brand,#00b4ff);color:#04121b;border:0;border-radius:999px;padding:0 20px;font-weight:800;cursor:pointer}
+.ask-sugg{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.ask-sugg button{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:7px 12px;font-size:.8rem;cursor:pointer;font-family:inherit}
+.mini{color:var(--muted);font-size:.78rem;margin-top:8px}
+.claim{text-align:center;color:var(--muted);font-size:.88rem;margin-top:6px}
+.claim a{color:var(--brand,#00b4ff);font-weight:800;cursor:pointer}
+/* mobile sticky booking */
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:200;background:rgba(10,10,18,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 16px;display:none}
+.sticky button{width:100%;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:14px;font-weight:800;font-size:1rem;cursor:pointer}
+@media(max-width:760px){.sticky{display:block}body{padding-bottom:80px}}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">Loading venue…</div>
+<div id="v" style="display:none">
+  <div class="v-cover" id="vCover"></div>
+  <div class="wrap">
+    <div class="v-head">
+      <span class="v-badge">KEEPITIL Venue</span>
+      <h1 class="v-name" id="vName"></h1>
+      <div class="v-tag" id="vTag"></div>
+      <div class="v-loc" id="vLoc"></div>
+      <div class="v-cta">
+        <button class="btn prim" onclick="scrollToBook()">Request booking</button>
+        <button class="btn neon" onclick="scrollToAsk()">Ask the venue</button>
+      </div>
+    </div>
+
+    <div class="quick" id="vQuick"></div>
+
+    <div class="sec"><h2>About</h2><div class="card" id="vAbout"></div></div>
+    <div class="sec"><h2>Rooms</h2><div class="rooms" id="vRooms"></div><div class="mini" id="vRental"></div></div>
+    <div class="sec"><h2>What's included</h2><div class="chips" id="vAmenities"></div></div>
+    <div class="sec"><h2>Good for</h2><div class="chips" id="vEventTypes"></div></div>
+    <div class="sec"><h2>Add-ons</h2><div class="card" id="vAddons"></div></div>
+
+    <div class="sec" id="bookSec"><h2>Request a booking</h2>
+      <div class="card">
+        <div class="frow">
+          <div><label>Room</label><select id="bRoom"></select></div>
+          <div><label>Preferred date</label><input type="date" id="bDate"/></div>
+        </div>
+        <div class="frow">
+          <div><label>Event type</label><input id="bType" placeholder="Birthday, wedding, DJ night…"/></div>
+          <div><label>Guest count</label><input type="number" id="bGuests" min="1" placeholder="120"/></div>
+        </div>
+        <div class="frow">
+          <div><label>Your name</label><input id="bName" placeholder="Full name"/></div>
+          <div><label>Email</label><input id="bEmail" type="email" placeholder="you@email.com"/></div>
+        </div>
+        <div class="frow">
+          <div><label>Phone (optional)</label><input id="bPhone" placeholder="(714) …"/></div>
+          <div><label>Add-ons (optional)</label><input id="bAddons" placeholder="Corkage bar, extra hour…"/></div>
+        </div>
+        <label>Notes</label><textarea id="bNotes" placeholder="Tell the venue about your event…"></textarea>
+        <button class="submit" id="bSend" onclick="submitBooking()">Send booking request</button>
+        <div class="msg" id="bMsg"></div>
+        <div class="mini" id="bNote"></div>
+      </div>
+    </div>
+
+    <div class="sec"><h2>Also on KEEPITIL</h2>
+      <div class="svc">
+        <div class="s"><b>Sell tickets</b>Run paid or RSVP ticketing for your event, right here.</div>
+        <div class="s"><b>Promote it</b>Boost your event across KEEPITIL and the AI crew profiles.</div>
+        <div class="s"><b>Event chat</b>A live room for your guests before, during & after.</div>
+        <div class="s"><b>One dashboard</b>Track sales, check-ins and inquiries in one place.</div>
+      </div>
+    </div>
+
+    <div class="sec"><h2>Reviews</h2><div class="card rev" id="vReviews"></div></div>
+    <div class="sec"><h2>Gallery</h2><div class="gal" id="vGallery"></div></div>
+    <div class="sec"><h2>FAQ</h2><div class="card" id="vFaq"></div></div>
+
+    <div class="sec" id="askSec"><h2>Ask <span id="askName">the venue</span></h2>
+      <div class="card">
+        <div class="mini" style="margin:0 0 10px">Answers come straight from this venue's verified details. If it's not confirmed, I'll tell you — I won't guess.</div>
+        <div class="ask-sugg" id="askSugg"></div>
+        <div class="ask-log" id="askLog"></div>
+        <div class="ask-bar"><input id="askInput" placeholder="Capacity? Outside food? Alcohol? Tours?" maxlength="240" onkeydown="if(event.key==='Enter')askV()"/><button onclick="askV()">Ask</button></div>
+      </div>
+    </div>
+
+    <div class="claim" id="vClaim"></div>
+  </div>
+</div>
+<div class="sticky" id="sticky"><button onclick="scrollToBook()">Request booking</button></div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var SB=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var V=null, SLUG='';
+
+async function load(){
+  SLUG=new URLSearchParams(location.search).get('v')||new URLSearchParams(location.search).get('slug')||'';
+  if(!SB||!SLUG){ $('loading').textContent='Venue not found.'; return; }
+  var r=await SB.rpc('get_venue',{p_slug:SLUG}).catch(function(){return null;});
+  V=r&&r.data&&r.data[0];
+  if(!V){ $('loading').textContent='This venue is not available.'; return; }
+  render();
+}
+function render(){
+  document.title=V.name+' — Book on KEEPITIL';
+  $('mDesc').setAttribute('content',(V.tagline||V.about||V.name));
+  $('mOg').setAttribute('content',V.name+' — KEEPITIL');
+  $('mCanon').setAttribute('href','https://keepitil.com/v3/venue.html?v='+encodeURIComponent(V.slug));
+  if(V.cover_url){ $('vCover').innerHTML='<img src="'+esc(V.cover_url)+'" alt="'+esc(V.name)+'" onerror="this.style.display=\'none\'">'; $('mImg').setAttribute('content',V.cover_url); }
+  try{ $('ldjson').textContent=JSON.stringify({"@context":"https://schema.org","@type":"EventVenue","name":V.name,"description":V.about||V.tagline,"address":V.address||V.city,"maximumAttendeeCapacity":V.capacity_summary,"image":V.cover_url||undefined,"url":'https://keepitil.com/v3/venue.html?v='+V.slug}); }catch(e){}
+  $('vName').textContent=V.name;
+  $('vTag').textContent=V.tagline||'';
+  $('vLoc').textContent=V.city?('📍 '+V.city):'';
+  // quick answers (host? / cost? / book?)
+  var rooms=V.rooms||[]; var lowest='';
+  try{ var ps=[]; rooms.forEach(function(rm){(rm.pricing||[]).forEach(function(p){var n=parseInt(String(p.price).replace(/[^0-9]/g,''),10); if(n)ps.push(n);});}); if(ps.length)lowest='from $'+Math.min.apply(null,ps).toLocaleString(); }catch(e){}
+  $('vQuick').innerHTML=
+    '<div class="q"><div class="k">Can it host my event?</div><div class="val">'+esc(V.capacity_summary||'Ask us')+'</div></div>'+
+    '<div class="q"><div class="k">What will it cost?</div><div class="val">'+esc(lowest||'Request a quote')+'</div></div>'+
+    '<div class="q"><div class="k">How do I book it?</div><div class="val">Send a request below</div></div>';
+  $('vAbout').textContent=V.about||'';
+  // rooms
+  $('vRooms').innerHTML=rooms.map(function(rm){
+    var pr=(rm.pricing||[]).map(function(p){return '<div class="price"><span>'+esc(p.label)+'</span><span class="p">'+esc(p.price)+'</span></div>';}).join('');
+    return '<div class="card room"><div class="rn">'+esc(rm.name)+'</div><div class="rc">'+esc(rm.capacity||'')+'</div>'+pr+'</div>';
+  }).join('')||'<div class="card">Room details on request.</div>';
+  $('vRental').textContent=V.rental_terms||'';
+  $('vAmenities').innerHTML=(V.amenities||[]).map(function(a){return '<span class="chip">'+esc(a)+'</span>';}).join('')||'<span class="mini">On request.</span>';
+  $('vEventTypes').innerHTML=(V.event_types||[]).map(function(a){return '<span class="chip">'+esc(a)+'</span>';}).join('')||'<span class="mini">All event types.</span>';
+  $('vAddons').innerHTML=(V.addons||[]).map(function(a){return '<div class="addon"><span>'+esc(a.name)+'</span><span class="p">'+esc(a.price)+'</span></div>';}).join('')||'No add-ons listed.';
+  // booking room options
+  $('bRoom').innerHTML='<option value="">Any / not sure</option>'+rooms.map(function(rm){return '<option>'+esc(rm.name)+'</option>';}).join('');
+  $('bNote').textContent=V.booking_note||'';
+  // services static. reviews
+  var rev=V.reviews||{};
+  $('vReviews').innerHTML= rev && rev.source ? ('<b>'+esc(rev.source)+'</b> · '+esc(rev.rating||'')+' ('+esc(rev.count||0)+' reviews)<div style="margin-top:6px">'+esc(rev.note||'')+'</div>'+(rev.url?'<div style="margin-top:8px"><a style="color:var(--brand)" href="'+esc(rev.url)+'" target="_blank" rel="noopener nofollow">View on '+esc(rev.source)+' ↗</a></div>':'')) : esc((rev&&rev.note)||'No reviews yet.');
+  // gallery
+  var g=V.gallery||[];
+  $('vGallery').innerHTML= g.length ? g.map(function(u){return '<img src="'+esc(u)+'" alt="'+esc(V.name)+'" onerror="this.style.display=\'none\'">';}).join('') : '<div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div>';
+  // faq
+  $('vFaq').innerHTML=(V.faqs||[]).map(function(f,i){return '<div class="faq" onclick="this.classList.toggle(\'open\')"><div class="fq"><span>'+esc(f.q)+'</span><span>+</span></div><div class="fa">'+esc(f.a)+'</div></div>';}).join('')||'No FAQs yet.';
+  // ask
+  $('askName').textContent=V.name;
+  $('askSugg').innerHTML=['How many guests fit?','Can I bring outside food?','Can I have alcohol?','Can I tour first?'].map(function(q){return '<button onclick="askVQ(this.textContent)">'+esc(q)+'</button>';}).join('');
+  // claim
+  $('vClaim').innerHTML=V.owner_handle?('Managed by <a href="/v3/u.html?slug='+esc(V.owner_handle)+'">@'+esc(V.owner_handle)+'</a>'):'Is this your venue? <a onclick="claim()">Claim this page →</a>';
+  $('loading').style.display='none'; $('v').style.display='block';
+}
+function scrollToBook(){ $('bookSec').scrollIntoView({behavior:'smooth'}); }
+function scrollToAsk(){ $('askSec').scrollIntoView({behavior:'smooth'}); }
+
+async function submitBooking(){
+  var m=$('bMsg'); m.className='msg'; m.textContent='';
+  var name=$('bName').value.trim(), email=$('bEmail').value.trim();
+  if(!name||!email){ m.className='msg err'; m.textContent='Name and email are required.'; return; }
+  var b=$('bSend'); b.disabled=true; b.textContent='Sending…';
+  try{
+    var r=await SB.rpc('submit_booking_request',{p_venue_slug:V.slug,p_room:$('bRoom').value||null,p_date:$('bDate').value||null,p_event_type:$('bType').value||null,p_guests:parseInt($('bGuests').value||'0',10)||null,p_name:name,p_email:email,p_phone:$('bPhone').value||null,p_addons:$('bAddons').value||null,p_notes:$('bNotes').value||null});
+    if(r.error)throw r.error;
+    m.className='msg ok'; m.textContent='Request sent ✓ The '+V.name+' team will follow up by email.';
+    ['bType','bGuests','bName','bEmail','bPhone','bAddons','bNotes'].forEach(function(id){$(id).value='';});
+  }catch(e){ m.className='msg err'; m.textContent='Could not send: '+(e.message||e); }
+  b.disabled=false; b.textContent='Send booking request';
+}
+
+function askVQ(q){ $('askInput').value=q; askV(); }
+function askV(){
+  var inp=$('askInput'); var q=(inp.value||'').trim(); if(!q)return;
+  var log=$('askLog');
+  var you=document.createElement('div'); you.className='ask-msg you'; you.textContent=q; log.appendChild(you);
+  inp.value='';
+  var pend=document.createElement('div'); pend.className='ask-msg bot'; pend.textContent='…'; log.appendChild(pend);
+  log.scrollTop=log.scrollHeight;
+  SB.rpc('ask_venue',{p_slug:V.slug,p_question:q}).then(function(r){
+    var d=(r&&r.data)||{}; pend.textContent=d.answer||'…'; log.scrollTop=log.scrollHeight;
+  }).catch(function(){ pend.textContent='Something went wrong — try again.'; });
+}
+async function claim(){
+  var c=prompt('Enter your email or phone so the KEEPITIL team can verify you manage '+V.name+':');
+  if(!c)return;
+  try{ var r=await SB.rpc('claim_venue',{p_slug:V.slug,p_contact:c,p_note:null}); if(r.error)throw r.error; alert('Thanks — your claim was submitted. The KEEPITIL team will reach out to verify.'); }
+  catch(e){ alert('Could not submit claim: '+(e.message||e)); }
+}
+load();
+</script>
+<script src="/v3/keepitil-radio.js?v=20260714" defer></script>
+<script src="/v3/keepitil-ai.js" defer></script>
+<script src="/v3/v3-shell.js" defer></script>
+</body>
+</html>
