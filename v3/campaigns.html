@@ -13,6 +13,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
+body::before{display:none!important} /* organizer tool page — no decorative backdrop */
 .wrap{max-width:760px;margin:0 auto;padding:0 var(--sp-3,20px)}
 .hero{padding:var(--sp-6,72px) 0 var(--sp-2,14px);text-align:center}
 .eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.14em;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:6px 15px;margin-bottom:16px}
@@ -47,6 +48,25 @@ textarea{min-height:120px;resize:vertical}
 .li{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.86rem}
 .li b{font-weight:800}
 .tag{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px;border:1px solid var(--line);color:var(--brand)}
+.svc-group h4{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px}
+.svc{background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.svc .info{flex:1;min-width:190px}
+.svc .nm{font-weight:800;font-size:.98rem}
+.svc .ds{color:var(--muted);font-size:.84rem;margin-top:3px}
+.svc .act{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.svc .price{font-weight:900;font-size:1.15rem}
+.svc .go{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:10px 18px;font-weight:800;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.svc .go.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.svc .go:disabled{opacity:.5;cursor:default}
+.svc .st{font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.svc .st.on{color:#22e39b;border-color:rgba(34,227,155,.4)}
+.pedit{display:flex;align-items:center;gap:6px}
+.pedit .dol{color:var(--muted);font-weight:700}
+.pedit input{width:88px;padding:8px 10px;text-align:right}
+.pedit button{background:transparent;border:1px solid var(--brand);color:var(--brand);border-radius:8px;padding:8px 12px;font-weight:800;font-size:.78rem;cursor:pointer;width:auto}
+.promo-banner{margin:14px 0 4px;padding:12px 14px;border-radius:12px;font-size:.9rem;font-weight:700}
+.promo-banner.ok{background:rgba(34,227,155,.12);color:#22e39b;border:1px solid rgba(34,227,155,.3)}
+.promo-banner.warn{background:rgba(255,180,60,.12);color:#ffb43c;border:1px solid rgba(255,180,60,.3)}
 </style>
 </head>
 <body>
@@ -77,6 +97,7 @@ textarea{min-height:120px;resize:vertical}
       <button class="tab" data-tab="announce">📣 Announcement</button>
       <button class="tab" data-tab="discount">🏷 Discount code</button>
       <button class="tab" data-tab="social">📱 Social post</button>
+      <button class="tab" data-tab="boost">⭐ Boost</button>
     </div>
 
     <!-- EMAIL -->
@@ -138,6 +159,16 @@ textarea{min-height:120px;resize:vertical}
         <div class="msg" id="so-msg"></div>
       </div>
     </section>
+
+    <!-- BOOST -->
+    <section class="pane" data-pane="boost" style="display:none">
+      <div class="card">
+        <h3>Boost this event</h3>
+        <div class="note">Included promo ships free with your event. Paid boosts are handled by the KEEPITIL team and billed securely at checkout — <span id="boost-admin-note"></span></div>
+        <div id="boost-banner"></div>
+        <div id="boost-body"><div class="hint">Loading services…</div></div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -149,6 +180,7 @@ function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 var MY_HANDLE=null, EV=null, HOOK='';
 var slug=new URLSearchParams(location.search).get('e')||'';
+var IS_ADMIN=false, BOOST_LOADED=false, PROMO_ORDERS={};
 
 // tabs
 document.querySelectorAll('.tab').forEach(function(t){
@@ -157,6 +189,7 @@ document.querySelectorAll('.tab').forEach(function(t){
     t.classList.add('on');
     var k=t.getAttribute('data-tab');
     document.querySelectorAll('.pane').forEach(function(p){ p.style.display = p.getAttribute('data-pane')===k?'block':'none'; });
+    if(k==='boost' && !BOOST_LOADED){ BOOST_LOADED=true; loadBoost(); }
   });
 });
 
@@ -184,6 +217,7 @@ async function init(){
   zapNote($('em-zap')); zapNote($('so-zap')); setSendGate($('em-send')); setSendGate($('so-send'));
   $('app').style.display='block';
   loadAnnouncements(); loadCodes();
+  if(new URLSearchParams(location.search).get('promo')){ var bt=document.querySelector('.tab[data-tab="boost"]'); if(bt) bt.click(); }
 }
 
 async function postZap(payload){
@@ -285,9 +319,74 @@ $('so-send').addEventListener('click',async function(){
   b.disabled=false;
 });
 
+// ===== BOOST / promo services =====
+function money2(c){return '$'+((c||0)/100).toLocaleString(undefined,{minimumFractionDigits:(c%100?2:0),maximumFractionDigits:2});}
+
+async function loadBoost(){
+  try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
+  try{ var o=await supa.rpc('get_promo_orders',{p_slug:EV.slug}); (o.data||[]).forEach(function(r){ if(!PROMO_ORDERS[r.service_key]||r.status==='paid'||r.status==='fulfilled') PROMO_ORDERS[r.service_key]=r.status; }); }catch(e){}
+  var s=await supa.rpc('get_promo_services');
+  renderBoost((s&&s.data)||[]);
+  var pm=new URLSearchParams(location.search).get('promo');
+  if(pm==='paid'){ $('boost-banner').innerHTML='<div class="promo-banner ok">✅ Payment received — the KEEPITIL team will set up your boost shortly.</div>'; }
+  else if(pm==='cancel'){ $('boost-banner').innerHTML='<div class="promo-banner warn">Checkout canceled — no charge was made.</div>'; }
+}
+
+function svcCard(v){
+  var st=PROMO_ORDERS[v.key], right;
+  if(v.tier==='free'){
+    right = st ? '<span class="st on">Requested</span>'
+               : '<button class="go ghost" onclick="reqFree(\''+v.key+'\',this)">Request</button>';
+  } else {
+    var priceHtml = IS_ADMIN
+      ? '<div class="pedit"><span class="dol">$</span><input type="number" min="0" step="1" value="'+(v.price_cents/100)+'" id="pp-'+v.key+'"/><button onclick="savePrice(\''+v.key+'\',this)">Save</button></div>'
+      : '<div class="price">'+money2(v.price_cents)+'</div>';
+    var buyBtn = (st==='paid'||st==='fulfilled')
+      ? '<span class="st on">Active</span>'
+      : '<button class="go" onclick="buyPromo(\''+v.key+'\',this)">Purchase</button>';
+    right = priceHtml + buyBtn;
+  }
+  return '<div class="svc"><div class="info"><div class="nm">'+esc(v.name)+'</div><div class="ds">'+esc(v.description||'')+'</div></div><div class="act">'+right+'</div></div>';
+}
+
+function renderBoost(svcs){
+  var free=svcs.filter(function(v){return v.tier==='free';});
+  var paid=svcs.filter(function(v){return v.tier==='paid';});
+  var h='';
+  if(free.length){ h+='<div class="svc-group"><h4>✓ Included — free</h4>'+free.map(svcCard).join('')+'</div>'; }
+  if(paid.length){ h+='<div class="svc-group"><h4>⭐ Paid boosts'+(IS_ADMIN?' — edit a price and Save':'')+'</h4>'+paid.map(svcCard).join('')+'</div>'; }
+  $('boost-body').innerHTML=h||'<div class="hint">No services available yet.</div>';
+  $('boost-admin-note').textContent = IS_ADMIN?'you can edit prices below.':'each paid boost is billed to you securely.';
+}
+
+async function reqFree(key,btn){
+  btn.disabled=true; btn.textContent='…';
+  try{ var r=await supa.rpc('request_free_promo',{p_slug:EV.slug,p_service_key:key}); if(r.error) throw r.error; PROMO_ORDERS[key]='free_requested'; btn.outerHTML='<span class="st on">Requested</span>'; }
+  catch(e){ btn.disabled=false; btn.textContent='Request'; alert('Could not request: '+(e.message||e)); }
+}
+
+async function savePrice(key,btn){
+  var inp=$('pp-'+key); var cents=Math.round((parseFloat(inp.value||'0'))*100);
+  btn.disabled=true; var old=btn.textContent; btn.textContent='Saving…';
+  try{ var r=await supa.rpc('save_promo_service',{p_key:key,p_price_cents:cents}); if(r.error) throw r.error; btn.textContent='Saved ✓'; setTimeout(function(){btn.textContent=old;btn.disabled=false;},1400); }
+  catch(e){ btn.disabled=false; btn.textContent=old; alert('Could not save: '+(e.message||e)); }
+}
+
+async function buyPromo(key,btn){
+  btn.disabled=true; var old=btn.textContent; btn.textContent='Opening…';
+  try{
+    var sess=await supa.auth.getSession(); var tok=sess&&sess.data&&sess.data.session?sess.data.session.access_token:'';
+    var res=await fetch(SUPA_URL+'/functions/v1/create-promo-checkout',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'apikey':SUPA_KEY},body:JSON.stringify({event_slug:EV.slug,service_key:key})});
+    var j=await res.json();
+    if(j.url){ location.href=j.url; return; }
+    throw new Error(j.error||'checkout failed');
+  }catch(e){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout: '+(e.message||e)); }
+}
+
 init();
 </script>
-<script src="/v3/keepitil-radio.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
+<script src="/v3/keepitil-ai.js" defer></script>
 <script src="/v3/v3-shell.js" defer></script>
 </body>
 </html>
