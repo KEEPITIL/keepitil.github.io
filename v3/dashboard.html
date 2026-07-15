@@ -43,6 +43,23 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
 .gate,.empty{max-width:460px;margin:60px auto;text-align:center;background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:18px;padding:34px 28px}
 .gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}.gate p,.empty p{color:var(--muted);margin-bottom:18px}
 @media(max-width:560px){.summary{grid-template-columns:repeat(2,1fr)}.ev-cov{width:100%;flex:0 0 100%;height:140px}}
+/* admin review lanes */
+.head2{font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em;font-size:1.5rem;margin:34px 0 12px;display:flex;align-items:center;gap:10px}
+.head2 .ct{font-family:Inter;font-size:.66rem;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.rv{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.rv .info{flex:1;min-width:220px}
+.rv .t{font-weight:800;font-size:.98rem}
+.rv .d{color:var(--muted);font-size:.85rem;margin-top:3px;line-height:1.45}
+.rv .tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.rv .pill2{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+.rv .pill2.pub{color:#22e39b;border-color:rgba(34,227,155,.4)}
+.rv .pill2.den{color:#ff6b6b;border-color:rgba(255,107,107,.4)}
+.rv .acts{display:flex;gap:8px;align-items:center}
+.rv .acts button,.rv .acts a{font-size:.78rem;font-weight:800;padding:8px 14px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--text);font-family:inherit;text-decoration:none}
+.rv .acts .approve{border-color:#22e39b;color:#22e39b}
+.rv .acts .deny{border-color:#ff6b6b;color:#ff6b6b}
+.rv .acts .view{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.rv-empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
 </style>
 </head>
 <body>
@@ -59,6 +76,12 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
   <div id="app" style="display:none">
     <div class="summary" id="summary"></div>
     <div id="list"></div>
+  </div>
+  <div id="adminReview" style="display:none">
+    <div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div>
+    <div id="postReview"></div>
+    <div class="head2">Social Queue <span class="ct" id="socialCt"></span></div>
+    <div id="socialReview"></div>
   </div>
 </div>
 
@@ -117,6 +140,55 @@ async function load(){
   }catch(e){ $('list').innerHTML='<div class="empty"><h2>Couldn’t load</h2><p>Please refresh.</p></div>'; }
 }
 
+/* ===== Admin review lanes: AI-crew daily posts (pull) + social queue (approve→Zapier / deny) ===== */
+var ZAP_HOOK='';
+async function loadAdminReview(){
+  var isAdmin=false;
+  try{ var a=await supa.rpc('is_admin'); isAdmin=!!(a&&a.data); }catch(e){}
+  if(!isAdmin) return;
+  try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
+  $('adminReview').style.display='block';
+  loadPostReview(); loadSocialReview();
+}
+async function loadPostReview(){
+  var box=$('postReview');
+  try{
+    var r=await supa.rpc('get_agent_posts_admin',{p_limit:60}); var rows=(r&&r.data)||[];
+    $('postCt').textContent=rows.length+' total';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No daily posts yet. The crew publishes here automatically each day.</div>'; return; }
+    box.innerHTML=rows.map(function(p){
+      var pub=p.status==='published';
+      var act=pub?'<a class="view" href="/v3/post.html?slug='+encodeURIComponent(p.slug)+'" target="_blank">View</a><button class="deny" onclick="pullPost('+p.id+',this)">Deny / Pull</button>'
+                 :'<span class="pill2 den">Pulled</span><button class="approve" onclick="restorePost('+p.id+',this)">Restore</button>';
+      return '<div class="rv"><div class="info"><div class="t">'+esc(p.title)+'</div><div class="d">'+esc((p.dek||'').slice(0,160))+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'').toUpperCase())+'</span><span class="pill2 '+(pub?'pub':'den')+'">'+esc(p.status)+'</span>'+(p.genre?'<span class="pill2">'+esc(p.genre)+'</span>':'')+'</div></div><div class="acts">'+act+'</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load posts.</div>'; }
+}
+async function pullPost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not pull: '+(e.message||e)); } }
+async function restorePost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'published'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not restore: '+(e.message||e)); } }
+
+async function loadSocialReview(){
+  var box=$('socialReview');
+  try{
+    var r=await supa.rpc('get_social_posts_admin',{p_status:'draft',p_limit:80}); var rows=(r&&r.data)||[];
+    $('socialCt').textContent=rows.length+' awaiting approval';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No social drafts awaiting approval. The marketing agent queues platform-ready posts here.</div>'; return; }
+    box.innerHTML=rows.map(function(p){
+      return '<div class="rv"><div class="info"><div class="t">'+esc((p.platform||'').toUpperCase())+'</div><div class="d">'+esc(p.body)+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'agent').toUpperCase())+'</span>'+(p.link_url?'<span class="pill2">→ '+esc(p.link_url.replace(/^https?:\/\//,''))+'</span>':'')+'</div></div><div class="acts"><button class="approve" onclick="approveSocial('+p.id+',this)">Approve &amp; post</button><button class="deny" onclick="denySocial('+p.id+',this)">Deny</button></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load social queue.</div>'; }
+}
+async function approveSocial(id,btn){
+  if(btn){btn.disabled=true;btn.textContent='Posting…';}
+  try{
+    var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'approved'}); if(r.error)throw r.error;
+    var post=r.data;
+    if(ZAP_HOOK && post){ try{ await fetch(ZAP_HOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'social',platform:post.platform,body:post.body,media_url:post.media_url,link_url:post.link_url})}); await supa.rpc('set_social_post_status',{p_id:id,p_status:'posted'}); }catch(e){} }
+    loadSocialReview();
+  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve & post';} alert('Could not approve: '+(e.message||e)); }
+}
+async function denySocial(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadSocialReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not deny: '+(e.message||e)); } }
+
 async function init(){
   if(!supa){ $('gate').style.display='block'; return; }
   var b=$('loginBtn'); if(b) b.href='/v3/apply.html?stay=1&next='+encodeURIComponent(location.pathname);
@@ -124,6 +196,7 @@ async function init(){
   if(!(r&&r.data&&r.data.session)){ $('gate').style.display='block'; return; }
   $('app').style.display='block';
   load();
+  loadAdminReview();
 }
 init();
 </script>
