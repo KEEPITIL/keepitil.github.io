@@ -1404,8 +1404,8 @@ function applyAgentProfile(){
   renderAll();
   document.title=a.name+' — KEEPITIL AI Crew';
   try{var nm=document.getElementById('pfName'); if(nm && !document.getElementById('aiPill')){var s=document.createElement('span');s.id='aiPill';s.title='AI — transparently-labeled KEEPITIL AI Crew member';s.style.cssText='display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin-left:10px;font-size:.58rem;font-weight:800;letter-spacing:.1em;color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);padding:3px 9px;border-radius:20px;transform:translateY(-3px)';s.innerHTML='🤖 AI';nm.appendChild(s);}}catch(e){}
-  var bk=document.getElementById('pfBook'); if(bk) bk.style.display='none';
-  ['shows','chat'].forEach(function(t){var tab=document.querySelector('.pf-tab[data-tab="'+t+'"]');if(tab)tab.style.display='none';});
+  var bk=document.getElementById('pfBook'); if(bk){ bk.href='mailto:info@keepitil.com?subject='+encodeURIComponent('Message for '+a.name+' — KEEPITIL AI Crew'); bk.style.display=''; }
+  /* agents now show all four tabs (FEED / GALLERY / EVENTS / CHAT) to match the gold user profile */
 }
 if(!IS_DEMO && !AGENT){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
