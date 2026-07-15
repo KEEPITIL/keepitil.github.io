@@ -102,6 +102,20 @@
   #ev-feed .fwho{font-weight:800;font-size:.85rem;}
   #ev-feed .ftxt{color:#b6c2ce;font-size:.88rem;margin-top:3px;}
   .esec-empty{color:var(--grey);font-size:.88rem;}
+  /* ticket tiers (separate from info) */
+  .tiers2{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .tcard{background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;}
+  .tcard .tn{font-weight:800;font-size:1rem;color:#fff;}
+  .tcard .tpr{font-family:var(--head);font-size:1.5rem;letter-spacing:.02em;color:var(--green);margin:2px 0 8px;}
+  .tcard .tds{color:#b6c2ce;font-size:.86rem;line-height:1.5;margin-bottom:10px;flex:1;}
+  .tcard .tav{font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);margin-bottom:10px;}
+  .tcard .tav.low{color:var(--gold);}
+  .tcard .tav.open{color:var(--brand-2);}
+  .tcard .tbtn{width:100%;background:var(--green);color:#06120a;border:0;border-radius:10px;padding:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font:inherit;font-size:.76rem;}
+  .tcard .tbtn:disabled{opacity:.45;cursor:default;background:#2a2a38;color:#8a97a4;}
+  .tcard.free .tpr{color:var(--brand-2);}
+  .tix-terms{font-size:.72rem;color:var(--grey);margin-top:14px;}
+  .tix-terms a{color:var(--brand-2);}
 </style>
 </head>
 <body>
@@ -120,14 +134,14 @@
       <div class="meta" id="ev-venue"></div>
       <span class="genre" id="ev-genre" style="display:none;"></span>
       <p class="desc" id="ev-desc" style="display:none"></p>
-      <div class="tier-hd">Tickets</div>
       <div class="cta-row" id="ev-ctas"></div>
     </div>
   </div>
 
+  <section class="esec" id="sec-tickets" style="display:none"><div class="esec-h">Tickets</div><div id="ev-tickets" class="tiers2"></div><div class="tix-terms" id="tix-terms" style="display:none">By purchasing you agree to the <a href="/v3/ticket-terms.html">Ticket Terms</a> &amp; <a href="/v3/refund.html">Refund Policy</a>.</div></section>
   <section class="esec" id="sec-lineup" style="display:none"><div class="esec-h">Artist Lineup</div><div class="ecar" id="ev-lineup"></div></section>
   <section class="esec" id="sec-gallery" style="display:none"><div class="esec-h">Gallery</div><div class="ecar" id="ev-gallery"></div></section>
-  <section class="esec"><div class="esec-h">Feed <span class="esub">— posts that tagged this event</span></div><div id="ev-feed"></div></section>
+  <section class="esec" id="sec-feed"><div class="esec-h">Feed <span class="esub">— posts that tagged this event</span></div><div id="ev-feed"></div></section>
 </div>
 <footer>© 2026 KEEPITIL — OC · LA · San Diego events, artists &amp; culture. <a href="/v3/">keepitil.com</a></footer>
 <script>
@@ -141,6 +155,7 @@
   var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function fmt(d){ if(!d) return ''; var a=d.split('-'); if(a.length<3) return d; var dt=new Date(Date.UTC(+a[0],+a[1]-1,+a[2])); return DOW[dt.getUTCDay()]+', '+MON[+a[1]-1]+' '+(+a[2])+', '+a[0]; }
+  function fmtDT(ms){ if(!ms) return ''; var d=new Date(ms); var h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM'; h=h%12||12; return MON[d.getMonth()]+' '+d.getDate()+', '+h+(m?(':'+String(m).padStart(2,'0')):'')+' '+ap; }
   var ev={
     slug:g('e'), title:g('t')||'KEEPITIL Event', venue:g('v'), city:g('c'),
     date:g('d'), genre:g('g'), img:g('img'), ticket:g('tix'), price:g('pr'), vip:g('vip')==='1'
@@ -237,31 +252,40 @@
           ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genres||ev.genre;
           ev.img=x.cover_url||ev.img; ev.description=x.description||ev.description;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
+          ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false;
+          if(!ev.show_feed){ var sf=$('sec-feed'); if(sf) sf.style.display='none'; }
           paint(); loadExtras(sb);
           /* organizer on-site announcements (public read) */
           sb.from('event_announcements').select('title,body,active,created_at').eq('event_slug',ev.slug).eq('active',true).order('created_at',{ascending:false}).then(function(ar){
             if(ar&&ar.data&&ar.data.length){ var box=document.getElementById('ev-ann'); if(box){ box.innerHTML=ar.data.map(function(a){ return '<div class="ann">'+(a.title?'<div class="t">'+esc(a.title)+'</div>':'')+'<div class="b">'+esc(a.body)+'</div></div>'; }).join(''); } }
           }).catch(function(){});
-          /* render ticket tiers (each with its Stripe Payment Link) before the Scene Room CTA */
+          /* render ticket tiers in a SEPARATE Tickets section — name, description, availability, sales window, buy */
           sb.from('ticket_tiers').select('*').eq('event_id',x.id).order('sort').then(function(tr){
             if(tr&&tr.data&&tr.data.length){
-              var box=$('ev-ctas'), pre='';
-              tr.data.forEach(function(t){
-                var pl = t.price_cents>0 ? ('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,'')) : 'Free';
-                var base='<button class="cta cta-tix" style="border:0;cursor:pointer;font:inherit" data-tname="'+esc(t.name)+'" data-event-slug="'+esc(ev.slug)+'"';
-                if(t.price_cents>0){
-                  if(t.stripe_payment_link){ /* direct Stripe Payment Link — works with no backend (resilient to Edge Function outages) */
-                    pre+=base+' data-kt="ticket_click" data-buy="'+esc(t.stripe_payment_link)+'">🎟 '+esc(t.name)+' — '+pl+'</button>';
-                  } else { /* KEEPITIL Connect checkout (auto 5% + $0.99 fee split via create-checkout) */
-                    pre+=base+' data-kt="ticket_click" data-tier="'+t.id+'">🎟 '+esc(t.name)+' — '+pl+'</button>';
-                  }
-                }
-                else { pre+=base+' data-kt="rsvp" data-free="1">🎟 '+esc(t.name)+' — RSVP Free</button>'; }
-              });
-              if(tr.data.some(function(t){return t.price_cents>0;})) pre+='<div style="font-size:.72rem;opacity:.6;margin:8px 0 0;flex-basis:100%">By purchasing you agree to the <a href="/v3/ticket-terms.html" style="color:var(--brand-2)">Ticket Terms</a> &amp; <a href="/v3/refund.html" style="color:var(--brand-2)">Refund Policy</a>.</div>';
-              box.innerHTML = pre + box.innerHTML;
+              var sec=$('sec-tickets'), box=$('ev-tickets'); if(!sec||!box) return;
+              var now=Date.now(), anyPaid=tr.data.some(function(t){return t.price_cents>0;});
+              box.innerHTML=tr.data.map(function(t){
+                var free=!(t.price_cents>0);
+                var pl=free?'Free':('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,''));
+                var ss=t.sales_start?Date.parse(t.sales_start):null, se=t.sales_end?Date.parse(t.sales_end):null;
+                var remaining=(t.qty_total!=null)?(t.qty_total-(t.qty_sold||0)):null;
+                var avTxt='', avCls='open', dis=false, btnTxt=free?'RSVP Free':'Buy — '+pl;
+                if(ss&&now<ss){ dis=true; avTxt='Sales start '+fmtDT(ss); avCls=''; btnTxt='Not yet on sale'; }
+                else if(se&&now>se){ dis=true; avTxt='Sales ended'; avCls=''; btnTxt='Sales closed'; }
+                else if(remaining!=null&&remaining<=0){ dis=true; avTxt='Sold out'; avCls=''; btnTxt='Sold out'; }
+                else { if(remaining!=null){ avTxt=(remaining<=10?('Only '+remaining+' left'):(remaining+' available')); avCls=remaining<=10?'low':'open'; } else { avTxt='On sale now'; } if(se) avTxt+=' · ends '+fmtDT(se); }
+                var da='';
+                if(!dis){ if(free) da='data-free="1"'; else if(t.stripe_payment_link) da='data-kt="ticket_click" data-buy="'+esc(t.stripe_payment_link)+'"'; else da='data-kt="ticket_click" data-tier="'+t.id+'"'; }
+                return '<div class="tcard'+(free?' free':'')+'"><div class="tn">'+esc(t.name)+'</div><div class="tpr">'+pl+'</div>'+
+                  '<div class="tds">'+(t.description?esc(t.description):'')+'</div>'+
+                  '<div class="tav '+avCls+'">'+esc(avTxt)+'</div>'+
+                  '<button class="tbtn cta-tix" data-tname="'+esc(t.name)+'" data-event-slug="'+esc(ev.slug)+'" '+da+(dis?' disabled':'')+'>'+esc(btnTxt)+'</button></div>';
+              }).join('');
+              sec.style.display=''; if(anyPaid){ var tt=$('tix-terms'); if(tt) tt.style.display=''; }
+              /* DB tiers are authoritative — drop the generic URL Buy/VIP from the info card, keep Join Scene Room */
+              var ctas=$('ev-ctas'); if(ctas){ ctas.querySelectorAll('.cta-tix,.cta-vip').forEach(function(a){ if(!a.classList.contains('tbtn')) a.remove(); }); }
               /* every ticket/RSVP button first captures attendee data (name + email + custom questions), then proceeds to checkout / confirms RSVP */
-              box.querySelectorAll('.cta-tix[data-tier],.cta-tix[data-buy],.cta-tix[data-free]').forEach(function(btn){
+              box.querySelectorAll('.tbtn[data-tier],.tbtn[data-buy],.tbtn[data-free]').forEach(function(btn){
                 btn.addEventListener('click', async function(){
                   /* require an account to get a ticket — tickets live in the buyer's KEEPITIL account (My Tickets) */
                   var sr=await sb.auth.getSession().catch(function(){return null;});
@@ -297,6 +321,7 @@
   }catch(e){}
   function loadExtras(sb){
     var slug=ev.slug; if(!slug||!sb) return;
+    if(ev.show_lineup!==false)
     sb.rpc('get_event_lineup',{p_slug:slug}).then(function(r){
       var rows=(r&&r.data)||[]; if(!rows.length) return; var box=$('ev-lineup'); if(!box) return;
       box.innerHTML=rows.map(function(a){
@@ -308,6 +333,7 @@
       }).join('');
       $('sec-lineup').style.display='';
     }).catch(function(){});
+    if(ev.show_gallery!==false)
     sb.rpc('get_event_media',{p_slug:slug,p_kind:'image',p_limit:10}).then(function(r){
       var rows=(r&&r.data)||[]; if(!rows.length) return; var box=$('ev-gallery'); if(!box) return;
       box.innerHTML=rows.slice(0,10).map(function(m){ return '<div class="gcard2"><img src="'+esc(m.media_url)+'" alt="" onerror="this.parentNode.style.display=\'none\'"></div>'; }).join('');
