@@ -120,6 +120,14 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
     </div>
 
     <div class="card">
+      <h3>Event page sections</h3>
+      <div class="note">Choose which extra sections show on your live event page. Turn off any you’re not using.</div>
+      <label class="secrow" style="display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600;cursor:pointer"><input type="checkbox" id="show_lineup" checked style="width:auto"/> Artist Lineup</label>
+      <label class="secrow" style="display:flex;align-items:center;gap:10px;margin-top:10px;font-weight:600;cursor:pointer"><input type="checkbox" id="show_gallery" checked style="width:auto"/> Image Gallery</label>
+      <label class="secrow" style="display:flex;align-items:center;gap:10px;margin-top:10px;font-weight:600;cursor:pointer"><input type="checkbox" id="show_feed" checked style="width:auto"/> Feed (posts tagged to this event)</label>
+    </div>
+
+    <div class="card">
       <h3>Attendee info to collect <span style="font-weight:600;color:var(--muted);font-size:.85rem">(optional)</span></h3>
       <div class="note">Name &amp; email are always captured at checkout. Add any extra questions each attendee should answer — age, guest name, Instagram handle, dietary needs, etc. Answers land in your event's attendee list.</div>
       <div id="qs"></div>
@@ -153,8 +161,13 @@ function tierHtml(i){
   return '<div class="tier" data-i="'+i+'">'+(i>0?'<button type="button" class="rm" title="Remove">✕</button>':'')+
     '<span class="tier-badge">Tier '+(i+1)+'</span>'+
     '<label>Name</label><input class="t-name" placeholder="General Admission"/>'+
-    '<div class="row"><div><label>Price (USD)</label><input class="t-price" type="number" min="0" step="1" placeholder="0"/></div>'+
-    '<div><label>Quantity</label><input class="t-qty" type="number" min="1" step="1" placeholder="Unlimited"/></div></div>'+
+    '<label>What this tier includes <span style="font-weight:600;color:var(--muted);font-size:.82rem">(optional)</span></label>'+
+    '<textarea class="t-desc" rows="2" placeholder="e.g. Early entry + drink token, or VIP table for 4…"></textarea>'+
+    '<div class="row"><div><label>Price (USD)</label><input class="t-price" type="number" min="0" step="1" placeholder="0 = free"/></div>'+
+    '<div><label>Quantity limit</label><input class="t-qty" type="number" min="1" step="1" placeholder="Unlimited"/></div></div>'+
+    '<div class="row"><div><label>Sales start <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="t-start" type="datetime-local"/></div>'+
+    '<div><label>Sales end <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="t-end" type="datetime-local"/></div></div>'+
+    '<div class="hint" style="margin-top:6px">Leave blank to sell right away until the event starts. Sales windows can’t run past the event’s date/time.</div>'+
     '</div>';
 }
 var tierCount=0;
@@ -180,9 +193,13 @@ async function prefillEdit(){
     var ev=d.ev||{}, tiers=d.tiers||[];
     $('title').value=ev.title||''; $('tagline').value=ev.tagline||''; $('description').value=ev.description||'';
     $('venue').value=ev.venue||''; $('city').value=ev.city||''; $('cover_url').value=ev.cover_url||''; $('genres').value=ev.genres||'';
-    if(ev.starts_at){ try{ var dt=new Date(ev.starts_at), p=function(n){return String(n).padStart(2,'0');}; $('starts_at').value=dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())+'T'+p(dt.getHours())+':'+p(dt.getMinutes()); }catch(e){} }
+    var toLocal=function(v){ if(!v) return ''; try{ var dt=new Date(v), p=function(n){return String(n).padStart(2,'0');}; return dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())+'T'+p(dt.getHours())+':'+p(dt.getMinutes()); }catch(e){ return ''; } };
+    if(ev.starts_at){ $('starts_at').value=toLocal(ev.starts_at); }
+    if(ev.show_lineup===false) $('show_lineup').checked=false;
+    if(ev.show_gallery===false) $('show_gallery').checked=false;
+    if(ev.show_feed===false) $('show_feed').checked=false;
     var tc=$('tiers'); tc.innerHTML=''; tierCount=0;
-    (tiers.length?tiers:[{}]).forEach(function(t){ addTier(); var rows=tc.querySelectorAll('.tier'); var row=rows[rows.length-1]; if(row){ if(t.name)row.querySelector('.t-name').value=t.name; if(t.price_cents!=null)row.querySelector('.t-price').value=(t.price_cents/100); if(t.qty_total!=null)row.querySelector('.t-qty').value=t.qty_total; } });
+    (tiers.length?tiers:[{}]).forEach(function(t){ addTier(); var rows=tc.querySelectorAll('.tier'); var row=rows[rows.length-1]; if(row){ if(t.name)row.querySelector('.t-name').value=t.name; if(t.description)row.querySelector('.t-desc').value=t.description; if(t.price_cents!=null)row.querySelector('.t-price').value=(t.price_cents/100); if(t.qty_total!=null)row.querySelector('.t-qty').value=t.qty_total; if(t.sales_start)row.querySelector('.t-start').value=toLocal(t.sales_start); if(t.sales_end)row.querySelector('.t-end').value=toLocal(t.sales_end); } });
     if(Array.isArray(ev.reg_questions)){ ev.reg_questions.forEach(function(q){ addQ(); var qs=document.querySelectorAll('#qs .tier'); var qr=qs[qs.length-1]; if(qr){ if(q.label)qr.querySelector('.q-label').value=q.label; qr.querySelector('.q-type').value=q.type||'text'; qr.querySelector('.q-req').value=q.required?'yes':'no'; } }); }
     var b=$('submitBtn'); if(b) b.textContent='Save changes';
     var hh=document.querySelector('h1'); if(hh) hh.textContent='Edit event';
@@ -229,23 +246,33 @@ $('form').addEventListener('submit',async function(e){
   if(!title){ msg.className='msg err'; msg.textContent='Add an event title.'; return; }
   var b=$('submitBtn'); b.disabled=true; b.textContent='Submitting…';
   try{
+    var evStartISO=$('starts_at').value?new Date($('starts_at').value).toISOString():null;
     var ev={ slug:slugify(title), owner_handle:MY_HANDLE, title:title, tagline:$('tagline').value.trim()||null,
       description:$('description').value.trim()||null, venue:$('venue').value.trim()||null, city:$('city').value.trim()||'Los Angeles',
-      starts_at:$('starts_at').value?new Date($('starts_at').value).toISOString():null, cover_url:$('cover_url').value.trim()||null,
-      genres:$('genres').value.trim()||null, status:'review' };
+      starts_at:evStartISO, cover_url:$('cover_url').value.trim()||null,
+      genres:$('genres').value.trim()||null,
+      show_lineup:$('show_lineup').checked, show_gallery:$('show_gallery').checked, show_feed:$('show_feed').checked,
+      status:'review' };
     var qs=[];
     document.querySelectorAll('#qs .tier').forEach(function(q){
       var lbl=(q.querySelector('.q-label').value||'').trim(); if(!lbl) return;
       qs.push({ label:lbl, type:q.querySelector('.q-type').value, required:q.querySelector('.q-req').value==='yes' });
     });
     if(qs.length) ev.reg_questions=qs;
-    var tiers=[];
+    var tiers=[], tierErr='';
     document.querySelectorAll('#tiers .tier').forEach(function(t){
       var name=(t.querySelector('.t-name').value||'General Admission').trim();
       var price=parseInt(t.querySelector('.t-price').value||'0',10)||0;
       var qty=t.querySelector('.t-qty').value?parseInt(t.querySelector('.t-qty').value,10):null;
-      tiers.push({name:name,price_cents:price*100,qty_total:qty});
+      var desc=(t.querySelector('.t-desc').value||'').trim()||null;
+      var sv=t.querySelector('.t-start').value, ev2=t.querySelector('.t-end').value;
+      var startISO=sv?new Date(sv).toISOString():null, endISO=ev2?new Date(ev2).toISOString():null;
+      if(startISO&&endISO&&startISO>=endISO) tierErr='Tier “'+name+'”: sales start must be before sales end.';
+      if(evStartISO&&endISO&&endISO>evStartISO) tierErr='Tier “'+name+'”: sales must end by the event’s start time.';
+      if(evStartISO&&startISO&&startISO>evStartISO) tierErr='Tier “'+name+'”: sales can’t start after the event.';
+      tiers.push({name:name,description:desc,price_cents:price*100,qty_total:qty,sales_start:startISO,sales_end:endISO});
     });
+    if(tierErr){ b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Submit event for review'; msg.className='msg err'; msg.textContent=tierErr; return; }
     // Event creation goes through a SECURITY DEFINER RPC (create_event_with_tiers)
     // which inserts the event + tiers server-side and forces status='review'.
     var newSlug;
