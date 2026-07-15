@@ -13,25 +13,25 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.5;padding:22px 0 40px}
-.tp{max-width:1120px;margin:0 auto;padding:0 16px}
+.tp{max-width:1000px;margin:0 auto;padding:0 16px}
 .loading{text-align:center;color:var(--muted);padding:60px 20px}
 .gate,.empty{max-width:460px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
 .gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}.gate p,.empty p{color:var(--muted);margin-bottom:18px}
 .btnp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;cursor:pointer;border:0;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
 .card{background:#000;border-radius:20px;padding:12px}
-.tp-head{display:grid;grid-template-columns:var(--lcol,33%) 1fr;gap:12px;margin-bottom:12px}
+.tp-head{display:grid;grid-template-columns:var(--lcol,30%) 1fr;gap:12px;margin-bottom:12px}
 .pill{display:flex;align-items:center;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:0}
 /* Profile back button — neon + transparent, like the LOGIN button; fills the flyer column */
 .backbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:transparent;border:1.5px solid var(--brand,#00b4ff);border-radius:12px;padding:12px 16px;color:var(--brand,#00b4ff);text-decoration:none;font-weight:800;font-size:.9rem;letter-spacing:.02em;white-space:nowrap}
 .backbtn:hover{background:color-mix(in srgb,var(--brand,#00b4ff) 12%,transparent)}
 /* Organizer button — neon-blue outline, display name only */
-.orgbar{width:100%;justify-content:center;gap:6px;background:transparent;border:1.5px solid var(--brand,#00b4ff);border-radius:12px;padding:12px 16px}
-.orgbar a,.orgbar span{color:var(--brand,#00b4ff);font-weight:800;text-decoration:none;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tp-body{display:grid;grid-template-columns:var(--lcol,34%) 1fr;gap:14px;align-items:stretch}
+.orgbar{width:100%;justify-content:center;gap:6px;background:transparent;border:1.5px solid var(--brand,#00b4ff);border-radius:12px;padding:12px 16px;text-align:center}
+.orgbar a,.orgbar span{color:var(--brand,#00b4ff);font-weight:800;text-decoration:none;font-size:.95rem;letter-spacing:.04em;text-transform:uppercase;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-body{display:grid;grid-template-columns:var(--lcol,30%) 1fr;gap:14px;align-items:start}
 .tp-col{display:flex;flex-direction:column;gap:14px;min-width:0}
 .flyer{aspect-ratio:9/16;width:100%;flex:0 0 auto;border-radius:14px;background:#0a0a12 center/cover no-repeat;border:1px solid var(--line)}
-.qrcard{flex:1 1 0;min-height:150px;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
-.qrcard img{width:100%;max-width:300px;background:#fff;border-radius:12px;padding:10px;display:block}
+.qrcard{flex:0 0 auto;width:100%;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px}
+.qrcard img{width:100%;max-width:none;aspect-ratio:1/1;background:#fff;border-radius:12px;padding:12px;display:block}
 .qrcard .cap{color:var(--muted);font-size:.7rem;margin-top:8px;font-weight:700;letter-spacing:.03em}
 .qrcard .tag{display:inline-block;margin-top:6px;font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
 .qrcard .tag.paid{background:rgba(34,227,155,.14);color:#22e39b;border:1px solid rgba(34,227,155,.4)}
@@ -120,7 +120,7 @@ var TIX=[], ACTIVE=0, BACK='/v3/';
 function render(){
   var x=TIX[ACTIVE]; if(!x) return; var e=x.row;
   var flyerBg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"')"):"";
-  var org = e.owner_handle ? ('<a href="/v3/u.html?slug='+enc(e.owner_handle)+'">'+esc(e.owner_name||('@'+e.owner_handle))+'</a>') : '<span>KEEPITIL Event</span>';
+  var org = e.owner_handle ? ('<a href="/v3/u.html?slug='+enc(e.owner_handle)+'">'+esc(e.owner_name||e.owner_handle)+'</a>') : '<span>KEEPITIL Event</span>';
   var used=!!e.checked_in_at;
   var price=e.price_cents!=null?('$'+(e.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
   var qr='https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data='+enc('KIL-'+(e.qr_token||e.order_id));
