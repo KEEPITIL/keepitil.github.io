@@ -194,7 +194,8 @@ function render(){
   try{ $('ldjson').textContent=JSON.stringify({"@context":"https://schema.org","@type":"EventVenue","name":V.name,"description":V.about||V.tagline,"address":V.address||V.city,"maximumAttendeeCapacity":V.capacity_summary,"image":V.cover_url||undefined,"url":'https://keepitil.com/v3/venue.html?v='+V.slug}); }catch(e){}
   $('vName').textContent=V.name;
   $('vTag').textContent=V.tagline||'';
-  $('vLoc').textContent=V.city?('📍 '+V.city):'';
+  var loc=V.address||V.city;
+  $('vLoc').innerHTML=loc?('📍 <a style="color:inherit;border-bottom:1px solid var(--line)" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(V.maps_query||loc)+'" target="_blank" rel="noopener">'+esc(loc)+' ↗</a>'):'';
   // quick answers (host? / cost? / book?)
   var rooms=V.rooms||[]; var lowest='';
   try{ var ps=[]; rooms.forEach(function(rm){(rm.pricing||[]).forEach(function(p){var n=parseInt(String(p.price).replace(/[^0-9]/g,''),10); if(n)ps.push(n);});}); if(ps.length)lowest='from $'+Math.min.apply(null,ps).toLocaleString(); }catch(e){}
