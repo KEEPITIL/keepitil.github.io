@@ -184,7 +184,7 @@ var V=null, SLUG='';
 async function load(){
   SLUG=new URLSearchParams(location.search).get('v')||new URLSearchParams(location.search).get('slug')||'';
   if(!SB||!SLUG){ $('loading').textContent='Venue not found.'; return; }
-  var r=await SB.rpc('get_venue',{p_slug:SLUG}).catch(function(){return null;});
+  var r=null; try{ r=await SB.rpc('get_venue',{p_slug:SLUG}); }catch(e){ r=null; }
   V=r&&r.data&&r.data[0];
   if(!V){ $('loading').textContent='This venue is not available.'; return; }
   render();
