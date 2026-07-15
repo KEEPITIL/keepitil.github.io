@@ -172,6 +172,22 @@ function addQ(){ var d=document.createElement('div'); d.innerHTML=qHtml(qCount);
 
 function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,60)+'-'+Math.random().toString(36).slice(2,6); }
 
+var EDIT_SLUG=new URLSearchParams(location.search).get('e')||'';
+async function prefillEdit(){
+  try{
+    var r=await supa.rpc('get_event_for_edit',{p_slug:EDIT_SLUG}); var d=r&&r.data; if(!d) return;
+    var ev=d.ev||{}, tiers=d.tiers||[];
+    $('title').value=ev.title||''; $('tagline').value=ev.tagline||''; $('description').value=ev.description||'';
+    $('venue').value=ev.venue||''; $('city').value=ev.city||''; $('cover_url').value=ev.cover_url||''; $('genres').value=ev.genres||'';
+    if(ev.starts_at){ try{ var dt=new Date(ev.starts_at), p=function(n){return String(n).padStart(2,'0');}; $('starts_at').value=dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())+'T'+p(dt.getHours())+':'+p(dt.getMinutes()); }catch(e){} }
+    var tc=$('tiers'); tc.innerHTML=''; tierCount=0;
+    (tiers.length?tiers:[{}]).forEach(function(t){ addTier(); var rows=tc.querySelectorAll('.tier'); var row=rows[rows.length-1]; if(row){ if(t.name)row.querySelector('.t-name').value=t.name; if(t.price_cents!=null)row.querySelector('.t-price').value=(t.price_cents/100); if(t.qty_total!=null)row.querySelector('.t-qty').value=t.qty_total; } });
+    if(Array.isArray(ev.reg_questions)){ ev.reg_questions.forEach(function(q){ addQ(); var qs=document.querySelectorAll('#qs .tier'); var qr=qs[qs.length-1]; if(qr){ if(q.label)qr.querySelector('.q-label').value=q.label; qr.querySelector('.q-type').value=q.type||'text'; qr.querySelector('.q-req').value=q.required?'yes':'no'; } }); }
+    var b=$('submitBtn'); if(b) b.textContent='Save changes';
+    var hh=document.querySelector('h1'); if(hh) hh.textContent='Edit event';
+  }catch(e){}
+}
+
 async function startPayouts(btn){
   try{
     if(btn){ btn.disabled=true; btn.textContent='Opening Stripe…'; }
@@ -199,6 +215,7 @@ async function init(){
   try{ if(uid && new URLSearchParams(location.search).get('payouts')==='done' && !payok){ await supa.rpc('mark_payouts_enabled'); payok=true; } }catch(e){}
   $('form').style.display='block'; addTier();
   payoutsPanel(payok);
+  if(EDIT_SLUG){ await prefillEdit(); }
 }
 
 $('addtier').addEventListener('click',addTier);
@@ -230,9 +247,16 @@ $('form').addEventListener('submit',async function(e){
     });
     // Event creation goes through a SECURITY DEFINER RPC (create_event_with_tiers)
     // which inserts the event + tiers server-side and forces status='review'.
-    var rc=await supa.rpc('create_event_with_tiers',{ ev:ev, tiers:tiers });
-    if(rc.error) throw rc.error;
-    var res=rc.data||{}; var newSlug=res.slug||ev.slug;
+    var newSlug;
+    if(EDIT_SLUG){
+      var ru=await supa.rpc('update_event',{ p_slug:EDIT_SLUG, ev:ev, tiers:tiers });
+      if(ru.error) throw ru.error; var du=ru.data||{}; if(du.error) throw new Error(du.error);
+      newSlug=EDIT_SLUG;
+    } else {
+      var rc=await supa.rpc('create_event_with_tiers',{ ev:ev, tiers:tiers });
+      if(rc.error) throw rc.error;
+      var res=rc.data||{}; newSlug=res.slug||ev.slug;
+    }
     var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(newSlug);
     $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
