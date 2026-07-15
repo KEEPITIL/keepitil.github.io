@@ -238,7 +238,7 @@ function render(){
   var g=V.gallery||[];
   if(g.length){ $('vGallery').innerHTML=g.map(function(u){return '<img src="'+esc(u)+'" alt="'+esc(V.name)+'" onerror="this.style.display=\'none\'">';}).join(''); }
   else if(soc.instagram||soc.tiktok){
-    $('vGallery').innerHTML='<div class="ph" style="grid-column:1/-1;padding:22px">See photos &amp; videos on '+(soc.instagram?'<a style="color:var(--brand)" href="'+esc(soc.instagram)+'" target="_blank" rel="noopener">Instagram</a>':'')+(soc.instagram&&soc.tiktok?' · ':'')+(soc.tiktok?'<a style="color:var(--brand)" href="'+esc(soc.tiktok)+'" target="_blank" rel="noopener">TikTok</a>':'')+'</div>';
+    $('vGallery').innerHTML='<div class="ph" style="grid-column:1/-1;aspect-ratio:auto;min-height:0;padding:24px">See photos &amp; videos on '+(soc.instagram?'<a style="color:var(--brand)" href="'+esc(soc.instagram)+'" target="_blank" rel="noopener">Instagram</a>':'')+(soc.instagram&&soc.tiktok?' · ':'')+(soc.tiktok?'<a style="color:var(--brand)" href="'+esc(soc.tiktok)+'" target="_blank" rel="noopener">TikTok</a>':'')+'</div>';
   } else { $('vGallery').innerHTML='<div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div>'; }
   // faq
   $('vFaq').innerHTML=(V.faqs||[]).map(function(f,i){return '<div class="faq" onclick="this.classList.toggle(\'open\')"><div class="fq"><span>'+esc(f.q)+'</span><span>+</span></div><div class="fa">'+esc(f.a)+'</div></div>';}).join('')||'No FAQs yet.';
