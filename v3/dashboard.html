@@ -78,6 +78,8 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <div id="list"></div>
   </div>
   <div id="adminReview" style="display:none">
+    <div class="head2">Agent Activity <span class="ct" id="actCt"></span></div>
+    <div id="actFeed"></div>
     <div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div>
     <div id="postReview"></div>
     <div class="head2">Social Queue <span class="ct" id="socialCt"></span></div>
@@ -152,7 +154,20 @@ async function loadAdminReview(){
   if(!isAdmin) return;
   try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
   $('adminReview').style.display='block';
-  loadPostReview(); loadSocialReview(); loadBookingReview();
+  loadActivity(); loadPostReview(); loadSocialReview(); loadBookingReview();
+}
+async function loadActivity(){
+  var box=$('actFeed');
+  try{
+    var r=await supa.rpc('get_agent_activity',{p_limit:40}); var rows=(r&&r.data)||[];
+    $('actCt').textContent=rows.length+' recent';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No agent activity yet — agents post their runs and messages here.</div>'; return; }
+    box.innerHTML=rows.map(function(a){
+      var when=''; try{ when=new Date(a.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }catch(e){}
+      var link=a.link?'<a class="view" href="'+esc(a.link)+'" target="_blank" style="font-size:.78rem;font-weight:800;padding:8px 14px;border-radius:9px;border:1px solid var(--brand,#00b4ff);color:var(--brand,#00b4ff);text-decoration:none">Open</a>':'';
+      return '<div class="rv"><div class="info"><div class="t">'+esc(a.title)+'</div><div class="d">'+(a.body?esc(a.body):'')+'<div class="tags"><span class="pill2">'+esc((a.agent_slug||'crew').toUpperCase())+'</span><span class="pill2">'+esc(a.kind)+'</span><span class="pill2">'+esc(when)+'</span></div></div></div><div class="acts">'+link+'</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load activity.</div>'; }
 }
 var BK_STAGES=['new','contacted','tour','quoted','deposit_pending','booked','declined'];
 async function loadBookingReview(){
