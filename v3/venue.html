@@ -30,6 +30,9 @@ a{color:inherit;text-decoration:none}
 .v-name{font-family:'Bebas Neue',Inter,sans-serif;font-size:clamp(2.4rem,7vw,4rem);line-height:.95;letter-spacing:.02em}
 .v-tag{color:var(--muted);font-size:1.05rem;margin-top:6px;max-width:620px}
 .v-loc{color:var(--muted);font-size:.9rem;margin-top:8px}
+.v-social{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.v-social a{display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+.v-social a:hover{border-color:var(--brand);color:var(--brand)}
 .v-cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;cursor:pointer;border:1.5px solid var(--line);background:transparent;color:var(--text);font-family:inherit;font-size:.95rem}
 .btn.prim{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border:0}
@@ -107,6 +110,7 @@ textarea{min-height:90px;resize:vertical}
         <button class="btn prim" onclick="scrollToBook()">Request booking</button>
         <button class="btn neon" onclick="scrollToAsk()">Ask the venue</button>
       </div>
+      <div class="v-social" id="vSocial"></div>
     </div>
 
     <div class="quick" id="vQuick"></div>
@@ -216,12 +220,26 @@ function render(){
   // booking room options
   $('bRoom').innerHTML='<option value="">Any / not sure</option>'+rooms.map(function(rm){return '<option>'+esc(rm.name)+'</option>';}).join('');
   $('bNote').textContent=V.booking_note||'';
-  // services static. reviews
+  // socials
+  var soc=V.socials||{};
+  var sl=[];
+  if(soc.instagram)sl.push('<a href="'+esc(soc.instagram)+'" target="_blank" rel="noopener">Instagram ↗</a>');
+  if(soc.tiktok)sl.push('<a href="'+esc(soc.tiktok)+'" target="_blank" rel="noopener">TikTok ↗</a>');
+  if(soc.yelp)sl.push('<a href="'+esc(soc.yelp)+'" target="_blank" rel="noopener">Yelp ↗</a>');
+  if(soc.website)sl.push('<a href="'+esc(soc.website)+'" target="_blank" rel="noopener">Website ↗</a>');
+  $('vSocial').innerHTML=sl.join('');
+  // reviews (only show rating/count if present)
   var rev=V.reviews||{};
-  $('vReviews').innerHTML= rev && rev.source ? ('<b>'+esc(rev.source)+'</b> · '+esc(rev.rating||'')+' ('+esc(rev.count||0)+' reviews)<div style="margin-top:6px">'+esc(rev.note||'')+'</div>'+(rev.url?'<div style="margin-top:8px"><a style="color:var(--brand)" href="'+esc(rev.url)+'" target="_blank" rel="noopener nofollow">View on '+esc(rev.source)+' ↗</a></div>':'')) : esc((rev&&rev.note)||'No reviews yet.');
-  // gallery
+  if(rev && rev.source){
+    var rc=(rev.rating||rev.count)?(' · '+esc(rev.rating||'')+(rev.count?(' ('+esc(rev.count)+' reviews)'):'')):'';
+    $('vReviews').innerHTML='<b>'+esc(rev.source)+'</b>'+rc+(rev.note?('<div style="margin-top:6px">'+esc(rev.note)+'</div>'):'')+(rev.url?('<div style="margin-top:8px"><a style="color:var(--brand)" href="'+esc(rev.url)+'" target="_blank" rel="noopener nofollow">View on '+esc(rev.source)+' ↗</a></div>'):'');
+  } else { $('vReviews').innerHTML=esc((rev&&rev.note)||'No reviews yet.'); }
+  // gallery — real photos, else point to their socials
   var g=V.gallery||[];
-  $('vGallery').innerHTML= g.length ? g.map(function(u){return '<img src="'+esc(u)+'" alt="'+esc(V.name)+'" onerror="this.style.display=\'none\'">';}).join('') : '<div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div>';
+  if(g.length){ $('vGallery').innerHTML=g.map(function(u){return '<img src="'+esc(u)+'" alt="'+esc(V.name)+'" onerror="this.style.display=\'none\'">';}).join(''); }
+  else if(soc.instagram||soc.tiktok){
+    $('vGallery').innerHTML='<div class="ph" style="grid-column:1/-1;padding:22px">See photos &amp; videos on '+(soc.instagram?'<a style="color:var(--brand)" href="'+esc(soc.instagram)+'" target="_blank" rel="noopener">Instagram</a>':'')+(soc.instagram&&soc.tiktok?' · ':'')+(soc.tiktok?'<a style="color:var(--brand)" href="'+esc(soc.tiktok)+'" target="_blank" rel="noopener">TikTok</a>':'')+'</div>';
+  } else { $('vGallery').innerHTML='<div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div>'; }
   // faq
   $('vFaq').innerHTML=(V.faqs||[]).map(function(f,i){return '<div class="faq" onclick="this.classList.toggle(\'open\')"><div class="fq"><span>'+esc(f.q)+'</span><span>+</span></div><div class="fa">'+esc(f.a)+'</div></div>';}).join('')||'No FAQs yet.';
   // ask
