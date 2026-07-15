@@ -114,8 +114,54 @@
   .tcard .tbtn{width:100%;background:var(--green);color:#06120a;border:0;border-radius:10px;padding:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font:inherit;font-size:.76rem;}
   .tcard .tbtn:disabled{opacity:.45;cursor:default;background:#2a2a38;color:#8a97a4;}
   .tcard.free .tpr{color:var(--brand-2);}
-  .tix-terms{font-size:.72rem;color:var(--grey);margin-top:14px;}
+  .tix-terms{font-size:.72rem;color:var(--grey);margin-top:12px;}
   .tix-terms a{color:var(--brand-2);}
+  /* ── event card mirrors the ticket page ── */
+  .evcard{background:#000;border-radius:20px;padding:12px;}
+  .tp-head{display:grid;grid-template-columns:var(--lcol,32%) 1fr;gap:14px;margin-bottom:14px;}
+  .backbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;background:transparent;border:1.5px solid var(--brand-2,#00b4ff);border-radius:12px;padding:12px 16px;color:var(--brand-2,#00b4ff);text-decoration:none;font-weight:800;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;cursor:pointer;}
+  .backbtn:hover{background:color-mix(in srgb,var(--brand-2,#00b4ff) 12%,transparent);}
+  .orgbar{display:flex;width:100%;justify-content:center;align-items:center;gap:6px;background:transparent;border:1.5px solid var(--brand-2,#00b4ff);border-radius:12px;padding:12px 16px;}
+  .orgbar a,.orgbar span{color:var(--brand-2,#00b4ff);font-weight:800;text-decoration:none;font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tp-body{display:grid;grid-template-columns:var(--lcol,32%) 1fr;gap:14px;align-items:stretch;}
+  .tp-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .evcard .flyer{aspect-ratio:9/16;width:100%;border-radius:14px;}
+  .evcard .infocard{flex:0 0 auto;}
+  .tixcard{flex:0 0 auto;background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;}
+  .tixhd{font-family:var(--head);font-size:1.15rem;letter-spacing:.04em;margin-bottom:11px;}
+  .tixrows{display:flex;flex-direction:column;gap:9px;max-height:320px;overflow-y:auto;scrollbar-width:thin;padding-right:2px;}
+  .tixrows::-webkit-scrollbar{width:8px;}
+  .tixrows::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px;}
+  .tixrow{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:11px 13px;transition:border-color .2s,background .2s;}
+  .tixrow:hover{border-color:var(--brand-2);background:rgba(0,180,255,.05);}
+  .trtop{display:flex;align-items:center;gap:10px;}
+  .trname{font-weight:800;font-size:.95rem;color:#fff;flex:1;min-width:0;}
+  .trav.inline{font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--brand-2);white-space:nowrap;}
+  .trav.inline.low{color:var(--gold);}
+  .trprice{font-family:var(--head);font-size:1.2rem;color:var(--green);}
+  .tixrow.free .trprice{color:var(--brand-2);}
+  .trmore{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .tixrow:hover .trmore{max-height:140px;}
+  .trdesc{color:#b6c2ce;font-size:.83rem;line-height:1.45;margin-top:8px;}
+  .trav.rev{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);margin-top:6px;}
+  .trstatus{font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--grey);white-space:nowrap;}
+  .trctl{display:flex;align-items:center;gap:9px;margin-top:10px;}
+  .stp{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);border-radius:9px;overflow:hidden;flex:0 0 auto;}
+  .stp button{background:transparent;border:0;color:#fff;width:34px;height:34px;font-size:1.25rem;cursor:pointer;line-height:1;}
+  .stp button:disabled{opacity:.3;cursor:default;}
+  .stp .num{min-width:30px;text-align:center;font-weight:800;font-size:.98rem;}
+  .trbuy{flex:1;background:var(--green);color:#06120a;border:0;border-radius:9px;padding:10px 12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:.72rem;cursor:pointer;}
+  .trbuy:disabled{opacity:.4;cursor:default;background:#2a2a38;color:#8a97a4;}
+  .chatcard{flex:1 1 0;min-height:320px;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;background:#0a0a12;display:flex;}
+  .chatcard iframe{flex:1;width:100%;border:0;display:block;}
+  .open-chat{display:none;}
+  @media(max-width:760px){
+    .tp-head{grid-template-columns:1fr;}
+    .tp-body{grid-template-columns:1fr;}
+    .evcard .flyer{max-width:340px;margin:0 auto;}
+    .chatcard{display:none;}
+    .open-chat{display:flex;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2);font-weight:800;cursor:pointer;align-items:center;justify-content:center;gap:8px;font:inherit;}
+  }
 </style>
 </head>
 <body>
@@ -123,22 +169,35 @@
 <div class="wrap">
   <div class="crumbs"><a href="/v3/">Home</a> › <a href="/v3/">Events</a> › <span id="cr-title">Event</span></div>
   <div id="ev-ann"></div>
-  <div class="ev">
-    <div class="ev-left">
-      <div class="flyer" id="ev-flyer"></div>
-      <div class="ev-qr" id="ev-qr" style="display:none"></div>
+  <div class="card evcard">
+    <div class="tp-head">
+      <a class="backbtn" id="ev-back2" href="/v3/">&larr; EVENTS</a>
+      <div class="orgbar" id="ev-host"><span>Host</span></div>
     </div>
-    <div class="infocard">
-      <h1 id="ev-title">Event</h1>
-      <div class="meta" id="ev-date"></div>
-      <div class="meta" id="ev-venue"></div>
-      <span class="genre" id="ev-genre" style="display:none;"></span>
-      <p class="desc" id="ev-desc" style="display:none"></p>
-      <div class="cta-row" id="ev-ctas"></div>
+    <div class="tp-body">
+      <div class="tp-col">
+        <div class="flyer" id="ev-flyer"></div>
+        <div class="ev-qr" id="ev-qr" style="display:none"></div>
+      </div>
+      <div class="tp-col">
+        <div class="infocard">
+          <h1 id="ev-title">Event</h1>
+          <div class="meta" id="ev-date"></div>
+          <div class="meta" id="ev-venue"></div>
+          <span class="genre" id="ev-genre" style="display:none;"></span>
+          <p class="desc" id="ev-desc" style="display:none"></p>
+        </div>
+        <div class="tixcard" id="sec-tickets" style="display:none">
+          <div class="tixhd">Tickets</div>
+          <div class="tixrows" id="ev-tickets"></div>
+          <div class="tix-terms" id="tix-terms" style="display:none">By purchasing you agree to the <a href="/v3/ticket-terms.html">Ticket Terms</a> &amp; <a href="/v3/refund.html">Refund Policy</a>.</div>
+        </div>
+        <div class="chatcard"><iframe id="ev-chat-frame" loading="lazy" title="Event chat" src="about:blank"></iframe></div>
+        <button class="open-chat" id="ev-openchat" type="button">💬 Open Event Chat</button>
+      </div>
     </div>
   </div>
-
-  <section class="esec" id="sec-tickets" style="display:none"><div class="esec-h">Tickets</div><div id="ev-tickets" class="tiers2"></div><div class="tix-terms" id="tix-terms" style="display:none">By purchasing you agree to the <a href="/v3/ticket-terms.html">Ticket Terms</a> &amp; <a href="/v3/refund.html">Refund Policy</a>.</div></section>
+  <div id="ev-ctas" style="display:none"></div>
   <section class="esec" id="sec-lineup" style="display:none"><div class="esec-h">Artist Lineup</div><div class="ecar" id="ev-lineup"></div></section>
   <section class="esec" id="sec-gallery" style="display:none"><div class="esec-h">Gallery</div><div class="ecar" id="ev-gallery"></div></section>
   <section class="esec" id="sec-feed"><div class="esec-h">Feed <span class="esub">— posts that tagged this event</span></div><div id="ev-feed"></div></section>
@@ -188,6 +247,11 @@
     if(ev.vip && ev.ticket) c+='<a class="cta cta-vip" data-kt="vip_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>';
     c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
     $('ev-ctas').innerHTML=c;
+    /* embedded chat section (bottom of the card) + mobile open-chat */
+    var _cf=$('ev-chat-frame'); if(_cf && (_cf.getAttribute('src')||'')==='about:blank'){ _cf.src='/v3/event-chat.html?embed=1&e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title); }
+    var _oc=$('ev-openchat'); if(_oc && !_oc._wired){ _oc._wired=1; _oc.addEventListener('click',function(){ location.href='/v3/event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title); }); }
+    /* EVENTS back → return to the exact flyer they came from (same-origin), else the homepage */
+    var _bk=$('ev-back2'); if(_bk && !_bk._wired){ _bk._wired=1; var _so=false; try{ var _u=new URL(document.referrer); _so=(_u.origin===location.origin && _u.pathname!==location.pathname); }catch(_e){} if(_so){ _bk.addEventListener('click',function(e2){ e2.preventDefault(); history.back(); }); } else { _bk.setAttribute('href','/v3/'); } }
     // JSON-LD
     var ld={"@context":"https://schema.org","@type":"MusicEvent","name":ev.title,"url":canon,"eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode"};
     if(ev.date) ld.startDate=ev.date+"T20:00:00-07:00";
@@ -254,66 +318,86 @@
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false;
           if(!ev.show_feed){ var sf=$('sec-feed'); if(sf) sf.style.display='none'; }
+          /* HOST button */
+          var _hb=$('ev-host'); if(_hb && x.owner_handle){ _hb.innerHTML='<a href="/v3/u.html?slug='+encodeURIComponent(x.owner_handle)+'">'+esc(x.owner_name||x.owner_handle)+'</a>'; }
           paint(); loadExtras(sb);
           /* organizer on-site announcements (public read) */
           sb.from('event_announcements').select('title,body,active,created_at').eq('event_slug',ev.slug).eq('active',true).order('created_at',{ascending:false}).then(function(ar){
             if(ar&&ar.data&&ar.data.length){ var box=document.getElementById('ev-ann'); if(box){ box.innerHTML=ar.data.map(function(a){ return '<div class="ann">'+(a.title?'<div class="t">'+esc(a.title)+'</div>':'')+'<div class="b">'+esc(a.body)+'</div></div>'; }).join(''); } }
           }).catch(function(){});
-          /* render ticket tiers in a SEPARATE Tickets section — name, description, availability, sales window, buy */
+          /* render ticket tiers as scrollable rows INSIDE the event card — name + price, hover reveals description + availability, − 0 + stepper, buy */
           sb.from('ticket_tiers').select('*').eq('event_id',x.id).order('sort').then(function(tr){
-            if(tr&&tr.data&&tr.data.length){
-              var sec=$('sec-tickets'), box=$('ev-tickets'); if(!sec||!box) return;
-              var now=Date.now(), anyPaid=tr.data.some(function(t){return t.price_cents>0;});
-              box.innerHTML=tr.data.map(function(t){
-                var free=!(t.price_cents>0);
-                var pl=free?'Free':('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,''));
-                var ss=t.sales_start?Date.parse(t.sales_start):null, se=t.sales_end?Date.parse(t.sales_end):null;
-                var remaining=(t.qty_total!=null)?(t.qty_total-(t.qty_sold||0)):null;
-                var avTxt='', avCls='open', dis=false, btnTxt=free?'RSVP Free':'Buy — '+pl;
-                if(ss&&now<ss){ dis=true; avTxt='Sales start '+fmtDT(ss); avCls=''; btnTxt='Not yet on sale'; }
-                else if(se&&now>se){ dis=true; avTxt='Sales ended'; avCls=''; btnTxt='Sales closed'; }
-                else if(remaining!=null&&remaining<=0){ dis=true; avTxt='Sold out'; avCls=''; btnTxt='Sold out'; }
-                else { if(remaining!=null){ avTxt=(remaining<=10?('Only '+remaining+' left'):(remaining+' available')); avCls=remaining<=10?'low':'open'; } else { avTxt='On sale now'; } if(se) avTxt+=' · ends '+fmtDT(se); }
-                var da='';
-                if(!dis){ if(free) da='data-free="1"'; else if(t.stripe_payment_link) da='data-kt="ticket_click" data-buy="'+esc(t.stripe_payment_link)+'"'; else da='data-kt="ticket_click" data-tier="'+t.id+'"'; }
-                return '<div class="tcard'+(free?' free':'')+'"><div class="tn">'+esc(t.name)+'</div><div class="tpr">'+pl+'</div>'+
-                  '<div class="tds">'+(t.description?esc(t.description):'')+'</div>'+
-                  '<div class="tav '+avCls+'">'+esc(avTxt)+'</div>'+
-                  '<button class="tbtn cta-tix" data-tname="'+esc(t.name)+'" data-event-slug="'+esc(ev.slug)+'" '+da+(dis?' disabled':'')+'>'+esc(btnTxt)+'</button></div>';
-              }).join('');
-              sec.style.display=''; if(anyPaid){ var tt=$('tix-terms'); if(tt) tt.style.display=''; }
-              /* DB tiers are authoritative — drop the generic URL Buy/VIP from the info card, keep Join Scene Room */
-              var ctas=$('ev-ctas'); if(ctas){ ctas.querySelectorAll('.cta-tix,.cta-vip').forEach(function(a){ if(!a.classList.contains('tbtn')) a.remove(); }); }
-              /* every ticket/RSVP button first captures attendee data (name + email + custom questions), then proceeds to checkout / confirms RSVP */
-              box.querySelectorAll('.tbtn[data-tier],.tbtn[data-buy],.tbtn[data-free]').forEach(function(btn){
-                btn.addEventListener('click', async function(){
-                  /* require an account to get a ticket — tickets live in the buyer's KEEPITIL account (My Tickets) */
-                  var sr=await sb.auth.getSession().catch(function(){return null;});
-                  var sess=sr&&sr.data?sr.data.session:null;
-                  if(!sess){ location.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); return; }
-                  buyerEmail=(sess.user&&sess.user.email)||'';
-                  var tname=btn.getAttribute('data-tname')||'';
-                  /* promo UI gated OFF until create-checkout applies discount_code server-side (Supabase Functions UI is mid-incident). Plumbing stays wired; flip to btn.hasAttribute('data-tier') to enable. */
-                  regCapture(tname, false, function(promo){
-                    if(btn.hasAttribute('data-free')){ btn.textContent='✓ You’re on the list'; btn.disabled=true; btn.style.opacity=.7; return; }
-                    if(btn.hasAttribute('data-buy')){ window.open(btn.getAttribute('data-buy'),'_blank','noopener'); return; }
-                    /* Stripe Connect checkout: POST create-checkout and redirect to hosted checkout (auto 5% + $0.99 split; optional promo code) */
-                    btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
-                    fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:1,discount_code:promo||null})})
-                      .then(function(r){return r.json();})
-                      .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
-                      .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
-                  });
+            if(!(tr&&tr.data&&tr.data.length)) return;
+            var sec=$('sec-tickets'), box=$('ev-tickets'); if(!sec||!box) return;
+            var now=Date.now(), anyPaid=tr.data.some(function(t){return t.price_cents>0;});
+            box.innerHTML=tr.data.map(function(t){
+              var free=!(t.price_cents>0);
+              var pl=free?'Free':('$'+(t.price_cents/100).toFixed(2).replace(/\.00$/,''));
+              var ss=t.sales_start?Date.parse(t.sales_start):null, se=t.sales_end?Date.parse(t.sales_end):null;
+              var remaining=(t.qty_total!=null)?(t.qty_total-(t.qty_sold||0)):null;
+              var dis=false, status='';
+              if(ss&&now<ss){ dis=true; status='Starts '+fmtDT(ss); }
+              else if(se&&now>se){ dis=true; status='Sales ended'; }
+              else if(remaining!=null&&remaining<=0){ dis=true; status='Sold out'; }
+              var avTxt=''; if(remaining!=null){ avTxt=(remaining<=10?('Only '+remaining+' left'):(remaining+' available')); }
+              var avLow=(remaining!=null&&remaining<=10);
+              var inlineAv=(t.show_qty && avTxt && !dis)?('<span class="trav inline'+(avLow?' low':'')+'">'+esc(avTxt)+'</span>'):'';
+              var statusTag=dis?('<span class="trstatus">'+esc(status)+'</span>'):'';
+              var moreParts='';
+              if(t.description) moreParts+='<div class="trdesc">'+esc(t.description)+'</div>';
+              if(avTxt && !t.show_qty && !dis) moreParts+='<div class="trav rev">'+esc(avTxt)+'</div>';
+              if(se && !dis) moreParts+='<div class="trav rev">Sales end '+esc(fmtDT(se))+'</div>';
+              var more=moreParts?('<div class="trmore">'+moreParts+'</div>'):'';
+              var da='';
+              if(!dis){ if(free) da='data-free="1"'; else if(t.stripe_payment_link) da='data-kt="ticket_click" data-buy="'+esc(t.stripe_payment_link)+'"'; else da='data-kt="ticket_click" data-tier="'+t.id+'"'; }
+              var maxq=(remaining!=null)?Math.max(0,remaining):99;
+              var base=free?'RSVP Free':'Buy — '+pl;
+              return '<div class="tixrow'+(free?' free':'')+(dis?' closed':'')+'" data-max="'+maxq+'">'+
+                '<div class="trtop"><span class="trname">'+esc(t.name)+'</span>'+inlineAv+statusTag+'<span class="trprice">'+pl+'</span></div>'+
+                more+
+                (dis?'':('<div class="trctl"><div class="stp"><button type="button" class="minus" disabled>−</button><span class="num">0</span><button type="button" class="plus">+</button></div>'+
+                  '<button type="button" class="trbuy cta-tix" data-tname="'+esc(t.name)+'" data-event-slug="'+esc(ev.slug)+'" data-base="'+esc(base)+'" '+da+' disabled>'+esc(base)+'</button></div>'))+
+                '</div>';
+            }).join('');
+            sec.style.display=''; if(anyPaid){ var tt=$('tix-terms'); if(tt) tt.style.display=''; }
+            var ctas=$('ev-ctas'); if(ctas){ ctas.querySelectorAll('.cta-tix,.cta-vip').forEach(function(a){ if(!a.classList.contains('trbuy')) a.remove(); }); }
+            function updateBuy(row){ var buy=row.querySelector('.trbuy'); if(!buy) return; var n=parseInt(row.querySelector('.num').textContent,10)||0; var base=buy.getAttribute('data-base')||''; buy.textContent= base+(n>1?(' × '+n):''); buy.disabled=(n<=0); }
+            /* − 0 + steppers */
+            box.querySelectorAll('.tixrow').forEach(function(row){
+              var max=parseInt(row.getAttribute('data-max')||'99',10); var numEl=row.querySelector('.num'); if(!numEl) return;
+              var minus=row.querySelector('.minus'), plus=row.querySelector('.plus');
+              function sync(){ var n=parseInt(numEl.textContent,10)||0; if(minus)minus.disabled=(n<=0); if(plus)plus.disabled=(max>0&&n>=max); updateBuy(row); }
+              if(plus) plus.addEventListener('click',function(){ var n=parseInt(numEl.textContent,10)||0; if(max>0&&n>=max) return; numEl.textContent=(n+1); sync(); });
+              if(minus) minus.addEventListener('click',function(){ var n=parseInt(numEl.textContent,10)||0; if(n<=0) return; numEl.textContent=(n-1); sync(); });
+              sync();
+            });
+            /* buy / RSVP — captures attendee data then checks out with the chosen quantity */
+            box.querySelectorAll('.trbuy[data-tier],.trbuy[data-buy],.trbuy[data-free]').forEach(function(btn){
+              btn.addEventListener('click', async function(){
+                var row=btn.closest('.tixrow'); var qty=parseInt(row.querySelector('.num').textContent,10)||0; if(qty<1) return;
+                var sr=await sb.auth.getSession().catch(function(){return null;});
+                var sess=sr&&sr.data?sr.data.session:null;
+                if(!sess){ location.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); return; }
+                buyerEmail=(sess.user&&sess.user.email)||'';
+                var tname=btn.getAttribute('data-tname')||'';
+                regCapture(tname, false, function(promo){
+                  if(btn.hasAttribute('data-free')){ btn.textContent='✓ You’re on the list'; btn.disabled=true; row.querySelectorAll('.stp button').forEach(function(b){b.disabled=true;}); return; }
+                  if(btn.hasAttribute('data-buy')){ window.open(btn.getAttribute('data-buy'),'_blank','noopener'); return; }
+                  btn.disabled=true; var old=btn.textContent; btn.textContent='Loading…';
+                  fetch(URL+'/functions/v1/create-checkout',{method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY},body:JSON.stringify({tier_id:btn.getAttribute('data-tier'),quantity:qty,discount_code:promo||null})})
+                    .then(function(r){return r.json();})
+                    .then(function(d){ if(d&&d.url){ location.href=d.url; } else { btn.disabled=false; btn.textContent=old; alert(d&&d.error?('Tickets: '+d.error):'Could not start checkout.'); } })
+                    .catch(function(){ btn.disabled=false; btn.textContent=old; alert('Could not start checkout — please try again.'); });
                 });
               });
-              /* KILL SWITCH (client): platform_config.ticketing_enabled='0' disables PAID buy buttons + shows a paused notice (free RSVP stays open). Fail-open on read error; create-checkout enforces it server-side regardless. */
-              sb.from('platform_config').select('value').eq('key','ticketing_enabled').maybeSingle().then(function(cfgr){
-                if(cfgr&&cfgr.data&&String(cfgr.data.value)==='0'){
-                  box.querySelectorAll('.cta-tix[data-tier],.cta-tix[data-buy]').forEach(function(b){ b.disabled=true; b.style.opacity=.5; b.style.cursor='default'; });
-                  var n=document.createElement('div'); n.style.cssText='font-size:.74rem;opacity:.8;margin:8px 0 0;flex-basis:100%'; n.textContent='⏸ Ticket sales are temporarily paused. Check back soon.'; box.appendChild(n);
-                }
-              }).catch(function(){});
-            }
+            });
+            /* KILL SWITCH: platform_config.ticketing_enabled='0' pauses paid sales (free RSVP stays). Enforced server-side too. */
+            sb.from('platform_config').select('value').eq('key','ticketing_enabled').maybeSingle().then(function(cfgr){
+              if(cfgr&&cfgr.data&&String(cfgr.data.value)==='0'){
+                box.querySelectorAll('.tixrow:not(.free) .stp button,.tixrow:not(.free) .trbuy').forEach(function(b){ b.disabled=true; });
+                var n=document.createElement('div'); n.style.cssText='font-size:.74rem;opacity:.8;margin:10px 0 0'; n.textContent='⏸ Ticket sales are temporarily paused. Check back soon.'; box.appendChild(n);
+              }
+            }).catch(function(){});
           }).catch(function(){});
         }
       }).catch(function(){});
