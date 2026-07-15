@@ -71,6 +71,37 @@
   .kreg .go:disabled{opacity:.6;cursor:default;}
   .kreg .x{float:right;background:none;border:0;color:#889;font-size:1.5rem;cursor:pointer;line-height:1;}
   .kreg .err{color:#ff6b6b;font-size:.8rem;margin-top:10px;min-height:1em;}
+  /* card look (matches the ticket page) */
+  .ev{background:#000;border-radius:20px;padding:14px;align-items:start;}
+  @media(max-width:720px){.ev{padding:10px;}}
+  .flyer{aspect-ratio:9/16;}
+  .infocard{background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px 22px;}
+  .infocard h1{margin:0 0 12px;font-family:var(--head);font-size:clamp(1.8rem,5vw,2.8rem);line-height:1;color:#fff;}
+  .infocard .meta{margin-bottom:5px;}
+  .tier-hd{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin:20px 0 10px;}
+  .cta-row{display:flex;flex-direction:column;gap:10px;margin:0;align-items:stretch;}
+  .cta-tix,.cta-vip{justify-content:center;width:100%;font-size:.8rem;padding:14px 18px;border-radius:11px;}
+  .cta-chat{justify-content:center;width:100%;}
+  /* sections below the card */
+  .esec{margin:34px 0 0;}
+  .esec-h{font-family:var(--head);font-size:1.4rem;letter-spacing:.04em;margin-bottom:14px;}
+  .esec-h .esub{font-family:var(--body);font-size:.8rem;color:var(--grey);letter-spacing:0;font-weight:600;}
+  .ecar{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;scroll-snap-type:x proximity;}
+  .ecar::-webkit-scrollbar{display:none;}
+  .lcard{flex:0 0 150px;scroll-snap-align:start;text-align:center;}
+  .lcard .im,.lcard .ph{width:150px;height:150px;border-radius:14px;border:1px solid rgba(255,255,255,.1);display:block;}
+  .lcard .im{object-fit:cover;background:#12121c;}
+  .lcard .ph{background:linear-gradient(150deg,color-mix(in srgb,var(--brand) 26%,#12121c),#12121c);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:2rem;color:rgba(255,255,255,.4);}
+  .lcard .nm{font-weight:800;font-size:.9rem;margin-top:8px;display:block;}
+  .lcard a.nm:hover{color:var(--brand);}
+  .lcard .lnk{font-size:.62rem;color:var(--brand-2);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+  .gcard2{flex:0 0 190px;scroll-snap-align:start;aspect-ratio:4/3;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:#12121c;}
+  .gcard2 img,.gcard2 video{width:100%;height:100%;object-fit:cover;display:block;}
+  #ev-feed .frow{background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;}
+  #ev-feed .fimg{width:56px;height:56px;border-radius:9px;object-fit:cover;flex:0 0 auto;background:#0a0a12;}
+  #ev-feed .fwho{font-weight:800;font-size:.85rem;}
+  #ev-feed .ftxt{color:#b6c2ce;font-size:.88rem;margin-top:3px;}
+  .esec-empty{color:var(--grey);font-size:.88rem;}
 </style>
 </head>
 <body>
@@ -83,16 +114,20 @@
       <div class="flyer" id="ev-flyer"></div>
       <div class="ev-qr" id="ev-qr" style="display:none"></div>
     </div>
-    <div>
-      <div class="eyebrow" id="ev-eyebrow">KEEPITIL Event</div>
+    <div class="infocard">
       <h1 id="ev-title">Event</h1>
       <div class="meta" id="ev-date"></div>
       <div class="meta" id="ev-venue"></div>
       <span class="genre" id="ev-genre" style="display:none;"></span>
-      <div class="cta-row" id="ev-ctas"></div>
       <p class="desc" id="ev-desc" style="display:none"></p>
+      <div class="tier-hd">Tickets</div>
+      <div class="cta-row" id="ev-ctas"></div>
     </div>
   </div>
+
+  <section class="esec" id="sec-lineup" style="display:none"><div class="esec-h">Artist Lineup</div><div class="ecar" id="ev-lineup"></div></section>
+  <section class="esec" id="sec-gallery" style="display:none"><div class="esec-h">Gallery</div><div class="ecar" id="ev-gallery"></div></section>
+  <section class="esec"><div class="esec-h">Feed <span class="esub">— posts that tagged this event</span></div><div id="ev-feed"></div></section>
 </div>
 <footer>© 2026 KEEPITIL — OC · LA · San Diego events, artists &amp; culture. <a href="/v3/">keepitil.com</a></footer>
 <script>
@@ -202,7 +237,7 @@
           ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genres||ev.genre;
           ev.img=x.cover_url||ev.img; ev.description=x.description||ev.description;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
-          paint();
+          paint(); loadExtras(sb);
           /* organizer on-site announcements (public read) */
           sb.from('event_announcements').select('title,body,active,created_at').eq('event_slug',ev.slug).eq('active',true).order('created_at',{ascending:false}).then(function(ar){
             if(ar&&ar.data&&ar.data.length){ var box=document.getElementById('ev-ann'); if(box){ box.innerHTML=ar.data.map(function(a){ return '<div class="ann">'+(a.title?'<div class="t">'+esc(a.title)+'</div>':'')+'<div class="b">'+esc(a.body)+'</div></div>'; }).join(''); } }
@@ -260,6 +295,33 @@
       }).catch(function(){});
     }
   }catch(e){}
+  function loadExtras(sb){
+    var slug=ev.slug; if(!slug||!sb) return;
+    sb.rpc('get_event_lineup',{p_slug:slug}).then(function(r){
+      var rows=(r&&r.data)||[]; if(!rows.length) return; var box=$('ev-lineup'); if(!box) return;
+      box.innerHTML=rows.map(function(a){
+        var ini=esc((a.artist_name||'?').charAt(0).toUpperCase());
+        var img=a.image_url?'<img class="im" src="'+esc(a.image_url)+'" alt="'+esc(a.artist_name)+'" onerror="this.outerHTML=&quot;<div class=\\&quot;ph\\&quot;>'+ini+'</div>&quot;">':'<div class="ph">'+ini+'</div>';
+        var href=a.profile_slug?(/^(https?:|\/)/.test(a.profile_slug)?a.profile_slug:('/v3/u.html?slug='+encodeURIComponent(a.profile_slug))):'';
+        var nm=href?('<a class="nm" href="'+esc(href)+'">'+esc(a.artist_name)+'</a><div class="lnk">View profile →</div>'):('<span class="nm">'+esc(a.artist_name)+'</span>');
+        return '<div class="lcard">'+img+nm+'</div>';
+      }).join('');
+      $('sec-lineup').style.display='';
+    }).catch(function(){});
+    sb.rpc('get_event_media',{p_slug:slug,p_kind:'image',p_limit:10}).then(function(r){
+      var rows=(r&&r.data)||[]; if(!rows.length) return; var box=$('ev-gallery'); if(!box) return;
+      box.innerHTML=rows.slice(0,10).map(function(m){ return '<div class="gcard2"><img src="'+esc(m.media_url)+'" alt="" onerror="this.parentNode.style.display=\'none\'"></div>'; }).join('');
+      $('sec-gallery').style.display='';
+    }).catch(function(){});
+    sb.rpc('get_event_media',{p_slug:slug,p_kind:null,p_limit:30}).then(function(r){
+      var rows=(r&&r.data)||[]; var box=$('ev-feed'); if(!box) return;
+      if(!rows.length){ box.innerHTML='<div class="esec-empty">No posts yet — tag this event in your posts and they show up here.</div>'; return; }
+      box.innerHTML=rows.map(function(m){
+        var im=(m.media_url&&m.kind==='image')?'<img class="fimg" src="'+esc(m.media_url)+'" alt="" onerror="this.style.display=\'none\'">':'';
+        return '<div class="frow">'+im+'<div><div class="fwho">@'+esc(m.author_handle||'guest')+'</div><div class="ftxt">'+esc(m.title||'(shared a post)')+'</div></div></div>';
+      }).join('');
+    }).catch(function(){});
+  }
 })();
 </script>
 <script src="/v3/keepitil-ai.js" defer></script>
