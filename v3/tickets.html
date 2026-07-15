@@ -12,56 +12,74 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.5;padding-bottom:60px}
-.tp{max-width:900px;margin:0 auto;padding:0 18px}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.5;padding:22px 0 40px}
+.tp{max-width:680px;margin:0 auto;padding:0 16px}
 .loading{text-align:center;color:var(--muted);padding:60px 20px}
 .gate,.empty{max-width:460px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
 .gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}.gate p,.empty p{color:var(--muted);margin-bottom:18px}
 .btnp{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;cursor:pointer;border:0;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
-.tp-head{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:stretch;margin:22px 0 14px}
-.backbtn{display:inline-flex;align-items:center;gap:8px;padding:13px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--text);text-decoration:none;font-weight:700;font-size:.9rem;white-space:nowrap}
+.card{background:#000;border-radius:20px;padding:12px}
+.tp-head{display:grid;grid-template-columns:auto 1fr;gap:12px;margin-bottom:12px}
+.pill{display:flex;align-items:center;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:0}
+.backbtn{gap:8px;color:var(--text);text-decoration:none;font-weight:700;font-size:.88rem;white-space:nowrap}
 .backbtn:hover{border-color:var(--brand,#00b4ff)}
-.orgbar{display:flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:12px;background:var(--surface);border:1px solid var(--line);min-width:0}
-.orgbar a,.orgbar span{color:var(--brand-2,#22e39b);font-weight:800;text-decoration:none;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.orgbar .lead{color:var(--muted);font-weight:600;margin-right:6px;font-size:.8rem}
-.tp-body{display:grid;grid-template-columns:minmax(0,290px) minmax(0,1fr);gap:16px;align-items:start}
-.tp-left,.tp-right{display:flex;flex-direction:column;gap:16px;min-width:0}
-.flyer{width:100%;aspect-ratio:3/4;border-radius:16px;background:#0a0a12 center/cover no-repeat;border:1px solid var(--line)}
-.qrcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center}
-.qrcard img{width:100%;max-width:180px;background:#fff;border-radius:12px;padding:8px;margin:0 auto;display:block}
-.qrcard .cap{color:var(--muted);font-size:.72rem;margin-top:10px;font-weight:700;letter-spacing:.04em}
-.qrcard .tag{display:inline-block;margin-top:8px;font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px}
+.orgbar{justify-content:center;gap:6px}
+.orgbar .lead{color:var(--muted);font-weight:600;font-size:.78rem}
+.orgbar a,.orgbar span{color:var(--brand-2,#22e39b);font-weight:800;text-decoration:none;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-body{display:grid;grid-template-columns:40% 1fr;gap:12px;align-items:stretch}
+.tp-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.flyer{flex:1.5 1 0;min-height:180px;border-radius:14px;background:#0a0a12 center/cover no-repeat;border:1px solid var(--line)}
+.qrcard{flex:1 1 0;min-height:150px;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px}
+.qrcard img{width:100%;max-width:170px;background:#fff;border-radius:12px;padding:8px;display:block}
+.qrcard .cap{color:var(--muted);font-size:.7rem;margin-top:8px;font-weight:700;letter-spacing:.03em}
+.qrcard .tag{display:inline-block;margin-top:6px;font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
 .qrcard .tag.paid{background:rgba(34,227,155,.14);color:#22e39b;border:1px solid rgba(34,227,155,.4)}
 .qrcard .tag.used{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
-.infocard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
-.infocard .eb{font-size:.6rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#8fd6ff}
-.infocard h1{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1.02;letter-spacing:.02em;color:#fff;margin:4px 0 6px}
-.infocard .meta{color:var(--muted);font-size:.9rem;margin-bottom:2px}
-.infocard .genre{display:inline-block;margin:8px 0 12px;font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:12px;background:rgba(0,180,255,.14);color:var(--brand-2,#22e39b);border:1px solid rgba(0,180,255,.35)}
-.infocard .row{display:flex;justify-content:space-between;gap:12px;font-size:.86rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)}
-.infocard .row span{color:var(--muted)}.infocard .row b{color:var(--text)}
-.chatcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0a12;min-height:440px}
-.chatcard .clbl{padding:12px 16px;font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-2,#22e39b);border-bottom:1px solid rgba(255,255,255,.07)}
-.chatcard iframe{flex:1;width:100%;border:0;display:block;min-height:400px}
-.open-chat{width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;cursor:pointer;display:none;align-items:center;justify-content:center;gap:9px}
-.tp-foot{margin-top:16px}
-.others{margin-top:26px}
-.others-h{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 2px 10px}
-.other{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer}
-.other:hover{border-color:var(--brand,#00b4ff)}
-.other img{width:44px;height:58px;border-radius:7px;object-fit:cover;background:#0a0a12;flex:0 0 44px}
-.other .ot{color:#fff;font-weight:700;font-size:.9rem}.other .od{color:var(--muted);font-size:.74rem}
+.infocard{flex:0 0 auto;position:relative;background:var(--surface,#15151f);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.buymore{position:absolute;top:14px;right:14px;background:#6d3bf5;color:#fff;font-weight:800;font-size:.72rem;line-height:1.1;text-align:center;text-decoration:none;border-radius:12px;padding:9px 12px}
+.buymore:hover{filter:brightness(1.1)}
+.infocard h1{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;line-height:1;letter-spacing:.02em;color:#fff;margin:0 96px 8px 0}
+.irow{display:flex;gap:8px;font-size:.82rem;padding:3px 0}
+.irow .k{color:var(--muted);flex:0 0 auto;min-width:96px}
+.irow .v{color:var(--text);font-weight:600;min-width:0}
+.irow .v a{color:var(--brand-2,#22e39b)}
+.chatcard{flex:1 1 0;min-height:340px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a0a12;display:flex}
+.chatcard iframe{flex:1;width:100%;border:0;display:block}
+.open-chat{display:none;width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;cursor:pointer;align-items:center;justify-content:center;gap:9px}
+.tp-foot{margin-top:12px}
+.tp-foot .pill{display:inline-flex}
+.carwrap{max-width:940px;margin:26px auto 0;padding:0 16px}
+.carwrap .car-h{font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 2px 12px;display:flex;align-items:center;gap:10px}
+.carwrap .car-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.car{position:relative}
+.car-row{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding:4px 2px 12px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.car-row::-webkit-scrollbar{display:none}
+.car-card{position:relative;flex:0 0 200px;width:200px;aspect-ratio:2/3;background:#0a0a12;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s}
+.car-card:hover{transform:translateY(-4px);border-color:var(--brand,#00b4ff)}
+.car-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.car-card .shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.9) 4%,rgba(0,0,0,.35) 40%,transparent 68%)}
+.car-card .cdate{position:absolute;top:0;left:0;right:0;padding:6px 11px;font-size:.6rem;font-weight:800;letter-spacing:.05em;color:#06120a;background:linear-gradient(90deg,rgba(0,255,136,.97),rgba(0,200,120,.55))}
+.car-card .cbody{position:absolute;left:0;right:0;bottom:0;padding:12px}
+.car-card .ct{color:#fff;font-weight:800;font-size:.92rem;line-height:1.15}
+.car-card .cc{color:rgba(255,255,255,.82);font-size:.72rem;margin-top:2px}
+.car-arrow{position:absolute;top:calc(50% - 6px);z-index:6;width:34px;height:34px;border-radius:50%;background:rgba(12,12,22,.94);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:1.35rem;cursor:pointer;display:none;align-items:center;justify-content:center}
+.car-arrow:hover{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.car-arrow.prev{left:-6px}.car-arrow.next{right:-6px}
+.car.scrollable .car-arrow{display:flex}
 @media(max-width:760px){
-  .tp-head{grid-template-columns:1fr}
   .tp-body{grid-template-columns:1fr}
+  .flyer{aspect-ratio:3/4;flex:0 0 auto}
+  .qrcard{flex:0 0 auto}
   .chatcard{display:none}
   .open-chat{display:flex}
+  .tp-head{grid-template-columns:1fr}
+  .car.scrollable .car-arrow{display:none}
 }
 .chat-ov{position:fixed;inset:0;z-index:3000;background:#0a0a12;display:none;flex-direction:column}
 .chat-ov.open{display:flex}
 .chat-ov .ovh{flex:0 0 auto;display:flex;align-items:center;gap:10px;height:54px;padding:0 12px;background:rgba(9,9,16,.98);border-bottom:1px solid rgba(255,255,255,.1)}
 .chat-ov .ovh .bk{font-size:1.7rem;color:#fff;background:none;border:0;cursor:pointer;padding:2px 10px 6px}
-.chat-ov .ovh .ovt{font-weight:800;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-ov .ovh .ovt{font-weight:800;font-size:.95rem}
 .chat-ov iframe{flex:1;width:100%;border:0}
 </style>
 </head>
@@ -78,6 +96,7 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
   </div>
   <div id="ticketview" style="display:none"></div>
 </div>
+<div class="carwrap" id="carwrap" style="display:none"></div>
 
 <div class="chat-ov" id="chatOv">
   <div class="ovh"><button class="bk" aria-label="Back" onclick="closeChat()">&larr;</button><span class="ovt" id="ovTitle">Event Chat</span></div>
@@ -91,49 +110,67 @@ var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function enc(s){return encodeURIComponent(String(s==null?'':s));}
-var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function fmt(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return ''; return DOW[d.getUTCDay()]+', '+MON[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }
+function fmtDate(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
+function fmtTime(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
+function shortDate(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
 
 var TIX=[], ACTIVE=0, BACK='/v3/';
 
 function render(){
-  var x=TIX[ACTIVE]; if(!x){ return; } var e=x.row;
+  var x=TIX[ACTIVE]; if(!x) return; var e=x.row;
   var flyerBg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"')"):"";
   var org = e.owner_handle ? ('<span class="lead">Hosted by</span><a href="/v3/u.html?slug='+enc(e.owner_handle)+'">'+esc(e.owner_name||('@'+e.owner_handle))+'</a>') : '<span>KEEPITIL Event</span>';
   var used=!!e.checked_in_at;
   var price=e.price_cents!=null?('$'+(e.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
   var qr='https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data='+enc('KIL-'+(e.qr_token||e.order_id));
   var chatUrl='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
-  var others=TIX.filter(function(_,i){return i!==ACTIVE;});
-  var othersHtml = others.length ? ('<div class="others"><div class="others-h">Your other tickets</div>'+TIX.map(function(t,i){ if(i===ACTIVE) return ''; var ee=t.row; var im=ee.cover_url?'<img src="'+esc(ee.cover_url)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<img alt="">'; return '<div class="other" onclick="setActive('+i+')">'+im+'<div><div class="ot">'+esc(ee.title||'Event')+'</div><div class="od">'+esc(fmt(ee.starts_at))+(ee.city?' · '+esc(ee.city):'')+'</div></div></div>'; }).join('')+'</div>') : '';
+  var loc=[e.venue,e.city].filter(Boolean).join(', ');
+  var maps=loc?('<a href="https://www.google.com/maps/search/?api=1&query='+enc(loc)+'" target="_blank" rel="noopener">'+esc(loc)+' ↗</a>'):'—';
+  var dt=fmtDate(e.starts_at)+(fmtTime(e.starts_at)?(' · '+fmtTime(e.starts_at)):'');
 
   $('ticketview').innerHTML=
+  '<div class="card">'+
     '<div class="tp-head">'+
-      '<a class="backbtn" href="'+BACK+'">&larr; Profile</a>'+
-      '<div class="orgbar">'+org+'</div>'+
+      '<a class="pill backbtn" href="'+BACK+'">&larr; Profile</a>'+
+      '<div class="pill orgbar">'+org+'</div>'+
     '</div>'+
     '<div class="tp-body">'+
-      '<div class="tp-left">'+
+      '<div class="tp-col">'+
         '<div class="flyer" style="'+flyerBg+'"></div>'+
         '<div class="qrcard"><img src="'+qr+'" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/><div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div><div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div></div>'+
       '</div>'+
-      '<div class="tp-right">'+
-        '<div class="infocard"><div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div><h1>'+esc(e.title||'Event')+'</h1>'+
-          '<div class="meta">'+esc(fmt(e.starts_at))+'</div>'+
-          '<div class="meta">'+(e.venue?('📍 '+esc(e.venue)+(e.city?(', '+esc(e.city)):'')):(e.city?('📍 '+esc(e.city)):''))+'</div>'+
-          (e.genres?('<span class="genre">'+esc(e.genres)+'</span>'):'')+
-          '<div class="row"><span>Ticket</span><b>'+esc(e.tier_name||'General Admission')+'</b></div>'+
-          '<div class="row"><span>Quantity</span><b>'+(e.qty||1)+'</b></div>'+
-          (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
-          '<div class="row"><span>Order</span><b>#KIL-'+(10000+(e.order_id||0))+'</b></div>'+
+      '<div class="tp-col">'+
+        '<div class="infocard">'+
+          '<a class="buymore" href="/v3/event.html?e='+enc(x.slug)+'">BUY MORE<br>TICKETS</a>'+
+          '<h1>'+esc(e.title||'Event')+'</h1>'+
+          '<div class="irow"><span class="k">Date</span><span class="v">'+esc(dt)+'</span></div>'+
+          '<div class="irow"><span class="k">Venue</span><span class="v">'+esc(e.venue||'—')+'</span></div>'+
+          '<div class="irow"><span class="k">Address</span><span class="v">'+maps+'</span></div>'+
+          '<div class="irow"><span class="k">Genre</span><span class="v">'+esc(e.genres||'—')+'</span></div>'+
+          '<div class="irow"><span class="k">Ticket</span><span class="v">'+esc(e.tier_name||'General Admission')+' · Qty '+(e.qty||1)+(price?(' · '+price):'')+'</span></div>'+
+          '<div class="irow"><span class="k">Order</span><span class="v">#KIL-'+(10000+(e.order_id||0))+'</span></div>'+
         '</div>'+
-        '<div class="chatcard"><div class="clbl">Event Chat · Scene Room</div><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div>'+
+        '<div class="chatcard"><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div>'+
         '<button class="open-chat" onclick="openChat()">Open Event Chat</button>'+
       '</div>'+
     '</div>'+
-    '<div class="tp-foot"><a class="backbtn" href="'+BACK+'">&larr; Profile</a></div>'+
-    othersHtml;
+    '<div class="tp-foot"><a class="pill backbtn" href="'+BACK+'">&larr; Profile</a></div>'+
+  '</div>';
+
+  var others=TIX.filter(function(_,i){return i!==ACTIVE;});
+  if(others.length){
+    $('carwrap').style.display='';
+    $('carwrap').innerHTML='<div class="car-h">More of your tickets</div>'+
+      '<div class="car" id="car"><button class="car-arrow prev" aria-label="Previous" onclick="carScroll(-1)">&lsaquo;</button><div class="car-row" id="car-row">'+
+      TIX.map(function(t,i){ if(i===ACTIVE) return ''; var ee=t.row;
+        var im=ee.cover_url?'<img src="'+esc(ee.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'';
+        return '<div class="car-card" onclick="setActive('+i+')">'+im+'<div class="shade"></div><div class="cdate">'+esc(shortDate(ee.starts_at)||'TICKET')+'</div><div class="cbody"><div class="ct">'+esc(ee.title||'Event')+'</div><div class="cc">'+esc(ee.city||'')+'</div></div></div>';
+      }).join('')+'</div><button class="car-arrow next" aria-label="Next" onclick="carScroll(1)">&rsaquo;</button></div>';
+    carMark();
+  } else { $('carwrap').style.display='none'; }
 }
+function carScroll(d){ var row=$('car-row'); if(!row)return; var c=row.querySelector('.car-card'); var w=c?(c.offsetWidth+14)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+14))):320; row.scrollBy({left:d*w,behavior:'smooth'}); }
+function carMark(){ var car=$('car'),row=$('car-row'); if(!car||!row)return; function u(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); var p=car.querySelector('.prev'),n=car.querySelector('.next'); if(p)p.disabled=row.scrollLeft<=2; if(n)n.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } u(); row.onscroll=u; }
 function setActive(i){ if(i<0||i>=TIX.length)return; ACTIVE=i; render(); window.scrollTo({top:0,behavior:'smooth'}); if($('chatOv').classList.contains('open')) openChat(); }
 function openChat(){ var x=TIX[ACTIVE]; if(!x)return; $('ovTitle').textContent=x.title||'Event Chat'; $('ovFrame').src='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title); $('chatOv').classList.add('open'); document.body.style.overflow='hidden'; }
 function closeChat(){ $('chatOv').classList.remove('open'); $('ovFrame').src='about:blank'; document.body.style.overflow=''; }
@@ -158,7 +195,5 @@ async function init(){
 init();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260713" defer></script>
-<script src="/v3/keepitil-ai.js" defer></script>
-<script src="/v3/v3-shell.js" defer></script>
 </body>
 </html>
