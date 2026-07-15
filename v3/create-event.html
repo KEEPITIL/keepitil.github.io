@@ -147,6 +147,12 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
       <div class="note">Add one or more tiers. Paid tiers check out securely through <b>KEEPITIL</b> — we handle the payment and pay out to your bank (KEEPITIL keeps 5% + $0.99). Free/RSVP tiers are free to attend. <em>Selling tickets requires a Community membership.</em></div>
       <div id="tiers"></div>
       <button type="button" class="addtier" id="addtier">+ Add ticket tier</button>
+      <label style="margin-top:20px">Launch discount code <span style="font-weight:600;color:var(--muted);font-size:.82rem">(optional)</span></label>
+      <div class="row">
+        <div><input id="dc-code" maxlength="24" placeholder="EARLYBIRD" style="text-transform:uppercase"/></div>
+        <div><input id="dc-pct" type="number" min="1" max="100" step="1" placeholder="% off (e.g. 20)"/></div>
+      </div>
+      <div class="hint">Buyers enter this at checkout for a percentage off your paid tiers. Leave blank to skip.</div>
     </div>
 
     <div class="card">
@@ -354,12 +360,12 @@ $('form').addEventListener('submit',async function(e){
     if(tierErr){ b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Submit event for review'; msg.className='msg err'; msg.textContent=tierErr; return; }
     // Event creation goes through SECURITY DEFINER RPCs (create_event_with_tiers /
     // create_event_series) which insert server-side and force status='review'.
-    var newSlug;
+    var newSlug, newEventId=null;
     if(EDIT_SLUG){
       var scope=(SERIES.length>1 && $('editScope'))?$('editScope').value:'one';
       // always save this date's own edits (incl. its date/time) first
       var ru=await supa.rpc('update_event',{ p_slug:EDIT_SLUG, ev:ev, tiers:tiers });
-      if(ru.error) throw ru.error; var du=ru.data||{}; if(du.error) throw new Error(du.error);
+      if(ru.error) throw ru.error; var du=ru.data||{}; if(du.error) throw new Error(du.error); newEventId=du.event_id||null;
       if(scope!=='one' && SERIES_ID){
         var evS=Object.assign({},ev); delete evS.starts_at; delete evS.slug;   // shared fields only — never overwrite each date's time
         var picks=null;
@@ -378,8 +384,16 @@ $('form').addEventListener('submit',async function(e){
     } else {
       var rc=await supa.rpc('create_event_with_tiers',{ ev:ev, tiers:tiers });
       if(rc.error) throw rc.error;
-      var res=rc.data||{}; newSlug=res.slug||ev.slug;
+      var res=rc.data||{}; newSlug=res.slug||ev.slug; newEventId=res.id||null;
     }
+    // optional launch discount code → discount_codes (non-blocking; skipped for series)
+    try{
+      var dcCode=(($('dc-code')||{}).value||'').trim().toUpperCase().replace(/[^A-Z0-9_-]/g,'');
+      var dcPct=parseInt((($('dc-pct')||{}).value||'0'),10);
+      if(dcCode && dcPct>=1 && dcPct<=100 && newEventId && !$('is_series').checked){
+        await supa.from('discount_codes').insert({owner_handle:MY_HANDLE,event_id:newEventId,event_slug:newSlug,code:dcCode,percent_off:dcPct,active:true});
+      }
+    }catch(e){}
     var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(newSlug);
     $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
