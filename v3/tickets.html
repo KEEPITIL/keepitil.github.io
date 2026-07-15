@@ -6,27 +6,24 @@
 <meta name="robots" content="noindex,nofollow"/>
 <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
 <title>My Tickets — KEEPITIL</title>
-<meta name="description" content="Your KEEPITIL tickets — QR code, event info, and the live event chat, all in one place."/>
+<meta name="description" content="Your KEEPITIL tickets — QR code, event info, and the live event chat."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
-.wrap{max-width:720px;margin:0 auto;padding:0 var(--sp-3,20px)}
-.hero{padding:var(--sp-6,64px) 0 var(--sp-2,8px);text-align:center}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+.hero{padding:56px 0 8px;text-align:center}
 h1{font-size:clamp(1.9rem,5vw,2.8rem);font-weight:900;line-height:1}
 h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{color:var(--muted);margin:12px auto 0;font-size:1rem}
 .gate,.empty{max-width:460px;margin:40px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
-.gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
-.gate p,.empty p{color:var(--muted);margin-bottom:18px}
+.gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}.gate p,.empty p{color:var(--muted);margin-bottom:18px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none;cursor:pointer;border:0}
 .btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
 .loading{text-align:center;color:var(--muted);padding:40px}
-
-/* Active ticket card */
-.tk{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:18px}
+.tk{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .tk-hero{padding:26px 22px;background:#0a0a12 center/cover no-repeat;position:relative}
 .tk-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75),rgba(0,0,0,.15) 60%,rgba(0,0,0,.35));z-index:0}
 .tk-hero>*{position:relative;z-index:1}
@@ -37,42 +34,51 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-ba
 .tk-info{flex:1;min-width:180px}
 .tk-info .row{display:flex;justify-content:space-between;gap:12px;font-size:.85rem;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .tk-info .row b{color:var(--text)}.tk-info .row span{color:var(--muted)}
-.tk-qr{text-align:center}
-.tk-qr img{background:#fff;border-radius:12px;padding:8px;display:block}
-.tk-qr .cap{font-size:.72rem;color:var(--muted);margin-top:6px}
+.tk-qr{text-align:center}.tk-qr img{background:#fff;border-radius:12px;padding:8px;display:block}.tk-qr .cap{font-size:.72rem;color:var(--muted);margin-top:6px}
 .tag{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-top:8px}
 .tag.paid{background:rgba(34,227,155,.14);color:#22e39b;border:1px solid rgba(34,227,155,.4)}
 .tag.used{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--line)}
-
-/* Chat section */
-.chat-sec{margin-top:14px}
 .chat-lbl{font-size:.66rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--brand-2,#22e39b);margin:0 2px 8px;display:flex;align-items:center;gap:8px}
 .chat-lbl::after{content:"";flex:1;height:1px;background:rgba(0,180,255,.15)}
 .chat-frame{width:100%;height:520px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#0a0a12}
 .chat-frame iframe{width:100%;height:100%;border:0;display:block}
-.open-chat{width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;letter-spacing:.03em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
-.open-chat:hover{background:rgba(0,180,255,.2)}
-.chat-desktop{display:block}
-.chat-mobile{display:none}
+.open-chat{width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
+.chat-desktop{display:block}.chat-mobile{display:none}
 @media(max-width:759px){.chat-desktop{display:none}.chat-mobile{display:block}}
-
-/* Other tickets */
-.others{margin-top:34px}
 .others-h{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 2px 12px;display:flex;align-items:center;gap:8px}
 .others-h::after{content:"";flex:1;height:1px;background:var(--line)}
 .other{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,transform .15s}
 .other:hover{border-color:var(--brand,#00b4ff);transform:translateY(-2px)}
 .other .oth-img{width:60px;height:80px;flex:0 0 60px;border-radius:9px;object-fit:cover;background:#0a0a12}
-.other .oth-b{flex:1;min-width:0}
-.other .oth-t{font-weight:800;font-size:.95rem;line-height:1.15;color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.other .oth-t{font-weight:800;font-size:.95rem;line-height:1.15;color:#fff}
 .other .oth-d{font-size:.76rem;color:var(--muted);margin-top:3px}
 .other .oth-cta{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-2,#22e39b);margin-top:5px}
-
-/* Mobile full-screen chat overlay */
+.cb-heading{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.03em;color:#fff;margin:8px 2px}
+.cb-text{color:#c3ccd6;font-size:1rem;line-height:1.7;margin:6px 2px}
+.cb-button{display:inline-flex;align-items:center;justify-content:center;text-align:center;width:100%;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;font-weight:800;text-decoration:none;font-size:1rem}
+.cb-image img{width:100%;border-radius:14px;display:block}
+.blockwrap{margin-bottom:16px}
+.blockwrap.edit{position:relative;border:1px dashed rgba(0,180,255,.4);border-radius:16px;padding:10px 10px 12px}
+.bw-bar{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.bw-bar .lab{flex:1;font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7fb2d8}
+.bw-bar button{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer;font-size:.9rem;display:inline-flex;align-items:center;justify-content:center}
+.bw-bar .grip{cursor:grab;color:#6b7280}
+.blockwrap.edit [contenteditable]{outline:1px solid rgba(0,180,255,.25);border-radius:8px;padding:6px 8px;min-height:1.4em}
+.hrefin{width:100%;margin-top:8px;background:#0a0a12;border:1px solid var(--line);border-radius:8px;color:#dfe6ee;font-size:.85rem;padding:8px 10px}
+.dragover{border-color:var(--brand,#00b4ff)!important}
+.toolbar{position:sticky;top:0;z-index:200;background:#0c0c16;border:1px solid rgba(0,180,255,.4);border-radius:14px;padding:12px;margin:14px 0 20px;display:none;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar.on{display:flex}
+.toolbar .add{background:rgba(0,180,255,.12);border:1px solid rgba(0,180,255,.4);color:var(--brand-2,#22e39b);border-radius:9px;padding:9px 13px;font-weight:700;font-size:.82rem;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.toolbar .spacer{flex:1}
+.toolbar .save{background:#22e39b;color:#04121b;border:0;border-radius:9px;padding:9px 16px;font-weight:800;cursor:pointer}
+.toolbar .done{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:9px 14px;cursor:pointer}
+.toolbar .tt{font-weight:800;font-size:.82rem;color:#fff;margin-right:4px}
+.editcta{display:none;text-align:center;margin:8px 0 0}
+.editcta a{color:var(--brand-2,#22e39b);font-weight:700;font-size:.82rem;text-decoration:none;border:1px solid rgba(0,180,255,.35);border-radius:20px;padding:7px 14px;display:inline-flex;gap:6px}
 .chat-ov{position:fixed;inset:0;z-index:3000;background:#0a0a12;display:none;flex-direction:column}
 .chat-ov.open{display:flex}
 .chat-ov .ovh{flex:0 0 auto;display:flex;align-items:center;gap:10px;height:54px;padding:0 12px;background:rgba(9,9,16,.98);border-bottom:1px solid rgba(255,255,255,.1)}
-.chat-ov .ovh .bk{font-size:1.7rem;color:#fff;background:none;border:0;cursor:pointer;line-height:1;padding:2px 10px 6px}
+.chat-ov .ovh .bk{font-size:1.7rem;color:#fff;background:none;border:0;cursor:pointer;padding:2px 10px 6px}
 .chat-ov .ovh .ovt{font-weight:800;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-ov iframe{flex:1;width:100%;border:0}
 </style>
@@ -81,33 +87,36 @@ h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-ba
 <header class="hero"><div class="wrap">
   <h1>My <span>tickets</span></h1>
   <p class="sub">Your QR is your entry. Show it at the door — then hang out in the room.</p>
+  <div class="editcta" id="editcta"><a href="?edit=1"><i></i>Edit this page</a></div>
 </div></header>
 
 <div class="wrap">
   <div class="loading" id="loading">Loading your tickets…</div>
-
   <div class="gate" id="gate" style="display:none">
-    <h2>Log in to see your tickets</h2>
-    <p>Your tickets live in your KEEPITIL account. Log in with the account you used to buy.</p>
+    <h2>Log in to see your tickets</h2><p>Your tickets live in your KEEPITIL account.</p>
     <a class="btn primary" id="loginBtn" href="/v3/apply.html">Log in / Join</a>
   </div>
-
   <div class="empty" id="empty" style="display:none">
-    <h2>No tickets yet</h2>
-    <p>When you grab tickets to an event, they'll show up here with your QR code and the event chat.</p>
+    <h2>No tickets yet</h2><p>When you grab tickets, they show up here with your QR code and the event chat.</p>
     <a class="btn primary" href="/v3/">Browse events</a>
   </div>
 
-  <div id="active"></div>
-  <div class="others" id="others" style="display:none">
-    <div class="others-h">Your other tickets</div>
-    <div id="others-list"></div>
+  <div class="toolbar" id="toolbar">
+    <span class="tt">Editing ticket page</span>
+    <button class="add" data-add="heading"><i class="ti"></i>+ Heading</button>
+    <button class="add" data-add="text">+ Text</button>
+    <button class="add" data-add="button">+ Button</button>
+    <button class="add" data-add="image">+ Image</button>
+    <span class="spacer"></span>
+    <button class="save" id="saveBtn">Save</button>
+    <button class="done" id="doneBtn">Done</button>
   </div>
+
+  <div id="page"></div>
 </div>
 
-<!-- Mobile full-screen chat overlay -->
 <div class="chat-ov" id="chatOv">
-  <div class="ovh"><button class="bk" aria-label="Back to ticket" onclick="closeChat()">&larr;</button><span class="ovt" id="ovTitle">Event Chat</span></div>
+  <div class="ovh"><button class="bk" aria-label="Back" onclick="closeChat()">&larr;</button><span class="ovt" id="ovTitle">Event Chat</span></div>
   <iframe id="ovFrame" title="Event chat" src="about:blank"></iframe>
 </div>
 
@@ -121,105 +130,105 @@ function enc(s){return encodeURIComponent(String(s==null?'':s));}
 var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function fmt(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return ''; return DOW[d.getUTCDay()]+', '+MON[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear(); }
 
-var TIX=[];       // [{order, ev, tier, slug, title}]
-var ACTIVE=0;
+var TIX=[], ACTIVE=0, LAYOUT=[], IS_ADMIN=false, EDIT=false;
+var DEFAULT_LAYOUT=[{type:'ticket'},{type:'chat'},{type:'others'}];
 
-function ticketCardHTML(x){
-  var e=x.row;
-  var used=!!e.checked_in_at;
+function ticketCardHTML(x){ var e=x.row; var used=!!e.checked_in_at;
   var bg=e.cover_url?("background-image:url('"+String(e.cover_url).replace(/'/g,'')+"'),url('/v3/logo-bg.jpg')"):"background-image:url('/v3/logo-bg.jpg')";
   var price=e.price_cents!=null?('$'+(e.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
-  return '<div class="tk">'+
-    '<div class="tk-hero" style="'+bg+'">'+
-      '<div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div>'+
-      '<div class="nm">'+esc(e.title||'Event')+'</div>'+
-      '<div class="mt">'+esc(fmt(e.starts_at))+(e.venue?(' · '+esc(e.venue)):'')+'</div>'+
-    '</div>'+
-    '<div class="tk-body">'+
-      '<div class="tk-info">'+
-        '<div class="row"><span>Ticket</span><b>'+esc(e.tier_name||'General Admission')+'</b></div>'+
-        '<div class="row"><span>Quantity</span><b>'+(e.qty||1)+'</b></div>'+
-        (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
-        '<div class="row"><span>Order</span><b>#KIL-'+(10000+(e.order_id||0))+'</b></div>'+
-        '<div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div>'+
-      '</div>'+
-      '<div class="tk-qr">'+
-        '<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+enc('KIL-'+(e.qr_token||e.order_id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/>'+
-        '<div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div>'+
-      '</div>'+
-    '</div>'+
-  '</div>';
+  return '<div class="tk"><div class="tk-hero" style="'+bg+'"><div class="eb">KEEPITIL TICKET · '+esc(e.city||'')+'</div><div class="nm">'+esc(e.title||'Event')+'</div><div class="mt">'+esc(fmt(e.starts_at))+(e.venue?(' · '+esc(e.venue)):'')+'</div></div>'+
+    '<div class="tk-body"><div class="tk-info">'+
+    '<div class="row"><span>Ticket</span><b>'+esc(e.tier_name||'General Admission')+'</b></div>'+
+    '<div class="row"><span>Quantity</span><b>'+(e.qty||1)+'</b></div>'+
+    (price?('<div class="row"><span>Paid</span><b>'+price+'</b></div>'):'')+
+    '<div class="row"><span>Order</span><b>#KIL-'+(10000+(e.order_id||0))+'</b></div>'+
+    '<div class="tag '+(used?'used':'paid')+'">'+(used?'Checked in':'Valid ticket')+'</div></div>'+
+    '<div class="tk-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=0&data='+enc('KIL-'+(e.qr_token||e.order_id))+'" width="150" height="150" alt="Ticket QR code"'+(used?' style="opacity:.4;filter:grayscale(1)"':'')+'/><div class="cap">'+(used?'Already scanned':'Scan at the door')+'</div></div></div></div>';
 }
-
-function chatSectionHTML(x){
-  var chatUrl='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
-  return '<div class="chat-sec">'+
-    '<div class="chat-lbl">💬 Event Chat · Scene Room</div>'+
-    '<div class="chat-desktop"><div class="chat-frame"><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div></div>'+
-    '<button class="open-chat chat-mobile" onclick="openChat()">💬 Open Event Chat</button>'+
-  '</div>';
-}
-
-function renderActive(){
-  var x=TIX[ACTIVE]; if(!x){ $('active').innerHTML=''; return; }
-  $('active').innerHTML=ticketCardHTML(x)+chatSectionHTML(x);
-}
-function renderOthers(){
-  var others=TIX.filter(function(_,i){return i!==ACTIVE;});
-  if(!others.length){ $('others').style.display='none'; return; }
-  $('others').style.display='';
-  $('others-list').innerHTML=TIX.map(function(x,i){
-    if(i===ACTIVE) return '';
-    var e=x.row;
+function chatSectionHTML(x){ var u='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
+  return '<div class="chat-lbl">Event Chat · Scene Room</div><div class="chat-desktop"><div class="chat-frame"><iframe src="'+u+'" loading="lazy" title="Event chat"></iframe></div></div><button class="open-chat chat-mobile" onclick="openChat()">Open Event Chat</button>'; }
+function othersHTML(){ var out=TIX.map(function(x,i){ if(i===ACTIVE) return ''; var e=x.row;
     var img=e.cover_url?'<img class="oth-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.visibility=\'hidden\'">':'<div class="oth-img"></div>';
-    return '<div class="other" onclick="setActive('+i+')">'+img+
-      '<div class="oth-b"><div class="oth-t">'+esc(e.title||'Event')+'</div>'+
-      '<div class="oth-d">'+esc(fmt(e.starts_at))+(e.city?(' · '+esc(e.city)):'')+'</div>'+
-      '<div class="oth-cta">View ticket &amp; open chat →</div></div></div>';
-  }).join('');
+    return '<div class="other" onclick="setActive('+i+')">'+img+'<div style="flex:1;min-width:0"><div class="oth-t">'+esc(e.title||'Event')+'</div><div class="oth-d">'+esc(fmt(e.starts_at))+(e.city?(' · '+esc(e.city)):'')+'</div><div class="oth-cta">View ticket &amp; open chat →</div></div></div>'; }).join('');
+  if(TIX.filter(function(_,i){return i!==ACTIVE;}).length===0) return '';
+  return '<div class="others-h">Your other tickets</div>'+out;
 }
-function setActive(i){
-  if(i<0||i>=TIX.length) return;
-  ACTIVE=i; renderActive(); renderOthers();
-  window.scrollTo({top:0,behavior:'smooth'});
-  if($('chatOv').classList.contains('open')) openChat(); // refresh overlay if it was open
+function blockContent(b){
+  if(b.type==='ticket') return TIX[ACTIVE]?ticketCardHTML(TIX[ACTIVE]):'<div class="tk"><div class="tk-body"><div class="tk-info">Ticket preview</div></div></div>';
+  if(b.type==='chat') return TIX[ACTIVE]?chatSectionHTML(TIX[ACTIVE]):'';
+  if(b.type==='others') return othersHTML();
+  if(b.type==='heading') return '<div class="cb-heading" data-ed="text">'+esc(b.text||'Heading')+'</div>';
+  if(b.type==='text') return '<div class="cb-text" data-ed="text">'+esc(b.text||'Write your text here…')+'</div>';
+  if(b.type==='button') return '<a class="cb-button" data-ed="label" href="'+esc(b.href||'#')+'"'+(EDIT?' onclick="return false"':'')+'>'+esc(b.label||'Button')+'</a>'+(EDIT?'<input class="hrefin" data-href placeholder="Button link (https://…)" value="'+esc(b.href||'')+'"/>':'');
+  if(b.type==='image') return b.url?('<div class="cb-image"><img src="'+esc(b.url)+'" alt=""></div>'+(EDIT?'<input class="hrefin" data-url placeholder="Image URL (https://…)" value="'+esc(b.url||'')+'"/>':'')):(EDIT?'<input class="hrefin" data-url placeholder="Image URL (https://…)" value="">':'');
+  return '';
 }
+var LABELS={ticket:'Ticket',chat:'Event chat',others:'Other tickets',heading:'Heading',text:'Text',button:'Button',image:'Image'};
+var dragI=-1;
+function renderPage(){
+  var host=$('page'); host.innerHTML='';
+  LAYOUT.forEach(function(b,idx){
+    var w=document.createElement('div'); w.className='blockwrap'+(EDIT?' edit':'');
+    if(EDIT){
+      w.setAttribute('draggable','true');
+      var bar='<div class="bw-bar"><span class="grip" aria-hidden="true">⋮⋮</span><span class="lab">'+(LABELS[b.type]||b.type)+'</span>'+
+        '<button data-up title="Move up">↑</button><button data-down title="Move down">↓</button><button data-del title="Remove">✕</button></div>';
+      w.innerHTML=bar+'<div class="bw-body">'+blockContent(b)+'</div>';
+      w.querySelector('[data-up]').onclick=function(){ if(idx>0){ commitEdits(); var t=LAYOUT[idx];LAYOUT[idx]=LAYOUT[idx-1];LAYOUT[idx-1]=t;renderPage(); } };
+      w.querySelector('[data-down]').onclick=function(){ if(idx<LAYOUT.length-1){ commitEdits(); var t=LAYOUT[idx];LAYOUT[idx]=LAYOUT[idx+1];LAYOUT[idx+1]=t;renderPage(); } };
+      w.querySelector('[data-del]').onclick=function(){ commitEdits(); LAYOUT.splice(idx,1);renderPage(); };
+      var ed=w.querySelector('[data-ed]'); if(ed){ ed.setAttribute('contenteditable','true'); }
+      w.addEventListener('dragstart',function(e){ if(e.target.closest('input,[contenteditable]')){ e.preventDefault(); return; } dragI=idx; w.style.opacity=.4; });
+      w.addEventListener('dragend',function(){ dragI=-1; w.style.opacity=1; });
+      w.addEventListener('dragover',function(e){ e.preventDefault(); if(dragI>-1&&dragI!==idx){ commitEdits(); var m=LAYOUT.splice(dragI,1)[0]; LAYOUT.splice(idx,0,m); dragI=idx; renderPage(); } });
+    } else {
+      w.innerHTML=blockContent(b);
+    }
+    host.appendChild(w);
+  });
+}
+function commitEdits(){
+  if(!EDIT) return;
+  [].forEach.call($('page').children,function(w,idx){
+    var b=LAYOUT[idx]; if(!b) return;
+    var ed=w.querySelector('[data-ed]'); if(ed){ if(b.type==='button') b.label=ed.innerText.trim(); else b.text=ed.innerText.trim(); }
+    var hi=w.querySelector('[data-href]'); if(hi) b.href=hi.value.trim();
+    var ui=w.querySelector('[data-url]'); if(ui) b.url=ui.value.trim();
+  });
+}
+function setActive(i){ if(i<0||i>=TIX.length)return; ACTIVE=i; renderPage(); window.scrollTo({top:0,behavior:'smooth'}); if($('chatOv').classList.contains('open')) openChat(); }
+function openChat(){ var x=TIX[ACTIVE]; if(!x)return; $('ovTitle').textContent=x.title||'Event Chat'; $('ovFrame').src='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title); $('chatOv').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeChat(){ $('chatOv').classList.remove('open'); $('ovFrame').src='about:blank'; document.body.style.overflow=''; }
 
-/* Mobile full-screen chat */
-function openChat(){
-  var x=TIX[ACTIVE]; if(!x) return;
-  $('ovTitle').textContent=x.title||'Event Chat';
-  $('ovFrame').src='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
-  $('chatOv').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeChat(){
-  $('chatOv').classList.remove('open');
-  $('ovFrame').src='about:blank';
-  document.body.style.overflow='';
+function setupToolbar(){
+  $('toolbar').classList.add('on');
+  [].forEach.call(document.querySelectorAll('.toolbar .add'),function(btn){ btn.onclick=function(){ commitEdits(); var t=btn.getAttribute('data-add'); var nb={type:t}; if(t==='heading')nb.text='New heading'; if(t==='text')nb.text='New text block'; if(t==='button'){nb.label='Button';nb.href='';} LAYOUT.push(nb); renderPage(); window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); }; });
+  $('saveBtn').onclick=async function(){ commitEdits(); this.textContent='Saving…'; this.disabled=true; try{ var r=await supa.rpc('save_page_layout',{p_key:'ticket',p_layout:LAYOUT}); if(r&&r.error) throw r.error; this.textContent='Saved ✓'; } catch(e){ this.textContent='Save failed'; alert('Could not save: '+(e.message||e)); } setTimeout(function(){ var b=$('saveBtn'); b.textContent='Save'; b.disabled=false; },1500); };
+  $('doneBtn').onclick=function(){ location.href='/v3/tickets.html'+(location.search.replace(/[?&]edit=1/,'').replace(/^&/,'?')); };
 }
 
 async function init(){
   if(!supa){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
+  var b=$('loginBtn'); if(b) b.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search);
   var r=await supa.auth.getSession().catch(function(){return null;});
   var s=r&&r.data?r.data.session:null;
   if(!s){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
+  try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){ IS_ADMIN=false; }
+  var wantEdit=new URLSearchParams(location.search).get('edit')==='1';
+  EDIT=IS_ADMIN && wantEdit;
+  try{ var lr=await supa.rpc('get_page_layout',{p_key:'ticket'}); var L=(lr&&lr.data)||[]; LAYOUT=(Array.isArray(L)&&L.length)?L:DEFAULT_LAYOUT.slice(); }catch(e){ LAYOUT=DEFAULT_LAYOUT.slice(); }
   try{
-    // SECURITY DEFINER RPC: returns THIS buyer's paid tickets + event details, even for unpublished events
-    var r=await supa.rpc('get_my_tickets');
-    var rows=(r&&r.data)||[];
-    if(r&&r.error){ $('loading').textContent='Could not load tickets. Please refresh.'; return; }
-    if(!rows.length){ $('loading').style.display='none'; $('empty').style.display='block'; return; }
+    var o=await supa.rpc('get_my_tickets'); var rows=(o&&o.data)||[];
+    if(!rows.length && !EDIT){ $('loading').style.display='none'; $('empty').style.display='block'; if(IS_ADMIN) $('editcta').style.display='block'; return; }
     TIX=rows.map(function(x){ return {row:x, slug:(x.slug||('event-'+x.event_id)), title:(x.title||'Event')}; });
-    // focus a specific event if ?e=<slug> was passed (from the profile card)
     var want=new URLSearchParams(location.search).get('e');
     if(want){ var idx=TIX.findIndex(function(x){return x.slug===want;}); if(idx>=0) ACTIVE=idx; }
     $('loading').style.display='none';
-    renderActive(); renderOthers();
+    if(IS_ADMIN && !EDIT) $('editcta').style.display='block';
+    if(EDIT) setupToolbar();
+    renderPage();
   }catch(err){ $('loading').textContent='Could not load tickets. Please refresh.'; }
 }
-
-(function(){ var b=$('loginBtn'); if(b) b.href='/v3/apply.html?next='+encodeURIComponent(location.pathname+location.search); })();
 init();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260713" defer></script>
