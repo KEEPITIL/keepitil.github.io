@@ -73,7 +73,6 @@ textarea{min-height:120px;resize:vertical}
 <header class="hero"><div class="wrap">
   <div class="eyebrow" id="ev-eyebrow">Marketing</div>
   <h1>Promote your <span>event</span></h1>
-  <p class="sub" id="sub">Email your attendees, post an on-site announcement, spin up a discount code, or push to your socials — all in one place.</p>
 </div></header>
 
 <div class="wrap">
@@ -210,8 +209,6 @@ async function init(){
   // load event
   try{ var e=await supa.from('events').select('id,slug,title,owner_handle').eq('slug',slug).maybeSingle(); if(e&&e.data) EV=e.data; }catch(e){}
   if(!EV){ $('noev').style.display='block'; return; }
-  $('ev-eyebrow').textContent='Marketing · '+EV.title;
-  $('sub').textContent='Promote "'+EV.title+'" — email attendees, post announcements, discount codes, and socials.';
   // zapier hook
   try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) HOOK=String(c.data.value); }catch(e){}
   zapNote($('em-zap')); zapNote($('so-zap')); setSendGate($('em-send')); setSendGate($('so-send'));
@@ -385,8 +382,8 @@ async function buyPromo(key,btn){
 
 init();
 </script>
-<script src="/v3/keepitil-radio.js?v=20260713" defer></script>
-<script src="/v3/keepitil-ai.js" defer></script>
-<script src="/v3/v3-shell.js" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260715" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260715" defer></script>
+<script src="/v3/v3-shell.js?v=20260715" defer></script>
 </body>
 </html>
