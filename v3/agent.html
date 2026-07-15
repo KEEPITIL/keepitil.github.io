@@ -101,6 +101,24 @@ body::before{background:none!important;opacity:0!important;}
 .pf-tab svg{width:16px;height:16px;fill:currentColor;}
 .pf-tab:hover{color:var(--text);}
 .pf-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+/* Ask-the-agent chat */
+.ask{max-width:720px;margin:6px auto 0;padding:0 4px;}
+.ask-intro{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px;}
+.ask-intro b{display:block;font-size:1rem;color:var(--text);margin-bottom:3px;}
+.ask-intro span{font-size:.85rem;color:var(--muted);line-height:1.5;}
+.ask-log{display:flex;flex-direction:column;gap:10px;min-height:60px;margin-bottom:12px;}
+.ask-msg{max-width:86%;padding:11px 14px;border-radius:14px;font-size:.92rem;line-height:1.5;white-space:pre-wrap;}
+.ask-msg.you{align-self:flex-end;background:var(--accent);color:var(--onacc);font-weight:600;border-bottom-right-radius:4px;}
+.ask-msg.bot{align-self:flex-start;background:var(--surface2);border:1px solid var(--line);color:var(--text);border-bottom-left-radius:4px;}
+.ask-upsell{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+.ask-upsell a{color:var(--accent2);font-weight:800;font-size:.82rem;text-decoration:none;}
+.ask-suggest{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.ask-chip{background:transparent;border:1px solid var(--line);color:var(--text-soft);border-radius:999px;padding:7px 13px;font-size:.8rem;cursor:pointer;font-family:inherit;}
+.ask-chip:hover{border-color:var(--accent);color:var(--accent);}
+.ask-bar{display:flex;gap:8px;position:sticky;bottom:8px;}
+.ask-bar input{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:13px 18px;color:var(--text);font-family:inherit;font-size:.92rem;outline:none;}
+.ask-bar input:focus{border-color:var(--accent);}
+.ask-bar button{background:var(--accent);color:var(--onacc);border:0;border-radius:999px;padding:0 22px;font-weight:800;cursor:pointer;font-family:inherit;}
 .pf-panel{display:none;max-width:940px;margin:0 auto;padding:26px 22px 10px;}
 .pf-panel.active{display:block;animation:fade .3s ease;}
 @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
@@ -491,6 +509,16 @@ footer a{color:var(--accent2);}
     <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
     <div class="chat-wrap"><iframe id="chat-frame" title="Scene Room"></iframe></div>
   </div>
+  <!-- Ask-the-agent (house-knowledge chat) — shown for AI crew profiles -->
+  <div class="ask" id="agentAsk" style="display:none">
+    <div class="ask-intro" id="askIntro"></div>
+    <div class="ask-log" id="askLog"></div>
+    <div class="ask-suggest" id="askSuggest"></div>
+    <div class="ask-bar">
+      <input id="askInput" type="text" placeholder="Ask me about the scene, my role, events…" maxlength="300" onkeydown="if(event.key==='Enter')askAgent()"/>
+      <button id="askSend" onclick="askAgent()">Ask</button>
+    </div>
+  </div>
 </div>
 
 <!-- ONE COMBINED WIDGET: referral + affiliate links -->
@@ -568,6 +596,49 @@ function renderGallery(){
 }
 var GT_SHOWS=[['JUL','12','FRI','Kozmoz: Euphaura','Warehouse TBA · Los Angeles, CA · 21+','Latin House · Techno','https://posh.vip/e/kozmoz-euphaura'],['JUL','19','SAT','Pre-4th Boiler Room','Downtown Loft · Long Beach, CA · 21+','House · Tech House','https://posh.vip/e/pre-4th-boiler-room'],['AUG','02','SAT','Soundcheck: Sun-Kissed','Rooftop · Santa Ana, CA · 18+','Latin House','https://posh.vip/e/soundcheck-sun-kissed'],['AUG','16','SAT','KEEPITIL Summer','Secret OC Venue · Orange County, CA · 21+','Open Format','https://posh.vip/e/keeitil-summer'],['AUG','30','SAT','Kingdom','Catch One · Los Angeles, CA · 21+','Afro House · Tech House','https://posh.vip/explore?when=Upcoming&sort=Soonest&city=los-angeles']];
 function evFromArr(s){return {month:s[0],day:s[1],dow:s[2],title:s[3],venue:s[4],tags:s[5],tix:s[6],cover:s[7]||'',desc:s[8]||'',price:s[9]||'',kind:s[10]||'ext'};}
+/* Company / partner / collab events auto-promoted on every agent profile (get_agent_promo_events RPC) */
+var AGENT_EV=[];
+var _MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+var _DOW3=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+function promoEvToRow(e){
+  var d=e.starts_at?new Date(e.starts_at):null;
+  var mo=d&&!isNaN(d)?_MON3[d.getMonth()]:'', da=d&&!isNaN(d)?String(d.getDate()):'', dw=d&&!isNaN(d)?_DOW3[d.getDay()]:'';
+  var venue=[e.venue,e.city].filter(Boolean).join(' · ');
+  return [mo,da,dw,e.title||'Event',venue,e.genres||'',(e.slug?('/v3/event.html?e='+encodeURIComponent(e.slug)):'#'),e.cover_url||'','','','kil'];
+}
+function loadAgentPromoEvents(){
+  if(!SB)return;
+  SB.rpc('get_agent_promo_events').then(function(r){
+    if(r&&!r.error&&r.data&&r.data.length){ AGENT_EV=r.data.map(promoEvToRow); renderShows(); }
+  }).catch(function(){});
+}
+/* ── Ask-the-agent (house-knowledge chat, ask_agent RPC) ── */
+var ASK_SLUG='';
+function setupAgentAsk(a){
+  ASK_SLUG=(a&&a.slug)||'';
+  ['dm-head','chat-filter','chat-list','chat-open'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  var ask=document.getElementById('agentAsk'); if(!ask)return; ask.style.display='block';
+  var intro=document.getElementById('askIntro');
+  if(intro) intro.innerHTML='<b>Ask '+esc(a.name)+'</b><span>I answer from KEEPITIL house knowledge — my role, my genre, the scene, events, and how to get involved. Members get my full answers instantly.</span>';
+  var sugg=['Where can I find parties this weekend?','How do I become a member?','How do I post my event?','What do you do at KEEPITIL?'];
+  var sc=document.getElementById('askSuggest');
+  if(sc) sc.innerHTML=sugg.map(function(q){return '<button class="ask-chip" onclick="askAgentQ(this.textContent)">'+esc(q)+'</button>';}).join('');
+}
+function askAgentQ(q){ var i=document.getElementById('askInput'); if(i){i.value=q;} askAgent(); }
+function askAgent(){
+  var inp=document.getElementById('askInput'); if(!inp)return; var q=(inp.value||'').trim(); if(!q)return;
+  var log=document.getElementById('askLog'); if(!log)return;
+  var you=document.createElement('div'); you.className='ask-msg you'; you.textContent=q; log.appendChild(you);
+  inp.value='';
+  var pend=document.createElement('div'); pend.className='ask-msg bot'; pend.textContent='…'; log.appendChild(pend);
+  log.scrollTop=log.scrollHeight;
+  if(!SB){ pend.textContent='Chat is offline right now.'; return; }
+  SB.rpc('ask_agent',{p_agent_slug:ASK_SLUG,p_question:q}).then(function(r){
+    var d=(r&&r.data)||{};
+    pend.innerHTML=esc(d.answer||'…')+(d.upsell?('<div class="ask-upsell"><a href="/v3/apply.html">'+esc(d.upsell)+'</a></div>'):'');
+    log.scrollTop=log.scrollHeight;
+  }).catch(function(){ pend.textContent='Something went wrong — please try again.'; });
+}
 function evFlyer(o){
   var cov=o.cover?'<img class="cov" src="'+o.cover+'" alt="" onerror="this.style.display=\'none\'">':'';
   var kind=(o.kind==='kil')?'<span class="ev-kind kil">KEEPITIL</span>':'<span class="ev-kind ext">External</span>';
@@ -587,13 +658,16 @@ function renderShows(){
   if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(EV_FILTER===c[0]?' on':'')+'" onclick="setEvFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
   var all=[];
   GT_SHOWS.map(evFromArr).forEach(function(o){o._src=(o.kind==='kil')?'inapp':'external';all.push(o);});
+  AGENT_EV.map(evFromArr).forEach(function(o){o._src='inapp';all.push(o);});
   readEvStore('kil-saved-events').forEach(function(o){o._src='saved';all.push(o);});
   readEvStore('kil-joined-events').forEach(function(o){o._src='joined';all.push(o);});
   readEvStore('kil-battles').forEach(function(o){o._src='battles';all.push(o);});
   var items=all.filter(function(o){return EV_FILTER==='all'||o._src===EV_FILTER;});
   items.sort(function(a,b){return evKey(b)-evKey(a);}); // newest -> oldest
-  var add='<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>';
-  el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet — create one or save events from the homepage.</div>');
+  var canEdit=(typeof CAN_EDIT==='function' && CAN_EDIT());
+  var add=canEdit?'<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>':'';
+  var emptyMsg=canEdit?'No events yet — create one or save events from the homepage.':'No events posted yet — check back soon.';
+  el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">'+emptyMsg+'</div>');
 }
 var _alerts=false;
 function toggleAlert(){_alerts=!_alerts;var b=document.getElementById('alertBtn');if(_alerts){b.textContent='✓ ALERTS ON';b.classList.add('on');alert('You will get an alert when Groove Trooper announces a show near you. (Demo — wire to Follow / notifications.)');}else{b.textContent='GET ALERTS';b.classList.remove('on');}}
@@ -1406,6 +1480,8 @@ function applyAgentProfile(){
   try{var nm=document.getElementById('pfName'); if(nm && !document.getElementById('aiPill')){var s=document.createElement('span');s.id='aiPill';s.title='AI — transparently-labeled KEEPITIL AI Crew member';s.style.cssText='display:inline-flex;align-items:center;gap:4px;vertical-align:middle;margin-left:10px;font-size:.58rem;font-weight:800;letter-spacing:.1em;color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);padding:3px 9px;border-radius:20px;transform:translateY(-3px)';s.innerHTML='🤖 AI';nm.appendChild(s);}}catch(e){}
   var bk=document.getElementById('pfBook'); if(bk){ bk.href='mailto:info@keepitil.com?subject='+encodeURIComponent('Message for '+a.name+' — KEEPITIL AI Crew'); bk.style.display=''; }
   /* agents now show all four tabs (FEED / GALLERY / EVENTS / CHAT) to match the gold user profile */
+  loadAgentPromoEvents();   /* company/partner/collab events auto-populate the EVENTS tab */
+  setupAgentAsk(a);         /* CHAT tab = ask-the-agent (house knowledge) */
 }
 if(!IS_DEMO && !AGENT){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
