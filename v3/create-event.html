@@ -47,6 +47,18 @@ textarea{min-height:96px;resize:vertical}
 .done{max-width:520px;margin:44px auto;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:40px 28px}
 .done .big{font-size:3rem}
 .tier-badge{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);border:1px solid var(--line);border-radius:20px;padding:3px 9px;margin-bottom:8px}
+.srow{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;margin-top:9px;flex-wrap:wrap}
+.srow.cur{border-color:var(--brand);background:rgba(0,180,255,.06)}
+.srow .sdt{font-weight:700;font-size:.9rem;flex:1;min-width:150px}
+.srow .sst{font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 9px}
+.srow .sst.live{color:#22e39b;border-color:rgba(34,227,155,.5)}
+.srow .sst.arch{color:#ff8a8a;border-color:rgba(255,138,138,.5)}
+.srow .sact{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 12px;font-weight:700;font-size:.76rem;cursor:pointer}
+.srow .sact.del:hover{border-color:#ff6b6b;color:#ff6b6b}
+.srow .sact.hide:hover{border-color:var(--gold,#e0b021);color:var(--gold,#e0b021)}
+.srow .sact:disabled{opacity:.4;cursor:default}
+.srow .slock{font-size:.72rem;color:var(--muted)}
+.srow .curtag{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
 nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
 .nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
@@ -90,6 +102,18 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 
   <!-- form -->
   <form id="form" style="display:none">
+    <div class="card" id="seriesMgr" style="display:none">
+      <h3>Series dates</h3>
+      <div class="note">This event is part of a series. Pick what your edits below apply to, and manage individual dates. A date can be deleted only if it has never sold a ticket; once tickets are sold it must stay visible until every ticket is refunded, then you can hide it (kept on file for your records).</div>
+      <div style="margin:14px 0 6px"><label>Apply my edits to</label>
+        <select id="editScope">
+          <option value="one">Just this date</option>
+          <option value="selected">Selected dates (checked below)</option>
+          <option value="all">The whole series</option>
+        </select>
+      </div>
+      <div id="seriesList"></div>
+    </div>
     <div class="card">
       <h3>Event details</h3>
       <div class="note">The essentials. You can edit after review.</div>
@@ -100,6 +124,12 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
       <div class="row">
         <div><label>Date &amp; time *</label><input id="starts_at" type="datetime-local" required/></div>
         <div><label>City</label><input id="city" placeholder="Los Angeles" value="Los Angeles"/></div>
+      </div>
+      <label class="secrow" id="seriesToggleRow" style="display:flex;align-items:center;gap:10px;margin-top:4px;font-weight:600;cursor:pointer"><input type="checkbox" id="is_series" style="width:auto"/> 🔁 This is a series — multiple dates (same lineup, tickets &amp; page)</label>
+      <div id="seriesBox" style="display:none;margin-top:6px">
+        <div class="hint" style="margin-bottom:8px">The date above is the first show. Add every additional date below — each becomes its own event page &amp; ticket inventory, all sharing this info. You can edit or remove individual dates later.</div>
+        <div id="seriesDates"></div>
+        <button type="button" class="addtier" id="addDate">+ Add another date</button>
       </div>
       <label>Venue</label>
       <input id="venue" placeholder="Venue name / area (kept private until you choose to reveal)"/>
@@ -201,8 +231,9 @@ async function prefillEdit(){
     var tc=$('tiers'); tc.innerHTML=''; tierCount=0;
     (tiers.length?tiers:[{}]).forEach(function(t){ addTier(); var rows=tc.querySelectorAll('.tier'); var row=rows[rows.length-1]; if(row){ if(t.name)row.querySelector('.t-name').value=t.name; if(t.description)row.querySelector('.t-desc').value=t.description; if(t.price_cents!=null)row.querySelector('.t-price').value=(t.price_cents/100); if(t.qty_total!=null)row.querySelector('.t-qty').value=t.qty_total; if(t.sales_start)row.querySelector('.t-start').value=toLocal(t.sales_start); if(t.sales_end)row.querySelector('.t-end').value=toLocal(t.sales_end); } });
     if(Array.isArray(ev.reg_questions)){ ev.reg_questions.forEach(function(q){ addQ(); var qs=document.querySelectorAll('#qs .tier'); var qr=qs[qs.length-1]; if(qr){ if(q.label)qr.querySelector('.q-label').value=q.label; qr.querySelector('.q-type').value=q.type||'text'; qr.querySelector('.q-req').value=q.required?'yes':'no'; } }); }
+    SERIES_ID=ev.series_id||null; SERIES=Array.isArray(d.series)?d.series:[]; renderSeries();
     var b=$('submitBtn'); if(b) b.textContent='Save changes';
-    var hh=document.querySelector('h1'); if(hh) hh.textContent='Edit event';
+    var hh=document.querySelector('h1'); if(hh) hh.textContent=SERIES.length>1?'Edit series':'Edit event';
   }catch(e){}
 }
 
@@ -239,6 +270,52 @@ async function init(){
 $('addtier').addEventListener('click',addTier);
 $('addq').addEventListener('click',addQ);
 
+/* ── SERIES: extra date rows on create ── */
+function addDate(val){
+  var d=document.createElement('div'); d.className='row'; d.style.marginTop='8px';
+  d.innerHTML='<div style="flex:1"><input class="s-date" type="datetime-local"/></div><button type="button" class="rm" title="Remove" style="position:static;align-self:center">✕</button>';
+  $('seriesDates').appendChild(d); if(val) d.querySelector('.s-date').value=val;
+  d.querySelector('.rm').addEventListener('click',function(){d.remove();});
+}
+$('addDate').addEventListener('click',function(){addDate();});
+$('is_series').addEventListener('change',function(){ var on=this.checked; $('seriesBox').style.display=on?'block':'none'; if(on && !$('seriesDates').children.length) addDate(); });
+
+/* ── SERIES: manager (edit mode) ── */
+var SERIES_ID=null, SERIES=[];
+function fmtWhen(iso){ if(!iso) return 'No date'; try{ var dt=new Date(iso); return dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+' · '+dt.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }catch(e){ return iso; } }
+function renderSeries(){
+  var box=$('seriesList'); if(!box) return; if(!SERIES.length){ $('seriesMgr').style.display='none'; return; }
+  $('seriesMgr').style.display='block';
+  box.innerHTML=SERIES.map(function(s){
+    var cur=(s.slug===EDIT_SLUG);
+    var st=s.status==='archived'?'<span class="sst arch">Hidden</span>':(s.status==='published'?'<span class="sst live">Live</span>':'<span class="sst">'+esc2(s.status)+'</span>');
+    var chk=cur?'':'<input type="checkbox" class="s-pick" data-slug="'+esc2(s.slug)+'" style="width:auto"/>';
+    var act;
+    if((s.orders|0)===0){ act='<button type="button" class="sact del" data-act="delete" data-slug="'+esc2(s.slug)+'">Delete</button>'; }
+    else if((s.paid|0)===0 && s.status!=='archived'){ act='<button type="button" class="sact hide" data-act="archive" data-slug="'+esc2(s.slug)+'">Hide (refunded)</button>'; }
+    else if(s.status==='archived'){ act='<span class="slock">Hidden · '+(s.orders|0)+' on file</span>'; }
+    else { act='<span class="slock">'+(s.paid|0)+' active ticket(s) — must stay visible</span>'; }
+    return '<div class="srow'+(cur?' cur':'')+'">'+chk+'<span class="sdt">'+esc2(fmtWhen(s.starts_at))+(cur?' <span class="curtag">editing</span>':'')+'</span>'+st+act+'</div>';
+  }).join('');
+  box.querySelectorAll('.sact[data-act]').forEach(function(b){
+    b.addEventListener('click',function(){ seriesAction(b.getAttribute('data-act'), b.getAttribute('data-slug'), b); });
+  });
+}
+function esc2(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+async function seriesAction(act, slug, btn){
+  var human=(act==='delete')?'delete this date permanently':'hide this date from the public (kept for your records)';
+  if(!confirm('Are you sure you want to '+human+'?')) return;
+  btn.disabled=true; var old=btn.textContent; btn.textContent='…';
+  try{
+    var r=await supa.rpc(act==='delete'?'delete_event':'archive_event',{p_slug:slug});
+    var d=(r&&r.data)||{}; if(r.error) throw r.error;
+    if(d.error){ alert(d.message||d.error); btn.disabled=false; btn.textContent=old; return; }
+    if(act==='delete' && slug===EDIT_SLUG){ location.href='/v3/scene.html'; return; }
+    SERIES=SERIES.filter(function(s){ return !(act==='delete' && s.slug===slug); }).map(function(s){ if(act==='archive'&&s.slug===slug) s.status='archived'; return s; });
+    renderSeries();
+  }catch(e){ alert('Could not complete: '+(e.message||e)); btn.disabled=false; btn.textContent=old; }
+}
+
 $('form').addEventListener('submit',async function(e){
   e.preventDefault();
   var msg=$('msg'); msg.className='msg'; msg.textContent='';
@@ -273,13 +350,29 @@ $('form').addEventListener('submit',async function(e){
       tiers.push({name:name,description:desc,price_cents:price*100,qty_total:qty,sales_start:startISO,sales_end:endISO});
     });
     if(tierErr){ b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Submit event for review'; msg.className='msg err'; msg.textContent=tierErr; return; }
-    // Event creation goes through a SECURITY DEFINER RPC (create_event_with_tiers)
-    // which inserts the event + tiers server-side and forces status='review'.
+    // Event creation goes through SECURITY DEFINER RPCs (create_event_with_tiers /
+    // create_event_series) which insert server-side and force status='review'.
     var newSlug;
     if(EDIT_SLUG){
+      var scope=(SERIES.length>1 && $('editScope'))?$('editScope').value:'one';
+      // always save this date's own edits (incl. its date/time) first
       var ru=await supa.rpc('update_event',{ p_slug:EDIT_SLUG, ev:ev, tiers:tiers });
       if(ru.error) throw ru.error; var du=ru.data||{}; if(du.error) throw new Error(du.error);
+      if(scope!=='one' && SERIES_ID){
+        var evS=Object.assign({},ev); delete evS.starts_at; delete evS.slug;   // shared fields only — never overwrite each date's time
+        var picks=null;
+        if(scope==='selected'){ picks=[EDIT_SLUG]; document.querySelectorAll('.s-pick:checked').forEach(function(c){ picks.push(c.getAttribute('data-slug')); }); }
+        var rs=await supa.rpc('update_series',{ p_series_id:SERIES_ID, ev:evS, tiers:tiers, p_scope:scope, p_slugs:picks });
+        if(rs.error) throw rs.error; var ds=rs.data||{}; if(ds.error) throw new Error(ds.error);
+      }
       newSlug=EDIT_SLUG;
+    } else if($('is_series').checked){
+      var dates=[]; if(evStartISO) dates.push(evStartISO);
+      document.querySelectorAll('#seriesDates .s-date').forEach(function(inp){ if(inp.value) dates.push(new Date(inp.value).toISOString()); });
+      if(dates.length<2){ b.disabled=false; b.textContent='Submit event for review'; msg.className='msg err'; msg.textContent='A series needs at least two dates — add another date, or turn off the series toggle.'; return; }
+      var rc2=await supa.rpc('create_event_series',{ ev:ev, tiers:tiers, dates:dates });
+      if(rc2.error) throw rc2.error; var res2=rc2.data||{}; if(res2.error) throw new Error(res2.error);
+      newSlug=(res2.slugs&&res2.slugs[0])||ev.slug;
     } else {
       var rc=await supa.rpc('create_event_with_tiers',{ ev:ev, tiers:tiers });
       if(rc.error) throw rc.error;
