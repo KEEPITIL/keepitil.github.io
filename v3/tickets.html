@@ -143,19 +143,17 @@ function render(){
   var loc=[e.venue,e.city].filter(Boolean).join(', ');
   var maps=loc?('<a href="https://www.google.com/maps/search/?api=1&query='+enc(loc)+'" target="_blank" rel="noopener">'+esc(loc)+' ↗</a>'):'—';
   var dt=fmtDate(e.starts_at)+(fmtTime(e.starts_at)?(' · '+fmtTime(e.starts_at)):'');
-  /* all tickets this buyer holds — expandable picker (multiple tiers / events) */
-  var tixItems=TIX.map(function(tk,i){
-    var er=tk.row; var pr=er.price_cents!=null?('$'+(er.price_cents/100).toFixed(2).replace(/\.00$/,'')):'Free';
-    var when=shortDate(er.starts_at);
-    var sameEv=(er.event_id===e.event_id);
+  /* expandable picker — only the tickets this buyer holds FOR THIS EVENT */
+  var sameTix=TIX.map(function(tk,i){return {tk:tk,i:i};}).filter(function(o){return o.tk.row.event_id===e.event_id;});
+  var tixItems=sameTix.map(function(o){
+    var er=o.tk.row, i=o.i; var pr=er.price_cents!=null?('$'+(er.price_cents/100).toFixed(2).replace(/\.00$/,'')):'Free';
     return '<div class="tixpick'+(i===ACTIVE?' on':'')+'" onclick="setActive('+i+')">'+
       '<span class="tp-n">'+esc(er.tier_name||'General Admission')+'</span>'+
       '<span class="tp-q">Qty '+(er.qty||1)+'</span>'+
       '<span class="tp-p">'+esc(pr)+'</span>'+
-      (sameEv?'':'<span class="tp-e">'+esc(er.title||'Event')+(when?(' · '+when):'')+'</span>')+
       '</div>';
   }).join('');
-  var tixCount=TIX.length;
+  var tixCount=sameTix.length;
 
   $('ticketview').innerHTML=
   '<div class="card">'+
