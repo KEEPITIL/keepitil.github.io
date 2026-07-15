@@ -44,6 +44,20 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
 .irow .k{color:var(--muted);flex:0 0 auto;min-width:96px}
 .irow .v{color:var(--text);font-weight:600;min-width:0}
 .irow .v a{color:var(--brand-2,#22e39b)}
+/* expandable "all your tickets" picker */
+.tixhead{display:flex;align-items:center;gap:8px;margin-top:12px;padding:11px 13px;border:1.5px solid rgba(0,180,255,.45);background:rgba(0,180,255,.09);border-radius:11px;cursor:pointer;transition:background .15s}
+.tixhead:hover{background:rgba(0,180,255,.16)}
+.tixhead .th-k{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-2,#22e39b);flex:0 0 auto}
+.tixhead .th-v{font-size:.85rem;font-weight:700;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tixhead .chev{color:var(--brand-2,#22e39b);font-weight:900;font-size:.9rem;flex:0 0 auto}
+.tixlist{flex-direction:column;gap:7px;margin-top:8px}
+.tixpick{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--surface,#15151f);transition:border-color .15s,background .15s}
+.tixpick:hover{border-color:var(--brand-2,#22e39b)}
+.tixpick.on{border-color:var(--brand-2,#22e39b);background:rgba(0,180,255,.12)}
+.tixpick .tp-n{font-weight:800;font-size:.86rem;color:#fff;flex:1;min-width:0}
+.tixpick .tp-q{font-size:.76rem;color:var(--muted)}
+.tixpick .tp-p{font-weight:800;font-size:.84rem;color:var(--brand-2,#22e39b);min-width:44px;text-align:right}
+.tixpick .tp-e{flex-basis:100%;font-size:.68rem;color:var(--muted)}
 .chatcard{flex:1 1 0;min-height:340px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a0a12;display:flex}
 .chatcard iframe{flex:1;width:100%;border:0;display:block}
 .open-chat{display:none;width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;cursor:pointer;align-items:center;justify-content:center;gap:9px}
@@ -115,7 +129,8 @@ function fmtDate(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))retur
 function fmtTime(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
 function shortDate(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
 
-var TIX=[], ACTIVE=0, BACK='/v3/';
+var TIX=[], ACTIVE=0, BACK='/v3/', EXPANDED=false;
+function toggleTix(){ EXPANDED=!EXPANDED; var el=document.getElementById('tixlist'); var cv=document.getElementById('tixchev'); if(el) el.style.display=EXPANDED?'flex':'none'; if(cv) cv.textContent=EXPANDED?'▴':'▾'; }
 
 function render(){
   var x=TIX[ACTIVE]; if(!x) return; var e=x.row;
@@ -128,6 +143,19 @@ function render(){
   var loc=[e.venue,e.city].filter(Boolean).join(', ');
   var maps=loc?('<a href="https://www.google.com/maps/search/?api=1&query='+enc(loc)+'" target="_blank" rel="noopener">'+esc(loc)+' ↗</a>'):'—';
   var dt=fmtDate(e.starts_at)+(fmtTime(e.starts_at)?(' · '+fmtTime(e.starts_at)):'');
+  /* all tickets this buyer holds — expandable picker (multiple tiers / events) */
+  var tixItems=TIX.map(function(tk,i){
+    var er=tk.row; var pr=er.price_cents!=null?('$'+(er.price_cents/100).toFixed(2).replace(/\.00$/,'')):'Free';
+    var when=shortDate(er.starts_at);
+    var sameEv=(er.event_id===e.event_id);
+    return '<div class="tixpick'+(i===ACTIVE?' on':'')+'" onclick="setActive('+i+')">'+
+      '<span class="tp-n">'+esc(er.tier_name||'General Admission')+'</span>'+
+      '<span class="tp-q">Qty '+(er.qty||1)+'</span>'+
+      '<span class="tp-p">'+esc(pr)+'</span>'+
+      (sameEv?'':'<span class="tp-e">'+esc(er.title||'Event')+(when?(' · '+when):'')+'</span>')+
+      '</div>';
+  }).join('');
+  var tixCount=TIX.length;
 
   $('ticketview').innerHTML=
   '<div class="card">'+
@@ -148,7 +176,8 @@ function render(){
           '<div class="irow"><span class="k">Venue</span><span class="v">'+esc(e.venue||'—')+'</span></div>'+
           '<div class="irow"><span class="k">Address</span><span class="v">'+maps+'</span></div>'+
           '<div class="irow"><span class="k">Genre</span><span class="v">'+esc(e.genres||'—')+'</span></div>'+
-          '<div class="irow"><span class="k">Ticket</span><span class="v">'+esc(e.tier_name||'General Admission')+' · Qty '+(e.qty||1)+(price?(' · '+price):'')+'</span></div>'+
+          '<div class="tixhead" onclick="toggleTix()"><span class="th-k">Your tickets ('+tixCount+')</span><span class="th-v">'+esc(e.tier_name||'General Admission')+' · Qty '+(e.qty||1)+(price?(' · '+price):'')+'</span><span class="chev" id="tixchev">'+(EXPANDED?'▴':'▾')+'</span></div>'+
+          '<div class="tixlist" id="tixlist" style="display:'+(EXPANDED?'flex':'none')+'">'+tixItems+'</div>'+
           '<div class="irow"><span class="k">Order</span><span class="v">#KIL-'+(10000+(e.order_id||0))+'</span></div>'+
         '</div>'+
         '<div class="chatcard"><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div>'+
