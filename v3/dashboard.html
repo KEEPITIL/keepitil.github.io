@@ -60,6 +60,33 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
 .rv .acts .deny{border-color:#ff6b6b;color:#ff6b6b}
 .rv .acts .view{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
 .rv-empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
+/* sub-nav tabs + panels */
+.subnav{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:12px 0;margin-bottom:6px;background:var(--bg,#0a0a0f);border-bottom:1px solid var(--line);scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:9px 16px;font-weight:800;font-size:.82rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.subnav button.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border-color:transparent}
+.panel{display:none}.panel.on{display:block}
+.astat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 18px}
+.astat .a{background:var(--surface,#12121c);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.astat .a .n{font-size:1.5rem;font-weight:900;line-height:1}
+.astat .a .l{color:var(--muted);font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
+@media(max-width:560px){.astat{grid-template-columns:repeat(2,1fr)}}
+.chatwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.chatwrap{grid-template-columns:1fr}}
+.chatbox{background:var(--surface,#12121c);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;min-height:380px}
+.chatbox h3{font-size:.95rem;font-weight:800;margin-bottom:10px}
+.chatlog{flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:360px;margin-bottom:10px}
+.cmsg{max-width:88%;padding:9px 12px;border-radius:12px;font-size:.88rem;line-height:1.45;white-space:pre-wrap}
+.cmsg.you{align-self:flex-end;background:var(--brand,#00b4ff);color:#04121b;font-weight:600}
+.cmsg.bot{align-self:flex-start;background:var(--surface2,#1b1b28);border:1px solid var(--line)}
+.cmsg .who{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand,#00b4ff);margin-bottom:2px}
+.cbar{display:flex;gap:8px}
+.cbar input,.cbar select{flex:1;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:.88rem}
+.cbar button{background:var(--brand,#00b4ff);color:#04121b;border:0;border-radius:10px;padding:0 16px;font-weight:800;cursor:pointer;font-family:inherit}
+.kform input,.kform textarea,.kform select{width:100%;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:.9rem}
+.kform textarea{min-height:66px;resize:vertical}
+.kform label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:10px 0 4px;display:block}
+.msg{font-size:.88rem}.msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
 </style>
 </head>
 <body>
@@ -74,20 +101,34 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <a class="btn prim" id="loginBtn" href="/v3/apply.html">Log in</a>
   </div>
   <div id="app" style="display:none">
-    <div class="summary" id="summary"></div>
-    <div id="list"></div>
-  </div>
-  <div id="adminReview" style="display:none">
-    <div class="head2">Agent Activity <span class="ct" id="actCt"></span></div>
-    <div id="actFeed"></div>
-    <div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div>
-    <div id="postReview"></div>
-    <div class="head2">Social Queue <span class="ct" id="socialCt"></span></div>
-    <div id="socialReview"></div>
-    <div class="head2">Venue Bookings <span class="ct" id="bookCt"></span></div>
-    <div id="bookReview"></div>
-    <div class="head2">Go-Live Verification</div>
-    <iframe src="/v3/golive.html" title="Go-Live Verification" loading="lazy" style="width:100%;height:640px;border:1px solid var(--line,#242433);border-radius:14px;background:var(--bg,#0a0a0f)"></iframe>
+    <div class="subnav" id="subnav"></div>
+    <div class="panel on" id="tab-events"><div class="summary" id="summary"></div><div id="list"></div></div>
+    <div class="panel" id="tab-analytics"><div class="astat" id="aStat"></div><div class="head2">Recent questions asked <span class="ct" id="qCt"></span></div><div id="qLog"></div></div>
+    <div class="panel" id="tab-posts"><div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div><div id="postReview"></div></div>
+    <div class="panel" id="tab-social"><div class="head2">Social Queue <span class="ct" id="socialCt"></span></div><div id="socialReview"></div></div>
+    <div class="panel" id="tab-venues"><div class="head2">Venue Bookings <span class="ct" id="bookCt"></span></div><div id="bookReview"></div></div>
+    <div class="panel" id="tab-chat">
+      <div class="chatwrap">
+        <div class="chatbox"><h3>Chat with an agent</h3><div class="cbar" style="margin-bottom:10px"><select id="agentPick" onchange="clearAgentLog()"></select></div><div class="chatlog" id="agentLog"></div><div class="cbar"><input id="agentQ" placeholder="Ask this agent…" onkeydown="if(event.key==='Enter')askAgentDash()"><button onclick="askAgentDash()">Ask</button></div></div>
+        <div class="chatbox"><h3>Crew group — activity + messages</h3><div class="chatlog" id="groupLog"></div><div class="cbar"><input id="groupMsg" placeholder="Message the whole crew…" onkeydown="if(event.key==='Enter')postGroup()"><button onclick="postGroup()">Send</button></div></div>
+      </div>
+    </div>
+    <div class="panel" id="tab-knowledge">
+      <div class="head2">Add to the Knowledge Bank</div>
+      <div class="rv" style="display:block"><div class="kform">
+        <label>Agent (blank = all agents share it)</label><select id="kAgent"></select>
+        <label>Topic</label><input id="kTopic" placeholder="e.g. Parking at events">
+        <label>Keywords (comma or space separated)</label><input id="kKeywords" placeholder="parking car lot where to park">
+        <label>Short answer — shown to everyone</label><textarea id="kShort"></textarea>
+        <label>Full answer — shown to paid members</label><textarea id="kFull"></textarea>
+        <label>Source URL (optional)</label><input id="kSource" placeholder="https://…">
+        <button class="btn prim" style="margin-top:12px" onclick="addKnowledge()">Add to bank</button>
+        <div class="msg" id="kMsg" style="margin-top:8px"></div>
+      </div></div>
+      <div class="head2">In the bank <span class="ct" id="kCt"></span></div>
+      <div id="kList"></div>
+    </div>
+    <div class="panel" id="tab-golive"><iframe src="/v3/golive.html" title="Go-Live Verification" loading="lazy" style="width:100%;height:680px;border:1px solid var(--line,#242433);border-radius:14px;background:var(--bg,#0a0a0f)"></iframe></div>
   </div>
 </div>
 
@@ -146,29 +187,88 @@ async function load(){
   }catch(e){ $('list').innerHTML='<div class="empty"><h2>Couldn’t load</h2><p>Please refresh.</p></div>'; }
 }
 
-/* ===== Admin review lanes: AI-crew daily posts (pull) + social queue (approve→Zapier / deny) ===== */
-var ZAP_HOOK='';
-async function loadAdminReview(){
-  var isAdmin=false;
-  try{ var a=await supa.rpc('is_admin'); isAdmin=!!(a&&a.data); }catch(e){}
-  if(!isAdmin) return;
-  try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
-  $('adminReview').style.display='block';
-  loadActivity(); loadPostReview(); loadSocialReview(); loadBookingReview();
+/* ===== Admin console: sub-nav tabs ===== */
+var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
+var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
+var ADMIN_TABS=[['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['golive','Go-Live']];
+async function buildAdminTabs(){
+  try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
+  var nav=$('subnav'); var tabs=[['events','Events']];
+  if(IS_ADMIN){
+    tabs=tabs.concat(ADMIN_TABS);
+    try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
+    var opt=AGENTS.map(function(a){return '<option value="'+a[0]+'">'+a[1]+'</option>';}).join('');
+    if($('agentPick')) $('agentPick').innerHTML=opt;
+    if($('kAgent')) $('kAgent').innerHTML='<option value="">All agents (shared)</option>'+opt;
+  }
+  nav.innerHTML=tabs.map(function(t,i){return '<button data-tab="'+t[0]+'"'+(i===0?' class="on"':'')+' onclick="showTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('');
+  nav.style.display = tabs.length>1 ? 'flex' : 'none';
 }
-async function loadActivity(){
-  var box=$('actFeed');
+function showTab(name){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='tab-'+name);});
+  document.querySelectorAll('#subnav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===name);});
+  if(TAB_LOADED[name]) return; TAB_LOADED[name]=true;
+  if(name==='analytics') loadAnalytics();
+  else if(name==='posts') loadPostReview();
+  else if(name==='social') loadSocialReview();
+  else if(name==='venues') loadBookingReview();
+  else if(name==='chat'){ clearAgentLog(); loadGroup(); }
+  else if(name==='knowledge') loadKnowledge();
+}
+async function loadAnalytics(){
   try{
-    var r=await supa.rpc('get_agent_activity',{p_limit:40}); var rows=(r&&r.data)||[];
-    $('actCt').textContent=rows.length+' recent';
-    if(!rows.length){ box.innerHTML='<div class="rv-empty">No agent activity yet — agents post their runs and messages here.</div>'; return; }
-    box.innerHTML=rows.map(function(a){
-      var when=''; try{ when=new Date(a.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }catch(e){}
-      var link=a.link?'<a class="view" href="'+esc(a.link)+'" target="_blank" style="font-size:.78rem;font-weight:800;padding:8px 14px;border-radius:9px;border:1px solid var(--brand,#00b4ff);color:var(--brand,#00b4ff);text-decoration:none">Open</a>':'';
-      return '<div class="rv"><div class="info"><div class="t">'+esc(a.title)+'</div><div class="d">'+(a.body?esc(a.body):'')+'<div class="tags"><span class="pill2">'+esc((a.agent_slug||'crew').toUpperCase())+'</span><span class="pill2">'+esc(a.kind)+'</span><span class="pill2">'+esc(when)+'</span></div></div></div><div class="acts">'+link+'</div></div>';
-    }).join('');
-  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load activity.</div>'; }
+    var r=await supa.rpc('get_admin_analytics'); var a=(r&&r.data)||{};
+    var cards=[['Events',a.events_total],['Published',a.events_published],['Tickets sold',a.tickets_sold],['Revenue',money(a.revenue_cents)],['Daily blogs',a.blogs_published],['Social drafts',a.social_drafts],['Venue inquiries',a.bookings_total],['Booked',a.bookings_booked],['Promo sales',a.promo_paid],['Chat questions',a.chat_questions],['Unanswered',a.chat_unanswered],['Knowledge',a.knowledge_entries],['Members',a.members],['Email contacts',a.marketing_contacts],['Venues',a.venues],['App fees',money(a.app_fees_cents)]];
+    $('aStat').innerHTML=cards.map(function(c){return '<div class="a"><div class="n">'+esc(String(c[1]==null?0:c[1]))+'</div><div class="l">'+esc(c[0])+'</div></div>';}).join('');
+  }catch(e){ $('aStat').innerHTML='<div class="rv-empty">Could not load analytics.</div>'; }
+  try{
+    var q=await supa.rpc('get_agent_chat_log_admin',{p_limit:50}); var rows=(q&&q.data)||[];
+    $('qCt').textContent=rows.length+' recent';
+    $('qLog').innerHTML=rows.length?rows.map(function(x){var when='';try{when=new Date(x.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
+      return '<div class="rv"><div class="info"><div class="t">“'+esc(x.question)+'”</div><div class="tags"><span class="pill2">'+esc((x.agent_slug||'').toUpperCase())+'</span><span class="pill2 '+(x.matched?'pub':'den')+'">'+(x.matched?'answered':'UNANSWERED — add to bank')+'</span><span class="pill2">'+esc(when)+'</span></div></div></div>';}).join(''):'<div class="rv-empty">No questions asked yet.</div>';
+  }catch(e){}
 }
+function clearAgentLog(){ var l=$('agentLog'); if(l) l.innerHTML='<div class="cmsg bot"><div class="who">'+esc(($('agentPick')||{}).value||'agent')+'</div>Ask me anything about my role, genre, the scene, events, or how to get involved.</div>'; }
+function askAgentDash(){
+  var inp=$('agentQ'); var q=(inp.value||'').trim(); if(!q)return; var slug=$('agentPick').value;
+  var log=$('agentLog'); var y=document.createElement('div'); y.className='cmsg you'; y.textContent=q; log.appendChild(y); inp.value='';
+  var p=document.createElement('div'); p.className='cmsg bot'; p.textContent='…'; log.appendChild(p); log.scrollTop=log.scrollHeight;
+  supa.rpc('ask_agent',{p_agent_slug:slug,p_question:q}).then(function(r){var d=(r&&r.data)||{};p.innerHTML='<div class="who">'+esc(slug)+'</div>'+esc(d.answer||'…');log.scrollTop=log.scrollHeight;}).catch(function(){p.textContent='Error — try again.';});
+}
+function loadGroup(){
+  supa.rpc('get_agent_activity',{p_limit:40}).then(function(r){
+    var rows=(r&&r.data)||[]; var log=$('groupLog');
+    if(!rows.length){ log.innerHTML='<div class="cmsg bot">No crew activity yet.</div>'; return; }
+    log.innerHTML=rows.slice().reverse().map(function(a){
+      var mine=a.kind==='founder';
+      return '<div class="cmsg '+(mine?'you':'bot')+'">'+(mine?'':'<div class="who">'+esc((a.agent_slug||'crew').toUpperCase())+' · '+esc(a.kind)+'</div>')+esc(a.title)+(a.body?('\n'+esc(a.body)):'')+'</div>';
+    }).join(''); log.scrollTop=log.scrollHeight;
+  }).catch(function(){});
+}
+function postGroup(){
+  var inp=$('groupMsg'); var m=(inp.value||'').trim(); if(!m)return; inp.value='';
+  supa.rpc('message_agent',{p_agent_slug:null,p_body:m}).then(function(r){ if(r.error){alert('Could not send: '+(r.error.message||r.error));return;} loadGroup(); }).catch(function(){});
+}
+function addKnowledge(){
+  var m=$('kMsg'); m.className='msg'; m.textContent='';
+  var topic=$('kTopic').value.trim(), sh=$('kShort').value.trim(), fu=$('kFull').value.trim();
+  if(!topic||!sh){ m.className='msg err'; m.textContent='Topic and a short answer are required.'; return; }
+  supa.rpc('add_agent_knowledge',{p_agent_slug:$('kAgent').value||'',p_topic:topic,p_keywords:$('kKeywords').value||'',p_answer_short:sh,p_answer_full:fu||sh,p_source_url:$('kSource').value||null}).then(function(r){
+    if(r.error){ m.className='msg err'; m.textContent='Could not add: '+(r.error.message||r.error); return; }
+    m.className='msg ok'; m.textContent='Added ✓ Agents know this now.';
+    ['kTopic','kKeywords','kShort','kFull','kSource'].forEach(function(id){$(id).value='';});
+    TAB_LOADED.knowledge=false; loadKnowledge();
+  }).catch(function(e){ m.className='msg err'; m.textContent='Error.'; });
+}
+function loadKnowledge(){
+  supa.rpc('get_agent_knowledge_admin',{p_agent_slug:null,p_limit:200}).then(function(r){
+    var rows=(r&&r.data)||[]; $('kCt').textContent=rows.length+' entries';
+    $('kList').innerHTML=rows.length?rows.map(function(k){
+      return '<div class="rv"><div class="info"><div class="t">'+esc(k.topic)+'</div><div class="d">'+esc((k.answer_short||'').slice(0,140))+'</div><div class="tags"><span class="pill2">'+esc((k.agent_slug||'ALL').toUpperCase())+'</span><span class="pill2 '+(k.active?'pub':'den')+'">'+(k.active?'active':'off')+'</span></div></div><div class="acts"><button class="'+(k.active?'deny':'approve')+'" onclick="toggleKnow('+k.id+','+(!k.active)+',this)">'+(k.active?'Turn off':'Turn on')+'</button></div></div>';
+    }).join(''):'<div class="rv-empty">No knowledge entries yet — add one above.</div>';
+  }).catch(function(){ $('kList').innerHTML='<div class="rv-empty">Could not load.</div>'; });
+}
+function toggleKnow(id,active,btn){ if(btn)btn.disabled=true; supa.rpc('set_agent_knowledge_active',{p_id:id,p_active:active}).then(function(r){ TAB_LOADED.knowledge=false; loadKnowledge(); }).catch(function(){ if(btn)btn.disabled=false; }); }
 var BK_STAGES=['new','contacted','tour','quoted','deposit_pending','booked','declined'];
 async function loadBookingReview(){
   var box=$('bookReview');
@@ -230,7 +330,7 @@ async function init(){
   if(!(r&&r.data&&r.data.session)){ $('gate').style.display='block'; return; }
   $('app').style.display='block';
   load();
-  loadAdminReview();
+  buildAdminTabs();
 }
 init();
 </script>
