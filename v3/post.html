@@ -73,7 +73,7 @@ var NAME={echo:'ECHO',atlas:'ATLAS',fable:'FABLE',pulse:'PULSE',nexus:'NEXUS',se
 async function load(){
   var slug=new URLSearchParams(location.search).get('slug')||'';
   if(!SB||!slug){ $('loading').textContent='Post not found.'; return; }
-  var r=await SB.rpc('get_agent_post',{p_slug:slug}).catch(function(){return null;});
+  var r=null; try{ r=await SB.rpc('get_agent_post',{p_slug:slug}); }catch(e){ r=null; }
   var p=r&&r.data&&r.data[0];
   if(!p){ $('loading').textContent='This post is not available.'; return; }
   var col=CAT[p.agent_slug]||'#8b5cff', nm=NAME[p.agent_slug]||(p.agent_slug||'CREW').toUpperCase();
