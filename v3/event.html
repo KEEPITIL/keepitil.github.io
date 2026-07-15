@@ -152,15 +152,12 @@
   .stp .num{min-width:30px;text-align:center;font-weight:800;font-size:.98rem;}
   .trbuy{flex:1;background:var(--green);color:#06120a;border:0;border-radius:9px;padding:10px 12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:.72rem;cursor:pointer;}
   .trbuy:disabled{opacity:.4;cursor:default;background:#2a2a38;color:#8a97a4;}
-  .chatcard{flex:1 1 0;min-height:320px;border:1px solid rgba(255,255,255,.1);border-radius:14px;overflow:hidden;background:#0a0a12;display:flex;}
-  .chatcard iframe{flex:1;width:100%;border:0;display:block;}
-  .open-chat{display:none;}
+  .chatbar{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.92rem;letter-spacing:.03em;text-decoration:none;cursor:pointer;}
+  .chatbar:hover{background:rgba(0,180,255,.2);}
   @media(max-width:760px){
     .tp-head{grid-template-columns:1fr;}
     .tp-body{grid-template-columns:1fr;}
     .evcard .flyer{max-width:340px;margin:0 auto;}
-    .chatcard{display:none;}
-    .open-chat{display:flex;width:100%;padding:14px;border-radius:12px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2);font-weight:800;cursor:pointer;align-items:center;justify-content:center;gap:8px;font:inherit;}
   }
 </style>
 </head>
@@ -192,8 +189,7 @@
           <div class="tixrows" id="ev-tickets"></div>
           <div class="tix-terms" id="tix-terms" style="display:none">By purchasing you agree to the <a href="/v3/ticket-terms.html">Ticket Terms</a> &amp; <a href="/v3/refund.html">Refund Policy</a>.</div>
         </div>
-        <div class="chatcard"><iframe id="ev-chat-frame" loading="lazy" title="Event chat" src="about:blank"></iframe></div>
-        <button class="open-chat" id="ev-openchat" type="button">💬 Open Event Chat</button>
+        <a class="chatbar" id="ev-chatbar" href="/v3/event-chat.html">💬 Join Event Chat</a>
       </div>
     </div>
   </div>
@@ -247,9 +243,8 @@
     if(ev.vip && ev.ticket) c+='<a class="cta cta-vip" data-kt="vip_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>';
     c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
     $('ev-ctas').innerHTML=c;
-    /* embedded chat section (bottom of the card) + mobile open-chat */
-    var _cf=$('ev-chat-frame'); if(_cf && (_cf.getAttribute('src')||'')==='about:blank'){ _cf.src='/v3/event-chat.html?embed=1&e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title); }
-    var _oc=$('ev-openchat'); if(_oc && !_oc._wired){ _oc._wired=1; _oc.addEventListener('click',function(){ location.href='/v3/event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title); }); }
+    /* chat = single bar at the bottom of the card (links to the event chat room) */
+    var _cb=$('ev-chatbar'); if(_cb){ _cb.setAttribute('href','/v3/event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)); }
     /* EVENTS back → return to the exact flyer they came from (same-origin), else the homepage */
     var _bk=$('ev-back2'); if(_bk && !_bk._wired){ _bk._wired=1; var _so=false; try{ var _u=new URL(document.referrer); _so=(_u.origin===location.origin && _u.pathname!==location.pathname); }catch(_e){} if(_so){ _bk.addEventListener('click',function(e2){ e2.preventDefault(); history.back(); }); } else { _bk.setAttribute('href','/v3/'); } }
     // JSON-LD
