@@ -72,11 +72,26 @@ textarea{min-height:90px;resize:vertical}
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
 .gal .ph{aspect-ratio:4/3;border-radius:12px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.8rem;text-align:center;padding:10px}
+.gfilter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.gfilter button{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 15px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+.gfilter button.on{background:var(--brand,#00b4ff);color:#04121b;border-color:var(--brand)}
+.gcard{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--surface,#15151f);display:block;color:inherit;text-decoration:none}
+.gcard img,.gcard video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#0a0a12}
+.gcard .lab{position:absolute;top:8px;left:8px;font-size:.56rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:rgba(0,0,0,.72);color:#fff;z-index:2}
+.gcard .bt{padding:10px 12px;font-weight:700;font-size:.86rem;line-height:1.3}
+.gcard .by{padding:0 12px 10px;font-size:.76rem;color:var(--muted)}
+.gcard.blogc{min-height:120px;display:flex;flex-direction:column;justify-content:center;padding:4px}
+.rvw{background:var(--surface,#15151f);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.rvw .who{font-weight:800;font-size:.9rem}.rvw .stars{color:#ffd23f;font-size:.85rem;margin-left:6px}
+.rvw .txt{color:var(--text-soft,#dfe1ea);font-size:.92rem;margin-top:5px}
 .rev{color:var(--muted);font-size:.92rem}
 .svc{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 @media(max-width:640px){.svc{grid-template-columns:1fr}}
-.svc .s{background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.9rem}
-.svc .s b{display:block;margin-bottom:2px}
+.svc .s{background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:.9rem;color:var(--text);text-decoration:none;display:block;transition:transform .15s,border-color .15s}
+.svc a.s:hover{border-color:var(--brand,#00b4ff);transform:translateY(-2px)}
+.svc .s b{display:block;margin-bottom:3px;color:var(--brand,#00b4ff)}
+.chip{transition:border-color .15s,color .15s}
+.chip:hover{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
 /* ask */
 .ask-log{display:flex;flex-direction:column;gap:10px;min-height:40px;margin:10px 0}
 .ask-msg{max-width:88%;padding:11px 14px;border-radius:14px;font-size:.92rem;line-height:1.5}
@@ -102,7 +117,6 @@ textarea{min-height:90px;resize:vertical}
   <div class="v-cover" id="vCover"></div>
   <div class="wrap">
     <div class="v-head">
-      <span class="v-badge">KEEPITIL Venue</span>
       <h1 class="v-name" id="vName"></h1>
       <div class="v-tag" id="vTag"></div>
       <div class="v-loc" id="vLoc"></div>
@@ -148,15 +162,22 @@ textarea{min-height:90px;resize:vertical}
 
     <div class="sec"><h2>Also on KEEPITIL</h2>
       <div class="svc">
-        <div class="s"><b>Sell tickets</b>Run paid or RSVP ticketing for your event, right here.</div>
-        <div class="s"><b>Promote it</b>Boost your event across KEEPITIL and the AI crew profiles.</div>
-        <div class="s"><b>Event chat</b>A live room for your guests before, during & after.</div>
-        <div class="s"><b>One dashboard</b>Track sales, check-ins and inquiries in one place.</div>
+        <a class="s" href="/v3/create-event.html"><b>Create an event →</b>List your event at this venue in minutes.</a>
+        <a class="s" href="/v3/apply.html"><b>Subscribe →</b>Join KEEPITIL to post, get discovered, and unlock member perks.</a>
+        <a class="s" href="/v3/create-event.html"><b>Sell tickets →</b>Run paid or RSVP ticketing for your event, right here.</a>
+        <a class="s" href="/v3/dashboard.html"><b>Your dashboard →</b>Track sales, check-ins and inquiries in one place.</a>
       </div>
     </div>
 
-    <div class="sec"><h2>Reviews</h2><div class="card rev" id="vReviews"></div></div>
-    <div class="sec"><h2>Gallery</h2><div class="gal" id="vGallery"></div></div>
+    <div class="sec"><h2>Reviews</h2>
+      <div id="vReviewsList"></div>
+      <div class="card rev" id="vReviews"></div>
+      <div id="reviewForm" style="margin-top:12px"></div>
+    </div>
+    <div class="sec"><h2>Gallery</h2>
+      <div class="gfilter" id="gFilter"></div>
+      <div class="gal" id="vGallery"></div>
+    </div>
     <div class="sec"><h2>FAQ</h2><div class="card" id="vFaq"></div></div>
 
     <div class="sec" id="askSec"><h2>Ask <span id="askName">the venue</span></h2>
@@ -234,12 +255,10 @@ function render(){
     var rc=(rev.rating||rev.count)?(' · '+esc(rev.rating||'')+(rev.count?(' ('+esc(rev.count)+' reviews)'):'')):'';
     $('vReviews').innerHTML='<b>'+esc(rev.source)+'</b>'+rc+(rev.note?('<div style="margin-top:6px">'+esc(rev.note)+'</div>'):'')+(rev.url?('<div style="margin-top:8px"><a style="color:var(--brand)" href="'+esc(rev.url)+'" target="_blank" rel="noopener nofollow">View on '+esc(rev.source)+' ↗</a></div>'):'');
   } else { $('vReviews').innerHTML=esc((rev&&rev.note)||'No reviews yet.'); }
-  // gallery — real photos, else point to their socials
-  var g=V.gallery||[];
-  if(g.length){ $('vGallery').innerHTML=g.map(function(u){return '<img src="'+esc(u)+'" alt="'+esc(V.name)+'" onerror="this.style.display=\'none\'">';}).join(''); }
-  else if(soc.instagram||soc.tiktok){
-    $('vGallery').innerHTML='<div class="ph" style="grid-column:1/-1;aspect-ratio:auto;min-height:0;padding:24px">See photos &amp; videos on '+(soc.instagram?'<a style="color:var(--brand)" href="'+esc(soc.instagram)+'" target="_blank" rel="noopener">Instagram</a>':'')+(soc.instagram&&soc.tiktok?' · ':'')+(soc.tiktok?'<a style="color:var(--brand)" href="'+esc(soc.tiktok)+'" target="_blank" rel="noopener">TikTok</a>':'')+'</div>';
-  } else { $('vGallery').innerHTML='<div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div><div class="ph">Photos coming soon</div>'; }
+  // on-site reviews + gallery (auto-filled from tagged posts, filterable)
+  loadReviews();
+  $('gFilter').innerHTML=[['all','All'],['image','Photos'],['video','Videos'],['blog','Blogs'],['artist','Artists']].map(function(f){return '<button data-g="'+f[0]+'"'+(f[0]==='all'?' class="on"':'')+' onclick="loadGallery(\''+f[0]+'\')">'+f[1]+'</button>';}).join('');
+  loadGallery('all');
   // faq
   $('vFaq').innerHTML=(V.faqs||[]).map(function(f,i){return '<div class="faq" onclick="this.classList.toggle(\'open\')"><div class="fq"><span>'+esc(f.q)+'</span><span>+</span></div><div class="fa">'+esc(f.a)+'</div></div>';}).join('')||'No FAQs yet.';
   // ask
@@ -248,6 +267,53 @@ function render(){
   // claim
   $('vClaim').innerHTML=V.owner_handle?('Managed by <a href="/v3/u.html?slug='+esc(V.owner_handle)+'">@'+esc(V.owner_handle)+'</a>'):'Is this your venue? <a onclick="claim()">Claim this page →</a>';
   $('loading').style.display='none'; $('v').style.display='block';
+}
+/* ── Gallery (auto-filled from posts/blogs that tag or mention the venue) ── */
+function loadGallery(kind){
+  var buttons=document.querySelectorAll('#gFilter button');
+  for(var i=0;i<buttons.length;i++){ buttons[i].classList.toggle('on',buttons[i].getAttribute('data-g')===kind); }
+  var box=$('vGallery'); box.innerHTML='<div class="ph" style="grid-column:1/-1;aspect-ratio:auto;padding:20px">Loading…</div>';
+  SB.rpc('get_venue_media',{p_slug:V.slug,p_kind:(kind==='all'?null:kind)}).then(function(r){
+    var items=(r&&r.data)||[];
+    if(!items.length){ galleryEmpty(); return; }
+    box.innerHTML=items.map(function(m){
+      var href=m.source_url||m.media_url||'#'; var ext=(m.source_url||m.media_url)?' target="_blank" rel="noopener"':'';
+      if(m.kind==='video'&&m.media_url){ return '<a class="gcard" href="'+esc(href)+'"'+ext+'><span class="lab">Video</span><video src="'+esc(m.media_url)+'" muted playsinline></video>'+(m.author_handle?'<div class="by">@'+esc(m.author_handle)+'</div>':'')+'</a>'; }
+      if(m.kind==='blog'){ return '<a class="gcard blogc" href="'+esc(href)+'"'+ext+'><span class="lab">Blog</span>'+(m.media_url?'<img src="'+esc(m.media_url)+'" alt="" onerror="this.style.display=\'none\'">':'')+'<div class="bt">'+esc(m.title||'Read')+'</div>'+(m.author_handle?'<div class="by">by '+esc(m.author_handle)+'</div>':'')+'</a>'; }
+      var img=m.media_url?'<img src="'+esc(m.media_url)+'" alt="" onerror="var c=this.closest(\'.gcard\');if(c)c.style.display=\'none\'">':'';
+      var inner=img||('<div class="bt">'+esc(m.title||'')+'</div>');
+      return '<a class="gcard" href="'+esc(href)+'"'+ext+'><span class="lab">'+esc((m.kind||'post').toUpperCase())+'</span>'+inner+(m.author_handle?'<div class="by">@'+esc(m.author_handle)+'</div>':'')+'</a>';
+    }).join('');
+  }).catch(function(){ galleryEmpty(); });
+}
+function galleryEmpty(){
+  var soc=V.socials||{}; var box=$('vGallery');
+  var tag='Tag <b>'+esc(V.name)+'</b> in your posts and they show up here automatically.';
+  if(soc.instagram||soc.tiktok){ box.innerHTML='<div class="ph" style="grid-column:1/-1;aspect-ratio:auto;min-height:0;padding:24px">No tagged posts yet — see photos &amp; videos on '+(soc.instagram?'<a style="color:var(--brand)" href="'+esc(soc.instagram)+'" target="_blank" rel="noopener">Instagram</a>':'')+(soc.instagram&&soc.tiktok?' · ':'')+(soc.tiktok?'<a style="color:var(--brand)" href="'+esc(soc.tiktok)+'" target="_blank" rel="noopener">TikTok</a>':'')+'.<br>'+tag+'</div>'; }
+  else { box.innerHTML='<div class="ph" style="grid-column:1/-1;aspect-ratio:auto;padding:24px">'+tag+'</div>'; }
+}
+/* ── On-site reviews ── */
+function loadReviews(){
+  SB.rpc('get_venue_reviews',{p_slug:V.slug,p_limit:30}).then(function(r){
+    var rows=(r&&r.data)||[];
+    $('vReviewsList').innerHTML=rows.map(function(rv){
+      var stars=rv.rating?('<span class="stars">'+Array(rv.rating+1).join('★')+'</span>'):'';
+      return '<div class="rvw"><div class="who">@'+esc(rv.author_handle||'guest')+stars+'</div><div class="txt">'+esc(rv.body)+'</div></div>';
+    }).join('');
+  }).catch(function(){});
+  SB.auth.getSession().then(function(s){
+    if(s&&s.data&&s.data.session){
+      $('reviewForm').innerHTML='<div class="card"><label>Leave a review</label><select id="rvRating" style="max-width:160px"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3">★★★</option><option value="2">★★</option><option value="1">★</option></select><textarea id="rvBody" placeholder="How was your event at '+esc(V.name)+'?" style="margin-top:10px"></textarea><button class="submit" onclick="submitReview()">Post review</button><div class="msg" id="rvMsg"></div></div>';
+    }
+  });
+}
+function submitReview(){
+  var m=$('rvMsg'); m.className='msg'; m.textContent=''; var body=($('rvBody').value||'').trim();
+  if(!body){ m.className='msg err'; m.textContent='Write your review first.'; return; }
+  SB.rpc('submit_venue_review',{p_slug:V.slug,p_rating:parseInt($('rvRating').value,10)||5,p_body:body}).then(function(r){
+    if(r.error){ m.className='msg err'; m.textContent='Could not post: '+(r.error.message||r.error); return; }
+    $('rvBody').value=''; m.className='msg ok'; m.textContent='Thanks — your review is posted ✓'; loadReviews();
+  });
 }
 function scrollToBook(){ $('bookSec').scrollIntoView({behavior:'smooth'}); }
 function scrollToAsk(){ $('askSec').scrollIntoView({behavior:'smooth'}); }
