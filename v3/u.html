@@ -1294,19 +1294,97 @@ function addContent(kind){
     });
     return;
   }
-  if(kind==='chat group'){
-    openModal('New Chat Group',[
-      {name:'name',label:'Group name',type:'text',ph:'OC Techno Heads',req:true},
-      {name:'preview',label:'First message / topic',type:'text',ph:'Warehouse location?'},
-      {name:'avatarurl',label:'Avatar image URL',type:'text',ph:'https://...'},
-      {name:'avatarfile',label:'…or upload an avatar',type:'file'}
-    ],function(v){
-      resolveImg(v,'avatarfile','avatarurl','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg',function(av){
-        publish('chat',{slug:slugify(v.name),name:v.name,preview:v.preview||'New group',avatar:av});showTab('chat');
-      });
-    });
-    return;
-  }
+  if(kind==='chat group'){ openNewChat(); return; }
+}
+
+/* ── INSTAGRAM-STYLE NEW CHAT (search subscribers → group details + moderation) ── */
+var NC_SEL={}, NC_NAMES={}, NC_STATE={post:'everyone',subsOnly:false,approval:false};
+function ncCSS(){ if(document.getElementById('nc-css'))return; var s=document.createElement('style'); s.id='nc-css'; s.textContent=
+ '.nc-ov{position:fixed;inset:0;z-index:5000;background:rgba(4,4,10,.72);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px}'+
+ '.nc{background:#16161f;border:1px solid rgba(255,255,255,.12);border-radius:16px;width:100%;max-width:440px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}'+
+ '.nc-hd{display:flex;align-items:center;justify-content:center;position:relative;padding:14px;border-bottom:1px solid rgba(255,255,255,.1);font-weight:800;color:#fff}'+
+ '.nc-hd .x,.nc-hd .bk{position:absolute;background:none;border:0;color:#fff;font-size:1.5rem;cursor:pointer;line-height:1}'+
+ '.nc-hd .x{right:14px}.nc-hd .bk{left:14px}'+
+ '.nc-to{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08)}'+
+ '.nc-to .lbl{font-weight:800;font-size:.9rem;color:#fff}'+
+ '.nc-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(0,180,255,.16);color:#67d3ff;border:1px solid rgba(0,180,255,.4);border-radius:20px;padding:3px 6px 3px 11px;font-size:.8rem;font-weight:700}'+
+ '.nc-chip b{cursor:pointer;font-size:1.05rem;line-height:1}'+
+ '.nc-to input{flex:1;min-width:120px;background:transparent;border:0;color:#fff;font:inherit;outline:none;padding:6px 2px}'+
+ '.nc-list{flex:1;overflow-y:auto;min-height:160px;max-height:46vh}'+
+ '.nc-row{display:flex;align-items:center;gap:12px;padding:9px 14px;cursor:pointer}'+
+ '.nc-row:hover{background:rgba(255,255,255,.04)}'+
+ '.nc-av{width:44px;height:44px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;background:linear-gradient(150deg,rgba(0,180,255,.4),#16161f);border:1px solid rgba(255,255,255,.12)}'+
+ '.nc-nm{font-weight:700;font-size:.92rem;color:#fff}.nc-hn{font-size:.8rem;color:#9aa7b4}'+
+ '.nc-sel{width:22px;height:22px;border-radius:50%;border:2px solid #555;flex:0 0 auto;margin-left:auto;display:flex;align-items:center;justify-content:center}'+
+ '.nc-row.on .nc-sel{border-color:#00b4ff;background:#00b4ff}.nc-row.on .nc-sel::after{content:"✓";color:#04121b;font-size:.78rem;font-weight:900}'+
+ '.nc-ft{padding:14px;border-top:1px solid rgba(255,255,255,.1)}'+
+ '.nc-go{width:100%;background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;font:inherit;font-weight:800}'+
+ '.nc-go:disabled{opacity:.4;cursor:default}'+
+ '.nc-body{padding:6px 16px 8px;overflow-y:auto}'+
+ '.nc-body label{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9aa7b4;margin:16px 0 6px}'+
+ '.nc-body input[type=text]{width:100%;background:#0d0d13;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:12px;color:#fff;font:inherit;outline:none}'+
+ '.nc-body input[type=text]:focus{border-color:#00b4ff}'+
+ '.nc-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid rgba(255,255,255,.07)}'+
+ '.nc-opt .t{font-weight:700;font-size:.9rem;color:#fff}.nc-opt .d{font-size:.78rem;color:#9aa7b4;margin-top:2px}'+
+ '.nc-seg{display:flex;gap:6px;flex:0 0 auto}.nc-seg button{background:#0d0d13;border:1px solid rgba(255,255,255,.14);color:#cfd8e0;border-radius:8px;padding:7px 12px;font-weight:700;font-size:.8rem;cursor:pointer}'+
+ '.nc-seg button.on{background:rgba(0,180,255,.16);border-color:#00b4ff;color:#67d3ff}'+
+ '.nc-sw{width:44px;height:26px;border-radius:20px;background:#33333f;position:relative;cursor:pointer;flex:0 0 auto;transition:background .15s}'+
+ '.nc-sw.on{background:#00b4ff}.nc-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}.nc-sw.on::after{left:21px}'+
+ '.nc-empty{padding:26px 14px;text-align:center;color:#9aa7b4;font-size:.88rem}';
+ document.head.appendChild(s); }
+function ncInitial(h){ var m=String(h||'').replace(/[^a-z0-9]/gi,''); return (m.charAt(0)||'?').toUpperCase(); }
+function ncClose(){ var o=document.getElementById('nc-ov'); if(o) o.remove(); }
+function ncRenderChips(){ var box=document.getElementById('nc-chips'); if(!box)return;
+  box.innerHTML=Object.keys(NC_SEL).map(function(h){ return '<span class="nc-chip">'+esc(NC_NAMES[h]||('@'+h))+'<b onclick="ncToggle(\''+h+'\')">×</b></span>'; }).join('');
+  var n=Object.keys(NC_SEL).length, nx=document.getElementById('nc-next'); if(nx){ nx.disabled=(n<1); nx.textContent=(n>1?('Next · group of '+n):'Next'); } }
+function ncToggle(h){ if(NC_SEL[h]) delete NC_SEL[h]; else NC_SEL[h]=1; ncRenderChips();
+  document.querySelectorAll('#nc-list .nc-row').forEach(function(r){ if(r.getAttribute('data-h')===h) r.classList.toggle('on', !!NC_SEL[h]); }); }
+function ncSearch(q){ var list=document.getElementById('nc-list'); if(!list)return;
+  if(!SB){ list.innerHTML='<div class="nc-empty">Search unavailable.</div>'; return; }
+  list.innerHTML='<div class="nc-empty">Searching…</div>';
+  SB.rpc('search_members',{q:q}).then(function(r){ var rows=(r&&r.data)||[];
+    if(!rows.length){ list.innerHTML='<div class="nc-empty">No members found'+(q?(' for “'+esc(q)+'”'):' yet')+'.</div>'; return; }
+    list.innerHTML=rows.map(function(u){ NC_NAMES[u.handle]=u.display_name||u.handle; var on=NC_SEL[u.handle]?' on':'';
+      return '<div class="nc-row'+on+'" data-h="'+esc(u.handle)+'" onclick="ncToggle(\''+esc(u.handle)+'\')"><div class="nc-av">'+ncInitial(u.handle)+'</div><div><div class="nc-nm">'+esc(u.display_name||u.handle)+'</div><div class="nc-hn">@'+esc(u.handle)+'</div></div><div class="nc-sel"></div></div>';
+    }).join('');
+  },function(){ list.innerHTML='<div class="nc-empty">Could not search.</div>'; }); }
+function ncStep2(){ if(Object.keys(NC_SEL).length<1)return; document.getElementById('nc-s1').style.display='none'; document.getElementById('nc-s2').style.display='block'; document.getElementById('nc-back').style.display='block'; document.getElementById('nc-ttl').textContent=(Object.keys(NC_SEL).length>1?'New group':'Chat details'); var nm=document.getElementById('nc-name'); if(nm) nm.focus(); }
+function ncStep1(){ document.getElementById('nc-s2').style.display='none'; document.getElementById('nc-s1').style.display='block'; document.getElementById('nc-back').style.display='none'; document.getElementById('nc-ttl').textContent='New message'; }
+function ncCreate(){ var members=Object.keys(NC_SEL); if(!members.length)return;
+  var name=(document.getElementById('nc-name').value||'').trim() || (members.length>1?('Group · '+members.length+' people'):('@'+members[0]));
+  var topic=(document.getElementById('nc-topic').value||'').trim()||'New chat';
+  var slug=slugify(name)+'-'+Date.now().toString(36).slice(-4);
+  var settings={post:NC_STATE.post,subsOnly:NC_STATE.subsOnly,approval:NC_STATE.approval};
+  publish('chat',{slug:slug,name:name,preview:topic,avatar:'',category:'primary',members:members,settings:settings});
+  ncClose(); if(typeof showTab==='function') showTab('chat');
+}
+function openNewChat(){ ncCSS(); NC_SEL={}; NC_NAMES={}; NC_STATE={post:'everyone',subsOnly:false,approval:false};
+  var ov=document.createElement('div'); ov.className='nc-ov'; ov.id='nc-ov';
+  ov.innerHTML='<div class="nc" id="nc-box">'
+   +'<div class="nc-hd"><button class="bk" id="nc-back" style="display:none">&lsaquo;</button><span id="nc-ttl">New message</span><button class="x" id="nc-x">&times;</button></div>'
+   +'<div id="nc-s1"><div class="nc-to"><span class="lbl">To:</span><span id="nc-chips"></span><input id="nc-q" placeholder="Search subscribers…" autocomplete="off"/></div>'
+   +'<div class="nc-list" id="nc-list"></div>'
+   +'<div class="nc-ft"><button class="nc-go" id="nc-next" disabled>Next</button></div></div>'
+   +'<div id="nc-s2" style="display:none"><div class="nc-body">'
+   +'<label>Chat name</label><input type="text" id="nc-name" placeholder="OC Techno Heads"/>'
+   +'<label>First message / topic <span style="text-transform:none;font-weight:600;color:#8a97a4">(optional)</span></label><input type="text" id="nc-topic" placeholder="Warehouse location?"/>'
+   +'<label>Moderation</label>'
+   +'<div class="nc-opt"><div class="t">Who can send messages</div><div class="nc-seg" id="nc-post"><button data-v="everyone" class="on">Everyone</button><button data-v="admins">Admins</button></div></div>'
+   +'<div class="nc-opt"><div><div class="t">Subscribers only</div><div class="d">Only your subscribers can join</div></div><div class="nc-sw" id="nc-subs"></div></div>'
+   +'<div class="nc-opt"><div><div class="t">Approve new members</div><div class="d">You approve each request to join</div></div><div class="nc-sw" id="nc-appr"></div></div>'
+   +'</div><div class="nc-ft"><button class="nc-go" id="nc-create">Create chat</button></div></div></div>';
+  ov.addEventListener('click',function(e){ if(e.target===ov) ncClose(); });
+  document.body.appendChild(ov);
+  document.getElementById('nc-x').addEventListener('click',ncClose);
+  document.getElementById('nc-next').addEventListener('click',ncStep2);
+  document.getElementById('nc-back').addEventListener('click',ncStep1);
+  document.getElementById('nc-create').addEventListener('click',ncCreate);
+  var q=document.getElementById('nc-q'); q.focus(); var tm=null;
+  q.addEventListener('input',function(){ clearTimeout(tm); tm=setTimeout(function(){ ncSearch(q.value.trim()); },220); });
+  document.querySelectorAll('#nc-post button').forEach(function(b){ b.addEventListener('click',function(){ document.querySelectorAll('#nc-post button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); NC_STATE.post=b.getAttribute('data-v'); }); });
+  document.getElementById('nc-subs').addEventListener('click',function(){ this.classList.toggle('on'); NC_STATE.subsOnly=this.classList.contains('on'); });
+  document.getElementById('nc-appr').addEventListener('click',function(){ this.classList.toggle('on'); NC_STATE.approval=this.classList.contains('on'); });
+  ncSearch('');
 }
 /* ── ARTICLE CAROUSEL + VIEWER ── */
 var GT_ARTICLES=[
