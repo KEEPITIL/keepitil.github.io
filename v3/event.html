@@ -97,10 +97,27 @@
   .lcard .lnk{font-size:.62rem;color:var(--brand-2);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
   .gcard2{flex:0 0 190px;scroll-snap-align:start;aspect-ratio:4/3;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:#12121c;}
   .gcard2 img,.gcard2 video{width:100%;height:100%;object-fit:cover;display:block;}
-  #ev-feed .frow{background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;}
-  #ev-feed .fimg{width:56px;height:56px;border-radius:9px;object-fit:cover;flex:0 0 auto;background:#0a0a12;}
-  #ev-feed .fwho{font-weight:800;font-size:.85rem;}
-  #ev-feed .ftxt{color:#b6c2ce;font-size:.88rem;margin-top:3px;}
+  /* feed = single column of content cards (like profiles / culture), newest first */
+  #ev-feed{max-width:640px;}
+  .fpost{background:var(--surface,#12121c);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px 18px;margin-bottom:14px;}
+  .fp-head{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+  .fp-av{width:42px;height:42px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:1.15rem;color:#fff;background:linear-gradient(150deg,color-mix(in srgb,var(--brand) 40%,#12121c),#12121c);border:1px solid rgba(255,255,255,.12);overflow:hidden;}
+  .fp-av img{width:100%;height:100%;object-fit:cover;}
+  .fp-who{font-weight:800;font-size:.9rem;color:#fff;}
+  .fp-who a{color:#fff;text-decoration:none;}
+  .fp-who a:hover{color:var(--brand-2);}
+  .fp-meta{font-size:.7rem;color:var(--grey);margin-top:2px;display:flex;align-items:center;gap:8px;}
+  .fp-badge{font-size:.56rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid;}
+  .fp-badge.post{color:var(--brand-2);border-color:rgba(0,180,255,.4);background:rgba(0,180,255,.1);}
+  .fp-badge.photo{color:#22e39b;border-color:rgba(34,227,155,.4);background:rgba(34,227,155,.1);}
+  .fp-badge.video{color:var(--gold,#e0b021);border-color:rgba(224,176,33,.4);background:rgba(224,176,33,.1);}
+  .fp-badge.blog{color:#c48bff;border-color:rgba(196,139,255,.4);background:rgba(196,139,255,.1);}
+  .fp-text{color:#d3dbe2;font-size:.95rem;line-height:1.6;}
+  .fp-title{font-family:var(--head);font-size:1.25rem;color:#fff;margin:0 0 6px;letter-spacing:.02em;}
+  .fp-media{margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);}
+  .fp-media img,.fp-media video{width:100%;display:block;max-height:520px;object-fit:cover;background:#0a0a12;}
+  .fp-read{display:inline-block;margin-top:10px;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-2);text-decoration:none;}
+  .fp-read:hover{text-decoration:underline;}
   .esec-empty{color:var(--grey);font-size:.88rem;}
   /* ticket tiers (separate from info) */
   .tiers2{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
@@ -222,6 +239,7 @@
   var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function fmt(d){ if(!d) return ''; var a=d.split('-'); if(a.length<3) return d; var dt=new Date(Date.UTC(+a[0],+a[1]-1,+a[2])); return DOW[dt.getUTCDay()]+', '+MON[+a[1]-1]+' '+(+a[2])+', '+a[0]; }
   function fmtDT(ms){ if(!ms) return ''; var d=new Date(ms); var h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM'; h=h%12||12; return MON[d.getMonth()]+' '+d.getDate()+', '+h+(m?(':'+String(m).padStart(2,'0')):'')+' '+ap; }
+  function timeAgo(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return ''; var s=Math.floor((Date.now()-d.getTime())/1000); if(s<60)return 'just now'; var m=Math.floor(s/60); if(m<60)return m+'m ago'; var h=Math.floor(m/60); if(h<24)return h+'h ago'; var dd=Math.floor(h/24); if(dd<7)return dd+'d ago'; return MON[d.getMonth()]+' '+d.getDate(); }
   var ev={
     slug:g('e'), title:g('t')||'KEEPITIL Event', venue:g('v'), city:g('c'),
     date:g('d'), genre:g('g'), img:g('img'), ticket:g('tix'), price:g('pr'), vip:g('vip')==='1'
@@ -445,8 +463,21 @@
       var rows=(r&&r.data)||[]; var box=$('ev-feed'); if(!box) return;
       if(!rows.length){ box.innerHTML='<div class="esec-empty">No posts yet — tag this event in your posts and they show up here.</div>'; return; }
       box.innerHTML=rows.map(function(m){
-        var im=(m.media_url&&m.kind==='image')?'<img class="fimg" src="'+esc(m.media_url)+'" alt="" onerror="this.style.display=\'none\'">':'';
-        return '<div class="frow">'+im+'<div><div class="fwho">@'+esc(m.author_handle||'guest')+'</div><div class="ftxt">'+esc(m.title||'(shared a post)')+'</div></div></div>';
+        var kind=(m.kind==='image')?'photo':(m.kind==='video')?'video':(m.source_url?'blog':'post');
+        var label={photo:'Photo',video:'Video',blog:'Blog',post:'Post'}[kind];
+        var who=esc(m.author_handle||'guest');
+        var ini=esc((m.author_handle||'?').charAt(0).toUpperCase());
+        var when=timeAgo(m.created_at);
+        var whoLink=m.author_handle?('<a href="/v3/agent.html?a='+esc(m.author_handle)+'">@'+who+'</a>'):('@'+who);
+        var media='';
+        if(m.media_url && m.kind==='image') media='<div class="fp-media"><img src="'+esc(m.media_url)+'" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></div>';
+        else if(m.media_url && m.kind==='video') media='<div class="fp-media"><video src="'+esc(m.media_url)+'" controls preload="metadata"></video></div>';
+        var body;
+        if(kind==='blog'){ body='<div class="fp-title">'+esc(m.title||'Untitled')+'</div>'+(m.source_url?'<a class="fp-read" href="'+esc(m.source_url)+'" target="_blank" rel="noopener">Read →</a>':''); }
+        else { body='<div class="fp-text">'+esc(m.title||'')+'</div>'; }
+        return '<div class="fpost">'+
+          '<div class="fp-head"><div class="fp-av">'+ini+'</div><div><div class="fp-who">'+whoLink+'</div><div class="fp-meta">'+(when?('<span>'+esc(when)+'</span>'):'')+'<span class="fp-badge '+kind+'">'+label+'</span></div></div></div>'+
+          body+media+'</div>';
       }).join('');
     }).catch(function(){});
   }
