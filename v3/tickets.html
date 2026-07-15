@@ -154,6 +154,8 @@ function render(){
       '</div>';
   }).join('');
   var tixCount=sameTix.length;
+  var totQty=0, totCents=0; sameTix.forEach(function(o){ var er=o.tk.row; var q=er.qty||1; totQty+=q; totCents+=(er.price_cents||0)*q; });
+  var totPrice='$'+(totCents/100).toFixed(2).replace(/\.00$/,'');
 
   $('ticketview').innerHTML=
   '<div class="card">'+
@@ -174,7 +176,7 @@ function render(){
           '<div class="irow"><span class="k">Venue</span><span class="v">'+esc(e.venue||'—')+'</span></div>'+
           '<div class="irow"><span class="k">Address</span><span class="v">'+maps+'</span></div>'+
           '<div class="irow"><span class="k">Genre</span><span class="v">'+esc(e.genres||'—')+'</span></div>'+
-          '<div class="tixhead" onclick="toggleTix()"><span class="th-k">Your tickets ('+tixCount+')</span><span class="th-v">'+esc(e.tier_name||'General Admission')+' · Qty '+(e.qty||1)+(price?(' · '+price):'')+'</span><span class="chev" id="tixchev">'+(EXPANDED?'▴':'▾')+'</span></div>'+
+          '<div class="tixhead" onclick="toggleTix()"><span class="th-k">Your tickets</span><span class="th-v">'+totQty+' ticket'+(totQty===1?'':'s')+' · '+totPrice+'</span><span class="chev" id="tixchev">'+(EXPANDED?'▴':'▾')+'</span></div>'+
           '<div class="tixlist" id="tixlist" style="display:'+(EXPANDED?'flex':'none')+'">'+tixItems+'</div>'+
         '</div>'+
         '<div class="chatcard"><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div>'+
