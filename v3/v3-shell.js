@@ -24,6 +24,45 @@
   try{ if(!window.__kilNotifyLoad){ window.__kilNotifyLoad=1;
     var _no=document.createElement('script'); _no.defer=true; _no.src='/v3/keepitil-notify.js'; document.head.appendChild(_no);
   } }catch(e){}
+  /* ── PWA: manifest + iOS install meta + service worker + install hint. Added 2026-07-16.
+     SW is conservative: never caches page HTML or Supabase — see /sw.js. ── */
+  try{
+    if(!document.querySelector('link[rel="manifest"]')){ var _mf=document.createElement('link'); _mf.rel='manifest'; _mf.href='/manifest.webmanifest'; document.head.appendChild(_mf); }
+    [['theme-color','#0b0b0b'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-status-bar-style','black-translucent'],['apple-mobile-web-app-title','KEEPITIL']].forEach(function(m){
+      if(!document.querySelector('meta[name="'+m[0]+'"]')){ var t=document.createElement('meta'); t.name=m[0]; t.content=m[1]; document.head.appendChild(t); }
+    });
+    if(!document.querySelector('link[rel="apple-touch-icon"]')){ var _ai=document.createElement('link'); _ai.rel='apple-touch-icon'; _ai.href='/apple-touch-icon.png'; document.head.appendChild(_ai); }
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }
+  }catch(e){}
+  /* Install banner: Android/desktop via beforeinstallprompt; iOS gets a one-time Share hint. */
+  try{
+    var _IK='kil-pwa-hint-2026';
+    var _standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
+    if(!_standalone && !localStorage.getItem(_IK)){
+      var _dismiss=function(){ try{localStorage.setItem(_IK,'1');}catch(e){} var b=document.getElementById('kil-pwa-banner'); if(b)b.remove(); };
+      var _show=function(msg,btnLabel,onBtn){
+        if(document.getElementById('kil-pwa-banner'))return;
+        var b=document.createElement('div'); b.id='kil-pwa-banner';
+        b.style.cssText='position:fixed;left:12px;right:12px;bottom:104px;z-index:900;background:#12121c;border:1px solid #2a2a3a;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);font-family:Inter,system-ui,sans-serif;font-size:.85rem;color:#f0f0f0;max-width:520px;margin:0 auto';
+        b.innerHTML='<img src="/icon-192.png" alt="" style="width:34px;height:34px;border-radius:8px;flex:0 0 34px">'+
+          '<span style="flex:1;line-height:1.35">'+msg+'</span>'+
+          (btnLabel?'<button id="kil-pwa-go" style="background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:9px;padding:8px 14px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">'+btnLabel+'</button>':'')+
+          '<button id="kil-pwa-x" aria-label="Dismiss" style="background:none;border:0;color:#9aa0b0;font-size:1.1rem;cursor:pointer;padding:4px">&times;</button>';
+        document.body.appendChild(b);
+        var x=document.getElementById('kil-pwa-x'); if(x)x.addEventListener('click',_dismiss);
+        var g=document.getElementById('kil-pwa-go'); if(g&&onBtn)g.addEventListener('click',onBtn);
+      };
+      window.addEventListener('beforeinstallprompt',function(ev){
+        ev.preventDefault();
+        _show('Add <b>KEEPITIL</b> to your home screen — events, scene &amp; radio, one tap away.','Install',function(){
+          try{ ev.prompt(); ev.userChoice.then(_dismiss); }catch(e){ _dismiss(); }
+        });
+      });
+      window.addEventListener('appinstalled',_dismiss);
+      var _ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+      if(_ios){ setTimeout(function(){ _show('Install <b>KEEPITIL</b>: tap <b>Share</b> &rarr; <b>Add to Home Screen</b>.',null,null); },2600); }
+    }
+  }catch(e){}
   var NAV=[['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
