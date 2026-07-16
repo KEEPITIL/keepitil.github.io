@@ -28,6 +28,13 @@ body::before{ content:""; position:fixed; inset:0; z-index:-3; pointer-events:no
   background:var(--theme-bg) center top/cover no-repeat; opacity:.16;
   transition:opacity var(--dur) var(--ease); }
 
+/* ---- MOBILE OVERFLOW SAFETY NET (site-wide) ----
+   Caps runaway media widths and blocks stray horizontal scroll so no page
+   renders wider than the phone screen. Low-risk: only constrains max width. */
+html,body{ max-width:100%; overflow-x:hidden; }
+img,video,canvas,iframe,embed,object{ max-width:100%; }
+img{ height:auto; }
+
 /* =====================  ANNUAL THEME SYSTEM  =====================
    (1) 4 SEASONAL BASE designs run by default. (2) HOLIDAY OVERLAYS
    sit on top on their dates, then revert to the season. Founder-
