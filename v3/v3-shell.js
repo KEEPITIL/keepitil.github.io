@@ -52,15 +52,34 @@
         var x=document.getElementById('kil-pwa-x'); if(x)x.addEventListener('click',_dismiss);
         var g=document.getElementById('kil-pwa-go'); if(g&&onBtn)g.addEventListener('click',onBtn);
       };
-      window.addEventListener('beforeinstallprompt',function(ev){
-        ev.preventDefault();
-        _show('Add <b>KEEPITIL</b> to your home screen — events, scene &amp; radio, one tap away.','Install',function(){
-          try{ ev.prompt(); ev.userChoice.then(_dismiss); }catch(e){ _dismiss(); }
-        });
-      });
-      window.addEventListener('appinstalled',_dismiss);
       var _ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
-      if(_ios){ setTimeout(function(){ _show('Install <b>KEEPITIL</b>: tap <b>Share</b> &rarr; <b>Add to Home Screen</b>.',null,null); },2600); }
+      var _dp=null;
+      /* Full-screen step-by-step overlay for when no native prompt is available (iOS always; Android if the prompt was consumed). */
+      var _instr=function(){
+        if(document.getElementById('kil-pwa-instr'))return;
+        var steps=_ios
+          ? '1. Tap the <b>Share</b> icon <span style="font-size:1.1em">&#x2191;</span> at the bottom of Safari.<br>2. Scroll down and tap <b>Add to Home Screen</b>.<br>3. Tap <b>Add</b> — KEEPITIL lands on your home screen.'
+          : '1. Open your browser menu <b>&#8942;</b> (top-right).<br>2. Tap <b>Install app</b> or <b>Add to Home screen</b>.<br>3. Confirm — KEEPITIL lands on your home screen.';
+        var o=document.createElement('div'); o.id='kil-pwa-instr';
+        o.style.cssText='position:fixed;inset:0;z-index:1200;background:rgba(4,6,12,.88);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,system-ui,sans-serif';
+        o.innerHTML='<div style="background:#12121c;border:1px solid #2a2a3a;border-radius:16px;max-width:360px;width:100%;padding:22px;color:#f0f0f0;box-shadow:0 20px 60px rgba(0,0,0,.6)">'+
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><img src="/icon-192.png" alt="" style="width:38px;height:38px;border-radius:9px">'+
+          '<span style="font-weight:800;font-size:1.05rem">Install KEEPITIL</span></div>'+
+          '<p style="line-height:1.6;font-size:.9rem;color:#d5d8e2;margin:0 0 16px">'+steps+'</p>'+
+          '<button id="kil-pwa-instr-x" style="width:100%;background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:10px;padding:11px;font-weight:800;cursor:pointer;font-family:inherit">Got it</button></div>';
+        o.addEventListener('click',function(e){ if(e.target===o||e.target.id==='kil-pwa-instr-x'){ o.remove(); } });
+        document.body.appendChild(o);
+      };
+      /* The banner button ALWAYS does something: native prompt if we have it, else instructions. */
+      var _onInstall=function(){
+        if(_dp){ try{ _dp.prompt(); _dp.userChoice.then(_dismiss); _dp=null; return; }catch(e){} }
+        _instr();
+      };
+      var _showBanner=function(){ _show('Add <b>KEEPITIL</b> to your home screen — events, scene &amp; radio, one tap away.','Install',_onInstall); };
+      window.addEventListener('beforeinstallprompt',function(ev){ ev.preventDefault(); _dp=ev; _showBanner(); });
+      window.addEventListener('appinstalled',_dismiss);
+      /* iOS never fires beforeinstallprompt, so show the banner ourselves; its button opens the instructions. */
+      if(_ios){ setTimeout(_showBanner,2600); }
     }
   }catch(e){}
   var NAV=[['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
