@@ -1,35 +1,32 @@
-/* KEEPITIL App service worker — scope "/".
-   CONSERVATIVE BY DESIGN (a previous SW was kill-switched for stale caches):
-   - Navigations are ALWAYS network-first. Cached pages are served ONLY when the
-     network fails (offline "feel alive": recently viewed pages keep working).
-   - Supabase (*.supabase.co) is NEVER intercepted — user data is always live.
-   - Shell: cache-first + background revalidation. Other same-origin static
-     assets (css/js/images/fonts): stale-while-revalidate.
-   - Push: displays VAPID web push sent by the push-send edge function.
+/* KEEPITIL App service worker v3 — scope "/".
+   v3 FIX (Atlas-diagnosed, 2026-07-16): v2 served shared JS cache-first with ignoreSearch,
+   so deployed shell updates never reached returning users ("fixes don't stick").
+   NEW RULES — code is NEVER served stale:
+   - ALL JavaScript and CSS: NETWORK-FIRST. Cache is a fallback for offline only.
+   - Page HTML: network-first (unchanged). Supabase: never intercepted (unchanged).
+   - Only images/fonts/icons keep stale-while-revalidate (stale pixels can't break logic).
+   - VERSION bump evicts every v1/v2 cache on activate + clients.claim().
    To retire this SW: bump VERSION and ship, or restore the self-destruct worker. */
-var VERSION = 'kil-pwa-v2-20260716';
-var PAGES = 'kil-pages-v2';
-var ASSETS = 'kil-assets-v2';
-var KEEP = [VERSION, PAGES, ASSETS];
+var VERSION = 'kil-pwa-v3-20260716';
+var PAGES = 'kil-pages-v3';
+var ASSETS = 'kil-assets-v3';
+var CODE = 'kil-code-v3';
+var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
-var SHELL = [
+var PRECACHE = [
   '/v3/offline.html',
-  '/v3/v3-tokens.css',
-  '/v3/v3-shell.js',
-  '/v3/keepitil-radio.js',
-  '/keepitil-x-blue.png',
-  '/v3/logo-blue-nav.png',
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png',
   '/manifest.webmanifest'
 ];
-var STATIC_EXT = /\.(css|js|png|jpg|jpeg|webp|gif|svg|ico|woff2?|ttf)$/i;
+var CODE_EXT = /\.(js|css)(\?|$)/i;
+var MEDIA_EXT = /\.(png|jpg|jpeg|webp|gif|svg|ico|woff2?|ttf)$/i;
 
 self.addEventListener('install', function (e) {
   e.waitUntil(
     caches.open(VERSION).then(function (cache) {
-      return Promise.allSettled(SHELL.map(function (u) { return cache.add(u); }));
+      return Promise.allSettled(PRECACHE.map(function (u) { return cache.add(u); }));
     }).then(function () { return self.skipWaiting(); })
   );
 });
@@ -43,20 +40,6 @@ self.addEventListener('activate', function (e) {
   );
 });
 
-function trimCache(name, max) {
-  return caches.open(name).then(function (cache) {
-    return cache.keys().then(function (keys) {
-      if (keys.length <= max) return;
-      return cache.delete(keys[0]).then(function () { return trimCache(name, max); });
-    });
-  });
-}
-
-function isShellAsset(url) {
-  if (url.origin === self.location.origin) return SHELL.indexOf(url.pathname) !== -1;
-  return url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
-}
-
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
@@ -65,43 +48,39 @@ self.addEventListener('fetch', function (e) {
   // NEVER touch Supabase — user data stays live.
   if (url.hostname.endsWith('.supabase.co')) return;
 
-  // Navigations: network-first. Cache a copy for offline; cached copy is used ONLY on network failure.
+  // Navigations: network-first; cached copy ONLY when the network fails.
   if (req.mode === 'navigate') {
     e.respondWith(
       fetch(req).then(function (res) {
         if (res && res.ok) {
           var copy = res.clone();
-          e.waitUntil(caches.open(PAGES).then(function (c) { return c.put(req, copy); })
-            .then(function () { return trimCache(PAGES, PAGE_LIMIT); }));
+          e.waitUntil(caches.open(PAGES).then(function (c) { return c.put(req, copy); }));
         }
         return res;
       }).catch(function () {
-        return caches.match(req, { ignoreSearch: false }).then(function (hit) {
-          return hit || caches.match('/v3/offline.html');
-        });
+        return caches.match(req).then(function (hit) { return hit || caches.match('/v3/offline.html'); });
       })
     );
     return;
   }
 
-  // App shell + fonts: cache-first with background revalidation (?v= ignored for match).
-  if (isShellAsset(url)) {
+  // CODE (all JS/CSS, same-origin or CDN incl. fonts.googleapis.com CSS): NETWORK-FIRST.
+  // Full URL (incl. ?v=) is the cache key. Never stale while online.
+  if (CODE_EXT.test(url.pathname) || url.hostname === 'fonts.googleapis.com') {
     e.respondWith(
-      caches.open(VERSION).then(function (cache) {
-        return cache.match(req, { ignoreSearch: true }).then(function (hit) {
-          var refresh = fetch(req).then(function (res) {
-            if (res && res.ok) cache.put(req, res.clone());
-            return res;
-          }).catch(function () { return hit; });
-          return hit || refresh;
-        });
-      })
+      fetch(req).then(function (res) {
+        if (res && res.ok) {
+          var copy = res.clone();
+          e.waitUntil(caches.open(CODE).then(function (c) { return c.put(req, copy); }));
+        }
+        return res;
+      }).catch(function () { return caches.match(req); })
     );
     return;
   }
 
-  // Other same-origin static assets: stale-while-revalidate.
-  if (url.origin === self.location.origin && STATIC_EXT.test(url.pathname)) {
+  // Media/fonts/icons: stale-while-revalidate (visual assets only — can't break logic).
+  if ((url.origin === self.location.origin && MEDIA_EXT.test(url.pathname)) || url.hostname === 'fonts.gstatic.com') {
     e.respondWith(
       caches.open(ASSETS).then(function (cache) {
         return cache.match(req).then(function (hit) {
