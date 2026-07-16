@@ -11,7 +11,8 @@
     try{
       var ex=document.documentElement.getAttribute('data-page-type'); if(ex) return ex;
       var p=location.pathname;
-      if(/\/v3\/(campaigns|create-event|create-profile|create|create-comp|image-tool|post|scan|settings|ticket|tickets)\.html$/.test(p)) return 'tool';
+      if(/\/v3\/(tickets|ticket|scan)\.html$/.test(p)) return 'checkout';
+      if(/\/v3\/(campaigns|create-event|create-profile|create|create-comp|image-tool|post|settings)\.html$/.test(p)) return 'tool';
       if(/\/v3\/(admin-qa|dashboard|golive|qa-audit)\.html$/.test(p)) return 'dashboard';
       if(/\/v3\/offline\.html$/.test(p)) return 'system';
       if(/\/v3\/(agent|p|u)\.html$/.test(p)) return 'profile';
@@ -23,21 +24,31 @@
       return 'standard';
     }catch(e){ return 'standard'; }
   })();
+  /* Mirrors public.page_standards (corrected 2026-07-16): DESKTOP radio on EVERY page type
+     except system; checkout (tickets/ticket/scan) is chromeless — nav:false, back-link only. */
   var PAGE_STD={
-    home:{radio:true,bell:'never',gear:'none'}, culture:{radio:true,bell:'signed_in',gear:'none'},
-    scene:{radio:true,bell:'never',gear:'none'}, shop:{radio:true,bell:'never',gear:'none'},
-    event:{radio:true,bell:'never',gear:'none'}, profile:{radio:true,bell:'signed_in',gear:'hamburger'},
-    standard:{radio:true,bell:'never',gear:'none'}, tool:{radio:false,bell:'never',gear:'none'},
-    dashboard:{radio:false,bell:'never',gear:'none'}, system:{radio:false,bell:'never',gear:'none'}
+    home:{radio:true,bell:'never',gear:'none',nav:true}, culture:{radio:true,bell:'signed_in',gear:'none',nav:true},
+    scene:{radio:true,bell:'never',gear:'none',nav:true}, shop:{radio:true,bell:'never',gear:'none',nav:true},
+    event:{radio:true,bell:'never',gear:'none',nav:true}, profile:{radio:true,bell:'signed_in',gear:'hamburger',nav:true},
+    standard:{radio:true,bell:'never',gear:'none',nav:true}, tool:{radio:true,bell:'never',gear:'none',nav:true},
+    dashboard:{radio:true,bell:'never',gear:'none',nav:true}, checkout:{radio:true,bell:'never',gear:'none',nav:false},
+    system:{radio:false,bell:'never',gear:'none',nav:false}
   };
   var RULES=PAGE_STD[PAGE_TYPE]||PAGE_STD.standard;
-  try{ window.KIL=window.KIL||{}; window.KIL.pageType=PAGE_TYPE; window.KIL.pageRules=RULES; }catch(e){}
-  /* Radio bar: standards-driven. Radio-off page types NEVER show the bar (even if a stale
-     per-page include ships); radio-on pages get it auto-injected if the include is missing. */
+  /* STRICT desktop/mobile separation (Founder 2026-07-16): mobile behavior is decided ONCE here.
+     IN_IFRAME guard: embedded frames (e.g. the event chat) NEVER get bottom-nav/radio/banner —
+     this was the "mobile filter bar" leaking into the desktop chat card. */
+  var IN_IFRAME=false; try{ IN_IFRAME=(window.self!==window.top); }catch(e){ IN_IFRAME=true; }
+  var IS_MOBILE=false; try{ IS_MOBILE=window.matchMedia('(max-width:860px)').matches; }catch(e){}
+  try{ window.KIL=window.KIL||{}; window.KIL.pageType=PAGE_TYPE; window.KIL.pageRules=RULES; window.KIL.isMobile=IS_MOBILE; }catch(e){}
+  /* Radio: DESKTOP = bar+audio on every page (standards). MOBILE = no bar anywhere;
+     background AUDIO only on the homepage. Iframes: never. */
   try{
-    if(!RULES.radio){
+    var RADIO_ALLOWED = RULES.radio && !IN_IFRAME && (!IS_MOBILE || PAGE_TYPE==='home');
+    if(!RADIO_ALLOWED){
       var _rk=document.createElement('style'); _rk.textContent='#kil-radio{display:none!important}'; document.head.appendChild(_rk);
-      document.addEventListener('DOMContentLoaded',function(){ try{ var b=document.getElementById('kil-radio'); if(b)b.remove(); }catch(e){} });
+      var _kill=function(){ try{ var b=document.getElementById('kil-radio'); if(b)b.remove(); }catch(e){} };
+      document.addEventListener('DOMContentLoaded',function(){ _kill(); setTimeout(_kill,1200); });
     } else {
       document.addEventListener('DOMContentLoaded',function(){ try{
         if(!document.getElementById('kil-radio') && !document.querySelector('script[src*="keepitil-radio"]')){
@@ -195,8 +206,12 @@
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
         +'</div>'
         +'<div class="v3s-menu">'+links+'<a href="/v3/settings.html">Settings</a><a href="/v3/apply.html" id="v3s-mlogin">Login</a></div>';
-      document.body.insertBefore(hdr, document.body.firstChild);
-      try{ document.body.style.paddingTop='66px'; }catch(e){}  // offset for the fixed universal nav (matches homepage)
+      /* checkout/system pages are chromeless (page_standards.loads_shell_nav=false): no top nav.
+         Mobile: the top bar is REMOVED entirely (bottom-nav only) — desktop keeps it as-is. */
+      if(RULES.nav!==false){
+        document.body.insertBefore(hdr, document.body.firstChild);
+        try{ if(!IS_MOBILE) document.body.style.paddingTop='66px'; }catch(e){}  // desktop offset for the fixed nav
+      }
 
       var f = document.createElement('footer'); f.id='v3-footer';
       f.innerHTML =
@@ -214,7 +229,7 @@
         +'<a href="/v3/terms.html">Terms</a><a href="/v3/privacy.html">Privacy</a><a href="/v3/refund.html">Refunds</a>'
         +'<a href="/v3/ticket-terms.html">Ticket Terms</a><a href="/v3/community-guidelines.html">Community Guidelines</a>'
         +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
-      document.body.appendChild(f);
+      if(RULES.nav!==false) document.body.appendChild(f);
 
       // active state on the mobile top-bar icon nav
       try{ var p=location.pathname; var amap={'/v3/culture':/culture/,'/v3/scene.html':/scene/,'/v3/shop.html':/shop/,'/v3/apply.html':/(u\.html|apply\.html|dashboard\.html)/};
@@ -243,17 +258,25 @@
          so the audio engine keeps playing in the background. Desktop unchanged. ── */
       try{
         var oldbn=document.getElementById('kil-bnav'); if(oldbn) oldbn.remove();
-        var bn=document.createElement('nav'); bn.id='kil-bnav';
-        bn.innerHTML=
-          '<a href="/v3/" id="kb-home" aria-label="Home"><img src="'+logoUrl()+'" alt="Home"></a>'
-          +'<a href="/v3/culture" aria-label="Culture">'+ICON.culture+'</a>'
-          +'<a href="/v3/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
-          +'<a href="/v3/shop.html" aria-label="Shop">'+ICON.shop+'</a>'
-          +'<a href="/v3/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
-        document.body.appendChild(bn);
-        var _bp=location.pathname;
-        var _bmap=[/^\/v3\/(index\.html)?$/, /culture/, /scene/, /shop/, /(u\.html|apply\.html|dashboard\.html)/];
-        bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
+        if(!IN_IFRAME){   /* NEVER inside embedded frames — this leaked into the desktop chat card */
+          var bn=document.createElement('nav'); bn.id='kil-bnav';
+          bn.innerHTML=
+            '<a href="/v3/" id="kb-home" aria-label="Home"><img src="'+(logoUrl()||'/v3/logo-blue-nav.png')+'" alt="Home" onerror="this.onerror=null;this.src=\'/v3/logo-blue-nav.png\'"></a>'
+            +'<a href="/v3/culture" aria-label="Culture">'+ICON.culture+'</a>'
+            +'<a href="/v3/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
+            +'<a href="/v3/shop.html" aria-label="Shop">'+ICON.shop+'</a>'
+            +'<a href="/v3/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
+          document.body.appendChild(bn);
+          var _bp=location.pathname;
+          var _bmap=[/^\/v3\/(index\.html)?$/, /culture/, /scene/, /shop/, /(u\.html|apply\.html|dashboard\.html)/];
+          bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
+          /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
+          if(RULES.gear==='hamburger'){
+            var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/v3/settings.html'; mh.setAttribute('aria-label','Settings');
+            mh.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+            document.body.appendChild(mh);
+          }
+        }
       }catch(e){}
       style();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
@@ -270,7 +293,9 @@
   function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
   function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
   function applyAuthState(hdr, s){
-    if(!hdr) return;
+    /* mobile floating hamburger: profile pages, signed-in, mobile viewport only */
+    try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
+    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); return; }
     /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
        Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
     var onProfile=(RULES.gear==='hamburger');   /* standards-driven: page_standards.gear_rule */
@@ -338,10 +363,11 @@
     +'#v3shell-nav .v3s-icons a:active{transform:scale(.88)}'
     /* FOUNDER 2026-07-16 (P1): full Instagram on mobile — bottom nav ONLY. The top icon row is gone;
        the ONLY survivor is the Settings hamburger slot on the profile page (top-right, per directive). */
-    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-gear,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}'
-    +'#v3shell-nav.on-profile .v3s-icons{display:flex}'
-    +'#v3shell-nav.on-profile .v3s-icons a{display:none}'
-    +'#v3shell-nav.on-profile .v3s-icons a#v3s-iconprof{display:flex}}'
+    /* MOBILE (Founder 2026-07-16): the top bar is REMOVED entirely — bottom nav only.
+       Profile pages get a floating Settings hamburger instead (signed-in only, JS-toggled). */
+    +'@media(max-width:860px){#v3shell-nav{display:none!important}}'
+    +'#kil-mhamb{display:none;position:fixed;top:12px;right:12px;z-index:960;width:40px;height:40px;border-radius:12px;background:rgba(10,10,16,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.16);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
+    +'#kil-mhamb svg{width:20px;height:20px;display:block}'
     +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
     +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
     /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
