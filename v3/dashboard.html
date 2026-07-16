@@ -129,6 +129,19 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
       <div id="kList"></div>
     </div>
     <div class="panel" id="tab-golive"><iframe src="/v3/golive.html" title="Go-Live Verification" loading="lazy" style="width:100%;height:680px;border:1px solid var(--line,#242433);border-radius:14px;background:var(--bg,#0a0a0f)"></iframe></div>
+    <div class="panel" id="tab-qa">
+      <div class="head2">QA Runs <span class="ct" id="qaCt"></span><a class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" href="/v3/qa-audit.html" target="_blank" rel="noopener">Open QA audit ↗</a></div>
+      <div id="qaList"></div>
+    </div>
+    <div class="panel" id="tab-access">
+      <div class="head2">Admins <span class="ct" id="admCt"></span></div>
+      <div class="rv" style="display:block"><div class="kform">
+        <label>Add an admin by member handle</label>
+        <div class="cbar"><input id="admHandle" placeholder="handle" onkeydown="if(event.key==='Enter')addAdminUI()"><button onclick="addAdminUI()">Add</button></div>
+        <div class="msg" id="admMsg" style="margin-top:8px"></div>
+      </div></div>
+      <div id="admList"></div>
+    </div>
   </div>
 </div>
 
@@ -190,12 +203,13 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['golive','Go-Live']];
+var ADMIN_TABS=[['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events']];
   if(IS_ADMIN){
     tabs=tabs.concat(ADMIN_TABS);
+    try{ var h1=document.querySelector('.head h1'); if(h1) h1.innerHTML='Website <b>Brain</b>'; document.title='Website Brain — KEEPITIL'; }catch(e){}
     try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
     var opt=AGENTS.map(function(a){return '<option value="'+a[0]+'">'+a[1]+'</option>';}).join('');
     if($('agentPick')) $('agentPick').innerHTML=opt;
@@ -214,6 +228,8 @@ function showTab(name){
   else if(name==='venues') loadBookingReview();
   else if(name==='chat'){ clearAgentLog(); loadGroup(); }
   else if(name==='knowledge') loadKnowledge();
+  else if(name==='qa') loadQaRuns();
+  else if(name==='access') loadAdmins();
 }
 async function loadAnalytics(){
   try{
@@ -322,6 +338,58 @@ async function approveSocial(id,btn){
   }catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve & post';} alert('Could not approve: '+(e.message||e)); }
 }
 async function denySocial(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadSocialReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not deny: '+(e.message||e)); } }
+
+/* ===== Website Brain: QA runs + admin access ===== */
+async function loadQaRuns(){
+  var box=$('qaList');
+  try{
+    var r=await supa.rpc('get_qa_runs',{p_limit:60}); var rows=(r&&r.data)||[];
+    $('qaCt').textContent=rows.length+' runs';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No QA runs logged yet — open the QA audit tool to record one.</div>'; return; }
+    box.innerHTML=rows.map(function(q){
+      var when=''; try{when=new Date(q.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
+      var bad=(q.fail||0)>0;
+      return '<div class="rv"><div class="info"><div class="t">'+esc(q.source||'audit')+'</div><div class="tags">'+
+        '<span class="pill2 pub">'+(q.pass||0)+' pass</span>'+
+        '<span class="pill2'+(bad?' den':'')+'">'+(q.fail||0)+' fail</span>'+
+        '<span class="pill2">'+(q.warn||0)+' warn</span>'+
+        '<span class="pill2">'+esc(when)+'</span></div></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load QA runs.</div>'; }
+}
+async function loadAdmins(){
+  var box=$('admList');
+  try{
+    var r=await supa.rpc('get_admins'); var rows=(r&&r.data)||[];
+    $('admCt').textContent=rows.length+(rows.length===1?' admin':' admins');
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No admins found.</div>'; return; }
+    box.innerHTML=rows.map(function(a){
+      var founder=(a.handle||'').toLowerCase()==='tuitea';
+      var since=''; try{since=new Date(a.added_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}catch(e){}
+      return '<div class="rv"><div class="info"><div class="t">@'+esc(a.handle)+(a.display_name?' — '+esc(a.display_name):'')+'</div><div class="tags">'+(founder?'<span class="pill2 pub">FOUNDER</span>':'')+'<span class="pill2">since '+esc(since)+'</span></div></div><div class="acts">'+(founder?'':'<button class="deny" onclick="removeAdminUI(decodeURIComponent(\''+encodeURIComponent(a.handle||'')+'\'),this)">Remove</button>')+'</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load admins.</div>'; }
+}
+async function addAdminUI(){
+  var m=$('admMsg'); m.className='msg'; m.textContent='';
+  var h=($('admHandle').value||'').trim();
+  if(!h){ m.className='msg err'; m.textContent='Enter a member handle.'; return; }
+  try{
+    var r=await supa.rpc('add_admin',{p_handle:h}); var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ m.className='msg err'; m.textContent='Could not add: '+esc((r.error&&r.error.message)||d.error||'unknown error'); return; }
+    m.className='msg ok'; m.textContent='@'+h+' is now an admin ✓';
+    $('admHandle').value=''; TAB_LOADED.access=false; loadAdmins();
+  }catch(e){ m.className='msg err'; m.textContent='Error — try again.'; }
+}
+async function removeAdminUI(handle,btn){
+  if(!confirm('Remove @'+handle+' as an admin? They keep their member account but lose Brain access.')) return;
+  if(btn)btn.disabled=true;
+  try{
+    var r=await supa.rpc('remove_admin',{p_handle:handle}); var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ if(btn)btn.disabled=false; alert('Could not remove: '+((r.error&&r.error.message)||d.error||'unknown error')); return; }
+    TAB_LOADED.access=false; loadAdmins();
+  }catch(e){ if(btn)btn.disabled=false; alert('Error — try again.'); }
+}
 
 async function init(){
   if(!supa){ $('gate').style.display='block'; return; }
