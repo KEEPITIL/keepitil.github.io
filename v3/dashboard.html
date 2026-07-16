@@ -142,6 +142,16 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
       </div></div>
       <div id="admList"></div>
     </div>
+    <div class="panel" id="tab-recommendations">
+      <div class="head2">Recommendations <span class="ct" id="recCt"></span><button class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" onclick="loadRecommendations(true)">Refresh</button></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">What needs your attention, ranked. The crew recommends — you approve. Nothing here acts on its own.</div>
+      <div id="recList"></div>
+    </div>
+    <div class="panel" id="tab-learning">
+      <div class="head2">Assisted Learning <span class="ct" id="learnCt"></span><button class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" onclick="genSuggestions(this)">Generate from questions</button></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Real questions the crew couldn't answer, drafted into knowledge. Edit, then Approve to teach every agent — or Dismiss.</div>
+      <div id="learnList"></div>
+    </div>
   </div>
 </div>
 
@@ -203,7 +213,7 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
+var ADMIN_TABS=[['recommendations','Recommendations'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events']];
@@ -222,7 +232,9 @@ function showTab(name){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='tab-'+name);});
   document.querySelectorAll('#subnav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===name);});
   if(TAB_LOADED[name]) return; TAB_LOADED[name]=true;
-  if(name==='analytics') loadAnalytics();
+  if(name==='recommendations') loadRecommendations();
+  else if(name==='learning') loadLearning();
+  else if(name==='analytics') loadAnalytics();
   else if(name==='posts') loadPostReview();
   else if(name==='social') loadSocialReview();
   else if(name==='venues') loadBookingReview();
@@ -389,6 +401,63 @@ async function removeAdminUI(handle,btn){
     if(r.error||!d.ok){ if(btn)btn.disabled=false; alert('Could not remove: '+((r.error&&r.error.message)||d.error||'unknown error')); return; }
     TAB_LOADED.access=false; loadAdmins();
   }catch(e){ if(btn)btn.disabled=false; alert('Error — try again.'); }
+}
+
+/* ===== Website Brain L4: Recommendations (crew recommends, human approves) ===== */
+async function loadRecommendations(force){
+  var box=$('recList');
+  try{
+    var r=await supa.rpc('get_brain_recommendations'); var d=(r&&r.data)||{};
+    var recs=(d.recommendations)||[];
+    $('recCt').textContent=((d.summary&&d.summary.open_actions!=null)?d.summary.open_actions:recs.length)+' open';
+    if(!recs.length){ box.innerHTML='<div class="rv-empty">All clear — nothing needs your attention right now.</div>'; return; }
+    var PILL={high:'den',medium:'',low:'pub'};
+    box.innerHTML=recs.map(function(x){
+      return '<div class="rv"><div class="info"><div class="t">'+esc(x.title)+'</div><div class="d">'+esc(x.detail||'')+'</div><div class="tags"><span class="pill2 '+(PILL[x.priority]||'')+'">'+esc((x.priority||'').toUpperCase())+'</span></div></div><div class="acts"><button class="approve" onclick="showTab(\''+esc(x.tab)+'\')">Go &rarr;</button></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load recommendations.</div>'; }
+}
+/* ===== Website Brain L3: Assisted Learning (draft -> human approve -> knowledge grows) ===== */
+async function loadLearning(){
+  var box=$('learnList');
+  try{
+    var r=await supa.rpc('get_knowledge_suggestions',{p_status:'pending',p_limit:100}); var rows=(r&&r.data)||[];
+    $('learnCt').textContent=rows.length+' to review';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No suggestions right now. Click "Generate from questions" to scan recent unanswered questions.</div>'; return; }
+    var opt='<option value="">All agents (shared)</option>'+AGENTS.map(function(a){return '<option value="'+a[0]+'">'+a[1]+'</option>';}).join('');
+    box.innerHTML=rows.map(function(s){
+      return '<div class="rv" id="sug'+s.id+'" style="display:block"><div class="kform" style="width:100%">'+
+        '<div class="t" style="margin-bottom:8px">&#10067; "'+esc(s.question)+'" <span class="pill2">asked '+(s.occurrences||1)+'&times;</span></div>'+
+        '<label>Topic</label><input id="st'+s.id+'" value="'+esc(s.suggested_topic||'')+'">'+
+        '<label style="margin-top:8px">Answer (edit before approving)</label><textarea id="sa'+s.id+'" rows="4" placeholder="Write the answer agents should give…">'+esc(s.suggested_answer||'')+'</textarea>'+
+        '<label style="margin-top:8px">Teach which agent</label><select id="sg'+s.id+'">'+opt+'</select>'+
+        '<div class="cbar" style="margin-top:10px"><button class="approve" onclick="approveSuggestion('+s.id+',this)">Approve &amp; teach</button> <button class="deny" onclick="dismissSuggestion('+s.id+',this)">Dismiss</button></div>'+
+        '<div class="msg" id="sm'+s.id+'"></div>'+
+      '</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load suggestions.</div>'; }
+}
+async function genSuggestions(btn){
+  var t=btn?btn.textContent:''; if(btn){btn.disabled=true;btn.textContent='Scanning…';}
+  try{ await supa.rpc('generate_knowledge_suggestions',{p_days:30}); TAB_LOADED.learning=false; loadLearning(); }catch(e){}
+  if(btn){btn.disabled=false;btn.textContent=t;}
+}
+async function approveSuggestion(id,btn){
+  var topic=(($('st'+id)||{}).value||'').trim(), ans=(($('sa'+id)||{}).value||'').trim(), slug=(($('sg'+id)||{}).value||'');
+  var m=$('sm'+id);
+  if(!topic||!ans){ if(m){m.className='msg err';m.textContent='Topic and answer are required.';} return; }
+  if(btn)btn.disabled=true;
+  try{
+    var kw=topic.toLowerCase().replace(/[^a-z0-9 ]/g,'').split(/\s+/).filter(function(w){return w.length>3;}).slice(0,8).join(',');
+    var r=await supa.rpc('approve_knowledge_suggestion',{p_id:id,p_topic:topic,p_keywords:kw,p_answer_short:ans.slice(0,240),p_answer_full:ans,p_agent_slug:slug||null});
+    if(r.error)throw r.error;
+    var el=$('sug'+id); if(el) el.outerHTML='<div class="rv"><div class="info"><div class="t">&#10003; Added to the Knowledge Bank — every agent knows this now.</div></div></div>';
+    if($('learnCt')){ var n=parseInt($('learnCt').textContent)||1; $('learnCt').textContent=(n-1)+' to review'; }
+  }catch(e){ if(btn)btn.disabled=false; if(m){m.className='msg err';m.textContent='Could not approve: '+((e&&e.message)||e);} }
+}
+async function dismissSuggestion(id,btn){
+  if(btn)btn.disabled=true;
+  try{ var r=await supa.rpc('dismiss_knowledge_suggestion',{p_id:id}); if(r.error)throw r.error; var el=$('sug'+id); if(el)el.outerHTML=''; }catch(e){ if(btn)btn.disabled=false; }
 }
 
 async function init(){
