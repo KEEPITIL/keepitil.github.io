@@ -52,7 +52,16 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 @media(max-width:860px){
   .chero-intro,.discovercol{display:none!important}
   .cul-add,.cul-heart{display:inline-flex}
+  /* Founder 2026-07-16: mobile Culture nav = "+ | FEED | FOLLOW | ♥" + one even row of 5 pillar icons */
+  .hubnav{display:none!important}
+  .feedhd h2{display:none}
+  .feedhd .toggle{flex:1;justify-content:center}
+  .feedhd .toggle button{flex:1;text-transform:uppercase;letter-spacing:.12em}
+  .cul-pillars{display:flex!important}
 }
+.cul-pillars{display:none;align-items:center;justify-content:space-around;gap:4px;margin:0 0 14px;padding:10px 6px;background:rgba(14,13,22,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:14px}
+.cul-pillars a{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1 1 0;min-width:0;color:#cfd3e0;text-decoration:none;font-size:1.25rem;line-height:1}
+.cul-pillars a small{font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
 .fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.82);border:1px solid var(--brd);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
 .fcard:hover{border-color:rgba(255,255,255,.22);transform:translateY(-2px)}
 .fcard .th{width:100%;aspect-ratio:16/9;background:#0a0a0f url('/v3/blog-default.jpg') center/cover;background-size:cover;background-position:center;transition:aspect-ratio .25s}
@@ -116,6 +125,14 @@ footer a{color:var(--purple)}
       <div class="toggle" id="feedToggle"><button data-m="feed" class="on">Feed</button><button data-m="following">Following</button></div>
       <button class="cul-heart" aria-label="Notifications" title="Notifications" onclick="var b=document.querySelector('.kiln-bell'); if(b){b.click();}else{location.href='/v3/apply.html';}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg></button>
     </div>
+    <!-- mobile-only: the 5 KEEPITIL pillars, one even row (Founder 2026-07-16) -->
+    <nav class="cul-pillars" aria-label="KEEPITIL pillars">
+      <a href="/v3/connect.html" aria-label="Connect">🤝<small>Connect</small></a>
+      <a href="/v3/create.html" aria-label="Create">🎨<small>Create</small></a>
+      <a href="/v3/grow.html" aria-label="Grow">📈<small>Grow</small></a>
+      <a href="/v3/earn.html" aria-label="Earn">💸<small>Earn</small></a>
+      <a href="/v3/giveback.html" aria-label="Give Back">💚<small>Give Back</small></a>
+    </nav>
     <div class="feed" id="feed"></div>
   </section>
   <!-- RIGHT: discovery -->
@@ -186,5 +203,5 @@ renderTypebar();renderDiscover();renderFeed();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260724" defer></script>
+<script src="/v3/v3-shell.js?v=20260725" defer></script>
 </body></html>
