@@ -33,15 +33,29 @@
       var links = NAV.map(function(n){ return '<a href="'+n[0]+'">'+n[1]+'</a>'; }).join('');
       var cur=document.documentElement.getAttribute('data-theme')||'default';
       var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
+      // KEEPITIL custom icon set (used in the mobile top-bar icon nav — icons only, no words)
+      var ICON={
+        culture:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 4.2 1.8 5.5 6 6-4.2.5-5.5 1.8-6 6-.5-4.2-1.8-5.5-6-6 4.2-.5 5.5-1.8 6-6z"/></svg>',
+        scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
+        shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+        profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>'
+      };
+      var iconRow='<div class="v3s-icons">'
+        +'<a href="/v3/culture" aria-label="Culture">'+ICON.culture+'</a>'
+        +'<a href="/v3/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
+        +'<a href="/v3/shop.html" aria-label="Shop">'+ICON.shop+'</a>'
+        +'<a href="/v3/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
+        +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
       hdr.innerHTML =
         '<div class="v3s-inner">'
         +'<div class="v3s-brand">'
-          +'<button class="v3s-logobtn" id="v3s-logobtn" title="Change style" aria-label="Change site style"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL"></button>'
+          +'<button class="v3s-logobtn" id="v3s-logobtn" title="Change style" aria-label="Home / change site style"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL"></button>'
           +'<a href="/v3/" class="v3s-brandtext">KEEPITIL</a>'
           +'<div class="v3t-pop" id="v3t-pop">'+swatches+'</div>'
         +'</div>'
         +'<div class="v3s-links">'+links+'</div>'
+        +iconRow
         +'<a href="/v3/apply.html" class="v3s-cta">LOGIN</a>'
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
         +'</div>'
@@ -67,30 +81,18 @@
         +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
       document.body.appendChild(f);
 
-      // ── MOBILE ICON NAV (Instagram-style bottom bar; KEEPITIL custom icon set, no words) ──
-      var ICON={
-        home:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>',
-        culture:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 4.2 1.8 5.5 6 6-4.2.5-5.5 1.8-6 6-.5-4.2-1.8-5.5-6-6 4.2-.5 5.5-1.8 6-6z"/></svg>',
-        scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
-        shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
-        profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>'
-      };
-      var mnav=document.createElement('nav'); mnav.id='kil-mnav'; mnav.setAttribute('aria-label','KEEPITIL navigation');
-      mnav.innerHTML=
-        '<a href="/v3/" aria-label="Home">'+ICON.home+'</a>'
-       +'<a href="/v3/culture" aria-label="Culture">'+ICON.culture+'</a>'
-       +'<a href="/v3/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
-       +'<a href="/v3/shop.html" aria-label="Shop">'+ICON.shop+'</a>'
-       +'<a href="/v3/apply.html" id="v3s-mnavprof" aria-label="Profile">'+ICON.profile+'</a>';
-      document.body.appendChild(mnav);
-      try{ var p=location.pathname; var amap={'/v3/':/\/v3\/(index\.html)?$/,'/v3/culture':/culture/,'/v3/scene.html':/scene/,'/v3/shop.html':/shop/,'/v3/apply.html':/(u\.html|apply\.html|dashboard\.html)/};
-        mnav.querySelectorAll('a').forEach(function(a){ var h=a.getAttribute('href'); var rx=amap[h]; if(rx&&rx.test(p)) a.classList.add('on'); }); }catch(e){}
+      // active state on the mobile top-bar icon nav
+      try{ var p=location.pathname; var amap={'/v3/culture':/culture/,'/v3/scene.html':/scene/,'/v3/shop.html':/shop/,'/v3/apply.html':/(u\.html|apply\.html|dashboard\.html)/};
+        hdr.querySelectorAll('.v3s-icons a').forEach(function(a){ var h=a.getAttribute('href'); var rx=amap[h]; if(rx&&rx.test(p)) a.classList.add('on'); }); }catch(e){}
 
       // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
       // The "KEEPITIL" text is the home link only. (Old bottom-left 🎨 fab removed.)
       var lb=hdr.querySelector('#v3s-logobtn'), pop=hdr.querySelector('#v3t-pop');
       if(lb&&pop){
-        lb.addEventListener('click',function(e){ e.stopPropagation(); pop.classList.toggle('open'); });
+        lb.addEventListener('click',function(e){ e.stopPropagation();
+          /* on mobile the logo is HOME (no theme filter); on desktop it opens the style switcher */
+          if(window.matchMedia('(max-width:860px)').matches){ location.href='/v3/'; return; }
+          pop.classList.toggle('open'); });
         pop.querySelectorAll('.v3t-sw').forEach(function(sw){ sw.addEventListener('click',function(e){
           e.stopPropagation();
           var k=sw.dataset.t; document.documentElement.setAttribute('data-theme',k);
@@ -120,7 +122,7 @@
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
     if(cta){ cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
     if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
-    var mprof=document.getElementById('v3s-mnavprof'); if(mprof){ mprof.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
+    var iprof=document.getElementById('v3s-iconprof'); if(iprof){ iprof.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
   }
   function authNav(hdr){
     ensureSB(function(){
@@ -162,12 +164,12 @@
     +'#v3shell-nav .v3s-menu{display:none;flex-direction:column;padding:10px var(--sp-3,20px) 16px;border-top:1px solid var(--line,rgba(255,255,255,.08));gap:2px}'
     +'#v3shell-nav .v3s-menu.open{display:flex}'
     +'#v3shell-nav .v3s-menu a{color:var(--text,#f0f0f0);text-decoration:none;font-weight:700;font-size:.9rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 0}'
-    +'#kil-mnav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;height:56px;background:rgba(9,9,15,.98);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08)}'
-    +'#kil-mnav a{display:flex;align-items:center;justify-content:center;flex:1;height:100%;color:rgba(255,255,255,.58);text-decoration:none;transition:color .15s,transform .1s}'
-    +'#kil-mnav a svg{width:26px;height:26px;display:block}'
-    +'#kil-mnav a.on{color:var(--brand,#00b4ff)}'
-    +'#kil-mnav a:active{transform:scale(.88)}'
-    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu{display:none!important}#kil-mnav{display:flex}body{padding-bottom:118px!important}}'
+    +'#v3shell-nav .v3s-icons{display:none;align-items:center;gap:2px;margin-left:auto}'
+    +'#v3shell-nav .v3s-icons a{display:flex;align-items:center;justify-content:center;padding:8px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
+    +'#v3shell-nav .v3s-icons a svg{width:25px;height:25px;display:block}'
+    +'#v3shell-nav .v3s-icons a.on{color:var(--brand,#00b4ff)}'
+    +'#v3shell-nav .v3s-icons a:active{transform:scale(.88)}'
+    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}#v3shell-nav .v3s-icons{display:flex}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
