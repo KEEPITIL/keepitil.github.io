@@ -44,6 +44,13 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 .feed{display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 190px);overflow-y:auto;padding-right:4px;scrollbar-width:none;-ms-overflow-style:none}
 .feed::-webkit-scrollbar{display:none;width:0;height:0}
 @media(max-width:940px){.feed{max-height:none;overflow:visible}}
+/* Mobile = FEEDs only (Founder directive 2026-07-16): hide intro + discovery column; "+" add-post and ♥ notifications appear in the feed header */
+.cul-add,.cul-heart{display:none;align-items:center;justify-content:center;flex:0 0 auto;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#fff;font-size:1.25rem;font-weight:800;line-height:1;text-decoration:none;cursor:pointer}
+.cul-heart svg{width:20px;height:20px}
+@media(max-width:860px){
+  .chero-intro,.discovercol{display:none!important}
+  .cul-add,.cul-heart{display:inline-flex}
+}
 .fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.82);border:1px solid var(--brd);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
 .fcard:hover{border-color:rgba(255,255,255,.22);transform:translateY(-2px)}
 .fcard .th{width:100%;aspect-ratio:16/9;background:#0a0a0f url('/v3/blog-default.jpg') center/cover;background-size:cover;background-position:center;transition:aspect-ratio .25s}
@@ -102,8 +109,10 @@ footer a{color:var(--purple)}
   <!-- LEFT: live feed -->
   <section class="feedcol">
     <div class="feedhd">
+      <a class="cul-add" href="/v3/create.html" aria-label="Add a post" title="Add a post">+</a>
       <h2 id="feedNow" style="font-family:var(--fs);font-weight:900;font-size:1.6rem;color:#fff">All</h2>
       <div class="toggle" id="feedToggle"><button data-m="feed" class="on">Feed</button><button data-m="following">Following</button></div>
+      <button class="cul-heart" aria-label="Notifications" title="Notifications" onclick="var b=document.querySelector('.kiln-bell'); if(b){b.click();}else{location.href='/v3/apply.html';}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg></button>
     </div>
     <div class="feed" id="feed"></div>
   </section>
@@ -175,5 +184,5 @@ renderTypebar();renderDiscover();renderFeed();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260719" defer></script>
+<script src="/v3/v3-shell.js?v=20260721" defer></script>
 </body></html>
