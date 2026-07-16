@@ -11,7 +11,6 @@
   css.setAttribute('data-kil','player');
   css.textContent=
     '#kil-radio{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:9998;background:rgba(6,6,6,.97);border-top:1px solid rgba(0,255,136,.2);box-shadow:0 -2px 24px rgba(0,0,0,.7);backdrop-filter:blur(18px);font-family:\'Space Grotesk\',\'Inter\',sans-serif;display:flex;align-items:center;padding:0 16px;gap:12px;overflow:hidden;transition:bottom .3s,left .3s,right .3s,width .3s,height .3s,border-radius .3s,border .3s,padding .3s,box-shadow .3s;}'+
-    '@media(max-width:860px){#kil-radio:not(.kil-mini){bottom:56px!important;}#kil-radio.kil-mini{bottom:72px!important;}}'+
     '#kil-radio.kil-mini{bottom:20px!important;left:auto!important;right:24px!important;width:58px!important;height:58px!important;border-radius:50%!important;border:2px solid rgba(0,255,136,.3)!important;border-top:2px solid rgba(0,255,136,.3)!important;box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 20px rgba(0,255,136,.08)!important;cursor:pointer!important;padding:0!important;justify-content:center!important;gap:0!important;}'+
     '#kil-mini-dot{display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.5rem;color:#00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '#kil-radio.kil-mini #kil-mini-dot{display:flex!important;}'+
@@ -82,7 +81,6 @@
       adHTML+
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>'+
-        '<input type="range" id="kr-vol" min="0" max="100" value="3" title="Volume"/>'+
       '</div>'+
       '<a href="/v3/signup.html" class="kil-submit" target="_blank">🎵 Play your song?</a>'+
       '<button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>';
