@@ -3,6 +3,49 @@
    /v3 page. Themed via tokens. Replaces per-page headers/footers; keepitil-ai.js nav is neutralized. */
 (function(){
   try{var _st=localStorage.getItem('kil-v3theme'); if(_st) document.documentElement.setAttribute('data-theme',_st);}catch(e){}
+  /* ══ P1 STANDARDS REGULATOR (2026-07-16) — the shell OBEYS public.page_standards.
+     This map MIRRORS the DB (source of truth); the daily audit enforces both stay in sync.
+     One rule source drives radio bar, bell, and gear on every page — pages can no longer diverge.
+     Override for a one-off page: set <html data-page-type="..."> ══ */
+  var PAGE_TYPE=(function(){
+    try{
+      var ex=document.documentElement.getAttribute('data-page-type'); if(ex) return ex;
+      var p=location.pathname;
+      if(/\/v3\/(campaigns|create-event|create-profile|create|create-comp|image-tool|post|scan|settings|ticket|tickets)\.html$/.test(p)) return 'tool';
+      if(/\/v3\/(admin-qa|dashboard|golive|qa-audit)\.html$/.test(p)) return 'dashboard';
+      if(/\/v3\/offline\.html$/.test(p)) return 'system';
+      if(/\/v3\/(agent|p|u)\.html$/.test(p)) return 'profile';
+      if(/\/v3\/culture/.test(p)) return 'culture';
+      if(/\/v3\/scene\.html$/.test(p)) return 'scene';
+      if(/\/v3\/shop\.html$/.test(p)) return 'shop';
+      if(/\/v3\/event\.html$/.test(p)) return 'event';
+      if(/^\/(v3\/(index\.html)?)?$/.test(p)) return 'home';
+      return 'standard';
+    }catch(e){ return 'standard'; }
+  })();
+  var PAGE_STD={
+    home:{radio:true,bell:'never',gear:'none'}, culture:{radio:true,bell:'signed_in',gear:'none'},
+    scene:{radio:true,bell:'never',gear:'none'}, shop:{radio:true,bell:'never',gear:'none'},
+    event:{radio:true,bell:'never',gear:'none'}, profile:{radio:true,bell:'signed_in',gear:'hamburger'},
+    standard:{radio:true,bell:'never',gear:'none'}, tool:{radio:false,bell:'never',gear:'none'},
+    dashboard:{radio:false,bell:'never',gear:'none'}, system:{radio:false,bell:'never',gear:'none'}
+  };
+  var RULES=PAGE_STD[PAGE_TYPE]||PAGE_STD.standard;
+  try{ window.KIL=window.KIL||{}; window.KIL.pageType=PAGE_TYPE; window.KIL.pageRules=RULES; }catch(e){}
+  /* Radio bar: standards-driven. Radio-off page types NEVER show the bar (even if a stale
+     per-page include ships); radio-on pages get it auto-injected if the include is missing. */
+  try{
+    if(!RULES.radio){
+      var _rk=document.createElement('style'); _rk.textContent='#kil-radio{display:none!important}'; document.head.appendChild(_rk);
+      document.addEventListener('DOMContentLoaded',function(){ try{ var b=document.getElementById('kil-radio'); if(b)b.remove(); }catch(e){} });
+    } else {
+      document.addEventListener('DOMContentLoaded',function(){ try{
+        if(!document.getElementById('kil-radio') && !document.querySelector('script[src*="keepitil-radio"]')){
+          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/v3/keepitil-radio.js?v=20260718'; document.body.appendChild(_rs);
+        }
+      }catch(e){} });
+    }
+  }catch(e){}
   /* Google Analytics 4 — site-wide on V3 (property "keepitil", stream "KEEPITIL Web"). Added 2026-07-09. */
   try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
     var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
@@ -21,8 +64,8 @@
     var _so=document.createElement('script'); _so.defer=true; _so.src='/v3/keepitil-social.js'; document.head.appendChild(_so);
   } }catch(e){}
   /* In-app notification center (bell + panel + opt-in) — logged-in members only.
-     P0c (Founder 2026-07-16): bell appears ONLY on the profile and Culture pages. */
-  try{ if(!window.__kilNotifyLoad && /\/v3\/(u\.html|culture)/.test(location.pathname)){ window.__kilNotifyLoad=1;
+     Standards-driven (page_standards.bell_visibility): bell loads only where the page type allows. */
+  try{ if(!window.__kilNotifyLoad && RULES.bell==='signed_in'){ window.__kilNotifyLoad=1;
     var _no=document.createElement('script'); _no.defer=true; _no.src='/v3/keepitil-notify.js'; document.head.appendChild(_no);
   } }catch(e){}
   /* ── PWA: manifest + iOS install meta + service worker + install hint. Added 2026-07-16.
@@ -137,7 +180,7 @@
         +'<a href="/v3/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
         +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
-      if(/\/v3\/u\.html/.test(location.pathname)) hdr.classList.add('on-profile');
+      if(RULES.gear==='hamburger') hdr.classList.add('on-profile');
       hdr.innerHTML =
         '<div class="v3s-inner">'
         +'<div class="v3s-brand">'
@@ -230,7 +273,7 @@
     if(!hdr) return;
     /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
        Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
-    var onProfile=/\/v3\/u\.html/.test(location.pathname);
+    var onProfile=(RULES.gear==='hamburger');   /* standards-driven: page_standards.gear_rule */
     var HAMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
     if(cta){
