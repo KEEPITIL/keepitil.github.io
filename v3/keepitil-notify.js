@@ -17,7 +17,7 @@
     var s=document.createElement('style'); s.id='kiln-css';
     s.textContent=
      '.kiln-wrap{position:relative;margin-right:14px;display:flex;align-items:center}'
-    +'.kiln-bell{position:relative;background:none;border:1.5px solid var(--accent,#00b4ff);color:var(--accent,#00b4ff);font-size:1.05rem;cursor:pointer;line-height:1;padding:7px 12px;border-radius:11px;box-shadow:0 0 12px rgba(0,180,255,.35);transition:all .15s}'
+    +'.kiln-bell{position:relative;background:none;border:1.5px solid var(--accent,#00b4ff);color:var(--accent,#00b4ff);font-size:1.05rem;cursor:pointer;line-height:1;height:38px;display:inline-flex;align-items:center;padding:0 12px;border-radius:11px;box-shadow:0 0 12px rgba(0,180,255,.35);transition:all .15s}'
     +'.kiln-bell:hover{background:var(--accent,#00b4ff);color:#0a0a12;box-shadow:0 0 18px rgba(0,180,255,.6)}'
     +'.kiln-badge{position:absolute;top:-2px;right:-2px;min-width:16px;height:16px;padding:0 4px;border-radius:9px;background:#ff3b6b;color:#fff;font:800 10px/16px Inter,sans-serif;text-align:center}'
     +'.kiln-panel{display:none;position:absolute;top:40px;right:0;width:320px;max-height:70vh;overflow:auto;background:#12121c;border:1px solid rgba(255,255,255,.14);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.55);z-index:1002;font-family:Inter,system-ui,sans-serif}'
