@@ -339,7 +339,7 @@
       sb.rpc('get_event_view',{p_slug:ev.slug}).then(function(r){
         if(r&&r.data&&r.data[0]){ var x=r.data[0];
           ev.title=x.title||ev.title; ev.venue=x.venue||ev.venue; ev.city=x.city||ev.city;
-          ev.date=(x.starts_at||'').slice(0,10)||ev.date; ev.genre=x.genres||ev.genre;
+          ev.date=(window.KIL&&KIL.localDate?KIL.localDate(x.starts_at,x.tz):(x.starts_at||'').slice(0,10))||ev.date; ev.genre=x.genres||ev.genre;
           ev.img=x.cover_url||ev.img; ev.description=x.description||ev.description;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false;
@@ -488,7 +488,7 @@
 })();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260719" defer></script>
+<script src="/v3/v3-shell.js?v=20260721" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
