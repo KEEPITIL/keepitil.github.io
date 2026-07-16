@@ -379,11 +379,20 @@ async function loadQaRuns(){
     box.innerHTML=rows.map(function(q){
       var when=''; try{when=new Date(q.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
       var bad=(q.fail||0)>0;
-      return '<div class="rv"><div class="info"><div class="t">'+esc(q.source||'audit')+'</div><div class="tags">'+
+      var det='';
+      try{
+        var d=q.details||{};
+        var vio=(d.violations||[]).slice(0,10);
+        if(vio.length){ det+='<div class="d" style="margin-top:6px">'+vio.map(function(v){return '<b>'+esc(v.code)+'</b> '+esc(v.page)+' — '+esc(v.detail);}).join('<br>')+((d.violations||[]).length>10?'<br>…and '+((d.violations||[]).length-10)+' more':'')+'</div>'; }
+        var bl=(d.broken_links||[]).slice(0,6);
+        if(bl.length){ det+='<div class="d" style="margin-top:6px"><b>Broken links:</b><br>'+bl.map(function(b){return esc(b.url)+' ('+esc(String(b.status))+') ← '+esc((b.referrers||[]).join(', '));}).join('<br>')+'</div>'; }
+        if(d.pages_scanned!=null){ det+='<div class="tags" style="margin-top:6px"><span class="pill2">'+d.pages_scanned+' pages</span><span class="pill2">'+(d.links_checked||0)+' links verified</span></div>'; }
+      }catch(e){}
+      return '<div class="rv" style="display:block"><div class="info"><div class="t">'+esc(q.source||'audit')+'</div><div class="tags" style="margin-top:6px">'+
         '<span class="pill2 pub">'+(q.pass||0)+' pass</span>'+
         '<span class="pill2'+(bad?' den':'')+'">'+(q.fail||0)+' fail</span>'+
         '<span class="pill2">'+(q.warn||0)+' warn</span>'+
-        '<span class="pill2">'+esc(when)+'</span></div></div></div>';
+        '<span class="pill2">'+esc(when)+'</span></div>'+det+'</div></div>';
     }).join('');
   }catch(e){ box.innerHTML='<div class="rv-empty">Could not load QA runs.</div>'; }
 }
@@ -563,5 +572,6 @@ async function init(){
 init();
 </script>
 <script src="/v3/v3-shell.js?v=20260718" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
