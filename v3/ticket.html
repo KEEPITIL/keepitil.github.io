@@ -52,7 +52,8 @@ var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function qs(k){return new URLSearchParams(location.search).get(k);}
-function fmtDate(iso){ try{ if(!iso)return ''; return new Date(iso).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
+/* Event dates render in the VENUE's timezone (America/Los_Angeles default), not the viewer's. */
+function fmtDate(iso,tz){ try{ if(!iso)return ''; return new Date(iso).toLocaleDateString('en-US',{timeZone:tz||'America/Los_Angeles',weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
 
 function lookupForm(note){
   document.getElementById('root').innerHTML=
@@ -65,7 +66,7 @@ function lookupForm(note){
 function render(d){
   var used=!!d.checked_in_at;
   var cover=d.cover?'<img class="tk-cover" src="'+esc(d.cover)+'" alt="" onerror="this.style.display=\'none\'">':'';
-  var meta=fmtDate(d.starts_at)+(d.venue?'<span>📍 '+esc(d.venue)+'</span>':'')+(d.city&&!d.venue?'<span>📍 '+esc(d.city)+'</span>':'');
+  var meta=fmtDate(d.starts_at,d.tz)+(d.venue?'<span>📍 '+esc(d.venue)+'</span>':'')+(d.city&&!d.venue?'<span>📍 '+esc(d.city)+'</span>':'');
   var ics='/v3/event.html?e='+encodeURIComponent(d.slug||'');
   document.getElementById('root').innerHTML=
     '<div class="tk">'+cover+
@@ -99,7 +100,7 @@ async function init(){
 init();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260719" defer></script>
+<script src="/v3/v3-shell.js?v=20260721" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
