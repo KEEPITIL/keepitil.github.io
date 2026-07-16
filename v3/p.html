@@ -106,16 +106,14 @@ img{display:block;max-width:100%}
   </section>
 </main>
 
+<script src="/v3/keepitil-directory.js?v=20260717"></script>
 <script>
 (function(){
-  var SHEET='1UU2rPPwsIRCFnZBgk6Uzb9IRcckcBmvYVORNVMFtIoo';
-  var TQ='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?sheet=Untitled&headers=1&tqx=out:json';
   var qs=new URLSearchParams(location.search);
   var slug=(qs.get('slug')||'').toLowerCase().trim();
-  function cell(c,i){return (c&&c[i]&&c[i].v!=null)?String(c[i].v):'';}
   function slugify(s){return (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
   function rowSlug(r){
-    if(r.blog){var b=r.blog.replace(/^\//,'').replace(/^profile-/,'').replace(/\.html$/i,'');if(b)return b.toLowerCase();}
+    if(r.blog){var b=r.blog.replace(/^\//,'').replace(/^(profile|blog)-/,'').replace(/\.html$/i,'');if(b)return b.toLowerCase();}
     return slugify(r.name);
   }
   function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();}
@@ -160,16 +158,15 @@ img{display:block;max-width:100%}
 
   if(!slug){show('notfound');return;}
 
-  fetch(TQ).then(function(r){return r.text();}).then(function(t){
-    var m=t.match(/setResponse\(([\s\S]*?)\);?\s*$/); if(!m) throw 0;
-    var j=JSON.parse(m[1]); var rows=(j.table&&j.table.rows)||[]; var list=[];
-    rows.forEach(function(row){
-      var c=row.c||[]; var kind=cell(c,1).toLowerCase().trim(); var name=cell(c,2).trim();
-      if(!name||!kind) return;
-      list.push({name:name,city:cell(c,3),county:cell(c,4),genre:cell(c,5),ig:cell(c,6),img:cell(c,7),blog:cell(c,8),kinds:[kind]});
-    });
-    pickAndRender(list);
-  }).catch(function(){ show('notfound'); });
+  function buildList(){
+    var D=window.KEEPITIL_DIRECTORY;
+    if(!D) return [];
+    function tag(arr,k){return (arr||[]).map(function(x){var o={};for(var p in x)o[p]=x[p];o.kinds=[k];return o;});}
+    return [].concat(tag(D.ART,'artist'),tag(D.BRND,'brand'),tag(D.ORG,'organizer'),tag(D.VEN,'venue'));
+  }
+  var list=buildList();
+  if(!list.length){ show('notfound'); return; }
+  pickAndRender(list);
 })();
 </script>
 
