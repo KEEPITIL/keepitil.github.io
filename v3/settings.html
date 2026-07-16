@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<!--
+  KEEPITIL SETTINGS — Instagram two-column model (grouped nav + detail panel).
+  Theme control is fully live (localStorage kil-theme). Signed-in prefs persist server-side via
+  get_my_settings / save_my_settings (user_settings table). Falls back to device-local when signed out.
+-->
+<html lang="en" data-theme="dark">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>Settings | KEEPITIL</title>
+<link rel="icon" type="image/png" href="/v3/logo-green-nav.png"/>
+<script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root,html[data-theme="dark"]{--bg:#0b0b0b;--surface:#141420;--surface2:#1b1b28;--text:#f0f0f0;--text-soft:rgba(240,240,240,.86);--muted:#8a8a99;--line:rgba(255,255,255,.09);--brand:#00e0a4;--cyan:#22d3ee;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--fh:'Bebas Neue',sans-serif;--fb:'Space Grotesk',sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 20px 80px}
+h1.pt{font-family:var(--fh);font-size:2.4rem;letter-spacing:.03em;margin-bottom:18px}
+.cols{display:grid;grid-template-columns:250px 1fr;gap:24px;align-items:start}
+/* left nav */
+.snav{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px;position:sticky;top:82px}
+.snav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;color:var(--text-soft);font-family:var(--fb);font-size:.95rem;font-weight:600;padding:11px 14px;border-radius:10px;cursor:pointer}
+.snav button:hover{background:var(--surface2);color:var(--text)}
+.snav button.on{background:var(--surface2);color:var(--text);box-shadow:inset 3px 0 0 var(--brand)}
+.snav .ico{width:18px;text-align:center}
+/* right panel */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;min-height:340px}
+.panel h2{font-family:var(--fh);font-size:1.5rem;letter-spacing:.04em;margin-bottom:4px}
+.panel .psub{color:var(--muted);font-size:.9rem;margin-bottom:20px}
+.grp{display:none}.grp.on{display:block}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .lbl{font-weight:600}.row .lbl small{display:block;color:var(--muted);font-weight:400;font-size:.82rem;margin-top:2px}
+.row .val{color:var(--text-soft);font-size:.92rem}
+/* toggle */
+.tog{position:relative;width:46px;height:26px;flex:0 0 auto;border-radius:999px;background:var(--surface2);border:1px solid var(--line);cursor:pointer;transition:.2s}
+.tog::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.tog.on{background:var(--brand);border-color:var(--brand)}.tog.on::after{left:22px}
+select,input[type=text]{background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--fb);font-size:.9rem;outline:none}
+select:focus{border-color:var(--brand)}
+/* theme swatches */
+.themes{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.sw{width:54px;height:54px;border-radius:14px;border:2px solid var(--line);cursor:pointer;position:relative;overflow:hidden}
+.sw.on{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)}
+.sw span{position:absolute;bottom:0;left:0;right:0;font-size:.6rem;text-align:center;background:rgba(0,0,0,.5);color:#fff;padding:1px 0}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:.9rem;padding:11px 20px;border-radius:999px;cursor:pointer;border:1px solid var(--line);background:var(--surface2);color:var(--text)}
+.btn.primary{background:linear-gradient(90deg,var(--brand),var(--cyan));color:#04121b;border:0}
+.btn.danger{border-color:#ff6b6b;color:#ff6b6b;background:transparent}
+.savez{font-size:.82rem;color:var(--brand);min-height:1.1em;margin-top:12px}
+.gate{max-width:460px;margin:60px auto;text-align:center}
+.gate h2{font-family:var(--fh);font-size:2rem;margin-bottom:8px}
+.gate p{color:var(--muted);margin-bottom:18px}
+.soon{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);border:1px solid var(--cyan);border-radius:999px;padding:2px 8px;margin-left:8px}
+@media(max-width:760px){
+  .cols{grid-template-columns:1fr;gap:14px}
+  .snav{position:static;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px}
+  .snav::-webkit-scrollbar{display:none}
+  .snav button{flex:0 0 auto;white-space:nowrap}
+  .snav button.on{box-shadow:inset 0 -3px 0 var(--brand)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="pt">Settings</h1>
+
+  <div id="gate" class="gate" style="display:none">
+    <h2>Log in to manage settings</h2>
+    <p>Your preferences, theme, and notifications live in your KEEPITIL account. Theme still works while signed out.</p>
+    <a class="btn primary" href="/v3/apply.html">Log in / Join</a>
+    <div style="margin-top:18px"><a class="btn" href="#" onclick="showAnyway();return false">Adjust theme only →</a></div>
+  </div>
+
+  <div id="cols" class="cols" style="display:none">
+    <nav class="snav" id="snav">
+      <button data-g="account" class="on"><span class="ico">👤</span> Account</button>
+      <button data-g="appearance"><span class="ico">🎨</span> Appearance</button>
+      <button data-g="notifications"><span class="ico">🔔</span> Notifications</button>
+      <button data-g="privacy"><span class="ico">🔒</span> Privacy</button>
+      <button data-g="chat"><span class="ico">💬</span> Chat</button>
+      <button data-g="radio"><span class="ico">📻</span> Radio</button>
+      <button data-g="about"><span class="ico">ℹ️</span> About &amp; help</button>
+    </nav>
+
+    <section class="panel">
+      <!-- ACCOUNT -->
+      <div class="grp on" data-g="account">
+        <h2>Account</h2><div class="psub">Your KEEPITIL identity.</div>
+        <div class="row"><div class="lbl">Handle</div><div class="val" id="acc-handle">—</div></div>
+        <div class="row"><div class="lbl">Email</div><div class="val" id="acc-email">—</div></div>
+        <div class="row"><div class="lbl">Your profile</div><div class="val"><a id="acc-profile" class="btn" href="/v3/u.html">View profile →</a></div></div>
+        <div class="row"><div class="lbl">Sign out<small>End your session on this device</small></div><button class="btn danger" onclick="doLogout()">Log out</button></div>
+      </div>
+
+      <!-- APPEARANCE -->
+      <div class="grp" data-g="appearance">
+        <h2>Appearance</h2><div class="psub">Pick a theme. Applies instantly across KEEPITIL.</div>
+        <div class="themes" id="themes"></div>
+        <div class="savez" id="sz-appearance"></div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="grp" data-g="notifications">
+        <h2>Notifications</h2><div class="psub">Choose what KEEPITIL tells you about.</div>
+        <div class="row"><div class="lbl">Event reminders<small>Before events you saved or bought tickets to</small></div><div class="tog" data-k="notif_events"></div></div>
+        <div class="row"><div class="lbl">Chat messages<small>New messages in your rooms</small></div><div class="tog" data-k="notif_chat"></div></div>
+        <div class="row"><div class="lbl">New followers<small>When someone follows your profile</small></div><div class="tog" data-k="notif_follows"></div></div>
+        <div class="row"><div class="lbl">Weekly Pulse<small>What's happening in the scene each week</small></div><div class="tog" data-k="notif_digest"></div></div>
+        <div class="savez" id="sz-notifications"></div>
+      </div>
+
+      <!-- PRIVACY -->
+      <div class="grp" data-g="privacy">
+        <h2>Privacy</h2><div class="psub">Control who sees you.</div>
+        <div class="row"><div class="lbl">Profile visibility</div>
+          <select data-k="privacy_visibility"><option value="public">Public</option><option value="members">Members only</option></select></div>
+        <div class="row"><div class="lbl">Show me in the Scene directory<small>Appear in search &amp; discovery</small></div><div class="tog" data-k="privacy_directory"></div></div>
+        <div class="row"><div class="lbl">Allow messages from<small>Who can start a chat with you</small></div>
+          <select data-k="privacy_messages"><option value="everyone">Everyone</option><option value="members">Members</option><option value="none">No one</option></select></div>
+        <div class="savez" id="sz-privacy"></div>
+      </div>
+
+      <!-- CHAT -->
+      <div class="grp" data-g="chat">
+        <h2>Chat defaults</h2><div class="psub">Defaults for rooms you create.</div>
+        <div class="row"><div class="lbl">Who can post</div>
+          <select data-k="chat_whocanpost"><option value="everyone">Everyone</option><option value="admins">Admins only</option></select></div>
+        <div class="row"><div class="lbl">Approve new members<small>Review joins before they can see the room</small></div><div class="tog" data-k="chat_approve"></div></div>
+        <div class="row"><div class="lbl">Read receipts<small>Let others see when you've read</small></div><div class="tog" data-k="chat_receipts"></div></div>
+        <div class="savez" id="sz-chat"></div>
+      </div>
+
+      <!-- RADIO -->
+      <div class="grp" data-g="radio">
+        <h2>Radio</h2><div class="psub">The station plays 24/7. Set how it behaves for you.</div>
+        <div class="row"><div class="lbl">Autoplay when I sign in<small>Start the station automatically</small></div><div class="tog" data-k="radio_autoplay"></div></div>
+        <div class="row"><div class="lbl">Always-play set <span class="soon">Creator Promotion</span><small>Pick a set that plays for your signed-in fans</small></div>
+          <a class="btn" href="/v3/radio.html">Get Heard →</a></div>
+        <div class="savez" id="sz-radio"></div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="grp" data-g="about">
+        <h2>About &amp; help</h2><div class="psub">KEEPITIL — the OC &amp; LA scene, in one place.</div>
+        <div class="row"><div class="lbl">Community guidelines</div><a class="btn" href="/v3/community-guidelines.html">Read →</a></div>
+        <div class="row"><div class="lbl">Privacy policy</div><a class="btn" href="/v3/privacy.html">Read →</a></div>
+        <div class="row"><div class="lbl">Terms</div><a class="btn" href="/v3/terms.html">Read →</a></div>
+        <div class="row"><div class="lbl">Contact</div><a class="btn" href="/v3/contact.html">Get in touch →</a></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
+var THEMES=[['dark','Dark','#0b0b0b'],['light','Light','#f4f5fa'],['midnight','Midnight','#070d1c'],['synthwave','Synth','#150018'],['sunset','Sunset','#160d07']];
+var STATE={}, SIGNED=false;
+
+/* ---- tabs ---- */
+document.getElementById('snav').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b) return;
+  var g=b.getAttribute('data-g');
+  [].forEach.call(document.querySelectorAll('.snav button'),function(x){x.classList.toggle('on',x===b);});
+  [].forEach.call(document.querySelectorAll('.grp'),function(x){x.classList.toggle('on',x.getAttribute('data-g')===g);});
+});
+
+/* ---- theme swatches ---- */
+function currentTheme(){try{return localStorage.getItem('kil-theme')||'dark';}catch(e){return 'dark';}}
+function renderThemes(){
+  var host=document.getElementById('themes'); host.innerHTML='';
+  THEMES.forEach(function(t){
+    var d=document.createElement('div'); d.className='sw'+(currentTheme()===t[0]?' on':''); d.style.background=t[2];
+    d.innerHTML='<span>'+t[1]+'</span>';
+    d.onclick=function(){ setTheme(t[0]); };
+    host.appendChild(d);
+  });
+}
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem('kil-theme',t);}catch(e){}
+  renderThemes();
+  save({theme:t},'sz-appearance');
+}
+
+/* ---- toggles & selects ---- */
+function applyState(){
+  [].forEach.call(document.querySelectorAll('.tog[data-k]'),function(el){
+    var k=el.getAttribute('data-k'); el.classList.toggle('on', !!STATE[k]);
+    el.onclick=function(){ STATE[k]=!STATE[k]; el.classList.toggle('on',STATE[k]); var o={};o[k]=STATE[k]; save(o, szId(el)); };
+  });
+  [].forEach.call(document.querySelectorAll('select[data-k]'),function(el){
+    var k=el.getAttribute('data-k'); if(STATE[k]!=null) el.value=STATE[k];
+    el.onchange=function(){ STATE[k]=el.value; var o={};o[k]=el.value; save(o, szId(el)); };
+  });
+}
+function szId(el){var g=el.closest('.grp'); return g?('sz-'+g.getAttribute('data-g')):null;}
+
+/* ---- persistence ---- */
+function save(patch, szid){
+  for(var k in patch) STATE[k]=patch[k];
+  var sz= szid?document.getElementById(szid):null;
+  if(SIGNED && SB){
+    SB.rpc('save_my_settings',{p_settings:patch}).then(function(r){
+      if(sz){ sz.textContent = r && !r.error ? 'Saved ✓' : 'Saved on this device'; setTimeout(function(){sz.textContent='';},1800); }
+    });
+  } else {
+    try{localStorage.setItem('kil-settings',JSON.stringify(STATE));}catch(e){}
+    if(sz){ sz.textContent='Saved on this device'; setTimeout(function(){sz.textContent='';},1800); }
+  }
+}
+
+function doLogout(){ if(SB){ SB.auth.signOut().then(function(){ location.href='/v3/'; }); } else { location.href='/v3/'; } }
+function showAnyway(){ document.getElementById('gate').style.display='none'; document.getElementById('cols').style.display='grid'; renderThemes(); }
+
+/* ---- boot ---- */
+(function boot(){
+  renderThemes();
+  if(!SB){ document.getElementById('gate').style.display='block'; return; }
+  SB.auth.getSession().then(function(res){
+    var s=res && res.data && res.data.session;
+    if(!s){ document.getElementById('gate').style.display='block'; return; }
+    SIGNED=true;
+    document.getElementById('cols').style.display='grid';
+    var u=s.user||{};
+    document.getElementById('acc-email').textContent=u.email||'—';
+    var handle=(u.user_metadata&&(u.user_metadata.handle||u.user_metadata.username))||'';
+    document.getElementById('acc-handle').textContent=handle?('@'+handle):'—';
+    if(handle) document.getElementById('acc-profile').href='/v3/u.html?slug='+encodeURIComponent(handle);
+    SB.rpc('get_my_settings').then(function(r){
+      STATE = (r && r.data) ? r.data : {};
+      // sensible defaults
+      ['notif_events','notif_chat','notif_follows','privacy_directory','chat_receipts','radio_autoplay'].forEach(function(k){ if(STATE[k]==null) STATE[k]=true; });
+      if(STATE.theme && STATE.theme!==currentTheme()){ document.documentElement.setAttribute('data-theme',STATE.theme); try{localStorage.setItem('kil-theme',STATE.theme);}catch(e){} renderThemes(); }
+      applyState();
+    });
+  }).catch(function(){ document.getElementById('gate').style.display='block'; });
+})();
+</script>
+<script src="/v3/keepitil-radio.js?v=20260717" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260717" defer></script>
+<script src="/v3/v3-shell.js?v=20260717" defer></script>
+</body>
+</html>
