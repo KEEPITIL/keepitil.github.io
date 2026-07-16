@@ -224,6 +224,13 @@ function addQ(){ var d=document.createElement('div'); d.innerHTML=qHtml(qCount);
 function slugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,60)+'-'+Math.random().toString(36).slice(2,6); }
 
 var EDIT_SLUG=new URLSearchParams(location.search).get('e')||'';
+/* Mobile date-row "+" hands us ?date=YYYY-MM-DD — prefill the start (9 PM default) for new events. */
+try{ var _PD=new URLSearchParams(location.search).get('date');
+  if(_PD && !EDIT_SLUG && /^\d{4}-\d{2}-\d{2}$/.test(_PD)){
+    (function(){ var set=function(){ var i=document.getElementById('starts_at'); if(i && !i.value) i.value=_PD+'T21:00'; };
+      if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',set); else set(); })();
+  }
+}catch(e){}
 async function prefillEdit(){
   try{
     var r=await supa.rpc('get_event_for_edit',{p_slug:EDIT_SLUG}); var d=r&&r.data; if(!d) return;
@@ -406,6 +413,6 @@ init();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260719" defer></script>
+<script src="/v3/v3-shell.js?v=20260721" defer></script>
 </body>
 </html>
