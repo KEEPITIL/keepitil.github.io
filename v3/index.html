@@ -371,6 +371,10 @@
 #evx .evx-daydow{font-size:1.05rem;font-weight:800;letter-spacing:.2em;text-indent:.2em;color:var(--green);text-transform:uppercase;margin-top:5px;text-align:center;}
 #evx .evx-daymo{font-size:1.05rem;font-weight:800;letter-spacing:.2em;text-indent:.2em;color:#9aa0b0;text-transform:uppercase;margin-top:1px;text-align:center;}
 @media(max-width:680px){#evx .evx-datecol{display:flex;align-items:baseline;gap:10px;} #evx .evx-daynum{font-size:2rem;}}
+/* Mobile create entry point (Founder 2026-07-16): "+" on each date row -> create-event prefilled with that date */
+#evx .evx-add{display:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--green);color:var(--green);font-size:1.25rem;font-weight:800;line-height:1;text-decoration:none;flex:0 0 auto;align-self:center;margin-left:auto}
+#evx .evx-add:active{transform:scale(.9)}
+@media(max-width:860px){#evx .evx-add{display:inline-flex}#evx .evx-nav{top:66px;z-index:120}}
 #evx .evx-daycol{border-left:1px solid rgba(0,255,136,.12);padding-left:22px;min-width:0;}
 @media(max-width:680px){#evx .evx-daycol{border-left:none;padding-left:0;border-top:1px solid rgba(0,255,136,.12);padding-top:14px;}}
 #evx .evx-daycount{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3a4550;margin-bottom:12px;}
@@ -2059,7 +2063,8 @@ function dayRow(day,mk,i){
   var p=parts(day.date);var dt=new Date(Date.UTC(p.y,p.m-1,p.day));var used=false;
   var cards=day.events.map(function(ev){var sp=ev.pick&&!used;if(sp)used=true;return flyer(ev,sp);}).join('');
   return '<section class="evx-day" id="evx-day-'+mk+'-'+i+'">'
-    +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div></div>'
+    +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div>'
+    +'<a class="evx-add" href="/v3/create-event.html?date='+mk+'-'+(p.day<10?'0'+p.day:p.day)+'" aria-label="Start an event on this date" title="Start an event this night">+</a></div>'
     +'<div class="evx-daycol"><div class="evx-daycount">'+day.events.length+' event'+(day.events.length>1?'s':'')+'</div>'
     +'<div class="evx-carousel"><button class="evx-arrow prev" aria-label="Scroll to previous events">‹</button><div class="evx-row">'+cards+'</div><button class="evx-arrow next" aria-label="Scroll to next events">›</button></div></div></section>';
 }
@@ -2112,7 +2117,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
         if(r&&r.data&&r.data.length){
           var mine=r.data.filter(function(e){return e.starts_at;}).map(function(e){
             var g=e.genres||e.genre||'';
-            return {title:e.title,date:(e.starts_at||'').slice(0,10),venue:e.venue||'',city:e.city||'',
+            return {title:e.title,date:(window.KIL&&KIL.localDate?KIL.localDate(e.starts_at,e.tz):(e.starts_at||'').slice(0,10)),venue:e.venue||'',city:e.city||'',
               genre:g||'KEEPITIL',gcat:gcatOf(g),img:e.cover_url||e.img||'',
               ticket:'/v3/event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
               pick:!!e.cover_url,keepitil:true,slug:e.slug};
@@ -2385,7 +2390,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   else setTimeout(run,500);
 })();
 </script>
-<script src="/v3/v3-shell.js?v=20260719" defer></script>
+<script src="/v3/v3-shell.js?v=20260721" defer></script>
   <script src="/v3/keepitil-create-fab.js" defer></script>
   <!-- Founder fixes 2026-07-12: force chat FAB above the Create FAB, + bulletproof hero typewriter -->
   <style>
