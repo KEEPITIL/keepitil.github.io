@@ -38,12 +38,14 @@
         culture:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 4.2 1.8 5.5 6 6-4.2.5-5.5 1.8-6 6-.5-4.2-1.8-5.5-6-6 4.2-.5 5.5-1.8 6-6z"/></svg>',
         scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
         shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
-        profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>'
+        profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>',
+        settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/></svg>'
       };
       var iconRow='<div class="v3s-icons">'
         +'<a href="/v3/culture" aria-label="Culture">'+ICON.culture+'</a>'
         +'<a href="/v3/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
         +'<a href="/v3/shop.html" aria-label="Shop">'+ICON.shop+'</a>'
+        +'<a href="/v3/settings.html" aria-label="Settings">'+ICON.settings+'</a>'
         +'<a href="/v3/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
         +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
@@ -56,10 +58,11 @@
         +'</div>'
         +'<div class="v3s-links">'+links+'</div>'
         +iconRow
+        +'<a href="/v3/settings.html" class="v3s-gear" aria-label="Settings" title="Settings">'+ICON.settings+'</a>'
         +'<a href="/v3/apply.html" class="v3s-cta">LOGIN</a>'
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
         +'</div>'
-        +'<div class="v3s-menu">'+links+'<a href="/v3/apply.html" id="v3s-mlogin">Login</a></div>';
+        +'<div class="v3s-menu">'+links+'<a href="/v3/settings.html">Settings</a><a href="/v3/apply.html" id="v3s-mlogin">Login</a></div>';
       document.body.insertBefore(hdr, document.body.firstChild);
       try{ document.body.style.paddingTop='66px'; }catch(e){}  // offset for the fixed universal nav (matches homepage)
 
@@ -165,11 +168,14 @@
     +'#v3shell-nav .v3s-menu.open{display:flex}'
     +'#v3shell-nav .v3s-menu a{color:var(--text,#f0f0f0);text-decoration:none;font-weight:700;font-size:.9rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 0}'
     +'#v3shell-nav .v3s-icons{display:none;align-items:center;gap:2px;margin-left:auto}'
+    +'#v3shell-nav .v3s-icons a svg,#v3shell-nav .v3s-gear svg{width:23px;height:23px}'
+    +'#v3shell-nav .v3s-gear{display:flex;align-items:center;color:#fff;opacity:.75;margin-right:12px;transition:opacity .2s}'
+    +'#v3shell-nav .v3s-gear:hover{opacity:1}'
     +'#v3shell-nav .v3s-icons a{display:flex;align-items:center;justify-content:center;padding:8px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
     +'#v3shell-nav .v3s-icons a svg{width:25px;height:25px;display:block}'
     +'#v3shell-nav .v3s-icons a.on{color:var(--brand,#00b4ff)}'
     +'#v3shell-nav .v3s-icons a:active{transform:scale(.88)}'
-    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}#v3shell-nav .v3s-icons{display:flex}}'
+    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-gear,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}#v3shell-nav .v3s-icons{display:flex}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
