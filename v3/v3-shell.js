@@ -136,6 +136,7 @@
         +'<a href="/v3/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
         +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
+      if(/\/v3\/u\.html/.test(location.pathname)) hdr.classList.add('on-profile');
       hdr.innerHTML =
         '<div class="v3s-inner">'
         +'<div class="v3s-brand">'
@@ -291,7 +292,12 @@
     +'#v3shell-nav .v3s-icons a svg{width:25px;height:25px;display:block}'
     +'#v3shell-nav .v3s-icons a.on{color:var(--brand,#00b4ff)}'
     +'#v3shell-nav .v3s-icons a:active{transform:scale(.88)}'
-    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-gear,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}#v3shell-nav .v3s-icons{display:flex}}'
+    /* FOUNDER 2026-07-16 (P1): full Instagram on mobile — bottom nav ONLY. The top icon row is gone;
+       the ONLY survivor is the Settings hamburger slot on the profile page (top-right, per directive). */
+    +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-gear,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}'
+    +'#v3shell-nav.on-profile .v3s-icons{display:flex}'
+    +'#v3shell-nav.on-profile .v3s-icons a{display:none}'
+    +'#v3shell-nav.on-profile .v3s-icons a#v3s-iconprof{display:flex}}'
     +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
     +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
     /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
