@@ -38,7 +38,10 @@
   try{
     var _IK='kil-pwa-hint-2026';
     var _standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
-    if(!_standalone && !localStorage.getItem(_IK)){
+    /* FOUNDER DIRECTIVE 2026-07-16: install UI is OFF until the real App Store launch.
+       PWA plumbing (manifest, SW, push) stays live — only the prompt/banner is suppressed. */
+    var _INSTALL_UI=false;
+    if(_INSTALL_UI && !_standalone && !localStorage.getItem(_IK)){
       var _dismiss=function(){ try{localStorage.setItem(_IK,'1');}catch(e){} var b=document.getElementById('kil-pwa-banner'); if(b)b.remove(); };
       var _show=function(msg,btnLabel,onBtn){
         if(document.getElementById('kil-pwa-banner'))return;
@@ -81,6 +84,32 @@
       /* iOS never fires beforeinstallprompt, so show the banner ourselves; its button opens the instructions. */
       if(_ios){ setTimeout(_showBanner,2600); }
     }
+  }catch(e){}
+  /* ── KIL.eventDate / KIL.localDate — THE sitewide event date formatter. Added 2026-07-16.
+     Events happen in the VENUE's timezone (events.tz, default America/Los_Angeles) — never the
+     viewer's, never UTC. A stored 2026-08-17 04:00Z late-night event is SUN AUG 16 in LA;
+     rendering UTC (or slicing the ISO string) shows the wrong weekday + day. Always use these. ── */
+  try{
+    window.KIL=window.KIL||{};
+    window.KIL.TZ_DEFAULT='America/Los_Angeles';
+    window.KIL.eventDate=function(iso,tz){
+      try{
+        if(!iso) return {weekday:'',date:'',time:'',full:'Date TBD'};
+        var d=new Date(iso); if(isNaN(d)) return {weekday:'',date:'',time:'',full:''};
+        tz=tz||window.KIL.TZ_DEFAULT;
+        var f=function(o){ o.timeZone=tz; return new Intl.DateTimeFormat('en-US',o).format(d); };
+        var w=f({weekday:'short'}), dt=f({month:'short',day:'numeric',year:'numeric'}), tm=f({hour:'numeric',minute:'2-digit'});
+        return {weekday:w,date:dt,time:tm,full:w+', '+dt+' · '+tm};
+      }catch(e){ return {weekday:'',date:'',time:'',full:''}; }
+    };
+    /* local calendar date as YYYY-MM-DD in the event's tz (for grouping/dedupe keys) */
+    window.KIL.localDate=function(iso,tz){
+      try{
+        if(!iso) return '';
+        var d=new Date(iso); if(isNaN(d)) return '';
+        return new Intl.DateTimeFormat('en-CA',{timeZone:tz||window.KIL.TZ_DEFAULT,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
+      }catch(e){ return String(iso).slice(0,10); }
+    };
   }catch(e){}
   var NAV=[['/v3/culture','Culture'],['/v3/scene.html','Scene'],['/v3/shop.html','Shop']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
@@ -164,6 +193,23 @@
         document.addEventListener('click',function(){ pop.classList.remove('open'); });
       }
 
+      /* ── MOBILE BOTTOM NAV (Instagram model, 2026-07-16): 5 icons pinned bottom on ≤860px.
+         Replaces the radio bar UI on mobile — the radio bar is moved off-screen (NOT removed),
+         so the audio engine keeps playing in the background. Desktop unchanged. ── */
+      try{
+        var oldbn=document.getElementById('kil-bnav'); if(oldbn) oldbn.remove();
+        var bn=document.createElement('nav'); bn.id='kil-bnav';
+        bn.innerHTML=
+          '<a href="/v3/" id="kb-home" aria-label="Home"><img src="'+logoUrl()+'" alt="Home"></a>'
+          +'<a href="/v3/culture" aria-label="Culture">'+ICON.culture+'</a>'
+          +'<a href="/v3/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
+          +'<a href="/v3/shop.html" aria-label="Shop">'+ICON.shop+'</a>'
+          +'<a href="/v3/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
+        document.body.appendChild(bn);
+        var _bp=location.pathname;
+        var _bmap=[/^\/v3\/(index\.html)?$/, /culture/, /scene/, /shop/, /(u\.html|apply\.html|dashboard\.html)/];
+        bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
+      }catch(e){}
       style();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
       if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
@@ -180,10 +226,22 @@
   function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
   function applyAuthState(hdr, s){
     if(!hdr) return;
+    /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
+       Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
+    var onProfile=/\/v3\/u\.html/.test(location.pathname);
+    var HAMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
-    if(cta){ cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
+    if(cta){
+      if(s && onProfile){ cta.innerHTML=HAMB; cta.setAttribute('href','/v3/settings.html'); cta.setAttribute('title','Settings'); cta.setAttribute('aria-label','Settings'); cta.classList.add('v3s-hamb'); }
+      else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); cta.classList.remove('v3s-hamb'); }
+    }
     if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
-    var iprof=document.getElementById('v3s-iconprof'); if(iprof){ iprof.setAttribute('href', s?'/v3/u.html':'/v3/apply.html'); }
+    var iprof=document.getElementById('v3s-iconprof');
+    if(iprof){
+      if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/v3/settings.html'); iprof.setAttribute('aria-label','Settings'); }
+      else iprof.setAttribute('href', s?'/v3/u.html':'/v3/apply.html');
+    }
+    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/v3/u.html':'/v3/apply.html');
   }
   function authNav(hdr){
     ensureSB(function(){
@@ -234,6 +292,16 @@
     +'#v3shell-nav .v3s-icons a.on{color:var(--brand,#00b4ff)}'
     +'#v3shell-nav .v3s-icons a:active{transform:scale(.88)}'
     +'@media(max-width:860px){#v3shell-nav .v3s-links,#v3shell-nav .v3s-cta,#v3shell-nav .v3s-gear,#v3shell-nav .v3s-burger,#v3shell-nav .v3s-menu,#v3shell-nav .v3s-brandtext{display:none!important}#v3shell-nav .v3s-icons{display:flex}}'
+    +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
+    +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
+    /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
+    +'#kil-bnav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:950;background:rgba(10,10,16,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:space-around}'
+    +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
+    +'#kil-bnav a svg{width:26px;height:26px;display:block}'
+    +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
+    +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
+    +'#kil-bnav a:active{transform:scale(.9)}'
+    +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
