@@ -2115,11 +2115,12 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   try{
     if(window.supabase){
       var _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+      var _kld=function(iso,tz){ try{ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return String(iso).slice(0,10); return new Intl.DateTimeFormat('en-CA',{timeZone:tz||'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(d); }catch(e){ return String(iso).slice(0,10); } };
       _sb.from('events').select('*').eq('status','published').order('starts_at',{ascending:true}).then(function(r){
         if(r&&r.data&&r.data.length){
           var mine=r.data.filter(function(e){return e.starts_at;}).map(function(e){
             var g=e.genres||e.genre||'';
-            return {title:e.title,date:(window.KIL&&KIL.localDate?KIL.localDate(e.starts_at,e.tz):(e.starts_at||'').slice(0,10)),venue:e.venue||'',city:e.city||'',
+            return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
               genre:g||'KEEPITIL',gcat:gcatOf(g),img:e.cover_url||e.img||'',
               ticket:'/v3/event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
               pick:!!e.cover_url,keepitil:true,slug:e.slug};
@@ -2392,7 +2393,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   else setTimeout(run,500);
 })();
 </script>
-<script src="/v3/v3-shell.js?v=20260722" defer></script>
+<script src="/v3/v3-shell.js?v=20260723" defer></script>
   <script src="/v3/keepitil-create-fab.js" defer></script>
   <!-- Founder fixes 2026-07-12: force chat FAB above the Create FAB, + bulletproof hero typewriter -->
   <style>
