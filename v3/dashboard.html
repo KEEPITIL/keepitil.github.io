@@ -147,6 +147,14 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
       <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">What needs your attention, ranked. The crew recommends — you approve. Nothing here acts on its own.</div>
       <div id="recList"></div>
     </div>
+    <div class="panel" id="tab-agents">
+      <div class="head2">The Crew — 14 Agent Brains <span class="ct" id="agCt"></span></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Each agent owns a genre lane + a company function. Every one is labeled AI, answers with a confidence score and cited source, and hands off when it's out of its lane. Curate each brain here.</div>
+      <div id="agList"></div>
+      <div class="head2">Escalations &amp; Handoffs <span class="ct" id="hoCt"></span></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Questions agents refused to guess on — routed to a lane owner or flagged for human review. Sensitive topics (legal, safety, money, personal info) always land here.</div>
+      <div id="hoList"></div>
+    </div>
     <div class="panel" id="tab-learning">
       <div class="head2">Assisted Learning <span class="ct" id="learnCt"></span><button class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" onclick="genSuggestions(this)">Generate from questions</button></div>
       <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Real questions the crew couldn't answer, drafted into knowledge. Edit, then Approve to teach every agent — or Dismiss.</div>
@@ -213,7 +221,7 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['recommendations','Recommendations'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
+var ADMIN_TABS=[['recommendations','Recommendations'],['agents','Agents'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events']];
@@ -233,6 +241,7 @@ function showTab(name){
   document.querySelectorAll('#subnav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===name);});
   if(TAB_LOADED[name]) return; TAB_LOADED[name]=true;
   if(name==='recommendations') loadRecommendations();
+  else if(name==='agents') loadAgents();
   else if(name==='learning') loadLearning();
   else if(name==='analytics') loadAnalytics();
   else if(name==='posts') loadPostReview();
@@ -261,7 +270,16 @@ function askAgentDash(){
   var inp=$('agentQ'); var q=(inp.value||'').trim(); if(!q)return; var slug=$('agentPick').value;
   var log=$('agentLog'); var y=document.createElement('div'); y.className='cmsg you'; y.textContent=q; log.appendChild(y); inp.value='';
   var p=document.createElement('div'); p.className='cmsg bot'; p.textContent='…'; log.appendChild(p); log.scrollTop=log.scrollHeight;
-  supa.rpc('ask_agent',{p_agent_slug:slug,p_question:q}).then(function(r){var d=(r&&r.data)||{};p.innerHTML='<div class="who">'+esc(slug)+'</div>'+esc(d.answer||'…');log.scrollTop=log.scrollHeight;}).catch(function(){p.textContent='Error — try again.';});
+  supa.rpc('ask_agent',{p_agent_slug:slug,p_question:q}).then(function(r){
+    var d=(r&&r.data)||{};
+    var meta=[];
+    if(d.confidence!=null) meta.push('confidence '+Math.round(d.confidence*100)+'%');
+    if(d.source&&d.source.topic) meta.push('source: '+d.source.topic);
+    if(d.escalate&&d.route_to) meta.push('↪ routed to '+String(d.route_to).toUpperCase());
+    if(d.human_review) meta.push('⚠ human review');
+    p.innerHTML='<div class="who">'+esc(slug)+'</div>'+esc(d.answer||'…')+(meta.length?'<div style="font-size:.66rem;opacity:.65;margin-top:5px">'+esc(meta.join(' · '))+'</div>':'');
+    log.scrollTop=log.scrollHeight;
+  }).catch(function(){p.textContent='Error — try again.';});
 }
 function loadGroup(){
   supa.rpc('get_agent_activity',{p_limit:40}).then(function(r){
@@ -403,6 +421,75 @@ async function removeAdminUI(handle,btn){
   }catch(e){ if(btn)btn.disabled=false; alert('Error — try again.'); }
 }
 
+/* ===== Website Brain: per-agent brains (profiles + escalation/handoff review) ===== */
+var AGENT_PROFILES={};
+async function loadAgents(){
+  var box=$('agList');
+  try{
+    var r=await supa.rpc('get_agent_profiles_admin'); var rows=(r&&r.data)||[];
+    $('agCt').textContent=rows.length+' agents';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No agent profiles found.</div>'; return; }
+    AGENT_PROFILES={};
+    box.innerHTML=rows.map(function(p){
+      AGENT_PROFILES[p.slug]=p;
+      var subs=(p.subgenres||[]).join(', ');
+      return '<div class="rv" style="display:block">'+
+        '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+          '<div class="info"><div class="t">'+esc(p.display_name)+' <span class="pill2">'+esc(p.genre_lane)+'</span> <span class="pill2">'+esc(p.department)+'</span>'+(p.active?'':' <span class="pill2 den">OFF</span>')+'</div>'+
+          '<div class="d">'+esc(p.personality)+'</div>'+
+          '<div class="tags"><span class="pill2 pub">'+(p.knowledge_count||0)+' knowledge</span><span class="pill2'+((p.review_queue||0)>0?' den':'')+'">'+(p.review_queue||0)+' to review</span><span class="pill2">'+(p.handoffs_7d||0)+' handoffs 7d</span></div></div>'+
+          '<div class="acts"><button onclick="toggleAgentEdit(\''+p.slug+'\')">Edit</button></div>'+
+        '</div>'+
+        '<div class="kform" id="apf-'+p.slug+'" style="display:none;margin-top:10px">'+
+          '<label>Personality</label><textarea id="ap-per-'+p.slug+'">'+esc(p.personality)+'</textarea>'+
+          '<label>Responsibilities</label><textarea id="ap-res-'+p.slug+'">'+esc(p.responsibilities)+'</textarea>'+
+          '<label>Escalation notes</label><textarea id="ap-esc-'+p.slug+'">'+esc(p.escalation_notes)+'</textarea>'+
+          '<label>Subgenres (comma separated)</label><input id="ap-sub-'+p.slug+'" value="'+esc(subs)+'">'+
+          '<label>Active</label><select id="ap-act-'+p.slug+'"><option value="1"'+(p.active?' selected':'')+'>On</option><option value="0"'+(p.active?'':' selected')+'>Off</option></select>'+
+          '<div class="cbar" style="margin-top:10px"><button class="approve" style="border:1px solid #22e39b;background:transparent;color:#22e39b;border-radius:9px;font-weight:800;padding:8px 14px" onclick="saveAgent(\''+p.slug+'\',this)">Save</button></div>'+
+          '<div class="msg" id="ap-msg-'+p.slug+'"></div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load agent profiles.</div>'; }
+  loadHandoffs();
+}
+function toggleAgentEdit(slug){ var f=$('apf-'+slug); if(f) f.style.display = (f.style.display==='none'?'block':'none'); }
+async function saveAgent(slug,btn){
+  var m=$('ap-msg-'+slug); if(m){m.className='msg';m.textContent='';}
+  if(btn)btn.disabled=true;
+  try{
+    var r=await supa.rpc('update_agent_profile',{
+      p_slug:slug,
+      p_personality:($('ap-per-'+slug)||{}).value||null,
+      p_responsibilities:($('ap-res-'+slug)||{}).value||null,
+      p_escalation_notes:($('ap-esc-'+slug)||{}).value||null,
+      p_subgenres:($('ap-sub-'+slug)||{}).value||null,
+      p_active:(($('ap-act-'+slug)||{}).value==='1')
+    });
+    var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ if(btn)btn.disabled=false; if(m){m.className='msg err';m.textContent='Could not save: '+((r.error&&r.error.message)||d.error||'unknown');} return; }
+    TAB_LOADED.agents=false; loadAgents();
+  }catch(e){ if(btn)btn.disabled=false; if(m){m.className='msg err';m.textContent='Error — try again.';} }
+}
+async function loadHandoffs(){
+  var box=$('hoList');
+  try{
+    var r=await supa.rpc('get_agent_handoffs',{p_limit:80}); var rows=(r&&r.data)||[];
+    $('hoCt').textContent=rows.length+' recent';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No escalations yet. When an agent refuses to guess or hits a sensitive topic, it lands here.</div>'; return; }
+    box.innerHTML=rows.map(function(h){
+      var when=''; try{when=new Date(h.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
+      var sens=(h.reason||'').indexOf('sensitive:')===0;
+      return '<div class="rv"><div class="info"><div class="t">“'+esc(h.question)+'”</div><div class="tags">'+
+        '<span class="pill2">'+esc((h.from_agent||'?').toUpperCase())+' → '+esc((h.to_agent||'HUMAN').toUpperCase())+'</span>'+
+        '<span class="pill2'+(sens?' den':'')+'">'+esc(h.reason||'')+'</span>'+
+        (sens?'<span class="pill2 den">HUMAN REVIEW</span>':'')+
+        '<span class="pill2">'+esc(when)+'</span></div></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load handoffs.</div>'; }
+}
+
 /* ===== Website Brain L4: Recommendations (crew recommends, human approves) ===== */
 async function loadRecommendations(force){
   var box=$('recList');
@@ -424,10 +511,14 @@ async function loadLearning(){
     var r=await supa.rpc('get_knowledge_suggestions',{p_status:'pending',p_limit:100}); var rows=(r&&r.data)||[];
     $('learnCt').textContent=rows.length+' to review';
     if(!rows.length){ box.innerHTML='<div class="rv-empty">No suggestions right now. Click "Generate from questions" to scan recent unanswered questions.</div>'; return; }
-    var opt='<option value="">All agents (shared)</option>'+AGENTS.map(function(a){return '<option value="'+a[0]+'">'+a[1]+'</option>';}).join('');
     box.innerHTML=rows.map(function(s){
+      var opt='<option value="">All agents (shared)</option>'+AGENTS.map(function(a){return '<option value="'+a[0]+'"'+(a[0]===s.agent_slug?' selected':'')+'>'+a[1]+'</option>';}).join('');
+      var confPct=(s.confidence!=null)?Math.round(s.confidence*100)+'%':null;
+      var routePills=(s.genre_lane?'<span class="pill2">'+esc(s.genre_lane)+'</span>':'')+
+        (s.department?'<span class="pill2">'+esc(s.department)+'</span>':'')+
+        (confPct?'<span class="pill2'+((s.confidence||0)<0.5?' den':' pub')+'">conf '+confPct+'</span>':'');
       return '<div class="rv" id="sug'+s.id+'" style="display:block"><div class="kform" style="width:100%">'+
-        '<div class="t" style="margin-bottom:8px">&#10067; "'+esc(s.question)+'" <span class="pill2">asked '+(s.occurrences||1)+'&times;</span></div>'+
+        '<div class="t" style="margin-bottom:8px">&#10067; "'+esc(s.question)+'" <span class="pill2">asked '+(s.occurrences||1)+'&times;</span>'+routePills+'</div>'+
         '<label>Topic</label><input id="st'+s.id+'" value="'+esc(s.suggested_topic||'')+'">'+
         '<label style="margin-top:8px">Answer (edit before approving)</label><textarea id="sa'+s.id+'" rows="4" placeholder="Write the answer agents should give…">'+esc(s.suggested_answer||'')+'</textarea>'+
         '<label style="margin-top:8px">Teach which agent</label><select id="sg'+s.id+'">'+opt+'</select>'+
