@@ -129,7 +129,7 @@ a{color:inherit;text-decoration:none}
           <li>Play-count &amp; listener analytics</li>
           <li>Pick an always-play set for your signed-in fans</li>
         </ul>
-        <button class="btn primary" onclick="joinWaitlist()">Join the waitlist</button>
+        <button class="btn primary" onclick="joinWaitlist(this)">Join the waitlist</button>
       </div>
     </div>
     <p class="note" id="wl-note">Creator Promotion billing is launching soon — join the waitlist and you'll be first on the station.</p>
@@ -151,7 +151,7 @@ a{color:inherit;text-decoration:none}
   <div class="fcta">
     <h2>Your sound deserves an audience</h2>
     <p>Get in front of the people building the OC &amp; LA scene. Join the Creator Promotion waitlist and land on KEEPITIL Radio.</p>
-    <button class="btn primary" onclick="joinWaitlist()">Join the waitlist →</button>
+    <button class="btn primary" onclick="joinWaitlist(this)">Join the waitlist →</button>
   </div>
 </section>
 
@@ -160,17 +160,23 @@ a{color:inherit;text-decoration:none}
 var RSUPA='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var RKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 var RSB=null; try{ if(window.supabase) RSB=window.supabase.createClient(RSUPA,RKEY); }catch(e){}
-function joinWaitlist(){
+function joinWaitlist(btn){
   var n=document.getElementById('wl-note'); if(n) n.style.color='var(--brand)';
-  function done(){ if(n) n.textContent='You’re on the list ✓ — we’ll reach out when Creator Promotion opens.'; }
-  function fail(m){ if(n){ n.style.color='#ff6b6b'; n.textContent=m||'Could not add you — try again.'; } }
+  // feedback right on the clicked button so it's always visible
+  var orig = btn ? btn.textContent : '';
+  function setBtn(t){ if(btn){ btn.textContent=t; btn.disabled=true; } }
+  function done(){ setBtn('✓ You’re on the list'); if(n) n.textContent='You’re on the list ✓ — we’ll reach out when Creator Promotion opens.'; }
+  function fail(m){ if(btn){ btn.disabled=false; btn.textContent=orig; } if(n){ n.style.color='#ff6b6b'; n.textContent=m||'Could not add you — try again.'; } }
   if(!RSB){ fail('Waitlist is warming up — refresh and try again.'); return; }
+  setBtn('Adding you…');
   RSB.auth.getSession().then(function(r){
     var s=r&&r.data?r.data.session:null;
     if(s){ RSB.rpc('join_radio_waitlist',{}).then(function(x){ (x&&x.data&&x.data.ok)?done():fail(); }); }
     else {
+      if(btn){ btn.disabled=false; btn.textContent=orig; }
       var em=(prompt('Enter your email to join the Creator Promotion waitlist:')||'').trim();
       if(!em){ if(n){n.style.color='var(--muted)';n.textContent='No problem — tap Join the waitlist whenever you’re ready.';} return; }
+      setBtn('Adding you…');
       RSB.rpc('join_radio_waitlist',{p_email:em}).then(function(x){ (x&&x.data&&x.data.ok)?done():fail('That email didn’t look right — try again.'); });
     }
   }).catch(function(){ fail(); });
