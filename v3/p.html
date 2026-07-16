@@ -63,6 +63,14 @@ img{display:block;max-width:100%}
 .conn .verb{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .conn .who{font-weight:700;margin-top:2px}
 @media(max-width:640px){.pbody{margin-top:-46px}.pav{width:92px;height:92px}}
+/* story module (folded-in editorial prose) */
+.story-body{line-height:1.85}
+.story-body h2{font-family:var(--fh);font-size:1.4rem;letter-spacing:.04em;margin:24px 0 10px}
+.story-body h3{font-size:1.1rem;font-weight:700;margin:18px 0 8px}
+.story-body p{margin:0 0 14px;color:var(--text-soft)}
+.story-body p.lead{font-size:1.14rem;color:var(--text)}
+.story-body a{color:var(--cyan);text-decoration:underline}
+.story-body strong{color:var(--text)}
 </style>
 </head>
 <body>
@@ -98,6 +106,11 @@ img{display:block;max-width:100%}
   <section class="sec" id="sec-articles" style="display:none">
     <h3>Articles &amp; features</h3>
     <div class="card"><a id="artlink" class="pacts" href="#" style="display:inline-flex"><span class="primary" style="padding:10px 16px;border-radius:999px">📰 Read features →</span></a></div>
+  </section>
+
+  <section class="sec" id="sec-story" style="display:none">
+    <h3>Story</h3>
+    <div id="story" class="card story-body"></div>
   </section>
 
   <section class="sec">
@@ -146,6 +159,10 @@ img{display:block;max-width:100%}
     document.getElementById('pacts').innerHTML=acts.join('');
     // articles
     if(r.blog){var art=document.getElementById('sec-articles');art.style.display='';document.getElementById('artlink').href='/'+r.blog.replace(/^\//,'');}
+    // story module — lazy-load folded-in editorial prose if it exists for this slug
+    fetch('/v3/stories/'+slug+'.html').then(function(rr){return rr.ok?rr.text():null;}).then(function(html){
+      if(html && html.trim()){document.getElementById('story').innerHTML=html;document.getElementById('sec-story').style.display='';}
+    }).catch(function(){});
     show('profile');
   }
 
