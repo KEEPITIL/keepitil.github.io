@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--
+  KEEPITIL — DATA-DRIVEN DIRECTORY PROFILE VIEWER (/v3/p.html?slug=)
+  One renderer, one template. Reads the master Google Sheet roster (same source as scene.html)
+  by slug and renders on the V3 gold shell. Profile types (artist/brand/organizer/venue) share the
+  same framework — Hero · Verified Connections · Journey · Articles · Gallery — modules show per data.
+  Echo directive 2026-07-15: do NOT rebuild static pages; this viewer replaces the 107 V2 profiles.
+-->
+<html lang="en" data-theme="dark">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Profile | KEEPITIL</title>
+<meta name="description" content="A KEEPITIL directory profile — artists, brands, organizers and venues across the OC & LA scene."/>
+<link rel="icon" type="image/png" href="/v3/logo-green-nav.png"/>
+<script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root,html[data-theme="dark"]{--bg:#0b0b0b;--surface:#141420;--surface2:#1b1b28;--text:#f0f0f0;--text-soft:rgba(240,240,240,.86);--muted:#8a8a99;--line:rgba(255,255,255,.09);--artist:#8b5cff;--brand:#00e0a4;--organizer:#ffb020;--venue:#38bdf8;--cyan:#22d3ee;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--fh:'Bebas Neue',sans-serif;--fb:'Space Grotesk',sans-serif}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.7;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+/* state */
+.state{max-width:640px;margin:90px auto;text-align:center;padding:0 20px}
+.state h2{font-family:var(--fh);font-size:2.2rem;letter-spacing:.02em;margin-bottom:8px}
+.state p{color:var(--muted);margin-bottom:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg,var(--brand),var(--cyan));color:#04121b}
+/* hero */
+.phero{position:relative;margin-top:20px;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.phero .cover{aspect-ratio:16/6;width:100%;object-fit:cover;background:linear-gradient(135deg,#2a1a4d,#0b0b0b)}
+.phero .cover.none{display:flex;align-items:center;justify-content:center}
+.pbody{padding:0 24px 26px;margin-top:-56px;position:relative;display:flex;gap:20px;align-items:flex-end;flex-wrap:wrap}
+.pav{width:118px;height:118px;border-radius:24px;object-fit:cover;border:3px solid var(--bg);background:var(--surface2);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:2.4rem;color:#fff}
+.pmeta{flex:1;min-width:220px}
+.pname{font-family:var(--fh);font-size:clamp(2.2rem,6vw,3.2rem);line-height:1;letter-spacing:.02em}
+.pkind{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-top:8px}
+.pkind.artist{background:rgba(139,92,255,.16);color:var(--artist);border:1px solid var(--artist)}
+.pkind.brand{background:rgba(0,224,164,.14);color:var(--brand);border:1px solid var(--brand)}
+.pkind.organizer{background:rgba(255,176,32,.14);color:var(--organizer);border:1px solid var(--organizer)}
+.pkind.venue{background:rgba(56,189,248,.14);color:var(--venue);border:1px solid var(--venue)}
+.psub{color:var(--muted);margin-top:10px;font-size:.95rem}
+.psub b{color:var(--text-soft);font-weight:600}
+.pacts{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pacts a{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:.86rem;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface2);color:var(--text)}
+.pacts a.primary{background:linear-gradient(90deg,var(--brand),var(--cyan));color:#04121b;border:0}
+.pacts a:hover{border-color:rgba(255,255,255,.28)}
+/* sections */
+.sec{margin:30px 0}
+.sec h3{font-family:var(--fh);font-size:1.5rem;letter-spacing:.06em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.empty{color:var(--muted);font-size:.9rem;padding:6px 0}
+/* verified connections — the KEEPITIL Graph seed */
+.conns{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px}
+.conns::-webkit-scrollbar{display:none}
+.conn{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:150px}
+.conn .verb{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.conn .who{font-weight:700;margin-top:2px}
+@media(max-width:640px){.pbody{margin-top:-46px}.pav{width:92px;height:92px}}
+</style>
+</head>
+<body>
+
+<div id="loading" class="state"><h2>Loading profile…</h2><p>Pulling the latest from the KEEPITIL directory.</p></div>
+
+<div id="notfound" class="state" style="display:none">
+  <h2>Profile not found</h2>
+  <p>We couldn't find that profile in the directory. It may have moved or isn't live yet.</p>
+  <a class="btn" href="/v3/scene.html">← Browse the Scene</a>
+</div>
+
+<main id="profile" class="wrap" style="display:none">
+  <section class="phero">
+    <div id="cover" class="cover none"></div>
+    <div class="pbody">
+      <div id="pav" class="pav"></div>
+      <div class="pmeta">
+        <div id="pname" class="pname"></div>
+        <span id="pkind" class="pkind"></span>
+        <div id="psub" class="psub"></div>
+        <div id="pacts" class="pacts"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="sec-conn">
+    <h3>Verified connections</h3>
+    <div id="conns" class="conns"></div>
+    <div id="conns-empty" class="empty">Verified connections build as this profile plays events, joins lineups, and collaborates on KEEPITIL. This is the start of their KEEPITIL Graph.</div>
+  </section>
+
+  <section class="sec" id="sec-articles" style="display:none">
+    <h3>Articles &amp; features</h3>
+    <div class="card"><a id="artlink" class="pacts" href="#" style="display:inline-flex"><span class="primary" style="padding:10px 16px;border-radius:999px">📰 Read features →</span></a></div>
+  </section>
+
+  <section class="sec">
+    <h3>Journey</h3>
+    <div class="card"><div class="empty">Career milestones (first event, venues played, competitions, radio features) will appear here as verified records accrue.</div></div>
+  </section>
+</main>
+
+<script>
+(function(){
+  var SHEET='1UU2rPPwsIRCFnZBgk6Uzb9IRcckcBmvYVORNVMFtIoo';
+  var TQ='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?sheet=Untitled&headers=1&tqx=out:json';
+  var qs=new URLSearchParams(location.search);
+  var slug=(qs.get('slug')||'').toLowerCase().trim();
+  function cell(c,i){return (c&&c[i]&&c[i].v!=null)?String(c[i].v):'';}
+  function slugify(s){return (s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+  function rowSlug(r){
+    if(r.blog){var b=r.blog.replace(/^\//,'').replace(/^profile-/,'').replace(/\.html$/i,'');if(b)return b.toLowerCase();}
+    return slugify(r.name);
+  }
+  function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();}
+  function esc(s){return (s||'').replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
+
+  function show(el){['loading','notfound','profile'].forEach(function(id){document.getElementById(id).style.display=(id===el?(el==='profile'?'block':'block'):'none');});}
+
+  function render(r){
+    document.title=r.name+' | KEEPITIL';
+    var kind=(r.kinds&&r.kinds[0]||'').toLowerCase();
+    // cover / avatar
+    var cover=document.getElementById('cover');
+    if(r.img){cover.className='cover';cover.style.backgroundImage='url("'+r.img+'")';cover.style.backgroundSize='cover';cover.style.backgroundPosition='center';}
+    var av=document.getElementById('pav');
+    if(r.img){av.style.backgroundImage='url("'+r.img+'")';av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.textContent='';}
+    else{av.textContent=initials(r.name);}
+    document.getElementById('pname').textContent=r.name;
+    var pk=document.getElementById('pkind');pk.textContent=kind||'profile';pk.className='pkind '+kind;
+    // subline
+    var bits=[];
+    if(r.genre)bits.push('<b>'+esc(r.genre)+'</b>');
+    var loc=[r.city,(r.county||'').replace(/ County$/,' Co.')].filter(Boolean).join(' · ');
+    if(loc)bits.push('◍ '+esc(loc));
+    document.getElementById('psub').innerHTML=bits.join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+    // actions
+    var acts=[];
+    if(r.ig){var h=r.ig.replace(/^@/,'');acts.push('<a class="primary" target="_blank" rel="noopener" href="https://instagram.com/'+encodeURIComponent(h)+'">Instagram ↗</a>');}
+    acts.push('<a href="/v3/apply.html">Message</a>');
+    acts.push('<a href="/v3/scene.html">← Scene</a>');
+    document.getElementById('pacts').innerHTML=acts.join('');
+    // articles
+    if(r.blog){var art=document.getElementById('sec-articles');art.style.display='';document.getElementById('artlink').href='/'+r.blog.replace(/^\//,'');}
+    show('profile');
+  }
+
+  function pickAndRender(list){
+    var found=null;
+    for(var i=0;i<list.length;i++){ if(rowSlug(list[i])===slug){found=list[i];break;} }
+    if(!found){ for(var j=0;j<list.length;j++){ if(slugify(list[j].name)===slug){found=list[j];break;} } }
+    if(found){render(found);} else {show('notfound');}
+  }
+
+  if(!slug){show('notfound');return;}
+
+  fetch(TQ).then(function(r){return r.text();}).then(function(t){
+    var m=t.match(/setResponse\(([\s\S]*?)\);?\s*$/); if(!m) throw 0;
+    var j=JSON.parse(m[1]); var rows=(j.table&&j.table.rows)||[]; var list=[];
+    rows.forEach(function(row){
+      var c=row.c||[]; var kind=cell(c,1).toLowerCase().trim(); var name=cell(c,2).trim();
+      if(!name||!kind) return;
+      list.push({name:name,city:cell(c,3),county:cell(c,4),genre:cell(c,5),ig:cell(c,6),img:cell(c,7),blog:cell(c,8),kinds:[kind]});
+    });
+    pickAndRender(list);
+  }).catch(function(){ show('notfound'); });
+})();
+</script>
+
+<script src="/v3/keepitil-radio.js?v=20260717" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260717" defer></script>
+<script src="/v3/v3-shell.js?v=20260717" defer></script>
+</body>
+</html>
