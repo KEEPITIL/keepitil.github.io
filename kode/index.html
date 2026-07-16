@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KODE — Social Media Scheduler</title>
+<meta name="description" content="Schedule social posts, embed your content calendar on any website, and manage it all from your phone. Free to start.">
+<meta name="theme-color" content="#2ee6ff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root{
+    --bg:#f4fbff;
+    --ink:#071522;
+    --ink-soft:#41586b;
+    --neon:#2ee6ff;
+    --neon-soft:#dffaff;
+    --peach:#ffe3d0;
+    --sky:#d6e9ff;
+    --card:#ffffff;
+    --border:#d9ebf4;
+    --radius:20px;
+    --radius-sm:12px;
+    --glow:0 0 0 3px rgba(46,230,255,.35);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(244,251,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.3rem;letter-spacing:.06em;text-decoration:none}
+  .logo-mark{width:30px;height:30px;border-radius:9px;background:var(--ink);display:grid;place-items:center;box-shadow:0 0 12px rgba(46,230,255,.6)}
+  .logo-mark span{width:14px;height:14px;border-radius:50%;background:var(--neon);display:block}
+  .nav-links{display:flex;gap:28px;list-style:none}
+  .nav-links a{text-decoration:none;font-size:.95rem;color:var(--ink-soft);font-weight:500}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-cta{display:flex;gap:12px;align-items:center}
+  .btn{display:inline-block;padding:12px 24px;border-radius:999px;font-weight:700;font-size:.95rem;text-decoration:none;border:2px solid var(--ink);transition:transform .15s ease,box-shadow .15s ease;cursor:pointer;background:transparent;color:var(--ink)}
+  .btn:hover{transform:translateY(-2px);box-shadow:var(--glow)}
+  .btn-primary{background:var(--ink);color:#fff}
+  .btn-ghost{border-color:transparent;padding:12px 10px}
+  .btn-lg{padding:16px 34px;font-size:1.05rem}
+  @media(max-width:820px){.nav-links{display:none}}
+
+  .hero{padding:88px 0 56px;text-align:center}
+  .eyebrow{display:inline-block;background:var(--neon);border:1.5px solid var(--ink);padding:6px 16px;border-radius:999px;font-size:.82rem;font-weight:700;margin-bottom:24px}
+  h1{font-size:clamp(2.4rem,5.5vw,4rem);line-height:1.08;letter-spacing:-.03em;font-weight:800;max-width:860px;margin:0 auto 20px}
+  h1 em{font-style:normal;position:relative;white-space:nowrap}
+  h1 em::after{content:"";position:absolute;left:0;right:0;bottom:6px;height:.35em;background:var(--neon);z-index:-1;border-radius:4px}
+  .hero p{font-size:1.2rem;color:var(--ink-soft);max-width:640px;margin:0 auto 32px}
+  .hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+  .hero-note{font-size:.85rem;color:var(--ink-soft)}
+  .stars{color:#f5a623;letter-spacing:2px}
+
+  .mockup{margin:56px auto 0;max-width:920px;background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);box-shadow:10px 10px 0 rgba(46,230,255,.9);overflow:hidden;text-align:left}
+  .mockup-bar{display:flex;gap:7px;padding:12px 16px;border-bottom:1.5px solid var(--border);background:#f7fcff}
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot:nth-child(1){background:#ff5f57}.dot:nth-child(2){background:#febc2e}.dot:nth-child(3){background:#28c840}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border)}
+  .cal div{background:#fff;min-height:86px;padding:8px;font-size:.7rem;color:var(--ink-soft)}
+  .cal .dow{min-height:auto;font-weight:700;color:var(--ink);background:#f7fcff;padding:10px 8px;text-transform:uppercase;letter-spacing:.05em}
+  .chip{display:block;margin-top:5px;padding:4px 7px;border-radius:7px;font-size:.66rem;font-weight:600;color:var(--ink);line-height:1.3}
+  .chip.ig{background:var(--peach)}
+  .chip.tt{background:var(--neon-soft)}
+  .chip.li{background:var(--sky)}
+  .chip.px{background:var(--neon)}
+  @media(max-width:640px){.cal div:nth-child(7n),.cal div:nth-child(7n-1){display:none}.cal{grid-template-columns:repeat(5,1fr)}}
+
+  .features{padding:64px 0}
+  .feature{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:48px;background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);margin-bottom:36px}
+  .feature:nth-child(even) .feature-visual{order:-1}
+  .feature h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-.02em;line-height:1.15;margin-bottom:14px}
+  .feature p{color:var(--ink-soft);margin-bottom:22px;font-size:1.05rem}
+  .tag{display:inline-block;font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#0891b2;margin-bottom:12px}
+  .feature-visual{border-radius:var(--radius-sm);padding:28px;min-height:280px;display:flex;align-items:center;justify-content:center}
+  .fv-1{background:var(--peach)}
+  .fv-2{background:var(--sky)}
+  .fv-3{background:var(--neon-soft)}
+  .fv-4{background:var(--neon)}
+  .mini-card{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:18px;width:100%;max-width:320px;box-shadow:6px 6px 0 rgba(7,21,34,.85)}
+  .mini-card .row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--ink);flex-shrink:0}
+  .line{height:9px;border-radius:5px;background:#e4eef5;margin-bottom:8px}
+  .line.w60{width:60%}.line.w80{width:80%}.line.w40{width:40%}
+  .pill-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .pill{padding:5px 12px;border-radius:999px;font-size:.7rem;font-weight:700;border:1.5px solid var(--ink)}
+  .pill.on{background:var(--neon)}
+  .code-lines{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;background:var(--ink);color:#9beffc;border-radius:10px;padding:14px;line-height:1.7}
+  .code-lines b{color:#fff}
+  .bar-chart{display:flex;align-items:flex-end;gap:10px;height:120px;margin-top:10px}
+  .bar-chart i{flex:1;background:var(--neon);border-radius:6px 6px 0 0;border:1.5px solid var(--ink)}
+  @media(max-width:820px){.feature{grid-template-columns:1fr;gap:28px;padding:28px}.feature:nth-child(even) .feature-visual{order:0}}
+
+  .quote{padding:56px 0}
+  .quote-card{background:var(--ink);color:#eaf7fd;border-radius:var(--radius);padding:64px 48px;text-align:center}
+  .quote-card blockquote{font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:600;letter-spacing:-.01em;line-height:1.35;max-width:780px;margin:0 auto 28px}
+  .quote-card blockquote::before{content:"“";color:var(--neon);font-size:1.4em}
+  .quote-meta{color:#8aa5b5;font-size:.95rem}
+  .quote-meta strong{color:#eaf7fd}
+  .quote-stats{display:flex;justify-content:center;gap:56px;margin-top:40px;flex-wrap:wrap}
+  .quote-stats b{display:block;font-size:2.1rem;color:var(--neon);letter-spacing:-.02em}
+  .quote-stats span{font-size:.85rem;color:#8aa5b5}
+
+  .personas{padding:56px 0}
+  .section-head{text-align:center;max-width:640px;margin:0 auto 44px}
+  .section-head h2{font-size:clamp(1.8rem,3.4vw,2.5rem);letter-spacing:-.02em;margin-bottom:12px}
+  .section-head p{color:var(--ink-soft);font-size:1.05rem}
+  .persona-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .persona{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:36px;transition:transform .15s ease,box-shadow .15s ease}
+  .persona:hover{transform:translateY(-4px);box-shadow:8px 8px 0 rgba(46,230,255,.9)}
+  .persona .icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:1.5rem;border:2px solid var(--ink);margin-bottom:18px}
+  .persona:first-child .icon{background:var(--neon-soft)}
+  .persona:last-child .icon{background:var(--sky)}
+  .persona h3{font-size:1.3rem;margin-bottom:10px}
+  .persona p{color:var(--ink-soft);margin-bottom:18px}
+  .link{font-weight:700;text-decoration:none;border-bottom:2px solid var(--neon)}
+  @media(max-width:720px){.persona-grid{grid-template-columns:1fr}}
+
+  .steps{padding:56px 0}
+  .step-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+  .step{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:32px}
+  .step-num{width:44px;height:44px;border-radius:50%;background:var(--neon);border:2px solid var(--ink);display:grid;place-items:center;font-weight:800;font-size:1.1rem;margin-bottom:18px}
+  .step h3{font-size:1.15rem;margin-bottom:8px}
+  .step p{color:var(--ink-soft);font-size:.95rem}
+  @media(max-width:820px){.step-grid{grid-template-columns:1fr}}
+
+  .final{padding:72px 0 96px;text-align:center}
+  .final-card{background:var(--neon);border:2px solid var(--ink);border-radius:var(--radius);padding:72px 32px;box-shadow:10px 10px 0 rgba(7,21,34,.9)}
+  .final-card h2{font-size:clamp(2rem,4vw,3rem);letter-spacing:-.03em;margin-bottom:14px}
+  .final-card p{color:#0a3742;margin-bottom:30px;font-size:1.1rem}
+
+  footer{background:var(--ink);color:#8aa5b5;padding:64px 0 32px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+  .foot-grid h4{color:#eaf7fd;font-size:.85rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}
+  .foot-grid ul{list-style:none}
+  .foot-grid li{margin-bottom:10px}
+  .foot-grid a{text-decoration:none;font-size:.92rem}
+  .foot-grid a:hover{color:#eaf7fd}
+  .foot-brand .logo{color:#eaf7fd;margin-bottom:14px}
+  .foot-brand p{font-size:.92rem;max-width:280px}
+  .foot-bottom{border-top:1px solid #14293a;padding-top:24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:.82rem}
+  .foot-bottom a{text-decoration:none;margin-left:20px}
+  @media(max-width:820px){.foot-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#"><span class="logo-mark"><span></span></span>KODE</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#embed">Embed</a></li>
+      <li><a href="#how">How it works</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" href="app.html">Log in</a>
+      <a class="btn btn-primary" href="app.html">Start free</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero wrap">
+  <span class="eyebrow">✦ Free to start — no card required</span>
+  <h1>Your social calendar, <em>everywhere</em> your audience is</h1>
+  <p>Schedule posts for every platform, embed your live content calendar on any website, and run it all from your phone.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary btn-lg" href="app.html">Create your free account</a>
+    <a class="btn btn-lg" href="#embed">See the embed</a>
+  </div>
+  <p class="hero-note"><span class="stars">★★★★★</span> &nbsp;Built for creators, brands, and the people who manage them</p>
+
+  <div class="mockup" aria-hidden="true">
+    <div class="mockup-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    <div class="cal">
+      <div class="dow">Mon</div><div class="dow">Tue</div><div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div><div class="dow">Sat</div><div class="dow">Sun</div>
+      <div>3<span class="chip ig">📸 Reel · 9:00a</span></div>
+      <div>4<span class="chip li">💼 Post · 8:30a</span><span class="chip tt">🎵 Video · 6:00p</span></div>
+      <div>5</div>
+      <div>6<span class="chip px">📌 Pin · 12:00p</span></div>
+      <div>7<span class="chip ig">📸 Carousel · 10a</span><span class="chip li">💼 Article · 2p</span></div>
+      <div>8<span class="chip tt">🎵 Video · 11:00a</span></div>
+      <div>9</div>
+    </div>
+  </div>
+</section>
+
+<section class="features wrap" id="features">
+  <div class="feature">
+    <div>
+      <span class="tag">Visual planner</span>
+      <h2>See your whole month before it goes live</h2>
+      <p>Plan posts on a visual calendar, preview your queue exactly as followers will see it, and catch gaps in your content plan before they happen.</p>
+      <a class="btn" href="app.html">Open the planner</a>
+    </div>
+    <div class="feature-visual fv-1">
+      <div class="mini-card">
+        <div class="row"><span class="avatar"></span><div style="flex:1"><div class="line w60"></div><div class="line w40" style="margin-bottom:0"></div></div></div>
+        <div class="line w80"></div><div class="line w60"></div>
+        <div class="pill-row"><span class="pill on">Mon 9:00a</span><span class="pill">Wed 6:00p</span><span class="pill">Fri 12:00p</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature" id="embed">
+    <div>
+      <span class="tag">Embed anywhere</span>
+      <h2>Your calendar, live on any website</h2>
+      <p>Every KODE profile comes with a paste-anywhere embed snippet. Drop one line of code into your site — or a client's — and your upcoming content shows up live, always in sync.</p>
+      <a class="btn" href="app.html">Get your snippet</a>
+    </div>
+    <div class="feature-visual fv-2">
+      <div class="mini-card">
+        <div class="code-lines">&lt;script<br>&nbsp;&nbsp;src="<b>kode.app/embed.js</b>"<br>&nbsp;&nbsp;data-profile="<b>yourname</b>"&gt;<br>&lt;/script&gt;</div>
+        <div class="pill-row"><span class="pill on">✓ Live</span><span class="pill">Auto-syncs</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div>
+      <span class="tag">Mobile ready</span>
+      <h2>Schedule from the couch, the cab, the queue</h2>
+      <p>KODE installs straight to your home screen like a native app. Draft, schedule, and reshuffle your calendar from any phone — no app store required.</p>
+      <a class="btn" href="app.html">Open on your phone</a>
+    </div>
+    <div class="feature-visual fv-3">
+      <div class="mini-card" style="max-width:220px">
+        <div class="row"><span class="avatar" style="background:#0891b2"></span><div style="flex:1"><div class="line w60"></div><div class="line w40" style="margin-bottom:0"></div></div></div>
+        <div class="line w80"></div>
+        <div class="pill-row"><span class="pill on">＋ Add to Home Screen</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feature">
+    <div>
+      <span class="tag">Built to scale</span>
+      <h2>One account or ten thousand — same speed</h2>
+      <p>Every profile is isolated and secure. Your data is yours alone, enforced at the database level, and the whole thing runs on infrastructure built for concurrent crowds.</p>
+      <a class="btn" href="app.html">Claim your handle</a>
+    </div>
+    <div class="feature-visual fv-4">
+      <div class="mini-card">
+        <div class="line w40"></div>
+        <div class="bar-chart"><i style="height:35%"></i><i style="height:55%"></i><i style="height:45%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:95%"></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="quote wrap">
+  <div class="quote-card">
+    <blockquote>I embedded my content calendar on my portfolio site and clients stopped asking "what's going out this week?" It's just there, always current.</blockquote>
+    <p class="quote-meta"><strong>Early access user</strong> · Freelance social manager</p>
+    <div class="quote-stats">
+      <div><b>1 line</b><span>of code to embed</span></div>
+      <div><b>7</b><span>platforms in one queue</span></div>
+      <div><b>0</b><span>apps to install</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="personas wrap">
+  <div class="section-head">
+    <h2>Built for however you do social</h2>
+    <p>Whether you run one brand or twenty, KODE scales with your workflow.</p>
+  </div>
+  <div class="persona-grid">
+    <div class="persona">
+      <div class="icon">🌐</div>
+      <h3>Put it on your website</h3>
+      <p>Show clients, teammates, or your audience what's coming next. The embed updates itself every time you reschedule.</p>
+      <a class="link" href="app.html">Get your embed →</a>
+    </div>
+    <div class="persona">
+      <div class="icon">📱</div>
+      <h3>Take it mobile</h3>
+      <p>Open KODE on your phone, tap "Add to Home Screen," and you've got the full scheduler in your pocket.</p>
+      <a class="link" href="app.html">Install on mobile →</a>
+    </div>
+  </div>
+</section>
+
+<section class="steps wrap" id="how">
+  <div class="section-head">
+    <h2>Up and running in three steps</h2>
+    <p>Claim a handle, schedule your first post, and embed your calendar in under five minutes.</p>
+  </div>
+  <div class="step-grid">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Claim your handle</h3>
+      <p>Sign up free and pick your unique @handle. That handle powers your profile and your embed.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Fill your queue</h3>
+      <p>Add posts for Instagram, TikTok, LinkedIn, and more. Pick a time, hit schedule, done.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Embed &amp; go</h3>
+      <p>Copy your one-line snippet into any website. Your live calendar follows you everywhere.</p>
+    </div>
+  </div>
+</section>
+
+<section class="final wrap">
+  <div class="final-card">
+    <h2>Claim your handle before someone else does</h2>
+    <p>Free to start. Your calendar, your embed, your pocket scheduler — one account.</p>
+    <a class="btn btn-primary btn-lg" href="app.html">Start scheduling free</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="logo" href="#"><span class="logo-mark"><span></span></span>KODE</a>
+        <p>The social scheduler you can embed anywhere and carry everywhere.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="app.html">Scheduler</a></li>
+          <li><a href="#embed">Embed widget</a></li>
+          <li><a href="app.html">Mobile app</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Platforms</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">LinkedIn</a></li>
+          <li><a href="#">Pinterest</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 KODE. All rights reserved.</span>
+      <span><a href="#">Terms</a><a href="#">Privacy</a></span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

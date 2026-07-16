@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KODE embed</title>
+<style>
+  :root{--bg:#f4fbff;--ink:#071522;--ink-soft:#41586b;--neon:#2ee6ff;--neon-soft:#dffaff;--border:#d9ebf4}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding:16px}
+  .head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .mark{width:26px;height:26px;border-radius:8px;background:var(--ink);display:grid;place-items:center;flex-shrink:0}
+  .mark i{width:12px;height:12px;border-radius:50%;background:var(--neon);display:block}
+  .head b{font-size:1rem}
+  .head span{font-size:.78rem;color:var(--ink-soft)}
+  .day-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:14px 0 6px}
+  .post{display:flex;gap:10px;background:#fff;border:1.5px solid var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:7px}
+  .pico{font-size:1.1rem}
+  .pcap{font-size:.85rem;word-wrap:break-word}
+  .pmeta{font-size:.72rem;color:var(--ink-soft)}
+  .pmeta em{font-style:normal;background:var(--neon-soft);border:1px solid var(--border);padding:0 7px;border-radius:999px;font-weight:700}
+  .empty{text-align:center;color:var(--ink-soft);font-size:.85rem;padding:28px 8px}
+  .powered{text-align:center;margin-top:14px}
+  .powered a{font-size:.72rem;color:var(--ink-soft);text-decoration:none}
+  .powered a b{border-bottom:2px solid var(--neon)}
+</style>
+</head>
+<body>
+<div class="head">
+  <div class="mark"><i></i></div>
+  <div><b id="title">Loading…</b><br><span id="subtitle">upcoming posts</span></div>
+</div>
+<div id="list"><div class="empty">Loading…</div></div>
+<div class="powered"><a href="index.html" target="_blank" rel="noopener">powered by <b>KODE</b></a></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xdoxfoectugsbbujjezq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_F1oMr-STZ3HH3Z_Wu4CYCg_oDwhLKnm';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ICON = {instagram:'📸',tiktok:'🎵',linkedin:'💼',facebook:'👥',pinterest:'📌',x:'✖️',youtube:'▶️'};
+
+const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+
+(async () => {
+  const handle = new URLSearchParams(location.search).get('profile');
+  const list = document.getElementById('list');
+  if (!handle) { list.innerHTML = '<div class="empty">No profile specified.</div>'; return; }
+
+  const { data: prof } = await db.from('profiles').select('id,handle,display_name').eq('handle', handle).maybeSingle();
+  if (!prof) {
+    document.getElementById('title').textContent = '@' + handle;
+    list.innerHTML = '<div class="empty">Profile not found.</div>';
+    return;
+  }
+  document.getElementById('title').textContent = prof.display_name || '@' + prof.handle;
+  document.getElementById('subtitle').textContent = '@' + prof.handle + ' · upcoming posts';
+
+  const { data: posts, error } = await db.from('posts')
+    .select('platform,caption,scheduled_at')
+    .eq('user_id', prof.id).eq('is_public', true).eq('status', 'queued')
+    .gte('scheduled_at', new Date().toISOString())
+    .order('scheduled_at', { ascending: true }).limit(30);
+
+  if (error || !posts || !posts.length) {
+    list.innerHTML = '<div class="empty">Nothing scheduled right now — check back soon.</div>';
+    return;
+  }
+  const groups = {};
+  for (const p of posts) {
+    const key = new Date(p.scheduled_at).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+    (groups[key] = groups[key] || []).push(p);
+  }
+  list.innerHTML = Object.entries(groups).map(([day, ps]) => `
+    <div class="day-label">${day}</div>
+    ${ps.map(p => `
+      <div class="post">
+        <div class="pico">${ICON[p.platform] || '📄'}</div>
+        <div>
+          <div class="pcap">${esc(p.caption)}</div>
+          <div class="pmeta"><em>${p.platform}</em> · ${new Date(p.scheduled_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}</div>
+        </div>
+      </div>`).join('')}`).join('');
+})();
+</script>
+</body>
+</html>

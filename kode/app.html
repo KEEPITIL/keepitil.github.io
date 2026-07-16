@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>KODE — Scheduler</title>
+<meta name="theme-color" content="#2ee6ff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  :root{
+    --bg:#f4fbff; --ink:#071522; --ink-soft:#41586b;
+    --neon:#2ee6ff; --neon-soft:#dffaff;
+    --card:#fff; --border:#d9ebf4; --danger:#e5484d;
+    --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .wrap{max-width:680px;margin:0 auto;padding:0 16px 80px}
+
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(244,251,255,.95);border-bottom:1px solid var(--border);margin-bottom:24px}
+  .topbar-in{max-width:680px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:1.1rem;letter-spacing:.06em;text-decoration:none;color:var(--ink)}
+  .logo-mark{width:26px;height:26px;border-radius:8px;background:var(--ink);display:grid;place-items:center;box-shadow:0 0 10px rgba(46,230,255,.6)}
+  .logo-mark i{width:12px;height:12px;border-radius:50%;background:var(--neon);display:block}
+  .who{font-size:.82rem;color:var(--ink-soft);display:flex;gap:12px;align-items:center}
+  .who b{color:var(--ink)}
+  .linkbtn{background:none;border:none;color:var(--ink-soft);font-size:.82rem;cursor:pointer;text-decoration:underline;font-family:inherit}
+
+  .card{background:var(--card);border:2px solid var(--ink);border-radius:var(--radius);padding:22px;margin-bottom:20px}
+  .card h2{font-size:1.15rem;letter-spacing:-.01em;margin-bottom:4px}
+  .card .sub{font-size:.88rem;color:var(--ink-soft);margin-bottom:16px}
+
+  label{display:block;font-size:.8rem;font-weight:700;margin:12px 0 5px}
+  input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--ink);border-radius:10px;font-size:.95rem;font-family:inherit;background:#fff;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 0 3px rgba(46,230,255,.45)}
+  textarea{resize:vertical;min-height:76px}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.row2{grid-template-columns:1fr}}
+  .check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.85rem}
+  .check input{width:auto}
+
+  .btn{display:inline-block;width:100%;margin-top:16px;padding:13px 24px;border-radius:999px;font-weight:700;font-size:.95rem;border:2px solid var(--ink);cursor:pointer;background:var(--ink);color:#fff;font-family:inherit;transition:box-shadow .15s ease}
+  .btn:hover{box-shadow:0 0 0 3px rgba(46,230,255,.5)}
+  .btn:disabled{opacity:.55;cursor:wait}
+  .btn.alt{background:transparent;color:var(--ink)}
+
+  .tabs{display:flex;gap:8px;margin-bottom:6px}
+  .tab{flex:1;padding:10px;border-radius:999px;border:2px solid var(--ink);background:transparent;font-weight:700;cursor:pointer;font-family:inherit;font-size:.9rem;color:var(--ink)}
+  .tab.on{background:var(--neon)}
+
+  .msg{margin-top:12px;font-size:.85rem;padding:10px 14px;border-radius:10px;display:none}
+  .msg.err{display:block;background:#ffe8e8;border:1.5px solid var(--danger);color:#7d1a1d}
+  .msg.ok{display:block;background:var(--neon-soft);border:1.5px solid var(--ink)}
+
+  .day-group{margin-bottom:18px}
+  .day-label{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-bottom:8px}
+  .post{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--ink);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+  .post .pico{font-size:1.25rem;line-height:1.2}
+  .post .pbody{flex:1;min-width:0}
+  .post .pcap{font-size:.9rem;word-wrap:break-word}
+  .post .pmeta{font-size:.75rem;color:var(--ink-soft);margin-top:2px}
+  .post .pmeta .st{font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--ink)}
+  .post .st.queued{background:var(--neon-soft)}
+  .post .st.ready{background:#ffe9b3}
+  .post .st.published{background:#d3f9d8}
+  .post .st.failed{background:#ffe8e8}
+  .post .acts{display:flex;flex-direction:column;gap:6px}
+  .post .acts button{background:none;border:1.5px solid var(--ink);border-radius:8px;font-size:.72rem;font-weight:700;padding:4px 9px;cursor:pointer;font-family:inherit;white-space:nowrap;color:var(--ink)}
+  .post .acts button:hover{background:var(--neon-soft)}
+  .post .acts .del{border-color:var(--danger);color:var(--danger)}
+  .empty{text-align:center;color:var(--ink-soft);font-size:.9rem;padding:24px 0}
+
+  .conn{display:flex;align-items:center;gap:12px;border:1.5px solid var(--ink);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:#fff}
+  .conn .cico{font-size:1.25rem}
+  .conn .cbody{flex:1;min-width:0}
+  .conn .cname{font-weight:700;font-size:.92rem}
+  .conn .cstate{font-size:.76rem;color:var(--ink-soft)}
+  .conn .cstate.live{color:#067a5b;font-weight:700}
+  .conn button{border:1.5px solid var(--ink);border-radius:999px;background:var(--neon);font-weight:700;font-size:.8rem;padding:7px 16px;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .conn button.off{background:transparent;color:var(--ink-soft);border-color:var(--ink-soft)}
+  .conn .soon{font-size:.72rem;font-weight:700;border:1.5px solid var(--ink-soft);color:var(--ink-soft);border-radius:999px;padding:5px 12px}
+  .perr{color:var(--danger);font-size:.75rem;margin-top:3px}
+  .snippet{font-family:ui-monospace,Menlo,monospace;font-size:.76rem;background:var(--ink);color:#9beffc;border-radius:10px;padding:14px;line-height:1.7;word-break:break-all;user-select:all}
+  .copybtn{margin-top:10px;width:auto;padding:9px 20px;font-size:.82rem}
+  .note{font-size:.8rem;color:var(--ink-soft);background:var(--neon-soft);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;margin-top:14px}
+
+  .view{display:none}
+  .view.on{display:block}
+  .auth-hero{text-align:center;padding:36px 0 24px}
+  .auth-hero h1{font-size:1.7rem;letter-spacing:-.02em}
+  .auth-hero p{color:var(--ink-soft);font-size:.95rem}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="logo" href="index.html"><span class="logo-mark"><i></i></span>KODE</a>
+    <div class="who" id="who"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ AUTH ============ -->
+  <div class="view" id="view-auth">
+    <div class="auth-hero">
+      <h1>Your queue is waiting</h1>
+      <p>Sign in or create a free account to start scheduling.</p>
+    </div>
+    <div class="card">
+      <div class="tabs">
+        <button class="tab on" id="tab-in" type="button">Sign in</button>
+        <button class="tab" id="tab-up" type="button">Create account</button>
+      </div>
+      <form id="auth-form">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email" required>
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" minlength="8" required>
+        <button class="btn" id="auth-btn" type="submit">Sign in</button>
+        <div class="msg" id="auth-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ HANDLE SETUP ============ -->
+  <div class="view" id="view-handle">
+    <div class="auth-hero">
+      <h1>Claim your handle</h1>
+      <p>This powers your profile and your website embed. Choose wisely — it's first come, first served.</p>
+    </div>
+    <div class="card">
+      <form id="handle-form">
+        <label for="handle">Handle</label>
+        <input id="handle" type="text" placeholder="e.g. studio-north" pattern="[a-z0-9_-]{3,30}" title="3–30 chars: lowercase letters, numbers, - or _" required>
+        <label for="display_name">Display name (shown on your embed)</label>
+        <input id="display_name" type="text" placeholder="e.g. Studio North" maxlength="60">
+        <button class="btn" type="submit">Claim handle</button>
+        <div class="msg" id="handle-msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div class="view" id="view-app">
+
+    <div class="card" id="ready-card" style="display:none;border-color:#c47f00;background:#fffaf0">
+      <h2>📣 Ready to post</h2>
+      <div class="sub">These hit their scheduled time on platforms without auto-posting. Copy the caption, open the app, paste — then mark it posted. <button class="linkbtn" id="alerts-btn" type="button" style="display:none">🔔 Enable alerts</button></div>
+      <div id="ready-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>Schedule a post</h2>
+      <div class="sub">It lands in your queue and on your embed instantly.</div>
+      <form id="post-form">
+        <div class="row2">
+          <div>
+            <label for="platform">Platform</label>
+            <select id="platform">
+              <option value="instagram">📸 Instagram</option>
+              <option value="tiktok">🎵 TikTok</option>
+              <option value="linkedin">💼 LinkedIn</option>
+              <option value="facebook">👥 Facebook</option>
+              <option value="pinterest">📌 Pinterest</option>
+              <option value="x">✖️ X</option>
+              <option value="youtube">▶️ YouTube</option>
+            </select>
+          </div>
+          <div>
+            <label for="when">Publish at</label>
+            <input id="when" type="datetime-local" required>
+          </div>
+        </div>
+        <label for="caption">Caption</label>
+        <textarea id="caption" maxlength="2200" placeholder="Write your caption…" required></textarea>
+        <label for="media_url">Image / video URL <span style="font-weight:400;color:var(--ink-soft)">(required for Instagram, TikTok, Pinterest &amp; YouTube)</span></label>
+        <input id="media_url" type="url" placeholder="https://…  (optional for X & LinkedIn)">
+        <div class="check">
+          <input id="is_public" type="checkbox" checked>
+          <label for="is_public" style="margin:0;font-weight:500">Show this post on my public embed</label>
+        </div>
+        <button class="btn" id="post-btn" type="submit">Add to queue</button>
+        <div class="msg" id="post-msg"></div>
+      </form>
+    </div>
+
+    <div class="card" id="plan-card">
+      <h2>Your plan</h2>
+      <div class="sub" id="plan-status"></div>
+      <a class="btn" id="upgrade-btn" target="_blank" rel="noopener" style="display:none;width:auto;text-align:center">⚡ Upgrade to KODE Pro — $19/mo</a>
+      <div class="note" id="plan-note" style="display:none">After paying, come back here and refresh — Pro unlocks automatically within a few seconds of payment.</div>
+    </div>
+
+    <div class="card">
+      <h2>Connected accounts</h2>
+      <div class="sub">Connect once by signing in — from then on, queued posts for that platform publish themselves at the scheduled time.</div>
+      <div id="connections"></div>
+      <div class="msg" id="conn-msg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Your queue</h2>
+      <div class="sub">Everything scheduled, soonest first.</div>
+      <div id="queue"></div>
+    </div>
+
+    <div class="card">
+      <h2>Embed on your website</h2>
+      <div class="sub">Paste this anywhere HTML goes — your site, a client's, a Notion page via embed block.</div>
+      <div class="snippet" id="snippet"></div>
+      <button class="btn copybtn" id="copy-btn" type="button">Copy snippet</button>
+      <div class="note">📱 <b>Mobile:</b> open this page on your phone and use "Add to Home Screen" — KODE installs like a native app.</div>
+    </div>
+
+  </div>
+
+  <div class="view on" id="view-loading">
+    <div class="empty">Loading…</div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xdoxfoectugsbbujjezq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_F1oMr-STZ3HH3Z_Wu4CYCg_oDwhLKnm';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PLATFORM_ICON = {instagram:'📸',tiktok:'🎵',linkedin:'💼',facebook:'👥',pinterest:'📌',x:'✖️',youtube:'▶️'};
+let me = null;        // auth user
+let myProfile = null; // profiles row
+let signupMode = false;
+
+const $ = id => document.getElementById(id);
+const show = id => {
+  for (const v of document.querySelectorAll('.view')) v.classList.remove('on');
+  $(id).classList.add('on');
+};
+const flash = (el, text, ok) => { el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err'); };
+
+/* ---------- routing ---------- */
+async function route(){
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) { me = null; myProfile = null; renderWho(); show('view-auth'); return; }
+  me = session.user;
+  const { data: prof } = await db.from('profiles').select('*').eq('id', me.id).maybeSingle();
+  myProfile = prof;
+  renderWho();
+  if (!prof) { show('view-handle'); return; }
+  show('view-app');
+  renderSnippet();
+  renderPlan();
+  if (localStorage.getItem('kode-linking') === '1') {
+    localStorage.removeItem('kode-linking');
+    await syncVendor(); // returning from the account-linking page — pick up new connections
+    return;
+  }
+  await loadConnections();
+  loadQueue();
+}
+db.auth.onAuthStateChange(() => route());
+
+function renderWho(){
+  $('who').innerHTML = me
+    ? `<span>@<b>${myProfile ? myProfile.handle : '…'}</b></span><button class="linkbtn" onclick="signOut()">Sign out</button>`
+    : '';
+}
+async function signOut(){ await db.auth.signOut(); }
+
+/* ---------- auth ---------- */
+$('tab-in').onclick = () => setMode(false);
+$('tab-up').onclick = () => setMode(true);
+function setMode(up){
+  signupMode = up;
+  $('tab-in').classList.toggle('on', !up);
+  $('tab-up').classList.toggle('on', up);
+  $('auth-btn').textContent = up ? 'Create free account' : 'Sign in';
+  $('password').autocomplete = up ? 'new-password' : 'current-password';
+}
+$('auth-form').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('auth-btn'); btn.disabled = true;
+  const email = $('email').value.trim(), password = $('password').value;
+  try {
+    if (signupMode) {
+      const { data, error } = await db.auth.signUp({ email, password });
+      if (error) throw error;
+      if (!data.session) { flash($('auth-msg'), 'Almost there — check your email for a confirmation link, then sign in.', true); return; }
+    } else {
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+  } catch (err) { flash($('auth-msg'), err.message || 'Something went wrong.', false); }
+  finally { btn.disabled = false; }
+};
+
+/* ---------- handle ---------- */
+$('handle-form').onsubmit = async e => {
+  e.preventDefault();
+  const handle = $('handle').value.trim().toLowerCase();
+  const display_name = $('display_name').value.trim() || handle;
+  const { error } = await db.from('profiles').insert({ id: me.id, handle, display_name });
+  if (error) {
+    flash($('handle-msg'), error.code === '23505' ? 'That handle is taken — try another.' : error.message, false);
+    return;
+  }
+  route();
+};
+
+/* ---------- plan / billing ---------- */
+const PAYMENT_LINK = 'https://buy.stripe.com/dRm8wP3Sd7LI68t3xH14401';
+function renderPlan(){
+  const pro = myProfile.plan === 'pro';
+  $('plan-status').innerHTML = pro
+    ? '⚡ <b>KODE Pro</b> — hands-off auto-posting unlocked on every platform.'
+    : '<b>Free plan</b> — LinkedIn &amp; X auto-post free once connected; other platforms use reminder posting. Upgrade to unlock hands-off auto-posting everywhere.';
+  $('upgrade-btn').style.display = pro ? 'none' : 'inline-block';
+  $('plan-note').style.display = pro ? 'none' : 'block';
+  if (!pro) {
+    $('upgrade-btn').href = `${PAYMENT_LINK}?client_reference_id=${me.id}&prefilled_email=${encodeURIComponent(me.email || '')}`;
+  }
+}
+
+/* ---------- connected accounts ---------- */
+const PROVIDERS = [
+  { key:'instagram', label:'Instagram', icon:'📸', live:true },
+  { key:'tiktok',    label:'TikTok',    icon:'🎵', live:true },
+  { key:'linkedin',  label:'LinkedIn',  icon:'💼', live:true },
+  { key:'x',         label:'X (Twitter)', icon:'✖️', live:true },
+  { key:'facebook',  label:'Facebook',  icon:'👥', live:true },
+  { key:'pinterest', label:'Pinterest', icon:'📌', live:true },
+  { key:'youtube',   label:'YouTube',   icon:'▶️', live:true }
+];
+const OPEN_LINK = {
+  instagram:'https://www.instagram.com/', tiktok:'https://www.tiktok.com/upload',
+  linkedin:'https://www.linkedin.com/feed/?shareActive=true', facebook:'https://www.facebook.com/',
+  pinterest:'https://www.pinterest.com/pin-builder/', x:'https://x.com/intent/post',
+  youtube:'https://studio.youtube.com/'
+};
+let connected = {}; // platform -> account_name
+
+async function loadConnections(){
+  const { data } = await db.from('connected_accounts').select('platform,account_name');
+  connected = Object.fromEntries((data || []).map(r => [r.platform, r.account_name || 'connected']));
+  $('connections').innerHTML = `<div style="text-align:right;margin-bottom:8px"><button class="linkbtn" type="button" onclick="syncVendor()">↻ Refresh connections</button></div>` + PROVIDERS.map(p => `
+    <div class="conn">
+      <div class="cico">${p.icon}</div>
+      <div class="cbody">
+        <div class="cname">${p.label}</div>
+        <div class="cstate ${connected[p.key] ? 'live' : ''}">${
+          connected[p.key] ? '✓ ' + escapeHtml(connected[p.key]) + ' · auto-post on'
+          : p.live ? 'Not connected — posts stay manual' : 'Platform approval in progress'
+        }</div>
+      </div>
+      ${connected[p.key]
+        ? `<button class="off" onclick="disconnectSocial('${p.key}')">Disconnect</button>`
+        : p.live ? `<button onclick="connectSocial('${p.key}')">Connect</button>`
+        : `<span class="soon">Soon</span>`}
+    </div>`).join('');
+}
+
+async function connectSocial(platform){
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/functions/v1/kode-oauth-start?platform=${platform}`, {
+      headers: { Authorization: `Bearer ${session.access_token}`, apikey: SUPABASE_KEY }
+    });
+    const j = await r.json();
+    if (j.url) {
+      if (j.vendor === 'ayrshare') localStorage.setItem('kode-linking', '1');
+      location.href = j.url;
+      return;
+    }
+    flash($('conn-msg'), j.error || 'Could not start the connection.', false);
+  } catch (e) {
+    flash($('conn-msg'), 'Could not reach the connection service — try again in a minute.', false);
+  }
+}
+
+/* After linking on the aggregator's hosted page, sync which platforms got connected */
+async function syncVendor(){
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) return;
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/kode-ayrshare-sync`, {
+      headers: { Authorization: `Bearer ${session.access_token}`, apikey: SUPABASE_KEY }
+    });
+  } catch (e) { /* non-fatal */ }
+  await loadConnections();
+  loadQueue();
+}
+
+async function disconnectSocial(platform){
+  await db.from('social_accounts').delete().eq('platform', platform).eq('user_id', me.id);
+  await loadConnections();
+  loadQueue();
+}
+
+/* ---------- posts ---------- */
+$('post-form').onsubmit = async e => {
+  e.preventDefault();
+  const btn = $('post-btn'); btn.disabled = true;
+  const scheduled_at = new Date($('when').value).toISOString(); // local time -> UTC, tz-correct
+  const { error } = await db.from('posts').insert({
+    user_id: me.id,
+    platform: $('platform').value,
+    caption: $('caption').value.trim(),
+    media_url: $('media_url').value.trim() || null,
+    scheduled_at,
+    is_public: $('is_public').checked
+  });
+  btn.disabled = false;
+  if (error) { flash($('post-msg'), error.message, false); return; }
+  $('caption').value = ''; $('media_url').value = '';
+  flash($('post-msg'), 'Queued ✓', true);
+  setTimeout(() => $('post-msg').className = 'msg', 1600);
+  loadQueue();
+};
+
+async function loadQueue(){
+  const { data: allPosts, error } = await db.from('posts')
+    .select('*').eq('user_id', me.id)
+    .order('scheduled_at', { ascending: true }).limit(200);
+  const q = $('queue');
+  if (error) { q.innerHTML = `<div class="empty">${error.message}</div>`; return; }
+
+  renderReady(allPosts.filter(p => p.status === 'ready'));
+  const posts = allPosts.filter(p => p.status !== 'ready');
+  if (!posts.length) { q.innerHTML = '<div class="empty">Nothing queued yet — schedule your first post above.</div>'; return; }
+
+  const groups = {};
+  for (const p of posts) {
+    const d = new Date(p.scheduled_at);
+    const key = d.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+    (groups[key] = groups[key] || []).push(p);
+  }
+  q.innerHTML = Object.entries(groups).map(([day, list]) => `
+    <div class="day-group">
+      <div class="day-label">${day}</div>
+      ${list.map(p => `
+        <div class="post">
+          <div class="pico">${PLATFORM_ICON[p.platform] || '📄'}</div>
+          <div class="pbody">
+            <div class="pcap">${escapeHtml(p.caption)}</div>
+            <div class="pmeta">
+              ${new Date(p.scheduled_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}
+              · <span class="st ${p.status}">${p.status}</span>
+              ${p.is_public ? '· on embed' : '· private'}
+              ${p.status === 'queued' ? (connected[p.platform] ? ' · ⚡ auto-posts' : ' · manual') : ''}
+            </div>
+            ${p.status === 'failed' && p.error ? `<div class="perr">${escapeHtml(p.error)}</div>` : ''}
+          </div>
+          <div class="acts">
+            ${p.status === 'queued' && !connected[p.platform] ? `<button onclick="markPublished('${p.id}')">✓ published</button>` : ''}
+            ${p.status === 'failed' ? `<button onclick="retryPost('${p.id}')">↻ retry</button>` : ''}
+            <button class="del" onclick="delPost('${p.id}')">delete</button>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+/* ---------- reminder posting (\"ready\") ---------- */
+function renderReady(list){
+  const card = $('ready-card');
+  if (!list.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  $('alerts-btn').style.display =
+    ('Notification' in window && Notification.permission === 'default') ? 'inline' : 'none';
+  $('ready-list').innerHTML = list.map(p => `
+    <div class="post" style="background:#fff">
+      <div class="pico">${PLATFORM_ICON[p.platform] || '📄'}</div>
+      <div class="pbody">
+        <div class="pcap">${escapeHtml(p.caption)}</div>
+        <div class="pmeta">was due ${new Date(p.scheduled_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}${p.media_url ? ' · has media' : ''}</div>
+      </div>
+      <div class="acts">
+        <button onclick="copyCaption('${p.id}')" id="copy-${p.id}">⧉ copy caption</button>
+        <button onclick="window.open(OPEN_LINK['${p.platform}'],'_blank')">↗ open ${p.platform}</button>
+        <button onclick="markPublished('${p.id}')">✓ posted</button>
+        <button class="del" onclick="delPost('${p.id}')">delete</button>
+      </div>
+    </div>`).join('');
+  notifyReady(list);
+}
+let readyCache = {};
+async function copyCaption(id){
+  const { data } = await db.from('posts').select('caption').eq('id', id).single();
+  if (data) {
+    await navigator.clipboard.writeText(data.caption);
+    const b = $('copy-' + id); if (b) { b.textContent = '✓ copied'; setTimeout(() => b.textContent = '⧉ copy caption', 1500); }
+  }
+}
+function notifyReady(list){
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const seen = new Set(JSON.parse(localStorage.getItem('kode-notified') || '[]'));
+  for (const p of list) {
+    if (seen.has(p.id)) continue;
+    new Notification('KODE — time to post', {
+      body: `${p.platform}: ${p.caption.slice(0, 80)}`,
+      icon: 'icon.svg', tag: p.id
+    });
+    seen.add(p.id);
+  }
+  localStorage.setItem('kode-notified', JSON.stringify([...seen].slice(-100)));
+}
+$('alerts-btn').onclick = async () => {
+  await Notification.requestPermission();
+  $('alerts-btn').style.display = Notification.permission === 'default' ? 'inline' : 'none';
+};
+/* poll for newly-ready posts while the app is open */
+setInterval(() => { if (me && myProfile && $('view-app').classList.contains('on')) loadQueue(); }, 60000);
+
+async function delPost(id){ await db.from('posts').delete().eq('id', id); loadQueue(); }
+async function markPublished(id){ await db.from('posts').update({ status:'published' }).eq('id', id); loadQueue(); }
+async function retryPost(id){ await db.from('posts').update({ status:'queued', error:null }).eq('id', id); loadQueue(); }
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ---------- embed snippet ---------- */
+function renderSnippet(){
+  const base = location.origin === 'null' || location.protocol === 'file:'
+    ? 'https://YOUR-DOMAIN.com/' : location.href.replace(/app\.html.*$/, '');
+  $('snippet').textContent = `<script src="${base}embed.js" data-profile="${myProfile.handle}" data-height="480"><\/script>`;
+}
+$('copy-btn').onclick = async () => {
+  await navigator.clipboard.writeText($('snippet').textContent);
+  $('copy-btn').textContent = 'Copied ✓';
+  setTimeout(() => $('copy-btn').textContent = 'Copy snippet', 1500);
+};
+
+/* ---------- default schedule time: next hour ---------- */
+(function(){
+  const d = new Date(Date.now() + 60*60*1000); d.setMinutes(0,0,0);
+  const pad = n => String(n).padStart(2,'0');
+  $('when').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+})();
+
+route();
+window.signOut = signOut; window.delPost = delPost; window.markPublished = markPublished;
+window.retryPost = retryPost; window.connectSocial = connectSocial; window.disconnectSocial = disconnectSocial;
+window.syncVendor = syncVendor; window.copyCaption = copyCaption; window.OPEN_LINK = OPEN_LINK;
+</script>
+</body>
+</html>
