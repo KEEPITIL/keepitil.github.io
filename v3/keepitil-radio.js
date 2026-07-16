@@ -82,7 +82,7 @@
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>'+
       '</div>'+
-      '<a href="/v3/signup.html" class="kil-submit" target="_blank">🎵 Play your song?</a>'+
+      '<a href="/v3/radio.html" class="kil-submit">🎵 Play your song?</a>'+
       '<button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>';
     document.body.appendChild(bar);
     // ── rotating referral ad (middle of the bar) ──
