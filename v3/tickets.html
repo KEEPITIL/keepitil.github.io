@@ -6,10 +6,11 @@
 <meta name="robots" content="noindex,nofollow"/>
 <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
 <title>My Ticket — KEEPITIL</title>
+<link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
+<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <meta name="description" content="Your KEEPITIL ticket — flyer, QR code, event info and the live event chat."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.5;padding:22px 0 40px}
@@ -100,6 +101,8 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
 </head>
 <body>
 <div class="tp">
+  <!-- chromeless ticket-wallet view (registry: tool) — minimal way home, per Founder 2026-07-16 -->
+  <a href="/v3/" style="display:inline-flex;align-items:center;gap:7px;color:var(--brand,#00b4ff);text-decoration:none;font-weight:800;font-size:.85rem;letter-spacing:.05em;margin:0 0 12px 2px">&larr; KEEPITIL Home</a>
   <div class="loading" id="loading">Loading your ticket…</div>
   <div class="gate" id="gate" style="display:none">
     <h2>Log in to see your ticket</h2><p>Your tickets live in your KEEPITIL account.</p>
@@ -118,6 +121,7 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
   <iframe id="ovFrame" title="Event chat" src="about:blank"></iframe>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
@@ -125,9 +129,11 @@ var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function enc(s){return encodeURIComponent(String(s==null?'':s));}
-function fmtDate(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
-function fmtTime(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
-function shortDate(iso){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+/* Event times render in the VENUE's timezone (KIL formatter), not the viewer's device. */
+var EVTZ='America/Los_Angeles';
+function fmtDate(iso,tz){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString('en-US',{timeZone:tz||EVTZ,weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
+function fmtTime(iso,tz){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleTimeString('en-US',{timeZone:tz||EVTZ,hour:'numeric',minute:'2-digit'}); }
+function shortDate(iso,tz){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString('en-US',{timeZone:tz||EVTZ,month:'short',day:'numeric'}); }
 
 var TIX=[], ACTIVE=0, BACK='/v3/', EXPANDED=false;
 function toggleTix(){ EXPANDED=!EXPANDED; var el=document.getElementById('tixlist'); var cv=document.getElementById('tixchev'); if(el) el.style.display=EXPANDED?'flex':'none'; if(cv) cv.textContent=EXPANDED?'▴':'▾'; }
@@ -142,7 +148,7 @@ function render(){
   var chatUrl='/v3/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
   var loc=[e.venue,e.city].filter(Boolean).join(', ');
   var maps=loc?('<a href="https://www.google.com/maps/search/?api=1&query='+enc(loc)+'" target="_blank" rel="noopener">'+esc(loc)+' ↗</a>'):'—';
-  var dt=fmtDate(e.starts_at)+(fmtTime(e.starts_at)?(' · '+fmtTime(e.starts_at)):'');
+  var dt=fmtDate(e.starts_at,e.tz)+(fmtTime(e.starts_at,e.tz)?(' · '+fmtTime(e.starts_at,e.tz)):'');
   /* expandable picker — only the tickets this buyer holds FOR THIS EVENT */
   var sameTix=TIX.map(function(tk,i){return {tk:tk,i:i};}).filter(function(o){return o.tk.row.event_id===e.event_id;});
   var tixItems=sameTix.map(function(o){
@@ -192,7 +198,7 @@ function render(){
       '<div class="car" id="car"><button class="car-arrow prev" aria-label="Previous" onclick="carScroll(-1)">&lsaquo;</button><div class="car-row" id="car-row">'+
       TIX.map(function(t,i){ if(i===ACTIVE) return ''; var ee=t.row;
         var im=ee.cover_url?'<img src="'+esc(ee.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'';
-        return '<div class="car-card" onclick="setActive('+i+')">'+im+'<div class="shade"></div><div class="cdate">'+esc(shortDate(ee.starts_at)||'TICKET')+'</div><div class="cbody"><div class="ct">'+esc(ee.title||'Event')+'</div><div class="cc">'+esc(ee.city||'')+'</div></div></div>';
+        return '<div class="car-card" onclick="setActive('+i+')">'+im+'<div class="shade"></div><div class="cdate">'+esc(shortDate(ee.starts_at,ee.tz)||'TICKET')+'</div><div class="cbody"><div class="ct">'+esc(ee.title||'Event')+'</div><div class="cc">'+esc(ee.city||'')+'</div></div></div>';
       }).join('')+'</div><button class="car-arrow next" aria-label="Next" onclick="carScroll(1)">&rsaquo;</button></div>';
     carMark();
   } else { $('carwrap').style.display='none'; }
@@ -222,6 +228,8 @@ async function init(){
 }
 init();
 </script>
+<script src="/v3/keepitil-ai.js?v=20260718" defer></script>
+<script src="/v3/v3-shell.js?v=20260722" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
