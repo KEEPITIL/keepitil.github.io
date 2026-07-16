@@ -170,7 +170,7 @@ var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function money(c){return '$'+((c||0)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmtDate(iso){ try{ if(!iso)return 'Date TBD'; return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
+function fmtDate(iso,tz){ try{ if(!iso)return 'Date TBD'; return new Date(iso).toLocaleDateString('en-US',{timeZone:tz||'America/Los_Angeles',weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
 
 function card(d){
   var st=(d.status||'draft').toLowerCase();
@@ -178,7 +178,7 @@ function card(d){
   return '<div class="ev">'+cov+
     '<div class="ev-main">'+
       '<div class="ev-top"><span class="ev-title">'+esc(d.title||'Untitled')+'</span><span class="ev-badge '+st+'">'+esc(st)+'</span></div>'+
-      '<div class="ev-meta">'+fmtDate(d.starts_at)+(d.venue?' · '+esc(d.venue):(d.city?' · '+esc(d.city):''))+'</div>'+
+      '<div class="ev-meta">'+fmtDate(d.starts_at,d.tz)+(d.venue?' · '+esc(d.venue):(d.city?' · '+esc(d.city):''))+'</div>'+
       '<div class="ev-stats">'+
         '<div class="s"><div class="n">'+(d.sold||0)+'</div><div class="l">Sold</div></div>'+
         '<div class="s"><div class="n">'+(d.checked_in||0)+'</div><div class="l">Checked in</div></div>'+
@@ -571,7 +571,7 @@ async function init(){
 }
 init();
 </script>
-<script src="/v3/v3-shell.js?v=20260719" defer></script>
+<script src="/v3/v3-shell.js?v=20260721" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
