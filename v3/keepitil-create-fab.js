@@ -24,7 +24,7 @@
      +'#kil-cfab .cfab-opt .ic{font-size:1.3rem;line-height:1.1}'
      +'#kil-cfab .cfab-opt .t{font-weight:800;font-size:.9rem}'
      +'#kil-cfab .cfab-opt .d{color:var(--muted,#9a9aa6);font-size:.76rem;line-height:1.35;margin-top:2px}'
-     +'@media(max-width:600px){#kil-cfab{bottom:74px;right:12px}#kil-cfab .cfab-menu{min-width:210px}}';
+     +'@media(max-width:600px){#kil-cfab{display:none!important}}';  /* Founder 2026-07-16: no Create button on mobile homepage */
     document.head.appendChild(s);
   }
   function build(){
