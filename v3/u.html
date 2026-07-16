@@ -803,7 +803,10 @@ function isImageSafe(file){
 }
 function uploadImage(file,cb){
   if(!file||!SB||!SESSION){ cb(null); return; }
-  isImageSafe(file).then(function(safe){
+  /* moderation must never hang the upload — on mobile the NSFW/TF.js model can stall.
+     Race it against a 4s timeout that fails OPEN (consistent with the model-unavailable path). */
+  var moderated=Promise.race([ isImageSafe(file), new Promise(function(res){ setTimeout(function(){ res(true); },4000); }) ]);
+  moderated.then(function(safe){
     if(!safe){ toast('⛔ Image blocked — nudity or explicit content is not allowed on KEEPITIL.'); cb(null); return; }
     var path='profiles/'+PROFILE_SLUG+'/'+Date.now()+'-'+file.name.replace(/[^a-z0-9.\-]+/gi,'_');
     SB.storage.from('chat-images').upload(path,file).then(function(r){
