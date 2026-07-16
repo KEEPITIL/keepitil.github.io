@@ -20,8 +20,9 @@
   try{ if(!window.__kilSocialLoad){ window.__kilSocialLoad=1;
     var _so=document.createElement('script'); _so.defer=true; _so.src='/v3/keepitil-social.js'; document.head.appendChild(_so);
   } }catch(e){}
-  /* In-app notification center (bell + panel + opt-in) — shows for logged-in members. Added 2026-07-12. */
-  try{ if(!window.__kilNotifyLoad){ window.__kilNotifyLoad=1;
+  /* In-app notification center (bell + panel + opt-in) — logged-in members only.
+     P0c (Founder 2026-07-16): bell appears ONLY on the profile and Culture pages. */
+  try{ if(!window.__kilNotifyLoad && /\/v3\/(u\.html|culture)/.test(location.pathname)){ window.__kilNotifyLoad=1;
     var _no=document.createElement('script'); _no.defer=true; _no.src='/v3/keepitil-notify.js'; document.head.appendChild(_no);
   } }catch(e){}
   /* ── PWA: manifest + iOS install meta + service worker + install hint. Added 2026-07-16.
@@ -146,7 +147,7 @@
         +'</div>'
         +'<div class="v3s-links">'+links+'</div>'
         +iconRow
-        +'<a href="/v3/settings.html" class="v3s-gear" aria-label="Settings" title="Settings">'+ICON.settings+'</a>'
+        /* P0c (Founder 2026-07-16): NO settings gear in the shell nav — Settings is reachable ONLY via the profile-page hamburger. */
         +'<a href="/v3/apply.html" class="v3s-cta">LOGIN</a>'
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
         +'</div>'
