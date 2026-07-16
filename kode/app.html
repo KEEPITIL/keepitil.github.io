@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#2ee6ff">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   :root{
     --bg:#f4fbff; --ink:#071522; --ink-soft:#41586b;
@@ -539,6 +539,7 @@ $('copy-btn').onclick = async () => {
 })();
 
 route();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 window.signOut = signOut; window.delPost = delPost; window.markPublished = markPublished;
 window.retryPost = retryPost; window.connectSocial = connectSocial; window.disconnectSocial = disconnectSocial;
 window.syncVendor = syncVendor; window.copyCaption = copyCaption; window.OPEN_LINK = OPEN_LINK;
