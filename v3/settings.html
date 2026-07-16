@@ -115,6 +115,23 @@ select:focus{border-color:var(--brand)}
         <div class="row"><div class="lbl">New followers<small>When someone follows your profile</small></div><div class="tog" data-k="notif_follows"></div></div>
         <div class="row"><div class="lbl">Weekly Pulse<small>What's happening in the scene each week</small></div><div class="tog" data-k="notif_digest"></div></div>
         <div class="savez" id="sz-notifications"></div>
+
+        <h2 style="margin-top:26px">KEEPITIL App alerts</h2>
+        <div class="psub">Push notifications on this device — free, instant, no email or texts. Everything below is opt-in: you only hear about what you turn on.</div>
+        <div class="row"><div class="lbl">Push on this device<small id="pushStatus">Turn on to get alerts even when KEEPITIL is closed</small></div><div class="tog" id="pushTog"></div></div>
+        <div id="pushCats">
+          <div class="row"><div class="lbl">Events<small>New events + reminders from organizers you follow</small></div><div class="tog" data-k="push_events"></div></div>
+          <div class="row"><div class="lbl">Artists<small>New drops and articles from artists you follow</small></div><div class="tog" data-k="push_artists"></div></div>
+          <div class="row"><div class="lbl">Venues<small>Announcements from venues you follow</small></div><div class="tog" data-k="push_venues"></div></div>
+          <div class="row"><div class="lbl">Genres<small>Activity in your genre lanes</small></div><div class="tog" data-k="push_genres"></div></div>
+          <div class="row"><div class="lbl">Communities<small>Your rooms and groups</small></div><div class="tog" data-k="push_communities"></div></div>
+          <div class="row"><div class="lbl">Marketplace<small>Shop drops and offers</small></div><div class="tog" data-k="push_marketplace"></div></div>
+          <div class="row"><div class="lbl">Competitions<small>Voting windows and results</small></div><div class="tog" data-k="push_competitions"></div></div>
+          <div class="row"><div class="lbl">Radio<small>Exclusive sets going live</small></div><div class="tog" data-k="push_radio"></div></div>
+          <div class="row"><div class="lbl">Articles<small>New editorial from the crew</small></div><div class="tog" data-k="push_articles"></div></div>
+          <div class="row"><div class="lbl">News &amp; marketing<small>Occasional KEEPITIL updates</small></div><div class="tog" data-k="push_marketing"></div></div>
+        </div>
+        <div class="savez" id="sz-push"></div>
       </div>
 
       <!-- PRIVACY -->
@@ -220,6 +237,45 @@ function save(patch, szid){
   }
 }
 
+/* ---- KEEPITIL App push (VAPID web push; per-category opt-in) ---- */
+function pushSupported(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+function urlB64ToU8(s){ var pad='='.repeat((4-s.length%4)%4); var b=(s+pad).replace(/-/g,'+').replace(/_/g,'/'); var raw=atob(b); var a=new Uint8Array(raw.length); for(var i=0;i<raw.length;i++)a[i]=raw.charCodeAt(i); return a; }
+function setPushUI(on,msg){ var t=document.getElementById('pushTog'); if(t)t.classList.toggle('on',!!on); var st=document.getElementById('pushStatus'); if(st&&msg)st.textContent=msg; }
+function initPush(){
+  var t=document.getElementById('pushTog'); if(!t) return;
+  if(!pushSupported()){ setPushUI(false,'Not supported in this browser — install the KEEPITIL App from Chrome, or add to Home Screen on iPhone first'); t.style.opacity=.4; return; }
+  if(!SIGNED){ setPushUI(false,'Log in to turn on push'); t.style.opacity=.4; return; }
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.pushManager.getSubscription().then(function(sub){ setPushUI(!!sub, sub?'On — alerts arrive on this device':'Turn on to get alerts even when KEEPITIL is closed'); });
+  });
+  t.onclick=function(){
+    var sz=document.getElementById('sz-push');
+    navigator.serviceWorker.ready.then(function(reg){
+      reg.pushManager.getSubscription().then(function(sub){
+        if(sub){
+          var ep=sub.endpoint;
+          sub.unsubscribe().then(function(){ SB.rpc('remove_push_subscription',{p_endpoint:ep}); setPushUI(false,'Off'); if(sz){sz.textContent='Push turned off';setTimeout(function(){sz.textContent='';},1800);} });
+          return;
+        }
+        Notification.requestPermission().then(function(perm){
+          if(perm!=='granted'){ setPushUI(false,'Blocked — allow notifications for keepitil.com in your browser settings'); return; }
+          SB.rpc('get_vapid_public').then(function(r){
+            var key=r&&r.data; if(!key){ setPushUI(false,'Could not load push key — try again'); return; }
+            reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:urlB64ToU8(key)}).then(function(ns){
+              var j=ns.toJSON();
+              SB.rpc('save_push_subscription',{p_endpoint:ns.endpoint,p_p256dh:(j.keys||{}).p256dh||'',p_auth:(j.keys||{}).auth||'',p_user_agent:navigator.userAgent}).then(function(rr){
+                var ok=rr&&rr.data&&rr.data.ok;
+                if(ok){ setPushUI(true,'On — alerts arrive on this device'); if(sz){sz.textContent='Push is on ✓ Pick your categories below';setTimeout(function(){sz.textContent='';},2600);} }
+                else { ns.unsubscribe(); setPushUI(false,'Could not save — try again'); }
+              });
+            }).catch(function(){ setPushUI(false,'Could not subscribe — try again'); });
+          });
+        });
+      });
+    });
+  };
+}
+
 function doLogout(){ if(SB){ SB.auth.signOut().then(function(){ location.href='/v3/'; }); } else { location.href='/v3/'; } }
 function showAnyway(){ document.getElementById('gate').style.display='none'; document.getElementById('cols').style.display='grid'; renderThemes(); }
 
@@ -242,7 +298,9 @@ function showAnyway(){ document.getElementById('gate').style.display='none'; doc
       // sensible defaults
       ['notif_events','notif_chat','notif_follows','privacy_directory','chat_receipts','radio_autoplay'].forEach(function(k){ if(STATE[k]==null) STATE[k]=true; });
       if(STATE.theme && STATE.theme!==currentTheme()){ document.documentElement.setAttribute('data-theme',STATE.theme); try{localStorage.setItem('kil-theme',STATE.theme);}catch(e){} renderThemes(); }
+      /* push categories are OPT-IN by design — no defaulting to true */
       applyState();
+      initPush();
     });
   }).catch(function(){ document.getElementById('gate').style.display='block'; });
 })();
