@@ -242,6 +242,9 @@
   var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function fmt(d){ if(!d) return ''; var a=d.split('-'); if(a.length<3) return d; var dt=new Date(Date.UTC(+a[0],+a[1]-1,+a[2])); return DOW[dt.getUTCDay()]+', '+MON[+a[1]-1]+' '+(+a[2])+', '+a[0]; }
+  /* P0d: venue-local calendar date, SELF-CONTAINED — the deferred shell's KIL may not exist yet
+     when the RPC resolves (that race produced UTC "Sun Sep 13" titles for Sat Sep 12 events). */
+  function localDate(iso,tz){ try{ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return String(iso).slice(0,10); return new Intl.DateTimeFormat('en-CA',{timeZone:tz||'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(d); }catch(e){ return String(iso).slice(0,10); } }
   function fmtDT(ms){ if(!ms) return ''; var d=new Date(ms); var h=d.getHours(), m=d.getMinutes(), ap=h>=12?'PM':'AM'; h=h%12||12; return MON[d.getMonth()]+' '+d.getDate()+', '+h+(m?(':'+String(m).padStart(2,'0')):'')+' '+ap; }
   function timeAgo(iso){ if(!iso) return ''; var d=new Date(iso); if(isNaN(d)) return ''; var s=Math.floor((Date.now()-d.getTime())/1000); if(s<60)return 'just now'; var m=Math.floor(s/60); if(m<60)return m+'m ago'; var h=Math.floor(m/60); if(h<24)return h+'h ago'; var dd=Math.floor(h/24); if(dd<7)return dd+'d ago'; return MON[d.getMonth()]+' '+d.getDate(); }
   var ev={
@@ -334,6 +337,15 @@
   try{ if(window.supabase){ var _bsb=window.supabase.createClient(URL,KEY); _bsb.auth.getSession().then(function(sr){ var s=sr&&sr.data?sr.data.session:null; var bk=document.getElementById('ev-back'); if(!bk||!s) return; _bsb.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ bk.setAttribute('href','/v3/u.html?slug='+encodeURIComponent(rr.data)+'&tab=shows'); } },function(){}); }); } }catch(e){}
   /* returned from a successful checkout → surface the in-account ticket */
   if(p.get('paid')==='1'){ try{ var _ann=document.getElementById('ev-ann'); if(_ann){ var _d=document.createElement('div'); _d.className='ann'; _d.style.cssText='border-left-color:#22e39b;background:linear-gradient(90deg,rgba(34,227,155,.14),rgba(34,227,155,.04));border-color:rgba(34,227,155,.4)'; _d.innerHTML='<div class="t" style="color:#22e39b">🎟 You\'re in!</div><div class="b">Your ticket is confirmed and saved to your account. <a href="/v3/tickets.html" style="color:#22e39b;font-weight:800">View your ticket →</a></div>'; _ann.parentNode.insertBefore(_d,_ann); } }catch(e){} }
+  /* P0d: shared/bookmarked links with numeric ?id=NN used to dead-end — resolve the slug and reload cleanly */
+  try{
+    var _eid=g('id');
+    if(!ev.slug && _eid && /^\d+$/.test(_eid) && window.supabase){
+      window.supabase.createClient(URL,KEY).from('events').select('slug').eq('id',+_eid).eq('status','published').maybeSingle().then(function(r){
+        if(r&&r.data&&r.data.slug) location.replace(location.pathname+'?e='+encodeURIComponent(r.data.slug));
+      }).catch(function(){});
+    }
+  }catch(e){}
   // Enhance from DB if the event exists there (richer/authoritative)
   try{
     if(window.supabase && ev.slug){
@@ -341,7 +353,7 @@
       sb.rpc('get_event_view',{p_slug:ev.slug}).then(function(r){
         if(r&&r.data&&r.data[0]){ var x=r.data[0];
           ev.title=x.title||ev.title; ev.venue=x.venue||ev.venue; ev.city=x.city||ev.city;
-          ev.date=(window.KIL&&KIL.localDate?KIL.localDate(x.starts_at,x.tz):(x.starts_at||'').slice(0,10))||ev.date; ev.genre=x.genres||ev.genre;
+          ev.date=localDate(x.starts_at,x.tz)||ev.date; ev.genre=x.genres||ev.genre;
           ev.img=x.cover_url||ev.img; ev.description=x.description||ev.description;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false;
@@ -490,7 +502,7 @@
 })();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260722" defer></script>
+<script src="/v3/v3-shell.js?v=20260723" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
