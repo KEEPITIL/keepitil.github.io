@@ -61,6 +61,8 @@
   .post .pbody{flex:1;min-width:0}
   .post .pcap{font-size:.9rem;word-wrap:break-word}
   .post .pmeta{font-size:.75rem;color:var(--ink-soft);margin-top:2px}
+  .pthumb{width:46px;height:46px;flex:0 0 46px;border-radius:10px;object-fit:cover;border:1px solid rgba(7,21,34,.12);background:#eaf6fb}
+  .pthumb.vid{display:flex;align-items:center;justify-content:center;font-size:1.1rem}
   .post .pmeta .st{font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--ink)}
   .post .st.queued{background:var(--neon-soft)}
   .post .st.ready{background:#ffe9b3}
@@ -441,6 +443,14 @@ $('post-form').onsubmit = async e => {
   loadQueue();
 };
 
+/* media preview: image -> thumbnail; video/unknown -> 🎬 chip; broken URLs hide themselves */
+function mediaThumb(p){
+  if (!p.media_url) return '';
+  const u = escapeHtml(p.media_url);
+  if (/\.(mp4|mov|webm)(\?|$)/i.test(p.media_url)) return `<a class="pthumb vid" href="${u}" target="_blank" rel="noopener" title="Open video">🎬</a>`;
+  return `<a href="${u}" target="_blank" rel="noopener" title="Open media"><img class="pthumb" src="${u}" alt="" loading="lazy" onerror="this.parentNode.style.display='none'"></a>`;
+}
+
 async function loadQueue(){
   const { data: allPosts, error } = await db.from('posts')
     .select('*').eq('user_id', me.id)
@@ -464,6 +474,7 @@ async function loadQueue(){
       ${list.map(p => `
         <div class="post">
           <div class="pico">${PLATFORM_ICON[p.platform] || '📄'}</div>
+          ${mediaThumb(p)}
           <div class="pbody">
             <div class="pcap">${escapeHtml(p.caption)}</div>
             <div class="pmeta">
@@ -492,11 +503,13 @@ function renderReady(list){
   $('ready-list').innerHTML = list.map(p => `
     <div class="post" style="background:#fff">
       <div class="pico">${PLATFORM_ICON[p.platform] || '📄'}</div>
+      ${mediaThumb(p)}
       <div class="pbody">
         <div class="pcap">${escapeHtml(p.caption)}</div>
-        <div class="pmeta">was due ${new Date(p.scheduled_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}${p.media_url ? ' · has media' : ''}</div>
+        <div class="pmeta">was due ${new Date(p.scheduled_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div>
       </div>
       <div class="acts">
+        ${p.media_url ? `<button onclick="window.open('${escapeHtml(p.media_url)}','_blank')">🖼 media</button>` : ''}
         <button onclick="copyCaption('${p.id}')" id="copy-${p.id}">⧉ copy caption</button>
         <button onclick="window.open(OPEN_LINK['${p.platform}'],'_blank')">↗ open ${p.platform}</button>
         <button onclick="markPublished('${p.id}')">✓ posted</button>
