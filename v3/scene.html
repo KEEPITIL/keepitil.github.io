@@ -478,14 +478,20 @@ let kind='all',q='',sub=null; // sub={facet:'genre'|'type',val}
 function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 function desc(x){return x.genre||x.category||x.type||'';}
 function card(x){
-  const d=desc(x);const ig=x.ig?('@'+x.ig):'';const href=x.blog?('/'+x.blog):'#';
+  const d=desc(x);const ig=x.ig?('@'+x.ig):'';
+  /* No dead links (Atlas 2026-07-16): internal profile if it exists, else the org's Instagram (new tab), else a non-clickable card. Never href="#". */
+  const igurl=x.ig?('https://instagram.com/'+String(x.ig).replace(/^@/,'').trim()):'';
+  const href=x.blog?('/'+x.blog):(igurl||'');
+  const ext=!x.blog && !!igurl;
   const img=x.img?('<img loading="lazy" referrerpolicy="no-referrer" src="'+x.img+'" alt="" onerror="this.style.display=\'none\'"/>'):'';
   const fb='<div class="fallback" style="background:linear-gradient(135deg,'+(x.color||'#6d28d9')+',#111)">'+initials(x.name)+'</div>';
   const chips=x.kinds.map(k=>'<span class="kind '+k+'">'+KL[k]+'</span>').join('');
-  return '<a class="card" href="'+href+'"><div class="imgw"><div class="kinds">'+chips+'</div>'+img+fb+'</div>'
+  const inner='<div class="imgw"><div class="kinds">'+chips+'</div>'+img+fb+'</div>'
     +'<div class="body"><div class="nm">'+(x.name||'')+'</div><div class="desc">'+d+'</div>'
     +(x.city?'<div class="loc">◍ '+x.city+(x.county?' · '+x.county.replace(' County',' Co.'):'')+'</div>':'')
-    +(ig?'<div class="ig">'+ig+'</div>':'')+'</div></a>';
+    +(ig?'<div class="ig">'+ig+(ext?' ↗':'')+'</div>':'')+'</div>';
+  if(href) return '<a class="card" href="'+href+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+inner+'</a>';
+  return '<div class="card nolink" style="cursor:default">'+inner+'</div>';
 }
 function renderSubs(){
   const box=document.getElementById('subs');
