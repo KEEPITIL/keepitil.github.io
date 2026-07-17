@@ -1,6 +1,9 @@
 /* KEEPITIL shared directory roster — extracted from scene.html (source of truth for the Scene + /v3/p.html viewer). Non-breaking: scene.html keeps its own inline copy for now. Echo directive 2026-07-15: one data source feeding one renderer. */
 (function(){
 const ART=[
+  {name:'DJ SUSAN', city:'San Diego', county:'', genre:'Tech House', ig:'', img:'', color:'#00b4ff', blog:'profile-dj-susan.html', keepitil:true, type:'DJ'},
+  {name:'LIGHTLEAK', city:'Laguna Beach', county:'', genre:'Minimal / Deep Tech', ig:'', img:'', color:'#00b4ff', blog:'profile-lightleak.html', keepitil:true, type:'DJ'},
+
   // === KEEPITIL FEATURED (with blog pages) ===
   {name:'RAB3L',         city:'Torrance',      county:'Los Angeles County',    genre:'Bass House / Tech House / UKG / Bassline', ig:'dj_rab3l_r3mix',       img:'https://i1.sndcdn.com/avatars-Z5V6LqAjRIN9MyRX-HjzMWg-t500x500.jpg',       color:'#6600ff', blog:'profile-rab3l.html',          keepitil:true, type:'DJ'},
   {name:'Groove Trooper',city:'Garden Grove',  county:'Orange County',         genre:'Latin House / Tech House',                 ig:'Groove_Trooper',        img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg', color:'var(--brand)', blog:'profile-groove-trooper.html', keepitil:true, type:'DJ'},
@@ -59,6 +62,10 @@ const ART=[
   {name:'Josh Billings', city:'Newport Beach', county:'Orange County',         genre:'House / Tech House / Deep House',          ig:'josh_billings',         img:'https://i1.sndcdn.com/avatars-000019027814-30us3e-t500x500.jpg',         color:'var(--brand)', blog:'profile-josh-billings.html',  keepitil:true, type:'DJ'},
   {name:'ANOLUXX',      city:'Los Angeles',   county:'Los Angeles County',    genre:'Hard Techno',                              ig:'anoluxx',               img:'https://i1.sndcdn.com/avatars-RkdORUhOkFphidW6-5KFBhA-t500x500.jpg',               color:'#ff2200', blog:'profile-anoluxx.html',        keepitil:true, type:'DJ'},
 ], BRND=[
+  {name:'Cube World Media', city:'Los Angeles', county:'', genre:'Media / Production', ig:'', img:'', color:'#00b4ff', blog:'profile-brand-cube-world-media.html', keepitil:true, type:'Brand'},
+  {name:'Insomniac Events', city:'Los Angeles', county:'', genre:'Events / Festivals', ig:'', img:'', color:'#00b4ff', blog:'profile-brand-insomniac.html', keepitil:true, type:'Brand'},
+  {name:'Neon District Lights', city:'Orange County', county:'', genre:'Lighting / Production', ig:'', img:'', color:'#00b4ff', blog:'profile-brand-neon-district-lights.html', keepitil:true, type:'Brand'},
+
   // === OC ===
   {name:'Cube World Media',     city:'Huntington Beach', county:'Orange County',       category:'Event Production / Venue',  ig:'cubeworldmedia',      img:'https://images.pexels.com/photos/2263436/pexels-photo-2263436.jpeg?auto=compress&cs=tinysrgb&w=600', color:'var(--live)', blog:'profile-org-cube-world-media.html'},
   {name:'Neon District Lights', city:'Anaheim',          county:'Orange County',       category:'Lighting & Visual Effects', ig:'neondistrictoc',      img:'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600', color:'var(--brand)', blog:'profile-brand-neon-district.html'},
