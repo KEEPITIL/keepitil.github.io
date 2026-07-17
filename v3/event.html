@@ -193,7 +193,7 @@
   <div class="card evcard">
     <div class="tp-head">
       <a class="backbtn" id="ev-back2" href="/v3/">&larr; EVENTS</a>
-      <div class="orgbar" id="ev-host"><span>Host</span></div>
+      <div class="orgbar" id="ev-host" style="display:none"></div>
     </div>
     <div class="tp-body">
       <div class="tp-col">
@@ -358,8 +358,8 @@
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
           ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false;
           if(!ev.show_feed){ var sf=$('sec-feed'); if(sf) sf.style.display='none'; }
-          /* HOST button */
-          var _hb=$('ev-host'); if(_hb && x.owner_handle){ _hb.innerHTML='<a href="/v3/u.html?slug='+encodeURIComponent(x.owner_handle)+'">'+esc(x.owner_name||x.owner_handle)+'</a>'; }
+          /* HOST button — only shown once a real organizer resolves (no dead "Host" chip) */
+          var _hb=$('ev-host'); if(_hb){ if(x.owner_handle){ _hb.innerHTML='<span style="opacity:.6;font-size:.72rem;letter-spacing:.06em;margin-right:2px">HOST</span> <a href="/v3/u.html?slug='+encodeURIComponent(x.owner_handle)+'">'+esc(x.owner_name||x.owner_handle)+'</a>'; _hb.style.display='flex'; } else { _hb.style.display='none'; } }
           /* social proof — "N going" */
           sb.rpc('get_event_social',{p_slug:ev.slug}).then(function(gr){ var n=(gr&&typeof gr.data==='number')?gr.data:0; var g=$('ev-going'); if(g && n>0){ g.textContent='🔥 '+n+' going'; g.style.display='inline-flex'; } }).catch(function(){});
           paint(); loadExtras(sb);
@@ -502,7 +502,7 @@
 })();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260718" defer></script>
-<script src="/v3/v3-shell.js?v=20260725" defer></script>
+<script src="/v3/v3-shell.js?v=20260726" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 </body>
 </html>
