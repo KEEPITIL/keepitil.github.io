@@ -46,9 +46,9 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:var(--nav);z-index:999;flex-direction:column;padding:18px 28px;border-bottom:1px solid var(--line);}
 .mobile-menu.open{display:flex;}
 .mobile-menu a{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:var(--text-soft);padding:12px 0;border-bottom:1px solid var(--line);}
-.theme-fab{position:fixed;top:78px;right:14px;z-index:95;display:flex;flex-direction:column;align-items:flex-end;}
-.theme-fab .toggle{width:42px;height:42px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--text);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:1.15rem;display:flex;align-items:center;justify-content:center;}
-.theme-fab .swatches{display:none;margin-top:8px;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:9px;gap:9px;flex-direction:column;box-shadow:0 10px 28px rgba(0,0,0,.45);}
+.theme-fab{position:relative;flex-shrink:0;margin-left:12px;display:flex;align-items:center;}
+.theme-fab .toggle{width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--line);color:var(--text);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);font-size:1.1rem;display:flex;align-items:center;justify-content:center;line-height:1;}
+.theme-fab .swatches{display:none;position:absolute;top:48px;left:0;background:var(--surface);border:1px solid var(--line);border-radius:26px;padding:9px;gap:9px;flex-direction:row;box-shadow:0 10px 28px rgba(0,0,0,.45);z-index:120;}
 .theme-fab.open .swatches{display:flex;}
 .tsw{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);cursor:pointer;}
 .tsw.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent);}
@@ -225,7 +225,7 @@ footer a{color:var(--accent2);}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
   .car-arrow{display:none;}
-  .theme-fab{top:70px;right:10px;}
+  .theme-fab{margin-left:8px;}
   .pf-cover{height:200px;}.pf-head{margin-top:-64px;}.pf-avatar{width:104px;height:104px;}
   .pf-top{gap:14px;}.pf-actions{width:100%;}.pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
   .pf-stats{justify-content:space-around;gap:16px;}.hl-row{justify-content:flex-start;gap:16px;}.pf-tab{font-size:0;padding:14px 4px;}.pf-tab svg{width:19px;height:19px;}
@@ -416,23 +416,22 @@ footer a{color:var(--accent2);}
 <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/v3/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
+    <div class="theme-fab" id="theme-fab">
+      <button class="toggle" onclick="document.getElementById('theme-fab').classList.toggle('open')" aria-label="Change theme" title="Change theme">🎨</button>
+      <div class="swatches">
+        <button class="tsw" data-t="dark" title="Dark" style="background:#0b0b0b"></button>
+        <button class="tsw" data-t="light" title="Light" style="background:#f4f5fa"></button>
+        <button class="tsw" data-t="midnight" title="Midnight" style="background:#0f1730"></button>
+        <button class="tsw" data-t="synthwave" title="Synthwave" style="background:#210630"></button>
+        <button class="tsw" data-t="sunset" title="Sunset" style="background:#241408"></button>
+      </div>
+    </div>
     <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="/v3/scene.html">SCENE</a></li></ul>
     <a href="/v3/apply.html" class="nav-cta">LOGIN</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
 <div class="mobile-menu" id="mobile-menu"><a href="/v3/culture">CULTURE</a><a href="/v3/apply.html" class="nav-cta">LOGIN</a></div>
-
-<div class="theme-fab" id="theme-fab">
-  <button class="toggle" onclick="document.getElementById('theme-fab').classList.toggle('open')" aria-label="Change theme" title="Change theme">🎨</button>
-  <div class="swatches">
-    <button class="tsw" data-t="dark" title="Dark" style="background:#0b0b0b"></button>
-    <button class="tsw" data-t="light" title="Light" style="background:#f4f5fa"></button>
-    <button class="tsw" data-t="midnight" title="Midnight" style="background:#0f1730"></button>
-    <button class="tsw" data-t="synthwave" title="Synthwave" style="background:#210630"></button>
-    <button class="tsw" data-t="sunset" title="Sunset" style="background:#241408"></button>
-  </div>
-</div>
 
 <!-- HEADER (social icons now live here) -->
 <!-- P0 fix 2026-07-16: hero ships BLANK (skeleton) — live/demo data is applied by JS only.
