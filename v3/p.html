@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <!--
   KEEPITIL — DATA-DRIVEN DIRECTORY PROFILE VIEWER (/v3/p.html?slug=)
-  One renderer, one template. Reads the master Google Sheet roster (same source as scene.html)
-  by slug and renders on the V3 gold shell. Profile types (artist/brand/organizer/venue) share the
-  same framework — Hero · Verified Connections · Journey · Articles · Gallery — modules show per data.
-  Echo directive 2026-07-15: do NOT rebuild static pages; this viewer replaces the 107 V2 profiles.
+  One renderer, one template on the groove-trooper gold standard. Reads the master directory by slug
+  and renders artist/brand/organizer profiles: cover · avatar · info-card · story · claim · Graph modules.
+  Banner image = profile image, falling back to the default scene background. Venues use venue.html.
 -->
 <html lang="en" data-theme="dark">
 <head>
@@ -12,65 +11,62 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Profile | KEEPITIL</title>
-<meta name="description" content="A KEEPITIL directory profile — artists, brands, organizers and venues across the OC & LA scene."/>
+<meta name="description" content="A KEEPITIL directory profile — artists, brands, and organizers across the OC & LA scene."/>
 <link rel="icon" type="image/png" href="/v3/logo-green-nav.png"/>
 <script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-:root,html[data-theme="dark"]{--bg:#0b0b0b;--surface:#141420;--surface2:#1b1b28;--text:#f0f0f0;--text-soft:rgba(240,240,240,.86);--muted:#8a8a99;--line:rgba(255,255,255,.09);--artist:#8b5cff;--brand:#00e0a4;--organizer:#ffb020;--venue:#38bdf8;--cyan:#22d3ee;}
+:root,html[data-theme="dark"]{--bg:#0a0a0f;--surface:#15151f;--surface2:#1a1a26;--text:#f0f0f0;--text-soft:rgba(240,240,240,.88);--muted:#9aa0b0;--line:rgba(255,255,255,.10);--brand:#00b4ff;--accent:#8b5cff;--artist:#8b5cff;--org:#ffb020;--brnd:#00e0a4;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--fh:'Bebas Neue',sans-serif;--fb:'Space Grotesk',sans-serif}
+:root{--fh:'Bebas Neue',sans-serif;--fb:'Inter',system-ui,sans-serif}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.7;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:16px;line-height:1.6;overflow-x:hidden;padding-bottom:90px}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
-.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
-/* state */
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
 .state{max-width:640px;margin:90px auto;text-align:center;padding:0 20px}
 .state h2{font-family:var(--fh);font-size:2.2rem;letter-spacing:.02em;margin-bottom:8px}
 .state p{color:var(--muted);margin-bottom:18px}
-.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg,var(--brand),var(--cyan));color:#04121b}
-/* hero */
-.phero{position:relative;margin-top:20px;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:var(--surface)}
-.phero .cover{aspect-ratio:16/6;width:100%;object-fit:cover;background:linear-gradient(135deg,#2a1a4d,#0b0b0b)}
-.phero .cover.none{display:flex;align-items:center;justify-content:center}
-.pbody{padding:0 24px 26px;margin-top:-56px;position:relative;display:flex;gap:20px;align-items:flex-end;flex-wrap:wrap}
-.pav{width:118px;height:118px;border-radius:24px;object-fit:cover;border:3px solid var(--bg);background:var(--surface2);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:2.4rem;color:#fff}
-.pmeta{flex:1;min-width:220px}
-.pname{font-family:var(--fh);font-size:clamp(2.2rem,6vw,3.2rem);line-height:1;letter-spacing:.02em}
-.pkind{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:999px;margin-top:8px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg,var(--brand),#5cc8ff);color:#04121b}
+.pf-cover{aspect-ratio:16/9;position:relative;overflow:hidden;background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat}
+.pf-head{margin-top:-52px;position:relative;display:flex;align-items:flex-end;gap:18px}
+.pf-avatar{width:104px;height:104px;border-radius:50%;object-fit:cover;border:4px solid var(--bg);background:var(--surface2);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:2.2rem;color:#fff;background-size:cover;background-position:center}
+.pf-id h1{font-family:var(--fh);font-weight:400;font-size:2.4rem;letter-spacing:.03em;line-height:1}
+.pf-id .tag{color:var(--muted);font-size:.95rem;margin-top:4px}
+.pkind{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle}
 .pkind.artist{background:rgba(139,92,255,.16);color:var(--artist);border:1px solid var(--artist)}
-.pkind.brand{background:rgba(0,224,164,.14);color:var(--brand);border:1px solid var(--brand)}
-.pkind.organizer{background:rgba(255,176,32,.14);color:var(--organizer);border:1px solid var(--organizer)}
-.pkind.venue{background:rgba(56,189,248,.14);color:var(--venue);border:1px solid var(--venue)}
-.psub{color:var(--muted);margin-top:10px;font-size:.95rem}
-.psub b{color:var(--text-soft);font-weight:600}
-.pacts{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pkind.brand{background:rgba(0,224,164,.14);color:var(--brnd);border:1px solid var(--brnd)}
+.pkind.organizer{background:rgba(255,176,32,.14);color:var(--org);border:1px solid var(--org)}
+.pacts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .pacts a{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:.86rem;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface2);color:var(--text)}
-.pacts a.primary{background:linear-gradient(90deg,var(--brand),var(--cyan));color:#04121b;border:0}
+.pacts a.primary{background:linear-gradient(90deg,var(--brand),#5cc8ff);color:#04121b;border:0}
 .pacts a:hover{border-color:rgba(255,255,255,.28)}
-/* sections */
+.info-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin:20px 0}
+.info-item{display:inline-block;margin:0 26px 12px 0}
+.info-item label{display:block;font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.info-item span{font-size:.95rem;font-weight:600}
 .sec{margin:30px 0}
 .sec h3{font-family:var(--fh);font-size:1.5rem;letter-spacing:.06em;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
 .empty{color:var(--muted);font-size:.9rem;padding:6px 0}
-/* verified connections — the KEEPITIL Graph seed */
 .conns{display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:4px}
 .conns::-webkit-scrollbar{display:none}
-.conn{flex:0 0 auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:150px}
-.conn .verb{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.conn .who{font-weight:700;margin-top:2px}
-@media(max-width:640px){.pbody{margin-top:-46px}.pav{width:92px;height:92px}}
-/* story module (folded-in editorial prose) */
 .story-body{line-height:1.85}
-.story-body h2{font-family:var(--fh);font-size:1.4rem;letter-spacing:.04em;margin:24px 0 10px}
-.story-body h3{font-size:1.1rem;font-weight:700;margin:18px 0 8px}
+.story-body h2{font-family:var(--fh);font-weight:400;font-size:1.5rem;letter-spacing:.04em;color:var(--brand);margin:24px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.story-body h3{font-size:1.05rem;font-weight:700;margin:18px 0 8px}
 .story-body p{margin:0 0 14px;color:var(--text-soft)}
-.story-body p.lead{font-size:1.14rem;color:var(--text)}
-.story-body a{color:var(--cyan);text-decoration:underline}
+.story-body p.lead,.story-body p.intro-text:first-of-type{font-size:1.12rem;color:var(--text)}
+.story-body p.intro-text:not(:first-of-type){display:none}
+.story-body blockquote,.story-body .pull-quote,.story-body .pull{border-left:3px solid var(--brand);padding:12px 20px;margin:22px 0;font-style:italic;color:#eef0f6;background:color-mix(in srgb,var(--brand) 6%,transparent);border-radius:0 10px 10px 0}
+.story-body a{color:var(--brand);text-decoration:underline}
 .story-body strong{color:var(--text)}
+.claim-banner{margin:24px 0;border:1px dashed color-mix(in srgb,var(--brand) 55%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--brand) 8%,transparent),color-mix(in srgb,var(--accent) 6%,transparent));border-radius:14px;padding:20px 22px;text-align:center}
+.claim-banner .ct{font-size:1.05rem;font-weight:800}
+.claim-banner .cs{color:var(--muted);font-size:.9rem;margin:6px auto 14px;max-width:460px}
+.claim-banner .cc{display:inline-block;background:linear-gradient(90deg,var(--brand),#5cc8ff);color:#04121b;font-weight:800;font-size:.9rem;padding:11px 26px;border-radius:999px}
+@media(max-width:640px){.pf-head{margin-top:-40px}.pf-avatar{width:88px;height:88px}}
 </style>
 </head>
 <body>
@@ -83,40 +79,44 @@ img{display:block;max-width:100%}
   <a class="btn" href="/v3/scene.html">← Browse the Scene</a>
 </div>
 
-<main id="profile" class="wrap" style="display:none">
-  <section class="phero">
-    <div id="cover" class="cover none"></div>
-    <div class="pbody">
-      <div id="pav" class="pav"></div>
-      <div class="pmeta">
-        <div id="pname" class="pname"></div>
-        <span id="pkind" class="pkind"></span>
-        <div id="psub" class="psub"></div>
-        <div id="pacts" class="pacts"></div>
-      </div>
+<main id="profile" style="display:none">
+  <div id="cover" class="pf-cover"></div>
+  <div class="wrap">
+    <div class="pf-head">
+      <div id="pav" class="pf-avatar"></div>
+      <div class="pf-id"><h1><span id="pname"></span><span id="pkind" class="pkind"></span></h1><div id="psub" class="tag"></div></div>
     </div>
-  </section>
+    <div id="pacts" class="pacts"></div>
 
-  <section class="sec" id="sec-conn">
-    <h3>Verified connections</h3>
-    <div id="conns" class="conns"></div>
-    <div id="conns-empty" class="empty">Verified connections build as this profile plays events, joins lineups, and collaborates on KEEPITIL. This is the start of their KEEPITIL Graph.</div>
-  </section>
+    <div id="infocard" class="info-card"></div>
 
-  <section class="sec" id="sec-articles" style="display:none">
-    <h3>Articles &amp; features</h3>
-    <div class="card"><a id="artlink" class="pacts" href="#" style="display:inline-flex"><span class="primary" style="padding:10px 16px;border-radius:999px">📰 Read features →</span></a></div>
-  </section>
+    <section class="sec" id="sec-story" style="display:none">
+      <h3>Story</h3>
+      <div id="story" class="card story-body"></div>
+    </section>
 
-  <section class="sec" id="sec-story" style="display:none">
-    <h3>Story</h3>
-    <div id="story" class="card story-body"></div>
-  </section>
+    <section class="sec" id="sec-articles" style="display:none">
+      <h3>Articles &amp; features</h3>
+      <div class="card"><a id="artlink" class="pacts" href="#" style="display:inline-flex"><span class="primary" style="padding:10px 16px;border-radius:999px">📰 Read features →</span></a></div>
+    </section>
 
-  <section class="sec">
-    <h3>Journey</h3>
-    <div class="card"><div class="empty">Career milestones (first event, venues played, competitions, radio features) will appear here as verified records accrue.</div></div>
-  </section>
+    <div class="claim-banner">
+      <div class="ct">✋ Is this you? Claim this profile</div>
+      <div class="cs">This profile was built from public research to spotlight the scene. Claim it and join KEEPITIL to run it yourself — post, get booked, and sell tickets.</div>
+      <a class="cc" href="/v3/apply.html">Claim this profile →</a>
+    </div>
+
+    <section class="sec" id="sec-conn">
+      <h3>Verified connections</h3>
+      <div id="conns" class="conns"></div>
+      <div id="conns-empty" class="empty">Verified connections build as this profile plays events, joins lineups, and collaborates on KEEPITIL. This is the start of their KEEPITIL Graph.</div>
+    </section>
+
+    <section class="sec">
+      <h3>Journey</h3>
+      <div class="card"><div class="empty">Career milestones (first event, venues played, competitions, radio features) will appear here as verified records accrue.</div></div>
+    </section>
+  </div>
 </main>
 
 <script src="/v3/keepitil-directory.js?v=20260717"></script>
@@ -132,31 +132,36 @@ img{display:block;max-width:100%}
   function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();}
   function esc(s){return (s||'').replace(/[&<>"]/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];});}
 
-  function show(el){['loading','notfound','profile'].forEach(function(id){document.getElementById(id).style.display=(id===el?(el==='profile'?'block':'block'):'none');});}
+  function show(el){['loading','notfound','profile'].forEach(function(id){document.getElementById(id).style.display=(id===el?'block':'none');});}
 
   function render(r){
     document.title=r.name+' | KEEPITIL';
     var kind=(r.kinds&&r.kinds[0]||'').toLowerCase();
-    // cover / avatar
+    // cover banner: profile image, else default scene background (kept via CSS)
     var cover=document.getElementById('cover');
-    if(r.img){cover.className='cover';cover.style.backgroundImage='url("'+r.img+'")';cover.style.backgroundSize='cover';cover.style.backgroundPosition='center';}
+    if(r.img){cover.style.backgroundImage='url("'+r.img+'")';cover.style.backgroundSize='cover';cover.style.backgroundPosition='center';cover.style.backgroundRepeat='no-repeat';}
+    // avatar
     var av=document.getElementById('pav');
-    if(r.img){av.style.backgroundImage='url("'+r.img+'")';av.style.backgroundSize='cover';av.style.backgroundPosition='center';av.textContent='';}
+    if(r.img){av.style.backgroundImage='url("'+r.img+'")';av.textContent='';}
     else{av.textContent=initials(r.name);}
     document.getElementById('pname').textContent=r.name;
     var pk=document.getElementById('pkind');pk.textContent=kind||'profile';pk.className='pkind '+kind;
-    // subline
-    var bits=[];
-    if(r.genre)bits.push('<b>'+esc(r.genre)+'</b>');
+    // subline (tag under name)
     var loc=[r.city,(r.county||'').replace(/ County$/,' Co.')].filter(Boolean).join(' · ');
-    if(loc)bits.push('◍ '+esc(loc));
-    document.getElementById('psub').innerHTML=bits.join('&nbsp;&nbsp;·&nbsp;&nbsp;');
+    document.getElementById('psub').textContent=(kind?kind.charAt(0).toUpperCase()+kind.slice(1):'Profile')+(loc?' · '+loc:'');
     // actions
     var acts=[];
     if(r.ig){var h=r.ig.replace(/^@/,'');acts.push('<a class="primary" target="_blank" rel="noopener" href="https://instagram.com/'+encodeURIComponent(h)+'">Instagram ↗</a>');}
     acts.push('<a href="/v3/apply.html">Message</a>');
     acts.push('<a href="/v3/scene.html">← Scene</a>');
     document.getElementById('pacts').innerHTML=acts.join('');
+    // info-card — labeled facts (groove-trooper style)
+    var fields=[];
+    if(r.genre)fields.push(['Genre',r.genre]);
+    if(loc)fields.push(['Based in',loc]);
+    fields.push(['Scene','OC & LA']);
+    if(r.type&&r.type!=='DJ')fields.push(['Type',r.type]);
+    document.getElementById('infocard').innerHTML=fields.map(function(f){return '<div class="info-item"><label>'+esc(f[0])+'</label><span>'+esc(f[1])+'</span></div>';}).join('');
     // articles
     if(r.blog){var art=document.getElementById('sec-articles');art.style.display='';document.getElementById('artlink').href='/'+r.blog.replace(/^\//,'');}
     // story module — lazy-load folded-in editorial prose if it exists for this slug
