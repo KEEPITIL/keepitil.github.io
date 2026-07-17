@@ -526,10 +526,31 @@ function notifyReady(list){
   }
   localStorage.setItem('kode-notified', JSON.stringify([...seen].slice(-100)));
 }
+/* web push: alerts even when the app is closed */
+const VAPID_PUBLIC = 'BDP214LWnUH_SQEMeypiGYZSOcpkza4ECY43LVgHNnTGO82XMq1NvzSgHB_lO51st2t_aHUvq3hkRNhn0w5LJso';
+function urlB64ToU8(s){
+  const pad = '='.repeat((4 - s.length % 4) % 4);
+  const raw = atob((s + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+async function subscribePush(){
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !me) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64ToU8(VAPID_PUBLIC) });
+    const j = sub.toJSON();
+    await db.from('push_subscriptions').upsert({ endpoint: sub.endpoint, user_id: me.id, p256dh: j.keys.p256dh, auth: j.keys.auth });
+  } catch (e) { /* push unsupported/blocked — in-app alerts still work */ }
+}
 $('alerts-btn').onclick = async () => {
   await Notification.requestPermission();
+  if (Notification.permission === 'granted') await subscribePush();
   $('alerts-btn').style.display = Notification.permission === 'default' ? 'inline' : 'none';
 };
+/* keep the device subscribed if permission was granted earlier */
+if ('Notification' in window && Notification.permission === 'granted') {
+  setTimeout(() => subscribePush(), 3000);
+}
 /* poll for newly-ready posts while the app is open */
 setInterval(() => { if (me && myProfile && $('view-app').classList.contains('on')) loadQueue(); }, 60000);
 
