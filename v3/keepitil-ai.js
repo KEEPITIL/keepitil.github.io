@@ -766,3 +766,17 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', injectMobileNav);
   else injectMobileNav();
 })();
+
+/* Force stale service workers to update on every load; auto-reload once when new SW takes control */
+(function(){
+  try{
+    if(!('serviceWorker' in navigator)) return;
+    navigator.serviceWorker.getRegistrations().then(function(rs){
+      rs.forEach(function(r){ try{ r.update(); }catch(e){} });
+    }).catch(function(){});
+    var reloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(reloaded) return; reloaded=true; location.reload();
+    });
+  }catch(e){}
+})();
