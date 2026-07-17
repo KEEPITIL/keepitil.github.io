@@ -137,9 +137,10 @@ img{display:block;max-width:100%}
   function render(r){
     document.title=r.name+' | KEEPITIL';
     var kind=(r.kinds&&r.kinds[0]||'').toLowerCase();
-    // cover banner: profile image, else default scene background (kept via CSS)
+    // cover banner: use a dedicated banner image if one exists; otherwise keep the default scene background (CSS). The square profile photo is the avatar, not the banner.
     var cover=document.getElementById('cover');
-    if(r.img){cover.style.backgroundImage='url("'+r.img+'")';cover.style.backgroundSize='cover';cover.style.backgroundPosition='center';cover.style.backgroundRepeat='no-repeat';}
+    var banner=r.banner||r.cover||'';
+    if(banner){cover.style.backgroundImage='url("'+banner+'")';cover.style.backgroundSize='cover';cover.style.backgroundPosition='center';cover.style.backgroundRepeat='no-repeat';}
     // avatar
     var av=document.getElementById('pav');
     if(r.img){av.style.backgroundImage='url("'+r.img+'")';av.textContent='';}
