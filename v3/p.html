@@ -66,6 +66,9 @@ img{display:block;max-width:100%}
 .claim-banner .ct{font-size:1.05rem;font-weight:800}
 .claim-banner .cs{color:var(--muted);font-size:.9rem;margin:6px auto 14px;max-width:460px}
 .claim-banner .cc{display:inline-block;background:linear-gradient(90deg,var(--brand),#5cc8ff);color:#04121b;font-weight:800;font-size:.9rem;padding:11px 26px;border-radius:999px}
+#pnav{max-width:760px;margin:30px auto 0;padding:20px;border-top:1px solid var(--line);display:flex;justify-content:center;gap:6px 16px;flex-wrap:wrap}
+.pnav-a{font-size:.85rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.pnav-prev,.pnav-next{color:var(--muted)}.pnav-back{color:var(--brand)}.pnav-sep{color:rgba(255,255,255,.18)}
 @media(max-width:640px){.pf-head{margin-top:-40px}.pf-avatar{width:88px;height:88px}}
 </style>
 </head>
@@ -116,6 +119,8 @@ img{display:block;max-width:100%}
       <h3>Journey</h3>
       <div class="card"><div class="empty">Career milestones (first event, venues played, competitions, radio features) will appear here as verified records accrue.</div></div>
     </section>
+
+    <nav id="pnav"></nav>
   </div>
 </main>
 
@@ -169,6 +174,18 @@ img{display:block;max-width:100%}
     fetch('/v3/stories/'+slug+'.html').then(function(rr){return rr.ok?rr.text():null;}).then(function(html){
       if(html && html.trim()){document.getElementById('story').innerHTML=html;document.getElementById('sec-story').style.display='';}
     }).catch(function(){});
+    // bottom prev/next profile nav (groove-trooper #pnav pattern) across non-venue profiles
+    var nav=list.filter(function(x){return (x.kinds&&x.kinds[0])!=='venue';});
+    var ci=-1; for(var k=0;k<nav.length;k++){ if(rowSlug(nav[k])===rowSlug(r)){ci=k;break;} }
+    if(ci>=0 && nav.length>1){
+      var pv=nav[(ci-1+nav.length)%nav.length], nx=nav[(ci+1)%nav.length];
+      document.getElementById('pnav').innerHTML=
+        '<a class="pnav-a pnav-prev" href="/v3/p.html?slug='+encodeURIComponent(rowSlug(pv))+'">&larr; '+esc(pv.name)+'</a>'
+        +'<span class="pnav-sep">|</span>'
+        +'<a class="pnav-a pnav-back" href="/v3/scene.html">Back to Scene</a>'
+        +'<span class="pnav-sep">|</span>'
+        +'<a class="pnav-a pnav-next" href="/v3/p.html?slug='+encodeURIComponent(rowSlug(nx))+'">'+esc(nx.name)+' &rarr;</a>';
+    }
     show('profile');
   }
 
