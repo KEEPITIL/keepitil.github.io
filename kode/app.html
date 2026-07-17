@@ -445,7 +445,7 @@ $('post-form').onsubmit = async e => {
 
 /* media preview: image -> thumbnail; video/unknown -> 🎬 chip; broken URLs hide themselves */
 function mediaThumb(p){
-  if (!p.media_url) return '';
+  if (!p.media_url || !/^https?:\/\/[^\s"'<>]+$/.test(p.media_url)) return '';
   const u = escapeHtml(p.media_url);
   if (/\.(mp4|mov|webm)(\?|$)/i.test(p.media_url)) return `<a class="pthumb vid" href="${u}" target="_blank" rel="noopener" title="Open video">🎬</a>`;
   return `<a href="${u}" target="_blank" rel="noopener" title="Open media"><img class="pthumb" src="${u}" alt="" loading="lazy" onerror="this.parentNode.style.display='none'"></a>`;

@@ -16,6 +16,8 @@
   .day-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:14px 0 6px}
   .post{display:flex;gap:10px;background:#fff;border:1.5px solid var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:7px}
   .pico{font-size:1.1rem}
+  .pthumb{width:40px;height:40px;flex:0 0 40px;border-radius:8px;object-fit:cover;border:1px solid var(--border);background:#eaf6fb}
+  .pthumb.vid{display:flex;align-items:center;justify-content:center}
   .pcap{font-size:.85rem;word-wrap:break-word}
   .pmeta{font-size:.72rem;color:var(--ink-soft)}
   .pmeta em{font-style:normal;background:var(--neon-soft);border:1px solid var(--border);padding:0 7px;border-radius:999px;font-weight:700}
@@ -41,6 +43,13 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ICON = {instagram:'📸',tiktok:'🎵',linkedin:'💼',facebook:'👥',pinterest:'📌',x:'✖️',youtube:'▶️'};
 
 const esc = s => { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; };
+/* strict URL gate: this widget renders on third-party sites — never allow attribute breakout */
+const thumb = p => {
+  const u = p.media_url;
+  if (!u || !/^https:\/\/[^\s"'<>]+$/.test(u)) return '';
+  if (/\.(mp4|mov|webm)(\?|$)/i.test(u)) return '<span class="pthumb vid">🎬</span>';
+  return `<img class="pthumb" src="${u}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+};
 
 (async () => {
   const handle = new URLSearchParams(location.search).get('profile');
@@ -57,7 +66,7 @@ const esc = s => { const d = document.createElement('div'); d.textContent = s; r
   document.getElementById('subtitle').textContent = '@' + prof.handle + ' · upcoming posts';
 
   const { data: posts, error } = await db.from('posts')
-    .select('platform,caption,scheduled_at')
+    .select('platform,caption,scheduled_at,media_url')
     .eq('user_id', prof.id).eq('is_public', true).eq('status', 'queued')
     .gte('scheduled_at', new Date().toISOString())
     .order('scheduled_at', { ascending: true }).limit(30);
@@ -76,6 +85,7 @@ const esc = s => { const d = document.createElement('div'); d.textContent = s; r
     ${ps.map(p => `
       <div class="post">
         <div class="pico">${ICON[p.platform] || '📄'}</div>
+        ${thumb(p)}
         <div>
           <div class="pcap">${esc(p.caption)}</div>
           <div class="pmeta"><em>${p.platform}</em> · ${new Date(p.scheduled_at).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'})}</div>
