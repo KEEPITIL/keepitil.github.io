@@ -86,7 +86,7 @@ function $(id){return document.getElementById(id);}
 var MSG=$('msg');
 function say(t,ok){ MSG.textContent=t; MSG.className='msg '+(ok?'ok':'err'); }
 
-if(supa){ supa.auth.getSession().then(function(r){ if(r&&r.data&&r.data.session) location.replace('/u.html'); }).catch(function(){}); }
+if(supa){ supa.auth.getSession().then(function(r){ if(r&&r.data&&r.data.session) location.replace('/v3/u.html'); }).catch(function(){}); }
 
 function signUp(){
   if(!supa){ say('Loading — try again in a moment.'); return; }
@@ -104,7 +104,7 @@ function signUp(){
       b.disabled=false; b.textContent='SIGN UP';
       return;
     }
-    if(r&&r.data&&r.data.session){ location.replace('/create-profile.html'); }
+    if(r&&r.data&&r.data.session){ location.replace('/v3/create-profile.html'); }
     else { say('Account created! Check your email to confirm, then log in.', true); b.disabled=false; b.textContent='SIGN UP'; }
   }).catch(function(){ say('Could not sign up — try again.'); b.disabled=false; b.textContent='SIGN UP'; });
 }
