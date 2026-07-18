@@ -470,7 +470,7 @@
       'flex-shrink:0;transition:opacity .18s,transform .15s;}',
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
-      '@media(max-width:480px){#kilo-panel{bottom:200px;right:12px;width:calc(100vw - 24px);}',
+      '@media(max-width:480px){#kilo-panel{left:8px;right:8px;width:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));height:auto;max-height:calc(100dvh - 150px);}',
       '#kilo-btn{bottom:132px;right:16px;}}',
     ].join('');
 
