@@ -415,23 +415,51 @@ function applyCrop(){
 }
 function closeCrop(){ $('cropov').classList.remove('on'); }
 
-/* ── seed draft from the LIVE page body (read-only fetch — the live file is never written) ── */
+/* ── seed draft from the LIVE page (read-only — the live file is never written) ──
+   Renders the page in a hidden same-origin iframe so JS-built pages (dashboard, home,
+   culture, profiles) copy EXACTLY as they render; static fetch is the fallback. */
+var PAGE_QUERY={'u.html':'?slug=tuitea','p.html':'?slug=groove-trooper','agent.html':'?a=echo'};
+function _extractDoc(doc){
+  ['script','#v3shell-nav','#v3-footer','#kil-radio','#kil-sc','#kil-bnav','#kil-install','nav','footer','iframe[src*="soundcloud"]'].forEach(function(sel){
+    doc.querySelectorAll(sel).forEach(function(n){n.remove();});
+  });
+  var sec={id:uid(),type:'section',props:{},children:[]};
+  Array.prototype.slice.call(doc.body.children).forEach(function(node){
+    var htmlStr=(node.outerHTML||'').trim();
+    if(!htmlStr||htmlStr.length<10)return;
+    sec.children.push({id:uid(),type:'embed',props:{html:htmlStr,style:{margin:10}}});
+  });
+  return sec;
+}
+function _seedApply(sec){
+  if(!sec.children.length){ alert('Could not extract content from the live page.'); return; }
+  TREE=[sec]; markDirty(); render();
+}
 function seedFromLive(){
-  if(TREE.length && !confirm('Replace the current draft with the live page\'s content?')) return;
-  fetch(pageURL(PAGE)).then(function(r){return r.text();}).then(function(html){
-    var doc=new DOMParser().parseFromString(html,'text/html');
-    ['script','#v3shell-nav','#v3-footer','#kil-radio','#kil-bnav','nav','footer'].forEach(function(sel){
-      doc.querySelectorAll(sel).forEach(function(n){n.remove();});
-    });
-    var sec={id:uid(),type:'section',props:{},children:[]};
-    Array.prototype.slice.call(doc.body.children).forEach(function(node){
-      var htmlStr=(node.outerHTML||'').trim();
-      if(!htmlStr||htmlStr.length<10)return;
-      sec.children.push({id:uid(),type:'embed',props:{html:htmlStr,style:{margin:10}}});
-    });
-    if(!sec.children.length){ alert('Could not extract content from the live page.'); return; }
-    TREE=[sec]; markDirty(); render();
-  }).catch(function(){ alert('Could not load the live page.'); });
+  if(TREE.length && !confirm('Replace the current draft with the live page\'s rendered content?')) return;
+  var url=pageURL(PAGE)+(PAGE_QUERY[PAGE]||'');
+  var btn=document.getElementById('seedBtn'), label=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='⤓ Rendering exact copy…'; }
+  function reset(){ if(btn){ btn.disabled=false; btn.textContent=label||'⤓ Load current page content'; } }
+  function staticFallback(){
+    fetch(url).then(function(r){return r.text();}).then(function(html){
+      reset(); _seedApply(_extractDoc(new DOMParser().parseFromString(html,'text/html')));
+    }).catch(function(){ reset(); alert('Could not load the live page.'); });
+  }
+  var ifr=document.createElement('iframe');
+  ifr.style.cssText='position:fixed;left:-10000px;top:0;width:'+(BP==='mobile'?390:1280)+'px;height:2600px;border:0;visibility:hidden';
+  var settled=false;
+  function snap(){
+    if(settled) return; settled=true;
+    var ok=false, sec=null;
+    try{ sec=_extractDoc(ifr.contentDocument); ok=!!(sec&&sec.children.length); }catch(e){ ok=false; }
+    try{ document.body.removeChild(ifr); }catch(_){}
+    if(ok){ reset(); _seedApply(sec); } else { staticFallback(); }
+  }
+  ifr.onload=function(){ setTimeout(snap, 2200); };
+  setTimeout(snap, 9000);
+  ifr.src=url;
+  document.body.appendChild(ifr);
 }
 
 /* ── load/save/discard/breakpoints ── */
