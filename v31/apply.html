@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Log In — KEEPITIL</title>
+<meta name="description" content="Log in to your KEEPITIL account — OC & LA EDM."/>
+<meta property="og:title" content="Log In — KEEPITIL"/>
+<meta property="og:url" content="https://keepitil.com/v31/apply.html"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--black:#0b0b0f;--dark:#111118;--dark2:#18181f;--dark3:#22222c;--blue:var(--brand);--white:var(--text);--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column;padding-bottom:72px;}
+a{color:var(--blue);text-decoration:none;}
+nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;}
+.nav-brand{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
+.nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
+.nav-links li{list-style:none;}
+.nav-links a{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);transition:color .2s;}
+.nav-links a:hover{color:#fff;}
+.nav-inner>a.nav-cta{font-family:var(--font-head);font-size:1rem;letter-spacing:.14em;color:var(--brand)!important;border:2px solid var(--brand);padding:7px 22px;border-radius:4px;flex-shrink:0;transition:.2s;}
+.nav-inner>a.nav-cta:hover{background:var(--brand)!important;color:#000!important;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:auto;}
+.nav-hamburger span{display:block;width:24px;height:2px;background:#fff;border-radius:2px;}
+.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.98);z-index:199;flex-direction:column;padding:14px 26px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-family:var(--font-head);font-size:1.3rem;letter-spacing:.12em;color:rgba(255,255,255,.8);padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.mobile-menu a:last-child{border-bottom:none;color:var(--brand)!important;}
+@media(max-width:820px){.nav-links{display:none;}.nav-inner>a.nav-cta{display:none;}.nav-hamburger{display:flex;}}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 18px;}
+.login-card{width:100%;max-width:380px;background:var(--dark);border:1px solid var(--dark3);border-radius:16px;padding:38px 30px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.login-logo{font-family:var(--font-head);letter-spacing:.14em;font-size:2.5rem;color:var(--white);margin-bottom:4px;}
+.login-sub{color:var(--grey);font-size:.85rem;margin-bottom:26px;}
+.login-card input{width:100%;background:var(--dark2);border:1px solid var(--dark3);border-radius:9px;color:var(--white);font-size:.95rem;padding:13px 14px;margin-bottom:11px;outline:none;}
+.login-card input:focus{border-color:var(--blue);}
+.btn-login{width:100%;background:var(--blue);color:#06121a;border:none;border-radius:9px;font-family:var(--font-head);letter-spacing:.08em;font-size:1.2rem;padding:13px;cursor:pointer;margin-top:5px;transition:opacity .2s;}
+.btn-login:disabled{opacity:.6;cursor:default;}
+.login-err{color:#ff5c5c;font-size:.82rem;margin:11px 0 0;min-height:1em;line-height:1.4;}
+.forgot{display:inline-block;margin-top:16px;font-size:.82rem;}
+.portal-note{display:none;margin-top:14px;font-size:.82rem;color:var(--grey);}
+.divider{display:flex;align-items:center;gap:12px;color:var(--grey);font-size:.72rem;letter-spacing:.1em;margin:22px 0 18px;}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--dark3);}
+.signup-row{font-size:.86rem;color:var(--grey);}
+#reset-box{display:none;}
+footer{text-align:center;padding:22px;border-top:1px solid var(--dark3);color:var(--grey);font-size:.75rem;}
+footer a{margin:0 5px;}
+@media(max-width:600px){.nav-links{display:none;}}
+/* ---- New-user plan picker (Join merged into Login) ---- */
+.scrollcue{display:block;margin-top:18px;font-size:.82rem;color:var(--grey);}
+.scrollcue a{font-weight:700;}
+.plans{max-width:1000px;margin:0 auto;padding:20px 18px 60px;}
+.plans-head{text-align:center;margin:10px 0 26px;}
+.plans-head .eyebrow{display:inline-block;font-family:var(--font-head);letter-spacing:.16em;color:var(--blue);font-size:.9rem;border:1px solid var(--dark3);border-radius:999px;padding:5px 15px;margin-bottom:12px;}
+.plans-head h2{font-family:var(--font-head);letter-spacing:.06em;font-size:2.4rem;line-height:1;}
+.plans-head p{color:var(--grey);font-size:.95rem;margin-top:8px;}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+/* ≤720 mobile: body is a column flexbox, so .plans sizes to its grid's intrinsic (min-content)
+   width — the 1fr track resolves against content (~750px) and the whole section blows past the
+   viewport. Explicit width:100% + minmax(0,1fr) kills intrinsic sizing; verified 375/390px. */
+@media(max-width:720px){.plans{width:100%;max-width:100%;box-sizing:border-box}.plan-grid{grid-template-columns:minmax(0,1fr);max-width:440px;margin:0 auto;width:100%}.plan-card{max-width:100%;min-width:0}}
+.plan-card{background:var(--dark);border:1px solid var(--dark3);border-radius:18px;padding:28px 26px;display:flex;flex-direction:column;}
+.plan-card.pro{border-color:color-mix(in srgb,var(--blue) 50%,var(--dark3));box-shadow:0 0 46px color-mix(in srgb,var(--blue) 12%,transparent);}
+.plan-badge{align-self:flex-start;font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;padding:4px 11px;border-radius:20px;margin-bottom:14px;}
+.plan-badge.free{background:color-mix(in srgb,var(--grey) 22%,transparent);color:#cfcfd6;}
+.plan-badge.pro{background:color-mix(in srgb,var(--blue) 20%,transparent);color:var(--blue);}
+.plan-name{font-family:var(--font-head);letter-spacing:.04em;font-size:2rem;}
+.plan-price{margin:2px 0 4px;color:var(--grey);font-size:.95rem;}
+.plan-price strong{font-size:2rem;color:var(--white);font-family:var(--font-head);}
+.plan-mission{color:var(--grey);font-size:.9rem;margin-bottom:16px;}
+.plan-card ul{list-style:none;margin:6px 0 20px;padding:0;}
+.plan-card li{padding:7px 0;font-size:.9rem;display:flex;gap:9px;align-items:flex-start;color:#e7e7ee;}
+.plan-card li::before{content:"✓";color:var(--blue);font-weight:800;}
+.plan-card li.no{opacity:.5;}
+.plan-card li.no::before{content:"–";color:var(--grey);}
+.plan-cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:auto;font-family:var(--font-head);letter-spacing:.06em;font-size:1.1rem;padding:13px 20px;border-radius:10px;text-decoration:none;transition:transform .15s,opacity .2s;}
+.plan-cta.primary{background:var(--blue);color:#04121b;}
+.plan-cta.primary:hover{transform:translateY(-2px);}
+.plan-cta.ghost{border:2px solid var(--dark3);color:var(--white);}
+.plan-cta.ghost:hover{border-color:var(--blue);color:var(--blue);}
+.plan-fine{color:var(--grey);font-size:.75rem;text-align:center;margin-top:10px;}
+.perks{margin-top:40px;}
+.perks h3{text-align:center;font-family:var(--font-head);letter-spacing:.08em;font-size:1.5rem;margin-bottom:6px;}
+.perks .sub{text-align:center;color:var(--grey);font-size:.88rem;margin-bottom:22px;}
+.perk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+@media(max-width:860px){.perk-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.perk-grid{grid-template-columns:1fr;}}
+.perk{background:var(--dark2);border:1px solid var(--dark3);border-radius:14px;padding:18px 16px;text-align:center;}
+.perk .ic{font-size:1.6rem;}
+.perk .t{font-weight:700;margin:8px 0 4px;font-size:.95rem;}
+.perk .d{color:var(--grey);font-size:.8rem;line-height:1.45;}
+.rewards-note{max-width:760px;margin:30px auto 0;background:color-mix(in srgb,var(--blue) 7%,var(--dark2));border:1px dashed color-mix(in srgb,var(--blue) 40%,var(--dark3));border-radius:14px;padding:16px 20px;text-align:center;font-size:.86rem;color:var(--grey);}
+.rewards-note b{color:var(--white);}
+.plans-legal{text-align:center;margin-top:26px;font-size:.82rem;}
+.plans-legal a{margin:0 7px;}
+/* mobile plan fit (Founder 2026-07-16): plans must fit the viewport, no horizontal overflow */
+@media(max-width:480px){body{overflow-x:hidden}.plan-grid{max-width:100%;gap:14px}.plan-card{padding:20px 14px;min-width:0}.plan-card ul{margin:6px 0 14px}}
+</style>
+</head>
+<body>
+<nav id="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="/v31/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
+  <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="/v31/scene.html">SCENE</a></li></ul>
+  <a href="/v31/apply.html" class="nav-cta">LOGIN</a>
+  <button class="nav-hamburger" onclick="document.getElementById('mm').classList.toggle('open')" aria-label="Menu"><span></span><span></span><span></span></button>
+</div></nav>
+<div class="mobile-menu" id="mm"><a href="/v3/culture">CULTURE</a><a href="/v31/scene.html">SCENE</a><a href="/v31/apply.html" class="nav-cta">LOGIN</a></div>
+
+<main>
+  <div class="login-card">
+    <div id="signin-box">
+      <div class="login-logo">KEEPITIL</div>
+      <div class="login-sub">Log in to your account</div>
+      <input type="text" id="login-id" placeholder="Username or email" autocapitalize="none" autocorrect="off" spellcheck="false"/>
+      <input type="password" id="password" placeholder="Password"/>
+      <button class="btn-login" id="login-btn">LOG IN</button>
+      <div class="login-err" id="err"></div>
+      <a href="#" class="forgot" id="forgot-link">Forgot password?</a>
+      <a href="/v31/my-tickets.html" class="portal-note" id="portal-note">You're already signed in — see your tickets &rarr;</a>
+      <div class="social-login" style="display:none;flex-direction:column;gap:10px;margin-top:16px">
+        <button type="button" class="btn-social" id="btn-google" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:10px;border:1px solid var(--line,#2a2a38);background:#fff;color:#1a1a1a;font-weight:700;cursor:pointer;font:inherit;font-weight:700"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.9 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 2.9-2.2 5.3-4.7 7l7.3 5.7c4.3-4 6.8-9.9 6.8-17.2z"/><path fill="#FBBC05" d="M10.4 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.5-5.7l-7.3-5.7c-2 1.4-4.7 2.3-8.2 2.3-6.4 0-11.8-3.7-13.6-9.9l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>Continue with Google</button>
+        <button type="button" class="btn-social" id="btn-apple" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px;border-radius:10px;border:1px solid var(--line,#2a2a38);background:#000;color:#fff;font-weight:700;cursor:pointer;font:inherit;font-weight:700"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 12.04c-.03-2.85 2.33-4.22 2.44-4.29-1.33-1.95-3.4-2.22-4.13-2.25-1.76-.18-3.43 1.03-4.32 1.03-.89 0-2.26-1.01-3.72-.98-1.91.03-3.68 1.11-4.66 2.82-1.99 3.45-.51 8.55 1.42 11.35.94 1.37 2.06 2.91 3.53 2.85 1.42-.06 1.95-.92 3.66-.92 1.71 0 2.19.92 3.68.89 1.52-.03 2.48-1.4 3.41-2.78 1.07-1.6 1.51-3.15 1.53-3.23-.03-.01-2.94-1.13-2.97-4.47zM14.28 3.66c.78-.95 1.31-2.27 1.16-3.58-1.13.05-2.49.75-3.3 1.7-.72.83-1.36 2.17-1.19 3.44 1.26.1 2.55-.64 3.33-1.56z"/></svg>Continue with Apple</button>
+      </div>
+      <div class="divider">OR</div>
+      <div class="scrollcue">New to KEEPITIL? <a href="#plans">Choose a plan below ↓</a></div>
+    </div>
+    <div id="reset-box">
+      <div class="login-logo">KEEPITIL</div>
+      <div class="login-sub">Reset your password</div>
+      <input type="email" id="reset-email" placeholder="Your email" autocapitalize="none" autocorrect="off" spellcheck="false"/>
+      <button class="btn-login" id="reset-btn">SEND RESET LINK</button>
+      <div class="login-err" id="reset-msg" style="color:var(--blue)"></div>
+      <a href="#" class="forgot" id="back-link">&larr; Back to log in</a>
+    </div>
+  </div>
+</main>
+
+<section class="plans" id="plans">
+  <div class="plans-head">
+    <span class="eyebrow">NEW TO KEEPITIL?</span>
+    <h2>Pick your plan</h2>
+    <p>Join free to discover and build. Go Community when you're ready to sell, collaborate, and earn.</p>
+  </div>
+  <div class="plan-grid">
+    <div class="plan-card">
+      <span class="plan-badge free">Free forever</span>
+      <div class="plan-name">KEEPITIL Free</div>
+      <div class="plan-price"><strong>$0</strong></div>
+      <div class="plan-mission">Discover, participate, and grow.</div>
+      <ul>
+        <li>Create your profile</li>
+        <li>Follow creators &amp; RSVP to events</li>
+        <li>Read the culture blog &amp; join Scene Rooms</li>
+        <li>Comment, save favorites, get the newsletter</li>
+        <li>Submit events &amp; blog drafts (reviewed)</li>
+        <li class="no">Sell tickets, products &amp; services</li>
+        <li class="no">Creator analytics &amp; dashboard</li>
+        <li class="no">Auto-post to social platforms</li>
+        <li class="no">VIP perks &amp; Community Rewards</li>
+      </ul>
+      <a class="plan-cta ghost" href="/v3/signup.html">Create free account</a>
+    </div>
+    <div class="plan-card pro">
+      <span class="plan-badge pro">Most popular</span>
+      <div class="plan-name">KEEPITIL Community</div>
+      <div class="plan-price"><strong>$60</strong> / year <span class="plan-founding">founding rate</span></div>
+      <div class="plan-mission">Turn your presence into a business.</div>
+      <ul>
+        <li>Everything in Free</li>
+        <li>Sell tickets, products &amp; services</li>
+        <li>Auto-post your events, blogs &amp; photos to your socials (Zapier)</li>
+        <li>Partner &amp; collab on events and apps</li>
+        <li>Free entry &amp; perks to VIP community events</li>
+        <li>Creator analytics &amp; business dashboard</li>
+        <li>Community badge, featured placement, priority verification</li>
+        <li>AI business tools &amp; creator education</li>
+        <li>Community Rewards eligibility <em>(after legal review)</em></li>
+      </ul>
+      <a class="plan-cta primary" href="https://buy.stripe.com/fZu00jagB8PM40l3xH14400" target="_blank" rel="noopener">Become a Community Member — $60/yr</a>
+      <div class="plan-fine">Secure checkout by Stripe · cancel anytime · renews yearly</div>
+    </div>
+  </div>
+
+  <style>
+    .founding{max-width:900px;margin:26px auto 0;padding:0 20px;}
+    .founding-inner{background:rgba(0,180,255,.05);border:1px solid rgba(0,180,255,.28);border-radius:18px;padding:24px 22px;text-align:center;}
+    .founding-price{font-family:var(--font-head);letter-spacing:.06em;font-size:2rem;color:var(--white);}
+    .founding-price strong{color:var(--blue);}
+    .founding-price span{font-size:1rem;color:var(--grey);}
+    .founding-note{color:var(--grey);font-size:.9rem;line-height:1.5;max-width:640px;margin:8px auto 16px;}
+    .founding-note b{color:var(--white);}
+    .founding-ladder{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
+    .founding-ladder .ft{font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--grey);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 13px;}
+    .founding-ladder .ft.now{background:var(--blue);border-color:var(--blue);color:#04121b;}
+    .founding-ladder .ft.cap{border-color:rgba(0,180,255,.5);color:var(--blue);}
+    .plan-founding{display:inline-block;font-family:var(--font-body);font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);border:1px solid rgba(0,180,255,.4);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle;}
+  </style>
+  <div class="founding">
+    <div class="founding-inner">
+      <div class="founding-price"><strong>$60</strong> <span>/ year · founding rate</span></div>
+      <div class="founding-note">Founding pricing rises <b>+$20 for every 50 members</b> and caps at <b>$360/year</b>. Lock in your rate now — as long as you renew each year, <b>your price never goes up, for life</b>. Community spots are capped while we grow the team, so early membership is limited.</div>
+      <div class="founding-ladder"><span class="ft now">$60 now</span><span class="ft">$80</span><span class="ft">$100</span><span class="ft">$120</span><span class="ft">…</span><span class="ft cap">$360 cap</span></div>
+    </div>
+  </div>
+
+  <div class="perks">
+    <h3>What Community unlocks</h3>
+    <div class="sub">A few of the perks paid members get.</div>
+    <div class="perk-grid">
+      <div class="perk"><div class="ic">🎟️</div><div class="t">Sell &amp; earn</div><div class="d">List tickets, merch &amp; services and get paid through KEEPITIL.</div></div>
+      <div class="perk"><div class="ic">⭐</div><div class="t">VIP access</div><div class="d">Free entry &amp; perks to KEEPITIL community events.</div></div>
+      <div class="perk"><div class="ic">📈</div><div class="t">Creator tools</div><div class="d">Analytics, a business dashboard, and AI creator tools.</div></div>
+      <div class="perk"><div class="ic">💸</div><div class="t">Community Rewards</div><div class="d">Share in a slice of platform revenue by transparent rules.</div></div>
+    </div>
+    <div class="rewards-note">🎟️ <b>Community Rewards</b> — a share of qualifying platform revenue (ads, affiliate, tickets, sponsorship) is distributed to contributing Community members by published rules. It's a rewards program, <b>not an investment</b>, and launches after legal review.</div>
+  </div>
+
+<!-- ============ KEEPITIL JOURNEY / ECOSYSTEM (moved from homepage per Founder 2026-07-10) ============ -->
+<section class="kj" id="journey" aria-label="The KEEPITIL Journey">
+  <style>
+    .kj{max-width:1000px;margin:44px auto 0;padding:52px 24px 20px;text-align:center;position:relative;border-top:1px solid rgba(255,255,255,.08)}
+    .kj .kj-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+    .kj h2{font-family:var(--font-head);font-size:clamp(2.2rem,6vw,3.4rem);line-height:1;letter-spacing:.04em;color:var(--white);margin-bottom:14px}
+    .kj h2 span{color:var(--blue)}
+    .kj .kj-sub{font-size:.95rem;color:var(--grey);max-width:600px;margin:0 auto 10px;line-height:1.55}
+    .kj .kj-stake{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--grey);opacity:.9;margin-bottom:28px}
+    .kj .kj-stake b{color:var(--white);font-weight:700}
+    .kj .kj-flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin-bottom:30px}
+    .kj .kj-chip{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid rgba(0,180,255,.28);color:var(--grey);border-radius:999px;padding:9px 15px;font-family:var(--font-body);font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .kj .kj-chip .kj-ci{font-size:1rem;line-height:1}
+    .kj .kj-chip:hover{border-color:var(--blue);color:var(--white)}
+    .kj .kj-chip.on{background:var(--blue);border-color:var(--blue);color:#04121b}
+    .kj .kj-arrow{color:rgba(0,180,255,.5);font-size:1.1rem;line-height:1}
+    .kj .kj-panel{border:1px solid rgba(0,180,255,.25);background:rgba(0,180,255,.05);border-radius:18px;padding:30px 26px;text-align:left;max-width:760px;margin:0 auto;display:flex;gap:24px;align-items:flex-start}
+    .kj .kj-panel .kj-pico{font-size:2.6rem;line-height:1;flex-shrink:0}
+    .kj .kj-panel .kj-pbody{flex:1;min-width:0}
+    .kj .kj-panel h3{font-family:var(--font-head);font-size:1.7rem;letter-spacing:.04em;color:var(--white);margin-bottom:6px}
+    .kj .kj-panel .kj-ptag{color:var(--grey);font-size:.92rem;margin-bottom:16px;line-height:1.45}
+    .kj .kj-items{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+    .kj .kj-items span{font-size:.75rem;font-weight:600;letter-spacing:.03em;color:var(--white);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 11px}
+    .kj .kj-cta{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#04121b;font-family:var(--font-body);font-weight:800;font-size:.82rem;letter-spacing:.04em;padding:11px 20px;border-radius:999px;text-decoration:none;transition:transform .2s,opacity .2s}
+    .kj .kj-cta:hover{transform:translateY(-2px);opacity:.92}
+    @media(max-width:640px){
+      .kj{padding:40px 16px 12px}
+      .kj .kj-flow{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+      .kj .kj-arrow{display:none}
+      .kj .kj-panel{flex-direction:column;gap:12px;padding:24px 18px}
+      .kj .kj-panel .kj-pico{font-size:2.2rem}
+    }
+  </style>
+  <div class="kj-eyebrow">The Creative Ecosystem</div>
+  <h2>The KEEPITIL <span>Journey</span></h2>
+  <p class="kj-sub">Every member moves through the same lifecycle — from first discovery to lifting up the next wave. One platform. One community. Endless opportunities.</p>
+  <p class="kj-stake">One journey for everyone: <b>Fans</b> · <b>Creators</b> · <b>Organizers</b> · <b>Venues</b> · <b>Brands</b></p>
+
+  <div class="kj-flow" id="kj-flow" role="tablist">
+    <button class="kj-chip on" data-p="discover" role="tab"><span class="kj-ci">&#128269;</span>Discover</button>
+    <span class="kj-arrow">&rarr;</span>
+    <button class="kj-chip" data-p="connect" role="tab"><span class="kj-ci">&#129309;</span>Connect</button>
+    <span class="kj-arrow">&rarr;</span>
+    <button class="kj-chip" data-p="create" role="tab"><span class="kj-ci">&#127912;</span>Create</button>
+    <span class="kj-arrow">&rarr;</span>
+    <button class="kj-chip" data-p="grow" role="tab"><span class="kj-ci">&#128200;</span>Grow</button>
+    <span class="kj-arrow">&rarr;</span>
+    <button class="kj-chip" data-p="earn" role="tab"><span class="kj-ci">&#128176;</span>Earn</button>
+    <span class="kj-arrow">&rarr;</span>
+    <button class="kj-chip" data-p="giveback" role="tab"><span class="kj-ci">&#128260;</span>Give Back</button>
+  </div>
+
+  <div class="kj-panel" id="kj-panel">
+    <div class="kj-pico" id="kj-pico">&#128269;</div>
+    <div class="kj-pbody">
+      <h3 id="kj-ptitle">Discover</h3>
+      <p class="kj-ptag" id="kj-ptag">Find events, artists, venues, brands and opportunities across the OC &amp; LA scene.</p>
+      <div class="kj-items" id="kj-items"></div>
+      <a class="kj-cta" id="kj-cta" href="/v31/scene.html">Explore the Scene &rarr;</a>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var P={
+      discover:{ic:'🔍',t:'Discover',d:'Find events, artists, venues, brands and opportunities across the OC & LA scene.',items:['Events','Artists','Venues','Businesses','Blogs','News','Radio'],cta:'Explore the Scene →',href:'/v3/scene.html'},
+      connect:{ic:'🤝',t:'Connect',d:'Build real relationships — meet collaborators, promoters and your community.',items:['Profiles','Scene Rooms','Messages','Followers','Collaborations','Community'],cta:'Create your profile →',href:'/v3/create-profile.html'},
+      create:{ic:'🎨',t:'Create',d:'Publish your work and host your events. Tools to build a portfolio and go live.',items:['Blogs','Photos','Videos','Events','Playlists','Portfolio','Marketplace'],cta:'Create an event →',href:'/v3/create.html'},
+      grow:{ic:'📈',t:'Grow',d:'Learn, market yourself and track your progress with analytics and AI tools.',items:['Analytics','Education','AI Tools','Marketing','Creator Academy','Achievements'],cta:'See membership →',href:'#plans'},
+      earn:{ic:'💰',t:'Earn',d:'Turn your work into revenue — tickets, affiliates, merch, bookings and rewards.',items:['Tickets','Affiliate Earnings','Merch','Services','Bookings','Sponsors','Community Rewards'],cta:'Start selling tickets →',href:'/v3/create.html'},
+      giveback:{ic:'🔄',t:'Give Back',d:'Successful members lift the next wave — mentoring, referring and leading the scene.',items:['Mentorship','Referrals','Judging','Teaching','Sponsoring','Community Leadership'],cta:'Meet the community →',href:'/v3/crew.html'}
+    };
+    var flow=document.getElementById('kj-flow');
+    var pico=document.getElementById('kj-pico'),ptitle=document.getElementById('kj-ptitle'),ptag=document.getElementById('kj-ptag'),items=document.getElementById('kj-items'),cta=document.getElementById('kj-cta');
+    function render(k){var p=P[k];if(!p)return;pico.innerHTML=p.ic;ptitle.textContent=p.t;ptag.textContent=p.d;cta.innerHTML=p.cta;cta.href=p.href;items.innerHTML=p.items.map(function(i){return '<span>'+i+'</span>';}).join('');}
+    flow.addEventListener('click',function(e){var b=e.target.closest('.kj-chip');if(!b)return;flow.querySelectorAll('.kj-chip').forEach(function(x){x.classList.toggle('on',x===b);});render(b.dataset.p);});
+    render('discover');
+  })();
+  </script>
+</section>
+
+  <div class="plans-legal">
+    <a href="/v3/terms.html">Terms</a>·<a href="/v3/privacy.html">Privacy</a>·<a href="/v3/refund.html">Refunds</a>
+  </div>
+</section>
+
+<footer>
+  <a href="/v31/">KEEPITIL</a> <a href="/v3/privacy.html">Privacy</a> · <a href="/v31/scene.html">Scene</a> · <a href="/v3/culture">Culture</a>
+</footer>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+
+/* If already signed in, go STRAIGHT to the profile (you stay logged in on this device —
+   no re-login needed). Use ?stay=1 to remain on the login page (e.g. to switch accounts). */
+if(supa){
+  supa.auth.getSession().then(function(r){
+    if(r&&r.data&&r.data.session){
+      if(new URLSearchParams(location.search).get('stay')==='1'){ var p=$('portal-note'); if(p) p.style.display='inline-block'; }
+      else { location.replace('/v31/my-tickets.html'); }
+    }
+  }).catch(function(){});
+}
+
+/* Accept a username OR an email. Emails (contain "@") are used directly; a username is resolved to its email. */
+function resolveEmail(id){
+  if(id.indexOf('@')>-1) return Promise.resolve(id);
+  var handle=id.replace(/^@/,'');
+  if(!supa||!supa.from) return Promise.resolve(null);
+  // Try a security-definer RPC first (works even if app_users.email is RLS-protected), then a
+  // case-insensitive direct lookup as fallback. Either resolves the handle to its login email.
+  return supa.rpc('email_for_handle',{h:handle}).then(function(rp){
+    if(rp&&!rp.error&&rp.data) return rp.data;
+    return supa.from('app_users').select('email').ilike('handle',handle).maybeSingle()
+      .then(function(r){ return (r&&r.data&&r.data.email)?r.data.email:null; });
+  }).catch(function(){
+    return supa.from('app_users').select('email').ilike('handle',handle).maybeSingle()
+      .then(function(r){ return (r&&r.data&&r.data.email)?r.data.email:null; })
+      .catch(function(){ return null; });
+  });
+}
+
+function signIn(){
+  if(!supa){ $('err').textContent='Sign-in is loading — try again in a moment.'; return; }
+  var id=($('login-id').value||'').trim(), pw=$('password').value||'';
+  $('err').textContent='';
+  if(!id){ $('err').textContent='Enter your username or email.'; return; }
+  if(!pw){ $('err').textContent='Enter your password.'; return; }
+  var b=$('login-btn'); b.disabled=true; b.textContent='LOGGING IN…';
+  resolveEmail(id).then(function(email){
+    if(!email){ $('err').textContent='Couldn’t find that username. Try logging in with your email.'; b.disabled=false; b.textContent='LOG IN'; return; }
+    return supa.auth.signInWithPassword({email:email,password:pw}).then(function(r){
+      if(r&&r.error){
+        var m=r.error.message||'';
+        if(/email not confirmed|not confirmed/i.test(m)) $('err').textContent='Your email isn’t confirmed yet — check your inbox (and spam), or use Forgot password.';
+        else if(m==='Invalid login credentials') $('err').textContent='Wrong username/email or password. Try “Forgot password?”.';
+        else $('err').textContent=m;
+        b.disabled=false; b.textContent='LOG IN';
+      } else { location.replace('/v31/my-tickets.html'); }
+    });
+  }).catch(function(){ $('err').textContent='Could not log in — try again.'; b.disabled=false; b.textContent='LOG IN'; });
+}
+
+$('login-btn').addEventListener('click',signIn);
+/* Social sign-in (Google / Apple). Works once the provider is enabled in Supabase Auth.
+   Until then it shows a friendly message instead of a raw error. */
+function oauth(provider){
+  if(!supa){ var e=$('err'); if(e){e.textContent='Sign-in is unavailable right now.';} return; }
+  try{
+    supa.auth.signInWithOAuth({ provider:provider, options:{ redirectTo: location.origin+'/v31/my-tickets.html' } })
+      .then(function(r){ if(r&&r.error){ var e=$('err'); if(e){ e.textContent=(provider.charAt(0).toUpperCase()+provider.slice(1))+' sign-in is coming soon.'; } } })
+      .catch(function(){ var e=$('err'); if(e){e.textContent='Could not start sign-in. Try email + password.';} });
+  }catch(e2){ var e=$('err'); if(e){e.textContent='Could not start sign-in.';} }
+}
+(function(){ var g=$('btn-google'); if(g)g.addEventListener('click',function(){oauth('google');});
+  var a=$('btn-apple'); if(a)a.addEventListener('click',function(){oauth('apple');}); })();
+$('password').addEventListener('keydown',function(e){ if(e.key==='Enter') signIn(); });
+$('login-id').addEventListener('keydown',function(e){ if(e.key==='Enter') signIn(); });
+$('forgot-link').addEventListener('click',function(e){ e.preventDefault(); $('signin-box').style.display='none'; $('reset-box').style.display='block'; });
+$('back-link').addEventListener('click',function(e){ e.preventDefault(); $('reset-box').style.display='none'; $('signin-box').style.display='block'; });
+$('reset-btn').addEventListener('click',function(){
+  if(!supa) return;
+  var email=($('reset-email').value||'').trim(), msg=$('reset-msg');
+  if(!email){ msg.style.color='#ff5c5c'; msg.textContent='Enter your email.'; return; }
+  supa.auth.resetPasswordForEmail(email,{redirectTo:'https://keepitil.com/portal.html'}).then(function(r){
+    if(r&&r.error){ msg.style.color='#ff5c5c'; msg.textContent=r.error.message; }
+    else { msg.style.color='var(--blue)'; msg.textContent='Check your email (and spam) for the reset link.'; }
+  }).catch(function(){ msg.style.color='#ff5c5c'; msg.textContent='Could not send — try again.'; });
+});
+</script>
+<script src="/v3/keepitil-ai.js?v=20260718" defer></script>
+<script src="/v31/v31-shell.js?v=20260727" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260718" defer></script>
+</body>
+</html>
