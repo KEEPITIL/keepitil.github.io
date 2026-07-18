@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<!--
+  WBUILDER — KEEPITIL's GoDaddy-style page editor (Founder-only, DRAFT-ONLY sandbox).
+  HARD GUARANTEE: every edit writes the DRAFT row via save_page_layout_draft. The public
+  renderer reads PUBLISHED rows only, and Publish is DISABLED here pending Founder go —
+  so nothing done in this editor can ever change the live site for a visitor.
+  Reached via dashboard → WBUILDER tab (iframe). is_admin-gated + noindex.
+-->
+<html lang="en" data-theme="default" data-page-type="dashboard">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>WBUILDER — KEEPITIL</title>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0f;color:#f0f0f0;font-family:Inter,system-ui,sans-serif;font-size:14px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#12121c;border-bottom:1px solid #242433;flex:0 0 auto;flex-wrap:wrap}
+.topbar .brand{font-weight:900;letter-spacing:.06em;color:#00b4ff}
+.topbar select,.topbar button{background:#0d0d13;color:#f0f0f0;border:1px solid #2a2a3a;border-radius:8px;padding:7px 11px;font:inherit;cursor:pointer}
+.topbar .bp.on{background:#00b4ff;color:#04121b;border-color:transparent;font-weight:800}
+.topbar .save{background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;font-weight:800}
+.topbar .discard{border-color:#ff6b6b;color:#ff6b6b}
+.topbar .publish{opacity:.45;cursor:not-allowed;border-style:dashed}
+.dirty{font-size:.72rem;font-weight:800;color:#ffb43c;display:none}
+.dirty.on{display:inline}
+.savedok{font-size:.72rem;font-weight:800;color:#22e39b;display:none}
+.main{flex:1;display:flex;min-height:0}
+.pal{flex:0 0 170px;background:#101018;border-right:1px solid #242433;padding:12px;overflow-y:auto}
+.pal h3,.props h3{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8a8a99;margin:12px 0 7px}
+.pal h3:first-child{margin-top:0}
+.pal button{display:block;width:100%;text-align:left;background:#171724;border:1px solid #2a2a3a;color:#dfe3ee;border-radius:9px;padding:8px 11px;margin-bottom:6px;cursor:pointer;font:inherit;font-size:.82rem}
+.pal button:hover{border-color:#00b4ff}
+.canvas-wrap{flex:1;overflow:auto;background:#07070c;padding:26px;display:flex;justify-content:center;align-items:flex-start}
+.canvas{background:#0e0e15;border:1px solid #2a2a3a;border-radius:8px;min-height:600px;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:width .2s;position:relative}
+.canvas.desktop{width:1280px}
+.canvas.mobile{width:390px}
+.canvas .empty-canvas{color:#4a4a5c;text-align:center;padding:120px 30px;font-size:.9rem}
+.props{flex:0 0 250px;background:#101018;border-left:1px solid #242433;padding:12px;overflow-y:auto}
+.props label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8a8a99;margin:9px 0 3px}
+.props input,.props select,.props textarea{width:100%;background:#0d0d13;color:#f0f0f0;border:1px solid #2a2a3a;border-radius:7px;padding:7px 9px;font:inherit;font-size:.82rem}
+.props .row2{display:flex;gap:6px}
+.props .btnrow{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.props .btnrow button{flex:1;background:#171724;border:1px solid #2a2a3a;color:#dfe3ee;border-radius:8px;padding:7px;cursor:pointer;font:inherit;font-size:.76rem;font-weight:700;white-space:nowrap}
+.props .btnrow .danger{border-color:#ff6b6b;color:#ff6b6b}
+.props .hint{font-size:.7rem;color:#6a6a7c;margin-top:6px;line-height:1.4}
+/* widgets on canvas */
+.wsec{position:relative;border:1px dashed transparent;padding:14px;min-height:52px}
+.wsec.sel{border-color:#8a5cff}
+.wsec.dropready{outline:2px dashed #22e39b;outline-offset:-3px}
+.wid{position:relative;border:1px solid transparent;margin:0 0 10px;min-height:14px}
+.wid:hover{border-color:rgba(0,180,255,.4)}
+.wid.sel{border-color:#00b4ff}
+.wid .wtools{position:absolute;top:-13px;right:-1px;display:none;gap:3px;z-index:30}
+.wid.sel .wtools{display:flex}
+.wid .wtools button{background:#00b4ff;color:#04121b;border:0;border-radius:5px;font-size:.62rem;font-weight:800;padding:3px 7px;cursor:pointer}
+.wid .wtools .drag{cursor:grab;background:#8a5cff;color:#fff}
+.wid .wtools .del{background:#ff6b6b;color:#fff}
+.wid .rz{position:absolute;right:-5px;bottom:-5px;width:12px;height:12px;background:#00b4ff;border-radius:3px;cursor:nwse-resize;display:none;z-index:30}
+.wid.sel .rz{display:block}
+.drop-line{height:3px;background:#22e39b;border-radius:2px;margin:2px 0;display:none}
+.drop-line.on{display:block}
+[contenteditable]:focus{outline:2px solid rgba(0,180,255,.5);outline-offset:2px}
+.wimg-frame{overflow:hidden;position:relative}
+.wimg-frame img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+/* crop modal */
+.cropov{position:fixed;inset:0;z-index:1000;background:rgba(4,6,12,.9);display:none;align-items:center;justify-content:center;padding:20px}
+.cropov.on{display:flex}
+.cropbox{background:#12121c;border:1px solid #2a2a3a;border-radius:14px;padding:18px;max-width:640px;width:100%}
+.cropbox h3{font-size:1rem;margin-bottom:10px}
+.cropview{width:100%;height:340px;background:#000;overflow:hidden;position:relative;border-radius:10px;cursor:grab}
+.cropview img{position:absolute;left:50%;top:50%;transform-origin:center;user-select:none;-webkit-user-drag:none;max-width:none}
+.croprow{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.croprow select,.croprow input[type=range]{background:#0d0d13;color:#fff;border:1px solid #2a2a3a;border-radius:7px;padding:6px}
+.croprow input[type=range]{flex:1;min-width:120px}
+.croprow button{background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:8px;padding:9px 18px;font-weight:800;cursor:pointer}
+.croprow .ghost{background:transparent;border:1px solid #2a2a3a;color:#dfe3ee}
+.gate{max-width:420px;margin:80px auto;text-align:center;background:#12121c;border:1px solid #242433;border-radius:16px;padding:30px}
+#app{display:none;flex:1;min-height:0;flex-direction:column}
+</style>
+</head>
+<body>
+<div id="gate" class="gate"><h2>WBUILDER</h2><p style="color:#8a8a99;margin-top:8px">Admin sign-in required. Open this from the dashboard's WBUILDER tab.</p></div>
+
+<div id="app">
+<div class="topbar">
+  <span class="brand">WBUILDER</span>
+  <select id="pagePick" title="Page"></select>
+  <button class="bp on" id="bp-desktop">🖥 Desktop</button>
+  <button class="bp" id="bp-mobile">📱 Mobile</button>
+  <span style="flex:1"></span>
+  <span class="dirty" id="dirty">● unsaved draft changes</span>
+  <span class="savedok" id="savedok">Draft saved ✓</span>
+  <button class="save" id="saveBtn">Save draft</button>
+  <button class="discard" id="discardBtn">Discard draft</button>
+  <button class="publish" id="publishBtn" title="Publish is disabled until the Founder gives the go — drafts NEVER touch the live site" disabled>Publish 🔒 (ask Founder)</button>
+</div>
+<div class="main">
+  <div class="pal">
+    <h3>Add widget</h3>
+    <button onclick="addW('heading')">🅷 Heading</button>
+    <button onclick="addW('text')">¶ Text</button>
+    <button onclick="addW('image')">🖼 Image</button>
+    <button onclick="addW('button')">🔘 Button</button>
+    <button onclick="addW('spacer')">↕ Spacer</button>
+    <button onclick="addW('embed')">‹› Embed (HTML)</button>
+    <h3>Layout</h3>
+    <button onclick="addSection()">▭ New section</button>
+    <button onclick="seedFromLive()" id="seedBtn">⤓ Load current page content</button>
+    <h3>How it works</h3>
+    <div style="font-size:.72rem;color:#6a6a7c;line-height:1.5">Click a widget to select it. Drag ☰ to rearrange. Drag the blue corner to resize. Double-click text to edit. Everything saves to a <b style="color:#ffb43c">draft</b> — the live site never changes until the Founder enables Publish.</div>
+  </div>
+  <div class="canvas-wrap"><div class="canvas desktop" id="canvas"></div></div>
+  <div class="props" id="props"><h3>Properties</h3><div class="hint">Select a widget on the canvas to edit its properties here.</div></div>
+</div>
+</div>
+
+<!-- crop modal -->
+<div class="cropov" id="cropov">
+  <div class="cropbox">
+    <h3>Crop image <span style="font-size:.7rem;color:#8a8a99;font-weight:400">— non-destructive: the original file is never modified</span></h3>
+    <div class="cropview" id="cropview"><img id="cropimg" src="" alt=""></div>
+    <div class="croprow">
+      <select id="cropAspect">
+        <option value="free">Freeform</option><option value="1">1:1</option>
+        <option value="1.7778">16:9</option><option value="1.3333">4:3</option>
+        <option value="0.8">4:5 (portrait)</option><option value="0.5625">9:16</option>
+      </select>
+      <span style="font-size:.72rem;color:#8a8a99">Zoom</span>
+      <input type="range" id="cropZoom" min="100" max="300" value="100">
+      <button class="ghost" onclick="closeCrop()">Cancel</button>
+      <button onclick="applyCrop()">Apply crop</button>
+    </div>
+    <div style="font-size:.7rem;color:#6a6a7c;margin-top:8px">Drag the image to reposition the focal point. Pick an aspect, zoom, drag — then Apply.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var SB=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function uid(){return 'w'+Math.random().toString(36).slice(2,9);}
+
+/* Editable pages (body content only — nav/radio/meta are the Standards Regulator's, never touched) */
+var PAGES=[['grow.html','Grow (pilot)'],['earn.html','Earn'],['giveback.html','Give Back'],['connect.html','Connect'],['create.html','Create'],['about.html','About'],['contact.html','Contact']];
+var PAGE='grow.html', BP='desktop', TREE=[], SEL=null, DIRTY=false;
+
+/* ── tree helpers ── */
+function findW(id){ for(var s of TREE){ if(s.id===id) return {w:s,parent:TREE,sec:null}; for(var c of (s.children||[])){ if(c.id===id) return {w:c,parent:s.children,sec:s}; } } return null; }
+function markDirty(){ DIRTY=true; $('dirty').classList.add('on'); $('savedok').style.display='none'; }
+function clearDirty(){ DIRTY=false; $('dirty').classList.remove('on'); }
+
+/* ── render canvas ── */
+function styleOf(w){
+  var st=w.props&&w.props.style||{};
+  var css='';
+  if(st.w)css+='width:'+st.w+';';
+  if(st.h)css+='height:'+st.h+';';
+  if(st.pad!=null)css+='padding:'+st.pad+'px;';
+  if(st.margin!=null)css+='margin-bottom:'+st.margin+'px;';
+  if(st.radius!=null)css+='border-radius:'+st.radius+'px;';
+  if(st.align==='center')css+='margin-left:auto;margin-right:auto;';
+  if(st.align==='right')css+='margin-left:auto;margin-right:0;';
+  return css;
+}
+function renderW(w){
+  var p=w.props||{}, st=p.style||{}, inner='';
+  if(w.type==='heading') inner='<div contenteditable="false" data-edit="text" style="font-family:\'Bebas Neue\',Inter,sans-serif;font-size:'+(st.fs||34)+'px;font-weight:900;text-align:'+(st.textAlign||'left')+';color:'+(st.color||'#f0f0f0')+'">'+esc(p.text||'Heading')+'</div>';
+  else if(w.type==='text') inner='<div contenteditable="false" data-edit="html" style="font-size:'+(st.fs||15)+'px;line-height:1.6;text-align:'+(st.textAlign||'left')+';color:'+(st.color||'#c9cede')+'">'+(p.html||'Double-click to edit this text.')+'</div>';
+  else if(w.type==='image'){
+    var crop=p.crop||{};
+    var frameStyle='width:100%;'+(crop.aspect&&crop.aspect!=='free'?'aspect-ratio:'+crop.aspect+';':'height:'+(st.h||'220px')+';');
+    inner='<div class="wimg-frame" style="'+frameStyle+'border-radius:'+(st.radius!=null?st.radius:10)+'px">'
+      +(p.src?'<img src="'+esc(p.src)+'" alt="'+esc(p.alt||'')+'" style="object-position:'+((crop.ox!=null?crop.ox:50))+'% '+((crop.oy!=null?crop.oy:50))+'%;transform:scale('+((crop.zoom||100)/100)+')">'
+      :'<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#4a4a5c;background:#171724">No image — set one in Properties →</div>')+'</div>';
+  }
+  else if(w.type==='button') inner='<div style="text-align:'+(st.textAlign||'left')+'"><a href="'+esc(p.href||'#')+'" onclick="return false" style="display:inline-block;background:'+(st.bg||'#00b4ff')+';color:'+(st.color||'#04121b')+';font-weight:800;font-size:'+(st.fs||14)+'px;padding:'+(st.padV!=null?st.padV:11)+'px '+(st.padH!=null?st.padH:22)+'px;border-radius:'+(st.radius!=null?st.radius:999)+'px;text-decoration:none;'+(st.w?'width:'+st.w+';text-align:center;':'')+'">'+esc(p.label||'Button')+'</a></div>';
+  else if(w.type==='spacer') inner='<div style="height:'+(p.h||32)+'px;background:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,255,255,.03) 8px,rgba(255,255,255,.03) 16px)"></div>';
+  else if(w.type==='embed') inner='<div style="pointer-events:none">'+(p.html||'<div style="color:#4a4a5c">Empty embed</div>')+'</div>';
+  return '<div class="wid" id="'+w.id+'" draggable="false" style="'+styleOf(w)+'">'
+    +'<div class="wtools"><button class="drag" draggable="true" title="Drag to rearrange">☰</button><button onclick="dupW(\''+w.id+'\')" title="Duplicate">⧉</button><button class="del" onclick="delW(\''+w.id+'\')" title="Delete">✕</button></div>'
+    +'<div class="drop-line" data-before="'+w.id+'"></div>'
+    + inner
+    +'<div class="rz" title="Drag to resize"></div>'
+  +'</div>';
+}
+function render(){
+  var c=$('canvas');
+  if(!TREE.length){ c.innerHTML='<div class="empty-canvas">Blank draft. Add widgets from the left, or “Load current page content” to start from what\'s on the live page.</div>'; return; }
+  c.innerHTML=TREE.map(function(s){
+    return '<div class="wsec" id="'+s.id+'" style="background:'+((s.props&&s.props.bg)||'transparent')+';padding:'+((s.props&&s.props.pad)!=null?s.props.pad:14)+'px">'
+      +'<div class="drop-line" data-endof="'+s.id+'"></div>'
+      +(s.children||[]).map(renderW).join('')
+      +'</div>';
+  }).join('');
+  wire();
+  if(SEL){ var el=document.getElementById(SEL); if(el) el.classList.add('sel'); }
+}
+
+/* ── selection + properties panel ── */
+function select(id){
+  SEL=id;
+  document.querySelectorAll('.wid.sel,.wsec.sel').forEach(function(e){e.classList.remove('sel');});
+  var el=document.getElementById(id); if(el) el.classList.add('sel');
+  props();
+}
+function props(){
+  var box=$('props'); var f=SEL&&findW(SEL);
+  if(!f){ box.innerHTML='<h3>Properties</h3><div class="hint">Select a widget on the canvas to edit its properties here.</div>'; return; }
+  var w=f.w, p=w.props=w.props||{}, st=p.style=p.style||{};
+  var h='<h3>'+esc(w.type)+' properties</h3>';
+  function inp(label,key,val,type,obj){ return '<label>'+label+'</label><input data-k="'+key+'" data-o="'+obj+'" type="'+(type||'text')+'" value="'+esc(val==null?'':val)+'">'; }
+  if(w.type==='heading'){ h+=inp('Text','text',p.text,'text','p')+inp('Font size (px)','fs',st.fs||34,'number','s')+selAlign(st)+inp('Color','color',st.color||'#f0f0f0','color','s'); }
+  else if(w.type==='text'){ h+='<label>Text (double-click on canvas to edit inline)</label>'+inp('Font size (px)','fs',st.fs||15,'number','s')+selAlign(st)+inp('Color','color',st.color||'#c9cede','color','s'); }
+  else if(w.type==='image'){
+    h+=inp('Image URL','src',p.src,'text','p')+inp('Alt text','alt',p.alt,'text','p')
+      +'<div class="btnrow"><button onclick="uploadImg()">⬆ Upload image</button><button onclick="openCrop()">✂ Crop</button></div>'
+      +inp('Height (e.g. 220px — ignored when cropped to an aspect)','h',st.h||'220px','text','s')
+      +inp('Corner radius (px)','radius',st.radius!=null?st.radius:10,'number','s')+selWidthAlign(st);
+  }
+  else if(w.type==='button'){
+    h+=inp('Label','label',p.label,'text','p')+inp('Link (href)','href',p.href,'text','p')
+      +'<div class="row2">'+inp('Pad ↕ (px)','padV',st.padV!=null?st.padV:11,'number','s')+inp('Pad ↔ (px)','padH',st.padH!=null?st.padH:22,'number','s')+'</div>'
+      +inp('Font size (px)','fs',st.fs||14,'number','s')+inp('Width (blank = auto)','w',st.w||'','text','s')
+      +inp('Background','bg',st.bg||'#00b4ff','color','s')+inp('Text color','color',st.color||'#04121b','color','s')
+      +inp('Corner radius (px)','radius',st.radius!=null?st.radius:999,'number','s')+selAlign(st);
+  }
+  else if(w.type==='spacer'){ h+=inp('Height (px)','h',p.h||32,'number','p'); }
+  else if(w.type==='embed'){ h+='<label>Raw HTML</label><textarea data-k="html" data-o="p" rows="7">'+esc(p.html||'')+'</textarea><div class="hint">Existing page content loads as embed blocks — rearrange, resize or delete them; edit the HTML here if needed.</div>'; }
+  h+='<label>Bottom margin (px)</label><input data-k="margin" data-o="s" type="number" value="'+(st.margin!=null?st.margin:10)+'">';
+  h+='<div class="btnrow"><button onclick="dupW(SEL)">⧉ Duplicate</button><button class="danger" onclick="delW(SEL)">✕ Delete</button></div>';
+  box.innerHTML=h;
+  box.querySelectorAll('input,textarea,select').forEach(function(el){
+    el.addEventListener('input',function(){
+      var k=el.getAttribute('data-k'), o=el.getAttribute('data-o');
+      var val=(el.type==='number')?(el.value===''?null:+el.value):el.value;
+      if(o==='p') w.props[k]=val; else w.props.style[k]=val;
+      markDirty(); render();
+    });
+  });
+}
+function selAlign(st){ return '<label>Align</label><select data-k="textAlign" data-o="s"><option value="left"'+(st.textAlign!=='center'&&st.textAlign!=='right'?' selected':'')+'>Left</option><option value="center"'+(st.textAlign==='center'?' selected':'')+'>Center</option><option value="right"'+(st.textAlign==='right'?' selected':'')+'>Right</option></select>'; }
+function selWidthAlign(st){ return '<label>Width (e.g. 60% or 400px)</label><input data-k="w" data-o="s" type="text" value="'+esc(st.w||'')+'">'+selAlign(st); }
+
+/* ── widget ops ── */
+function addSection(){ TREE.push({id:uid(),type:'section',props:{},children:[]}); markDirty(); render(); }
+function targetSection(){ if(SEL){ var f=findW(SEL); if(f&&f.sec) return f.sec; if(f&&!f.sec&&f.w.type==='section') return f.w; } if(!TREE.length) addSection(); return TREE[TREE.length-1]; }
+function addW(type){
+  var defaults={heading:{text:'New heading',style:{fs:34}},text:{html:'New text block — double-click to edit.',style:{fs:15}},image:{src:'',style:{h:'220px',radius:10}},button:{label:'Click me',href:'#',style:{}},spacer:{h:32},embed:{html:''}};
+  var sec=targetSection();
+  var w={id:uid(),type:type,props:JSON.parse(JSON.stringify(defaults[type]||{}))};
+  sec.children.push(w); markDirty(); render(); select(w.id);
+}
+function delW(id){ var f=findW(id); if(!f)return; var i=f.parent.indexOf(f.w); f.parent.splice(i,1); if(SEL===id)SEL=null; markDirty(); render(); props(); }
+function dupW(id){ var f=findW(id); if(!f)return; var copy=JSON.parse(JSON.stringify(f.w)); copy.id=uid(); f.parent.splice(f.parent.indexOf(f.w)+1,0,copy); markDirty(); render(); select(copy.id); }
+
+/* ── wire canvas events: select, dblclick edit, drag-reorder, resize ── */
+var DRAGID=null;
+function wire(){
+  document.querySelectorAll('.wid').forEach(function(el){
+    el.addEventListener('click',function(e){ e.stopPropagation(); select(el.id); });
+    el.addEventListener('dblclick',function(e){
+      var ed=el.querySelector('[data-edit]'); if(!ed)return;
+      e.stopPropagation(); ed.setAttribute('contenteditable','true'); ed.focus();
+      ed.addEventListener('blur',function onb(){
+        ed.setAttribute('contenteditable','false'); ed.removeEventListener('blur',onb);
+        var f=findW(el.id); if(!f)return;
+        if(ed.getAttribute('data-edit')==='text') f.w.props.text=ed.textContent;
+        else f.w.props.html=ed.innerHTML;
+        markDirty();
+      });
+    });
+    var drag=el.querySelector('.wtools .drag');
+    if(drag){
+      drag.addEventListener('dragstart',function(e){ DRAGID=el.id; e.dataTransfer.effectAllowed='move'; try{e.dataTransfer.setData('text/plain',el.id);}catch(_){} });
+      drag.addEventListener('dragend',function(){ DRAGID=null; document.querySelectorAll('.drop-line.on').forEach(function(l){l.classList.remove('on');}); });
+    }
+    var rz=el.querySelector('.rz');
+    if(rz){
+      rz.addEventListener('pointerdown',function(e){
+        e.preventDefault(); e.stopPropagation();
+        var f=findW(el.id); if(!f)return;
+        var startX=e.clientX,startY=e.clientY,startW=el.offsetWidth,startH=el.offsetHeight;
+        function mv(ev){
+          var w=Math.max(40,startW+(ev.clientX-startX)), h=Math.max(20,startH+(ev.clientY-startY));
+          f.w.props=f.w.props||{}; f.w.props.style=f.w.props.style||{};
+          f.w.props.style.w=w+'px';
+          if(f.w.type==='image'&&(!f.w.props.crop||f.w.props.crop.aspect==='free'||!f.w.props.crop.aspect)) f.w.props.style.h=h+'px';
+          if(f.w.type==='spacer') f.w.props.h=h;
+          el.style.width=w+'px';
+          markDirty();
+        }
+        function up(){ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); render(); select(el.id); }
+        document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up);
+      });
+    }
+    el.addEventListener('dragover',function(e){
+      if(!DRAGID||DRAGID===el.id)return;
+      e.preventDefault();
+      document.querySelectorAll('.drop-line.on').forEach(function(l){l.classList.remove('on');});
+      var line=el.querySelector('.drop-line[data-before]'); if(line)line.classList.add('on');
+    });
+    el.addEventListener('drop',function(e){
+      if(!DRAGID||DRAGID===el.id)return;
+      e.preventDefault(); e.stopPropagation();
+      moveBefore(DRAGID,el.id);
+    });
+  });
+  document.querySelectorAll('.wsec').forEach(function(sec){
+    sec.addEventListener('dragover',function(e){ if(!DRAGID)return; e.preventDefault(); sec.classList.add('dropready'); });
+    sec.addEventListener('dragleave',function(){ sec.classList.remove('dropready'); });
+    sec.addEventListener('drop',function(e){
+      if(!DRAGID)return; e.preventDefault(); sec.classList.remove('dropready');
+      moveToEnd(DRAGID,sec.id);
+    });
+    sec.addEventListener('click',function(){ select(sec.id); });
+  });
+}
+function moveBefore(dragId,beforeId){
+  var a=findW(dragId), b=findW(beforeId); if(!a||!b)return;
+  a.parent.splice(a.parent.indexOf(a.w),1);
+  b.parent.splice(b.parent.indexOf(b.w),0,a.w);
+  markDirty(); render(); select(dragId);
+}
+function moveToEnd(dragId,secId){
+  var a=findW(dragId); if(!a)return;
+  var sec=TREE.find(function(s){return s.id===secId;}); if(!sec)return;
+  a.parent.splice(a.parent.indexOf(a.w),1);
+  sec.children.push(a.w);
+  markDirty(); render(); select(dragId);
+}
+document.addEventListener('click',function(){ /* click empty space = deselect */ });
+
+/* ── image upload (chat-images bucket, client-side resize ≤1600px) ── */
+function uploadImg(){
+  var f=findW(SEL); if(!f||f.w.type!=='image')return;
+  var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*';
+  inp.onchange=function(){
+    var file=inp.files[0]; if(!file)return;
+    var img=new Image(); var rd=new FileReader();
+    rd.onload=function(){ img.onload=function(){
+      var cv=document.createElement('canvas'); var scale=Math.min(1,1600/Math.max(img.width,img.height));
+      cv.width=Math.round(img.width*scale); cv.height=Math.round(img.height*scale);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      cv.toBlob(function(blob){
+        var path='wbuilder/'+Date.now()+'-'+file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');
+        SB.storage.from('chat-images').upload(path,blob,{contentType:'image/jpeg'}).then(function(r){
+          if(r.error){ alert('Upload failed: '+r.error.message); return; }
+          var pub=SB.storage.from('chat-images').getPublicUrl(path);
+          f.w.props.src=(pub&&pub.data)?pub.data.publicUrl:'';
+          markDirty(); render(); select(f.w.id);
+        });
+      },'image/jpeg',.88);
+    }; img.src=rd.result; };
+    rd.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+/* ── crop (non-destructive: stores aspect + zoom + focal point, original untouched) ── */
+var CROP={ox:50,oy:50,zoom:100,aspect:'free'};
+function openCrop(){
+  var f=findW(SEL); if(!f||f.w.type!=='image'||!f.w.props.src){ alert('Set an image first.'); return; }
+  var c=f.w.props.crop||{};
+  CROP={ox:c.ox!=null?c.ox:50, oy:c.oy!=null?c.oy:50, zoom:c.zoom||100, aspect:c.aspect||'free'};
+  $('cropimg').src=f.w.props.src;
+  $('cropAspect').value=CROP.aspect; $('cropZoom').value=CROP.zoom;
+  $('cropov').classList.add('on'); paintCrop();
+}
+function paintCrop(){
+  var img=$('cropimg');
+  img.style.width=(CROP.zoom+'%');
+  img.style.transform='translate(-'+CROP.ox+'%, -'+CROP.oy+'%)';
+  img.style.left=CROP.ox+'%'; img.style.top=CROP.oy+'%';
+}
+$('cropZoom')&&($('cropZoom').oninput=function(){ CROP.zoom=+this.value; paintCrop(); });
+$('cropAspect')&&($('cropAspect').onchange=function(){ CROP.aspect=this.value; });
+(function(){
+  var v=$('cropview'); if(!v)return; var down=null;
+  v.addEventListener('pointerdown',function(e){ down={x:e.clientX,y:e.clientY,ox:CROP.ox,oy:CROP.oy}; v.setPointerCapture(e.pointerId); });
+  v.addEventListener('pointermove',function(e){ if(!down)return;
+    CROP.ox=Math.min(100,Math.max(0,down.ox-(e.clientX-down.x)/4));
+    CROP.oy=Math.min(100,Math.max(0,down.oy-(e.clientY-down.y)/4));
+    paintCrop();
+  });
+  v.addEventListener('pointerup',function(){ down=null; });
+})();
+function applyCrop(){
+  var f=findW(SEL); if(f&&f.w.type==='image'){
+    f.w.props.crop={ox:Math.round(CROP.ox),oy:Math.round(CROP.oy),zoom:CROP.zoom,aspect:CROP.aspect==='free'?'free':CROP.aspect};
+    markDirty(); render(); select(f.w.id);
+  }
+  closeCrop();
+}
+function closeCrop(){ $('cropov').classList.remove('on'); }
+
+/* ── seed draft from the LIVE page body (read-only fetch — the live file is never written) ── */
+function seedFromLive(){
+  if(TREE.length && !confirm('Replace the current draft with the live page\'s content?')) return;
+  fetch('/v3/'+PAGE).then(function(r){return r.text();}).then(function(html){
+    var doc=new DOMParser().parseFromString(html,'text/html');
+    ['script','#v3shell-nav','#v3-footer','#kil-radio','#kil-bnav','nav','footer'].forEach(function(sel){
+      doc.querySelectorAll(sel).forEach(function(n){n.remove();});
+    });
+    var sec={id:uid(),type:'section',props:{},children:[]};
+    Array.prototype.slice.call(doc.body.children).forEach(function(node){
+      var htmlStr=(node.outerHTML||'').trim();
+      if(!htmlStr||htmlStr.length<10)return;
+      sec.children.push({id:uid(),type:'embed',props:{html:htmlStr,style:{margin:10}}});
+    });
+    if(!sec.children.length){ alert('Could not extract content from the live page.'); return; }
+    TREE=[sec]; markDirty(); render();
+  }).catch(function(){ alert('Could not load the live page.'); });
+}
+
+/* ── load/save/discard/breakpoints ── */
+function loadDraft(){
+  SEL=null; props();
+  SB.rpc('get_page_layout',{p_page:PAGE,p_breakpoint:BP,p_status:'draft'}).then(function(r){
+    var d=(r&&r.data)||{};
+    TREE=Array.isArray(d.layout)?d.layout:[];
+    clearDirty(); render();
+  });
+}
+$('saveBtn').onclick=function(){
+  SB.rpc('save_page_layout_draft',{p_page:PAGE,p_breakpoint:BP,p_tree:TREE}).then(function(r){
+    var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ alert('Save failed: '+((r.error&&r.error.message)||d.error||'unknown')); return; }
+    clearDirty(); $('savedok').style.display='inline'; setTimeout(function(){$('savedok').style.display='none';},2200);
+  });
+};
+$('discardBtn').onclick=function(){
+  if(!confirm('Discard the '+BP+' draft for '+PAGE+'? (The live site is unaffected either way.)')) return;
+  SB.rpc('discard_page_layout_draft',{p_page:PAGE,p_breakpoint:BP}).then(function(){ loadDraft(); });
+};
+$('bp-desktop').onclick=function(){ switchBP('desktop'); };
+$('bp-mobile').onclick=function(){ switchBP('mobile'); };
+function switchBP(bp){
+  if(DIRTY && !confirm('You have unsaved changes on the '+BP+' draft. Switch anyway (changes lost)?')) return;
+  BP=bp;
+  $('bp-desktop').classList.toggle('on',bp==='desktop');
+  $('bp-mobile').classList.toggle('on',bp==='mobile');
+  $('canvas').className='canvas '+bp;
+  loadDraft();
+}
+$('pagePick').onchange=function(){
+  if(DIRTY && !confirm('Unsaved changes. Switch pages anyway?')){ $('pagePick').value=PAGE; return; }
+  PAGE=$('pagePick').value; loadDraft();
+};
+
+/* ── boot: admin gate ── */
+(function boot(){
+  $('pagePick').innerHTML=PAGES.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('');
+  if(!SB){ return; }
+  SB.auth.getSession().then(function(res){
+    var s=res&&res.data&&res.data.session;
+    if(!s){ return; }
+    SB.rpc('is_admin').then(function(r){
+      if(!(r&&r.data)){ return; }
+      $('gate').style.display='none';
+      $('app').style.display='flex';
+      loadDraft();
+    });
+  });
+})();
+</script>
+</body>
+</html>
