@@ -272,7 +272,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
           if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
-            var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/v3/settings.html'; mh.setAttribute('aria-label','Settings');
+            var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/v31/settings.html'; mh.setAttribute('aria-label','Settings');
             mh.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
             document.body.appendChild(mh);
           }
@@ -303,7 +303,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     var HAMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
     if(cta){
-      if(s && onProfile){ cta.innerHTML=HAMB; cta.setAttribute('href','/v3/settings.html'); cta.setAttribute('title','Settings'); cta.setAttribute('aria-label','Settings'); cta.classList.add('v3s-hamb'); }
+      if(s && onProfile){ cta.textContent='EDIT'; cta.setAttribute('href','/v31/settings.html'); cta.setAttribute('title','Edit profile & settings'); cta.setAttribute('aria-label','Edit profile & settings'); cta.classList.remove('v3s-hamb'); cta.style.cssText='color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff);box-shadow:0 0 12px color-mix(in srgb,var(--brand,#00b4ff) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 22%,transparent)'; }
       else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
     }
     if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
