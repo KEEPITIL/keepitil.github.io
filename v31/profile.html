@@ -432,12 +432,17 @@ footer a{color:var(--accent2);}
 <style>@keyframes pfskel{50%{opacity:.45}}.pf-skel{animation:pfskel 1.2s ease-in-out infinite}</style>
 <div class="pf-cover"><img id="pfCover" src="" alt="" style="display:none" onerror="this.style.display='none'"></div>
 <div class="pf-head">
-  <div class="pf-top" style="align-items:center;gap:28px">
-    <img id="pfAvatar" class="pf-avatar pf-skel" src="/icon-192.png" alt="Profile">
-    <div class="pf-idblock" style="flex:1;min-width:0">
-      <div class="pf-handle" id="pfHandle" style="font-size:1.15rem">&nbsp;</div>
-      <div id="pfStatsRow" style="display:flex;gap:26px;margin:10px 0 8px;font-size:.98rem"><span><b id="stPosts">0</b> posts</span><a href="#" onclick="return false" style="color:inherit"><b id="stFollowers">0</b> followers</a><a href="#" onclick="return false" style="color:inherit"><b id="stFollowing">0</b> following</a></div>
-      <h1 class="pf-name" id="pfName" style="font-size:1.05rem;margin:0">&nbsp;</h1>
+  <div class="pf-top" style="align-items:stretch;gap:26px">
+    <img id="pfAvatar" class="pf-avatar pf-skel" src="/icon-192.png" alt="Profile" style="align-self:center">
+    <div class="pf-idblock" style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px">
+      <h1 class="pf-name" id="pfName" style="margin:0">&nbsp;</h1>
+      <div class="pf-handle" id="pfHandle">&nbsp;</div>
+      <div id="pfStatsRow" style="display:flex;gap:24px;font-size:.96rem"><span><b id="stPosts">0</b> posts</span><a href="#" onclick="return false" style="color:inherit"><b id="stFollowers">0</b> followers</a><a href="#" onclick="return false" style="color:inherit"><b id="stFollowing">0</b> following</a></div>
+      <div id="pfAboutTop" style="display:none;color:var(--text-soft,#c9cede);font-size:.88rem;line-height:1.5"></div>
+      <div id="pfLinksDrop" style="display:none;position:relative">
+        <button class="evsub-b" onclick="var m=document.getElementById('pfLinksMenu');m.style.display=m.style.display==='none'?'block':'none';event.stopPropagation()">🔗 Links ▾</button>
+        <div id="pfLinksMenu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:90;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:8px;min-width:230px;box-shadow:0 12px 30px rgba(0,0,0,.5)"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -453,6 +458,7 @@ footer a{color:var(--accent2);}
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
+    <style>#pfShare>button.pf-btn{background:transparent!important;color:var(--brand,#00b4ff)!important;border:2px solid var(--brand,#00b4ff)!important;box-shadow:0 0 12px color-mix(in srgb,var(--brand,#00b4ff) 50%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 20%,transparent)}</style>
     <div class="pf-share" id="pfShare">
       <button class="pf-btn icon" onclick="toggleShare(event)" aria-label="Share" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button>
       <div class="share-menu" id="shareMenu" role="menu">
@@ -516,7 +522,7 @@ footer a{color:var(--accent2);}
     <button class="evsub-b create" type="button" onclick="openCreateChooser()">Create Event</button>
   </div>
   <div class="mytix-wrap" id="myev-wrap" style="display:none">
-    <div class="mytix-h" id="myev-h">EVENT</div>
+    <div class="mytix-h" id="myev-h" style="display:none">EVENT</div>
     <div class="mytix-car" id="myev-car">
       <button class="mytix-arrow prev" aria-label="Scroll to previous events" onclick="myevScroll(-1)">&lsaquo;</button>
       <div class="mytix-row" id="myev-row"></div>
@@ -524,7 +530,7 @@ footer a{color:var(--accent2);}
     </div>
   </div>
   <div class="mytix-wrap" id="mytix-wrap" style="display:none">
-    <div class="mytix-h">TICKETS <a href="/v3/tickets.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">View all &rarr;</a></div>
+
     <div class="mytix-car" id="mytix-car">
       <button class="mytix-arrow prev" aria-label="Scroll to previous tickets" onclick="mytixScroll(-1)">&lsaquo;</button>
       <div class="mytix-row" id="mytix-row"></div>
@@ -551,16 +557,6 @@ footer a{color:var(--accent2);}
     <div class="mono-sub">Partner referrals &amp; rave essentials — every link supports the scene. <em>(Amazon links are affiliate; KEEPITIL earns from qualifying purchases.)</em></div>
     <div class="shelf" id="shelf"></div>
   </div>
-</div>
-
-<!-- BOTTOM PROFILE NAV (restored) -->
-<div id="pnav">
-  <!-- Flag-2 (Atlas 2026-07-16): GT blog prev-link removed — a generic profile must not hard-link one person's blog -->
-  <a href="/v31/culture.html" class="pnav-a pnav-back">Back to Culture</a>
-  <span class="pnav-sep">|</span>
-  
-  <span class="pnav-sep">|</span>
-  <a href="/profile-weird.html" class="pnav-a pnav-next">NEXT &rarr;</a>
 </div>
 
 <div class="ad-footer-bar"><!-- AdSense: End of Profile --></div>
@@ -609,7 +605,7 @@ function renderGallery(){
   var chips=[['all','All'],['blog','Blogs'],['article','Articles'],['image','Images'],['video','Videos']];
   var bar=document.getElementById('gal-filter');
   if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(GAL_FILTER===c[0]?' on':'')+'" onclick="setGalFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
-  var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'gallery\')"><span class="plus">+</span><span>New Post</span></div>':'';
+  var add='';   /* in-feed create tile removed (Founder pass 2) */
   var items=allPosts().filter(function(p){return GAL_FILTER==='all'||p.type===GAL_FILTER;});
   g.innerHTML=add+(items.length?items.map(postCard).join(''):'<div class="pf-empty">Nothing here yet.</div>');
 }
@@ -684,8 +680,8 @@ function loadMyEvents(){
     if(r&&r.error){ wrap.style.display='none'; return; }
     var evs=(r&&r.data)?r.data:[];
     if(!evs.length){ wrap.style.display='none'; return; }
-    var h=document.getElementById('myev-h');
-    if(h) h.innerHTML=(owner?'🎤 MY EVENTS':'🎤 HOSTING')+(owner?' <a href="/v3/dashboard.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">Dashboard &rarr;</a>':'');
+    var h=document.getElementById('myev-h'); if(h) h.style.display='none';   /* chip identifies the section (Founder pass 2) */
+    if(owner){ var es=document.getElementById('evsub'); if(es && !document.getElementById('evDashBtn')){ var db=document.createElement('a'); db.id='evDashBtn'; db.className='evsub-b'; db.style.marginLeft='auto'; db.href='/v3/dashboard.html'; db.textContent='Dashboard'; es.appendChild(db); } }
     var row=document.getElementById('myev-row'); if(!row){ wrap.style.display='none'; return; }
     row.innerHTML=evs.map(function(e){
       var img=e.cover_url?'<img class="tix-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
@@ -898,6 +894,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 }
 function updateOwnerUI(){
   ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
+  try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
 }
 /* ── FOLLOW (fans follow a profile) ── */
@@ -979,6 +976,10 @@ function openEditProfile(){
     '<label class="kil-mf"><span>About me</span><textarea id="epBio" rows="3">'+esc(PROFILE.bio||'')+'</textarea></label>'+
     '<label class="kil-mf"><span>Tagline (highlighted line)</span><input type="text" id="epTag" value="'+esc(PROFILE.tagline||'')+'"></label>'+
     '<label class="kil-mf"><span>Booking email</span><input type="text" id="epBook" value="'+esc(PROFILE.book_email||'')+'"></label>'+
+    '<label class="kil-mf"><span>About section (shown in the header)</span><textarea id="epAbout" rows="2">'+esc(PROFILE.about||'')+'</textarea></label>'+
+    '<label class="kil-mf"><span>Account type</span><select id="epAcct"><option value="">—</option><option value="user">User</option><option value="artist">Artist</option><option value="brand">Brand</option><option value="organizer">Organizer</option></select></label>'+
+    '<div class="kil-sec">Profile links (up to 5)</div>'+
+    [1,2,3,4,5].map(function(i){return '<label class="kil-mf"><span>Link '+i+'</span><input type="text" id="epL'+i+'" value="'+esc((PROFILE.links||[])[i-1]||'')+'" placeholder="https://…"></label>';}).join('')+
     '<div class="kil-sec">Links</div>'+
     '<div class="kil-row2"><label class="kil-mf"><span>Instagram</span><input type="text" id="epIG" value="'+esc(s.instagram||'')+'"></label>'+
     '<label class="kil-mf"><span>SoundCloud</span><input type="text" id="epSC" value="'+esc(s.soundcloud||'')+'"></label></div>'+
@@ -1070,7 +1071,9 @@ function saveEditProfile(){
     uploadImage(coverFile,function(cvUrl){
       var hlDone=[], pending=hlNodes.length;
       function finalize(){
+        var _links=[1,2,3,4,5].map(function(i){return g('epL'+i);}).filter(function(u){return u&&/^https?:\/\//.test(u);}).slice(0,5);
         var meta={ slug:PROFILE_SLUG, display_name:g('epName'), handle:g('epHandle').replace(/^@/,''), location:g('epLoc'), bio:g('epBio'), tagline:g('epTag'), pronouns:g('epPro'), book_email:g('epBook'),
+          about:g('epAbout')||null, links:_links.length?_links:null, account_type:(document.getElementById('epAcct')||{}).value||null,
           avatar_url: avUrl || g('epAvatarUrl') || PROFILE.avatar,
           cover_url: cvUrl || g('epCoverUrl') || PROFILE.cover,
           socials:{ instagram:g('epIG'), soundcloud:g('epSC'), tiktok:g('epTT'), website:g('epWeb') },
@@ -1487,7 +1490,7 @@ function renderArticles(){
       return '<div class="collab-invite"><div class="ci-txt"><b>@'+esc(c.source_slug)+'</b> wants to share a post to your profile: <span>"'+esc(c.title||'Untitled')+'"</span></div><div class="ci-btns"><button class="ci-yes" onclick="collabRespond(\''+c.id+'\',\'accepted\')">Accept</button><button class="ci-no" onclick="collabRespond(\''+c.id+'\',\'declined\')">Decline</button></div></div>';
     }).join(''):'';
   }
-  var add=CAN_EDIT()?'<div class="pf-add" onclick="openCreatePost(\'feed\')"><span class="plus">+</span><span>New Post</span></div>':'';
+  var add='';   /* in-feed create tile removed (Founder pass 2) — ＋Create lives on the sub-filter row */
   var posts=allPosts().filter(function(p){return !isHiddenFromFeed(p);}); // Feed = everything (own + accepted collab) not hidden by the owner
   host.innerHTML=add+(posts.length?posts.map(postCard).join(''):(add?'':'<div class="pf-empty">No posts yet.</div>'));
 }
@@ -1570,9 +1573,9 @@ function toggleCreateMenu(e){
   if(m){ m.remove(); return; }
   m=document.createElement('div'); m.id='createMenu';
   m.style.cssText='position:absolute;z-index:120;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;min-width:170px';
-  [['Feed post',function(){openCreatePost('feed');}],
+  [['Feed',function(){openCreatePost('feed');}],
    ['Event',openCreateChooser],
-   ['Story (24h)',function(){openCreatePost('story');}],
+   ['Story',function(){openCreatePost('story');}],
    ['Highlight',createHighlight],
    ['Chat',function(){showTab('chat');}]].forEach(function(it){
     var b=document.createElement('button');
@@ -1621,13 +1624,14 @@ function toggleArchived(id,val){
 /* FEED category filter — FEED (all) default, collapsible to icons on mobile */
 (function(){
   var CATS=[['all','FEED','▦'],['blog','Blog','📰'],['article','Article','📝'],['video','Video','🎬'],['image','Image','🖼'],['reshare','Reshared','🔁']];
+  var CREATE_CHIP='<button class="evsub-b create" style="margin-left:auto" onclick="openCreatePost(\'feed\')">＋Create</button>';
   var box=document.getElementById('feed-cat'); if(!box)return;
   var cur='all';
   function paint(){
     var mobile=window.matchMedia('(max-width:560px)').matches;
     box.innerHTML=CATS.map(function(c){
       return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" title="'+c[1]+'">'+(mobile?c[2]:c[1])+'</button>';
-    }).join('');
+    }).join('')+((typeof CAN_EDIT==='function'&&CAN_EDIT())?CREATE_CHIP:'');
   }
   box.addEventListener('click',function(e){
     var b=e.target.closest('button'); if(!b)return;
@@ -1654,12 +1658,13 @@ function toggleArchived(id,val){
       SB.from('profile_meta').select('about,links,account_type').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
         var m=(r&&r.data)||{};
         if(m.account_type){ var a=document.getElementById('pfAcctType'); a.textContent=m.account_type; a.style.display='block'; }
-        if(m.about){ var ab=document.getElementById('pfAbout'); ab.textContent=m.about; ab.style.display='block'; }
+        PROFILE.about=m.about||''; PROFILE.links=Array.isArray(m.links)?m.links:[];
+        if(m.about){ var ab=document.getElementById('pfAboutTop'); ab.textContent=m.about; ab.style.display='block'; }
         if(Array.isArray(m.links)&&m.links.length){
-          var L=document.getElementById('pfLinks');
-          L.innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
-            return '<a href="'+String(u).replace(/"/g,'')+'" target="_blank" rel="noopener" style="color:var(--brand,#00b4ff);font-size:.84rem;font-weight:700">🔗 '+lbl+'</a>'; }).join('');
-          L.style.display='flex';
+          document.getElementById('pfLinksMenu').innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
+            return '<a href="'+String(u).replace(/"/g,'')+'" target="_blank" rel="noopener" style="display:block;padding:8px 10px;color:var(--brand,#00b4ff);font-size:.84rem;font-weight:700;border-radius:8px">🔗 '+lbl+'</a>'; }).join('');
+          document.getElementById('pfLinksDrop').style.display='block';
+          document.addEventListener('click',function(){ var mm=document.getElementById('pfLinksMenu'); if(mm)mm.style.display='none'; });
         }
       });
     }catch(e){}
@@ -1728,7 +1733,12 @@ function loadTagged(){
   },800);
 })();
 /* FEED 2-col grid (IG keepitil ref) */
-(function(){ var s=document.createElement('style'); s.textContent='#feed-grid{grid-template-columns:1fr!important;gap:14px;max-width:600px;margin:0 auto}#feed-grid img,#feed-grid video{width:100%;aspect-ratio:4/3;object-fit:cover}'; document.head.appendChild(s); })();
+(function(){ var s=document.createElement('style'); s.textContent=
+  '#feed-grid{grid-template-columns:1fr!important;gap:18px;max-width:620px;margin:0 auto}'
+  /* FB-parity card: big card, near-square media window, ANY image/video fits it (cover, centered) */
+  +'#feed-grid>*{border-radius:14px;overflow:hidden;background:var(--surface,#12121c);border:1px solid var(--line,#242433)}'
+  +'#feed-grid img,#feed-grid video{width:100%!important;aspect-ratio:1/1.02;object-fit:cover;object-position:center;display:block;height:auto!important}'; 
+  document.head.appendChild(s); })();
 /* published-only feed (Founder live review): hide draft/unpublished cards */
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
