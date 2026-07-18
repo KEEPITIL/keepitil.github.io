@@ -46,9 +46,12 @@
   try{
     var RADIO_ALLOWED = RULES.radio && !IN_IFRAME && (!IS_MOBILE || PAGE_TYPE==='home');
     if(!RADIO_ALLOWED){
-      var _rk=document.createElement('style'); _rk.textContent='#kil-radio{display:none!important}'; document.head.appendChild(_rk);
-      var _kill=function(){ try{ var b=document.getElementById('kil-radio'); if(b)b.remove(); }catch(e){} };
-      document.addEventListener('DOMContentLoaded',function(){ _kill(); setTimeout(_kill,1200); });
+      var _rk=document.createElement('style'); _rk.textContent='#kil-radio,#kil-sc{display:none!important}'; document.head.appendChild(_rk);
+      /* kill the BAR and the AUDIO ENGINE (#kil-sc soundcloud iframe survives bar removal —
+         that leaked background audio onto non-home mobile pages). */
+      var _kill=function(){ try{ document.querySelectorAll('#kil-radio,#kil-sc,iframe[src*="soundcloud"]').forEach(function(b){b.remove();}); }catch(e){} };
+      window.__kilRadioKill=_kill;   /* self-heal loop re-runs this */
+      document.addEventListener('DOMContentLoaded',function(){ _kill(); setTimeout(_kill,1200); setTimeout(_kill,4000); });
     } else {
       document.addEventListener('DOMContentLoaded',function(){ try{
         if(!document.getElementById('kil-radio') && !document.querySelector('script[src*="keepitil-radio"]')){
@@ -256,9 +259,13 @@
       /* ── MOBILE BOTTOM NAV (Instagram model, 2026-07-16): 5 icons pinned bottom on ≤860px.
          Replaces the radio bar UI on mobile — the radio bar is moved off-screen (NOT removed),
          so the audio engine keeps playing in the background. Desktop unchanged. ── */
-      try{
-        var oldbn=document.getElementById('kil-bnav'); if(oldbn) oldbn.remove();
-        if(!IN_IFRAME){   /* NEVER inside embedded frames — this leaked into the desktop chat card */
+      /* Re-callable mount: the self-heal loop re-asserts the bottom nav if a page script
+         (or an earlier silent exception) leaves it missing — the "nav disappears on pillar
+         pages" class of bug. Isolated try so nothing upstream can starve it. */
+      window.__kilMountBnav=function(){
+        try{
+          if(IN_IFRAME) return;   /* NEVER inside embedded frames — this leaked into the desktop chat card */
+          if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           bn.innerHTML=
             '<a href="/v3/" id="kb-home" aria-label="Home"><img src="'+(logoUrl()||'/v3/logo-blue-nav.png')+'" alt="Home" onerror="this.onerror=null;this.src=\'/v3/logo-blue-nav.png\'"></a>'
@@ -271,13 +278,14 @@
           var _bmap=[/^\/v3\/(index\.html)?$/, /culture/, /scene/, /shop/, /(u\.html|apply\.html|dashboard\.html)/];
           bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
-          if(RULES.gear==='hamburger'){
+          if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
             var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/v3/settings.html'; mh.setAttribute('aria-label','Settings');
             mh.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
             document.body.appendChild(mh);
           }
-        }
-      }catch(e){}
+        }catch(e){}
+      };
+      window.__kilMountBnav();
       style();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
       if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
@@ -392,4 +400,21 @@
     document.head.appendChild(s);
   }
   if(document.body) build(); else document.addEventListener('DOMContentLoaded', build);
+  /* ── SELF-HEAL (P0 nav bug, 2026-07-17): pillar pages intermittently lost their chrome
+     (bottom nav missing on giveback.html after click-through; silent page-script exceptions
+     can starve the mount). Re-assert every 2.5s + on history navigation:
+     top nav rebuilt if absent, bottom nav re-mounted if absent, radio kill re-applied on
+     pages where audio is not allowed. All idempotent, all no-ops when everything is present. */
+  try{
+    var _heal=function(){
+      try{
+        if(IN_IFRAME) return;
+        if(RULES.nav!==false && !document.getElementById('v3shell-nav')) build();
+        if(window.__kilMountBnav) window.__kilMountBnav();
+        if(window.__kilRadioKill) window.__kilRadioKill();
+      }catch(e){}
+    };
+    window.addEventListener('popstate', function(){ setTimeout(_heal, 60); });
+    setInterval(_heal, 2500);
+  }catch(e){}
 })();
