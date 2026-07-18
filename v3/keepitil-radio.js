@@ -82,7 +82,7 @@
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>'+
       '</div>'+
-      '<a href="/v3/radio.html" class="kil-submit">🎵 Play your song?</a>'+
+      (location.pathname.indexOf('/v31/')===0?'':'<a href="/v3/radio.html" class="kil-submit">🎵 Play your song?</a>')+   /* V3.1 containment: no /v3/ nav from the public face */
       '<button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>';
     document.body.appendChild(bar);
     // ── rotating referral ad (middle of the bar) ──
