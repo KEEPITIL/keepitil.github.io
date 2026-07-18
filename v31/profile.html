@@ -430,20 +430,18 @@ footer a{color:var(--accent2);}
 <!-- P0 fix 2026-07-16: hero ships BLANK (skeleton) — live/demo data is applied by JS only.
      A new/empty profile must render a blank, fillable page — never someone else's identity. -->
 <style>@keyframes pfskel{50%{opacity:.45}}.pf-skel{animation:pfskel 1.2s ease-in-out infinite}</style>
-<a id="pfEditFab" href="/v3/settings.html" style="display:none;position:fixed;top:78px;right:18px;z-index:70;font-family:var(--font-head,'Bebas Neue'),sans-serif;letter-spacing:.1em;font-size:1rem;color:var(--brand,#00b4ff);border:2px solid var(--brand,#00b4ff);border-radius:9px;padding:7px 20px;text-decoration:none;box-shadow:0 0 14px color-mix(in srgb,var(--brand,#00b4ff) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 25%,transparent);background:rgba(10,10,16,.72);backdrop-filter:blur(8px)">EDIT</a>
-<style>@media(max-width:860px){#pfEditFab{top:auto;bottom:132px;right:14px;font-size:.9rem;padding:6px 16px}}</style>
 <div class="pf-cover"><img id="pfCover" src="" alt="" style="display:none" onerror="this.style.display='none'"></div>
 <div class="pf-head">
-  <div class="pf-top">
+  <div class="pf-top" style="align-items:center;gap:28px">
     <img id="pfAvatar" class="pf-avatar pf-skel" src="/icon-192.png" alt="Profile">
-    <div class="pf-idblock">
-      <h1 class="pf-name" id="pfName">&nbsp;</h1>
-      <div class="pf-handle" id="pfHandle">&nbsp;</div>
+    <div class="pf-idblock" style="flex:1;min-width:0">
+      <div class="pf-handle" id="pfHandle" style="font-size:1.15rem">&nbsp;</div>
+      <div id="pfStatsRow" style="display:flex;gap:26px;margin:10px 0 8px;font-size:.98rem"><span><b id="stPosts">0</b> posts</span><a href="#" onclick="return false" style="color:inherit"><b id="stFollowers">0</b> followers</a><a href="#" onclick="return false" style="color:inherit"><b id="stFollowing">0</b> following</a></div>
+      <h1 class="pf-name" id="pfName" style="font-size:1.05rem;margin:0">&nbsp;</h1>
     </div>
   </div>
 </div>
 <div class="pf-meta">
-  <div id="pfStatsRow" style="display:flex;gap:22px;margin:2px 0 8px;font-size:.95rem"><span><b id="stPosts">0</b> posts</span><a href="#" onclick="return false" style="color:inherit"><b id="stFollowers">0</b> followers</a><a href="#" onclick="return false" style="color:inherit"><b id="stFollowing">0</b> following</a></div>
   <div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px"></div>
   <div class="pf-bio" id="pfBio">&nbsp;</div>
   <div id="pfAbout" style="display:none;color:var(--text-soft,#c9cede);font-size:.9rem;line-height:1.6;margin:6px 0"></div>
@@ -482,27 +480,20 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="feed-hd" style="display:flex;align-items:center;gap:10px">FEED
-    <button class="evsub-b create" id="createFeedBtn" style="display:none;margin-left:auto" onclick="openCreatePost('feed')">＋ Create feed</button>
-  </div>
-  <div class="pf-filter" id="feed-cat" style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin:0 0 12px"></div>
+  <div class="pf-filter" id="feed-cat" style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin:0 0 12px;position:sticky;top:118px;z-index:55;background:var(--bg,#0a0a0f);padding:8px 0"></div>
   <div id="collab-pending"></div>
   <div class="pf-grid" id="feed-grid"></div>
 </div>
 
 <div class="pf-panel" id="tab-saved">
-  <div class="feed-hd" style="display:flex;align-items:center;gap:10px">SAVED
-    <button class="evsub-b create" id="newCollBtn" style="display:none;margin-left:auto" onclick="newCollection()">＋ New collection</button>
-  </div>
   <div class="pf-filter" id="saved-coll" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"></div>
   <div class="pf-grid" id="saved-grid"></div>
-  <div id="saved-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">Nothing saved yet — tap the bookmark on any post to keep it here.</div>
+  <div id="saved-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">Nothing saved yet.</div>
 </div>
 
 <div class="pf-panel" id="tab-tagged">
-  <div class="feed-hd">TAGGED</div>
   <div class="pf-grid" id="tagged-grid"></div>
-  <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">No tagged posts yet — when someone tags this profile, it shows up here.</div>
+  <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">—</div>
 </div>
 
 <div style="display:none"><div id="gal-filter"></div><div id="gal-grid"></div></div>
@@ -545,8 +536,7 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel" id="tab-chat">
-  <div class="dm-head"><span class="dm-title">Messages</span><button class="dm-new" id="dm-new" title="New message" onclick="addContent('chat group')" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
-  <div class="pf-filter" id="chat-filter"></div>
+  <div style="display:flex;align-items:center;gap:8px"><div class="pf-filter" id="chat-filter" style="flex:1"></div><button class="dm-new" id="dm-new" title="New message" onclick="addContent('chat group')" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
   <div class="pf-grid" id="chat-list"></div>
   <div class="chat-open" id="chat-open" style="display:none;">
     <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
@@ -649,7 +639,7 @@ function renderShows(){
   readEvStore('kil-battles').forEach(function(o){o._src='battles';all.push(o);});
   var items=all.filter(function(o){return EV_FILTER==='all'||o._src===EV_FILTER;});
   items.sort(function(a,b){return evKey(b)-evKey(a);}); // newest -> oldest
-  var add='<div class="ev-add" onclick="createEvent()"><span class="plus">+</span><span>CREATE EVENT</span></div>';
+  var add='';   /* Create-Event tile removed (Founder 2026-07-18) — the filter chip opens the chooser */
   el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet — create one or save events from the homepage.</div>');
 }
 /* ── MY TICKETS carousel (owner-only): every event the user bought a ticket to, newest→oldest ── */
@@ -907,7 +897,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
   box.innerHTML=(PROFILE.categories||[]).map(function(k){return '<span class="pf-catbadge '+k+'">'+L[k]+'</span>';}).join('');
 }
 function updateOwnerUI(){
-  ['pfCreate','pfArchive','createFeedBtn','newCollBtn','pfEditFab'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
+  ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
 }
 /* ── FOLLOW (fans follow a profile) ── */
@@ -1686,8 +1676,8 @@ function loadSaved(){
   ]).then(function(res){
     var colls=(res[0].data)||[], saves=(res[1].data)||[];
     var cbox=document.getElementById('saved-coll');
-    cbox.innerHTML='<button class="evsub-b'+(CUR_COLL==null?' on':'')+'" onclick="CUR_COLL=null;loadSaved()">All</button>'
-      +colls.map(function(c){return '<button class="evsub-b'+(CUR_COLL===c.id?' on':'')+'" onclick="CUR_COLL='+c.id+';loadSaved()">'+String(c.name).slice(0,24)+'</button>';}).join('');
+    cbox.innerHTML=colls.map(function(c){return '<button class="evsub-b'+(CUR_COLL===c.id?' on':'')+'" onclick="CUR_COLL=(CUR_COLL==='+c.id+'?null:'+c.id+');loadSaved()">'+String(c.name).slice(0,24)+'</button>';}).join('')
+      +(CAN_EDIT&&CAN_EDIT()?'<button class="evsub-b create" onclick="newCollection()">＋ New collection</button>':'');
     var rows=saves.filter(function(s){return CUR_COLL==null||s.collection_id===CUR_COLL;});
     var g=document.getElementById('saved-grid'), emp=document.getElementById('saved-empty');
     if(!rows.length){ g.innerHTML=''; emp.style.display='block'; return; }
@@ -1738,9 +1728,11 @@ function loadTagged(){
   },800);
 })();
 /* FEED 2-col grid (IG keepitil ref) */
-(function(){ var s=document.createElement('style'); s.textContent='#feed-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px}'; document.head.appendChild(s); })();
+(function(){ var s=document.createElement('style'); s.textContent='#feed-grid{grid-template-columns:1fr!important;gap:14px;max-width:600px;margin:0 auto}#feed-grid img,#feed-grid video{width:100%;aspect-ratio:4/3;object-fit:cover}'; document.head.appendChild(s); })();
+/* published-only feed (Founder live review): hide draft/unpublished cards */
+(function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260730" defer></script>
+<script src="/v31/v31-shell.js?v=20260731" defer></script>
 </body>
 </html>
