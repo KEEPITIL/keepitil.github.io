@@ -54,7 +54,7 @@ body::before{background:none!important;opacity:0!important;}
 .pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
 .pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:-84px;}
 .pf-top{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;}
-.pf-avatar{width:150px;height:150px;border-radius:50%;border:4px solid var(--bg);background:var(--surface2);object-fit:cover;object-position:center 20%;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.55);}
+.pf-avatar{width:176px;height:176px;border-radius:50%;border:4px solid var(--bg);background:var(--surface2);object-fit:cover;object-position:center 20%;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.55);}
 .pf-idblock{flex:1;min-width:240px;padding-bottom:6px;}
 .pf-verify{display:inline-flex;align-items:center;gap:6px;font-size:.62rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);padding:3px 10px;border-radius:20px;margin-bottom:8px;}
 .pf-name{font-family:var(--font-head);font-size:clamp(2.2rem,6vw,3.4rem);line-height:.95;letter-spacing:.03em;color:var(--text);}
@@ -220,7 +220,7 @@ footer a{color:var(--accent2);}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
   .car-arrow{display:none;}
-  .pf-cover{height:200px;}.pf-head{margin-top:-64px;}.pf-avatar{width:104px;height:104px;}
+  .pf-cover{height:200px;}.pf-head{margin-top:-64px;}.pf-avatar{width:124px;height:124px;}
   .pf-top{gap:14px;}.pf-actions{width:100%;}.pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
   .pf-stats{justify-content:space-around;gap:16px;}.hl-row{justify-content:flex-start;gap:16px;}.pf-tab{font-size:0;padding:14px 4px;}.pf-tab svg{width:19px;height:19px;}
   .gal-grid{gap:6px;}.chat-wrap{height:560px;}.show-tix{padding:8px 14px;font-size:.82rem;}
@@ -333,6 +333,9 @@ footer a{color:var(--accent2);}
 /* MY TICKETS carousel (owner-only) */
 .mytix-wrap{margin:0 0 20px;}
 .mytix-h{font-size:.8rem;font-weight:800;letter-spacing:.08em;color:var(--accent);margin:0 0 10px;}
+/* IG-parity (Founder 2026-07-18): every event filter view is a GRID, not a carousel */
+.mytix-row{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;overflow:visible!important}
+.mytix-arrow{display:none!important}
 .mytix-car{position:relative;}
 .mytix-row{display:flex;gap:15px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
 .mytix-row::-webkit-scrollbar{display:none;}
@@ -398,7 +401,13 @@ footer a{color:var(--accent2);}
 .chat-card .cc-pv{font-size:.78rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .chat-card .cc-rt{position:absolute;top:12px;right:12px;font-size:.66rem;color:var(--muted);}
 .chat-card .cc-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:6px;}
-@media(max-width:560px){.pf-grid{gap:7px;}.pc-t{font-size:.72rem;}}
+@media(max-width:560px){.pf-grid{gap:7px;}
+/* FEED tab = Facebook-style SINGLE COLUMN with a UNIVERSAL post dimension (Founder 2026-07-18).
+   Only the feed converts — Saved/Tagged/Event stay grids. Any image/video format is normalized
+   to one 4:5 card via object-fit:cover so the column scrolls evenly, desktop AND mobile. */
+#feed-grid{display:block!important;max-width:600px;margin:14px auto 0;}
+#feed-grid .pf-card{aspect-ratio:4/5;width:100%;margin:0 0 14px;border-radius:14px;}
+#feed-grid .pf-card>img,#feed-grid .pf-card>video{object-fit:cover;}.pc-t{font-size:.72rem;}}
 /* feed heading + info-icon popover (legend collapsed) */
 .feed-hd{position:relative;display:flex;align-items:center;gap:8px;}
 .feed-info{width:19px;height:19px;flex:0 0 auto;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:.72rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s;}
@@ -423,6 +432,8 @@ footer a{color:var(--accent2);}
 <!-- P0 fix 2026-07-16: hero ships BLANK (skeleton) — live/demo data is applied by JS only.
      A new/empty profile must render a blank, fillable page — never someone else's identity. -->
 <style>@keyframes pfskel{50%{opacity:.45}}.pf-skel{animation:pfskel 1.2s ease-in-out infinite}</style>
+<a id="pfEditFab" href="/v3/settings.html" style="display:none;position:fixed;top:78px;right:18px;z-index:70;font-family:var(--font-head,'Bebas Neue'),sans-serif;letter-spacing:.1em;font-size:1rem;color:var(--brand,#00b4ff);border:2px solid var(--brand,#00b4ff);border-radius:9px;padding:7px 20px;text-decoration:none;box-shadow:0 0 14px color-mix(in srgb,var(--brand,#00b4ff) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 25%,transparent);background:rgba(10,10,16,.72);backdrop-filter:blur(8px)">EDIT</a>
+<style>@media(max-width:860px){#pfEditFab{top:auto;bottom:132px;right:14px;font-size:.9rem;padding:6px 16px}}</style>
 <div class="pf-cover"><img id="pfCover" src="" alt="" style="display:none" onerror="this.style.display='none'"></div>
 <div class="pf-head">
   <div class="pf-top">
@@ -434,10 +445,15 @@ footer a{color:var(--accent2);}
   </div>
 </div>
 <div class="pf-meta">
+  <div id="pfStatsRow" style="display:flex;gap:22px;margin:2px 0 8px;font-size:.95rem"><span><b id="stPosts">0</b> posts</span><a href="#" onclick="return false" style="color:inherit"><b id="stFollowers">0</b> followers</a><a href="#" onclick="return false" style="color:inherit"><b id="stFollowing">0</b> following</a></div>
+  <div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px"></div>
   <div class="pf-bio" id="pfBio">&nbsp;</div>
+  <div id="pfAbout" style="display:none;color:var(--text-soft,#c9cede);font-size:.9rem;line-height:1.6;margin:6px 0"></div>
+  <div id="pfLinks" style="display:none;flex-wrap:wrap;gap:8px;margin:6px 0"></div>
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
-    <button class="pf-btn book" id="pfEdit" style="display:none" onclick="openEditProfile()">✎ EDIT PROFILE</button>
+    <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
+    <button class="pf-btn book" id="pfArchive" style="display:none" onclick="openArchive()">ARCHIVE</button>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
@@ -461,30 +477,37 @@ footer a{color:var(--accent2);}
 
 <div class="pf-tabs" id="pf-tabs">
   <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>FEED</span></div>
-  <div class="pf-tab" data-tab="gallery" onclick="showTab('gallery')"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg><span>GALLERY</span></div>
-  <div class="pf-tab" data-tab="shows" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 00-2 2v13a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7zm12 8v9H5v-9h14z"/></svg><span>EVENTS</span></div>
+  <div class="pf-tab" data-tab="shows" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 00-2 2v13a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2h-2V2h-2v2H9V2H7zm12 8v9H5v-9h14z"/></svg><span>EVENT</span></div>
+  <div class="pf-tab" data-tab="saved" onclick="showTab('saved')"><svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg><span>SAVED</span></div>
+  <div class="pf-tab" data-tab="tagged" onclick="showTab('tagged')"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 015 5c0 2.76-2.24 5-5 5s-5-2.24-5-5a5 5 0 015-5zm0 12c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/></svg><span>TAGGED</span></div>
   <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>CHAT</span></div>
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="feed-hd">FEED<button class="feed-info" id="feed-info-btn" onclick="toggleLegend(event)" aria-label="What the feed types mean" title="Feed types">i</button>
-    <div class="feed-legend" id="feed-legend">
-      <div class="lg blog"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm2 4v2h12V7H6zm0 4v2h12v-2H6zm0 4v2h8v-2H6z"/></svg></span><b>Blog</b> — long reads</div>
-      <div class="lg article"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg></span><b>Article</b> — posts &amp; updates</div>
-      <div class="lg video"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm6 4v8l6-4-6-4z"/></svg></span><b>Video</b> — clips &amp; sets</div>
-      <div class="lg image"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm2 12l3.5-4.5 2.5 3 3.5-4.5L20 16H6z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg></span><b>Image</b> — photos &amp; flyers</div>
-    </div>
+  <div class="feed-hd" style="display:flex;align-items:center;gap:10px">FEED
+    <button class="evsub-b create" id="createFeedBtn" style="display:none;margin-left:auto" onclick="openCreatePost('feed')">＋ Create feed</button>
   </div>
+  <div class="pf-filter" id="feed-cat" style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin:0 0 12px"></div>
   <div id="collab-pending"></div>
   <div class="pf-grid" id="feed-grid"></div>
 </div>
 
-<div class="pf-panel" id="tab-gallery">
-  <div class="feed-hd">GALLERY</div>
-  <div class="pf-filter" id="gal-filter"></div>
-  <div class="pf-grid" id="gal-grid"></div>
+<div class="pf-panel" id="tab-saved">
+  <div class="feed-hd" style="display:flex;align-items:center;gap:10px">SAVED
+    <button class="evsub-b create" id="newCollBtn" style="display:none;margin-left:auto" onclick="newCollection()">＋ New collection</button>
+  </div>
+  <div class="pf-filter" id="saved-coll" style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px"></div>
+  <div class="pf-grid" id="saved-grid"></div>
+  <div id="saved-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">Nothing saved yet — tap the bookmark on any post to keep it here.</div>
 </div>
 
+<div class="pf-panel" id="tab-tagged">
+  <div class="feed-hd">TAGGED</div>
+  <div class="pf-grid" id="tagged-grid"></div>
+  <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">No tagged posts yet — when someone tags this profile, it shows up here.</div>
+</div>
+
+<div style="display:none"><div id="gal-filter"></div><div id="gal-grid"></div></div>
 <div class="pf-panel" id="tab-shows">
   <div class="alert-bar">
     <div class="txt" id="pfAlertTxt"><b>🔔 Never miss a set.</b> Get alerts when they play near you.</div>
@@ -499,12 +522,12 @@ footer a{color:var(--accent2);}
   .evsub-b.create{border-color:var(--accent);color:var(--accent)}
   </style>
   <div class="evsub" id="evsub">
-    <button class="evsub-b on" data-k="mine" style="display:none" onclick="evSub('mine')">EVENTS</button>
-    <button class="evsub-b" data-k="tix" style="display:none" onclick="evSub('tix')">My Tickets</button>
-    <a class="evsub-b create" href="/v3/create-event.html">+ Create Event</a>
+    <button class="evsub-b on" data-k="mine" style="display:none" onclick="evSub('mine')">Event</button>
+    <button class="evsub-b" data-k="tix" style="display:none" onclick="evSub('tix')">Tickets</button>
+    <button class="evsub-b create" type="button" onclick="openCreateChooser()">Create Event</button>
   </div>
   <div class="mytix-wrap" id="myev-wrap" style="display:none">
-    <div class="mytix-h" id="myev-h">🎤 MY EVENTS</div>
+    <div class="mytix-h" id="myev-h">EVENT</div>
     <div class="mytix-car" id="myev-car">
       <button class="mytix-arrow prev" aria-label="Scroll to previous events" onclick="myevScroll(-1)">&lsaquo;</button>
       <div class="mytix-row" id="myev-row"></div>
@@ -512,7 +535,7 @@ footer a{color:var(--accent2);}
     </div>
   </div>
   <div class="mytix-wrap" id="mytix-wrap" style="display:none">
-    <div class="mytix-h">MY TICKETS <a href="/v3/tickets.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">View all &rarr;</a></div>
+    <div class="mytix-h">TICKETS <a href="/v3/tickets.html" style="float:right;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--brand,#00b4ff);text-decoration:none">View all &rarr;</a></div>
     <div class="mytix-car" id="mytix-car">
       <button class="mytix-arrow prev" aria-label="Scroll to previous tickets" onclick="mytixScroll(-1)">&lsaquo;</button>
       <div class="mytix-row" id="mytix-row"></div>
@@ -886,7 +909,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
   box.innerHTML=(PROFILE.categories||[]).map(function(k){return '<span class="pf-catbadge '+k+'">'+L[k]+'</span>';}).join('');
 }
 function updateOwnerUI(){
-  var e=document.getElementById('pfEdit'); if(e)e.style.display=CAN_EDIT()?'':'none';
+  ['pfCreate','pfArchive','createFeedBtn','newCollBtn','pfEditFab'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
 }
 /* ── FOLLOW (fans follow a profile) ── */
@@ -1536,7 +1559,190 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 })();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260718" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260731" defer></script>
+
+<script>
+/* ══ IG-PARITY ENHANCEMENTS (Founder 2026-07-18) ══ */
+/* Create Event chooser — the ONLY two gold standards */
+function openCreateChooser(){
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Create Event<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
+    +'<div class="kil-mb"><div class="ev-choose">'
+    +'<a class="ev-opt" href="/v3/create-event.html"><span class="ei"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.9 6.2 19.9l.9-5.4L3.2 10.7l5.4-.8L12 2z"/></svg></span><span><h4>New event</h4><p>Host your own — tickets, tiers, payouts. The full event form.</p></span></a>'
+    +'<a class="ev-opt" href="/v3/submit-event.html"><span class="ei"><svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1h6zm11-3v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3h7z"/></svg></span><span><h4>Repost event</h4><p>Share a show you found — listing + ticket link out. Reviewed before it goes live.</p></span></a>'
+    +'</div></div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+}
+/* ＋ CREATE menu: feed · event · story · highlight · chat */
+function toggleCreateMenu(e){
+  if(e){e.stopPropagation();}
+  var m=document.getElementById('createMenu');
+  if(m){ m.remove(); return; }
+  m=document.createElement('div'); m.id='createMenu';
+  m.style.cssText='position:absolute;z-index:120;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;min-width:170px';
+  [['Feed post',function(){openCreatePost('feed');}],
+   ['Event',openCreateChooser],
+   ['Story (24h)',function(){openCreatePost('story');}],
+   ['Highlight',createHighlight],
+   ['Chat',function(){showTab('chat');}]].forEach(function(it){
+    var b=document.createElement('button');
+    b.textContent=it[0];
+    b.style.cssText='background:none;border:0;color:var(--text,#f0f0f0);text-align:left;padding:10px 14px;font:600 .88rem Inter,sans-serif;cursor:pointer;border-radius:8px';
+    b.onmouseover=function(){b.style.background='rgba(0,180,255,.12)';};
+    b.onmouseout=function(){b.style.background='none';};
+    b.onclick=function(ev){ev.stopPropagation();m.remove();it[1]();};
+    m.appendChild(b);
+  });
+  var btn=document.getElementById('pfCreate'); btn.parentElement.style.position='relative';
+  m.style.top=(btn.offsetTop+btn.offsetHeight+6)+'px'; m.style.left=btn.offsetLeft+'px';
+  btn.parentElement.appendChild(m);
+  setTimeout(function(){document.addEventListener('click',function once(){var x=document.getElementById('createMenu');if(x)x.remove();document.removeEventListener('click',once);});},0);
+}
+function createHighlight(){
+  if(!CAN_EDIT())return;
+  var name=prompt('Highlight name:'); if(!name)return;
+  SB.from('profile_content').insert({profile_slug:PROFILE_SLUG,kind:'highlight',data:{title:name,items:[]},created_by:SESSION&&SESSION.user?SESSION.user.id:null})
+    .then(function(r){ if(r.error){toast('Could not create highlight.');} else {toast('Highlight created ✓');} });
+}
+/* ARCHIVE — expired stories + manually archived posts; archive/unarchive own content */
+function openArchive(){
+  closeModal();
+  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
+  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Archive<button class="kil-mx" onclick="closeModal()">&times;</button></div><div class="kil-mb" id="archList" style="max-height:60vh;overflow:auto">Loading…</div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
+  SB.from('profile_content').select('id,kind,data,archived,created_at').eq('profile_slug',PROFILE_SLUG).order('created_at',{ascending:false}).limit(120).then(function(r){
+    var rows=(r&&r.data)||[]; var box=document.getElementById('archList'); if(!box)return;
+    if(!rows.length){ box.innerHTML='<div style="color:var(--muted);padding:20px;text-align:center">Nothing here yet.</div>'; return; }
+    box.innerHTML=rows.map(function(x){
+      var d=x.data||{}; var label=(d.title||d.text||d.caption||x.kind||'').toString().slice(0,60);
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line)">'
+        +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="font-size:.7rem;color:var(--accent);text-transform:uppercase">'+x.kind+'</b> '+label+'</span>'
+        +'<button class="evsub-b" onclick="toggleArchived(\''+x.id+'\','+(!x.archived)+')">'+(x.archived?'Unarchive':'Archive')+'</button></div>';
+    }).join('');
+  });
+}
+function toggleArchived(id,val){
+  SB.from('profile_content').update({archived:val}).eq('id',id).then(function(r){
+    if(r.error){toast('Could not update.');return;}
+    toast(val?'Archived — hidden from the feed.':'Restored ✓'); closeModal(); if(typeof loadFromDB==='function') try{loadFromDB();}catch(e){}
+  });
+}
+/* FEED category filter — FEED (all) default, collapsible to icons on mobile */
+(function(){
+  var CATS=[['all','FEED','▦'],['blog','Blog','📰'],['article','Article','📝'],['video','Video','🎬'],['image','Image','🖼'],['reshare','Reshared','🔁']];
+  var box=document.getElementById('feed-cat'); if(!box)return;
+  var cur='all';
+  function paint(){
+    var mobile=window.matchMedia('(max-width:560px)').matches;
+    box.innerHTML=CATS.map(function(c){
+      return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" title="'+c[1]+'">'+(mobile?c[2]:c[1])+'</button>';
+    }).join('');
+  }
+  box.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b)return;
+    cur=b.dataset.c; paint();
+    document.querySelectorAll('#feed-grid > *').forEach(function(card){
+      if(cur==='all'){ card.style.display=''; return; }
+      var cls=(card.className||'')+' '+(card.getAttribute('data-kind')||'');
+      card.style.display=new RegExp('\\b'+cur+'\\b','i').test(cls)?'':'none';
+    });
+  });
+  window.addEventListener('resize',paint);
+  paint();
+})();
+/* header stats + about + links(≤5) + account type */
+(function(){
+  function boot(){
+    if(!window.SB||!PROFILE_SLUG){ setTimeout(boot,500); return; }
+    try{
+      SB.rpc('get_profile_stats',{p_slug:PROFILE_SLUG}).then(function(r){
+        var d=(r&&r.data)||{};
+        var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=(v==null?0:v);};
+        set('stPosts',d.posts); set('stFollowers',d.followers); set('stFollowing',d.following);
+      });
+      SB.from('profile_meta').select('about,links,account_type').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
+        var m=(r&&r.data)||{};
+        if(m.account_type){ var a=document.getElementById('pfAcctType'); a.textContent=m.account_type; a.style.display='block'; }
+        if(m.about){ var ab=document.getElementById('pfAbout'); ab.textContent=m.about; ab.style.display='block'; }
+        if(Array.isArray(m.links)&&m.links.length){
+          var L=document.getElementById('pfLinks');
+          L.innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
+            return '<a href="'+String(u).replace(/"/g,'')+'" target="_blank" rel="noopener" style="color:var(--brand,#00b4ff);font-size:.84rem;font-weight:700">🔗 '+lbl+'</a>'; }).join('');
+          L.style.display='flex';
+        }
+      });
+    }catch(e){}
+  }
+  boot();
+})();
+/* SAVED + TAGGED loaders + collections */
+var CUR_COLL=null;
+function loadSaved(){
+  if(!SESSION){ return; }
+  Promise.all([
+    SB.from('collections').select('id,name').order('created_at'),
+    SB.from('post_saves').select('content_id,collection_id,profile_content(id,kind,data,profile_slug)').order('created_at',{ascending:false})
+  ]).then(function(res){
+    var colls=(res[0].data)||[], saves=(res[1].data)||[];
+    var cbox=document.getElementById('saved-coll');
+    cbox.innerHTML='<button class="evsub-b'+(CUR_COLL==null?' on':'')+'" onclick="CUR_COLL=null;loadSaved()">All</button>'
+      +colls.map(function(c){return '<button class="evsub-b'+(CUR_COLL===c.id?' on':'')+'" onclick="CUR_COLL='+c.id+';loadSaved()">'+String(c.name).slice(0,24)+'</button>';}).join('');
+    var rows=saves.filter(function(s){return CUR_COLL==null||s.collection_id===CUR_COLL;});
+    var g=document.getElementById('saved-grid'), emp=document.getElementById('saved-empty');
+    if(!rows.length){ g.innerHTML=''; emp.style.display='block'; return; }
+    emp.style.display='none';
+    g.innerHTML=rows.map(function(s){
+      var c=s.profile_content||{}; var d=c.data||{};
+      var img=d.img||d.cover||d.image||'';
+      return '<div class="gal-tile" style="aspect-ratio:1/1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f center/cover no-repeat'+(img?';background-image:url(\''+String(img).replace(/'/g,'')+'\')':'')+'">'
+        +(!img?'<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:.72rem;padding:8px;text-align:center">'+String(d.title||d.text||c.kind||'').slice(0,50)+'</div>':'')+'</div>';
+    }).join('');
+  });
+}
+function newCollection(){
+  var name=prompt('Collection name:'); if(!name)return;
+  SB.from('collections').insert({user_id:SESSION.user.id,name:name}).then(function(r){
+    if(r.error){toast('Could not create (name taken?).');} else {toast('Collection ✓');loadSaved();}
+  });
+}
+function loadTagged(){
+  SB.from('post_tags').select('content_id,profile_content(id,kind,data,profile_slug)').eq('tagged_slug',PROFILE_SLUG).then(function(r){
+    var rows=(r&&r.data)||[]; var g=document.getElementById('tagged-grid'), emp=document.getElementById('tagged-empty');
+    if(!rows.length){ g.innerHTML=''; emp.style.display='block'; return; }
+    emp.style.display='none';
+    g.innerHTML=rows.map(function(s){
+      var c=s.profile_content||{}; var d=c.data||{}; var img=d.img||d.cover||d.image||'';
+      return '<div class="gal-tile" style="aspect-ratio:1/1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f center/cover no-repeat'+(img?';background-image:url(\''+String(img).replace(/'/g,'')+'\')':'')+'"></div>';
+    }).join('');
+  });
+}
+(function(){ /* lazy-load saved/tagged when their tab opens */
+  var done={};
+  var orig=window.showTab;
+  window.showTab=function(name){
+    orig(name);
+    if(name==='saved'&&!done.saved){done.saved=1;try{loadSaved();}catch(e){}}
+    if(name==='tagged'&&!done.tagged){done.tagged=1;try{loadTagged();}catch(e){}}
+  };
+})();
+/* CHAT: remove the "All" chip (retry until the filter builds) */
+(function(){
+  var tries=0;
+  var iv=setInterval(function(){
+    tries++;
+    var chips=document.querySelectorAll('#chat-filter .pf-chip, #chat-filter button');
+    var hit=false;
+    chips.forEach(function(c){ if(/^all$/i.test((c.textContent||'').trim())){ c.remove(); hit=true; } });
+    if(hit||tries>20) clearInterval(iv);
+  },800);
+})();
+/* FEED 2-col grid (IG keepitil ref) */
+(function(){ var s=document.createElement('style'); s.textContent='#feed-grid{grid-template-columns:repeat(2,1fr)!important;gap:12px}'; document.head.appendChild(s); })();
+</script>
+
 <script src="/v31/v31-shell.js?v=20260730" defer></script>
 </body>
 </html>
