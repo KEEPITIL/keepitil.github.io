@@ -140,6 +140,9 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <div class="panel" id="tab-qa">
       <div class="head2">QA Runs <span class="ct" id="qaCt"></span><a class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" href="/v3/qa-audit.html" target="_blank" rel="noopener">Open QA audit ↗</a></div>
       <div id="qaList"></div>
+      <div class="head2" style="margin-top:22px">🛠 Self-repairs (7 days) <span class="ct" id="repCt"></span></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.8rem;margin-bottom:8px">The nightly heal job (09:30 UTC): what it auto-fixed vs what needs a human. Auto-fix never touches money, auth, publishing, or the V3.1 nav.</div>
+      <div id="repList" style="font-size:.84rem"></div>
     </div>
     <div class="panel" id="tab-access">
       <div class="head2">Admins <span class="ct" id="admCt"></span></div>
@@ -382,6 +385,17 @@ async function loadQaRuns(){
   var box=$('qaList');
   try{
     var r=await supa.rpc('get_qa_runs',{p_limit:60}); var rows=(r&&r.data)||[];
+    try{ var rr=await supa.rpc('get_site_repairs',{p_days:7}); var reps=(rr&&rr.data)||[];
+      var rc=document.getElementById('repCt'), rl=document.getElementById('repList');
+      if(rc) rc.textContent=reps.filter(function(x){return x.kind!=='run-summary';}).length+' entries';
+      if(rl) rl.innerHTML=reps.length?reps.slice(0,60).map(function(x){
+        var tone=x.action==='auto-fixed'?'#22e39b':(x.kind==='run-summary'?'var(--muted,#9aa0b0)':'#ffb43c');
+        return '<div style="display:flex;gap:10px;align-items:baseline;padding:6px 2px;border-bottom:1px solid var(--line,#242433)">'
+          +'<span style="color:'+tone+';font-weight:800;font-size:.68rem;text-transform:uppercase;flex:0 0 84px">'+(x.action==='auto-fixed'?'FIXED':(x.kind==='run-summary'?'SUMMARY':'NEEDS YOU'))+'</span>'
+          +'<span style="flex:1;min-width:0"><b>'+String(x.kind||'')+'</b> '+String(x.target||'')+' <span style="color:var(--muted,#9aa0b0)">'+String(JSON.stringify(x.detail||{})).slice(0,110)+'</span></span>'
+          +'<span style="color:var(--muted,#9aa0b0);font-size:.7rem;white-space:nowrap">'+String(x.run_at||'').slice(0,16).replace('T',' ')+'</span></div>';
+      }).join(''):'<div style="color:var(--muted,#9aa0b0)">No repair activity in the last 7 days.</div>';
+    }catch(e){}
     $('qaCt').textContent=rows.length+' runs';
     if(!rows.length){ box.innerHTML='<div class="rv-empty">No QA runs logged yet — open the QA audit tool to record one.</div>'; return; }
     box.innerHTML=rows.map(function(q){
