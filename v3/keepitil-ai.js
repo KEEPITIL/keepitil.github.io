@@ -767,16 +767,15 @@
   else injectMobileNav();
 })();
 
-/* Force stale service workers to update on every load; auto-reload once when new SW takes control */
+/* Nudge stale service workers to fetch the latest sw.js in the background.
+   NO auto-reload: a controllerchange->location.reload() loops on mobile Safari
+   (skipWaiting + claim re-fires controllerchange every load). The new SW simply
+   takes over on the next natural navigation. */
 (function(){
   try{
     if(!('serviceWorker' in navigator)) return;
     navigator.serviceWorker.getRegistrations().then(function(rs){
       rs.forEach(function(r){ try{ r.update(); }catch(e){} });
     }).catch(function(){});
-    var reloaded=false;
-    navigator.serviceWorker.addEventListener('controllerchange', function(){
-      if(reloaded) return; reloaded=true; location.reload();
-    });
   }catch(e){}
 })();
