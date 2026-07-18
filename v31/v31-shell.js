@@ -12,6 +12,7 @@
       var ex=document.documentElement.getAttribute('data-page-type'); if(ex) return ex;
       var p=location.pathname;
       if(/\/v31\/scene\.html$/.test(p)) return 'scene';
+      if(/\/v31\/event\.html$/.test(p)) return 'event';
       if(/\/v31\/culture\.html$/.test(p)) return 'culture';
       if(/\/v31\/profile\.html$/.test(p)) return 'profile';
       if(/^\/v31\/(index\.html)?$/.test(p)) return 'home';
