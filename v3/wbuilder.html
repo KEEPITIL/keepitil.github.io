@@ -147,7 +147,17 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 function uid(){return 'w'+Math.random().toString(36).slice(2,9);}
 
 /* Editable pages (body content only — nav/radio/meta are the Standards Regulator's, never touched) */
-var PAGES=[['grow.html','Grow (pilot)'],['earn.html','Earn'],['giveback.html','Give Back'],['connect.html','Connect'],['create.html','Create'],['about.html','About'],['contact.html','Contact']];
+var PAGE_GROUPS=[
+ ['Main',[['index.html','Home'],['culture.html','Culture'],['scene.html','Scene'],['shop.html','Shop'],['crew.html','AI Crew'],['radio.html','Radio'],['about.html','About'],['contact.html','Contact']]],
+ ['Culture pillars',[['create.html','Create'],['grow.html','Grow'],['earn.html','Earn'],['giveback.html','Give Back'],['connect.html','Connect']]],
+ ['Community & tools',[['discover.html','Discover'],['events.html','Events'],['event.html','Event page'],['compete.html','Compete'],['campaigns.html','Campaigns'],['gallery.html','Gallery'],['venue.html','Venue'],['settings.html','Settings'],['portal.html','Portal'],['image-tool.html','Image tool']]],
+ ['Join & create',[['apply.html','Apply / Login'],['signup.html','Sign up'],['join.html','Join'],['create-profile.html','Create profile'],['create-event.html','Create event'],['create-comp.html','Create competition'],['post.html','Post']]],
+ ['Profiles & agents',[['u.html','User profile (u.html)'],['p.html','Profile viewer (p.html)'],['agent.html','Agent profile'],['profile-weird.html','Profile · weird']]],
+ ['Tickets',[['tickets.html','Tickets'],['ticket.html','Ticket']]],
+ ['Legal & info',[['terms.html','Terms'],['privacy.html','Privacy'],['refund.html','Refund'],['ticket-terms.html','Ticket terms'],['community-guidelines.html','Community Guidelines']]],
+ ['Blogs',[['blog-underground-money-stack.html','Blog · Underground Money Stack'],['blog-groove-trooper.html','Blog · Groove Trooper'],['blog-agent-atlas.html','Blog · Agent Atlas'],['blog-agent-beacon.html','Blog · Agent Beacon'],['blog-agent-echo.html','Blog · Agent Echo'],['blog-agent-fable.html','Blog · Agent Fable'],['blog-agent-luna.html','Blog · Agent Luna'],['blog-agent-lyric.html','Blog · Agent Lyric'],['blog-agent-merch.html','Blog · Agent Merch'],['blog-agent-nexus.html','Blog · Agent Nexus'],['blog-agent-nova.html','Blog · Agent Nova'],['blog-agent-oracle.html','Blog · Agent Oracle'],['blog-agent-pulse.html','Blog · Agent Pulse'],['blog-agent-scout.html','Blog · Agent Scout'],['blog-agent-sentinel.html','Blog · Agent Sentinel'],['blog-agent-vibe.html','Blog · Agent Vibe']]]
+];
+var PAGES=[]; PAGE_GROUPS.forEach(function(g){ g[1].forEach(function(p){ PAGES.push(p); }); });
 var PAGE='grow.html', BP='desktop', TREE=[], SEL=null, DIRTY=false;
 
 /* ── tree helpers ── */
@@ -455,7 +465,7 @@ $('pagePick').onchange=function(){
 
 /* ── boot: admin gate ── */
 (function boot(){
-  $('pagePick').innerHTML=PAGES.map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('');
+  $('pagePick').innerHTML=PAGE_GROUPS.map(function(g){return '<optgroup label="'+g[0]+'">'+g[1].map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</optgroup>';}).join('');
   if(!SB){ return; }
   SB.auth.getSession().then(function(res){
     var s=res&&res.data&&res.data.session;
