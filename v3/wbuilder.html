@@ -90,6 +90,8 @@ body{background:#0a0a0f;color:#f0f0f0;font-family:Inter,system-ui,sans-serif;fon
   <select id="pagePick" title="Page"></select>
   <button class="bp on" id="bp-desktop">🖥 Desktop</button>
   <button class="bp" id="bp-mobile">📱 Mobile</button>
+  <button id="fsBtn" title="Open the editor in its own full-screen browser tab — the whole page fits" style="display:none">⛶ Full screen</button>
+  <button id="stageBtn" title="V4 staging: see the saved draft as a real full page (read-only)">👁 Preview full page</button>
   <span style="flex:1"></span>
   <span class="dirty" id="dirty">● unsaved draft changes</span>
   <span class="savedok" id="savedok">Draft saved ✓</span>
@@ -164,7 +166,7 @@ var ROOT_BLOGS=['blog-academy-la.html','blog-afterparty-culture-la.html','blog-a
 ];
 function rootLabel(f){var s=f.replace(/^(profile|blog)-/,'').replace(/\.html$/,'').replace(/-/g,' ');return s.replace(/\b\w/g,function(c){return c.toUpperCase();});}
 function pageURL(v){return v.indexOf('root:')===0?'/'+v.slice(5):'/v3/'+v;}
-var PAGE='grow.html', BP='desktop', TREE=[], SEL=null, DIRTY=false;
+var PAGE='index.html', BP='desktop', TREE=[], SEL=null, DIRTY=false;   /* V4 default = homepage (Founder 2026-07-17) */
 
 /* ── tree helpers ── */
 function findW(id){ for(var s of TREE){ if(s.id===id) return {w:s,parent:TREE,sec:null}; for(var c of (s.children||[])){ if(c.id===id) return {w:c,parent:s.children,sec:s}; } } return null; }
@@ -497,12 +499,29 @@ $('pagePick').onchange=function(){
   PAGE=$('pagePick').value; loadDraft();
 };
 
+/* ── V4 full-screen + staging preview (Founder 2026-07-17) ──
+   ⛶ shows only inside the dashboard iframe and re-opens the editor top-level at the
+   same page+breakpoint; 👁 opens /v3/stage.html — the read-only full-page draft preview. */
+$('fsBtn').onclick=function(){ window.open('/v3/wbuilder.html?page='+encodeURIComponent(PAGE)+'&bp='+BP,'_blank'); };
+$('stageBtn').onclick=function(){
+  if(DIRTY && !confirm('The preview shows the last SAVED draft — you have unsaved changes here. Preview anyway?')) return;
+  window.open('/v3/stage.html?page='+encodeURIComponent(PAGE)+'&bp='+BP,'_blank');
+};
+
 /* ── boot: admin gate ── */
 (function boot(){
   var _og=PAGE_GROUPS.map(function(g){return '<optgroup label="'+g[0]+'">'+g[1].map(function(p){return '<option value="'+p[0]+'">'+p[1]+'</option>';}).join('')+'</optgroup>';}).join('');
   _og+='<optgroup label="Profiles (site root)">'+ROOT_PROFILES.map(function(f){return '<option value="root:'+f+'">Profile · '+rootLabel(f)+'</option>';}).join('')+'</optgroup>';
   _og+='<optgroup label="Blogs (site root)">'+ROOT_BLOGS.map(function(f){return '<option value="root:'+f+'">Blog · '+rootLabel(f)+'</option>';}).join('')+'</optgroup>';
   $('pagePick').innerHTML=_og;
+  try{
+    if(window.self!==window.top) $('fsBtn').style.display='';
+    var q=new URLSearchParams(location.search);
+    var qp=q.get('page');
+    if(qp){ var opt=Array.prototype.some.call($('pagePick').options,function(o){return o.value===qp;}); if(opt) PAGE=qp; }
+    if(q.get('bp')==='mobile'){ BP='mobile'; $('bp-desktop').classList.remove('on'); $('bp-mobile').classList.add('on'); $('canvas').className='canvas mobile'; }
+  }catch(e){}
+  $('pagePick').value=PAGE;
   if(!SB){ return; }
   SB.auth.getSession().then(function(res){
     var s=res&&res.data&&res.data.session;
