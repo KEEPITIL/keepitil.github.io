@@ -379,7 +379,7 @@
     +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
     +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
     /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
-    +'#kil-bnav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:950;background:rgba(10,10,16,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:space-around}'
+    +'#kil-bnav{display:none;position:fixed;top:auto!important;height:auto!important;min-height:0!important;max-height:96px;left:0;right:0;bottom:0;z-index:950;background:rgba(10,10,16,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:space-around}'
     +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
     +'#kil-bnav a svg{width:26px;height:26px;display:block}'
     +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
