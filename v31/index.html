@@ -62,10 +62,7 @@
     html{scroll-behavior:smooth;}
     body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
     body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1;} /* full-strength backdrop — ABSOLUTE path: relative 'logo-bg.jpg' resolved to /v31/ and 404'd (Founder 2026-07-18) */
-    /* V3.1 only: sit the AI chat FAB + panel closer to the radio bar (shared keepitil-ai.js defaults 132/200 stay for V3) */
-    #kilo-btn{bottom:76px!important}
-    #kilo-panel{bottom:144px!important}
-    @media(max-width:480px){#kilo-btn{bottom:76px!important}#kilo-panel{bottom:144px!important}}
+    /* (chat FAB placement lives in the later <style> near the end of this file — single source of truth) */
     a{color:inherit;text-decoration:none;}
     img{max-width:100%;display:block;}
     .container{max-width:1180px;margin:0 auto;padding:0 24px;}
@@ -2399,9 +2396,17 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
 </script>
 <script src="/v31/v31-shell.js?v=20260730" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
-  <!-- Founder fixes 2026-07-12: force chat FAB above the Create FAB, + bulletproof hero typewriter -->
+  <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
+       no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->
   <style>
-  #kilo-btn{bottom:132px !important;}
+  /* Chat FAB sits just above whichever bottom bar is showing (Founder 2026-07-18):
+     desktop = radio bar (56px) · mobile = the 4-icon bnav (~54px + safe area). */
+  #kilo-btn{bottom:68px!important}
+  #kilo-panel{bottom:136px!important}
+  @media(max-width:860px){
+    #kilo-btn{bottom:calc(62px + env(safe-area-inset-bottom,0px))!important}
+    #kilo-panel{bottom:calc(130px + env(safe-area-inset-bottom,0px))!important}
+  }
   /* Founder 2026-07-12: transparent section backgrounds so the fixed backdrop shows through the whole page */
   #evx, .events-hub, .submit-cta, .seo-block, .seo-faq, .events-hub .page-hero { background:transparent !important; background-image:none !important; }
   </style>
