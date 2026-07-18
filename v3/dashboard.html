@@ -129,6 +129,10 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
       <div id="kList"></div>
     </div>
     <div class="panel" id="tab-golive"><iframe src="/v3/golive.html" title="Go-Live Verification" loading="lazy" style="width:100%;height:680px;border:1px solid var(--line,#242433);border-radius:14px;background:var(--bg,#0a0a0f)"></iframe></div>
+    <div class="panel" id="tab-wbuilder">
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:0 0 10px">Edit any page's body content — drafts only. <b style="color:#ffb43c">Nothing you do here changes the live site</b> until Publish is enabled (Founder go). Pick a page inside the editor.</div>
+      <iframe src="/v3/wbuilder.html" title="WBUILDER — page editor" loading="lazy" style="width:100%;height:calc(100vh - 210px);min-height:620px;border:1px solid var(--line,#242433);border-radius:14px;background:#0a0a0f"></iframe>
+    </div>
     <div class="panel" id="tab-qa">
       <div class="head2">QA Runs <span class="ct" id="qaCt"></span><a class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" href="/v3/qa-audit.html" target="_blank" rel="noopener">Open QA audit ↗</a></div>
       <div id="qaList"></div>
@@ -221,7 +225,7 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['recommendations','Recommendations'],['agents','Agents'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
+var ADMIN_TABS=[['recommendations','Recommendations'],['wbuilder','WBUILDER'],['agents','Agents'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events']];
