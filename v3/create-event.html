@@ -6,47 +6,95 @@
 <meta name="robots" content="noindex,nofollow"/>
 <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
 <title>Create an Event — KEEPITIL</title>
-<meta name="description" content="Create and publish your event on KEEPITIL — tickets, tiers and attendee questions."/>
+<meta name="description" content="Create and publish your event on KEEPITIL — a live visual editor with tickets, tiers, features and per-event branding."/>
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&family=Anton&family=Fraunces:opsz,wght@9..144,600;9..144,900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+/* ── Posh-parity single-page live editor (Founder 2026-07-17): the page IS the event —
+   inline title, stacked add-on sections, sticky right rail. KEEPITIL tokens/copy only. ── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
-body::before{display:none!important} /* organizer tool page — no decorative backdrop */
-.wrap{max-width:760px;margin:0 auto;padding:0 var(--sp-3,20px)}
-.hero{padding:var(--sp-6,80px) 0 var(--sp-3,20px);text-align:center}
-.eyebrow{display:inline-block;font-size:.72rem;font-weight:800;letter-spacing:.14em;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:6px 15px;margin-bottom:16px}
-h1{font-size:clamp(2rem,5vw,3rem);font-weight:900;line-height:1}
-h1 span{background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{color:var(--muted);max-width:540px;margin:14px auto 0;font-size:1rem}
-.gate{max-width:460px;margin:40px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
+body::before{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--sp-3,20px)}
+.gate{max-width:460px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:34px 28px;text-align:center}
 .gate h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}
 .gate p{color:var(--muted);margin-bottom:18px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px 24px;margin-top:24px}
-.card h3{font-size:1.05rem;font-weight:800;margin-bottom:4px}
-.card .note{color:var(--muted);font-size:.85rem;margin-bottom:16px}
-label{display:block;font-size:.8rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
-input,textarea,select{width:100%;background:var(--bg,#0d0d13);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 13px;font:400 .95rem Inter,sans-serif;outline:none}
-input:focus,textarea:focus,select:focus{border-color:var(--brand)}
+/* editor top bar */
+.edbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0 6px}
+.edbar .org{display:flex;align-items:center;gap:8px}
+.edbar .org select{width:auto;min-width:170px}
+.mode{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.mode button{border:0;background:none;color:var(--muted);font:700 .82rem Inter,sans-serif;letter-spacing:.03em;padding:8px 16px;border-radius:999px;cursor:pointer}
+.mode button.on{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
+.edbar .help{margin-left:auto;font-size:.82rem;font-weight:700;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:7px 14px}
+.edbar .help:hover{color:var(--brand);border-color:var(--brand)}
+/* two columns + sticky rail */
+.edgrid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:26px;align-items:start;margin-top:8px}
+@media(max-width:920px){.edgrid{grid-template-columns:1fr}.rail{position:static!important}}
+.rail{position:sticky;top:82px;display:flex;flex-direction:column;gap:14px}
+/* inline title + summary (the "page") */
+.pagehead{padding:6px 2px 2px}
+#title-inline{font-family:var(--ev-font,'Bebas Neue'),sans-serif;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.02;font-weight:900;letter-spacing:.02em;outline:none;min-height:1.1em;border-radius:8px;padding:4px 8px;margin-left:-8px;cursor:text;color:var(--text)}
+#title-inline:empty::before{content:"Name your event";color:var(--muted);opacity:.55}
+#title-inline:focus{background:rgba(255,255,255,.04);box-shadow:0 0 0 2px color-mix(in srgb,var(--ev-accent,var(--brand)) 55%,transparent)}
+#summary-inline{font-size:1rem;color:var(--muted);outline:none;border-radius:7px;padding:3px 8px;margin:6px 0 0 -8px;cursor:text;min-height:1.3em}
+#summary-inline:empty::before{content:"＋ Add a short summary";color:var(--ev-accent,var(--brand));font-weight:700}
+#summary-inline:focus{background:rgba(255,255,255,.04)}
+.tzlab{font-size:.72rem;font-weight:700;letter-spacing:.05em;color:var(--muted);text-transform:uppercase}
+/* cards + addons */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px;margin-top:16px}
+.card h3{font-size:1rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.card .note{color:var(--muted);font-size:.84rem;margin:3px 0 12px}
+label{display:block;font-size:.76rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:13px 0 6px}
+input,textarea,select{width:100%;background:var(--bg,#0d0d13);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:400 .95rem Inter,sans-serif;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--ev-accent,var(--brand))}
 textarea{min-height:96px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:560px){.row{grid-template-columns:1fr}}
+/* Posh-style add-on rows: a "＋ Add …" line that expands into its field */
+.addon{border-top:1px solid var(--line);padding:12px 2px}
+.addon:first-of-type{border-top:0}
+.addon .ad-btn{background:none;border:0;color:var(--ev-accent,var(--brand));font:700 .92rem Inter,sans-serif;cursor:pointer;padding:4px 0;display:flex;align-items:center;gap:8px}
+.addon .ad-body{display:none;padding-top:4px}
+.addon.open .ad-btn{color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:.04em}
+.addon.open .ad-body{display:block}
+/* toggles */
+.tgl{display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600;cursor:pointer;font-size:.92rem}
+.tgl input{width:auto}
+.tgl .sub{display:block;font-weight:500;font-size:.78rem;color:var(--muted)}
+.eye{background:none;border:1px solid var(--line);border-radius:8px;color:var(--muted);cursor:pointer;padding:6px 10px;font-size:.9rem}
+.eye.on{color:var(--brand);border-color:var(--brand)}
+/* tiers / repeatable blocks */
 .tier{border:1px dashed var(--line);border-radius:14px;padding:16px;margin-top:14px;position:relative}
 .tier .rm{position:absolute;top:10px;right:12px;background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.1rem}
 .addtier{margin-top:14px;background:transparent;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:9px 16px;font-weight:700;cursor:pointer}
-.addtier:hover{border-color:var(--brand);color:var(--brand)}
+.addtier:hover{border-color:var(--ev-accent,var(--brand));color:var(--ev-accent,var(--brand))}
 .hint{font-size:.78rem;color:var(--muted);margin-top:6px}
-.submit{width:100%;margin-top:22px;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:15px;font-weight:800;font-size:1rem;cursor:pointer}
+.tier-badge{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);border:1px solid var(--line);border-radius:20px;padding:3px 9px;margin-bottom:8px}
+body.rsvp .price-only{display:none!important}
+/* guestlist preview */
+.guestrow{display:flex;align-items:center;gap:10px;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:12px;padding:11px 13px;font-size:.88rem;color:var(--muted)}
+.guestrow .avs{display:flex}
+.guestrow .avs span{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));border:2px solid var(--surface);margin-left:-8px}
+.guestrow .avs span:first-child{margin-left:0}
+/* right rail */
+.railcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.railcard h4{font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.flyer{width:100%;aspect-ratio:4/5;border:2px dashed var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);cursor:pointer;background-size:cover;background-position:center;overflow:hidden;text-align:center;padding:12px}
+.flyer:hover{border-color:var(--ev-accent,var(--brand));color:var(--ev-accent,var(--brand))}
+.flyer.has{border-style:solid;color:transparent}
+.flyer .fi{font-size:1.9rem}
+.submit{width:100%;background:linear-gradient(90deg,var(--ev-accent,var(--brand)),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:15px;font-weight:800;font-size:1rem;cursor:pointer}
 .submit:disabled{opacity:.6;cursor:default}
-.msg{margin-top:14px;font-size:.9rem;min-height:1.2em}
+.msg{margin-top:10px;font-size:.88rem;min-height:1.2em}
 .msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;padding:13px 22px;border-radius:999px;text-decoration:none}
 .btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
 .btn.ghost{border:2px solid var(--line);color:var(--text)}
 .done{max-width:520px;margin:44px auto;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:40px 28px}
 .done .big{font-size:3rem}
-.tier-badge{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);border:1px solid var(--line);border-radius:20px;padding:3px 9px;margin-bottom:8px}
+/* series manager rows (unchanged model) */
 .srow{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:11px;margin-top:9px;flex-wrap:wrap}
 .srow.cur{border-color:var(--brand);background:rgba(0,180,255,.06)}
 .srow .sdt{font-weight:700;font-size:.9rem;flex:1;min-width:150px}
@@ -61,36 +109,10 @@ textarea{min-height:96px;resize:vertical}
 .srow .curtag{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
 nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
-.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;}
-.nav-brand{font-family:var(--fh);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
-.nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
-.nav-links li{list-style:none;}
-.nav-links a{font-family:var(--fh);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);transition:color .2s;white-space:nowrap;}
-.nav-links a:hover,.nav-links a.active{color:#fff;}
-.nav-inner>a.nav-cta{font-family:var(--fh);font-size:1rem;letter-spacing:.14em;color:var(--brand)!important;background:transparent!important;border:2px solid var(--brand);padding:7px 22px;border-radius:4px;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;}
-.nav-inner>a.nav-cta:hover{background:var(--brand)!important;color:#000!important;}
-.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;}
-.nav-hamburger span{display:block;width:24px;height:2px;background:#fff;border-radius:2px;}
-.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.98);z-index:199;flex-direction:column;padding:14px 26px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
-.mobile-menu.open{display:flex;}
-.mobile-menu a{font-family:var(--fh);font-size:1.3rem;letter-spacing:.12em;color:rgba(255,255,255,.8);padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);}
-.mobile-menu a:last-child{border-bottom:none;color:var(--brand)!important;}
-@media(max-width:820px){.nav-links{display:none;}.nav-inner>a.nav-cta{display:none;}.nav-hamburger{display:flex;margin-left:auto;}}
 </style>
 </head>
 <body>
-<nav id="main-nav"><div class="nav-inner">
-  <a class="nav-logo" href="/v3/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
-  <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="/v3/scene.html">SCENE</a></li><li><a href="/v3/shop.html">SHOP</a></li></ul>
-  <a href="/v3/apply.html" class="nav-cta">LOGIN</a>
-  <button class="nav-hamburger" onclick="document.getElementById('mm').classList.toggle('open')" aria-label="Menu"><span></span><span></span><span></span></button>
-</div></nav>
-<div class="mobile-menu" id="mm"><a href="/v3/culture">CULTURE</a><a href="/v3/scene.html">SCENE</a><a href="/v3/shop.html">SHOP</a><a href="/v3/apply.html" class="nav-cta">LOGIN</a></div>
-<header class="hero"><div class="wrap">
-  <h1>Create an <span>event</span></h1>
-  <p class="sub">List your event on KEEPITIL. We surface it across the Scene, homepage, radio bar, and your profile. Submit it and our team reviews before it goes live.</p>
-</div></header>
+<nav id="main-nav"><div class="nav-inner"></div></nav>
 
 <div class="wrap">
   <!-- not-logged-in gate -->
@@ -100,79 +122,164 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
     <a class="btn primary" href="/v3/apply.html">Log in / Join</a>
   </div>
 
-  <!-- form -->
   <form id="form" style="display:none">
-    <div class="card" id="seriesMgr" style="display:none">
-      <h3>Series dates</h3>
-      <div class="note">This event is part of a series. Pick what your edits below apply to, and manage individual dates. A date can be deleted only if it has never sold a ticket; once tickets are sold it must stay visible until every ticket is refunded, then you can hide it (kept on file for your records).</div>
-      <div style="margin:14px 0 6px"><label>Apply my edits to</label>
-        <select id="editScope">
-          <option value="one">Just this date</option>
-          <option value="selected">Selected dates (checked below)</option>
-          <option value="all">The whole series</option>
-        </select>
+    <!-- editor top bar: org · Sell/RSVP · help -->
+    <div class="edbar">
+      <div class="org"><span class="tzlab">Hosting as</span><select id="orgSel"><option value="">…</option></select></div>
+      <div class="mode" id="evMode">
+        <button type="button" id="modeSell" class="on">Sell Tickets</button>
+        <button type="button" id="modeRSVP">RSVP</button>
       </div>
-      <div id="seriesList"></div>
-    </div>
-    <div class="card">
-      <h3>Event details</h3>
-      <div class="note">The essentials. You can edit after review.</div>
-      <label>Event title *</label>
-      <input id="title" maxlength="160" placeholder="e.g. KEEPITIL Presents: Warehouse 04" required/>
-      <label>Tagline</label>
-      <input id="tagline" placeholder="One line that sells it"/>
-      <div class="row">
-        <div><label>Date &amp; time *</label><input id="starts_at" type="datetime-local" required/></div>
-        <div><label>City</label><input id="city" placeholder="Los Angeles" value="Los Angeles"/></div>
-      </div>
-      <label class="secrow" id="seriesToggleRow" style="display:flex;align-items:center;gap:10px;margin-top:4px;font-weight:600;cursor:pointer"><input type="checkbox" id="is_series" style="width:auto"/> 🔁 This is a series — multiple dates (same lineup, tickets &amp; page)</label>
-      <div id="seriesBox" style="display:none;margin-top:6px">
-        <div class="hint" style="margin-bottom:8px">The date above is the first show. Add every additional date below — each becomes its own event page &amp; ticket inventory, all sharing this info. You can edit or remove individual dates later.</div>
-        <div id="seriesDates"></div>
-        <button type="button" class="addtier" id="addDate">+ Add another date</button>
-      </div>
-      <label>Venue</label>
-      <input id="venue" placeholder="Venue name / area (kept private until you choose to reveal)"/>
-      <label>Cover image URL</label>
-      <input id="cover_url" placeholder="https://…  (or leave blank — we can design one)"/>
-      <div class="hint">Best size: <b>1080 × 1350px</b> (4:5 portrait flyer) — this is how it shows on the homepage, Scene &amp; your profile. Square <b>1080 × 1080px</b> also works. JPG or PNG, under 5&nbsp;MB. &nbsp;<a href="/v3/image-tool.html" target="_blank" rel="noopener" style="color:var(--brand)">🖼 Auto-format your image for every platform →</a></div>
-      <label>Genres</label>
-      <input id="genres" placeholder="Techno, Melodic, House…"/>
-      <label>Description</label>
-      <textarea id="description" placeholder="Lineup, vibe, what to expect…"></textarea>
+      <a class="help" href="/v3/contact.html" target="_blank" rel="noopener">? Get help</a>
     </div>
 
-    <div class="card">
-      <h3>Tickets</h3>
-      <div class="note">Add one or more tiers. Paid tiers check out securely through <b>KEEPITIL</b> — we handle the payment and pay out to your bank (KEEPITIL keeps 5% + $0.99). Free/RSVP tiers are free to attend. <em>Selling tickets requires a Community membership.</em></div>
-      <div id="tiers"></div>
-      <button type="button" class="addtier" id="addtier">+ Add ticket tier</button>
-      <label style="margin-top:20px">Launch discount code <span style="font-weight:600;color:var(--muted);font-size:.82rem">(optional)</span></label>
-      <div class="row">
-        <div><input id="dc-code" maxlength="24" placeholder="EARLYBIRD" style="text-transform:uppercase"/></div>
-        <div><input id="dc-pct" type="number" min="1" max="100" step="1" placeholder="% off (e.g. 20)"/></div>
+    <div class="edgrid">
+      <!-- ══ LEFT: the live event page ══ -->
+      <div>
+        <div class="pagehead">
+          <div id="title-inline" contenteditable="true" spellcheck="false" aria-label="Event name"></div>
+          <div id="summary-inline" contenteditable="true" spellcheck="false" aria-label="Short summary"></div>
+          <!-- canonical fields the whole submit path reads (kept in sync with the inline editors) -->
+          <input type="hidden" id="title"/>
+          <input type="hidden" id="tagline"/>
+        </div>
+
+        <div class="card" id="seriesMgr" style="display:none">
+          <h3>Series dates</h3>
+          <div class="note">This event is part of a series. Pick what your edits below apply to, and manage individual dates. A date can be deleted only if it has never sold a ticket; once tickets are sold it must stay visible until every ticket is refunded, then you can hide it (kept on file for your records).</div>
+          <div style="margin:14px 0 6px"><label>Apply my edits to</label>
+            <select id="editScope">
+              <option value="one">Just this date</option>
+              <option value="selected">Selected dates (checked below)</option>
+              <option value="all">The whole series</option>
+            </select>
+          </div>
+          <div id="seriesList"></div>
+        </div>
+
+        <div class="card">
+          <h3>📅 Date &amp; time <span class="tzlab" style="margin-left:auto">Pacific Time · America/Los_Angeles</span></h3>
+          <div class="row">
+            <div><label>Starts *</label><input id="starts_at" type="datetime-local" step="900" required/></div>
+            <div>
+              <label style="display:flex;align-items:center;gap:8px">Ends
+                <button type="button" class="eye on" id="endEye" title="Shown publicly — click to hide the end time on the event page" aria-pressed="true">👁</button>
+              </label>
+              <input id="ends_at" type="datetime-local" step="900"/>
+              <div class="hint" id="endEyeHint">End time is shown on the event page.</div>
+            </div>
+          </div>
+          <label class="tgl" id="seriesToggleRow"><input type="checkbox" id="is_series"/> 🔁 Recurring series — multiple dates (same lineup, tickets &amp; page)</label>
+          <div id="seriesBox" style="display:none;margin-top:6px">
+            <div class="hint" style="margin-bottom:8px">The date above is the first show. Add every additional date below — each becomes its own event page &amp; ticket inventory, all sharing this info. You can edit or remove individual dates later.</div>
+            <div id="seriesDates"></div>
+            <button type="button" class="addtier" id="addDate">+ Add another date</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📍 Event details</h3>
+          <div class="addon" id="ad-desc"><button type="button" class="ad-btn">＋ Add Description</button>
+            <div class="ad-body"><textarea id="description" placeholder="Lineup, vibe, what to expect…"></textarea></div></div>
+          <div class="addon" id="ad-loc"><button type="button" class="ad-btn">＋ Add Location</button>
+            <div class="ad-body"><input id="city" placeholder="Los Angeles" value="Los Angeles"/></div></div>
+          <div class="addon" id="ad-venue"><button type="button" class="ad-btn">＋ Add Venue Name</button>
+            <div class="ad-body"><input id="venue" placeholder="Venue name / area (kept private until you choose to reveal)"/></div></div>
+          <div class="addon" id="ad-genres"><button type="button" class="ad-btn">＋ Add Genres</button>
+            <div class="ad-body"><input id="genres" placeholder="Techno, Melodic, House…"/></div></div>
+        </div>
+
+        <div class="card">
+          <h3>🎟 Tickets</h3>
+          <div class="note">Paid tiers check out securely through <b>KEEPITIL</b> — we handle the payment and pay out to your bank (KEEPITIL keeps 5% + $0.99). Free/RSVP tiers are free to attend. <em>Selling tickets requires a Community membership.</em></div>
+          <label class="tgl"><input type="checkbox" id="waitlist_enabled"/> Enable waitlist <span class="sub">When a tier sells out, guests can join a waitlist instead of bouncing.</span></label>
+          <div id="tiers"></div>
+          <button type="button" class="addtier" id="addtier">+ Add Ticket</button>
+          <div class="price-only">
+            <label style="margin-top:20px">Launch discount code <span style="font-weight:600;color:var(--muted);font-size:.82rem">(optional)</span></label>
+            <div class="row">
+              <div><input id="dc-code" maxlength="24" placeholder="EARLYBIRD" style="text-transform:uppercase"/></div>
+              <div><input id="dc-pct" type="number" min="1" max="100" step="1" placeholder="% off (e.g. 20)"/></div>
+            </div>
+            <div class="hint">Buyers enter this at checkout for a percentage off your paid tiers. Leave blank to skip.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>🧑‍🤝‍🧑 Guestlist</h3>
+          <div class="note">Social proof on your event page — who's going.</div>
+          <div class="guestrow"><span class="avs"><span></span><span></span><span></span></span><span id="guestPreview">Guests appear here as tickets sell — "Ray and 11 others going"</span></div>
+          <label class="tgl"><input type="checkbox" id="hide_guest_count"/> Hide number of guests going</label>
+        </div>
+
+        <div class="card">
+          <h3>✨ Event features</h3>
+          <div class="note">Showcase performers, sponsors, hosts and more.</div>
+          <div id="features"></div>
+          <button type="button" class="addtier" id="addFeature">+ Add feature</button>
+        </div>
+
+        <div class="card">
+          <h3>🎬 Media</h3>
+          <div class="addon" id="ad-yt"><button type="button" class="ad-btn">＋ Add YouTube Video</button>
+            <div class="ad-body"><input id="youtube_url" placeholder="https://youtube.com/watch?v=…"/></div></div>
+          <div class="addon" id="ad-gal"><button type="button" class="ad-btn">＋ Add Image Gallery</button>
+            <div class="ad-body"><div id="galist"></div><button type="button" class="addtier" id="addGal">+ Add image URL</button></div></div>
+        </div>
+
+        <div class="card">
+          <h3>⚙️ Page settings</h3>
+          <label class="tgl"><input type="checkbox" id="show_on_explore" checked/> Show on Explore <span class="sub">Listed across Scene &amp; the homepage calendar. Off = unlisted (link-only).</span></label>
+          <label class="tgl"><input type="checkbox" id="pw_enable"/> Password protected event</label>
+          <div id="pw_box" style="display:none"><label>Event password</label><input id="ev_password" autocomplete="new-password" placeholder="Guests must enter this to view the page"/><div class="hint" id="pw_hint"></div></div>
+          <label class="tgl" style="margin-top:16px"><input type="checkbox" id="show_lineup" checked/> Artist Lineup section</label>
+          <label class="tgl"><input type="checkbox" id="show_gallery" checked/> Image Gallery section</label>
+          <label class="tgl"><input type="checkbox" id="show_feed" checked/> Feed (posts tagged to this event)</label>
+        </div>
+
+        <div class="card">
+          <h3>📝 Attendee info to collect <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></h3>
+          <div class="note">Name &amp; email are always captured at checkout. Add any extra questions each attendee should answer — age, guest name, Instagram handle, dietary needs, etc.</div>
+          <div id="qs"></div>
+          <button type="button" class="addtier" id="addq">+ Add question</button>
+        </div>
       </div>
-      <div class="hint">Buyers enter this at checkout for a percentage off your paid tiers. Leave blank to skip.</div>
-    </div>
 
-    <div class="card">
-      <h3>Event page sections</h3>
-      <div class="note">Choose which extra sections show on your live event page. Turn off any you’re not using.</div>
-      <label class="secrow" style="display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:600;cursor:pointer"><input type="checkbox" id="show_lineup" checked style="width:auto"/> Artist Lineup</label>
-      <label class="secrow" style="display:flex;align-items:center;gap:10px;margin-top:10px;font-weight:600;cursor:pointer"><input type="checkbox" id="show_gallery" checked style="width:auto"/> Image Gallery</label>
-      <label class="secrow" style="display:flex;align-items:center;gap:10px;margin-top:10px;font-weight:600;cursor:pointer"><input type="checkbox" id="show_feed" checked style="width:auto"/> Feed (posts tagged to this event)</label>
+      <!-- ══ RIGHT: sticky rail — flyer · branding · CTA ══ -->
+      <div class="rail">
+        <div class="railcard">
+          <h4>Flyer</h4>
+          <div class="flyer" id="flyerBox" title="Upload your flyer"><span class="fi">🖼</span><b>Upload your flyer</b><span style="font-size:.74rem">1080×1350 (4:5) works best · JPG/PNG</span></div>
+          <input type="file" id="flyerFile" accept="image/*" style="display:none"/>
+          <label>…or paste an image URL</label>
+          <input id="cover_url" placeholder="https://…"/>
+          <div class="hint"><a href="/v3/image-tool.html" target="_blank" rel="noopener" style="color:var(--brand)">🖼 Auto-format your image →</a></div>
+        </div>
+        <div class="railcard">
+          <h4>Music</h4>
+          <label>Song link (Spotify)</label>
+          <input id="spotify_url" placeholder="https://open.spotify.com/track/…"/>
+        </div>
+        <div class="railcard">
+          <h4>Branding</h4>
+          <label>Title font</label>
+          <select id="title_font">
+            <option value="">KEEPITIL default (Bebas Neue)</option>
+            <option value="Anton">Anton — heavy poster</option>
+            <option value="Fraunces">Fraunces — editorial serif</option>
+            <option value="Inter">Inter — clean modern</option>
+          </select>
+          <label>Accent color</label>
+          <input id="accent_color" type="color" value="#00b4ff" style="height:44px;padding:4px"/>
+          <div class="hint">Font + accent style YOUR event page only — the rest of the site never changes.</div>
+        </div>
+        <div class="railcard">
+          <button type="submit" class="submit" id="submitBtn">Create Event</button>
+          <div class="msg" id="msg"></div>
+          <div class="hint">By submitting you agree to the <a href="/v3/terms.html">Terms</a>. Nothing publishes until the KEEPITIL team approves it.</div>
+        </div>
+      </div>
     </div>
-
-    <div class="card">
-      <h3>Attendee info to collect <span style="font-weight:600;color:var(--muted);font-size:.85rem">(optional)</span></h3>
-      <div class="note">Name &amp; email are always captured at checkout. Add any extra questions each attendee should answer — age, guest name, Instagram handle, dietary needs, etc. Answers land in your event's attendee list.</div>
-      <div id="qs"></div>
-      <button type="button" class="addtier" id="addq">+ Add question</button>
-    </div>
-
-    <button type="submit" class="submit" id="submitBtn">Submit event for review</button>
-    <div class="msg" id="msg"></div>
-    <div class="hint">By submitting you agree to the <a href="/v3/terms.html">Terms</a>. Nothing publishes until the KEEPITIL team approves it.</div>
   </form>
 
   <!-- success -->
@@ -191,25 +298,103 @@ var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
 function $(id){return document.getElementById(id);}
-var MY_HANDLE=null;
+var MY_HANDLE=null, RSVP_MODE=false, HAS_PW=false;
 
+/* ── inline title/summary sync into the canonical hidden fields ── */
+function syncInline(){ $('title').value=($('title-inline').textContent||'').trim(); $('tagline').value=($('summary-inline').textContent||'').trim(); }
+['title-inline','summary-inline'].forEach(function(id){ $(id).addEventListener('input',syncInline); $(id).addEventListener('blur',syncInline);
+  $(id).addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); this.blur(); } }); });
+
+/* ── Posh add-on rows: "＋ Add X" expands into the field ── */
+function wireAddon(id){ var a=$(id); if(!a)return; var b=a.querySelector('.ad-btn');
+  b.addEventListener('click',function(){ a.classList.add('open'); b.textContent=b.textContent.replace('＋ Add ',''); var f=a.querySelector('input,textarea'); if(f)f.focus(); }); }
+['ad-desc','ad-loc','ad-venue','ad-genres','ad-yt','ad-gal'].forEach(wireAddon);
+function openAddon(id){ var a=$(id); if(a && !a.classList.contains('open')) a.querySelector('.ad-btn').click(); }
+
+/* ── Sell Tickets | RSVP ── */
+function setMode(rsvp){ RSVP_MODE=rsvp; document.body.classList.toggle('rsvp',rsvp);
+  $('modeSell').classList.toggle('on',!rsvp); $('modeRSVP').classList.toggle('on',rsvp);
+  document.querySelectorAll('#tiers .t-price').forEach(function(i){ if(rsvp) i.value=0; }); }
+$('modeSell').addEventListener('click',function(){setMode(false);});
+$('modeRSVP').addEventListener('click',function(){setMode(true);});
+
+/* ── end-time public eye toggle ── */
+$('endEye').addEventListener('click',function(){ var on=this.classList.toggle('on'); this.setAttribute('aria-pressed',on?'true':'false');
+  $('endEyeHint').textContent=on?'End time is shown on the event page.':'End time is HIDDEN on the event page.'; });
+
+/* ── per-event branding live preview (scoped to this page's editor only) ── */
+function applyBrand(){ var f=$('title_font').value; var c=$('accent_color').value;
+  document.documentElement.style.setProperty('--ev-font', f?("'"+f+"'"):"'Bebas Neue'");
+  document.documentElement.style.setProperty('--ev-accent', c||'#00b4ff'); }
+$('title_font').addEventListener('change',applyBrand);
+$('accent_color').addEventListener('input',applyBrand);
+
+/* ── password toggle ── */
+$('pw_enable').addEventListener('change',function(){ $('pw_box').style.display=this.checked?'block':'none'; });
+
+/* ── flyer upload → chat-images bucket (client-resized ≤1600px), sets cover_url ── */
+$('flyerBox').addEventListener('click',function(){ $('flyerFile').click(); });
+$('flyerFile').addEventListener('change',function(){
+  var file=this.files[0]; if(!file)return;
+  var img=new Image(); var rd=new FileReader();
+  rd.onload=function(){ img.onload=function(){
+    var cv=document.createElement('canvas'); var scale=Math.min(1,1600/Math.max(img.width,img.height));
+    cv.width=Math.round(img.width*scale); cv.height=Math.round(img.height*scale);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    cv.toBlob(function(blob){
+      var path='event-flyers/'+Date.now()+'-'+file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');
+      supa.storage.from('chat-images').upload(path,blob,{contentType:'image/jpeg'}).then(function(r){
+        if(r.error){ alert('Upload failed: '+r.error.message); return; }
+        var pub=supa.storage.from('chat-images').getPublicUrl(path);
+        var url=(pub&&pub.data)?pub.data.publicUrl:'';
+        $('cover_url').value=url; paintFlyer(url);
+      });
+    },'image/jpeg',.88);
+  }; img.src=rd.result; };
+  rd.readAsDataURL(file);
+});
+$('cover_url').addEventListener('change',function(){ paintFlyer(this.value.trim()); });
+function paintFlyer(url){ var b=$('flyerBox'); if(url){ b.classList.add('has'); b.style.backgroundImage='url("'+url.replace(/"/g,'%22')+'")'; } else { b.classList.remove('has'); b.style.backgroundImage='none'; } }
+
+/* ── ticket tiers (EXISTING model preserved: multi-tier, desc, limit, sales window, show-remaining) ── */
 function tierHtml(i){
   return '<div class="tier" data-i="'+i+'">'+(i>0?'<button type="button" class="rm" title="Remove">✕</button>':'')+
-    '<span class="tier-badge">Tier '+(i+1)+'</span>'+
+    '<span class="tier-badge">'+(i===0?'Default Ticket':'Tier '+(i+1))+'</span>'+
     '<label>Name</label><input class="t-name" placeholder="General Admission"/>'+
     '<label>What this tier includes <span style="font-weight:600;color:var(--muted);font-size:.82rem">(optional)</span></label>'+
     '<textarea class="t-desc" rows="2" placeholder="e.g. Early entry + drink token, or VIP table for 4…"></textarea>'+
-    '<div class="row"><div><label>Price (USD)</label><input class="t-price" type="number" min="0" step="1" placeholder="0 = free"/></div>'+
+    '<div class="row"><div class="price-only"><label>Price (USD)</label><input class="t-price" type="number" min="0" step="1" placeholder="0 = free"/></div>'+
     '<div><label>Quantity limit</label><input class="t-qty" type="number" min="1" step="1" placeholder="Unlimited"/></div></div>'+
-    '<div class="row"><div><label>Sales start <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="t-start" type="datetime-local"/></div>'+
-    '<div><label>Sales end <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="t-end" type="datetime-local"/></div></div>'+
+    '<div class="row"><div><label>Sales start <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="t-start" type="datetime-local" step="900"/></div>'+
+    '<div><label>Sales end <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="t-end" type="datetime-local" step="900"/></div></div>'+
     '<div class="hint" style="margin-top:6px">Leave blank to sell right away until the event starts. Sales windows can’t run past the event’s date/time.</div>'+
-    '<label class="secrow" style="display:flex;align-items:center;gap:9px;margin-top:8px;font-weight:600;cursor:pointer"><input type="checkbox" class="t-showqty" style="width:auto"/> Show remaining count publicly (otherwise it only appears when a guest hovers the ticket)</label>'+
+    '<label class="tgl" style="margin-top:8px"><input type="checkbox" class="t-showqty"/> Show remaining count publicly (otherwise it only appears when a guest hovers the ticket)</label>'+
     '</div>';
 }
 var tierCount=0;
 function addTier(){ var d=document.createElement('div'); d.innerHTML=tierHtml(tierCount); var el=d.firstChild; $('tiers').appendChild(el); var rm=el.querySelector('.rm'); if(rm) rm.addEventListener('click',function(){el.remove();}); tierCount++; }
 
+/* ── event features: performers / sponsors / hosts blocks ── */
+function featHtml(i){
+  return '<div class="tier feat" data-i="'+i+'"><button type="button" class="rm" title="Remove">✕</button>'+
+    '<span class="tier-badge">Feature '+(i+1)+'</span>'+
+    '<div class="row"><div><label>Name</label><input class="f-name" placeholder="e.g. DJ Susan / Bass Apparel OC"/></div>'+
+    '<div><label>Role</label><select class="f-role"><option>Performer</option><option>Sponsor</option><option>Host</option><option>Special guest</option><option>Other</option></select></div></div>'+
+    '<label>Image URL <span style="font-weight:600;color:var(--muted);font-size:.8rem">(optional)</span></label><input class="f-img" placeholder="https://…"/>'+
+    '</div>';
+}
+var featCount=0;
+function addFeature(){ var d=document.createElement('div'); d.innerHTML=featHtml(featCount); var el=d.firstChild; $('features').appendChild(el); el.querySelector('.rm').addEventListener('click',function(){el.remove();}); featCount++; }
+$('addFeature').addEventListener('click',function(){addFeature();});
+
+/* ── image gallery URL rows ── */
+function addGal(val){ var d=document.createElement('div'); d.className='row'; d.style.marginTop='8px';
+  d.innerHTML='<div style="grid-column:1/-1;display:flex;gap:8px"><input class="g-url" placeholder="https://… image URL" style="flex:1"/><button type="button" class="rm" style="position:static">✕</button></div>';
+  $('galist').appendChild(d); if(val) d.querySelector('.g-url').value=val;
+  d.querySelector('.rm').addEventListener('click',function(){d.remove();}); }
+$('addGal').addEventListener('click',function(){addGal();});
+
+/* ── attendee questions (existing model) ── */
 function qHtml(i){
   return '<div class="tier" data-i="'+i+'"><button type="button" class="rm" title="Remove">&#10005;</button>'+
     '<span class="tier-badge">Question '+(i+1)+'</span>'+
@@ -231,23 +416,42 @@ try{ var _PD=new URLSearchParams(location.search).get('date');
       if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',set); else set(); })();
   }
 }catch(e){}
+
 async function prefillEdit(){
   try{
     var r=await supa.rpc('get_event_for_edit',{p_slug:EDIT_SLUG}); var d=r&&r.data; if(!d) return;
     var ev=d.ev||{}, tiers=d.tiers||[];
-    $('title').value=ev.title||''; $('tagline').value=ev.tagline||''; $('description').value=ev.description||'';
-    $('venue').value=ev.venue||''; $('city').value=ev.city||''; $('cover_url').value=ev.cover_url||''; $('genres').value=ev.genres||'';
+    $('title-inline').textContent=ev.title||''; $('summary-inline').textContent=ev.tagline||''; syncInline();
+    $('description').value=ev.description||''; if(ev.description) openAddon('ad-desc');
+    $('venue').value=ev.venue||''; if(ev.venue) openAddon('ad-venue');
+    $('city').value=ev.city||''; if(ev.city && ev.city!=='Los Angeles') openAddon('ad-loc');
+    $('cover_url').value=ev.cover_url||''; paintFlyer(ev.cover_url||'');
+    $('genres').value=ev.genres||''; if(ev.genres) openAddon('ad-genres');
     var toLocal=function(v){ if(!v) return ''; try{ var dt=new Date(v), p=function(n){return String(n).padStart(2,'0');}; return dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate())+'T'+p(dt.getHours())+':'+p(dt.getMinutes()); }catch(e){ return ''; } };
     if(ev.starts_at){ $('starts_at').value=toLocal(ev.starts_at); }
+    if(ev.ends_at){ $('ends_at').value=toLocal(ev.ends_at); }
+    if(ev.end_time_public===false){ var ee=$('endEye'); ee.classList.remove('on'); ee.setAttribute('aria-pressed','false'); $('endEyeHint').textContent='End time is HIDDEN on the event page.'; }
+    if(ev.waitlist_enabled) $('waitlist_enabled').checked=true;
+    if(ev.hide_guest_count) $('hide_guest_count').checked=true;
+    if(ev.show_on_explore===false) $('show_on_explore').checked=false;
+    if(ev.spotify_url) $('spotify_url').value=ev.spotify_url;
+    if(ev.youtube_url){ $('youtube_url').value=ev.youtube_url; openAddon('ad-yt'); }
+    if(ev.title_font) $('title_font').value=ev.title_font;
+    if(ev.accent_color) $('accent_color').value=ev.accent_color;
+    applyBrand();
+    if(Array.isArray(ev.features)){ ev.features.forEach(function(f){ addFeature(); var rows=document.querySelectorAll('#features .feat'); var row=rows[rows.length-1]; if(row){ row.querySelector('.f-name').value=f.name||''; if(f.role)row.querySelector('.f-role').value=f.role; row.querySelector('.f-img').value=f.image_url||''; } }); }
+    if(Array.isArray(ev.gallery) && ev.gallery.length){ openAddon('ad-gal'); ev.gallery.forEach(function(u){ addGal(u); }); }
+    HAS_PW=!!ev.has_password;
+    if(HAS_PW){ $('pw_enable').checked=true; $('pw_box').style.display='block'; $('pw_hint').textContent='A password is set. Leave blank to keep it, type a new one to change it, or untick the box to remove it.'; }
     if(ev.show_lineup===false) $('show_lineup').checked=false;
     if(ev.show_gallery===false) $('show_gallery').checked=false;
     if(ev.show_feed===false) $('show_feed').checked=false;
     var tc=$('tiers'); tc.innerHTML=''; tierCount=0;
     (tiers.length?tiers:[{}]).forEach(function(t){ addTier(); var rows=tc.querySelectorAll('.tier'); var row=rows[rows.length-1]; if(row){ if(t.name)row.querySelector('.t-name').value=t.name; if(t.description)row.querySelector('.t-desc').value=t.description; if(t.price_cents!=null)row.querySelector('.t-price').value=(t.price_cents/100); if(t.qty_total!=null)row.querySelector('.t-qty').value=t.qty_total; if(t.sales_start)row.querySelector('.t-start').value=toLocal(t.sales_start); if(t.sales_end)row.querySelector('.t-end').value=toLocal(t.sales_end); if(t.show_qty&&row.querySelector('.t-showqty'))row.querySelector('.t-showqty').checked=true; } });
+    if(tiers.length && tiers.every(function(t){ return !t.price_cents; })) setMode(true);
     if(Array.isArray(ev.reg_questions)){ ev.reg_questions.forEach(function(q){ addQ(); var qs=document.querySelectorAll('#qs .tier'); var qr=qs[qs.length-1]; if(qr){ if(q.label)qr.querySelector('.q-label').value=q.label; qr.querySelector('.q-type').value=q.type||'text'; qr.querySelector('.q-req').value=q.required?'yes':'no'; } }); }
     SERIES_ID=ev.series_id||null; SERIES=Array.isArray(d.series)?d.series:[]; renderSeries();
     var b=$('submitBtn'); if(b) b.textContent='Save changes';
-    var hh=document.querySelector('h1'); if(hh) hh.textContent=SERIES.length>1?'Edit series':'Edit event';
   }catch(e){}
 }
 
@@ -262,10 +466,10 @@ async function startPayouts(btn){
   }catch(e){ if(btn){btn.disabled=false;btn.textContent='Set up payouts';} alert('Could not start payout setup.'); }
 }
 function payoutsPanel(connected){
-  var wrap=document.createElement('div'); wrap.className='card'; wrap.style.marginBottom='18px';
+  var wrap=document.createElement('div'); wrap.className='card'; wrap.style.marginTop='0';
   if(connected){ wrap.innerHTML='<div class="tier-badge">Payouts</div><h3>Payouts connected &#10003;</h3><p class="note">You can sell tickets — KEEPITIL keeps 5% + $0.99 and Stripe pays the rest to your bank.</p>'; }
   else { wrap.innerHTML='<div class="tier-badge">Payouts</div><h3>Set up payouts to sell tickets</h3><p class="note">Connect a Stripe account (about 2 minutes) so paid ticket money lands in your bank. Free events don\'t need this.</p><button type="button" class="addtier" id="payoutsBtn">Set up payouts</button>'; }
-  var form=$('form'); form.parentNode.insertBefore(wrap, form);
+  var rail=document.querySelector('.rail'); rail.insertBefore(wrap, rail.firstChild);
   var pb=document.getElementById('payoutsBtn'); if(pb) pb.addEventListener('click',function(){ startPayouts(pb); });
 }
 async function init(){
@@ -276,6 +480,7 @@ async function init(){
   var uid=s.user&&s.user.id, payok=false;
   try{ if(uid){ var q=await supa.from('app_users').select('handle,payouts_enabled').eq('id',uid).maybeSingle(); if(q&&q.data){ if(q.data.handle) MY_HANDLE=q.data.handle; payok=!!q.data.payouts_enabled; } } }catch(e){}
   try{ if(uid && new URLSearchParams(location.search).get('payouts')==='done' && !payok){ await supa.rpc('mark_payouts_enabled'); payok=true; } }catch(e){}
+  var os=$('orgSel'); os.innerHTML='<option value="'+(MY_HANDLE||'')+'">@'+(MY_HANDLE||'me')+'</option>';
   $('form').style.display='block'; addTier();
   payoutsPanel(payok);
   if(EDIT_SLUG){ await prefillEdit(); }
@@ -287,7 +492,7 @@ $('addq').addEventListener('click',addQ);
 /* ── SERIES: extra date rows on create ── */
 function addDate(val){
   var d=document.createElement('div'); d.className='row'; d.style.marginTop='8px';
-  d.innerHTML='<div style="flex:1"><input class="s-date" type="datetime-local"/></div><button type="button" class="rm" title="Remove" style="position:static;align-self:center">✕</button>';
+  d.innerHTML='<div style="flex:1"><input class="s-date" type="datetime-local" step="900"/></div><button type="button" class="rm" title="Remove" style="position:static;align-self:center">✕</button>';
   $('seriesDates').appendChild(d); if(val) d.querySelector('.s-date').value=val;
   d.querySelector('.rm').addEventListener('click',function(){d.remove();});
 }
@@ -332,18 +537,38 @@ async function seriesAction(act, slug, btn){
 
 $('form').addEventListener('submit',async function(e){
   e.preventDefault();
+  syncInline();
   var msg=$('msg'); msg.className='msg'; msg.textContent='';
   var title=$('title').value.trim();
-  if(!title){ msg.className='msg err'; msg.textContent='Add an event title.'; return; }
+  if(!title){ msg.className='msg err'; msg.textContent='Name your event (click the big title at the top).'; return; }
   var b=$('submitBtn'); b.disabled=true; b.textContent='Submitting…';
   try{
     var evStartISO=$('starts_at').value?new Date($('starts_at').value).toISOString():null;
-    var ev={ slug:slugify(title), owner_handle:MY_HANDLE, title:title, tagline:$('tagline').value.trim()||null,
+    var evEndISO=$('ends_at').value?new Date($('ends_at').value).toISOString():null;
+    if(evStartISO&&evEndISO&&evEndISO<=evStartISO){ b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Create Event'; msg.className='msg err'; msg.textContent='The end time must be after the start time.'; return; }
+    var features=[];
+    document.querySelectorAll('#features .feat').forEach(function(f){
+      var nm=(f.querySelector('.f-name').value||'').trim(); if(!nm) return;
+      features.push({ name:nm, role:f.querySelector('.f-role').value, image_url:(f.querySelector('.f-img').value||'').trim()||null });
+    });
+    var gallery=[];
+    document.querySelectorAll('#galist .g-url').forEach(function(g){ var u=(g.value||'').trim(); if(u) gallery.push(u); });
+    var ev={ slug:slugify(title), owner_handle:($('orgSel').value||MY_HANDLE), title:title, tagline:$('tagline').value.trim()||null,
       description:$('description').value.trim()||null, venue:$('venue').value.trim()||null, city:$('city').value.trim()||'Los Angeles',
       starts_at:evStartISO, cover_url:$('cover_url').value.trim()||null,
       genres:$('genres').value.trim()||null,
       show_lineup:$('show_lineup').checked, show_gallery:$('show_gallery').checked, show_feed:$('show_feed').checked,
-      status:'review' };
+      status:'review',
+      /* Posh-parity extras (applied server-side by events_apply_extras) */
+      ends_at:evEndISO, end_time_public:$('endEye').classList.contains('on'),
+      waitlist_enabled:$('waitlist_enabled').checked, hide_guest_count:$('hide_guest_count').checked,
+      show_on_explore:$('show_on_explore').checked,
+      spotify_url:$('spotify_url').value.trim()||null, youtube_url:$('youtube_url').value.trim()||null,
+      title_font:$('title_font').value||null, accent_color:$('accent_color').value||null,
+      features:features, gallery:gallery };
+    /* password: send only on change/remove — blank + previously-set = keep */
+    if($('pw_enable').checked){ var pw=$('ev_password').value; if(pw){ ev.password_clear=pw; } else if(!HAS_PW){ /* enabled but empty & none set: ignore */ } }
+    else if(HAS_PW){ ev.password_clear=''; }
     var qs=[];
     document.querySelectorAll('#qs .tier').forEach(function(q){
       var lbl=(q.querySelector('.q-label').value||'').trim(); if(!lbl) return;
@@ -353,7 +578,7 @@ $('form').addEventListener('submit',async function(e){
     var tiers=[], tierErr='';
     document.querySelectorAll('#tiers .tier').forEach(function(t){
       var name=(t.querySelector('.t-name').value||'General Admission').trim();
-      var price=parseInt(t.querySelector('.t-price').value||'0',10)||0;
+      var price=RSVP_MODE?0:(parseInt(t.querySelector('.t-price').value||'0',10)||0);
       var qty=t.querySelector('.t-qty').value?parseInt(t.querySelector('.t-qty').value,10):null;
       var desc=(t.querySelector('.t-desc').value||'').trim()||null;
       var sv=t.querySelector('.t-start').value, ev2=t.querySelector('.t-end').value;
@@ -364,7 +589,7 @@ $('form').addEventListener('submit',async function(e){
       var showq=!!(t.querySelector('.t-showqty')&&t.querySelector('.t-showqty').checked);
       tiers.push({name:name,description:desc,price_cents:price*100,qty_total:qty,sales_start:startISO,sales_end:endISO,show_qty:showq});
     });
-    if(tierErr){ b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Submit event for review'; msg.className='msg err'; msg.textContent=tierErr; return; }
+    if(tierErr){ b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Create Event'; msg.className='msg err'; msg.textContent=tierErr; return; }
     // Event creation goes through SECURITY DEFINER RPCs (create_event_with_tiers /
     // create_event_series) which insert server-side and force status='review'.
     var newSlug, newEventId=null;
@@ -374,7 +599,7 @@ $('form').addEventListener('submit',async function(e){
       var ru=await supa.rpc('update_event',{ p_slug:EDIT_SLUG, ev:ev, tiers:tiers });
       if(ru.error) throw ru.error; var du=ru.data||{}; if(du.error) throw new Error(du.error); newEventId=du.event_id||null;
       if(scope!=='one' && SERIES_ID){
-        var evS=Object.assign({},ev); delete evS.starts_at; delete evS.slug;   // shared fields only — never overwrite each date's time
+        var evS=Object.assign({},ev); delete evS.starts_at; delete evS.slug; delete evS.ends_at;   // shared fields only — never overwrite each date's time
         var picks=null;
         if(scope==='selected'){ picks=[EDIT_SLUG]; document.querySelectorAll('.s-pick:checked').forEach(function(c){ picks.push(c.getAttribute('data-slug')); }); }
         var rs=await supa.rpc('update_series',{ p_series_id:SERIES_ID, ev:evS, tiers:tiers, p_scope:scope, p_slugs:picks });
@@ -384,7 +609,7 @@ $('form').addEventListener('submit',async function(e){
     } else if($('is_series').checked){
       var dates=[]; if(evStartISO) dates.push(evStartISO);
       document.querySelectorAll('#seriesDates .s-date').forEach(function(inp){ if(inp.value) dates.push(new Date(inp.value).toISOString()); });
-      if(dates.length<2){ b.disabled=false; b.textContent='Submit event for review'; msg.className='msg err'; msg.textContent='A series needs at least two dates — add another date, or turn off the series toggle.'; return; }
+      if(dates.length<2){ b.disabled=false; b.textContent='Create Event'; msg.className='msg err'; msg.textContent='A series needs at least two dates — add another date, or turn off the series toggle.'; return; }
       var rc2=await supa.rpc('create_event_series',{ ev:ev, tiers:tiers, dates:dates });
       if(rc2.error) throw rc2.error; var res2=rc2.data||{}; if(res2.error) throw new Error(res2.error);
       newSlug=(res2.slugs&&res2.slugs[0])||ev.slug;
@@ -404,7 +629,7 @@ $('form').addEventListener('submit',async function(e){
     var mk=$('mktg-link'); if(mk) mk.href='/v3/campaigns.html?e='+encodeURIComponent(newSlug);
     $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
-    b.disabled=false; b.textContent='Submit event for review';
+    b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Create Event';
     msg.className='msg err'; msg.textContent='Could not submit: '+(err.message||err)+'. Make sure you are signed in, then try again.';
   }
 });
