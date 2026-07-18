@@ -61,7 +61,11 @@
     }
     html{scroll-behavior:smooth;overflow-x:hidden;}
     body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
-    body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('logo-bg.jpg') center/cover no-repeat;opacity:1;} /* full-strength backdrop — overrides v3-tokens.css body::before opacity:.16 */
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1;} /* full-strength backdrop — ABSOLUTE path: relative 'logo-bg.jpg' resolved to /v31/ and 404'd (Founder 2026-07-18) */
+    /* V3.1 only: sit the AI chat FAB + panel closer to the radio bar (shared keepitil-ai.js defaults 132/200 stay for V3) */
+    #kilo-btn{bottom:76px!important}
+    #kilo-panel{bottom:144px!important}
+    @media(max-width:480px){#kilo-btn{bottom:76px!important}#kilo-panel{bottom:144px!important}}
     a{color:inherit;text-decoration:none;}
     img{max-width:100%;display:block;}
     .container{max-width:1180px;margin:0 auto;padding:0 24px;}
@@ -2017,7 +2021,7 @@ function flyer(e,showPick){
   var vip=/club|lounge|nightclub|rooftop|exchange|avalon|catch one|time nightclub|\bsound\b/i.test(e.venue||'');
   var saved=(window.KIL_SAVED&&window.KIL_SAVED.has(slug))?' on':'';
   var chat='event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title);
-  var epage='/v3/event.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title)+'&v='+encodeURIComponent(e.venue||'')+'&c='+encodeURIComponent(e.city||'')+'&d='+encodeURIComponent(e.date||'')+'&g='+encodeURIComponent(e.genre||'')+'&img='+encodeURIComponent(e.img||'')+'&tix='+encodeURIComponent(e.ticket||'')+(vip?'&vip=1':'');
+  var epage='/v31/event.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title)+'&v='+encodeURIComponent(e.venue||'')+'&c='+encodeURIComponent(e.city||'')+'&d='+encodeURIComponent(e.date||'')+'&g='+encodeURIComponent(e.genre||'')+'&img='+encodeURIComponent(e.img||'')+'&tix='+encodeURIComponent(e.ticket||'')+(vip?'&vip=1':'');
   return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
     +'<span class="evx-genre">'+h(e.genre)+'</span>'
@@ -2122,7 +2126,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
             var g=e.genres||e.genre||'';
             return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
               genre:g||'KEEPITIL',gcat:gcatOf(g),img:e.cover_url||e.img||'',
-              ticket:'/v3/event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
+              ticket:'/v31/event.html?e='+encodeURIComponent(e.slug||''),price:'Tickets',
               pick:!!e.cover_url,keepitil:true,slug:e.slug};
           });
           var seen={};EVENTS.forEach(function(e){seen[(e.title+'|'+e.date).toLowerCase()]=1;});
@@ -2393,7 +2397,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
   else setTimeout(run,500);
 })();
 </script>
-<script src="/v31/v31-shell.js?v=20260728" defer></script>
+<script src="/v31/v31-shell.js?v=20260729" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: force chat FAB above the Create FAB, + bulletproof hero typewriter -->
   <style>
