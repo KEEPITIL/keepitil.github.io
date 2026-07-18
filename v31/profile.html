@@ -1111,58 +1111,9 @@ function openModal(title,fields,cb){
 }
 function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();}
 
-/* CREATE EVENT — opens a 2-option chooser (external EDMtrain-style / internal KEEPITIL). Publishing is gated to signed-in users by publish(). */
-function createEvent(){
-  closeModal();
-  var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
-  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Create Event<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
-    +'<div class="kil-mb"><div class="ev-choose">'
-    +'<button type="button" class="ev-opt" onclick="eventExternal()"><span class="ei"><svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1h6zm11-3v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3h7z"/></svg></span><span><h4>Add external event</h4><p>Fill the flyer card for an event you found — EDMtrain / POSH / RA style — and link out to tickets.</p></span></button>'
-    +'<button type="button" class="ev-opt" onclick="eventInternal()"><span class="ei"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.9 6.2 19.9l.9-5.4L3.2 10.7l5.4-.8L12 2z"/></svg></span><span><h4>Create KEEPITIL event</h4><p>Host your own — cover flyer, date &amp; time, venue, description, price and ticket/RSVP link.</p></span></button>'
-    +'</div></div></div>';
-  document.body.appendChild(ov);
-  ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
-}
-function eventExternal(){
-  openModal('Add external event',[
-    {name:'cover',label:'Flyer image (optional)',type:'file'},
-    {name:'coverurl',label:'…or flyer image URL',type:'text',ph:'https://...'},
-    {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
-    {name:'day',label:'Day',type:'text',ph:'16',req:true},
-    {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
-    {name:'title',label:'Event title',type:'text',ph:'Kingdom @ Catch One',req:true},
-    {name:'venue',label:'Venue · city · age',type:'text',ph:'Catch One · Los Angeles, CA · 21+',req:true},
-    {name:'tags',label:'Genre tags',type:'text',ph:'Latin House · Techno'},
-    {name:'tix',label:'Ticket link',type:'text',ph:'https://posh.vip/e/...'}
-  ],function(v){
-    resolveImg(v,'cover','coverurl','',function(cov){
-      publish('show',{month:(v.month||'').toUpperCase(),day:v.day,dow:(v.dow||'').toUpperCase(),title:v.title,venue:v.venue,tags:v.tags||'',tix:v.tix||'#',cover:cov||'',desc:'',price:'',kind:'ext'});
-      showTab('shows');
-    });
-  });
-}
-function eventInternal(){
-  openModal('Create KEEPITIL event',[
-    {name:'cover',label:'Flyer image',type:'file'},
-    {name:'coverurl',label:'…or flyer image URL',type:'text',ph:'https://...'},
-    {name:'title',label:'Event name',type:'text',ph:'KEEPITIL Summer',req:true},
-    {name:'month',label:'Month',type:'text',ph:'AUG',req:true},
-    {name:'day',label:'Day',type:'text',ph:'16',req:true},
-    {name:'dow',label:'Weekday',type:'text',ph:'SAT'},
-    {name:'time',label:'Start time',type:'text',ph:'9:00 PM'},
-    {name:'venue',label:'Venue · city · age',type:'text',ph:'Secret OC Venue · Orange County, CA · 21+',req:true},
-    {name:'tags',label:'Genre tags',type:'text',ph:'Open Format'},
-    {name:'desc',label:'Description',type:'textarea',ph:'What to expect, lineup, the vibe...'},
-    {name:'price',label:'Price / entry',type:'text',ph:'$20 pre-sale'},
-    {name:'tix',label:'Ticket / RSVP link',type:'text',ph:'https://...'}
-  ],function(v){
-    resolveImg(v,'cover','coverurl','',function(cov){
-      var venue=v.venue+(v.time?(' · '+v.time):'');
-      publish('show',{month:(v.month||'').toUpperCase(),day:v.day,dow:(v.dow||'').toUpperCase(),title:v.title,venue:venue,tags:v.tags||'',tix:v.tix||'#',cover:cov||'',desc:v.desc||'',price:v.price||'',kind:'kil'});
-      showTab('shows');
-    });
-  });
-}
+/* CREATE EVENT — ONE gold standard (Founder 2026-07-17): every entry point routes to the
+   canonical Posh-parity form. The old external/internal chooser modal is PURGED. */
+function createEvent(){ location.href='/v3/create-event.html'; }
 
 /* ── INSTAGRAM / TIKTOK-STYLE CREATE POST — media first, then details ── */
 var CP={target:'feed',media:'',mtype:'',file:null,tags:[],collab:[]};
