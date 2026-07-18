@@ -12,6 +12,8 @@
       var ex=document.documentElement.getAttribute('data-page-type'); if(ex) return ex;
       var p=location.pathname;
       if(/\/v31\/scene\.html$/.test(p)) return 'scene';
+      if(/\/v31\/culture\.html$/.test(p)) return 'culture';
+      if(/\/v31\/profile\.html$/.test(p)) return 'profile';
       if(/^\/v31\/(index\.html)?$/.test(p)) return 'home';
       return 'standard';
     }catch(e){ return 'standard'; }
@@ -161,7 +163,8 @@
       }catch(e){ return String(iso).slice(0,10); }
     };
   }catch(e){}
-  var NAV=[['/v31/','Home'],['/v31/scene.html','Scene']];
+  /* IMMUTABLE V3.1 TEMPLATE (Founder 2026-07-17): LOGO=Home · Culture(feed) · SCENE · LOGIN/PROFILE — never change this nav when adding/removing features. */
+var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
     try{
@@ -179,6 +182,7 @@
         settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/></svg>'
       };
       var iconRow='<div class="v3s-icons">'
+        +'<a href="/v31/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
         +'<a href="/v31/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
         +'<a href="/v31/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
         +'</div>';
@@ -209,6 +213,7 @@
       f.innerHTML =
         '<div class="v3-foot-inner"><a href="/v31/" class="v3-foot-brand">KEEPITIL</a>'
         +'<nav class="v3-foot-links"><a href="/v31/">Home</a>'
+        +'<a href="/v31/culture.html">Culture</a>'
         +'<a href="/v31/scene.html">Scene</a>'
         +'<a href="/v31/apply.html">Login</a></nav>'
         +'<div class="v3-foot-social">'
@@ -223,7 +228,7 @@
       if(RULES.nav!==false) document.body.appendChild(f);
 
       // active state on the mobile top-bar icon nav
-      try{ var p=location.pathname; var amap={'/v31/scene.html':/scene/,'/v31/apply.html':/(my-tickets\.html|apply\.html)/};
+      try{ var p=location.pathname; var amap={'/v31/culture.html':/culture/,'/v31/scene.html':/scene/,'/v31/apply.html':/(profile\.html|my-tickets\.html|apply\.html)/};
         hdr.querySelectorAll('.v3s-icons a').forEach(function(a){ var h=a.getAttribute('href'); var rx=amap[h]; if(rx&&rx.test(p)) a.classList.add('on'); }); }catch(e){}
 
       // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
@@ -257,11 +262,12 @@
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           bn.innerHTML=
             '<a href="/v31/" id="kb-home" aria-label="Home"><img src="'+(logoUrl()||'/v3/logo-blue-nav.png')+'" alt="Home" onerror="this.onerror=null;this.src=\'/v3/logo-blue-nav.png\'"></a>'
+            +'<a href="/v31/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
             +'<a href="/v31/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
             +'<a href="/v31/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
           document.body.appendChild(bn);
           var _bp=location.pathname;
-          var _bmap=[/^\/v31\/(index\.html)?$/, /scene/, /(my-tickets\.html|apply\.html)/];
+          var _bmap=[/^\/v31\/(index\.html)?$/, /culture/, /scene/, /(profile\.html|my-tickets\.html|apply\.html)/];
           bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
           if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
@@ -289,7 +295,7 @@
   function applyAuthState(hdr, s){
     /* mobile floating hamburger: profile pages, signed-in, mobile viewport only */
     try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
-    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/v31/my-tickets.html':'/v31/apply.html'); return; }
+    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); return; }
     /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
        Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
     var onProfile=(RULES.gear==='hamburger');   /* standards-driven: page_standards.gear_rule */
@@ -297,15 +303,15 @@
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
     if(cta){
       if(s && onProfile){ cta.innerHTML=HAMB; cta.setAttribute('href','/v3/settings.html'); cta.setAttribute('title','Settings'); cta.setAttribute('aria-label','Settings'); cta.classList.add('v3s-hamb'); }
-      else { cta.textContent = s?'MY TICKETS':'LOGIN'; cta.setAttribute('href', s?'/v31/my-tickets.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
+      else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
     }
-    if(mlog){ mlog.textContent = s?'My Tickets':'Login'; mlog.setAttribute('href', s?'/v31/my-tickets.html':'/v31/apply.html'); }
+    if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
     var iprof=document.getElementById('v3s-iconprof');
     if(iprof){
       if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/v3/settings.html'); iprof.setAttribute('aria-label','Settings'); }
-      else iprof.setAttribute('href', s?'/v31/my-tickets.html':'/v31/apply.html');
+      else iprof.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
     }
-    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/v31/my-tickets.html':'/v31/apply.html');
+    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
   }
   function authNav(hdr){
     ensureSB(function(){
