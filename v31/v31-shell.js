@@ -328,7 +328,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
     var iprof=document.getElementById('v3s-iconprof');
     if(iprof){
-      if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/v3/settings.html'); iprof.setAttribute('aria-label','Settings'); }
+      if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/v31/settings.html'); iprof.setAttribute('aria-label','Settings'); }
       else iprof.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
     }
     var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
