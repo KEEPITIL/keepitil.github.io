@@ -81,7 +81,10 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 .fb-head{display:flex;align-items:center;gap:10px;padding:11px 14px}
 .fb-av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0a0a0f}
 .fb-who{flex:1;min-width:0;line-height:1.25}.fb-who b{display:block;font-size:.9rem;color:#fff}.fb-who span{font-size:.7rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
-.fb-media{display:block;width:100%;aspect-ratio:1/1.02;background:#0a0a0f url('/v3/blog-default.jpg') center/cover;background-size:cover;background-position:center}
+/* Facebook-style media: entire asset visible (any format), contain on black, capped height */
+.fb-media{display:flex;align-items:center;justify-content:center;width:100%;max-height:600px;overflow:hidden;background:#000}
+.fb-media:empty{aspect-ratio:16/9;background-color:#000;background-image:url('/v3/blog-default.jpg');background-size:contain;background-repeat:no-repeat;background-position:center}
+.fb-media>img,.fb-media>video{max-width:100%!important;max-height:600px!important;width:auto!important;height:auto!important;object-fit:contain!important;display:block}
 .fb-cap{padding:11px 14px 2px;font-size:.92rem;line-height:1.5;color:#cfd3df;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
 .fb-cap.open{display:block;-webkit-line-clamp:unset}.fb-cap.open .fb-more-txt{display:none}
 .fb-cap b{font-family:var(--fs);font-weight:600;color:#fff}
@@ -137,6 +140,7 @@ footer a{color:var(--purple)}
       <div class="toggle" id="feedToggle"><button data-m="feed" class="on">Feed</button><button data-m="following">Following</button></div>
       <button class="cul-heart" id="cul-heart" style="display:none" aria-label="Notifications" title="Notifications" onclick="var b=document.querySelector('.kiln-bell'); if(b){b.click();}else{location.href='/v31/apply.html';}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg></button>
     </div>
+    <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
     <div class="feed" id="feed"></div>
   </section>
   <div class="typebar" id="typebar" style="display:none"></div><div id="discover" style="display:none"></div>
@@ -235,6 +239,38 @@ renderTypebar();renderDiscover();renderFeed();
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260731" defer></script>
+<script>
+/* COMMUNITY FEED (Founder doc step 4 + daily auto-post): profile_content posts — agents AND
+   users — render at the top of Culture with the same FB card chrome. Zero-token, DB-driven. */
+(function(){
+  function h(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function card(r){
+    var d=r.data||{}; var media=(d.media&&d.media[0])||{src:d.img||'',mtype:d.mtype||'image'};
+    var url='/v31/profile.html?slug='+encodeURIComponent(r.profile_slug);
+    var m=media.src
+      ? (media.mtype==='video'
+          ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:cover;display:block"></video>'
+          : '<img src="'+h(media.src)+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">')
+      : '';
+    return '<div class="fcard fbcard">'
+      +'<a class="fb-head" href="'+url+'" style="text-decoration:none"><img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b><span>@'+h(r.profile_slug)+'</span></div></a>'
+      +(m?'<div class="fb-media" style="background:none">'+m+'</div>':'')
+      +'<div class="fb-cap" onclick="this.classList.toggle(\'open\');var fx=this.querySelector(\'.fx\');if(fx)fx.style.display=this.classList.contains(\'open\')?\'block\':\'none\'"><b>'+h(d.t||'')+'</b>'+(d.html?'<span class="fb-more-txt">… more</span><div class="fx" style="display:none">'+d.html+'</div>':'')+'</div>'
+    +'</div>';
+  }
+  function boot(n){
+    var sb=window.__culSB;
+    if(!sb){ if(n<30){ setTimeout(function(){boot(n+1);},400); } return; }
+    sb.rpc('get_culture_feed',{p_limit:20}).then(function(r){
+      var rows=(r&&r.data)||[]; if(!rows.length) return;
+      var box=document.getElementById('community-feed'); if(!box) return;
+      box.innerHTML=rows.map(card).join('');
+    }).catch(function(){});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){boot(0);});
+  else boot(0);
+})();
+</script>
 <script src="/v31/v31-shell.js?v=20260732" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
