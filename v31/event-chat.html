@@ -111,6 +111,14 @@
   var p=new URLSearchParams(location.search);
   var slug=p.get('e')||'general'; var title=p.get('t')||'Event Chat';
   if(p.get('embed')==='1'){ document.body.classList.add('embed'); }
+  /* mode=chat (opened from a profile) = a PLAIN chat, not an event scene room:
+     hide the "← Events" nav, the "Scene Room" label, the event eyebrow/sub + scene-note. */
+  if(p.get('mode')==='chat'){
+    document.body.classList.add('mode-chat');
+    var _st=document.createElement('style');
+    _st.textContent='.mode-chat .back,.mode-chat .brand+span,.mode-chat .ev-eyebrow,.mode-chat .ev-sub,.mode-chat .scene-note{display:none!important}.mode-chat .ev-hd{padding-bottom:6px}';
+    document.head.appendChild(_st);
+  }
   document.getElementById('ev-title').textContent=title;
   document.title=title+' — Event Chat · KEEPITIL';
   var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(URL,KEY); }catch(e){}
