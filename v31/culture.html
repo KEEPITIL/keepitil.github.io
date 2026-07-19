@@ -246,14 +246,14 @@ renderTypebar();renderDiscover();renderFeed();
   function card(r){
     var d=r.data||{}; var media=(d.media&&d.media[0])||{src:d.img||'',mtype:d.mtype||'image'};
     var url='/v31/profile.html?slug='+encodeURIComponent(r.profile_slug);
-    var m=media.src
-      ? (media.mtype==='video'
-          ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:cover;display:block"></video>'
-          : '<img src="'+h(media.src)+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block">')
-      : '';
+    /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
+    var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
+    var m=(media.mtype==='video'&&media.src)
+      ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:contain;display:block"></video>'
+      : '<img src="'+h(mSrc)+'" loading="lazy" onerror="this.src=\'/v3/blog-default.jpg\'" style="width:100%;height:100%;object-fit:contain;display:block">';
     return '<div class="fcard fbcard">'
       +'<a class="fb-head" href="'+url+'" style="text-decoration:none"><img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b><span>@'+h(r.profile_slug)+'</span></div></a>'
-      +(m?'<div class="fb-media" style="background:none">'+m+'</div>':'')
+      +'<div class="fb-media" style="background:#000">'+m+'</div>'
       +'<div class="fb-cap" onclick="this.classList.toggle(\'open\');var fx=this.querySelector(\'.fx\');if(fx)fx.style.display=this.classList.contains(\'open\')?\'block\':\'none\'"><b>'+h(d.t||'')+'</b>'+(d.html?'<span class="fb-more-txt">… more</span><div class="fx" style="display:none">'+d.html+'</div>':'')+'</div>'
     +'</div>';
   }
