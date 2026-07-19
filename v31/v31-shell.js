@@ -11,6 +11,7 @@
     try{
       var ex=document.documentElement.getAttribute('data-page-type'); if(ex) return ex;
       var p=location.pathname;
+      if(/\/v31\/(tickets|ticket|event-chat)\.html$/.test(p)) return 'checkout';
       if(/\/v31\/scene\.html$/.test(p)) return 'scene';
       if(/\/v31\/event\.html$/.test(p)) return 'event';
       if(/\/v31\/culture\.html$/.test(p)) return 'culture';
