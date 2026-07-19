@@ -96,7 +96,7 @@ select:focus{border-color:var(--brand)}
         <h2>Account</h2><div class="psub">Your KEEPITIL identity.</div>
         <div class="row"><div class="lbl">Handle</div><div class="val" id="acc-handle">—</div></div>
         <div class="row"><div class="lbl">Email</div><div class="val" id="acc-email">—</div></div>
-        <div class="row"><div class="lbl">Edit profile</div><div class="val"><a id="acc-profile" class="btn" href="/v31/profile.html">Edit profile →</a></div></div>
+        <div class="row"><div class="lbl">Edit profile</div><div class="val"><a id="acc-profile" class="btn" href="/v31/profile.html?edit=1">Edit profile →</a></div></div>
         <div class="row"><div class="lbl">Sign out<small>End your session on this device</small></div><button class="btn danger" onclick="doLogout()">Log out</button></div>
       </div>
 
@@ -292,7 +292,7 @@ function showAnyway(){ document.getElementById('gate').style.display='none'; doc
     document.getElementById('acc-email').textContent=u.email||'—';
     var handle=(u.user_metadata&&(u.user_metadata.handle||u.user_metadata.username))||'';
     document.getElementById('acc-handle').textContent=handle?('@'+handle):'—';
-    if(handle) document.getElementById('acc-profile').href='/v31/profile.html?slug='+encodeURIComponent(handle);
+    if(handle) document.getElementById('acc-profile').href='/v31/profile.html?edit=1&slug='+encodeURIComponent(handle);
     SB.rpc('get_my_settings').then(function(r){
       STATE = (r && r.data) ? r.data : {};
       // sensible defaults
@@ -306,6 +306,6 @@ function showAnyway(){ document.getElementById('gate').style.display='none'; doc
 })();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260731" defer></script>
-<script src="/v31/v31-shell.js?v=20260731" defer></script>
+<script src="/v31/v31-shell.js?v=20260732" defer></script>
 </body>
 </html>
