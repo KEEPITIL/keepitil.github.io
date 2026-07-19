@@ -115,8 +115,9 @@
      hide the "← Events" nav, the "Scene Room" label, the event eyebrow/sub + scene-note. */
   if(p.get('mode')==='chat'){
     document.body.classList.add('mode-chat');
+    var _b=document.querySelector('.brand'); if(_b) _b.textContent=title;   /* header shows the CHAT TITLE only, not "⚡ KEEPITIL" */
     var _st=document.createElement('style');
-    _st.textContent='.mode-chat .back,.mode-chat .brand+span,.mode-chat .ev-eyebrow,.mode-chat .ev-sub,.mode-chat .scene-note{display:none!important}.mode-chat .ev-hd{padding-bottom:6px}';
+    _st.textContent='.mode-chat .back,.mode-chat .brand+span,.mode-chat .ev-hd,.mode-chat .scene-note{display:none!important}.mode-chat .brand{font-size:1rem}';
     document.head.appendChild(_st);
   }
   document.getElementById('ev-title').textContent=title;
