@@ -171,11 +171,30 @@ function fbSaveL(k,el){try{var m=JSON.parse(localStorage.getItem('kil-saves')||'
 function fbR(k){try{return JSON.parse(localStorage.getItem('kil-reshares')||'{}')[k]||0;}catch(e){return 0;}}
 function fbReshareL(k,el){try{var m=JSON.parse(localStorage.getItem('kil-reshares')||'{}');m[k]=m[k]?0:1;localStorage.setItem('kil-reshares',JSON.stringify(m));el.classList.toggle('on',!!m[k]);var c=el.querySelector('b');if(c)c.textContent=m[k]?'1':'';}catch(e){}}
 /* FB-parity card (Founder 2026-07-18): author header → 1:1 media → caption "…more" → actions */
+/* Blog cards expand the article's TEXT inline (no navigating away, no images) — lazy-fetched on first open. */
+function culBlogExpand(cap, slug, ev){
+  if(ev){ if(ev.target && ev.target.closest && ev.target.closest('a')) return; }
+  if(!cap) return;
+  var fx=cap.querySelector('.fx');
+  var opening=!cap.classList.contains('open');
+  cap.classList.toggle('open');
+  if(opening && fx && !fx.getAttribute('data-loaded')){
+    fx.setAttribute('data-loaded','1');
+    fx.innerHTML='<p style="opacity:.55">Loading…</p>';
+    fetch('/blog-'+slug+'.html').then(function(r){return r.text();}).then(function(html){
+      var doc=new DOMParser().parseFromString(html,'text/html');
+      var art=doc.querySelector('article');
+      if(!art){ fx.innerHTML='<p><a href="/blog-'+slug+'.html">Open full article →</a></p>'; return; }
+      art.querySelectorAll('img,video,iframe,picture,figure,svg,script,style,button').forEach(function(n){n.remove();});
+      fx.innerHTML=art.innerHTML;
+    }).catch(function(){ fx.innerHTML='<p><a href="/blog-'+slug+'.html">Open full article →</a></p>'; });
+  }
+}
 function feedCard(p){var c=cov(p.slug);var url='/blog-'+p.slug+'.html';var key='cul:'+p.slug;var liked=fbL(key);var resh=fbR(key);
   return '<div class="fcard fbcard" data-slug="'+p.slug+'" data-pid="cul:'+p.slug+'" style="--ac:'+col(p.c)+'">'
   +'<div class="fb-head"><img class="fb-av" src="/v3/logo-blue-nav.png" alt=""><div class="fb-who"><b>KEEPITIL</b><span>'+p.c+'</span></div></div>'
-  +'<a class="fb-media" href="'+url+'"'+(c?(' style="background-image:url('+c+')"'):'')+'></a>'
-  +'<div class="fb-cap" onclick="this.classList.toggle(\'open\')"><b>'+p.t+'</b><span class="fb-more-txt">… more</span><div class="fx"><a class="open" href="'+url+'">Open full article →</a></div></div>'
+  +'<div class="fb-media"'+(c?(' style="background-image:url('+c+')"'):'')+' onclick="culBlogExpand(this.parentNode.querySelector(\'.fb-cap\'),\''+p.slug+'\')"></div>'
+  +'<div class="fb-cap" onclick="culBlogExpand(this,\''+p.slug+'\',event)"><b>'+p.t+'</b><span class="fb-more-txt">… more</span><div class="fx"></div></div>'
   +'<div class="fb-actions">'
     +'<button class="fba fba-like'+(liked?' on':'')+'" onclick="fbLike(\''+key+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
     +'<button class="fba fba-cmt" onclick="culComments(\''+p.slug+'\')" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
@@ -302,6 +321,13 @@ renderTypebar();renderDiscover();renderFeed();
 .cmt-send{background:var(--brand,#00b4ff);color:#001018;border:0;border-radius:22px;padding:11px 20px;font:800 .84rem Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
 .fba b{font-size:.78rem;min-width:6px}
 .fba-resh.on{color:#22c55e}
+/* inline blog article text (text only, images stripped) */
+.fx img,.fx video,.fx iframe,.fx svg,.fx picture,.fx figure{display:none!important}
+.fb-cap.open .fx{max-height:440px;overflow-y:auto;margin-top:10px}
+.fx p{margin:0 0 9px;font-size:.9rem;line-height:1.58;color:var(--ink,#e8e8f0)}
+.fx h1,.fx h2,.fx h3,.fx h4{font-size:1.02rem;line-height:1.25;margin:13px 0 6px;color:#fff}
+.fx a{color:var(--brand,#00b4ff)}
+.fx ul,.fx ol{margin:0 0 9px 18px}.fx li{margin:0 0 4px}
 </style>
 <script>
 /* Culture feed — shared Supabase backend + login-gated interactions (look but can't touch). */
