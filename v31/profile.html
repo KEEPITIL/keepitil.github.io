@@ -47,13 +47,14 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:var(--nav);z-index:999;flex-direction:column;padding:18px 28px;border-bottom:1px solid var(--line);}
 .mobile-menu.open{display:flex;}
 .mobile-menu a{font-family:var(--font-head);font-size:1.2rem;letter-spacing:.12em;color:var(--text-soft);padding:12px 0;border-bottom:1px solid var(--line);}
-.pf-cover{position:relative;width:100%;aspect-ratio:16/9;max-height:60vh;overflow:hidden;background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;}
-/* Locked full-page backdrop (like culture + homepage) — content scrolls over it */
+/* header banner removed — the locked background image is the profile's visual now */
+.pf-cover{display:none!important;}
+/* Locked full-page backdrop (like culture + homepage) — content scrolls over it. Image is editable via --pf-bg. Dark scrim keeps feed text readable over any image. */
 body{background:transparent!important;}
-body::before{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;background:#0a0a0f url('/v3/logo-bg.jpg') center/cover no-repeat!important;opacity:1!important;}
+body::before{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;background:linear-gradient(rgba(6,7,14,.62),rgba(6,7,14,.62)),var(--pf-bg,url('/v3/logo-bg.jpg')) center center/cover no-repeat #0a0a0f!important;opacity:1!important;}
 .pf-cover img{width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62);}
 .pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
-.pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:-84px;}
+.pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:28px;}
 .pf-top{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;}
 .pf-avatar{width:176px;height:176px;border-radius:50%;border:4px solid var(--bg);background:var(--surface2);object-fit:cover;object-position:center 20%;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.55);}
 .pf-idblock{flex:1;min-width:240px;padding-bottom:6px;}
@@ -221,7 +222,7 @@ footer a{color:var(--accent2);}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
   .car-arrow{display:none;}
-  .pf-cover{height:200px;}.pf-head{margin-top:-64px;}.pf-avatar{width:124px;height:124px;}
+  .pf-head{margin-top:16px;}.pf-avatar{width:124px;height:124px;}
   .pf-top{gap:14px;}.pf-actions{width:100%;}.pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
   .pf-stats{justify-content:space-around;gap:16px;}.hl-row{justify-content:flex-start;gap:16px;}.pf-tab{font-size:0;padding:14px 4px;}.pf-tab svg{width:19px;height:19px;}
   .gal-grid{gap:6px;}.chat-wrap{height:560px;}.show-tix{padding:8px 14px;font-size:.82rem;}
@@ -860,7 +861,8 @@ var PROFILE = IS_DEMO ? {
 function applyProfile(){
   var g=function(id){return document.getElementById(id);};
   try{document.title=(PROFILE.name?PROFILE.name+' — ':'')+'Artist Profile | KEEPITIL';}catch(e){}
-  var _cv=g('pfCover'); if(_cv){ if(PROFILE.cover){ _cv.style.display=''; _cv.src=PROFILE.cover; } else { _cv.style.display='none'; } }
+  /* the profile "cover" is now the LOCKED BACKGROUND image (editable in Edit Profile) */
+  try{ document.documentElement.style.setProperty('--pf-bg', PROFILE.cover?("url('"+String(PROFILE.cover).replace(/'/g,"%27")+"')"):"url('/v3/logo-bg.jpg')"); }catch(e){}
   var _av=g('pfAvatar'); if(_av){ _av.classList.remove('pf-skel'); if(PROFILE.avatar){ _av.style.display=''; _av.src=PROFILE.avatar; } }
   if(g('pfName'))g('pfName').textContent=PROFILE.name||' ';
   if(g('pfHandle'))g('pfHandle').textContent=PROFILE.handle?('@'+PROFILE.handle+(PROFILE.location?' · '+PROFILE.location:'')+(PROFILE.pronouns?' · '+PROFILE.pronouns:'')):' ';
@@ -898,6 +900,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 function updateOwnerUI(){
   ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
+  try{ bindEditCta(); }catch(e){}  /* make the shell EDIT button open the popup */
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
   try{ if(CAN_EDIT() && !window.__cfOpened && new URLSearchParams(location.search).get('create')==='feed'){ window.__cfOpened=1; setTimeout(function(){openCreatePost('feed');},250); } }catch(e){}
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
@@ -957,6 +960,17 @@ function toggleFollow(){
   }
 }
 
+/* Rebind the shell's EDIT button to open the Edit Profile popup in-place (no navigating away). Runs a short poller since the shell nav is injected async. */
+function bindEditCta(){ if(window.__editBindStarted)return; window.__editBindStarted=1; var tries=0;
+  var iv=setInterval(function(){ tries++;
+    var cta=document.querySelector('.v3s-cta');
+    if(cta && /edit/i.test(cta.textContent||'')){
+      cta.setAttribute('href','/v31/profile.html?edit=1');
+      cta.onclick=function(ev){ if(CAN_EDIT()&&typeof openEditProfile==='function'){ ev.preventDefault(); openEditProfile(); } };
+    }
+    if(tries>40) clearInterval(iv);
+  },350);
+}
 /* ── EDIT PROFILE (owner-only) ── */
 function editHighlightsHTML(){
   return (PROFILE.highlights||[]).map(function(h,i){
@@ -972,7 +986,7 @@ function openEditProfile(){
   '<div class="kil-mb">'+
     '<div class="kil-sec">Photos</div>'+
     '<div class="kil-photos"><label class="kil-mf"><span>Profile photo</span><img class="kil-prev on" id="epAvatarPrev" src="'+PROFILE.avatar+'"><input type="file" accept="image/*" id="epAvatarFile"><input type="text" id="epAvatarUrl" placeholder="…or image URL"></label>'+
-    '<label class="kil-mf"><span>Backdrop / cover</span><img class="kil-prev on" id="epCoverPrev" src="'+PROFILE.cover+'"><input type="file" accept="image/*" id="epCoverFile"><input type="text" id="epCoverUrl" placeholder="…or image URL"></label></div>'+
+    '<label class="kil-mf"><span>Background image (fills the page behind your feed)</span><img class="kil-prev on" id="epCoverPrev" src="'+PROFILE.cover+'"><input type="file" accept="image/*" id="epCoverFile"><input type="text" id="epCoverUrl" placeholder="…or image URL"></label></div>'+
     '<div class="kil-sec">Profile</div>'+
     '<label class="kil-mf"><span>Display name</span><input type="text" id="epName" value="'+esc(PROFILE.name)+'"></label>'+
     '<div class="kil-row2"><label class="kil-mf"><span>@ Handle</span><input type="text" id="epHandle" value="'+esc(PROFILE.handle)+'"></label>'+
@@ -1951,11 +1965,12 @@ function loadTagged(){
   +'.fb-media{width:100%;aspect-ratio:1/1.02;overflow:hidden;background:#000;cursor:pointer}'
   +'.fb-media img,.fb-media video{width:100%!important;height:100%!important;object-fit:cover;object-position:center;display:block}'
   +'.fb-nomedia{display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:#cfd3df;font-family:var(--font-head,\'Bebas Neue\'),sans-serif;font-size:1.5rem;letter-spacing:.04em}'
-  +'.fb-cap{padding:11px 14px 4px;font-size:.9rem;line-height:1.5;color:var(--text-soft,#c9cede);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}'
+  +'.fb-cap{padding:11px 14px 4px;font-size:.9rem;line-height:1.5;color:#e6e9f2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}'
+  +'.fb-cap b{color:#fff}'
   +'.fb-cap.open{display:block;-webkit-line-clamp:unset}.fb-cap.open .fb-more-txt{display:none}'
   +'.fb-more-txt{color:var(--muted)}'
   +'.fb-actions{display:flex;align-items:center;gap:4px;padding:6px 10px 10px}'
-  +'.fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:var(--text-soft,#d4d7e2);cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif}'
+  +'.fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:#cfd3df;cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif}'
   +'.fba svg{width:21px;height:21px}.fba:hover{color:var(--text);background:rgba(255,255,255,.05)}'
   +'.fba-like.on{color:#ff4d8d}.fba-resh.on{color:#22c55e}.fb-save.on{color:var(--accent,#00b4ff)}'
   +'.fba b{font-size:.78rem;min-width:6px}'
@@ -1994,6 +2009,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260732" defer></script>
+<script src="/v31/v31-shell.js?v=20260733" defer></script>
 </body>
 </html>
