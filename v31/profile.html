@@ -900,7 +900,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 function updateOwnerUI(){
   ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
-  /* the shell now renders a hamburger menu (Edit profile / Settings) that calls openEditProfile — no rebind needed here */
+  try{ syncNavCta(); }catch(e){}  /* own profile = hamburger menu; someone else's = PROFILE button back to mine */
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
   try{ if(CAN_EDIT() && !window.__cfOpened && new URLSearchParams(location.search).get('create')==='feed'){ window.__cfOpened=1; setTimeout(function(){openCreatePost('feed');},250); } }catch(e){}
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
@@ -960,13 +960,19 @@ function toggleFollow(){
   }
 }
 
-/* Rebind the shell's EDIT button to open the Edit Profile popup in-place (no navigating away). Runs a short poller since the shell nav is injected async. */
-function bindEditCta(){ if(window.__editBindStarted)return; window.__editBindStarted=1; var tries=0;
+/* Keep the shell's top-right button correct for the CURRENT viewer:
+   - your OWN profile  -> hamburger menu (Edit profile / Settings), set by the shell
+   - someone ELSE's profile (viewer) -> PROFILE button back to your own profile
+   Runs a short poller because the shell nav is injected async and ownership resolves async. */
+function syncNavCta(){ if(window.__ncStarted)return; window.__ncStarted=1; var tries=0;
   var iv=setInterval(function(){ tries++;
-    var cta=document.querySelector('.v3s-cta');
-    if(cta && /edit/i.test(cta.textContent||'')){
-      cta.setAttribute('href','/v31/profile.html?edit=1');
-      cta.onclick=function(ev){ if(CAN_EDIT()&&typeof openEditProfile==='function'){ ev.preventDefault(); openEditProfile(); } };
+    var cta=document.querySelector('.v3s-cta'); if(!cta){ if(tries>40)clearInterval(iv); return; }
+    if(SESSION && SESSION.user){
+      if(!CAN_EDIT() && cta.textContent.trim().toUpperCase()!=='PROFILE'){
+        cta.innerHTML=''; cta.textContent='PROFILE'; cta.setAttribute('href','/v31/profile.html');
+        cta.setAttribute('title','My profile'); cta.setAttribute('aria-label','My profile');
+        cta.classList.remove('v3s-hamb'); cta.onclick=null; cta.style.cssText='';
+      }
     }
     if(tries>40) clearInterval(iv);
   },350);
@@ -1646,9 +1652,9 @@ function postCard(p){
   var authorSlug=(p.collab&&p.collab.length)?p.collab[0]:PROFILE_SLUG;
   var authorName=(p.collab&&p.collab.length)?('@'+p.collab[0]):(PROFILE.name||PROFILE_SLUG);
   var authorAv=(p.collab&&p.collab.length)?'/icon-192.png':(PROFILE.avatar||'/icon-192.png');
-  var media=(p.mtype==='video')
+  var media=(p.mtype==='video'&&p.media)
     ? '<video src="'+p.media+'#t=0.1" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video>'
-    : (p.media?'<img src="'+p.media+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.style.opacity=.15">':'<div class="fb-nomedia">'+esc(p.title||'')+'</div>');
+    : '<img src="'+esc(p.media||authorAv||'/icon-192.png')+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.src=\'/icon-192.png\'">';  /* every post shows an image — fall back to the author avatar */
   var col=(p.collab&&p.collab.length)?' <span style="color:var(--accent)">✦ @'+p.collab.map(esc).join(', @')+'</span>':'';
   var hid=(CAN_EDIT()&&isHiddenFromFeed(p))?'<span class="pc-hidden">Gallery only</span>':'';
   var plink='/v31/profile.html?slug='+encodeURIComponent(authorSlug);
