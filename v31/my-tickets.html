@@ -83,7 +83,7 @@ function render(rows){
   g.innerHTML=rows.map(function(t){
     var used=!!t.checked_in_at;
     var st=used?'<span class="chip used">CHECKED IN</span>':(t.status==='paid'||t.status==='confirmed'||t.status==='comp'?'<span class="chip ok">VALID</span>':'<span class="chip">'+esc((t.status||'').toUpperCase())+'</span>');
-    return '<a class="tix" href="/v3/tickets.html?e='+encodeURIComponent(t.slug||'')+'">'
+    return '<a class="tix" href="/v31/tickets.html?e='+encodeURIComponent(t.slug||'')+'">'
       +'<div class="cov">'+(t.cover_url?'<img src="'+esc(t.cover_url)+'" alt="" loading="lazy">':'<div class="noimg">🎟</div>')+'</div>'
       +'<div class="info">'
         +'<div class="ti">'+esc(t.title||'Event')+'</div>'
@@ -112,6 +112,6 @@ SB.auth.getSession().then(function(r){
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260731" defer></script>
-<script src="/v31/v31-shell.js?v=20260732" defer></script>
+<script src="/v31/v31-shell.js?v=20260735" defer></script>
 </body>
 </html>
