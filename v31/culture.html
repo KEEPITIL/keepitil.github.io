@@ -169,13 +169,13 @@ function fbR(k){try{return JSON.parse(localStorage.getItem('kil-reshares')||'{}'
 function fbReshareL(k,el){try{var m=JSON.parse(localStorage.getItem('kil-reshares')||'{}');m[k]=m[k]?0:1;localStorage.setItem('kil-reshares',JSON.stringify(m));el.classList.toggle('on',!!m[k]);var c=el.querySelector('b');if(c)c.textContent=m[k]?'1':'';}catch(e){}}
 /* FB-parity card (Founder 2026-07-18): author header → 1:1 media → caption "…more" → actions */
 function feedCard(p){var c=cov(p.slug);var url='/blog-'+p.slug+'.html';var key='cul:'+p.slug;var liked=fbL(key);var resh=fbR(key);
-  return '<div class="fcard fbcard" data-slug="'+p.slug+'" style="--ac:'+col(p.c)+'">'
+  return '<div class="fcard fbcard" data-slug="'+p.slug+'" data-pid="cul:'+p.slug+'" style="--ac:'+col(p.c)+'">'
   +'<div class="fb-head"><img class="fb-av" src="/v3/logo-blue-nav.png" alt=""><div class="fb-who"><b>KEEPITIL</b><span>'+p.c+'</span></div></div>'
   +'<a class="fb-media" href="'+url+'"'+(c?(' style="background-image:url('+c+')"'):'')+'></a>'
   +'<div class="fb-cap" onclick="this.classList.toggle(\'open\')"><b>'+p.t+'</b><span class="fb-more-txt">… more</span><div class="fx"><a class="open" href="'+url+'">Open full article →</a></div></div>'
   +'<div class="fb-actions">'
     +'<button class="fba'+(liked?' on':'')+'" onclick="fbLike(\''+key+'\',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b>'+(liked?'1':'')+'</b></button>'
-    +'<a class="fba" href="'+url+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></a>'
+    +'<button class="fba fba-cmt" onclick="culComments(\''+p.slug+'\')" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
     +'<button class="fba fba-resh'+(resh?' on':'')+'" onclick="fbReshareL(\''+key+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b>'+(resh?'1':'')+'</b></button>'
     +'<button class="fba" onclick="fbShare(location.origin+\''+url+'\')" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 16a3 3 0 1 0-2.8-4.1L8.9 8.3a3 3 0 1 0 0 7.4l6.3 3.6A3 3 0 1 0 18 16z"/></svg></button>'
     +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+key+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
@@ -236,4 +236,61 @@ renderTypebar();renderDiscover();renderFeed();
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260731" defer></script>
 <script src="/v31/v31-shell.js?v=20260732" defer></script>
+<style id="cul-int-css">
+.kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
+.kil-modal{width:100%;max-width:520px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.kil-mh{display:flex;align-items:center;justify-content:space-between;font:800 1.05rem Inter,sans-serif;padding:16px 18px;border-bottom:1px solid var(--line,#242433);text-transform:uppercase;letter-spacing:.03em}
+.kil-mx{background:none;border:0;color:var(--ink2,#9aa);font-size:1.5rem;cursor:pointer;line-height:1}
+.kil-mb{padding:16px 18px;overflow:auto}
+.kil-mfoot{padding:12px 16px;border-top:1px solid var(--line,#242433);display:flex;gap:8px;align-items:center}
+.cmt-list{display:flex;flex-direction:column;gap:14px}
+.kil-modal.cmt-modal{max-width:520px;height:82vh;max-height:760px}
+.cmt-modal .kil-mb{flex:1;min-height:0;overflow:auto}
+.cmt-modal .cmt-foot{flex:0 0 auto}
+.cmt-empty{color:var(--ink2,#9aa);text-align:center;padding:18px 0;font-size:.88rem}
+.cmt{display:flex;gap:10px;align-items:flex-start}
+.cmt-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#0a0a0f}
+.cmt-body{flex:1;min-width:0;background:rgba(255,255,255,.05);border-radius:12px;padding:8px 12px}
+.cmt-body b{display:block;font-size:.82rem;margin-bottom:2px}.cmt-body p{margin:0;font-size:.9rem;line-height:1.45;color:var(--ink,#e8e8f0);word-wrap:break-word}
+.cmt-del{background:none;border:0;color:var(--ink2,#9aa);font-size:1.1rem;cursor:pointer;padding:0 4px}.cmt-del:hover{color:#ff4d8d}
+.cmt-in{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--line,#242433);border-radius:22px;padding:10px 15px;color:#fff;font:400 .9rem Inter,sans-serif;outline:none}
+.cmt-send{background:var(--brand,#00b4ff);color:#001018;border:0;border-radius:22px;padding:11px 20px;font:800 .84rem Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.fba b{font-size:.78rem;min-width:6px}
+.fba-resh.on{color:#22c55e}
+</style>
+<script>
+/* Culture feed — shared Supabase backend + login-gated interactions (look but can't touch). */
+(function(){
+  var SB=null, SES=null, PST={};
+  var ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  function toast(m){var t=document.getElementById('cul-toast');if(!t){t=document.createElement('div');t.id='cul-toast';t.style.cssText='position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#12121c;border:1px solid #242433;color:#fff;padding:10px 18px;border-radius:22px;z-index:13000;font:600 .85rem Inter,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:opacity .2s';document.body.appendChild(t);}t.textContent=m;t.style.opacity='1';clearTimeout(t._h);t._h=setTimeout(function(){t.style.opacity='0';},1800);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function signedIn(){return !!(SES&&SES.user);}
+  function meName(){var u=SES&&SES.user;if(!u)return 'You';var m=u.user_metadata||{};return m.handle||m.name||m.full_name||(u.email?u.email.split('@')[0]:'User');}
+  function meAvatar(){var u=SES&&SES.user,m=(u&&u.user_metadata)||{};return m.avatar||m.avatar_url||'';}
+  function closeWall(){var w=document.getElementById('kil-loginwall');if(w)w.remove();}
+  window.__culCloseWall=closeWall;
+  function wall(){if(document.getElementById('kil-loginwall'))return true;var next=encodeURIComponent(location.pathname+location.search);var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kil-loginwall';ov.innerHTML='<div class="kil-modal" style="max-width:390px"><div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="__culCloseWall()">&times;</button></div><div class="kil-mb" style="padding:26px 22px;text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">&#128274;</div><p style="font-size:1rem;line-height:1.55;color:var(--ink,#e8e8f0);margin:0 0 20px">Create a free account to like, comment, reshare and save. Anyone can look around &mdash; you just need to be signed in to join in.</p><a href="/v31/apply.html?next='+next+'" class="cmt-send" style="padding:12px 28px">Log in / Join &rarr;</a></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeWall();});return true;}
+  function gate(){if(signedIn())return false;wall();return true;}
+  function keyOf(x){return x.indexOf('cul:')===0?x:('cul:'+x);}
+  function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,resh:0,reshared:false,comments:0});}
+  function cq(k){return (window.CSS&&CSS.escape)?CSS.escape(k):k;}
+  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt');if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
+  window.fbLike=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.liked){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);SB.from('post_likes').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.liked=true;s.likes++;paint(k);SB.from('post_likes').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);}});}};
+  window.fbReshareL=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.reshared){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);toast('Reshare removed');SB.from('post_reshares').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.reshared=true;s.resh++;paint(k);toast('Reshared ✓');SB.from('post_reshares').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);}});}};
+  window.fbSaveL=function(k,el){if(gate())return;k=keyOf(k);var on=el.classList.toggle('on');try{var m=JSON.parse(localStorage.getItem('kil-saves')||'{}');m[k]=on?1:0;localStorage.setItem('kil-saves',JSON.stringify(m));}catch(e){}toast(on?'Saved ✓':'Removed from saved');};
+  window.fbShare=function(u){if(gate())return;try{if(navigator.share){navigator.share({url:u});return;}}catch(e){}try{navigator.clipboard.writeText(u);toast('Link copied ✓');}catch(e){prompt('Copy link:',u);}};
+  function closeM(){var m=document.getElementById('culModal');if(m)m.remove();}
+  window.__culCloseM=closeM;
+  window.culComments=function(slug){var k=keyOf(slug);if(!SB){toast('Loading…');return;}closeM();var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='culModal';ov.innerHTML='<div class="kil-modal cmt-modal"><div class="kil-mh">Comments<button class="kil-mx" onclick="__culCloseM()">&times;</button></div><div class="kil-mb"><div id="culCmtList" class="cmt-list"><div class="cmt-empty">Loading…</div></div></div><div class="kil-mfoot">'+(signedIn()?'<input id="culCmtIn" class="cmt-in" placeholder="Write a comment…" maxlength="2000" onkeydown="if(event.key===\'Enter\'){event.preventDefault();__culSend(\''+k+'\');}"><button class="cmt-send" onclick="__culSend(\''+k+'\')">Post</button>':'<a href="/v31/apply.html" class="cmt-send" style="width:100%;text-align:center">Log in to comment</a>')+'</div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeM();});loadC(k);};
+  function loadC(k){var host=document.getElementById('culCmtList');if(!host)return;SB.from('post_comments').select('*').eq('post_key',k).order('created_at',{ascending:true}).then(function(r){var rows=(r&&r.data)||[];var s=pst(k);s.comments=rows.length;paint(k);if(!rows.length){host.innerHTML='<div class="cmt-empty">No comments yet — be the first.</div>';return;}var uid=SES&&SES.user?SES.user.id:null;host.innerHTML=rows.map(function(c){var canDel=uid&&c.user_id===uid;return '<div class="cmt"><img class="cmt-av" src="'+esc(c.author_avatar||'/icon-192.png')+'" onerror="this.src=\'/icon-192.png\'"><div class="cmt-body"><b>'+esc(c.author_name||'User')+'</b><p>'+esc(c.body)+'</p></div>'+(canDel?'<button class="cmt-del" onclick="__culDel(\''+c.id+'\',\''+k+'\')">&times;</button>':'')+'</div>';}).join('');});}
+  window.__culSend=function(k){if(!signedIn()){location.href='/v31/apply.html';return;}var inp=document.getElementById('culCmtIn');if(!inp)return;var body=(inp.value||'').trim();if(!body)return;inp.disabled=true;SB.from('post_comments').insert({post_key:k,profile_slug:'culture',user_id:SES.user.id,author_name:meName(),author_avatar:meAvatar(),body:body}).then(function(r){inp.disabled=false;if(r&&r.error){toast('Could not post');return;}inp.value='';loadC(k);});};
+  window.__culDel=function(id,k){SB.from('post_comments').delete().eq('id',id).then(function(){loadC(k);});};
+  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.likes++;if(uid&&x.user_id===uid)s.liked=true;}});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});SB.from('post_comments').select('post_key').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s)s.comments++;});keys.forEach(paint);}});}
+  window.__culHydrate=hydrate;
+  var _rf=window.renderFeed;if(typeof _rf==='function'){window.renderFeed=function(){_rf.apply(this,arguments);setTimeout(hydrate,30);};}
+  (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
+})();
+</script>
+
 </body></html>
