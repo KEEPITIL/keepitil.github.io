@@ -67,7 +67,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 .cul-pillars{display:none;align-items:center;justify-content:space-around;gap:4px;margin:0 0 14px;padding:10px 6px;background:rgba(14,13,22,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:14px}
 .cul-pillars a{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1 1 0;min-width:0;color:#cfd3e0;text-decoration:none;font-size:1.25rem;line-height:1}
 .cul-pillars a small{font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
-.fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.82);border:1px solid var(--brd);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
+.fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.93);border:1px solid var(--brd);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
 .fcard:hover{border-color:rgba(255,255,255,.22);transform:translateY(-2px)}
 .fcard .th{width:100%;aspect-ratio:16/9;background:#0a0a0f url('/v3/blog-default.jpg') center/cover;background-size:cover;background-position:center;transition:aspect-ratio .25s}
 .fcard.exp .th{aspect-ratio:16/7}
@@ -81,10 +81,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 .fb-head{display:flex;align-items:center;gap:10px;padding:11px 14px}
 .fb-av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0a0a0f}
 .fb-who{flex:1;min-width:0;line-height:1.25}.fb-who b{display:block;font-size:.9rem;color:#fff}.fb-who span{font-size:.7rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
-/* Facebook-style media: entire asset visible (any format), contain on black, capped height */
-.fb-media{display:flex;align-items:center;justify-content:center;width:100%;min-height:320px;max-height:600px;overflow:hidden;background:#000}
-.fb-media:empty{aspect-ratio:16/9;background-color:#000;background-image:url('/v3/blog-default.jpg');background-size:contain;background-repeat:no-repeat;background-position:center}
-.fb-media>img,.fb-media>video{max-width:100%!important;max-height:600px!important;width:auto!important;height:auto!important;object-fit:contain!important;display:block}
+/* SAME square card as before — only change: contain (whole image fits inside the card) instead of cover */
+.fb-media{display:block;width:100%;aspect-ratio:1/1.02;background:#000 url('/v3/blog-default.jpg') center/contain no-repeat;overflow:hidden}
+.fb-media>img,.fb-media>video{width:100%;height:100%;object-fit:contain!important;display:block}
 .fb-cap{padding:11px 14px 2px;font-size:.92rem;line-height:1.5;color:#cfd3df;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
 .fb-cap.open{display:block;-webkit-line-clamp:unset}.fb-cap.open .fb-more-txt{display:none}
 .fb-cap b{font-family:var(--fs);font-weight:600;color:#fff}
