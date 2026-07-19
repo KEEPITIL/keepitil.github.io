@@ -294,6 +294,22 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
   var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ";
   function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
   function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
+  /* profile hamburger dropdown: Edit profile · Settings */
+  function kilProfMenu(ev){ try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+    var ex=document.getElementById('kil-profmenu'); if(ex){ ex.remove(); return; }
+    var m=document.createElement('div'); m.id='kil-profmenu';
+    m.style.cssText='position:absolute;z-index:10050;min-width:190px;background:#12121c;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.55)';
+    m.innerHTML='<button data-a="edit" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Edit profile</button>'
+      +'<button data-a="settings" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Settings</button>';
+    document.body.appendChild(m);
+    var btn=(ev&&(ev.currentTarget||ev.target.closest&&ev.target.closest('a,button')))||null;
+    if(btn&&btn.getBoundingClientRect){ var r=btn.getBoundingClientRect(); m.style.top=(r.bottom+window.scrollY+8)+'px'; m.style.left=Math.max(8,(r.right+window.scrollX-m.offsetWidth))+'px'; }
+    m.querySelectorAll('button').forEach(function(b){ b.onmouseover=function(){b.style.background='rgba(255,255,255,.07)';}; b.onmouseout=function(){b.style.background='none';}; });
+    m.querySelector('[data-a=edit]').onclick=function(){ m.remove(); if(typeof window.openEditProfile==='function'){ window.openEditProfile(); } else { location.href='/v31/profile.html?edit=1'; } };
+    m.querySelector('[data-a=settings]').onclick=function(){ m.remove(); location.href='/v31/settings.html'; };
+    setTimeout(function(){ document.addEventListener('click',function h(e){ var mm=document.getElementById('kil-profmenu'); if(mm&&!mm.contains(e.target)){ mm.remove(); } document.removeEventListener('click',h); }); },0);
+  }
+  window.kilProfMenu=kilProfMenu;
   function applyAuthState(hdr, s){
     /* mobile floating hamburger: profile pages, signed-in, mobile viewport only */
     try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
@@ -304,9 +320,9 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     var HAMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
     if(cta){
-      if(s && onProfile){ cta.textContent='EDIT'; cta.setAttribute('href','/v31/profile.html?edit=1'); cta.setAttribute('title','Edit profile'); cta.setAttribute('aria-label','Edit profile'); cta.classList.remove('v3s-hamb'); cta.style.cssText='color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff);box-shadow:0 0 12px color-mix(in srgb,var(--brand,#00b4ff) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 22%,transparent)';
-        /* open the Edit Profile popup in-place (no navigation) when already on the profile page */
-        try{ cta.onclick=function(ev){ if(typeof window.openEditProfile==='function'){ ev.preventDefault(); window.openEditProfile(); } }; }catch(e){} }
+      if(s && onProfile){ cta.innerHTML=HAMB; cta.setAttribute('href','#'); cta.setAttribute('title','Menu'); cta.setAttribute('aria-label','Profile menu'); cta.classList.add('v3s-hamb'); cta.style.cssText='color:var(--text,#fff);display:inline-flex;align-items:center;justify-content:center;padding:8px 12px';
+        var _sv=cta.querySelector('svg'); if(_sv){ _sv.style.width='22px'; _sv.style.height='22px'; }
+        try{ cta.onclick=kilProfMenu; }catch(e){} }
       else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
     }
     if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
