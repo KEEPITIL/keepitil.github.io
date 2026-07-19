@@ -334,8 +334,9 @@ footer a{color:var(--accent2);}
 .mytix-wrap{margin:0 0 20px;}
 .mytix-h{font-size:.8rem;font-weight:800;letter-spacing:.08em;color:var(--accent);margin:0 0 10px;}
 /* IG-parity (Founder 2026-07-18): every event filter view is a GRID, not a carousel */
-.mytix-row{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:10px;overflow:visible!important}
-@media(max-width:560px){.mytix-row{grid-template-columns:repeat(2,1fr)!important}}
+.mytix-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px;overflow:visible!important;width:100%}
+.mytix-row .mytix-card{flex:none!important;width:auto!important}
+@media(max-width:560px){.mytix-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 .mytix-arrow{display:none!important}
 .mytix-car{position:relative;}
 .mytix-row{display:flex;gap:15px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:none;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
@@ -543,7 +544,7 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel" id="tab-chat">
-  <div style="display:flex;align-items:center;gap:8px"><div class="pf-filter" id="chat-filter" style="flex:1"></div><button class="dm-new" id="dm-new" title="New message" onclick="addContent('chat group')" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></div>
+  <div style="display:flex;align-items:center;gap:8px"><div class="pf-filter" id="chat-filter" style="flex:1"></div><button class="evsub-b create" id="dm-new" title="Create a chat" onclick="addContent('chat group')" style="display:none;flex:0 0 auto;white-space:nowrap">＋Create</button></div>
   <div class="pf-grid" id="chat-list"></div>
   <div class="chat-open" id="chat-open" style="display:none;">
     <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
@@ -1552,7 +1553,7 @@ function renderChats(){
   }).join('');
 }
 function openChatGroup(slug,name){
-  var f=document.getElementById('chat-frame');if(f)f.src='/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name);
+  var f=document.getElementById('chat-frame');if(f)f.src='/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)+'&mode=chat';
   var l=document.getElementById('chat-list');if(l)l.style.display='none';
   var o=document.getElementById('chat-open');if(o)o.style.display='block';
 }
