@@ -1455,8 +1455,22 @@ function cssq(s){ s=String(s); return (window.CSS&&CSS.escape)?CSS.escape(s):s.r
 function isUuid(s){ return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s||''); }
 function meName(){ var u=SESSION&&SESSION.user; if(!u)return 'You'; var m=u.user_metadata||{}; return m.handle||m.name||m.full_name||(u.email?u.email.split('@')[0]:'User'); }
 function meAvatar(){ var u=SESSION&&SESSION.user; var m=(u&&u.user_metadata)||{}; return m.avatar||m.avatar_url||''; }
-function needAuth(){ if(SESSION&&SESSION.user) return false; toast('Sign in to join in — like, comment & reshare.');
-  setTimeout(function(){ location.href='/v31/apply.html?next='+encodeURIComponent(location.pathname+location.search); },900); return true; }
+/* look-but-can't-touch: every interaction needs an account. Returns TRUE (blocked) + shows a login wall when signed out. */
+function needAuth(){ if(SESSION&&SESSION.user) return false; showLoginWall(); return true; }
+function closeLoginWall(){ var m=document.getElementById('kil-loginwall'); if(m)m.remove(); }
+function showLoginWall(){
+  if(document.getElementById('kil-loginwall'))return;
+  var next=encodeURIComponent(location.pathname+location.search);
+  var ov=document.createElement('div'); ov.className='kil-modal-ov'; ov.id='kil-loginwall';
+  ov.innerHTML='<div class="kil-modal" style="max-width:390px">'
+    +'<div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="closeLoginWall()">&times;</button></div>'
+    +'<div class="kil-mb" style="padding:26px 22px;text-align:center">'
+      +'<div style="font-size:2.5rem;line-height:1;margin-bottom:12px">🔒</div>'
+      +'<p style="font-size:1rem;line-height:1.55;color:var(--text-soft,#d4d7e2);margin:0 0 20px">Create a free account to like, comment, reshare and save. Anyone can look around — you just need to be signed in to join in.</p>'
+      +'<a href="/v31/apply.html?next='+next+'" class="cmt-send" style="display:inline-block;text-decoration:none;padding:12px 28px">Log in / Join →</a>'
+    +'</div></div>';
+  document.body.appendChild(ov); ov.addEventListener('click',function(e){if(e.target===ov)closeLoginWall();});
+}
 function pstOf(pid){ return PST[pid]||(PST[pid]={likes:0,liked:false,resh:0,reshared:false,comments:0}); }
 function paintAct(pid){ var st=PST[pid]; if(!st)return;
   document.querySelectorAll('.fbcard[data-pid="'+cssq(pid)+'"]').forEach(function(card){
@@ -1475,7 +1489,7 @@ function fbReshare(pid){ if(needAuth())return; if(!SB||!pid)return; var st=pstOf
     SB.from('post_reshares').delete().eq('post_key',pid).eq('user_id',uid).then(function(){}).catch(function(){}); }
   else { st.reshared=true; st.resh++; paintAct(pid); toast('Reshared ✓');
     SB.from('post_reshares').insert({post_key:pid,profile_slug:PROFILE_SLUG,user_id:uid}).then(function(r){ if(r&&r.error){ st.reshared=false; st.resh=Math.max(0,st.resh-1); paintAct(pid);} }).catch(function(){}); } }
-function fbShare(url){ try{ if(navigator.share){ navigator.share({url:url}); return; } }catch(e){}
+function fbShare(url){ if(needAuth())return; try{ if(navigator.share){ navigator.share({url:url}); return; } }catch(e){}
   try{ navigator.clipboard.writeText(url); toast('Link copied ✓'); }catch(e){ prompt('Copy link:',url); } }
 function fbSave(pid,el){ if(needAuth())return; if(!SB||!pid)return; var uid=SESSION.user.id, on=el.classList.toggle('on');
   if(isUuid(pid)){ if(on){ SB.from('post_saves').insert({user_id:uid,content_id:pid}).then(function(){}).catch(function(){}); toast('Saved ✓'); }
@@ -1496,7 +1510,7 @@ function hydratePosts(){ if(!SB)return;
 function openComments(pid){ if(!pid)return; closeModal();
   var signedIn=!!(SESSION&&SESSION.user);
   var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
-  ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Comments<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
+  ov.innerHTML='<div class="kil-modal cmt-modal"><div class="kil-mh">Comments<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
     +'<div class="kil-mb"><div id="cmtList" class="cmt-list"><div class="cmt-empty">Loading…</div></div></div>'
     +'<div class="kil-mfoot cmt-foot">'
       +(signedIn?'<input id="cmtInput" class="cmt-in" placeholder="Write a comment…" maxlength="2000" onkeydown="if(event.key===\'Enter\'){event.preventDefault();sendComment(\''+pid+'\');}"><button class="cmt-send" onclick="sendComment(\''+pid+'\')">Post</button>'
@@ -1893,6 +1907,11 @@ function loadTagged(){
   +'.post-menu button:hover{background:rgba(255,255,255,.07)}'
   /* comments modal */
   +'.cmt-list{display:flex;flex-direction:column;gap:14px;max-height:52vh;overflow:auto;padding:4px 2px}'
+  /* comments open as a tall, chat-style panel: header fixed, list fills + scrolls, composer pinned */
+  +'.kil-modal.cmt-modal{max-width:520px;height:82vh;max-height:760px;display:flex;flex-direction:column;overflow:hidden}'
+  +'.cmt-modal .kil-mb{flex:1;min-height:0;overflow:auto}'
+  +'.cmt-modal .cmt-list{max-height:none}'
+  +'.cmt-modal .cmt-foot{flex:0 0 auto}'
   +'.cmt-empty{color:var(--muted);text-align:center;padding:20px 0;font-size:.86rem}'
   +'.cmt{display:flex;gap:10px;align-items:flex-start}'
   +'.cmt-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#0a0a0f}'
