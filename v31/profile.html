@@ -1501,9 +1501,9 @@ var COLLAB_POSTS=[], COLLAB_PENDING=[];
 function sigPid(a,b){ var s=(a||'')+'|'+(b||''), h=0,i; for(i=0;i<s.length;i++){h=((h<<5)-h+s.charCodeAt(i))|0;} return 'sig:'+(typeof PROFILE_SLUG!=='undefined'?PROFILE_SLUG:'x')+':'+(h>>>0).toString(36); }
 function allPosts(){
   var out=[];
-  GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,hideFeed:a.hideFeed,src:'article',idx:i,pid:a._pid||sigPid(a.t,a.img)}); });
-  GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,hideFeed:t[4],src:'photo',idx:i,pid:t[5]||sigPid(t[1],t[0])}); });
-  COLLAB_POSTS.forEach(function(c,i){ var d=c.payload||{}; out.push({type:(d.mtype==='video')?'video':(d.mtype==='image'?'image':'article'),title:d.t||c.title||'Collab',sub:'✦ Collab · @'+c.source_slug,media:d.img||'',mtype:d.mtype||'image',collab:[c.source_slug],hideFeed:false,src:'collab',idx:i,pid:'collab:'+c.id}); });
+  GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,hideFeed:a.hideFeed,src:'article',idx:i,pid:a._pid||sigPid(a.t,a.img),body:a.html||''}); });
+  GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,hideFeed:t[4],src:'photo',idx:i,pid:t[5]||sigPid(t[1],t[0]),body:''}); });
+  COLLAB_POSTS.forEach(function(c,i){ var d=c.payload||{}; out.push({type:(d.mtype==='video')?'video':(d.mtype==='image'?'image':'article'),title:d.t||c.title||'Collab',sub:'✦ Collab · @'+c.source_slug,media:d.img||'',mtype:d.mtype||'image',collab:[c.source_slug],hideFeed:false,src:'collab',idx:i,pid:'collab:'+c.id,body:(c.payload&&c.payload.html)||''}); });
   return out;
 }
 /* Collab READ side — a shared post shows on this profile only after the owner ACCEPTS it. */
@@ -1640,7 +1640,7 @@ function editPost(src,idx){ closeMenu(); var cur='',pid;
   if(isUuid(pid)&&SB){ SB.from('profile_content').select('data').eq('id',pid).maybeSingle().then(function(r){ var d=(r&&r.data&&r.data.data)||{}; if(src==='article')d.t=nv; else d.label=nv; SB.from('profile_content').update({data:d}).eq('id',pid).then(function(){toast('Caption updated');}); }).catch(function(){}); }
   else { toast('Caption updated (sample post — not saved to server).'); } }
 function reportPost(){ closeMenu(); toast('Thanks — this post was reported for review.'); }
-function fbCapToggle(el,ev){ if(ev){ev.stopPropagation();} el.classList.toggle('open'); }
+function fbCapToggle(el,ev){ if(ev){ if(ev.target&&ev.target.closest&&ev.target.closest('a')) return; ev.stopPropagation(); } el.classList.toggle('open'); }
 document.addEventListener('scroll',function(e){
   var c=e.target; if(!c.classList||!c.classList.contains('fb-caro'))return;
   var i=Math.round(c.scrollLeft/c.clientWidth);
@@ -1665,8 +1665,8 @@ function postCard(p){
       +'<button class="fb-more" onclick="postMenu(\''+pid+'\',\''+p.src+'\','+p.idx+',event)" title="Options">⋯</button>'
       +hid
     +'</div>'
-    +'<div class="fb-media" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'</div>'
-    +(p.title||p.sub?'<div class="fb-cap" onclick="fbCapToggle(this,event)"><b>'+esc(p.title||'')+'</b>'+(p.sub?' '+esc(p.sub):'')+'<span class="fb-more-txt">… more</span></div>':'')
+    +'<div class="fb-media">'+media+'</div>'
+    +(p.title||p.sub||p.body?'<div class="fb-cap" onclick="fbCapToggle(this,event)"><div class="fb-cap-lead"><b>'+esc(p.title||'')+'</b>'+(p.sub?' '+esc(p.sub):'')+'</div>'+(p.body?'<div class="fb-cap-full">'+p.body+'</div><span class="fb-more-txt">… more</span>':'')+'</div>':'')
     +'<div class="fb-actions">'
       +'<button class="fba fba-like" onclick="event.stopPropagation();fbToggleLike(\''+pid+'\')" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
       +'<button class="fba fba-cmt" onclick="event.stopPropagation();openComments(\''+pid+'\')" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
@@ -1972,10 +1972,14 @@ function loadTagged(){
   +'.fb-media{width:100%;aspect-ratio:1/1.02;overflow:hidden;background:#000;cursor:pointer}'
   +'.fb-media img,.fb-media video{width:100%!important;height:100%!important;object-fit:contain;object-position:center;display:block}'
   +'.fb-nomedia{display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:#cfd3df;font-family:var(--font-head,\'Bebas Neue\'),sans-serif;font-size:1.5rem;letter-spacing:.04em}'
-  +'.fb-cap{padding:11px 14px 4px;font-size:.9rem;line-height:1.5;color:#e6e9f2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}'
+  +'.fb-cap{padding:11px 14px 12px;font-size:.9rem;line-height:1.5;color:#e6e9f2;cursor:pointer}'
   +'.fb-cap b{color:#fff}'
-  +'.fb-cap.open{display:block;-webkit-line-clamp:unset}.fb-cap.open .fb-more-txt{display:none}'
-  +'.fb-more-txt{color:var(--muted)}'
+  +'.fb-cap-lead{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}'
+  +'.fb-cap.open .fb-cap-lead{-webkit-line-clamp:unset;overflow:visible}'
+  +'.fb-cap-full{display:none;margin-top:8px;color:var(--text-soft,#d4d7e2)}'
+  +'.fb-cap.open .fb-cap-full{display:block}'
+  +'.fb-cap-full p{margin:0 0 8px}.fb-cap-full a{color:var(--accent,#00b4ff)}.fb-cap-full img,.fb-cap-full video{max-width:100%;border-radius:10px;margin:6px 0}'
+  +'.fb-more-txt{color:var(--muted);font-weight:600;display:inline-block;margin-top:4px}.fb-cap.open .fb-more-txt{display:none}'
   +'.fb-actions{display:flex;align-items:center;gap:4px;padding:6px 10px 10px}'
   +'.fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:#cfd3df;cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif}'
   +'.fba svg{width:21px;height:21px}.fba:hover{color:var(--text);background:rgba(255,255,255,.05)}'
