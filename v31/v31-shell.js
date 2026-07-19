@@ -304,7 +304,9 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     var HAMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
     var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
     if(cta){
-      if(s && onProfile){ cta.textContent='EDIT'; cta.setAttribute('href','/v31/settings.html'); cta.setAttribute('title','Edit profile & settings'); cta.setAttribute('aria-label','Edit profile & settings'); cta.classList.remove('v3s-hamb'); cta.style.cssText='color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff);box-shadow:0 0 12px color-mix(in srgb,var(--brand,#00b4ff) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 22%,transparent)'; }
+      if(s && onProfile){ cta.textContent='EDIT'; cta.setAttribute('href','/v31/profile.html?edit=1'); cta.setAttribute('title','Edit profile'); cta.setAttribute('aria-label','Edit profile'); cta.classList.remove('v3s-hamb'); cta.style.cssText='color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff);box-shadow:0 0 12px color-mix(in srgb,var(--brand,#00b4ff) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--brand,#00b4ff) 22%,transparent)';
+        /* open the Edit Profile popup in-place (no navigation) when already on the profile page */
+        try{ cta.onclick=function(ev){ if(typeof window.openEditProfile==='function'){ ev.preventDefault(); window.openEditProfile(); } }; }catch(e){} }
       else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
     }
     if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
