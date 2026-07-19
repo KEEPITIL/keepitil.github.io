@@ -895,6 +895,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 }
 function updateOwnerUI(){
   ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
+  try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
   try{ if(CAN_EDIT() && !window.__cfOpened && new URLSearchParams(location.search).get('create')==='feed'){ window.__cfOpened=1; setTimeout(function(){openCreatePost('feed');},250); } }catch(e){}
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
@@ -1670,6 +1671,7 @@ function toggleArchived(id,val){
     });
   });
   window.addEventListener('resize',paint);
+  window.__feedCatPaint=paint;  /* exposed so updateOwnerUI can re-add the ＋Create chip once auth is ready */
   paint();
 })();
 /* header stats + about + links(≤5) + account type */
@@ -1775,7 +1777,7 @@ function loadTagged(){
   +'.fb-cap.open{display:block;-webkit-line-clamp:unset}.fb-cap.open .fb-more-txt{display:none}'
   +'.fb-more-txt{color:var(--muted)}'
   +'.fb-actions{display:flex;align-items:center;gap:4px;padding:6px 10px 10px}'
-  +'.fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:var(--muted);cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif}'
+  +'.fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:var(--text-soft,#d4d7e2);cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif}'
   +'.fba svg{width:21px;height:21px}.fba:hover{color:var(--text);background:rgba(255,255,255,.05)}'
   +'.fba.on{color:#ff4d8d}.fb-save.on{color:var(--accent,#00b4ff)}'
   +'.fbcard .pc-hidden{position:static;margin-left:6px}';
