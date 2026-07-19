@@ -251,10 +251,19 @@ renderTypebar();renderDiscover();renderFeed();
     var m=(media.mtype==='video'&&media.src)
       ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:contain;display:block"></video>'
       : '<img src="'+h(mSrc)+'" loading="lazy" onerror="this.src=\'/v3/blog-default.jpg\'" style="width:100%;height:100%;object-fit:contain;display:block">';
-    return '<div class="fcard fbcard">'
+    var pid=h(r.id||('cul:'+r.profile_slug));
+    var acts='<div class="fb-actions">'
+      +'<button class="fba fba-like" onclick="fbLike(\''+pid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
+      +'<button class="fba fba-cmt" onclick="culComments(\''+pid+'\')" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
+      +'<button class="fba fba-resh" onclick="fbReshareL(\''+pid+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
+      +'<button class="fba fba-share" onclick="fbShare(location.origin+\''+url+'\')" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>'
+      +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+pid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
+    +'</div>';
+    return '<div class="fcard fbcard" data-pid="'+pid+'">'
       +'<a class="fb-head" href="'+url+'" style="text-decoration:none"><img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b><span>@'+h(r.profile_slug)+'</span></div></a>'
       +'<div class="fb-media" style="background:#000">'+m+'</div>'
       +'<div class="fb-cap" onclick="this.classList.toggle(\'open\');var fx=this.querySelector(\'.fx\');if(fx)fx.style.display=this.classList.contains(\'open\')?\'block\':\'none\'"><b>'+h(d.t||'')+'</b>'+(d.html?'<span class="fb-more-txt">… more</span><div class="fx" style="display:none">'+d.html+'</div>':'')+'</div>'
+      +acts
     +'</div>';
   }
   function boot(n){
@@ -264,6 +273,7 @@ renderTypebar();renderDiscover();renderFeed();
       var rows=(r&&r.data)||[]; if(!rows.length) return;
       var box=document.getElementById('community-feed'); if(!box) return;
       box.innerHTML=rows.map(card).join('');
+      try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){}  /* fill like/comment/reshare counts on community cards */
     }).catch(function(){});
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){boot(0);});
@@ -307,7 +317,7 @@ renderTypebar();renderDiscover();renderFeed();
   window.__culCloseWall=closeWall;
   function wall(){if(document.getElementById('kil-loginwall'))return true;var next=encodeURIComponent(location.pathname+location.search);var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kil-loginwall';ov.innerHTML='<div class="kil-modal" style="max-width:390px"><div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="__culCloseWall()">&times;</button></div><div class="kil-mb" style="padding:26px 22px;text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">&#128274;</div><p style="font-size:1rem;line-height:1.55;color:var(--ink,#e8e8f0);margin:0 0 20px">Create a free account to like, comment, reshare and save. Anyone can look around &mdash; you just need to be signed in to join in.</p><a href="/v31/apply.html?next='+next+'" class="cmt-send" style="padding:12px 28px">Log in / Join &rarr;</a></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeWall();});return true;}
   function gate(){if(signedIn())return false;wall();return true;}
-  function keyOf(x){return x.indexOf('cul:')===0?x:('cul:'+x);}
+  function keyOf(x){ x=String(x); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x)) return x; return x.indexOf('cul:')===0?x:('cul:'+x); }
   function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,resh:0,reshared:false,comments:0});}
   function cq(k){return (window.CSS&&CSS.escape)?CSS.escape(k):k;}
   function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt');if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
