@@ -671,7 +671,7 @@ function loadMyTickets(){
     mytixMark();
   }).catch(function(){ wrap.style.display='none'; });
 }
-function goMyTix(i){ var t=MY_TIX[i]; if(!t)return; location.href='/v3/tickets.html?e='+encodeURIComponent(t.slug||''); }
+function goMyTix(i){ var t=MY_TIX[i]; if(!t)return; location.href='/v31/tickets.html?e='+encodeURIComponent(t.slug||''); }
 /* ── MY EVENTS carousel: events this profile created/hosts. Owner sees all statuses; public sees published. ── */
 function loadMyEvents(){
   var wrap=document.getElementById('myev-wrap'); if(!wrap||!SB){ if(wrap)wrap.style.display='none'; return; }
@@ -707,7 +707,7 @@ function openTicket(i){
     +'<h3 style="margin:0 0 4px">'+esc(t.title||'Event')+'</h3>'
     +'<p class="note" style="margin:0 0 12px">'+esc(fmtTixDate(t.starts_at))+(t.venue?' · '+esc(t.venue):'')+(t.city?' · '+esc(t.city):'')+'</p>'
     +'<div style="display:flex;gap:14px;align-items:center;margin:0 0 14px"><img src="'+qr+'" alt="Ticket QR" style="width:110px;height:110px;border-radius:10px;background:#fff;padding:6px"><div><div style="font-weight:800;font-size:.9rem">General Admission</div><div class="note">Qty: '+(t.qty||1)+'</div><div class="note" style="word-break:break-all;font-size:.66rem">Ref: '+esc(String(t.qr_token||'').slice(0,12))+'</div><div style="color:var(--accent);font-weight:800;font-size:.8rem;margin-top:4px">✓ PAID</div></div></div>'
-    +'<a class="kil-msave" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="/v3/ticket.html?t='+encodeURIComponent(t.qr_token||'')+'">View / share full ticket →</a>'
+    +'<a class="kil-msave" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="/v31/ticket.html?t='+encodeURIComponent(t.qr_token||'')+'">View / share full ticket →</a>'
     +'<a class="kil-mcancel" style="display:block;text-align:center;text-decoration:none" href="/v31/event.html?e='+encodeURIComponent(t.slug||'')+'">Open event page &amp; chat →</a>'
     +'</div></div>';
   document.body.appendChild(ov);
@@ -895,6 +895,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 function updateOwnerUI(){
   ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
+  try{ if(CAN_EDIT() && !window.__cfOpened && new URLSearchParams(location.search).get('create')==='feed'){ window.__cfOpened=1; setTimeout(function(){openCreatePost('feed');},250); } }catch(e){}
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
 }
 /* ── FOLLOW (fans follow a profile) ── */
@@ -1442,14 +1443,39 @@ function collabRespond(id,status){
   if(!SB){return;}
   try{ SB.from('post_collaborators').update({status:status}).eq('id',id).then(function(){ toast(status==='accepted'?'Collab accepted — added to your feed.':'Collab declined.'); loadCollab(); }).catch(function(){}); }catch(e){}
 }
+/* FB-parity post card (Founder 2026-07-18): uniform card — author header → 1:1 media → caption "…more" → action row */
+function fbLikes(k){ try{return JSON.parse(localStorage.getItem('kil-likes')||'{}')[k]||0;}catch(e){return 0;} }
+function fbToggleLike(k,el){ try{ var m=JSON.parse(localStorage.getItem('kil-likes')||'{}'); m[k]=m[k]?0:1; localStorage.setItem('kil-likes',JSON.stringify(m));
+  el.classList.toggle('on',!!m[k]); var c=el.querySelector('b'); if(c)c.textContent=m[k]?'1':''; }catch(e){} }
+function fbShare(url){ try{ if(navigator.share){ navigator.share({url:url}); return; } }catch(e){}
+  try{ navigator.clipboard.writeText(url); toast('Link copied ✓'); }catch(e){ prompt('Copy link:',url); } }
+function fbSave(k,el){ try{ var m=JSON.parse(localStorage.getItem('kil-saves')||'{}'); m[k]=m[k]?0:1; localStorage.setItem('kil-saves',JSON.stringify(m));
+  el.classList.toggle('on',!!m[k]); toast(m[k]?'Saved ✓':'Removed from saved'); }catch(e){} }
+function fbCapToggle(el,ev){ if(ev){ev.stopPropagation();} el.classList.toggle('open'); }
 function postCard(p){
+  var key=p.src+':'+p.idx;
   var media=(p.mtype==='video')
-    ? '<video src="'+p.media+'" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video><span class="mtype-badge"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>VIDEO</span>'
-    : '<img src="'+p.media+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.style.opacity=.15">';
-  var col=(p.collab&&p.collab.length)?'<span class="card-collab">✦ '+p.collab.map(function(h){return '@'+esc(h);}).join(', ')+'</span>':'';
+    ? '<video src="'+p.media+'" muted loop playsinline preload="metadata" onmouseover="try{this.play()}catch(e){}" onmouseout="this.pause()"></video>'
+    : (p.media?'<img src="'+p.media+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.style.opacity=.15">':'<div class="fb-nomedia">'+esc(p.title||'')+'</div>');
+  var col=(p.collab&&p.collab.length)?' <span style="color:var(--accent)">✦ @'+p.collab.map(esc).join(', @')+'</span>':'';
   var hid=(CAN_EDIT()&&isHiddenFromFeed(p))?'<span class="pc-hidden">Gallery only</span>':'';
-  return '<div class="pf-card" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'<span class="pc-type '+p.type+'">'+p.type+'</span>'+col+hid
-    +'<div class="pc-body"><div class="pc-t">'+esc(p.title)+'</div>'+(p.sub?'<div class="pc-d">'+esc(p.sub)+'</div>':'')+'</div></div>';
+  var liked=fbLikes(key);
+  return '<div class="pf-card fbcard" data-kind="'+p.type+'">'
+    +'<div class="fb-head" onclick="openPost(\''+p.src+'\','+p.idx+')">'
+      +'<img class="fb-av" src="'+esc(PROFILE.avatar||'/icon-192.png')+'" alt="" onerror="this.src=\'/icon-192.png\'">'
+      +'<div class="fb-who"><b>'+esc(PROFILE.name||PROFILE_SLUG)+'</b><span>'+esc(p.type)+col+'</span></div>'
+      +(CAN_EDIT()?'<button class="fb-more" onclick="event.stopPropagation();openPost(\''+p.src+'\','+p.idx+')" title="Options">⋯</button>':'')
+      +hid
+    +'</div>'
+    +'<div class="fb-media" onclick="openPost(\''+p.src+'\','+p.idx+')">'+media+'</div>'
+    +(p.title||p.sub?'<div class="fb-cap" onclick="fbCapToggle(this,event)"><b>'+esc(p.title||'')+'</b>'+(p.sub?' '+esc(p.sub):'')+'<span class="fb-more-txt">… more</span></div>':'')
+    +'<div class="fb-actions">'
+      +'<button class="fba'+(liked?' on':'')+'" onclick="event.stopPropagation();fbToggleLike(\''+key+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b>'+(liked?'1':'')+'</b></button>'
+      +'<button class="fba" onclick="event.stopPropagation();openPost(\''+p.src+'\','+p.idx+')" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></button>'
+      +'<button class="fba" onclick="event.stopPropagation();fbShare(location.origin+\'/v31/profile.html?slug=\'+encodeURIComponent(PROFILE_SLUG))" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 16a3 3 0 1 0-2.8-4.1L8.9 8.3a3 3 0 1 0 0 7.4l6.3 3.6A3 3 0 1 0 18 16z"/></svg></button>'
+      +'<button class="fba fb-save" style="margin-left:auto" onclick="event.stopPropagation();fbSave(\''+key+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
+    +'</div>'
+  +'</div>';
 }
 function openPost(src,idx){
   var html='';
@@ -1512,7 +1538,7 @@ function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general'
 function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
   var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
-  var chips=[['all','All'],['primary','Primary'],['general','General'],['events','Events']];
+  var chips=[['primary','Primary'],['general','General'],['events','Events']];
   var bar=document.getElementById('chat-filter');
   if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(CHAT_FILTER===c[0]?' on':'')+'" onclick="setChatFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
   var items=GT_CHATS.filter(function(c){return CHAT_FILTER==='all'||chatCat(c)===CHAT_FILTER;});
@@ -1735,14 +1761,28 @@ function loadTagged(){
 /* FEED 2-col grid (IG keepitil ref) */
 (function(){ var s=document.createElement('style'); s.textContent=
   '#feed-grid{grid-template-columns:1fr!important;gap:18px;max-width:620px;margin:0 auto}'
-  /* FB-parity card: big card, near-square media window, ANY image/video fits it (cover, centered) */
-  +'#feed-grid>*{border-radius:14px;overflow:hidden;background:var(--surface,#12121c);border:1px solid var(--line,#242433)}'
-  +'#feed-grid img,#feed-grid video{width:100%!important;aspect-ratio:1/1.02;object-fit:cover;object-position:center;display:block;height:auto!important}'; 
+  +'.fbcard{border-radius:14px;overflow:hidden;background:var(--surface,#12121c);border:1px solid var(--line,#242433);cursor:default;padding:0}'
+  +'.fb-head{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}'
+  +'.fb-av{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#0a0a0f}'
+  +'.fb-who{flex:1;min-width:0;line-height:1.25}.fb-who b{display:block;font-size:.9rem}.fb-who span{font-size:.72rem;color:var(--muted);text-transform:capitalize}'
+  +'.fb-more{background:none;border:0;color:var(--muted);font-size:1.3rem;cursor:pointer;padding:2px 8px}'
+  /* THE universal media window: ~1:1, any image/video fits (cover, centered) */
+  +'.fb-media{width:100%;aspect-ratio:1/1.02;overflow:hidden;background:#000;cursor:pointer}'
+  +'.fb-media img,.fb-media video{width:100%!important;height:100%!important;object-fit:cover;object-position:center;display:block}'
+  +'.fb-nomedia{display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:#cfd3df;font-family:var(--font-head,\'Bebas Neue\'),sans-serif;font-size:1.5rem;letter-spacing:.04em}'
+  +'.fb-cap{padding:11px 14px 4px;font-size:.9rem;line-height:1.5;color:var(--text-soft,#c9cede);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}'
+  +'.fb-cap.open{display:block;-webkit-line-clamp:unset}.fb-cap.open .fb-more-txt{display:none}'
+  +'.fb-more-txt{color:var(--muted)}'
+  +'.fb-actions{display:flex;align-items:center;gap:4px;padding:6px 10px 10px}'
+  +'.fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:var(--muted);cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif}'
+  +'.fba svg{width:21px;height:21px}.fba:hover{color:var(--text);background:rgba(255,255,255,.05)}'
+  +'.fba.on{color:#ff4d8d}.fb-save.on{color:var(--accent,#00b4ff)}'
+  +'.fbcard .pc-hidden{position:static;margin-left:6px}';
   document.head.appendChild(s); })();
 /* published-only feed (Founder live review): hide draft/unpublished cards */
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260731" defer></script>
+<script src="/v31/v31-shell.js?v=20260732" defer></script>
 </body>
 </html>
