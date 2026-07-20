@@ -443,7 +443,7 @@ footer a{color:var(--accent2);}
 .feed-legend{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:70;flex-direction:column;gap:10px;min-width:236px;margin:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.5);}
 .feed-legend.open{display:flex;}
 </style>
-<style>.pf-tab[data-tab="gallery"]{display:none!important}</style></head>
+<style>.pf-tab[data-tab="gallery"]{display:none!important}#pfHandle{display:none!important}@media(max-width:768px){.pf-tabs{top:0!important}.pf-panel{padding-left:8px!important;padding-right:8px!important}}</style></head>
 <body>
 
 <nav id="main-nav">
@@ -549,7 +549,7 @@ footer a{color:var(--accent2);}
   <div class="evsub" id="evsub">
     <button class="evsub-b on" data-k="mine" style="display:none" onclick="evSub('mine')">Event</button>
     <button class="evsub-b" data-k="tix" style="display:none" onclick="evSub('tix')">Tickets</button>
-    <button class="evsub-b create" type="button" onclick="openCreateChooser()">Create Event</button>
+    <!-- Create Event removed from Events subfilter (Founder 2026-07-20) -->
   </div>
   <div class="mytix-wrap" id="myev-wrap" style="display:none">
     <div class="mytix-h" id="myev-h" style="display:none">EVENT</div>
@@ -721,7 +721,7 @@ function loadMyEvents(){
     var evs=(r&&r.data)?r.data:[];
     if(!evs.length){ wrap.style.display='none'; return; }
     var h=document.getElementById('myev-h'); if(h) h.style.display='none';   /* chip identifies the section (Founder pass 2) */
-    if(owner){ var es=document.getElementById('evsub'); if(es && !document.getElementById('evDashBtn')){ var db=document.createElement('a'); db.id='evDashBtn'; db.className='evsub-b'; db.style.marginLeft='auto'; db.href='/v31/dashboard.html'; db.textContent='Dashboard'; es.appendChild(db); } }
+    /* Dashboard button removed from Events subfilter (Founder 2026-07-20) — Dashboard is in the mid-nav */
     var row=document.getElementById('myev-row'); if(!row){ wrap.style.display='none'; return; }
     row.innerHTML=evs.map(function(e){
       var img=e.cover_url?'<img class="tix-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
