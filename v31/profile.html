@@ -443,7 +443,10 @@ footer a{color:var(--accent2);}
 .feed-legend{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:70;flex-direction:column;gap:10px;min-width:236px;margin:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.5);}
 .feed-legend.open{display:flex;}
 </style>
-<style>.pf-tab[data-tab="gallery"]{display:none!important}#pfHandle{display:none!important}@media(max-width:768px){.pf-tabs{top:0!important}.pf-panel{padding-left:8px!important;padding-right:8px!important}}</style></head>
+<style>.pf-tab[data-tab="gallery"]{display:none!important}#pfHandle{display:none!important}@media(max-width:768px){.pf-tabs{top:0!important}.pf-panel{padding-left:8px!important;padding-right:8px!important}}
+#chat-list{grid-template-columns:1fr!important}
+#chat-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:8px;scrollbar-width:none}
+#chat-filter::-webkit-scrollbar{display:none}</style></head>
 <body>
 
 <nav id="main-nav">
@@ -1630,7 +1633,39 @@ function fbReshare(pid){ if(needAuth())return; if(!SB||!pid)return; var st=pstOf
     SB.from('post_reshares').insert({post_key:pid,profile_slug:PROFILE_SLUG,user_id:uid}).then(function(r){ if(r&&r.error){ st.reshared=false; st.resh=Math.max(0,st.resh-1); paintAct(pid);} }).catch(function(){}); } }
 function fbShare(url){ if(needAuth())return; try{ if(navigator.share){ navigator.share({url:url}); return; } }catch(e){}
   try{ navigator.clipboard.writeText(url); toast('Link copied ✓'); }catch(e){ prompt('Copy link:',url); } }
-function fbSave(pid,el){ if(needAuth())return; if(!SB||!pid)return; var uid=SESSION.user.id, on=el.classList.toggle('on');
+function ensureSavedColl(cb){
+  SB.from('collections').select('id,name').eq('user_id',SESSION.user.id).then(function(r){
+    var colls=(r&&r.data)?r.data:[]; var def=null; colls.forEach(function(c){ if(String(c.name).toLowerCase()==='saved') def=c; });
+    if(def){ cb(colls,def); return; }
+    SB.from('collections').insert({user_id:SESSION.user.id,name:'Saved'}).select('id,name').then(function(rr){
+      var d=(rr&&rr.data&&rr.data[0])?rr.data[0]:{id:null,name:'Saved'}; colls.unshift(d); cb(colls,d);
+    }).catch(function(){ cb(colls,{id:null,name:'Saved'}); });
+  }).catch(function(){ cb([],{id:null,name:'Saved'}); });
+}
+function openSaveCollections(pid,el){
+  if(document.getElementById('kilSaveDD'))return;
+  ensureSavedColl(function(colls,def){
+    var ov=document.createElement('div'); ov.id='kilSaveDD';
+    ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center';
+    var items=colls.map(function(c){return '<button class="kilcoll" data-cid="'+(c.id==null?'':c.id)+'" style="display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid rgba(255,255,255,.08);color:#e8e8f0;font-size:1rem;padding:14px 6px;cursor:pointer">'+String(c.name).slice(0,40)+'</button>';}).join('');
+    ov.innerHTML='<div style="background:#15151f;border-radius:18px 18px 0 0;width:100%;max-width:520px;max-height:70vh;overflow:auto;padding:16px 18px 26px">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px"><b style="font-size:1.05rem;color:#fff">Save to</b><button id="ksX" style="background:none;border:0;color:#888;font-size:1.5rem;line-height:1;cursor:pointer">&times;</button></div>'
+      +items+'<button id="ksNew" style="width:100%;text-align:left;background:none;border:0;color:var(--accent,#8b5cff);font-weight:700;font-size:1rem;padding:14px 6px;cursor:pointer">+ New collection</button></div>';
+    document.body.appendChild(ov);
+    function close(){ ov.remove(); }
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+    document.getElementById('ksX').onclick=close;
+    function doSave(cid){ var row={user_id:SESSION.user.id,content_id:pid}; if(cid)row.collection_id=cid; SB.from('post_saves').insert(row).then(function(){}).catch(function(){}); el.classList.add('on'); toast('Saved'); close(); }
+    ov.querySelectorAll('.kilcoll').forEach(function(b){ b.onclick=function(){ var c=b.getAttribute('data-cid'); doSave(c?parseInt(c,10):(def&&def.id?def.id:null)); }; });
+    document.getElementById('ksNew').onclick=function(){ var nm=prompt('New collection name:'); if(!nm)return; nm=nm.trim(); if(!nm)return; SB.from('collections').insert({user_id:SESSION.user.id,name:nm}).select('id').then(function(r){ var id=(r&&r.data&&r.data[0])?r.data[0].id:null; doSave(id); }).catch(function(){ doSave(null); }); };
+  });
+}
+function fbSave(pid,el){ if(needAuth())return; if(!SB||!pid)return;
+  if(el.classList.contains('on')){ el.classList.remove('on'); if(isUuid(pid)){ SB.from('post_saves').delete().eq('user_id',SESSION.user.id).eq('content_id',pid).then(function(){}).catch(function(){}); } else { try{var mm=JSON.parse(localStorage.getItem('kil-saves')||'{}');mm[pid]=0;localStorage.setItem('kil-saves',JSON.stringify(mm));}catch(e){} } toast('Removed from saved'); return; }
+  if(!isUuid(pid)){ el.classList.add('on'); try{var m2=JSON.parse(localStorage.getItem('kil-saves')||'{}');m2[pid]=1;localStorage.setItem('kil-saves',JSON.stringify(m2));}catch(e){} toast('Saved'); return; }
+  openSaveCollections(pid,el);
+}
+function fbSaveOld(pid,el){ var uid=SESSION.user.id, on=el.classList.toggle('on');
   if(isUuid(pid)){ if(on){ SB.from('post_saves').insert({user_id:uid,content_id:pid}).then(function(){}).catch(function(){}); toast('Saved ✓'); }
     else { SB.from('post_saves').delete().eq('user_id',uid).eq('content_id',pid).then(function(){}).catch(function(){}); toast('Removed from saved'); } }
   else { try{var m=JSON.parse(localStorage.getItem('kil-saves')||'{}');m[pid]=on?1:0;localStorage.setItem('kil-saves',JSON.stringify(m));}catch(e){} toast(on?'Saved ✓':'Removed from saved'); } }
@@ -2011,12 +2046,24 @@ function toggleArchived(id,val){
   var cur='all';
   function paint(){
     var mobile=window.matchMedia('(max-width:560px)').matches;
-    box.innerHTML=CATS.map(function(c){
-      return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" title="'+c[1]+'">'+(mobile?c[2]:c[1])+'</button>';
-    }).join('')+((typeof CAN_EDIT==='function'&&CAN_EDIT())?CREATE_CHIP:'');
+    var createChip=((typeof CAN_EDIT==='function'&&CAN_EDIT())?CREATE_CHIP:'');
+    if(mobile){
+      var curc=CATS.filter(function(c){return c[0]===cur;})[0]||CATS[0];
+      box.innerHTML='<div class="fcatdd" style="position:relative;display:inline-block">'
+        +'<button class="evsub-b" data-dd="1" title="Filter">'+curc[2]+' ▾</button>'
+        +'<div id="fcatMenu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:80;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:180px;box-shadow:0 14px 34px rgba(0,0,0,.5)">'
+        +CATS.map(function(c){return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" style="display:block;width:100%;text-align:left;border:0;border-radius:8px;margin:2px 0">'+c[1]+'</button>';}).join('')
+        +'</div></div>'+createChip;
+    } else {
+      box.innerHTML=CATS.map(function(c){
+        return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" title="'+c[1]+'">'+c[1]+'</button>';
+      }).join('')+createChip;
+    }
   }
   box.addEventListener('click',function(e){
-    var b=e.target.closest('button'); if(!b)return;
+    var dd=e.target.closest('[data-dd]');
+    if(dd){ var mm=document.getElementById('fcatMenu'); if(mm)mm.style.display=(mm.style.display==='none'?'block':'none'); e.stopPropagation(); return; }
+    var b=e.target.closest('button[data-c]'); if(!b)return;
     cur=b.dataset.c; paint();
     document.querySelectorAll('#feed-grid > *').forEach(function(card){
       if(cur==='all'){ card.style.display=''; return; }
@@ -2025,6 +2072,7 @@ function toggleArchived(id,val){
     });
   });
   window.addEventListener('resize',paint);
+  document.addEventListener('click',function(){ var mm=document.getElementById('fcatMenu'); if(mm)mm.style.display='none'; });
   window.__feedCatPaint=paint;  /* exposed so updateOwnerUI can re-add the ＋Create chip once auth is ready */
   paint();
 })();
