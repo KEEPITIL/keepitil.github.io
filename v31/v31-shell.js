@@ -224,8 +224,8 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           +'<a href="https://tiktok.com/@keepitil" target="_blank" rel="noopener" aria-label="KEEPITIL on TikTok"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16.6 5.82a4.28 4.28 0 01-1.06-2.82h-3.11v12.34a2.34 2.34 0 01-2.34 2.28 2.34 2.34 0 01-2.34-2.34 2.34 2.34 0 013.02-2.24V9.87a5.44 5.44 0 00-.68-.04A5.45 5.45 0 003.6 15.28a5.45 5.45 0 0010.9 0V8.9a7.35 7.35 0 004.3 1.38V7.16a4.28 4.28 0 01-2.2-1.34z"/></svg></a>'
         +'</div></div>'
         +'<div class="v3-foot-legal" style="max-width:var(--maxw,1400px);margin:14px auto 0;font-size:.78rem;opacity:.7;display:flex;gap:14px;flex-wrap:wrap;align-items:center">'
-        +'<a href="/v3/terms.html">Terms</a><a href="/v3/privacy.html">Privacy</a><a href="/v3/refund.html">Refunds</a>'
-        +'<a href="/v3/ticket-terms.html">Ticket Terms</a><a href="/v3/community-guidelines.html">Community Guidelines</a>'
+        +'<a href="/v31/terms.html">Terms</a><a href="/v31/privacy.html">Privacy</a><a href="/v31/refund.html">Refunds</a>'
+        +'<a href="/v31/ticket-terms.html">Ticket Terms</a><a href="/v31/community-guidelines.html">Community Guidelines</a>'
         +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
       if(RULES.nav!==false) document.body.appendChild(f);
 
