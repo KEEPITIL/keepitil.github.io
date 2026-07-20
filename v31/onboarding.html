@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!-- V3.1 CONVERSATIONAL ONBOARDING — Echo-guided first-run (Founder-approved PRIORITY 1, 2026-07-20).
+     New signed-in users (no user_onboarding row) are sent here from /v31/profile.html.
+     Asks role → genres (all genres, not just EDM) → location → goal, saves to public.user_onboarding,
+     then renders a role-tailored next-step checklist with persistent progress ticks.
+     Saved role/genres also land in localStorage (kil_role / kil_genres) so keepitil-ai.js can pass
+     userRole/userGenre to the ask-echo edge fn for personalized answers.
+     ?preview=1 = run the flow signed-out with no saving (Founder review). ?redo=1 = redo the questions.
+     Chromeless (data-page-type=checkout) — a focused first-run, no shell nav. -->
+<html lang="en" data-theme="default" data-page-type="checkout">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Welcome — KEEPITIL</title>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/>
+<link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text,#f0f0f0);font-family:Inter,system-ui,sans-serif;line-height:1.5;min-height:100dvh;padding-bottom:40px}
+body::before{display:none!important}
+.top{display:flex;align-items:center;gap:10px;padding:16px 18px}
+.top img{height:30px}
+.top .skip{margin-left:auto;color:var(--muted,#9aa0b0);font-size:.8rem;font-weight:700;text-decoration:none;border:1px solid var(--line,#242433);border-radius:999px;padding:6px 14px}
+.top .skip:hover{color:var(--text)}
+.wrap{max-width:600px;margin:0 auto;padding:8px 16px 30px}
+.dots{display:flex;gap:6px;justify-content:center;margin:2px 0 18px}
+.dots span{width:26px;height:4px;border-radius:4px;background:var(--line,#242433);transition:background .25s}
+.dots span.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff))}
+.chat{display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px;align-items:flex-end;animation:up .3s ease}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg .av{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:linear-gradient(135deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));display:flex;align-items:center;justify-content:center;font-size:1rem}
+.msg .b{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:16px 16px 16px 4px;padding:12px 15px;font-size:.95rem;max-width:82%}
+.msg.me{justify-content:flex-end}
+.msg.me .b{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;font-weight:700;border:0;border-radius:16px 16px 4px 16px}
+.typing{display:inline-flex;gap:4px;padding:4px 2px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted,#9aa0b0);animation:blink 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.opts{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 0 44px;animation:up .3s ease}
+.chip{background:var(--surface,#12121c);border:1px solid var(--line,#242433);color:var(--text);border-radius:999px;padding:10px 16px;font:700 .88rem Inter,sans-serif;cursor:pointer;transition:border-color .15s,color .15s}
+.chip:hover{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.chip.sel{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border-color:transparent}
+.cont{background:transparent;border:1px solid var(--brand,#00b4ff);color:var(--brand,#00b4ff);border-radius:999px;padding:10px 22px;font:800 .88rem Inter,sans-serif;cursor:pointer;box-shadow:0 0 12px rgba(0,180,255,.25)}
+.cont:disabled{opacity:.4;cursor:default;box-shadow:none}
+.freein{display:flex;gap:8px;padding:6px 0 0 44px}
+.freein input{flex:1;background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:999px;padding:10px 16px;color:var(--text);font:600 .9rem Inter,sans-serif;outline:none}
+.freein input:focus{border-color:var(--brand,#00b4ff)}
+/* checklist */
+.plan{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:18px;padding:20px;margin:14px 0 0 44px;animation:up .3s ease}
+.plan h3{font-family:'Bebas Neue',sans-serif;letter-spacing:.05em;font-size:1.35rem;margin-bottom:2px}
+.plan .sub{color:var(--muted,#9aa0b0);font-size:.82rem;margin-bottom:12px}
+.pbar{height:6px;border-radius:6px;background:var(--line,#242433);overflow:hidden;margin-bottom:14px}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));transition:width .3s}
+.ci{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line,#242433);text-decoration:none;color:inherit}
+.ci:first-of-type{border-top:0}
+.ci .tick{width:26px;height:26px;flex:0 0 26px;border-radius:50%;border:2px solid var(--line,#3a3a48);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:transparent;cursor:pointer;transition:all .2s}
+.ci.done .tick{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));border-color:transparent;color:#04121b}
+.ci .t{flex:1;font-weight:700;font-size:.92rem}
+.ci.done .t{color:var(--muted,#9aa0b0);text-decoration:line-through}
+.ci .go{color:var(--brand,#00b4ff);font-weight:800;font-size:.78rem;white-space:nowrap}
+.finrow{display:flex;gap:10px;margin-top:16px}
+.fin{flex:1;text-align:center;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;font-weight:800;border-radius:999px;padding:13px;text-decoration:none;font-size:.95rem}
+</style>
+</head>
+<body>
+<div class="top">
+  <img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/>
+  <a class="skip" href="#" id="skipBtn">Skip for now</a>
+</div>
+<div class="wrap">
+  <div class="dots" id="dots"><span class="on"></span><span></span><span></span><span></span></div>
+  <div class="chat" id="chat"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SB=supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var Q=new URLSearchParams(location.search), PREVIEW=Q.get('preview')==='1', REDO=Q.get('redo')==='1';
+var USER=null, ANS={role:'',genres:[],location:'',goal:''};
+
+var ROLES=[['fan','🎧 Fan'],['artist','🎤 Artist / DJ'],['organizer','📅 Organizer'],['venue','🏛 Venue'],['brand','💼 Brand']];
+var GENRES=['House','Techno','Trance','Bass / Dubstep','Drum & Bass','Hip-Hop','R&B','Pop','Rock','Indie','Country','Latin','Reggaeton','Afrobeats','Jazz','Comedy','Art','Film','Gaming'];
+var LOCS=['Orange County','Los Angeles','San Diego','Inland Empire'];
+var GOALS=[['discover','Discover events'],['promote','Promote myself'],['collab','Find collaborators'],['book','Book talent'],['venue','List a venue'],['grow','Grow my business'],['community','Join the community']];
+
+/* role-tailored game plan — every link in-family (gold-standard event forms are the sanctioned entry points) */
+function buildChecklist(role,goal){
+  var C={
+    fan:[ ['photo','Add your profile photo','/v31/profile.html?edit=1'],
+          ['genres','Pick your genres','#done'],
+          ['follow','Follow 5 creators in Culture','/v31/culture.html'],
+          ['event','Find your first event','/v31/scene.html'],
+          ['feed','Say hi in the feed','/v31/culture.html'] ],
+    artist:[ ['photo','Complete your profile — photo + about','/v31/profile.html?edit=1'],
+          ['links','Add your links (Spotify / SoundCloud / IG)','/v31/profile.html?edit=1'],
+          ['post','Share your first post or mix','/v31/profile.html?create=feed'],
+          ['event','Get on a lineup — submit a show','/v3/submit-event.html'],
+          ['connect','Connect with organizers in Culture','/v31/culture.html'] ],
+    organizer:[ ['photo','Complete your profile — photo + about','/v31/profile.html?edit=1'],
+          ['event','Create your first event','/v3/create-event.html'],
+          ['share','Share it to the Scene','/v31/scene.html'],
+          ['dash','Track sales in your Dashboard','/v31/dashboard.html'] ],
+    venue:[ ['photo','Complete your venue profile','/v31/profile.html?edit=1'],
+          ['photos','Post photos of your space','/v31/profile.html?create=feed'],
+          ['event','List your calendar — submit events','/v3/submit-event.html'],
+          ['connect','Connect with organizers','/v31/culture.html'] ],
+    brand:[ ['photo','Complete your brand profile','/v31/profile.html?edit=1'],
+          ['scene','Explore the Scene','/v31/scene.html'],
+          ['follow','Follow the culture you want to back','/v31/culture.html'],
+          ['post','Introduce your brand with a post','/v31/profile.html?create=feed'] ]
+  };
+  var list=(C[role]||C.fan).map(function(x){ return {id:x[0],label:x[1],link:x[2],done:x[0]==='genres'}; });
+  if(goal==='collab' && role!=='artist') list.push({id:'collab',label:'Find collaborators in Culture',link:'/v31/culture.html',done:false});
+  if(goal==='book') list.push({id:'book',label:'Browse artists to book',link:'/v31/culture.html',done:false});
+  return list;
+}
+
+/* ── chat helpers ─────────────────────────────────────────── */
+var chat=document.getElementById('chat');
+function setDot(n){ var d=document.querySelectorAll('#dots span'); d.forEach(function(s,i){ s.className=i<=n?'on':''; }); }
+function echoSay(html,cb){
+  var m=document.createElement('div'); m.className='msg';
+  m.innerHTML='<div class="av">⚡</div><div class="b"><span class="typing"><i></i><i></i><i></i></span></div>';
+  chat.appendChild(m); window.scrollTo(0,document.body.scrollHeight);
+  setTimeout(function(){ m.querySelector('.b').innerHTML=html; window.scrollTo(0,document.body.scrollHeight); if(cb)cb(); },650);
+}
+function meSay(text){
+  var m=document.createElement('div'); m.className='msg me';
+  m.innerHTML='<div class="b">'+esc(text)+'</div>';
+  chat.appendChild(m); window.scrollTo(0,document.body.scrollHeight);
+}
+function clearOpts(){ var o=chat.querySelectorAll('.opts,.freein'); o.forEach(function(x){ x.remove(); }); }
+
+/* ── steps ────────────────────────────────────────────────── */
+function stepRole(){
+  setDot(0);
+  echoSay('Hey — I\'m <b>Echo</b> ⚡ Welcome to KEEPITIL, the creator ecosystem. Quick setup, 30 seconds. First up: <b>what brings you here?</b>',function(){
+    var o=document.createElement('div'); o.className='opts';
+    ROLES.forEach(function(r){
+      var c=document.createElement('button'); c.className='chip'; c.textContent=r[1];
+      c.onclick=function(){ ANS.role=r[0]; meSay(r[1]); clearOpts(); stepGenres(); };
+      o.appendChild(c);
+    });
+    chat.appendChild(o); window.scrollTo(0,document.body.scrollHeight);
+  });
+}
+function stepGenres(){
+  setDot(1);
+  echoSay('Nice. <b>What are you into?</b> Pick everything that fits — music, comedy, art, film, all of it.',function(){
+    var o=document.createElement('div'); o.className='opts';
+    GENRES.forEach(function(g){
+      var c=document.createElement('button'); c.className='chip'; c.textContent=g;
+      c.onclick=function(){ c.classList.toggle('sel');
+        var n=o.querySelectorAll('.chip.sel').length; go.disabled=n<1;
+        go.textContent=n<1?'Pick at least 1':'Continue ('+n+') →'; };
+      o.appendChild(c);
+    });
+    var go=document.createElement('button'); go.className='cont'; go.disabled=true; go.textContent='Pick at least 1';
+    go.onclick=function(){
+      ANS.genres=[].map.call(o.querySelectorAll('.chip.sel'),function(x){ return x.textContent; });
+      if(!ANS.genres.length) return;
+      meSay(ANS.genres.join(' · ')); clearOpts(); stepLocation();
+    };
+    o.appendChild(go); chat.appendChild(o); window.scrollTo(0,document.body.scrollHeight);
+  });
+}
+function stepLocation(){
+  setDot(2);
+  echoSay('Got it. <b>Where are you based?</b> We\'ll localize your scene.',function(){
+    var o=document.createElement('div'); o.className='opts';
+    LOCS.forEach(function(L){
+      var c=document.createElement('button'); c.className='chip'; c.textContent=L;
+      c.onclick=function(){ ANS.location=L; meSay(L); clearOpts(); stepGoal(); };
+      o.appendChild(c);
+    });
+    chat.appendChild(o);
+    var f=document.createElement('div'); f.className='freein';
+    f.innerHTML='<input id="locIn" placeholder="…or type your city" maxlength="80"><button class="cont" id="locGo">→</button>';
+    chat.appendChild(f); window.scrollTo(0,document.body.scrollHeight);
+    function submit(){ var v=document.getElementById('locIn').value.trim(); if(!v) return; ANS.location=v; meSay(v); clearOpts(); stepGoal(); }
+    document.getElementById('locGo').onclick=submit;
+    document.getElementById('locIn').onkeydown=function(e){ if(e.key==='Enter'){ e.preventDefault(); submit(); } };
+  });
+}
+function stepGoal(){
+  setDot(3);
+  echoSay('Last one — <b>what\'s your main goal right now?</b>',function(){
+    var o=document.createElement('div'); o.className='opts';
+    GOALS.forEach(function(g){
+      var c=document.createElement('button'); c.className='chip'; c.textContent=g[1];
+      c.onclick=function(){ ANS.goal=g[0]; meSay(g[1]); clearOpts(); finish(); };
+      o.appendChild(c);
+    });
+    chat.appendChild(o); window.scrollTo(0,document.body.scrollHeight);
+  });
+}
+
+/* ── save + game plan ─────────────────────────────────────── */
+function persistLocal(){
+  try{
+    localStorage.setItem('kil_role',ANS.role);
+    localStorage.setItem('kil_genres',ANS.genres.join(','));
+    if(ANS.location) localStorage.setItem('kil_loc',ANS.location);
+  }catch(e){}
+}
+function finish(){
+  var list=buildChecklist(ANS.role,ANS.goal);
+  persistLocal();
+  if(!PREVIEW && USER){
+    SB.from('user_onboarding').upsert({user_id:USER.id,role:ANS.role,genres:ANS.genres,location:ANS.location,goal:ANS.goal,checklist:list,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).then(function(r){ if(r&&r.error) console.warn('onboarding save',r.error); });
+  }
+  echoSay('You\'re in 🔥 Here\'s your game plan — knock these out and you\'re rolling. I\'m in the chat bubble anytime you need me.',function(){ renderPlan(list); });
+}
+function renderPlan(list){
+  var p=document.createElement('div'); p.className='plan'; p.id='plan';
+  p.innerHTML='<h3>YOUR GAME PLAN</h3><div class="sub">Tap a step to go do it — tick it when it\'s done.</div><div class="pbar"><i id="pfill"></i></div>'
+    +list.map(function(it,i){
+      return '<a class="ci'+(it.done?' done':'')+'" data-i="'+i+'" href="'+(it.link==='#done'?'#':esc(it.link))+'">'
+        +'<span class="tick" onclick="tick(event,'+i+')">✓</span>'
+        +'<span class="t">'+esc(it.label)+'</span>'
+        +(it.link==='#done'?'<span class="go" style="color:#22e39b">DONE</span>':'<span class="go">GO →</span>')+'</a>';
+    }).join('')
+    +'<div class="finrow"><a class="fin" href="/v31/profile.html">TAKE ME TO MY PROFILE →</a></div>';
+  chat.appendChild(p); window.PLAN=list; bar(); window.scrollTo(0,document.body.scrollHeight);
+}
+function bar(){
+  var done=(window.PLAN||[]).filter(function(x){return x.done;}).length, n=(window.PLAN||[]).length||1;
+  var f=document.getElementById('pfill'); if(f) f.style.width=Math.round(done/n*100)+'%';
+}
+function tick(ev,i){
+  ev.preventDefault(); ev.stopPropagation();
+  var it=window.PLAN[i]; it.done=!it.done;
+  var row=document.querySelector('.ci[data-i="'+i+'"]'); if(row) row.classList.toggle('done',it.done);
+  bar();
+  if(!PREVIEW && USER) SB.from('user_onboarding').update({checklist:window.PLAN,updated_at:new Date().toISOString()}).eq('user_id',USER.id).then(function(){});
+}
+
+/* ── boot ─────────────────────────────────────────────────── */
+document.getElementById('skipBtn').onclick=function(e){
+  e.preventDefault();
+  try{ localStorage.setItem('kil_ob_skip','1'); }catch(x){}
+  if(!PREVIEW && USER) SB.from('user_onboarding').upsert({user_id:USER.id,updated_at:new Date().toISOString()}).then(function(){ location.href='/v31/profile.html'; });
+  else location.href='/v31/profile.html';
+};
+SB.auth.getSession().then(function(r){
+  var s=r&&r.data&&r.data.session;
+  if(!s && !PREVIEW){ location.replace('/v31/apply.html'); return; }
+  USER=s?s.user:null;
+  if(USER && !REDO && !PREVIEW){
+    SB.from('user_onboarding').select('role,genres,location,goal,checklist,completed_at').eq('user_id',USER.id).maybeSingle().then(function(o){
+      var row=o&&o.data;
+      if(row&&row.completed_at){
+        ANS.role=row.role||''; ANS.genres=row.genres||[]; ANS.location=row.location||''; ANS.goal=row.goal||'';
+        persistLocal();
+        echoSay('Welcome back ⚡ Here\'s where your game plan stands:',function(){ renderPlan(row.checklist&&row.checklist.length?row.checklist:buildChecklist(ANS.role,ANS.goal)); });
+      } else stepRole();
+    });
+  } else stepRole();
+});
+</script>
+<script src="/v3/keepitil-radio.js?v=20260718" defer></script>
+<script src="/v31/v31-shell.js?v=20260738" defer></script>
+</body>
+</html>
