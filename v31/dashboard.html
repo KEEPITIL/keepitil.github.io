@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<!-- V3.1 ORGANIZER DASHBOARD — in-family clone of /v3/dashboard.html (KODE 2026-07-20).
+     Kills the /v3/dashboard.html leak from /v31/profile.html. Child tools (create-event gold
+     standard, scanner, campaigns, staging/QA admin tabs) are audit-exempt logged-in tools. -->
+<html lang="en" data-theme="default" data-page-type="standard">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Organizer Dashboard — KEEPITIL</title>
+<meta name="description" content="Manage your KEEPITIL events — sales, check-ins, revenue, promotion."/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.55;padding-top:78px;padding-bottom:80px}
+@media(max-width:860px){body{padding-top:10px}} /* v31 shell: no top nav on mobile (bottom bar instead) */
+body::before{display:none!important} /* organizer tool page — no decorative backdrop */
+.wrap{max-width:960px;margin:0 auto;padding:0 20px}
+.head{padding:28px 0 14px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.head h1{font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em;font-size:2rem;line-height:1}
+.head h1 b{color:var(--brand,#00b4ff)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:800;padding:11px 18px;border-radius:11px;text-decoration:none;cursor:pointer;border:1px solid var(--line,#242433);background:transparent;color:var(--text);font:inherit;font-weight:800;white-space:nowrap}
+.btn.prim{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border:0}
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 22px}
+.sum{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:14px;padding:14px 16px}
+.sum .n{font-size:1.6rem;font-weight:900;line-height:1}
+.sum .l{color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
+.ev{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:16px;overflow:hidden;margin-bottom:14px;display:flex;gap:0;flex-wrap:wrap}
+.ev-cov{width:150px;min-height:120px;object-fit:cover;background:#0a0a12;flex:0 0 150px}
+.ev-main{flex:1;min-width:240px;padding:16px 18px}
+.ev-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ev-title{font-size:1.15rem;font-weight:800}
+.ev-badge{font-size:.62rem;font-weight:800;letter-spacing:.06em;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.ev-badge.published{background:rgba(34,227,155,.15);color:#22e39b}
+.ev-badge.review{background:rgba(255,180,60,.15);color:#ffb43c}
+.ev-badge.draft{background:rgba(255,255,255,.08);color:var(--muted)}
+.ev-meta{color:var(--muted);font-size:.85rem;margin-top:3px}
+.ev-stats{display:flex;gap:22px;margin:12px 0}
+.ev-stats .s .n{font-size:1.25rem;font-weight:900;line-height:1}
+.ev-stats .s .l{color:var(--muted);font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+.ev-acts{display:flex;gap:8px;flex-wrap:wrap}
+.ev-acts a,.ev-acts button{font-size:.8rem;font-weight:800;padding:8px 12px;border-radius:9px;text-decoration:none;cursor:pointer;border:1px solid var(--line,#242433);background:transparent;color:var(--text);font-family:inherit}
+.ev-acts a.scan{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.gate,.empty{max-width:460px;margin:60px auto;text-align:center;background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:18px;padding:34px 28px}
+.gate h2,.empty h2{font-size:1.3rem;font-weight:800;margin-bottom:8px}.gate p,.empty p{color:var(--muted);margin-bottom:18px}
+@media(max-width:560px){.summary{grid-template-columns:repeat(2,1fr)}.ev-cov{width:100%;flex:0 0 100%;height:140px}}
+/* admin review lanes */
+.head2{font-family:'Bebas Neue',Inter,sans-serif;letter-spacing:.04em;font-size:1.5rem;margin:34px 0 12px;display:flex;align-items:center;gap:10px}
+.head2 .ct{font-family:Inter;font-size:.66rem;font-weight:800;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.rv{background:var(--surface,#12121c);border:1px solid var(--line,#242433);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.rv .info{flex:1;min-width:220px}
+.rv .t{font-weight:800;font-size:.98rem}
+.rv .d{color:var(--muted);font-size:.85rem;margin-top:3px;line-height:1.45}
+.rv .tags{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.rv .pill2{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+.rv .pill2.pub{color:#22e39b;border-color:rgba(34,227,155,.4)}
+.rv .pill2.den{color:#ff6b6b;border-color:rgba(255,107,107,.4)}
+.rv .acts{display:flex;gap:8px;align-items:center}
+.rv .acts button,.rv .acts a{font-size:.78rem;font-weight:800;padding:8px 14px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--text);font-family:inherit;text-decoration:none}
+.rv .acts .approve{border-color:#22e39b;color:#22e39b}
+.rv .acts .deny{border-color:#ff6b6b;color:#ff6b6b}
+.rv .acts .view{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.rv-empty{color:var(--muted);font-size:.9rem;padding:8px 2px}
+/* sub-nav tabs + panels */
+.subnav{position:sticky;top:0;z-index:20;display:flex;gap:6px;overflow-x:auto;padding:12px 0;margin-bottom:6px;background:var(--bg,#0a0a0f);border-bottom:1px solid var(--line);scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subnav button{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:9px 16px;font-weight:800;font-size:.82rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.subnav button.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#22e39b));color:#04121b;border-color:transparent}
+.panel{display:none}.panel.on{display:block}
+.astat{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 18px}
+.astat .a{background:var(--surface,#12121c);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.astat .a .n{font-size:1.5rem;font-weight:900;line-height:1}
+.astat .a .l{color:var(--muted);font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
+@media(max-width:560px){.astat{grid-template-columns:repeat(2,1fr)}}
+.chatwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.chatwrap{grid-template-columns:1fr}}
+.chatbox{background:var(--surface,#12121c);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;min-height:380px}
+.chatbox h3{font-size:.95rem;font-weight:800;margin-bottom:10px}
+.chatlog{flex:1;display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:360px;margin-bottom:10px}
+.cmsg{max-width:88%;padding:9px 12px;border-radius:12px;font-size:.88rem;line-height:1.45;white-space:pre-wrap}
+.cmsg.you{align-self:flex-end;background:var(--brand,#00b4ff);color:#04121b;font-weight:600}
+.cmsg.bot{align-self:flex-start;background:var(--surface2,#1b1b28);border:1px solid var(--line)}
+.cmsg .who{font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand,#00b4ff);margin-bottom:2px}
+.cbar{display:flex;gap:8px}
+.cbar input,.cbar select{flex:1;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:.88rem}
+.cbar button{background:var(--brand,#00b4ff);color:#04121b;border:0;border-radius:10px;padding:0 16px;font-weight:800;cursor:pointer;font-family:inherit}
+.kform input,.kform textarea,.kform select{width:100%;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:.9rem}
+.kform textarea{min-height:66px;resize:vertical}
+.kform label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:10px 0 4px;display:block}
+.msg{font-size:.88rem}.msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Organizer <b>Dashboard</b></h1>
+    <a class="btn prim" href="/v3/create-event.html">+ Create Event</a>
+  </div>
+  <div id="gate" class="gate" style="display:none">
+    <h2>Log in to manage your events</h2>
+    <p>Sign in with the account that hosts your events.</p>
+    <a class="btn prim" id="loginBtn" href="/v31/apply.html">Log in</a>
+  </div>
+  <div id="app" style="display:none">
+    <div class="subnav" id="subnav"></div>
+    <div class="panel on" id="tab-events"><div class="summary" id="summary"></div><div id="list"></div></div>
+    <div class="panel" id="tab-analytics"><div class="astat" id="aStat"></div><div class="head2">Recent questions asked <span class="ct" id="qCt"></span></div><div id="qLog"></div></div>
+    <div class="panel" id="tab-posts"><div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div><div id="postReview"></div></div>
+    <div class="panel" id="tab-social"><div class="head2">Social Queue <span class="ct" id="socialCt"></span></div><div id="socialReview"></div></div>
+    <div class="panel" id="tab-venues"><div class="head2">Venue Bookings <span class="ct" id="bookCt"></span></div><div id="bookReview"></div></div>
+    <div class="panel" id="tab-chat">
+      <div class="chatwrap">
+        <div class="chatbox"><h3>Chat with an agent</h3><div class="cbar" style="margin-bottom:10px"><select id="agentPick" onchange="clearAgentLog()"></select></div><div class="chatlog" id="agentLog"></div><div class="cbar"><input id="agentQ" placeholder="Ask this agent…" onkeydown="if(event.key==='Enter')askAgentDash()"><button onclick="askAgentDash()">Ask</button></div></div>
+        <div class="chatbox"><h3>Crew group — activity + messages</h3><div class="chatlog" id="groupLog"></div><div class="cbar"><input id="groupMsg" placeholder="Message the whole crew…" onkeydown="if(event.key==='Enter')postGroup()"><button onclick="postGroup()">Send</button></div></div>
+      </div>
+    </div>
+    <div class="panel" id="tab-knowledge">
+      <div class="head2">Add to the Knowledge Bank</div>
+      <div class="rv" style="display:block"><div class="kform">
+        <label>Agent (blank = all agents share it)</label><select id="kAgent"></select>
+        <label>Topic</label><input id="kTopic" placeholder="e.g. Parking at events">
+        <label>Keywords (comma or space separated)</label><input id="kKeywords" placeholder="parking car lot where to park">
+        <label>Short answer — shown to everyone</label><textarea id="kShort"></textarea>
+        <label>Full answer — shown to paid members</label><textarea id="kFull"></textarea>
+        <label>Source URL (optional)</label><input id="kSource" placeholder="https://…">
+        <button class="btn prim" style="margin-top:12px" onclick="addKnowledge()">Add to bank</button>
+        <div class="msg" id="kMsg" style="margin-top:8px"></div>
+      </div></div>
+      <div class="head2">In the bank <span class="ct" id="kCt"></span></div>
+      <div id="kList"></div>
+    </div>
+    <div class="panel" id="tab-golive"><iframe src="/v3/golive.html" title="Go-Live Verification" loading="lazy" style="width:100%;height:680px;border:1px solid var(--line,#242433);border-radius:14px;background:var(--bg,#0a0a0f)"></iframe></div>
+    <div class="panel" id="tab-staging">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px">
+        <span style="color:var(--muted,#9aa0b0);font-size:.85rem">STAGING = an <b>exact duplicate</b> of a live page you edit directly, full screen. <b style="color:#ffb43c">The live site never changes</b> until Publish is enabled (Founder go).</span>
+        <span style="flex:1"></span>
+        <a class="btn" style="font-size:.78rem;padding:8px 14px" href="/v3/staging.html" target="_blank" rel="noopener" title="Full-screen duplicate-page editor">⛶ Open STAGING full screen ↗</a>
+      </div>
+      <iframe src="/v3/staging.html" title="STAGING — duplicate-page editor" loading="lazy" style="width:100%;height:calc(100vh - 210px);min-height:620px;border:1px solid var(--line,#242433);border-radius:14px;background:#0a0a0f"></iframe>
+    </div>
+    <div class="panel" id="tab-qa">
+      <div class="head2">QA Runs <span class="ct" id="qaCt"></span><a class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" href="/v3/qa-audit.html" target="_blank" rel="noopener">Open QA audit ↗</a></div>
+      <div id="qaList"></div>
+      <div class="head2" style="margin-top:22px">🛠 Self-repairs (7 days) <span class="ct" id="repCt"></span></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.8rem;margin-bottom:8px">The nightly heal job (09:30 UTC): what it auto-fixed vs what needs a human. Auto-fix never touches money, auth, publishing, or the V3.1 nav.</div>
+      <div id="repList" style="font-size:.84rem"></div>
+    </div>
+    <div class="panel" id="tab-access">
+      <div class="head2">Admins <span class="ct" id="admCt"></span></div>
+      <div class="rv" style="display:block"><div class="kform">
+        <label>Add an admin by member handle</label>
+        <div class="cbar"><input id="admHandle" placeholder="handle" onkeydown="if(event.key==='Enter')addAdminUI()"><button onclick="addAdminUI()">Add</button></div>
+        <div class="msg" id="admMsg" style="margin-top:8px"></div>
+      </div></div>
+      <div id="admList"></div>
+    </div>
+    <div class="panel" id="tab-recommendations">
+      <div class="head2">Recommendations <span class="ct" id="recCt"></span><button class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" onclick="loadRecommendations(true)">Refresh</button></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">What needs your attention, ranked. The crew recommends — you approve. Nothing here acts on its own.</div>
+      <div id="recList"></div>
+    </div>
+    <div class="panel" id="tab-agents">
+      <div class="head2">The Crew — 14 Agent Brains <span class="ct" id="agCt"></span></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Each agent owns a genre lane + a company function. Every one is labeled AI, answers with a confidence score and cited source, and hands off when it's out of its lane. Curate each brain here.</div>
+      <div id="agList"></div>
+      <div class="head2">Escalations &amp; Handoffs <span class="ct" id="hoCt"></span></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Questions agents refused to guess on — routed to a lane owner or flagged for human review. Sensitive topics (legal, safety, money, personal info) always land here.</div>
+      <div id="hoList"></div>
+    </div>
+    <div class="panel" id="tab-learning">
+      <div class="head2">Assisted Learning <span class="ct" id="learnCt"></span><button class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" onclick="genSuggestions(this)">Generate from questions</button></div>
+      <div style="color:var(--muted,#9aa0b0);font-size:.85rem;margin:-4px 0 14px">Real questions the crew couldn't answer, drafted into knowledge. Edit, then Approve to teach every agent — or Dismiss.</div>
+      <div id="learnList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function money(c){return '$'+((c||0)/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(iso,tz){ try{ if(!iso)return 'Date TBD'; return new Date(iso).toLocaleDateString('en-US',{timeZone:tz||'America/Los_Angeles',weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(e){return '';} }
+
+function card(d){
+  var st=(d.status||'draft').toLowerCase();
+  var cov=d.cover?'<img class="ev-cov" src="'+esc(d.cover)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="ev-cov"></div>';
+  return '<div class="ev">'+cov+
+    '<div class="ev-main">'+
+      '<div class="ev-top"><span class="ev-title">'+esc(d.title||'Untitled')+'</span><span class="ev-badge '+st+'">'+esc(st)+'</span></div>'+
+      '<div class="ev-meta">'+fmtDate(d.starts_at,d.tz)+(d.venue?' · '+esc(d.venue):(d.city?' · '+esc(d.city):''))+'</div>'+
+      '<div class="ev-stats">'+
+        '<div class="s"><div class="n">'+(d.sold||0)+'</div><div class="l">Sold</div></div>'+
+        '<div class="s"><div class="n">'+(d.checked_in||0)+'</div><div class="l">Checked in</div></div>'+
+        '<div class="s"><div class="n">'+money(d.revenue_cents)+'</div><div class="l">Revenue</div></div>'+
+      '</div>'+
+      '<div class="ev-acts">'+
+        '<a href="/v3/create-event.html?e='+encodeURIComponent(d.slug)+'">Edit</a>'+
+        '<a class="scan" href="/v3/scan.html">Door scanner</a>'+
+        (st==='published'?'<a href="/v31/event.html?e='+encodeURIComponent(d.slug)+'">View</a>':'')+
+        '<a href="/v3/campaigns.html?e='+encodeURIComponent(d.slug)+'">Promote</a>'+
+        '<button onclick="dup('+d.event_id+',this)">Duplicate</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+async function dup(id,btn){
+  if(btn){btn.disabled=true;btn.textContent='Duplicating…';}
+  try{ var r=await supa.rpc('duplicate_event',{p_event_id:id});
+    if(r&&r.data&&r.data.slug){ load(); } else { if(btn){btn.disabled=false;btn.textContent='Duplicate';} alert('Could not duplicate.'); }
+  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Duplicate';} }
+}
+
+async function load(){
+  try{
+    var r=await supa.rpc('organizer_dashboard');
+    var evs=(r&&r.data)||[];
+    var sold=0,rev=0,chk=0;
+    evs.forEach(function(e){ sold+=e.sold||0; rev+=e.revenue_cents||0; chk+=e.checked_in||0; });
+    $('summary').innerHTML=
+      '<div class="sum"><div class="n">'+evs.length+'</div><div class="l">Events</div></div>'+
+      '<div class="sum"><div class="n">'+sold+'</div><div class="l">Tickets sold</div></div>'+
+      '<div class="sum"><div class="n">'+chk+'</div><div class="l">Checked in</div></div>'+
+      '<div class="sum"><div class="n">'+money(rev)+'</div><div class="l">Revenue</div></div>';
+    $('list').innerHTML = evs.length ? evs.map(card).join('')
+      : '<div class="empty"><h2>No events yet</h2><p>Create your first event and start selling tickets.</p><a class="btn prim" href="/v3/create-event.html">+ Create Event</a></div>';
+  }catch(e){ $('list').innerHTML='<div class="empty"><h2>Couldn’t load</h2><p>Please refresh.</p></div>'; }
+}
+
+/* ===== Admin console: sub-nav tabs ===== */
+var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
+var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
+var ADMIN_TABS=[['recommendations','Recommendations'],['staging','STAGING'],['agents','Agents'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
+async function buildAdminTabs(){
+  try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
+  var nav=$('subnav'); var tabs=[['events','Events']];
+  if(IS_ADMIN){
+    tabs=tabs.concat(ADMIN_TABS);
+    try{ var h1=document.querySelector('.head h1'); if(h1) h1.innerHTML='Website <b>Brain</b>'; document.title='Website Brain — KEEPITIL'; }catch(e){}
+    try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
+    var opt=AGENTS.map(function(a){return '<option value="'+a[0]+'">'+a[1]+'</option>';}).join('');
+    if($('agentPick')) $('agentPick').innerHTML=opt;
+    if($('kAgent')) $('kAgent').innerHTML='<option value="">All agents (shared)</option>'+opt;
+  }
+  nav.innerHTML=tabs.map(function(t,i){return '<button data-tab="'+t[0]+'"'+(i===0?' class="on"':'')+' onclick="showTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('');
+  nav.style.display = tabs.length>1 ? 'flex' : 'none';
+}
+function showTab(name){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='tab-'+name);});
+  document.querySelectorAll('#subnav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===name);});
+  if(TAB_LOADED[name]) return; TAB_LOADED[name]=true;
+  if(name==='recommendations') loadRecommendations();
+  else if(name==='agents') loadAgents();
+  else if(name==='learning') loadLearning();
+  else if(name==='analytics') loadAnalytics();
+  else if(name==='posts') loadPostReview();
+  else if(name==='social') loadSocialReview();
+  else if(name==='venues') loadBookingReview();
+  else if(name==='chat'){ clearAgentLog(); loadGroup(); }
+  else if(name==='knowledge') loadKnowledge();
+  else if(name==='qa') loadQaRuns();
+  else if(name==='access') loadAdmins();
+}
+async function loadAnalytics(){
+  try{
+    var r=await supa.rpc('get_admin_analytics'); var a=(r&&r.data)||{};
+    var cards=[['Events',a.events_total],['Published',a.events_published],['Tickets sold',a.tickets_sold],['Revenue',money(a.revenue_cents)],['Daily blogs',a.blogs_published],['Social drafts',a.social_drafts],['Venue inquiries',a.bookings_total],['Booked',a.bookings_booked],['Promo sales',a.promo_paid],['Chat questions',a.chat_questions],['Unanswered',a.chat_unanswered],['Knowledge',a.knowledge_entries],['Members',a.members],['Email contacts',a.marketing_contacts],['Venues',a.venues],['App fees',money(a.app_fees_cents)]];
+    $('aStat').innerHTML=cards.map(function(c){return '<div class="a"><div class="n">'+esc(String(c[1]==null?0:c[1]))+'</div><div class="l">'+esc(c[0])+'</div></div>';}).join('');
+  }catch(e){ $('aStat').innerHTML='<div class="rv-empty">Could not load analytics.</div>'; }
+  try{
+    var q=await supa.rpc('get_agent_chat_log_admin',{p_limit:50}); var rows=(q&&q.data)||[];
+    $('qCt').textContent=rows.length+' recent';
+    $('qLog').innerHTML=rows.length?rows.map(function(x){var when='';try{when=new Date(x.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
+      return '<div class="rv"><div class="info"><div class="t">“'+esc(x.question)+'”</div><div class="tags"><span class="pill2">'+esc((x.agent_slug||'').toUpperCase())+'</span><span class="pill2 '+(x.matched?'pub':'den')+'">'+(x.matched?'answered':'UNANSWERED — add to bank')+'</span><span class="pill2">'+esc(when)+'</span></div></div></div>';}).join(''):'<div class="rv-empty">No questions asked yet.</div>';
+  }catch(e){}
+}
+function clearAgentLog(){ var l=$('agentLog'); if(l) l.innerHTML='<div class="cmsg bot"><div class="who">'+esc(($('agentPick')||{}).value||'agent')+'</div>Ask me anything about my role, genre, the scene, events, or how to get involved.</div>'; }
+function askAgentDash(){
+  var inp=$('agentQ'); var q=(inp.value||'').trim(); if(!q)return; var slug=$('agentPick').value;
+  var log=$('agentLog'); var y=document.createElement('div'); y.className='cmsg you'; y.textContent=q; log.appendChild(y); inp.value='';
+  var p=document.createElement('div'); p.className='cmsg bot'; p.textContent='…'; log.appendChild(p); log.scrollTop=log.scrollHeight;
+  supa.rpc('ask_agent',{p_agent_slug:slug,p_question:q}).then(function(r){
+    var d=(r&&r.data)||{};
+    var meta=[];
+    if(d.confidence!=null) meta.push('confidence '+Math.round(d.confidence*100)+'%');
+    if(d.source&&d.source.topic) meta.push('source: '+d.source.topic);
+    if(d.escalate&&d.route_to) meta.push('↪ routed to '+String(d.route_to).toUpperCase());
+    if(d.human_review) meta.push('⚠ human review');
+    p.innerHTML='<div class="who">'+esc(slug)+'</div>'+esc(d.answer||'…')+(meta.length?'<div style="font-size:.66rem;opacity:.65;margin-top:5px">'+esc(meta.join(' · '))+'</div>':'');
+    log.scrollTop=log.scrollHeight;
+  }).catch(function(){p.textContent='Error — try again.';});
+}
+function loadGroup(){
+  supa.rpc('get_agent_activity',{p_limit:40}).then(function(r){
+    var rows=(r&&r.data)||[]; var log=$('groupLog');
+    if(!rows.length){ log.innerHTML='<div class="cmsg bot">No crew activity yet.</div>'; return; }
+    log.innerHTML=rows.slice().reverse().map(function(a){
+      var mine=a.kind==='founder';
+      return '<div class="cmsg '+(mine?'you':'bot')+'">'+(mine?'':'<div class="who">'+esc((a.agent_slug||'crew').toUpperCase())+' · '+esc(a.kind)+'</div>')+esc(a.title)+(a.body?('\n'+esc(a.body)):'')+'</div>';
+    }).join(''); log.scrollTop=log.scrollHeight;
+  }).catch(function(){});
+}
+function postGroup(){
+  var inp=$('groupMsg'); var m=(inp.value||'').trim(); if(!m)return; inp.value='';
+  supa.rpc('message_agent',{p_agent_slug:null,p_body:m}).then(function(r){ if(r.error){alert('Could not send: '+(r.error.message||r.error));return;} loadGroup(); }).catch(function(){});
+}
+function addKnowledge(){
+  var m=$('kMsg'); m.className='msg'; m.textContent='';
+  var topic=$('kTopic').value.trim(), sh=$('kShort').value.trim(), fu=$('kFull').value.trim();
+  if(!topic||!sh){ m.className='msg err'; m.textContent='Topic and a short answer are required.'; return; }
+  supa.rpc('add_agent_knowledge',{p_agent_slug:$('kAgent').value||'',p_topic:topic,p_keywords:$('kKeywords').value||'',p_answer_short:sh,p_answer_full:fu||sh,p_source_url:$('kSource').value||null}).then(function(r){
+    if(r.error){ m.className='msg err'; m.textContent='Could not add: '+(r.error.message||r.error); return; }
+    m.className='msg ok'; m.textContent='Added ✓ Agents know this now.';
+    ['kTopic','kKeywords','kShort','kFull','kSource'].forEach(function(id){$(id).value='';});
+    TAB_LOADED.knowledge=false; loadKnowledge();
+  }).catch(function(e){ m.className='msg err'; m.textContent='Error.'; });
+}
+function loadKnowledge(){
+  supa.rpc('get_agent_knowledge_admin',{p_agent_slug:null,p_limit:200}).then(function(r){
+    var rows=(r&&r.data)||[]; $('kCt').textContent=rows.length+' entries';
+    $('kList').innerHTML=rows.length?rows.map(function(k){
+      return '<div class="rv"><div class="info"><div class="t">'+esc(k.topic)+'</div><div class="d">'+esc((k.answer_short||'').slice(0,140))+'</div><div class="tags"><span class="pill2">'+esc((k.agent_slug||'ALL').toUpperCase())+'</span><span class="pill2 '+(k.active?'pub':'den')+'">'+(k.active?'active':'off')+'</span></div></div><div class="acts"><button class="'+(k.active?'deny':'approve')+'" onclick="toggleKnow('+k.id+','+(!k.active)+',this)">'+(k.active?'Turn off':'Turn on')+'</button></div></div>';
+    }).join(''):'<div class="rv-empty">No knowledge entries yet — add one above.</div>';
+  }).catch(function(){ $('kList').innerHTML='<div class="rv-empty">Could not load.</div>'; });
+}
+function toggleKnow(id,active,btn){ if(btn)btn.disabled=true; supa.rpc('set_agent_knowledge_active',{p_id:id,p_active:active}).then(function(r){ TAB_LOADED.knowledge=false; loadKnowledge(); }).catch(function(){ if(btn)btn.disabled=false; }); }
+var BK_STAGES=['new','contacted','tour','quoted','deposit_pending','booked','declined'];
+async function loadBookingReview(){
+  var box=$('bookReview');
+  try{
+    var r=await supa.rpc('get_booking_requests',{p_venue_slug:null,p_limit:100}); var rows=(r&&r.data)||[];
+    $('bookCt').textContent=rows.length+' inquiries';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No booking requests yet. Venue inquiries from venue pages land here.</div>'; return; }
+    box.innerHTML=rows.map(function(b){
+      var opts=BK_STAGES.map(function(s){return '<option value="'+s+'"'+(b.status===s?' selected':'')+'>'+s.replace(/_/g,' ')+'</option>';}).join('');
+      var d=[b.venue_slug,b.room,b.event_type,(b.guest_count?b.guest_count+' guests':''),b.preferred_date].filter(Boolean).join(' · ');
+      return '<div class="rv"><div class="info"><div class="t">'+esc(b.contact_name)+' — '+esc(b.contact_email)+(b.contact_phone?(' · '+esc(b.contact_phone)):'')+'</div><div class="d">'+esc(d)+(b.notes?('<br>“'+esc(b.notes)+'”'):'')+'</div></div><div class="acts"><select onchange="setBooking('+b.id+',this.value)" style="font-size:.78rem;padding:8px 10px;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--text)">'+opts+'</select></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load bookings.</div>'; }
+}
+async function setBooking(id,status){ try{ var r=await supa.rpc('set_booking_status',{p_id:id,p_status:status}); if(r.error)throw r.error; }catch(e){ alert('Could not update: '+(e.message||e)); } }
+async function loadPostReview(){
+  var box=$('postReview');
+  try{
+    var r=await supa.rpc('get_agent_posts_admin',{p_limit:60}); var rows=(r&&r.data)||[];
+    $('postCt').textContent=rows.length+' total';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No daily posts yet. The crew publishes here automatically each day.</div>'; return; }
+    box.innerHTML=rows.map(function(p){
+      var pub=p.status==='published';
+      var act=pub?'<a class="view" href="/v3/post.html?slug='+encodeURIComponent(p.slug)+'" target="_blank">View</a><button class="deny" onclick="pullPost('+p.id+',this)">Deny / Pull</button>'
+                 :'<span class="pill2 den">Pulled</span><button class="approve" onclick="restorePost('+p.id+',this)">Restore</button>';
+      return '<div class="rv"><div class="info"><div class="t">'+esc(p.title)+'</div><div class="d">'+esc((p.dek||'').slice(0,160))+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'').toUpperCase())+'</span><span class="pill2 '+(pub?'pub':'den')+'">'+esc(p.status)+'</span>'+(p.genre?'<span class="pill2">'+esc(p.genre)+'</span>':'')+'</div></div><div class="acts">'+act+'</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load posts.</div>'; }
+}
+async function pullPost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not pull: '+(e.message||e)); } }
+async function restorePost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'published'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not restore: '+(e.message||e)); } }
+
+async function loadSocialReview(){
+  var box=$('socialReview');
+  try{
+    var r=await supa.rpc('get_social_posts_admin',{p_status:'draft',p_limit:80}); var rows=(r&&r.data)||[];
+    $('socialCt').textContent=rows.length+' awaiting approval';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No social drafts awaiting approval. The marketing agent queues platform-ready posts here.</div>'; return; }
+    box.innerHTML=rows.map(function(p){
+      return '<div class="rv"><div class="info"><div class="t">'+esc((p.platform||'').toUpperCase())+'</div><div class="d">'+esc(p.body)+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'agent').toUpperCase())+'</span>'+(p.link_url?'<span class="pill2">→ '+esc(p.link_url.replace(/^https?:\/\//,''))+'</span>':'')+'</div></div><div class="acts"><button class="approve" onclick="approveSocial('+p.id+',this)">Approve &amp; post</button><button class="deny" onclick="denySocial('+p.id+',this)">Deny</button></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load social queue.</div>'; }
+}
+async function approveSocial(id,btn){
+  if(btn){btn.disabled=true;btn.textContent='Posting…';}
+  try{
+    var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'approved'}); if(r.error)throw r.error;
+    var post=r.data;
+    if(ZAP_HOOK && post){ try{ await fetch(ZAP_HOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'social',platform:post.platform,body:post.body,media_url:post.media_url,link_url:post.link_url})}); await supa.rpc('set_social_post_status',{p_id:id,p_status:'posted'}); }catch(e){} }
+    loadSocialReview();
+  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve & post';} alert('Could not approve: '+(e.message||e)); }
+}
+async function denySocial(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadSocialReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not deny: '+(e.message||e)); } }
+
+/* ===== Website Brain: QA runs + admin access ===== */
+async function loadQaRuns(){
+  var box=$('qaList');
+  try{
+    var r=await supa.rpc('get_qa_runs',{p_limit:60}); var rows=(r&&r.data)||[];
+    try{ var rr=await supa.rpc('get_site_repairs',{p_days:7}); var reps=(rr&&rr.data)||[];
+      var rc=document.getElementById('repCt'), rl=document.getElementById('repList');
+      if(rc) rc.textContent=reps.filter(function(x){return x.kind!=='run-summary';}).length+' entries';
+      if(rl) rl.innerHTML=reps.length?reps.slice(0,60).map(function(x){
+        var tone=x.action==='auto-fixed'?'#22e39b':(x.kind==='run-summary'?'var(--muted,#9aa0b0)':'#ffb43c');
+        return '<div style="display:flex;gap:10px;align-items:baseline;padding:6px 2px;border-bottom:1px solid var(--line,#242433)">'
+          +'<span style="color:'+tone+';font-weight:800;font-size:.68rem;text-transform:uppercase;flex:0 0 84px">'+(x.action==='auto-fixed'?'FIXED':(x.kind==='run-summary'?'SUMMARY':'NEEDS YOU'))+'</span>'
+          +'<span style="flex:1;min-width:0"><b>'+String(x.kind||'')+'</b> '+String(x.target||'')+' <span style="color:var(--muted,#9aa0b0)">'+String(JSON.stringify(x.detail||{})).slice(0,110)+'</span></span>'
+          +'<span style="color:var(--muted,#9aa0b0);font-size:.7rem;white-space:nowrap">'+String(x.run_at||'').slice(0,16).replace('T',' ')+'</span></div>';
+      }).join(''):'<div style="color:var(--muted,#9aa0b0)">No repair activity in the last 7 days.</div>';
+    }catch(e){}
+    $('qaCt').textContent=rows.length+' runs';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No QA runs logged yet — open the QA audit tool to record one.</div>'; return; }
+    box.innerHTML=rows.map(function(q){
+      var when=''; try{when=new Date(q.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
+      var bad=(q.fail||0)>0;
+      var det='';
+      try{
+        var d=q.details||{};
+        var vio=(d.violations||[]).slice(0,10);
+        if(vio.length){ det+='<div class="d" style="margin-top:6px">'+vio.map(function(v){return '<b>'+esc(v.code)+'</b> '+esc(v.page)+' — '+esc(v.detail);}).join('<br>')+((d.violations||[]).length>10?'<br>…and '+((d.violations||[]).length-10)+' more':'')+'</div>'; }
+        var bl=(d.broken_links||[]).slice(0,6);
+        if(bl.length){ det+='<div class="d" style="margin-top:6px"><b>Broken links:</b><br>'+bl.map(function(b){return esc(b.url)+' ('+esc(String(b.status))+') ← '+esc((b.referrers||[]).join(', '));}).join('<br>')+'</div>'; }
+        if(d.pages_scanned!=null){ det+='<div class="tags" style="margin-top:6px"><span class="pill2">'+d.pages_scanned+' pages</span><span class="pill2">'+(d.links_checked||0)+' links verified</span></div>'; }
+      }catch(e){}
+      return '<div class="rv" style="display:block"><div class="info"><div class="t">'+esc(q.source||'audit')+'</div><div class="tags" style="margin-top:6px">'+
+        '<span class="pill2 pub">'+(q.pass||0)+' pass</span>'+
+        '<span class="pill2'+(bad?' den':'')+'">'+(q.fail||0)+' fail</span>'+
+        '<span class="pill2">'+(q.warn||0)+' warn</span>'+
+        '<span class="pill2">'+esc(when)+'</span></div>'+det+'</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load QA runs.</div>'; }
+}
+async function loadAdmins(){
+  var box=$('admList');
+  try{
+    var r=await supa.rpc('get_admins'); var rows=(r&&r.data)||[];
+    $('admCt').textContent=rows.length+(rows.length===1?' admin':' admins');
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No admins found.</div>'; return; }
+    box.innerHTML=rows.map(function(a){
+      var founder=(a.handle||'').toLowerCase()==='tuitea';
+      var since=''; try{since=new Date(a.added_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}catch(e){}
+      return '<div class="rv"><div class="info"><div class="t">@'+esc(a.handle)+(a.display_name?' — '+esc(a.display_name):'')+'</div><div class="tags">'+(founder?'<span class="pill2 pub">FOUNDER</span>':'')+'<span class="pill2">since '+esc(since)+'</span></div></div><div class="acts">'+(founder?'':'<button class="deny" onclick="removeAdminUI(decodeURIComponent(\''+encodeURIComponent(a.handle||'')+'\'),this)">Remove</button>')+'</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load admins.</div>'; }
+}
+async function addAdminUI(){
+  var m=$('admMsg'); m.className='msg'; m.textContent='';
+  var h=($('admHandle').value||'').trim();
+  if(!h){ m.className='msg err'; m.textContent='Enter a member handle.'; return; }
+  try{
+    var r=await supa.rpc('add_admin',{p_handle:h}); var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ m.className='msg err'; m.textContent='Could not add: '+esc((r.error&&r.error.message)||d.error||'unknown error'); return; }
+    m.className='msg ok'; m.textContent='@'+h+' is now an admin ✓';
+    $('admHandle').value=''; TAB_LOADED.access=false; loadAdmins();
+  }catch(e){ m.className='msg err'; m.textContent='Error — try again.'; }
+}
+async function removeAdminUI(handle,btn){
+  if(!confirm('Remove @'+handle+' as an admin? They keep their member account but lose Brain access.')) return;
+  if(btn)btn.disabled=true;
+  try{
+    var r=await supa.rpc('remove_admin',{p_handle:handle}); var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ if(btn)btn.disabled=false; alert('Could not remove: '+((r.error&&r.error.message)||d.error||'unknown error')); return; }
+    TAB_LOADED.access=false; loadAdmins();
+  }catch(e){ if(btn)btn.disabled=false; alert('Error — try again.'); }
+}
+
+/* ===== Website Brain: per-agent brains (profiles + escalation/handoff review) ===== */
+var AGENT_PROFILES={};
+async function loadAgents(){
+  var box=$('agList');
+  try{
+    var r=await supa.rpc('get_agent_profiles_admin'); var rows=(r&&r.data)||[];
+    $('agCt').textContent=rows.length+' agents';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No agent profiles found.</div>'; return; }
+    AGENT_PROFILES={};
+    box.innerHTML=rows.map(function(p){
+      AGENT_PROFILES[p.slug]=p;
+      var subs=(p.subgenres||[]).join(', ');
+      return '<div class="rv" style="display:block">'+
+        '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+          '<div class="info"><div class="t">'+esc(p.display_name)+' <span class="pill2">'+esc(p.genre_lane)+'</span> <span class="pill2">'+esc(p.department)+'</span>'+(p.active?'':' <span class="pill2 den">OFF</span>')+'</div>'+
+          '<div class="d">'+esc(p.personality)+'</div>'+
+          '<div class="tags"><span class="pill2 pub">'+(p.knowledge_count||0)+' knowledge</span><span class="pill2'+((p.review_queue||0)>0?' den':'')+'">'+(p.review_queue||0)+' to review</span><span class="pill2">'+(p.handoffs_7d||0)+' handoffs 7d</span></div></div>'+
+          '<div class="acts"><button onclick="toggleAgentEdit(\''+p.slug+'\')">Edit</button></div>'+
+        '</div>'+
+        '<div class="kform" id="apf-'+p.slug+'" style="display:none;margin-top:10px">'+
+          '<label>Personality</label><textarea id="ap-per-'+p.slug+'">'+esc(p.personality)+'</textarea>'+
+          '<label>Responsibilities</label><textarea id="ap-res-'+p.slug+'">'+esc(p.responsibilities)+'</textarea>'+
+          '<label>Escalation notes</label><textarea id="ap-esc-'+p.slug+'">'+esc(p.escalation_notes)+'</textarea>'+
+          '<label>Subgenres (comma separated)</label><input id="ap-sub-'+p.slug+'" value="'+esc(subs)+'">'+
+          '<label>Active</label><select id="ap-act-'+p.slug+'"><option value="1"'+(p.active?' selected':'')+'>On</option><option value="0"'+(p.active?'':' selected')+'>Off</option></select>'+
+          '<div class="cbar" style="margin-top:10px"><button class="approve" style="border:1px solid #22e39b;background:transparent;color:#22e39b;border-radius:9px;font-weight:800;padding:8px 14px" onclick="saveAgent(\''+p.slug+'\',this)">Save</button></div>'+
+          '<div class="msg" id="ap-msg-'+p.slug+'"></div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load agent profiles.</div>'; }
+  loadHandoffs();
+}
+function toggleAgentEdit(slug){ var f=$('apf-'+slug); if(f) f.style.display = (f.style.display==='none'?'block':'none'); }
+async function saveAgent(slug,btn){
+  var m=$('ap-msg-'+slug); if(m){m.className='msg';m.textContent='';}
+  if(btn)btn.disabled=true;
+  try{
+    var r=await supa.rpc('update_agent_profile',{
+      p_slug:slug,
+      p_personality:($('ap-per-'+slug)||{}).value||null,
+      p_responsibilities:($('ap-res-'+slug)||{}).value||null,
+      p_escalation_notes:($('ap-esc-'+slug)||{}).value||null,
+      p_subgenres:($('ap-sub-'+slug)||{}).value||null,
+      p_active:(($('ap-act-'+slug)||{}).value==='1')
+    });
+    var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ if(btn)btn.disabled=false; if(m){m.className='msg err';m.textContent='Could not save: '+((r.error&&r.error.message)||d.error||'unknown');} return; }
+    TAB_LOADED.agents=false; loadAgents();
+  }catch(e){ if(btn)btn.disabled=false; if(m){m.className='msg err';m.textContent='Error — try again.';} }
+}
+async function loadHandoffs(){
+  var box=$('hoList');
+  try{
+    var r=await supa.rpc('get_agent_handoffs',{p_limit:80}); var rows=(r&&r.data)||[];
+    $('hoCt').textContent=rows.length+' recent';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No escalations yet. When an agent refuses to guess or hits a sensitive topic, it lands here.</div>'; return; }
+    box.innerHTML=rows.map(function(h){
+      var when=''; try{when=new Date(h.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){}
+      var sens=(h.reason||'').indexOf('sensitive:')===0;
+      return '<div class="rv"><div class="info"><div class="t">“'+esc(h.question)+'”</div><div class="tags">'+
+        '<span class="pill2">'+esc((h.from_agent||'?').toUpperCase())+' → '+esc((h.to_agent||'HUMAN').toUpperCase())+'</span>'+
+        '<span class="pill2'+(sens?' den':'')+'">'+esc(h.reason||'')+'</span>'+
+        (sens?'<span class="pill2 den">HUMAN REVIEW</span>':'')+
+        '<span class="pill2">'+esc(when)+'</span></div></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load handoffs.</div>'; }
+}
+
+/* ===== Website Brain L4: Recommendations (crew recommends, human approves) ===== */
+async function loadRecommendations(force){
+  var box=$('recList');
+  try{
+    var r=await supa.rpc('get_brain_recommendations'); var d=(r&&r.data)||{};
+    var recs=(d.recommendations)||[];
+    $('recCt').textContent=((d.summary&&d.summary.open_actions!=null)?d.summary.open_actions:recs.length)+' open';
+    if(!recs.length){ box.innerHTML='<div class="rv-empty">All clear — nothing needs your attention right now.</div>'; return; }
+    var PILL={high:'den',medium:'',low:'pub'};
+    box.innerHTML=recs.map(function(x){
+      return '<div class="rv"><div class="info"><div class="t">'+esc(x.title)+'</div><div class="d">'+esc(x.detail||'')+'</div><div class="tags"><span class="pill2 '+(PILL[x.priority]||'')+'">'+esc((x.priority||'').toUpperCase())+'</span></div></div><div class="acts"><button class="approve" onclick="showTab(\''+esc(x.tab)+'\')">Go &rarr;</button></div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load recommendations.</div>'; }
+}
+/* ===== Website Brain L3: Assisted Learning (draft -> human approve -> knowledge grows) ===== */
+async function loadLearning(){
+  var box=$('learnList');
+  try{
+    var r=await supa.rpc('get_knowledge_suggestions',{p_status:'pending',p_limit:100}); var rows=(r&&r.data)||[];
+    $('learnCt').textContent=rows.length+' to review';
+    if(!rows.length){ box.innerHTML='<div class="rv-empty">No suggestions right now. Click "Generate from questions" to scan recent unanswered questions.</div>'; return; }
+    box.innerHTML=rows.map(function(s){
+      var opt='<option value="">All agents (shared)</option>'+AGENTS.map(function(a){return '<option value="'+a[0]+'"'+(a[0]===s.agent_slug?' selected':'')+'>'+a[1]+'</option>';}).join('');
+      var confPct=(s.confidence!=null)?Math.round(s.confidence*100)+'%':null;
+      var routePills=(s.genre_lane?'<span class="pill2">'+esc(s.genre_lane)+'</span>':'')+
+        (s.department?'<span class="pill2">'+esc(s.department)+'</span>':'')+
+        (confPct?'<span class="pill2'+((s.confidence||0)<0.5?' den':' pub')+'">conf '+confPct+'</span>':'');
+      return '<div class="rv" id="sug'+s.id+'" style="display:block"><div class="kform" style="width:100%">'+
+        '<div class="t" style="margin-bottom:8px">&#10067; "'+esc(s.question)+'" <span class="pill2">asked '+(s.occurrences||1)+'&times;</span>'+routePills+'</div>'+
+        '<label>Topic</label><input id="st'+s.id+'" value="'+esc(s.suggested_topic||'')+'">'+
+        '<label style="margin-top:8px">Answer (edit before approving)</label><textarea id="sa'+s.id+'" rows="4" placeholder="Write the answer agents should give…">'+esc(s.suggested_answer||'')+'</textarea>'+
+        '<label style="margin-top:8px">Teach which agent</label><select id="sg'+s.id+'">'+opt+'</select>'+
+        '<div class="cbar" style="margin-top:10px"><button class="approve" onclick="approveSuggestion('+s.id+',this)">Approve &amp; teach</button> <button class="deny" onclick="dismissSuggestion('+s.id+',this)">Dismiss</button></div>'+
+        '<div class="msg" id="sm'+s.id+'"></div>'+
+      '</div></div>';
+    }).join('');
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load suggestions.</div>'; }
+}
+async function genSuggestions(btn){
+  var t=btn?btn.textContent:''; if(btn){btn.disabled=true;btn.textContent='Scanning…';}
+  try{ await supa.rpc('generate_knowledge_suggestions',{p_days:30}); TAB_LOADED.learning=false; loadLearning(); }catch(e){}
+  if(btn){btn.disabled=false;btn.textContent=t;}
+}
+async function approveSuggestion(id,btn){
+  var topic=(($('st'+id)||{}).value||'').trim(), ans=(($('sa'+id)||{}).value||'').trim(), slug=(($('sg'+id)||{}).value||'');
+  var m=$('sm'+id);
+  if(!topic||!ans){ if(m){m.className='msg err';m.textContent='Topic and answer are required.';} return; }
+  if(btn)btn.disabled=true;
+  try{
+    var kw=topic.toLowerCase().replace(/[^a-z0-9 ]/g,'').split(/\s+/).filter(function(w){return w.length>3;}).slice(0,8).join(',');
+    var r=await supa.rpc('approve_knowledge_suggestion',{p_id:id,p_topic:topic,p_keywords:kw,p_answer_short:ans.slice(0,240),p_answer_full:ans,p_agent_slug:slug||null});
+    if(r.error)throw r.error;
+    var el=$('sug'+id); if(el) el.outerHTML='<div class="rv"><div class="info"><div class="t">&#10003; Added to the Knowledge Bank — every agent knows this now.</div></div></div>';
+    if($('learnCt')){ var n=parseInt($('learnCt').textContent)||1; $('learnCt').textContent=(n-1)+' to review'; }
+  }catch(e){ if(btn)btn.disabled=false; if(m){m.className='msg err';m.textContent='Could not approve: '+((e&&e.message)||e);} }
+}
+async function dismissSuggestion(id,btn){
+  if(btn)btn.disabled=true;
+  try{ var r=await supa.rpc('dismiss_knowledge_suggestion',{p_id:id}); if(r.error)throw r.error; var el=$('sug'+id); if(el)el.outerHTML=''; }catch(e){ if(btn)btn.disabled=false; }
+}
+
+async function init(){
+  if(!supa){ $('gate').style.display='block'; return; }
+  var b=$('loginBtn'); if(b) b.href='/v3/apply.html?stay=1&next='+encodeURIComponent(location.pathname);
+  var r=await supa.auth.getSession().catch(function(){return null;});
+  if(!(r&&r.data&&r.data.session)){ $('gate').style.display='block'; return; }
+  $('app').style.display='block';
+  load();
+  buildAdminTabs();
+}
+init();
+</script>
+<script src="/v3/keepitil-radio.js?v=20260718" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260738" defer></script>
+<script src="/v31/v31-shell.js?v=20260738" defer></script>
+</body>
+</html>
