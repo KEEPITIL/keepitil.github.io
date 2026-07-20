@@ -375,5 +375,8 @@ renderTypebar();renderDiscover();renderFeed();
   (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
 })();
 </script>
-
+<script>/* Founder 2026-07-20: hide the Feed/Following toggle for signed-out viewers (viewers only) */
+(function(){function ap(fn){var sb=window.__culSB;if(!sb){return setTimeout(function(){ap(fn);},300);}fn(sb);}
+function setTog(signed){var t=document.getElementById('feedToggle');if(!t)return;t.style.display=signed?'':'none';}
+ap(function(sb){sb.auth.getSession().then(function(r){setTog(!!(r&&r.data&&r.data.session));});sb.auth.onAuthStateChange(function(_e,s){setTog(!!s);});});})();</script>
 </body></html>
