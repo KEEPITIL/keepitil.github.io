@@ -219,6 +219,32 @@ footer a{color:var(--accent2);}
 .dm-start{background:var(--accent);color:var(--onacc);border:none;border-radius:9px;font-family:var(--font-head);letter-spacing:.06em;font-size:.95rem;padding:10px 24px;cursor:pointer;}
 .chat-item .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;}
 .chat-back{background:none;border:none;color:var(--accent2);font-weight:700;font-size:.9rem;cursor:pointer;padding:2px 0 14px;letter-spacing:.04em;}
+/* ── agent Q&A chat (ask-echo, agent-scoped) ── */
+#chat-list.agmode{display:block!important}
+.agchat{border:1px solid var(--line);border-radius:16px;background:var(--surface2);overflow:hidden;display:flex;flex-direction:column;height:600px}
+.ag-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.ag-head img{width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--surface)}
+.ag-head b{display:block;font-size:.98rem}
+.ag-head span{color:var(--muted,#9aa0b0);font-size:.78rem}
+.ag-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.ag-m{max-width:86%;padding:10px 14px;border-radius:14px 14px 14px 4px;background:var(--surface);border:1px solid var(--line);font-size:.9rem;line-height:1.5;white-space:pre-wrap}
+.ag-m.me{align-self:flex-end;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;font-weight:600;border:0;border-radius:14px 14px 4px 14px}
+.ag-m .ag-who{display:block;color:var(--brand,#00b4ff);font-weight:800;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.ag-m .ag-src{display:block;margin-top:6px}
+.ag-m .ag-src a{color:var(--brand,#00b4ff);font-size:.78rem;font-weight:700;text-decoration:none;margin-right:10px}
+.ag-typing{display:inline-flex;gap:4px;padding:2px 0}
+.ag-typing i{width:6px;height:6px;border-radius:50%;background:var(--muted,#9aa0b0);animation:agblink 1s infinite}
+.ag-typing i:nth-child(2){animation-delay:.2s}.ag-typing i:nth-child(3){animation-delay:.4s}
+@keyframes agblink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.ag-chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 10px}
+.ag-chips button{background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted,#9aa0b0);font:700 .78rem Inter,sans-serif;padding:7px 13px;cursor:pointer}
+.ag-chips button:hover{border-color:var(--brand,#00b4ff);color:var(--brand,#00b4ff)}
+.ag-in{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--line)}
+.ag-in input{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:11px 16px;color:var(--text);font:600 .9rem Inter,sans-serif;outline:none}
+.ag-in input:focus{border-color:var(--brand,#00b4ff)}
+.ag-in button{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));border:0;border-radius:999px;color:#04121b;font:800 .86rem Inter,sans-serif;padding:0 20px;cursor:pointer}
+.ag-in button:disabled{opacity:.5;cursor:default}
+@media(max-width:640px){.agchat{height:70vh}}
 @media(max-width:768px){
   .nav-links{display:none;}.nav-hamburger{display:flex;}.nav-inner>a.nav-cta{display:none;}
   .car-arrow{display:none;}
@@ -458,7 +484,7 @@ footer a{color:var(--accent2);}
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
-    <button class="pf-btn book" id="pfArchive" style="display:none" onclick="location.href='/v3/dashboard.html'">DASHBOARD</button>
+    <button class="pf-btn book" id="pfArchive" style="display:none" onclick="location.href='/v31/dashboard.html'">DASHBOARD</button>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
@@ -579,6 +605,16 @@ var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q)return q.toLowerCase().replace(/[^a-z0-9-]/g,'');}catch(e){}return '';})();
 var IS_DEMO=(PROFILE_SLUG==='groove-trooper');
+/* the 14 KEEPITIL agents answer live via the ask-echo edge fn (agent-scoped brain + personality);
+   their CHAT tab becomes a real "ask this agent" chat — normal profiles keep scene-room chats */
+var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department) — fallback identity when profile_meta has no row */
+  echo:['Echo','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
+  nexus:['Nexus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
+  oracle:['Oracle','Trance','Analytics'],fable:['Fable','Indie / Alternative','Documentation'],
+  nova:['Nova','Bass','UX QA'],luna:['Luna','Pop','Visual Design'],lyric:['Lyric','R&B / Soul','Editorial'],
+  vibe:['Vibe','African Dance','Community'],scout:['Scout','Country / Americana','Talent & Discovery'],
+  merch:['Merch','Rock / Metal','Merch & Shop'],beacon:['Beacon','Reggae / Dancehall','Promotion']};
+var IS_AGENT=!!AGENT_INFO[PROFILE_SLUG];
 var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 var SESSION=null, DB_OK=false, OWNS=false;
 /* Edit controls show only in the owner variant AND when the signed-in user actually owns this profile. */
@@ -596,7 +632,7 @@ function showTab(name){
   if(name==='chat'){ if(typeof closeChatGroup==='function') closeChatGroup(); }
   var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
 }
-/* deep-link: /v3/u.html?slug=x&tab=shows opens the Events tab directly (used by the event-page back button) */
+/* deep-link: /v31/u.html?slug=x&tab=shows opens the Events tab directly (used by the event-page back button) */
 window.addEventListener('load',function(){ try{ var _t=(new URLSearchParams(location.search).get('tab')||'').toLowerCase(); if(['article','gallery','shows','chat'].indexOf(_t)>-1){ setTimeout(function(){ showTab(_t); },300); } }catch(e){} });
 function renderHighlights(){
   var r=document.getElementById('hl-row');if(!r)return;
@@ -685,7 +721,7 @@ function loadMyEvents(){
     var evs=(r&&r.data)?r.data:[];
     if(!evs.length){ wrap.style.display='none'; return; }
     var h=document.getElementById('myev-h'); if(h) h.style.display='none';   /* chip identifies the section (Founder pass 2) */
-    if(owner){ var es=document.getElementById('evsub'); if(es && !document.getElementById('evDashBtn')){ var db=document.createElement('a'); db.id='evDashBtn'; db.className='evsub-b'; db.style.marginLeft='auto'; db.href='/v3/dashboard.html'; db.textContent='Dashboard'; es.appendChild(db); } }
+    if(owner){ var es=document.getElementById('evsub'); if(es && !document.getElementById('evDashBtn')){ var db=document.createElement('a'); db.id='evDashBtn'; db.className='evsub-b'; db.style.marginLeft='auto'; db.href='/v31/dashboard.html'; db.textContent='Dashboard'; es.appendChild(db); } }
     var row=document.getElementById('myev-row'); if(!row){ wrap.style.display='none'; return; }
     row.innerHTML=evs.map(function(e){
       var img=e.cover_url?'<img class="tix-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
@@ -872,6 +908,8 @@ function applyProfile(){
   var s=PROFILE.socials||{};
   if(g('pfIG'))g('pfIG').style.display=s.instagram?'':'none', g('pfIG')&&(g('pfIG').href=s.instagram||'#');
   if(g('pfSC'))g('pfSC').style.display=s.soundcloud?'':'none', g('pfSC')&&(g('pfSC').href=s.soundcloud||'#');
+  /* agent chat header follows the async-loaded meta (avatar lands after first render) */
+  if(IS_AGENT){ var _ag=document.querySelector('#agchat .ag-head'); if(_ag){ var _ai=_ag.querySelector('img'); if(_ai&&PROFILE.avatar)_ai.src=PROFILE.avatar; var _ab=_ag.querySelector('b'); if(_ab&&PROFILE.name)_ab.textContent='Ask '+PROFILE.name; } }
   renderHighlights();
 }
 function loadProfileMeta(){
@@ -1154,7 +1192,7 @@ function closeModal(){var m=document.getElementById('kilModal');if(m)m.remove();
 
 /* CREATE EVENT — ONE gold standard (Founder 2026-07-17): every entry point routes to the
    canonical Posh-parity form. The old external/internal chooser modal is PURGED. */
-function createEvent(){ location.href='/v3/create-event.html'; }
+function createEvent(){ location.href='/v31/create-event.html'; }
 
 /* ── INSTAGRAM / TIKTOK-STYLE CREATE POST — media first, then details ── */
 var CP={target:'feed',media:'',mtype:'',file:null,items:[],cover:null,coverUrl:'',tags:[],collab:[]};
@@ -1746,6 +1784,63 @@ function openArticle(i){
   var card=document.getElementById('artc'+i);if(card)card.classList.add('on');
 }
 function scrollCar(id,dir){var el=document.getElementById(id);if(el)el.scrollBy({left:dir*320,behavior:'smooth'});}
+/* ── AGENT Q&A CHAT (14 agents · ask-echo edge fn, agent-scoped brain + personality) ── */
+var AG_BUSY=false;
+function renderAgentChat(){
+  var list=document.getElementById('chat-list'); if(!list) return;
+  var bar=document.getElementById('chat-filter'); if(bar) bar.innerHTML='';
+  var nb=document.getElementById('dm-new'); if(nb) nb.style.display='none';
+  if(document.getElementById('agchat')) return; /* keep the conversation across tab hops */
+  var info=AGENT_INFO[PROFILE_SLUG]||[], nm=PROFILE.name||info[0]||PROFILE_SLUG;
+  list.classList.add('agmode');
+  list.innerHTML='<div class="agchat" id="agchat">'
+    +'<div class="ag-head"><img src="'+esc(PROFILE.avatar||'/icon-192.png')+'" alt="" onerror="this.style.opacity=.2">'
+    +'<div><b>Ask '+esc(nm)+'</b><span>'+esc([info[1],info[2]].filter(Boolean).join(' · '))+' — live answers from '+esc(nm)+'’s own knowledge.</span></div></div>'
+    +'<div class="ag-msgs" id="agMsgs"></div>'
+    +'<div class="ag-chips" id="agChips">'
+      +'<button onclick="agAsk(\'What do you do at KEEPITIL?\')">What do you do here?</button>'
+      +'<button onclick="agAsk(\'What should I listen to in your genre right now?\')">What should I listen to?</button>'
+      +'<button onclick="agAsk(\'How can you help me grow as a creator?\')">How can you help me?</button>'
+    +'</div>'
+    +'<div class="ag-in"><input id="agIn" placeholder="Ask '+esc(nm)+' anything…" maxlength="500" onkeydown="if(event.key===\'Enter\'){event.preventDefault();agSend();}"><button id="agGo" onclick="agSend()">Send</button></div>'
+  +'</div>';
+  agBubble('bot','','Hey — I’m '+nm+' ⚡ Ask me anything about what I do, my genre, or the scene.');
+}
+function agBubble(kind,who,text,sources){
+  var m=document.getElementById('agMsgs'); if(!m) return null;
+  var d=document.createElement('div'); d.className='ag-m'+(kind==='me'?' me':'');
+  var src='';
+  if(sources&&sources.length){ src='<span class="ag-src">'+sources.slice(0,3).map(function(s){ var u=s&&(s.url||s.source_url), l=s&&(s.label||s.title)||'Read more'; return u?'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(l)+' ↗</a>':''; }).join('')+'</span>'; }
+  d.innerHTML=(who?'<span class="ag-who">'+esc(who)+'</span>':'')+esc(text)+src;
+  m.appendChild(d); m.scrollTop=m.scrollHeight; return d;
+}
+function agAsk(q){ var i=document.getElementById('agIn'); if(i) i.value=q; agSend(); }
+function agSend(){
+  if(AG_BUSY) return;
+  var i=document.getElementById('agIn'), q=i?i.value.trim():'';
+  if(!q) return;
+  i.value=''; agBubble('me','',q);
+  var chips=document.getElementById('agChips'); if(chips) chips.style.display='none';
+  AG_BUSY=true; var go=document.getElementById('agGo'); if(go) go.disabled=true;
+  var m=document.getElementById('agMsgs');
+  var t=document.createElement('div'); t.className='ag-m'; t.id='agTyping';
+  t.innerHTML='<span class="ag-typing"><i></i><i></i><i></i></span>';
+  m.appendChild(t); m.scrollTop=m.scrollHeight;
+  var body={question:q,agent:PROFILE_SLUG};
+  try{ var r0=localStorage.getItem('kil_role'); if(r0) body.userRole=r0;
+       var g0=localStorage.getItem('kil_genres'); if(g0) body.userGenre=g0.split(',')[0]||g0; }catch(e){}
+  var AK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  function done(){ var x=document.getElementById('agTyping'); if(x) x.remove(); AG_BUSY=false; if(go) go.disabled=false; }
+  fetch('https://ovmqtzjfpzrbzrlkxwgw.supabase.co/functions/v1/ask-echo',{
+    method:'POST',
+    headers:{'apikey':AK,'Authorization':'Bearer '+AK,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  }).then(function(r){ return r.ok?r.json():null; }).then(function(d){
+    done();
+    if(d&&d.ok&&d.answer) agBubble('bot',d.display_name||PROFILE.name||'',d.answer,d.sources);
+    else agBubble('bot','', (PROFILE.name||'I')+' is mid-set right now — give it a second and ask again.');
+  }).catch(function(){ done(); agBubble('bot','','Connection hiccup — try that once more.'); });
+}
 /* ── CHAT GROUP LIST (IG-style) ── */
 var GT_CHATS=[
   ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg','general'],
@@ -1755,6 +1850,7 @@ var GT_CHATS=[
 ];
 function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general':(/@|event/i.test(c[1])?'events':'primary'); }
 function renderChats(){
+  if(IS_AGENT){ renderAgentChat(); return; }
   var list=document.getElementById('chat-list');if(!list)return;
   var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
   var chips=[['primary','Primary'],['general','General'],['events','Events']];
@@ -1783,19 +1879,33 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
+  /* First-run: a signed-in user viewing their OWN profile with no onboarding row gets the
+     Echo conversational setup once (skip persists via kil_ob_skip; loop-guard per session). */
+  function checkOnboarding(){
+    try{
+      if(!SESSION||!SESSION.user) return;
+      if(!((typeof CAN_EDIT==='function')&&CAN_EDIT())) return;
+      if(localStorage.getItem('kil_ob_skip')==='1') return;
+      if(sessionStorage.getItem('kil_ob_seen')==='1') return;
+      SB.from('user_onboarding').select('user_id').eq('user_id',SESSION.user.id).maybeSingle().then(function(o){
+        if(o&&o.error) return;
+        if(!(o&&o.data)){ try{ sessionStorage.setItem('kil_ob_seen','1'); }catch(e){} location.href='/v31/onboarding.html'; }
+      });
+    }catch(e){}
+  }
   applyProfile(); renderAll();
   if(!PROFILE_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
-    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v31/profile.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v3/create-profile.html'); } }).catch(function(){ location.replace('/v3/create-profile.html'); }); }); }
+    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v31/profile.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v31/create-profile.html'); } }).catch(function(){ location.replace('/v31/create-profile.html'); }); }); }
     else { location.replace('/v31/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
     SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260719d" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260738" defer></script>
 
 <script>
 /* ══ IG-PARITY ENHANCEMENTS (Founder 2026-07-18) ══ */
@@ -1805,8 +1915,8 @@ function openCreateChooser(){
   var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';
   ov.innerHTML='<div class="kil-modal"><div class="kil-mh">Create Event<button class="kil-mx" onclick="closeModal()">&times;</button></div>'
     +'<div class="kil-mb"><div class="ev-choose">'
-    +'<a class="ev-opt" href="/v3/create-event.html"><span class="ei"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.9 6.2 19.9l.9-5.4L3.2 10.7l5.4-.8L12 2z"/></svg></span><span><h4>New event</h4><p>Host your own — tickets, tiers, payouts. The full event form.</p></span></a>'
-    +'<a class="ev-opt" href="/v3/submit-event.html"><span class="ei"><svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1h6zm11-3v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3h7z"/></svg></span><span><h4>Repost event</h4><p>Share a show you found — listing + ticket link out. Reviewed before it goes live.</p></span></a>'
+    +'<a class="ev-opt" href="/v31/create-event.html"><span class="ei"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.9 6.2 19.9l.9-5.4L3.2 10.7l5.4-.8L12 2z"/></svg></span><span><h4>New event</h4><p>Host your own — tickets, tiers, payouts. The full event form.</p></span></a>'
+    +'<a class="ev-opt" href="/v31/submit-event.html"><span class="ei"><svg viewBox="0 0 24 24"><path d="M10 6v2H5v11h11v-5h2v6a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1h6zm11-3v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3h7z"/></svg></span><span><h4>Repost event</h4><p>Share a show you found — listing + ticket link out. Reviewed before it goes live.</p></span></a>'
     +'</div></div></div>';
   document.body.appendChild(ov);
   ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
@@ -2043,6 +2153,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260735" defer></script>
+<script src="/v31/v31-shell.js?v=20260738" defer></script>
 </body>
 </html>
