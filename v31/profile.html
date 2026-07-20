@@ -449,19 +449,25 @@ footer a{color:var(--accent2);}
 #chat-filter::-webkit-scrollbar{display:none}
 /* ABOUT order (Founder a→d): passport|category|badges → links dropdown → mid-nav → bio/about */
 .pf-meta{display:flex;flex-direction:column}
-.pf-bcrow{order:1;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px}
+.pf-bcrow{order:3;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px}
 .pf-bcrow::-webkit-scrollbar{display:none}
+.pf-bio{order:1}
+#pfAbout{order:1}
+#pfAboutTop{order:1}
 #pfLinks{order:2}
 #pfLinksDrop{order:2}
-.pf-cta{order:3}
-.pf-bio{order:4}
-#pfAbout{order:5}
-#pfAboutTop{order:6}
+.pf-cta{order:4}
 #pfAcctType{margin-bottom:0!important}
 #pfBadges{display:flex;gap:6px}
 #pfBadges .bdg{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
 #pfPassport{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;display:none;white-space:nowrap}
-#pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}</style></head>
+#pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
+#pfPlus{position:fixed;top:14px;right:14px;z-index:1200;width:44px;height:44px;border-radius:50%;border:none;background:#00b4ff;color:#04121b;font-size:1.9rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 0 16px rgba(0,180,255,.85),0 0 7px rgba(0,180,255,.6);display:none;align-items:center;justify-content:center}
+.v3s-hamb,.v3s-burger{display:none!important}
+#pfDashMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:95;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+#pfDashMenu.open{display:block}
+#pfDashMenu button{display:block;width:100%;text-align:left;background:none;border:0;color:#e8e8f0;font-size:.9rem;font-weight:700;padding:11px 12px;border-radius:8px;cursor:pointer}
+#pfDashMenu button:hover{background:rgba(255,255,255,.08)}</style></head>
 <body>
 
 <nav id="main-nav">
@@ -479,6 +485,7 @@ footer a{color:var(--accent2);}
      A new/empty profile must render a blank, fillable page — never someone else's identity. -->
 <style>@keyframes pfskel{50%{opacity:.45}}.pf-skel{animation:pfskel 1.2s ease-in-out infinite}</style>
 <button id="pfBack" onclick="history.back()">‹ Previous</button>
+<button id="pfPlus" aria-label="Create" onclick="try{openCreateChooser()}catch(e){try{toggleCreateMenu(event)}catch(_){}}">+</button>
 <div class="pf-cover"><img id="pfCover" src="" alt="" style="display:none" onerror="this.style.display='none'"></div>
 <div class="pf-head">
   <div class="pf-top" style="align-items:stretch;gap:26px">
@@ -503,7 +510,7 @@ footer a{color:var(--accent2);}
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
-    <button class="pf-btn book" id="pfArchive" style="display:none" onclick="location.href='/v31/dashboard.html'">DASHBOARD</button>
+    <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/v31/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/v31/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="location.href='/v31/settings.html'">Settings</button></div></span>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
@@ -955,7 +962,9 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
   box.innerHTML=(PROFILE.categories||[]).map(function(k){return '<span class="pf-catbadge '+k+'">'+L[k]+'</span>';}).join('');
 }
 function updateOwnerUI(){
-  ['pfCreate','pfArchive'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
+  ['pfDashWrap'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
+  var _pc=document.getElementById('pfCreate'); if(_pc)_pc.style.display='none';
+  var _pp=document.getElementById('pfPlus'); if(_pp)_pp.style.display=CAN_EDIT()?'flex':'none';
   try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
   try{ syncNavCta(); }catch(e){}  /* own profile = hamburger menu; someone else's = PROFILE button back to mine */
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
@@ -963,6 +972,9 @@ function updateOwnerUI(){
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
   var mb=document.getElementById('pfBook'); if(mb)mb.style.display=CAN_EDIT()?'none':'';
 }
+/* DASH dropdown — houses Dashboard / Edit profile / Settings (Founder 2026-07-20) */
+function toggleDashMenu(e){ if(e){e.stopPropagation();} var m=document.getElementById('pfDashMenu'); if(m)m.classList.toggle('open'); }
+document.addEventListener('click',function(e){ var w=document.getElementById('pfDashWrap'); var m=document.getElementById('pfDashMenu'); if(m&&m.classList.contains('open')&&w&&!w.contains(e.target)) m.classList.remove('open'); });
 /* ── DIRECT MESSAGE (viewer → this profile) via send_dm RPC ── */
 function openDM(){
   if(!SB||!SESSION){ toast('Sign in to message.'); setTimeout(function(){location.href='/v31/apply.html';},700); return; }
@@ -1652,7 +1664,7 @@ function fbShare(url){ if(needAuth())return; try{ if(navigator.share){ navigator
 function ensureSavedColl(cb){
   SB.from('collections').select('id,name').eq('user_id',SESSION.user.id).then(function(r){
     var colls=(r&&r.data)?r.data:[]; var def=null; colls.forEach(function(c){ if(String(c.name).toLowerCase()==='saved') def=c; });
-    if(def){ cb(colls,def); return; }
+    if(def){ colls=colls.filter(function(c){return c!==def;}); colls.unshift(def); cb(colls,def); return; }
     SB.from('collections').insert({user_id:SESSION.user.id,name:'Saved'}).select('id,name').then(function(rr){
       var d=(rr&&rr.data&&rr.data[0])?rr.data[0]:{id:null,name:'Saved'}; colls.unshift(d); cb(colls,d);
     }).catch(function(){ cb(colls,{id:null,name:'Saved'}); });
@@ -2082,7 +2094,7 @@ function toggleArchived(id,val){
 /* FEED category filter — FEED (all) default, collapsible to icons on mobile */
 (function(){
   var CATS=[['all','FEED','▦'],['blog','Blog','📰'],['article','Article','📝'],['video','Video','🎬'],['image','Image','🖼'],['reshare','Reshared','🔁']];
-  var CREATE_CHIP='<button class="evsub-b create" style="margin-left:auto" onclick="openCreatePost(\'feed\')">＋Create</button>';
+  var CREATE_CHIP='';
   var box=document.getElementById('feed-cat'); if(!box)return;
   var cur='all';
   function paint(){
@@ -2152,6 +2164,7 @@ function loadSaved(){
     SB.from('post_saves').select('content_id,collection_id,profile_content(id,kind,data,profile_slug)').order('created_at',{ascending:false})
   ]).then(function(res){
     var colls=(res[0].data)||[], saves=(res[1].data)||[];
+    colls.sort(function(a,b){var A=String(a.name).toLowerCase()==='saved'?0:1,B=String(b.name).toLowerCase()==='saved'?0:1;return A-B;});
     var cbox=document.getElementById('saved-coll');
     cbox.innerHTML=colls.map(function(c){return '<button class="evsub-b'+(CUR_COLL===c.id?' on':'')+'" onclick="CUR_COLL=(CUR_COLL==='+c.id+'?null:'+c.id+');loadSaved()">'+String(c.name).slice(0,24)+'</button>';}).join('')
       +(CAN_EDIT&&CAN_EDIT()?'<button class="evsub-b create" onclick="newCollection()">＋ New collection</button>':'');
