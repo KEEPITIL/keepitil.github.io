@@ -600,23 +600,60 @@
     if (t) t.style.display = 'none';
   }
 
-  // ── Handle a query ───────────────────────────────────────────────────────────
+  // ── Brain: draw from ALL 14 agents' knowledge via ask_crew ──────────────────
+  var KIL_SUPA_URL  = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var KIL_SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  function kilCap(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function askBrain(text) {
+    // Use a logged-in member's token if the page exposes a Supabase client (fuller answers), else anon.
+    var tok = KIL_SUPA_ANON;
+    try {
+      var c = window.__culSB || window.SB;
+      var s = c && c.auth && c.auth._currentSession;
+      if (s && s.access_token) tok = s.access_token;
+    } catch (e) {}
+    return fetch(KIL_SUPA_URL + '/rest/v1/rpc/ask_crew', {
+      method: 'POST',
+      headers: { 'apikey': KIL_SUPA_ANON, 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_question: text }),
+    }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
+  }
+  function brainCard(d) {
+    if (!d || !d.ok) return null;
+    if (d.escalate) return { title: '🛡️ Flagged for the team', text: d.answer };
+    if (!d.matched || !d.answer) return null;
+    var txt = d.answer;
+    if (d.upsell) txt += '\n\n' + d.upsell;
+    var title = '💡 Echo';
+    if (d.from_agent && String(d.from_agent).toLowerCase() !== 'echo') {
+      title = '💡 ' + kilCap(d.from_agent) + (d.genre_lane ? ' · ' + d.genre_lane : '');
+    }
+    var card = { title: title, text: txt };
+    if (d.source_url) card.links = [{ label: 'Read more', url: d.source_url }];
+    return card;
+  }
+
+  // ── Handle a query (brain first across all agents, canned intents as fallback) ─
   function handleQuery(text) {
     addMessage('user', text);
     showTyping();
-    setTimeout(function() {
-      hideTyping();
-      var match = matchIntent(text);
-      if (match) {
-        addMessage('bot', match);
-      } else {
-        addMessage('bot', {
-          title: '🔍 I\'m not sure about that',
-          text: 'I didn\'t catch that one. Try asking about events, booking artists, organizing events, brand partnerships, DJ tips, or the SoCal underground scene. Or pick a topic below:',
-          chips: WELCOME_CHIPS,
-        });
-      }
-    }, 650 + Math.random() * 300);
+    askBrain(text).then(function(d) {
+      setTimeout(function() {
+        hideTyping();
+        var card = brainCard(d);
+        if (card) { addMessage('bot', card); return; }
+        var match = matchIntent(text);
+        if (match) {
+          addMessage('bot', match);
+        } else {
+          addMessage('bot', {
+            title: '🔍 I\'m not sure about that',
+            text: 'I didn\'t catch that one. Try asking about events, booking artists, organizing events, brand partnerships, DJ tips, or the SoCal underground scene. Or pick a topic below:',
+            chips: WELCOME_CHIPS,
+          });
+        }
+      }, 300 + Math.random() * 250);
+    });
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
