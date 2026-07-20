@@ -446,7 +446,20 @@ footer a{color:var(--accent2);}
 <style>.pf-tab[data-tab="gallery"]{display:none!important}#pfHandle{display:none!important}@media(max-width:768px){.pf-tabs{top:0!important}.pf-panel{padding-left:8px!important;padding-right:8px!important}}
 #chat-list{grid-template-columns:1fr!important}
 #chat-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:8px;scrollbar-width:none}
-#chat-filter::-webkit-scrollbar{display:none}</style></head>
+#chat-filter::-webkit-scrollbar{display:none}
+/* ABOUT order (Founder a→d): passport|category|badges → links dropdown → mid-nav → bio/about */
+.pf-meta{display:flex;flex-direction:column}
+.pf-bcrow{order:1;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px}
+.pf-bcrow::-webkit-scrollbar{display:none}
+#pfLinks{order:2}
+.pf-cta{order:3}
+.pf-bio{order:4}
+#pfAbout{order:5}
+#pfAcctType{margin-bottom:0!important}
+#pfBadges{display:flex;gap:6px}
+#pfBadges .bdg{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
+#pfPassport{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;display:none;white-space:nowrap}
+#pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}</style></head>
 <body>
 
 <nav id="main-nav">
@@ -463,6 +476,7 @@ footer a{color:var(--accent2);}
 <!-- P0 fix 2026-07-16: hero ships BLANK (skeleton) — live/demo data is applied by JS only.
      A new/empty profile must render a blank, fillable page — never someone else's identity. -->
 <style>@keyframes pfskel{50%{opacity:.45}}.pf-skel{animation:pfskel 1.2s ease-in-out infinite}</style>
+<button id="pfBack" onclick="history.back()">‹ Previous</button>
 <div class="pf-cover"><img id="pfCover" src="" alt="" style="display:none" onerror="this.style.display='none'"></div>
 <div class="pf-head">
   <div class="pf-top" style="align-items:stretch;gap:26px">
@@ -480,7 +494,7 @@ footer a{color:var(--accent2);}
   </div>
 </div>
 <div class="pf-meta">
-  <div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:6px"></div>
+  <div class="pf-bcrow"><span id="pfPassport">✔ Passport</span><div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)"></div><div id="pfBadges"></div></div>
   <div class="pf-bio" id="pfBio">&nbsp;</div>
   <div id="pfAbout" style="display:none;color:var(--text-soft,#c9cede);font-size:.9rem;line-height:1.6;margin:6px 0"></div>
   <div id="pfLinks" style="display:none;flex-wrap:wrap;gap:8px;margin:6px 0"></div>
@@ -1964,6 +1978,26 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
     SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
+})();
+</script>
+<script>
+/* Founder a->d ABOUT: hyperlink dropdown = links(<=5) + socials(<=5); + Scene "Previous" back button */
+(function(){
+  var bk=document.getElementById('pfBack'); if(bk&&/\/v31\/scene\.html/.test(document.referrer||'')) bk.style.display='block';
+  function esc(u){return String(u).replace(/"/g,'');}
+  function build(){
+    try{
+      var P=window.PROFILE||{}; var links=(P.links||[]).slice(0,5);
+      var soc=P.socials||{}; var socArr=[];
+      ['instagram','soundcloud','tiktok','youtube','spotify','website'].forEach(function(k){ if(soc[k]&&socArr.length<5) socArr.push([k,soc[k]]); });
+      var menu=document.getElementById('pfLinksMenu'), drop=document.getElementById('pfLinksDrop'); if(!menu||!drop) return;
+      if(!links.length && !socArr.length) return;
+      var html=links.map(function(u){var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);return '<a href="'+esc(u)+'" target="_blank" rel="noopener" style="display:block;padding:8px 10px;color:var(--brand,#00b4ff);font-size:.84rem;font-weight:700;border-radius:8px">'+lbl+'</a>';}).join('');
+      html+=socArr.map(function(p){var lbl=p[0].charAt(0).toUpperCase()+p[0].slice(1);return '<a href="'+esc(p[1])+'" target="_blank" rel="noopener" style="display:block;padding:8px 10px;color:var(--accent,#8b5cff);font-size:.84rem;font-weight:700;border-radius:8px">'+lbl+'</a>';}).join('');
+      menu.innerHTML=html; drop.style.display='block';
+    }catch(e){}
+  }
+  var n=0; var iv=setInterval(function(){ n++; build(); if(n>20) clearInterval(iv); },600);
 })();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
