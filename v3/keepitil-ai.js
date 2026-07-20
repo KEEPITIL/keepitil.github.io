@@ -470,8 +470,10 @@
       'flex-shrink:0;transition:opacity .18s,transform .15s;}',
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
-      '@media(max-width:480px){#kilo-panel{left:8px;right:8px;width:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));height:auto;max-height:calc(100dvh - 150px);}',
-      '#kilo-btn{bottom:132px;right:16px;}}',
+      '@media(max-width:768px){#kilo-panel{inset:0;left:0;right:0;top:0;bottom:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;}',
+      '#kilo-panel.open{transform:none;}',
+      '#kilo-msgs{flex:1 1 auto;min-height:0;}',
+      '#kilo-btn{bottom:132px;right:16px;}body.kilo-open{overflow:hidden;}}',
     ].join('');
 
     var s = document.createElement('style');
@@ -641,10 +643,19 @@
 
   // ── Gemini RAG fallback (natural answers composed over all agents' brains) ──
   function askEcho(text) {
+    // Personalization: onboarding (/v31/onboarding.html) caches role + genres locally;
+    // ask-echo already accepts userRole/userGenre in the body (Atlas, 2026-07-20).
+    var body = { question: text };
+    try {
+      var role = localStorage.getItem('kil_role');
+      var genres = localStorage.getItem('kil_genres');
+      if (role) body.userRole = role;
+      if (genres) body.userGenre = genres.split(',')[0] || genres;
+    } catch (e) {}
     return fetch(KIL_SUPA_URL + '/functions/v1/ask-echo', {
       method: 'POST',
       headers: { 'apikey': KIL_SUPA_ANON, 'Authorization': 'Bearer ' + KIL_SUPA_ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: text }),
+      body: JSON.stringify(body),
     }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
   }
   function echoCard(d) {
@@ -706,6 +717,7 @@
     function openPanel() {
       isOpen = true;
       panel.classList.add('open');
+      document.body.classList.add('kilo-open');
       badge.style.display = 'none';
       input.focus();
       // Welcome message on first open
@@ -721,6 +733,7 @@
     function closePanel() {
       isOpen = false;
       panel.classList.remove('open');
+      document.body.classList.remove('kilo-open');
     }
 
     btn.addEventListener('click', function() {
