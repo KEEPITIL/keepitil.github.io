@@ -452,9 +452,11 @@ footer a{color:var(--accent2);}
 .pf-bcrow{order:1;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px}
 .pf-bcrow::-webkit-scrollbar{display:none}
 #pfLinks{order:2}
+#pfLinksDrop{order:2}
 .pf-cta{order:3}
 .pf-bio{order:4}
 #pfAbout{order:5}
+#pfAboutTop{order:6}
 #pfAcctType{margin-bottom:0!important}
 #pfBadges{display:flex;gap:6px}
 #pfBadges .bdg{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
@@ -1984,6 +1986,11 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 /* Founder a->d ABOUT: hyperlink dropdown = links(<=5) + socials(<=5); + Scene "Previous" back button */
 (function(){
   var bk=document.getElementById('pfBack'); if(bk&&/\/v31\/scene\.html/.test(document.referrer||'')) bk.style.display='block';
+  /* Enforce ABOUT order a->d: move the header's links-dropdown + about text into .pf-meta so CSS order applies */
+  try{ var pm=document.querySelector('.pf-meta'); var ld=document.getElementById('pfLinksDrop'); var at=document.getElementById('pfAboutTop');
+    if(pm&&ld&&ld.parentElement!==pm) pm.appendChild(ld);
+    if(pm&&at&&at.parentElement!==pm) pm.appendChild(at);
+  }catch(e){}
   function esc(u){return String(u).replace(/"/g,'');}
   function build(){
     try{
@@ -2079,7 +2086,7 @@ function toggleArchived(id,val){
   var box=document.getElementById('feed-cat'); if(!box)return;
   var cur='all';
   function paint(){
-    var mobile=window.matchMedia('(max-width:560px)').matches;
+    var mobile=window.matchMedia('(max-width:768px)').matches;
     var createChip=((typeof CAN_EDIT==='function'&&CAN_EDIT())?CREATE_CHIP:'');
     if(mobile){
       var curc=CATS.filter(function(c){return c[0]===cur;})[0]||CATS[0];
