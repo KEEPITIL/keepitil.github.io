@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Add an Event — KEEPITIL</title>
+<meta name="description" content="Submit a third-party event to the KEEPITIL calendar — community-curated OC & LA listings."/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ── GOLD STANDARD #2 — third-party/curated event form (EDMtrain-curate model, Founder 2026-07-18).
+   NOT for hosting: no ticketing, no payouts — external ticket link only; approval-gated. ── */
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter,sans-serif);line-height:1.55;padding-bottom:90px}
+body::before{display:none!important}
+.wrap{max-width:980px;margin:0 auto;padding:0 var(--sp-3,18px)}
+.hero{padding:34px 0 8px}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.9rem,5vw,2.6rem);letter-spacing:.05em;line-height:1}
+.sub{color:var(--muted);font-size:.92rem;margin-top:6px;max-width:640px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start;margin-top:18px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card h3{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.card .note{color:var(--muted);font-size:.82rem;margin-bottom:10px}
+label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+input,textarea,select{width:100%;background:var(--bg,#0d0d13);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:400 .95rem Inter,sans-serif;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--brand)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:540px){.row{grid-template-columns:1fr}}
+.ac{position:relative}
+.ac .list{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:60;background:#12121c;border:1px solid var(--line);border-radius:10px;max-height:230px;overflow-y:auto;display:none;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.ac .list.on{display:block}
+.ac .list button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);padding:10px 12px;cursor:pointer;font:500 .88rem Inter,sans-serif}
+.ac .list button:hover{background:rgba(0,180,255,.1)}
+.ac .list small{color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:7px;background:rgba(0,180,255,.12);border:1px solid color-mix(in srgb,var(--brand) 45%,transparent);color:var(--text);border-radius:999px;padding:5px 11px;font-size:.82rem;font-weight:700}
+.pill button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.9rem;line-height:1}
+.seg{display:inline-flex;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:none;color:var(--muted);font:700 .82rem Inter,sans-serif;padding:8px 16px;border-radius:999px;cursor:pointer}
+.seg button.on{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b}
+.addlink{background:none;border:0;color:var(--brand);font:700 .82rem Inter,sans-serif;cursor:pointer;padding:6px 0}
+.xlrow{display:flex;gap:8px;margin-top:8px}
+.xlrow .rm{background:none;border:1px solid var(--line);border-radius:8px;color:var(--muted);cursor:pointer;padding:0 12px}
+.actions{display:flex;gap:10px;margin-top:18px}
+.submit{flex:1;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;border:0;border-radius:999px;padding:14px;font-weight:800;font-size:.98rem;cursor:pointer}
+.submit:disabled{opacity:.6;cursor:default}
+.clear{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:14px 22px;font-weight:700;cursor:pointer}
+.clear:hover{border-color:#ff6b6b;color:#ff6b6b}
+.msg{margin-top:10px;font-size:.88rem;min-height:1.2em}
+.msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
+.gate{max-width:440px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:32px 26px;text-align:center}
+.gate p{color:var(--muted);margin:8px 0 18px}
+.btn{display:inline-block;background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#04121b;font-weight:800;padding:12px 24px;border-radius:999px;text-decoration:none}
+/* recent + search rail */
+.rc{display:flex;align-items:center;gap:10px;padding:10px 2px;border-top:1px solid var(--line);font-size:.85rem}
+.rc:first-of-type{border-top:0}
+.rc .t{flex:1;min-width:0}
+.rc .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc .t span{color:var(--muted);font-size:.76rem}
+.rc .st{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);border-radius:20px;padding:2px 8px;color:var(--muted)}
+.rc .st.live{color:#22e39b;border-color:rgba(34,227,155,.5)}
+.rc .ed{background:none;border:1px solid var(--line);border-radius:8px;color:var(--text);font-weight:700;font-size:.74rem;padding:5px 11px;cursor:pointer}
+.rc .ed:hover{border-color:var(--brand);color:var(--brand)}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;background:var(--bg,#0d0d13);border:1px solid var(--line);border-radius:9px;color:var(--muted);font:700 .8rem Inter,sans-serif;padding:8px;cursor:pointer}
+.tabs button.on{color:#04121b;background:linear-gradient(90deg,var(--brand),var(--brand-2));border-color:transparent}
+.sres{font-size:.84rem;padding:8px 2px;border-top:1px solid var(--line)}
+.sres:first-of-type{border-top:0}
+.sres small{color:var(--muted)}
+</style>
+</head>
+<body>
+<nav id="main-nav"></nav>
+<div class="wrap">
+  <div class="gate" id="gate" style="display:none">
+    <h1 style="font-size:1.6rem">ADD AN EVENT</h1>
+    <p>Log in to submit third-party events to the KEEPITIL calendar. Hosting your own with tickets? Use <a href="/v31/create-event.html" style="color:var(--brand)">Create Event</a>.</p>
+    <a class="btn" href="/v31/apply.html">Log in / Join</a>
+  </div>
+
+  <div id="app" style="display:none">
+    <header class="hero">
+      <h1 id="formTitle">NEW EVENT</h1>
+      <div class="sub">Add a third-party event to the calendar — a show you found, not one you're hosting. No ticketing here, just the listing + a ticket link out. Hosting your own? <a href="/v31/create-event.html" style="color:var(--brand)">Use the event form →</a>. Submissions are reviewed before they go live.</div>
+    </header>
+
+    <div class="grid">
+      <!-- ══ the form (EDMtrain order) ══ -->
+      <form class="card" id="form">
+        <div class="ac">
+          <label>Venue *</label>
+          <input id="venue" placeholder="Start typing a venue…" autocomplete="off" required/>
+          <div class="list" id="venueList"></div>
+        </div>
+        <input type="hidden" id="city" value="Los Angeles"/>
+        <div class="row">
+          <div><label>Date *</label><input id="date" type="date" required/></div>
+          <div><label>Duration</label><select id="days"><option value="1">1 Day</option><option value="2">2 Days</option><option value="3">3 Days</option><option value="4">4 Days</option><option value="5">5+ Days</option></select></div>
+        </div>
+        <div class="row">
+          <div><label>Start time</label><input id="time" type="time" step="900" value="21:00"/></div>
+          <div></div>
+        </div>
+        <label>Title</label>
+        <input id="title" maxlength="160" placeholder="Leave blank if only artists"/>
+        <div class="ac">
+          <label>Headliner(s)</label>
+          <input id="artist" placeholder="Type an artist and press Enter…" autocomplete="off"/>
+          <div class="list" id="artistList"></div>
+          <div class="pills" id="artistPills"></div>
+        </div>
+        <label>Ticket link</label>
+        <input id="ticket_link" type="url" placeholder="https://…"/>
+        <button type="button" class="addlink" id="moreLinks">＋ More links</button>
+        <div id="xlinks"></div>
+        <label>Note</label>
+        <input id="note" maxlength="200" placeholder="e.g. Free entry / 21+ / secret location drops day-of"/>
+        <label>Genre</label>
+        <div class="seg" id="gseg"><button type="button" class="on" data-g="electronic">Electronic</button><button type="button" data-g="other">Other Genre</button></div>
+        <label>Subgenres</label>
+        <input id="subgenres" placeholder="Techno, House, DnB…"/>
+        <div class="actions">
+          <button type="submit" class="submit" id="submitBtn">Submit event</button>
+          <button type="button" class="clear" id="clearBtn">Clear</button>
+        </div>
+        <div class="msg" id="msg"></div>
+        <div class="sub" style="font-size:.76rem;margin-top:8px">Reviewed before publishing. Duplicates are auto-flagged — search the panel first to check it isn't already listed.</div>
+      </form>
+
+      <!-- ══ rail: my recent + duplicate search ══ -->
+      <div>
+        <div class="card">
+          <h3>📋 Recent</h3>
+          <div class="note">Your submissions — tap Edit to fix one (edits re-enter review).</div>
+          <div id="recent"><div class="sub" style="font-size:.82rem">Nothing submitted yet.</div></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h3>🔎 Search</h3>
+          <div class="note">Check it isn't already listed before you submit.</div>
+          <div class="tabs"><button type="button" class="on" data-k="event">Events</button><button type="button" data-k="artist">Artists</button><button type="button" data-k="venue">Venues</button></div>
+          <input id="sq" placeholder="Venue, artist, or event title" autocomplete="off"/>
+          <div id="sres"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var GENRE='electronic', ARTISTS=[], EDIT_ID=null;
+
+/* ── debounced autocomplete against community_suggest ── */
+function debounce(fn,ms){ var t; return function(){ var a=arguments; clearTimeout(t); t=setTimeout(function(){fn.apply(null,a);},ms); }; }
+function wireAC(inputId,listId,kind,pick){
+  var inp=$(inputId), list=$(listId);
+  var run=debounce(function(){
+    var q=inp.value.trim();
+    if(q.length<2){ list.classList.remove('on'); return; }
+    supa.rpc('community_suggest',{p_kind:kind,p_q:q}).then(function(r){
+      var rows=(r&&r.data)||[];
+      if(!rows.length){ list.classList.remove('on'); return; }
+      list.innerHTML=rows.map(function(x,i){ return '<button type="button" data-i="'+i+'">'+esc(x.name)+(x.city?' <small>· '+esc(x.city)+'</small>':'')+'</button>'; }).join('');
+      list.classList.add('on');
+      list.querySelectorAll('button').forEach(function(b){ b.addEventListener('click',function(){ pick(rows[+b.dataset.i]); list.classList.remove('on'); }); });
+    });
+  },250);
+  inp.addEventListener('input',run);
+  document.addEventListener('click',function(e){ if(!list.contains(e.target)&&e.target!==inp) list.classList.remove('on'); });
+}
+wireAC('venue','venueList','venue',function(v){ $('venue').value=v.name; if(v.city)$('city').value=v.city; });
+wireAC('artist','artistList','artist',function(a){ addArtist(a.name); $('artist').value=''; });
+
+/* ── headliner pills ── */
+function addArtist(n){ n=(n||'').trim(); if(!n||ARTISTS.indexOf(n)>-1) return; ARTISTS.push(n); paintArtists(); }
+function paintArtists(){ $('artistPills').innerHTML=ARTISTS.map(function(a,i){ return '<span class="pill">'+esc(a)+'<button type="button" data-i="'+i+'" aria-label="Remove">✕</button></span>'; }).join('');
+  $('artistPills').querySelectorAll('button').forEach(function(b){ b.addEventListener('click',function(){ ARTISTS.splice(+b.dataset.i,1); paintArtists(); }); }); }
+$('artist').addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===','){ e.preventDefault(); addArtist(this.value.replace(/,$/,'')); this.value=''; } });
+
+/* ── extra links ("More" — secondary/additional links) ── */
+$('moreLinks').addEventListener('click',function(){ addXlink(); });
+function addXlink(val){ var d=document.createElement('div'); d.className='xlrow';
+  d.innerHTML='<input class="xl" type="url" placeholder="https://… (second ticket outlet, info page…)"/><button type="button" class="rm">✕</button>';
+  $('xlinks').appendChild(d); if(val)d.querySelector('.xl').value=val;
+  d.querySelector('.rm').addEventListener('click',function(){d.remove();}); }
+
+/* ── genre segment ── */
+$('gseg').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; GENRE=b.dataset.g;
+  this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); });
+
+/* ── recent (mine) + edit ── */
+function loadRecent(){
+  supa.rpc('get_my_community_events').then(function(r){
+    var rows=(r&&r.data)||[]; if(!rows.length) return;
+    $('recent').innerHTML=rows.map(function(e,i){
+      var d=e.starts_at?new Date(e.starts_at):null;
+      var ds=d?new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',month:'numeric',day:'numeric',year:'2-digit'}).format(d):'';
+      return '<div class="rc"><div class="t"><b>'+esc(e.title)+'</b><span>'+esc([e.venue,e.city].filter(Boolean).join(' · '))+(ds?' · '+ds:'')+'</span></div>'
+        +'<span class="st'+(e.status==='published'?' live':'')+'">'+esc(e.status)+'</span>'
+        +'<button type="button" class="ed" data-i="'+i+'">Edit</button></div>';
+    }).join('');
+    $('recent').querySelectorAll('.ed').forEach(function(b){ b.addEventListener('click',function(){ startEdit(rows[+b.dataset.i]); }); });
+  });
+}
+function startEdit(e){
+  EDIT_ID=e.id; $('formTitle').textContent='EDIT EVENT'; $('submitBtn').textContent='Save changes';
+  $('venue').value=e.venue||''; $('city').value=e.city||'Los Angeles'; $('title').value=e.title||'';
+  if(e.starts_at){ var d=new Date(e.starts_at);
+    var f=function(o){o.timeZone='America/Los_Angeles';return new Intl.DateTimeFormat('en-CA',o).format(d);};
+    $('date').value=f({year:'numeric',month:'2-digit',day:'2-digit'});
+    var tp=new Intl.DateTimeFormat('en-GB',{timeZone:'America/Los_Angeles',hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
+    $('time').value=tp; }
+  $('ticket_link').value=e.source_url||''; $('note').value=e.description||''; $('subgenres').value=e.genres||'';
+  $('xlinks').innerHTML=''; (Array.isArray(e.extra_links)?e.extra_links:[]).forEach(function(u){ addXlink(u); });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── duplicate search panel ── */
+var SKIND='event';
+document.querySelector('.tabs').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b)return; SKIND=b.dataset.k;
+  this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); doSearch(); });
+var doSearch=debounce(function(){
+  var q=$('sq').value.trim(); if(q.length<2){ $('sres').innerHTML=''; return; }
+  supa.rpc('community_suggest',{p_kind:SKIND==='event'?'event':SKIND,p_q:q}).then(function(r){
+    var rows=(r&&r.data)||[];
+    $('sres').innerHTML=rows.length?rows.map(function(x){
+      if(SKIND==='event'){ var d=x.starts_at?new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',month:'numeric',day:'numeric',year:'2-digit'}).format(new Date(x.starts_at)):'';
+        return '<div class="sres"><b>'+esc(x.title)+'</b><br><small>'+esc([x.venue,x.city].filter(Boolean).join(' · '))+(d?' · '+d:'')+' · '+esc(x.status)+'</small></div>'; }
+      return '<div class="sres"><b>'+esc(x.name)+'</b>'+(x.city?'<small> · '+esc(x.city)+'</small>':'')+'</div>';
+    }).join(''):'<div class="sres"><small>No matches — likely not listed yet.</small></div>';
+  });
+},300);
+$('sq').addEventListener('input',doSearch);
+
+/* ── clear / submit ── */
+function clearForm(){ EDIT_ID=null; $('formTitle').textContent='NEW EVENT'; $('submitBtn').textContent='Submit event';
+  $('form').reset(); $('city').value='Los Angeles'; $('time').value='21:00'; ARTISTS=[]; paintArtists(); $('xlinks').innerHTML=''; $('msg').textContent=''; $('msg').className='msg'; }
+$('clearBtn').addEventListener('click',clearForm);
+
+$('form').addEventListener('submit',function(e){
+  e.preventDefault();
+  var msg=$('msg'); msg.className='msg'; msg.textContent='';
+  var b=$('submitBtn'); b.disabled=true; var old=b.textContent; b.textContent='Submitting…';
+  function fail(t){ msg.className='msg err'; msg.textContent=t; b.disabled=false; b.textContent=old; }
+  var xl=[]; document.querySelectorAll('#xlinks .xl').forEach(function(i){ var u=i.value.trim(); if(u) xl.push(u); });
+  var genres=(GENRE==='other'?'Other':'')+($('subgenres').value.trim()?((GENRE==='other'?' · ':'')+$('subgenres').value.trim()):(GENRE==='other'?'':'Electronic'));
+  if(EDIT_ID){
+    var startsISO=null;
+    if($('date').value){ startsISO=new Date($('date').value+'T'+($('time').value||'21:00')).toISOString(); }
+    supa.rpc('update_community_event',{p_id:EDIT_ID,p:{
+      title:$('title').value.trim()||null, venue:$('venue').value.trim(), city:$('city').value,
+      starts_at:startsISO, ticket_link:$('ticket_link').value.trim(), note:$('note').value.trim(),
+      genres:genres, extra_links:xl
+    }}).then(function(r){
+      var d=(r&&r.data)||{};
+      if(r.error||!d.ok){ fail((r.error&&r.error.message)||d.error||'Could not save.'); return; }
+      msg.className='msg ok'; msg.textContent='Saved — back in review. ✓';
+      b.disabled=false; b.textContent=old; clearForm(); loadRecent();
+    });
+    return;
+  }
+  supa.rpc('submit_community_event',{p:{
+    venue:$('venue').value.trim(), city:$('city').value,
+    local_date:$('date').value, local_time:$('time').value||'21:00', days:parseInt($('days').value,10)||1,
+    title:$('title').value.trim(), headliners:ARTISTS,
+    ticket_link:$('ticket_link').value.trim(), extra_links:xl,
+    note:$('note').value.trim(), genres:genres
+  }}).then(function(r){
+    var d=(r&&r.data)||{};
+    if(r.error||!d.ok){ fail((r.error&&r.error.message)||d.error||'Could not submit.'); return; }
+    msg.className='msg ok'; msg.textContent='Submitted for review ✓ — it appears on the calendar once approved.';
+    b.disabled=false; b.textContent=old; clearForm(); loadRecent();
+  });
+});
+
+/* ── boot: auth gate ── */
+(function boot(){
+  if(!supa){ $('gate').style.display='block'; return; }
+  supa.auth.getSession().then(function(r){
+    var s=r&&r.data&&r.data.session;
+    if(!s){ $('gate').style.display='block'; return; }
+    $('app').style.display='block';
+    loadRecent();
+  });
+})();
+</script>
+<script src="/v3/keepitil-ai.js?v=20260738" defer></script>
+<script src="/v31/v31-shell.js?v=20260738" defer></script>
+</body>
+</html>
