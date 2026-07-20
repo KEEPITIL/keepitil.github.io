@@ -467,7 +467,7 @@ footer a{color:var(--accent2);}
     <div class="pf-idblock" style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px">
       <h1 class="pf-name" id="pfName" style="margin:0">&nbsp;</h1>
       <div class="pf-handle" id="pfHandle">&nbsp;</div>
-      <div id="pfStatsRow" style="display:flex;gap:24px;font-size:.96rem"><span><b id="stPosts">0</b> feed</span><a href="#" onclick="return false" style="color:inherit"><b id="stFollowers">0</b> followers</a><a href="#" onclick="return false" style="color:inherit"><b id="stFollowing">0</b> following</a></div>
+      <div id="pfStatsRow" style="display:flex;gap:24px;font-size:.96rem"><span><b id="stPosts">0</b> feed</span><span style="color:inherit"><b id="stFollowers">0</b> followers</span><span style="color:inherit"><b id="stLikes">0</b> likes</span></div>
       <div id="pfAboutTop" style="display:none;color:var(--text-soft,#c9cede);font-size:.88rem;line-height:1.5"></div>
       <div id="pfLinksDrop" style="display:none;position:relative">
         <button class="evsub-b" onclick="var m=document.getElementById('pfLinksMenu');m.style.display=m.style.display==='none'?'block':'none';event.stopPropagation()">🔗 Links ▾</button>
@@ -903,7 +903,7 @@ function applyProfile(){
   if(g('pfName'))g('pfName').textContent=PROFILE.name||' ';
   if(g('pfHandle'))g('pfHandle').textContent=PROFILE.handle?('@'+PROFILE.handle+(PROFILE.location?' · '+PROFILE.location:'')+(PROFILE.pronouns?' · '+PROFILE.pronouns:'')):' ';
   if(g('pfBio'))g('pfBio').innerHTML=PROFILE.bio?(esc(PROFILE.bio)+(PROFILE.tagline?' <span class="h">'+esc(PROFILE.tagline)+'</span>':'')):' ';
-  if(g('pfBook')){ g('pfBook').style.display=PROFILE.book_email?'':'none'; g('pfBook').href='mailto:'+(PROFILE.book_email||''); }
+  if(g('pfBook')){ g('pfBook').href='#'; g('pfBook').onclick=function(ev){ev.preventDefault();openDM();}; g('pfBook').style.display=(typeof CAN_EDIT==='function'&&CAN_EDIT())?'none':''; }
   if(g('pfAlertTxt')&&PROFILE.name){ g('pfAlertTxt').innerHTML='<b>🔔 Never miss a set.</b> Get alerts when '+esc(PROFILE.name)+' plays near you.'; }
   var s=PROFILE.socials||{};
   if(g('pfIG'))g('pfIG').style.display=s.instagram?'':'none', g('pfIG')&&(g('pfIG').href=s.instagram||'#');
@@ -942,6 +942,33 @@ function updateOwnerUI(){
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
   try{ if(CAN_EDIT() && !window.__cfOpened && new URLSearchParams(location.search).get('create')==='feed'){ window.__cfOpened=1; setTimeout(function(){openCreatePost('feed');},250); } }catch(e){}
   var f=document.getElementById('pfFollow'); if(f)f.style.display=CAN_EDIT()?'none':'';
+  var mb=document.getElementById('pfBook'); if(mb)mb.style.display=CAN_EDIT()?'none':'';
+}
+/* ── DIRECT MESSAGE (viewer → this profile) via send_dm RPC ── */
+function openDM(){
+  if(!SB||!SESSION){ toast('Sign in to message.'); setTimeout(function(){location.href='/v31/apply.html';},700); return; }
+  if(document.getElementById('kilDM'))return;
+  var nm=(typeof PROFILE!=='undefined'&&PROFILE.name)?PROFILE.name:'this profile';
+  var ov=document.createElement('div'); ov.id='kilDM';
+  ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML='<div style="background:#15151f;border:1px solid rgba(255,255,255,.14);border-radius:16px;max-width:420px;width:100%;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.6)">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><b style="font-size:1.05rem;color:#fff">Message '+nm+'</b><button id="dmX" aria-label="Close" style="background:none;border:0;color:#888;font-size:1.5rem;line-height:1;cursor:pointer">&times;</button></div>'
+    +'<textarea id="dmBody" rows="4" placeholder="Write a message…" maxlength="4000" style="width:100%;box-sizing:border-box;background:#0e0e16;border:1px solid rgba(255,255,255,.16);border-radius:10px;color:#e8e8f0;padding:11px;font-size:.95rem;resize:vertical"></textarea>'
+    +'<button id="dmSend" class="pf-btn book" style="width:100%;margin-top:12px;justify-content:center">Send</button></div>';
+  document.body.appendChild(ov);
+  function close(){ ov.remove(); }
+  ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+  document.getElementById('dmX').onclick=close;
+  document.getElementById('dmBody').focus();
+  document.getElementById('dmSend').onclick=function(){
+    var t=(document.getElementById('dmBody').value||'').trim(); if(!t)return;
+    var btn=this; btn.disabled=true; btn.textContent='Sending…';
+    SB.rpc('send_dm',{p_to_slug:PROFILE_SLUG,p_body:t}).then(function(r){
+      var d=(r&&r.data)||{};
+      if((r&&r.error)||d.error){ toast(d.error==='cannot_message_self'?'That is your own profile.':'Could not send.'); btn.disabled=false; btn.textContent='Send'; return; }
+      toast('Message sent to '+nm+'.'); close();
+    }).catch(function(){ toast('Could not send.'); btn.disabled=false; btn.textContent='Send'; });
+  };
 }
 /* ── FOLLOW (fans follow a profile) ── */
 var FOLLOWING=false, FOLLOWERS=0;
@@ -2009,7 +2036,7 @@ function toggleArchived(id,val){
       SB.rpc('get_profile_stats',{p_slug:PROFILE_SLUG}).then(function(r){
         var d=(r&&r.data)||{};
         var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=(v==null?0:v);};
-        set('stPosts',d.posts); set('stFollowers',d.followers); set('stFollowing',d.following);
+        set('stPosts',d.posts); set('stFollowers',d.followers); set('stLikes',d.likes);
       });
       SB.from('profile_meta').select('about,links,account_type').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
         var m=(r&&r.data)||{};
