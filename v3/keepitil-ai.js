@@ -639,26 +639,40 @@
     return card;
   }
 
-  // ── Handle a query (brain first across all agents, canned intents as fallback) ─
+  // ── Gemini RAG fallback (natural answers composed over all agents' brains) ──
+  function askEcho(text) {
+    return fetch(KIL_SUPA_URL + '/functions/v1/ask-echo', {
+      method: 'POST',
+      headers: { 'apikey': KIL_SUPA_ANON, 'Authorization': 'Bearer ' + KIL_SUPA_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: text }),
+    }).then(function(r) { return r.ok ? r.json() : null; }).catch(function() { return null; });
+  }
+  function echoCard(d) {
+    if (!d || !d.ok || !d.answer) return null;
+    var card = { title: '💡 Echo', text: d.answer };
+    if (d.sources && d.sources.length) card.links = d.sources;
+    return card;
+  }
+  function fallbackCard(text) {
+    return matchIntent(text) || {
+      title: '🔍 I\'m not sure about that',
+      text: 'I didn\'t catch that one. Try asking about events, booking artists, organizing events, brand partnerships, DJ tips, or the SoCal underground scene. Or pick a topic below:',
+      chips: WELCOME_CHIPS,
+    };
+  }
+
+  // ── Handle a query: brain first (free/instant), Gemini for open-ended, canned as last resort ─
   function handleQuery(text) {
     addMessage('user', text);
     showTyping();
     askBrain(text).then(function(d) {
-      setTimeout(function() {
+      var card = brainCard(d);
+      if (card) { hideTyping(); addMessage('bot', card); return; }
+      // No confident keyword match -> let Gemini compose from the brains (keep typing shown).
+      askEcho(text).then(function(e) {
         hideTyping();
-        var card = brainCard(d);
-        if (card) { addMessage('bot', card); return; }
-        var match = matchIntent(text);
-        if (match) {
-          addMessage('bot', match);
-        } else {
-          addMessage('bot', {
-            title: '🔍 I\'m not sure about that',
-            text: 'I didn\'t catch that one. Try asking about events, booking artists, organizing events, brand partnerships, DJ tips, or the SoCal underground scene. Or pick a topic below:',
-            chips: WELCOME_CHIPS,
-          });
-        }
-      }, 300 + Math.random() * 250);
+        addMessage('bot', echoCard(e) || fallbackCard(text));
+      });
     });
   }
 
