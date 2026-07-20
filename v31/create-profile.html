@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<title>Create Your Profile — KEEPITIL</title>
+<meta name="description" content="Set up your KEEPITIL profile — claim your handle and join the OC & LA electronic music community."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--black:#0b0b0f;--dark:#111118;--dark2:#18181f;--dark3:#22222c;--blue:var(--brand);--white:var(--text);--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column;padding-bottom:72px;}
+a{color:var(--blue);text-decoration:none;}
+nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;}
+.nav-brand{font-family:var(--font-head);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
+.nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
+.nav-links li{list-style:none;}
+.nav-links a{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);}
+.nav-links a:hover{color:#fff;}
+.nav-inner>a.nav-cta{font-family:var(--font-head);font-size:1rem;letter-spacing:.14em;color:var(--brand)!important;border:2px solid var(--brand);padding:7px 22px;border-radius:4px;flex-shrink:0;}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 18px;}
+.card{width:100%;max-width:430px;background:var(--dark);border:1px solid var(--dark3);border-radius:16px;padding:36px 30px 30px;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.card h1{font-family:var(--font-head);letter-spacing:.1em;font-size:2rem;color:#fff;text-align:center;margin-bottom:4px;}
+.card .sub{color:var(--grey);font-size:.86rem;text-align:center;margin-bottom:24px;}
+label{display:block;font-family:var(--font-head);letter-spacing:.1em;font-size:.82rem;color:var(--grey);margin:14px 2px 6px;}
+.card input{width:100%;background:var(--dark2);border:1px solid var(--dark3);border-radius:9px;color:var(--white);font-size:.95rem;padding:13px 14px;outline:none;}
+.card input:focus{border-color:var(--blue);}
+.handle-row{display:flex;align-items:center;background:var(--dark2);border:1px solid var(--dark3);border-radius:9px;padding:0 0 0 13px;}
+.handle-row span{color:var(--grey);font-size:.95rem;}
+.handle-row input{border:0;background:none;padding-left:4px;}
+.hint{font-size:.74rem;color:var(--grey);margin:6px 2px 0;}
+.btn{width:100%;background:var(--blue);color:#06121a;border:none;border-radius:9px;font-family:var(--font-head);letter-spacing:.08em;font-size:1.2rem;padding:14px;cursor:pointer;margin-top:22px;transition:opacity .2s;}
+.btn:disabled{opacity:.6;cursor:default;}
+.msg{font-size:.82rem;margin-top:12px;min-height:1em;line-height:1.4;}
+.msg.err{color:#ff5c5c;}.msg.ok{color:var(--blue);}
+footer{text-align:center;padding:22px;border-top:1px solid var(--dark3);color:var(--grey);font-size:.75rem;}
+@media(max-width:820px){.nav-links{display:none;}.nav-inner>a.nav-cta{display:none;}}
+</style>
+</head>
+<body>
+<nav id="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="/v3/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
+  <ul class="nav-links"><li><a href="/v3/culture">CULTURE</a></li><li><a href="/v31/scene.html">SCENE</a></li></ul>
+  <a href="/v31/apply.html" class="nav-cta">LOGIN</a>
+</div></nav>
+
+<main>
+  <div class="card">
+    <h1>Create your profile</h1>
+    <div class="sub">Claim your @handle and go live on KEEPITIL.</div>
+    <label for="display">Display name</label>
+    <input type="text" id="display" placeholder="e.g. Groove Trooper" autocomplete="off"/>
+    <label for="handle">Handle</label>
+    <div class="handle-row"><span>@</span><input type="text" id="handle" placeholder="groove-trooper" autocapitalize="none" autocorrect="off" spellcheck="false"/></div>
+    <div class="hint">Lowercase letters, numbers and dashes. This becomes your profile link: keepitil.com/u.html?slug=&lt;handle&gt;</div>
+    <button class="btn" id="create-btn">CREATE PROFILE</button>
+    <div class="msg" id="msg"></div>
+  </div>
+</main>
+
+<footer><a href="/v3/">KEEPITIL</a> — OC &amp; LA EDM</footer>
+
+<script>
+var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+var supa=window.supabase?supabase.createClient(SUPA_URL,SUPA_KEY):null;
+function $(id){return document.getElementById(id);}
+var MSG=$('msg');
+function say(t,ok){ MSG.textContent=t; MSG.className='msg '+(ok?'ok':'err'); }
+
+// Must be logged in. If already has a profile, go straight to it.
+(function(){
+  if(!supa) return;
+  supa.auth.getSession().then(function(r){
+    var s=r&&r.data?r.data.session:null;
+    if(!s){ location.replace('/v31/apply.html'); return; }
+    supa.rpc('my_profile_slug').then(function(rr){
+      if(rr&&!rr.error&&rr.data){ location.replace('/v31/u.html?slug='+encodeURIComponent(rr.data)); }
+    }).catch(function(){});
+    var dn=(s.user.email||'').split('@')[0]||'';
+    if(dn && !$('display').value) $('display').value = dn.replace(/[._-]+/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+  });
+})();
+
+// Auto-fill handle from display name
+$('display').addEventListener('input',function(){
+  var h=$('handle');
+  if(!h.dataset.touched){ h.value=$('display').value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+});
+$('handle').addEventListener('input',function(){ this.dataset.touched='1'; this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,''); });
+
+$('create-btn').addEventListener('click',function(){
+  if(!supa){ say('Still loading — try again in a moment.'); return; }
+  var handle=($('handle').value||'').replace(/^-+|-+$/g,''), display=($('display').value||'').trim();
+  say('');
+  if(handle.length<2){ say('Pick a handle (at least 2 characters).'); return; }
+  var b=$('create-btn'); b.disabled=true; b.textContent='CREATING…';
+  supa.rpc('claim_profile',{p_handle:handle,p_display:display}).then(function(r){
+    if(r&&r.error){
+      var m=r.error.message||'';
+      if(/taken/i.test(m)) say('That handle is taken — try another.');
+      else if(/authenticated/i.test(m)){ say('Please log in again.'); setTimeout(function(){location.replace('/v31/apply.html');},1200); }
+      else say(m);
+      b.disabled=false; b.textContent='CREATE PROFILE';
+    } else {
+      var slug=r.data||handle;
+      say('Profile created! Opening it…',true);
+      location.replace('/v31/u.html?slug='+encodeURIComponent(slug));
+    }
+  }).catch(function(){ say('Could not create profile — try again.'); b.disabled=false; b.textContent='CREATE PROFILE'; });
+});
+</script>
+<script src="/v3/keepitil-ai.js?v=20260738" defer></script>
+<script src="/v31/v31-shell.js?v=20260738" defer></script>
+</body>
+</html>
