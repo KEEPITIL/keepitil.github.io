@@ -443,46 +443,38 @@ footer a{color:var(--accent2);}
 .feed-legend{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:70;flex-direction:column;gap:10px;min-width:236px;margin:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.5);}
 .feed-legend.open{display:flex;}
 </style>
-<style>.pf-tab[data-tab="gallery"]{display:none!important}#pfHandle{display:none!important}@media(max-width:768px){.pf-tabs{top:0!important}.pf-panel{padding-left:8px!important;padding-right:8px!important}}
-#chat-list{grid-template-columns:1fr!important}
-#chat-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:8px;scrollbar-width:none}
-#chat-filter::-webkit-scrollbar{display:none}
-/* ABOUT order (Founder a→d): passport|category|badges → links dropdown → mid-nav → bio/about */
-.pf-meta{display:flex;flex-direction:column}
-.pf-bcrow{order:3;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px}
-.pf-bcrow::-webkit-scrollbar{display:none}
-.pf-bio{order:1}
-#pfAbout{order:1}
-#pfAboutTop{order:1}
-#pfLinks{order:2}
-#pfLinksDrop{order:2}
-.pf-cta{order:4}
-#pfAcctType{margin-bottom:0!important}
-#pfBadges{display:flex;gap:6px}
-#pfBadges .bdg{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
-#pfPassport{flex:0 0 auto;font-size:.62rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;display:none;white-space:nowrap}
-#pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
-#pfPlus{position:fixed;top:14px;right:14px;z-index:1200;width:44px;height:44px;border-radius:50%;border:none;background:#00b4ff;color:#04121b;font-size:1.9rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 0 16px rgba(0,180,255,.85),0 0 7px rgba(0,180,255,.6);display:none;align-items:center;justify-content:center}
-.v3s-hamb,.v3s-burger{display:none!important}
+<style>.pf-tab[data-tab="gallery"]{display:none!important}
+/* Global (both viewports, functional only — no layout change to desktop) */
 #pfDashMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:95;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
 #pfDashMenu.open{display:block}
 #pfDashMenu button{display:block;width:100%;text-align:left;background:none;border:0;color:#e8e8f0;font-size:.9rem;font-weight:700;padding:11px 12px;border-radius:8px;cursor:pointer}
 #pfDashMenu button:hover{background:rgba(255,255,255,.08)}
-/* Founder 2026-07-20 fixes v2: kill gap after avatar, show category/badges, subfilter = icon only under tab bar */
+#pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
+/* ============ MOBILE ONLY (max-width:768px) — desktop is never touched ============ */
 @media(max-width:768px){
-  .pf-idblock{justify-content:flex-start!important}
-  .pf-meta{margin-top:2px!important}
-  .pf-panel{padding-top:6px!important}
-}
-.pf-bcrow{display:flex!important;min-height:22px;align-items:center;gap:6px}
-#pfAcctType{display:inline-block!important;background:rgba(139,92,255,.18);color:var(--accent,#8b5cff);padding:4px 10px;border-radius:999px;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-#pfPassport{display:inline-flex!important}
-#pfBadges{display:flex!important;gap:6px}
-#feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;position:sticky!important;top:51px!important;z-index:59}
-.pf-cta #pfDashWrap{flex:1}
-.pf-cta #pfDashWrap>button{width:100%}
-.pf-cta #pfShare{flex:1}
-.pf-cta #pfShare>button{width:100%;justify-content:center}</style></head>
+  #pfHandle{display:none!important}
+  .pf-tabs{top:0!important}
+  .pf-panel{padding-left:8px!important;padding-right:8px!important;padding-top:6px!important}
+  #chat-list{grid-template-columns:1fr!important}
+  #chat-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:8px;scrollbar-width:none}
+  #chat-filter::-webkit-scrollbar{display:none}
+  .pf-meta{display:flex!important;flex-direction:column;margin-top:0!important;padding-top:0!important}
+  .pf-head{padding-bottom:0!important;margin-bottom:0!important}
+  .pf-idblock{justify-content:center!important}
+  .pf-bio{order:1}#pfAbout{order:1}#pfAboutTop{order:1}
+  #pfLinks{order:2}#pfLinksDrop{order:2}
+  .pf-bcrow{order:3;display:flex!important;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px;min-height:22px}
+  .pf-bcrow::-webkit-scrollbar{display:none}
+  .pf-cta{order:4}
+  #pfAcctType{display:inline-block!important;margin-bottom:0!important;background:rgba(139,92,255,.18);color:var(--accent,#8b5cff);padding:4px 10px;border-radius:999px;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+  #pfPassport{display:inline-flex!important;flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;white-space:nowrap}
+  #pfBadges{display:flex!important;gap:6px}
+  #pfBadges .bdg{flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
+  #feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;position:sticky!important;top:51px!important;z-index:59}
+  .pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
+  .pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
+  .v3s-hamb,.v3s-burger{display:none!important}
+}</style></head>
 <body>
 
 <nav id="main-nav">
@@ -500,7 +492,6 @@ footer a{color:var(--accent2);}
      A new/empty profile must render a blank, fillable page — never someone else's identity. -->
 <style>@keyframes pfskel{50%{opacity:.45}}.pf-skel{animation:pfskel 1.2s ease-in-out infinite}</style>
 <button id="pfBack" onclick="history.back()">‹ Previous</button>
-<button id="pfPlus" aria-label="Create" onclick="try{openCreateChooser()}catch(e){try{toggleCreateMenu(event)}catch(_){}}">+</button>
 <div class="pf-cover"><img id="pfCover" src="" alt="" style="display:none" onerror="this.style.display='none'"></div>
 <div class="pf-head">
   <div class="pf-top" style="align-items:stretch;gap:26px">
@@ -979,7 +970,6 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 function updateOwnerUI(){
   ['pfDashWrap'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   var _pc=document.getElementById('pfCreate'); if(_pc)_pc.style.display='none';
-  var _pp=document.getElementById('pfPlus'); if(_pp)_pp.style.display=CAN_EDIT()?'flex':'none';
   try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
   try{ syncNavCta(); }catch(e){}  /* own profile = hamburger menu; someone else's = PROFILE button back to mine */
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
@@ -2012,12 +2002,12 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 <script>
 /* Founder a->d ABOUT: hyperlink dropdown = links(<=5) + socials(<=5); + Scene "Previous" back button */
 (function(){
+  if(!window.matchMedia('(max-width:768px)').matches) return; /* mobile only — desktop untouched */
   var bk=document.getElementById('pfBack'); if(bk&&/\/v31\/scene\.html/.test(document.referrer||'')) bk.style.display='block';
   /* Enforce ABOUT order a->d: move the header's links-dropdown + about text into .pf-meta so CSS order applies */
   try{ var pm=document.querySelector('.pf-meta'); var ld=document.getElementById('pfLinksDrop');
-    var idb=document.querySelector('.pf-idblock');
-    /* About flows in the column beside the avatar (kills the dead space under the tall avatar, no shrink) */
-    ['pfAboutTop','pfBio','pfAbout'].forEach(function(id){ var el=document.getElementById(id); if(idb&&el&&el.parentElement!==idb) idb.appendChild(el); });
+    /* About = description block, full-width, directly UNDER the avatar+metrics widget (Instagram layout) */
+    ['pfAboutTop'].forEach(function(id){ var el=document.getElementById(id); if(pm&&el&&el.parentElement!==pm) pm.appendChild(el); });
     if(pm&&ld&&ld.parentElement!==pm) pm.appendChild(ld);
   }catch(e){}
   /* Make the passport | category | badges row visible (badges from genre + Member) */
