@@ -279,7 +279,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           bn.innerHTML=
-            '<a href="/v31/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/v3/logo-blue-nav.png" alt="Home"></a>'
+            '<a href="/v31/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/keepitil-x-blue.png" alt="Home"></a>'
             +'<a href="/v31/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
             +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
             +'<a href="/v31/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
