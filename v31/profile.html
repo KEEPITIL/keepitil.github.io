@@ -848,14 +848,16 @@ function saveStored(){try{localStorage.setItem(PROFILE_KEY,JSON.stringify(ADDED)
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 /* ── Supabase-backed persistence (shared across devices + shown to visitors) ── */
 var SEED=null;
+var EVENTS_FEED=[];
 function renderAll(){renderGallery();renderShows();renderArticles();renderChats();try{setTimeout(hydratePosts,0);}catch(e){}}
 function rebuild(rows){
-  GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();
+  GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();EVENTS_FEED=[];
   (rows||[]).forEach(function(r){var d=r.data||{};
     if(r.kind==='article')GT_ARTICLES.unshift({t:d.t,d:d.d,img:d.img,html:d.html,mtype:d.mtype,tags:d.tags,collab:d.collab,location:d.location,alt:d.alt,hideFeed:d.hideFeed,_pid:r.id});
     else if(r.kind==='photo')GAL_IMGS.unshift([d.src,d.label,d.views,d.mtype,d.hideFeed?1:0,r.id,d.media||null,d.cover||null]);
     else if(r.kind==='show')GT_SHOWS.push([d.month,d.day,d.dow,d.title,d.venue,d.tags,d.tix,d.cover||'',d.desc||'',d.price||'',d.kind||'ext']);
     else if(r.kind==='chat')GT_CHATS.unshift([d.slug,d.name,d.preview,'now','',d.avatar,d.category||'general']);
+    else if(r.kind==='event')EVENTS_FEED.unshift(Object.assign({_pid:r.id,_ts:r.created_at},d));
   });
   renderAll();
 }
@@ -1633,6 +1635,7 @@ function allPosts(){
   GT_ARTICLES.forEach(function(a,i){ out.push({type:postType(a),title:a.t,sub:a.d,media:a.img,mtype:a.mtype||'image',collab:a.collab,hideFeed:a.hideFeed,src:'article',idx:i,pid:a._pid||sigPid(a.t,a.img),body:a.html||''}); });
   GAL_IMGS.forEach(function(t,i){ var mt=t[3]||'image'; out.push({type:(mt==='video')?'video':'image',title:t[1],sub:(t[2]?('▶ '+t[2]):''),media:galSrc(t[0]),mtype:mt,collab:null,hideFeed:t[4],src:'photo',idx:i,pid:t[5]||sigPid(t[1],t[0]),body:''}); });
   COLLAB_POSTS.forEach(function(c,i){ var d=c.payload||{}; out.push({type:(d.mtype==='video')?'video':(d.mtype==='image'?'image':'article'),title:d.t||c.title||'Collab',sub:'✦ Collab · @'+c.source_slug,media:d.img||'',mtype:d.mtype||'image',collab:[c.source_slug],hideFeed:false,src:'collab',idx:i,pid:'collab:'+c.id,body:(c.payload&&c.payload.html)||''}); });
+  EVENTS_FEED.forEach(function(e,i){ out.push({type:'event',title:e.title,sub:'',media:e.cover||'',mtype:'image',collab:null,hideFeed:false,src:'event',idx:i,pid:e._pid||('event:'+e.slug),body:'',event:e}); });
   return out;
 }
 /* Collab READ side — a shared post shows on this profile only after the owner ACCEPTS it. */
@@ -1827,7 +1830,21 @@ document.addEventListener('scroll',function(e){
   var dots=c.parentElement.querySelectorAll('.fb-dots span');
   dots.forEach(function(d,j){d.classList.toggle('on',j===i);});
 },true);
+function eventCardHtml(e,pid){
+  var ext=!!e.is_external; var url=e.ticket_url||('/v31/event.html?e='+encodeURIComponent(e.slug||''));
+  var img=e.cover||'/v3/blog-default.jpg';
+  var when=''; try{var dt=new Date(e.date); if(!isNaN(dt)) when=dt.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'});}catch(x){}
+  var tgt=ext?' target="_blank" rel="noopener"':'';
+  return '<div class="pf-card fbcard evpost" data-pid="'+esc(pid)+'" style="overflow:hidden">'
+    +'<a href="'+esc(url)+'"'+tgt+' style="text-decoration:none;display:block">'
+      +'<div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+esc(img)+'" alt="'+esc(e.title||'Event')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
+        +'<span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
+      +'<div style="padding:12px 15px 6px"><div style="font-family:var(--font-head,Inter);font-weight:800;font-size:1.15rem;letter-spacing:.02em;color:#fff;line-height:1.15">'+esc(e.title||'Event')+'</div>'
+        +'<div style="color:var(--muted,#9aa0b0);font-size:.82rem;margin-top:5px">'+(when?esc(when):'')+(e.venue?(when?' · ':'')+esc(e.venue):'')+(e.city?' · '+esc(e.city):'')+'</div></div></a>'
+    +'<div style="padding:8px 15px 15px"><a href="'+esc(url)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div></div>';
+}
 function postCard(p){
+  if(p.event) return eventCardHtml(p.event, p.pid||('event:'+(p.event.slug||'')));
   var pid=p.pid||(p.src+':'+p.idx);
   var authorSlug=(p.collab&&p.collab.length)?p.collab[0]:PROFILE_SLUG;
   var authorName=(p.collab&&p.collab.length)?('@'+p.collab[0]):(PROFILE.name||PROFILE_SLUG);
@@ -2357,6 +2374,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260753" defer></script>
+<script src="/v31/v31-shell.js?v=20260754" defer></script>
 </body>
 </html>
