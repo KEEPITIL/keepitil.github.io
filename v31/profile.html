@@ -130,6 +130,9 @@ body::before{content:""!important;position:fixed!important;inset:0!important;z-i
 #dm-new{display:none!important}
 #pfBadges,#pfPassport{display:none!important}
 .pf-cta #pfShare>button svg{display:none!important}
+.pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
+.pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
+.pf-cta #pfFollow,.pf-cta #pfBook{flex:1;text-align:center}
 .alert-btn{font-family:var(--font-head);font-size:.95rem;letter-spacing:.1em;background:var(--accent);color:var(--onacc);border:none;border-radius:6px;padding:9px 20px;cursor:pointer;white-space:nowrap;transition:filter .15s,transform .15s;}
 .alert-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
 .alert-btn.on{background:transparent;border:2px solid var(--accent);color:var(--accent);}
@@ -1128,10 +1131,6 @@ function openEditProfile(){
     '<label class="kil-mf"><span>Booking email</span><input type="text" id="epBook" value="'+esc(PROFILE.book_email||'')+'"></label>'+
     '<label class="kil-mf"><span>About section (shown in the header)</span><textarea id="epAbout" rows="2">'+esc(PROFILE.about||'')+'</textarea></label>'+
     '<label class="kil-mf"><span>Account type</span><select id="epAcct"><option value="">—</option><option value="user">User</option><option value="artist">Artist</option><option value="brand">Brand</option><option value="organizer">Organizer</option></select></label>'+
-    '<div class="kil-sec">Badges — pick what shows on your profile</div>'+
-    '<div class="kil-badges" style="display:flex;gap:8px 14px;flex-wrap:wrap;margin-bottom:6px">'+
-      PRESET_BADGES.map(function(b){return '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.85rem"><input type="checkbox" class="epBadge" value="'+esc(b)+'"> '+esc(b)+'</label>';}).join('')+
-    '</div>'+
     '<div class="kil-sec">Profile links (up to 5)</div>'+
     '<label class="kil-mf"><span>Links dropdown title (what the button says)</span><input type="text" id="epLinksLabel" value="'+esc(PROFILE.links_label||'')+'" placeholder="Links" maxlength="24"></label>'+
     [1,2,3,4,5].map(function(i){return '<label class="kil-mf"><span>Link '+i+'</span><input type="text" id="epL'+i+'" value="'+esc((PROFILE.links||[])[i-1]||'')+'" placeholder="https://…"></label>';}).join('')+
@@ -1140,8 +1139,6 @@ function openEditProfile(){
     '<label class="kil-mf"><span>SoundCloud</span><input type="text" id="epSC" value="'+esc(s.soundcloud||'')+'"></label></div>'+
     '<div class="kil-row2"><label class="kil-mf"><span>TikTok</span><input type="text" id="epTT" value="'+esc(s.tiktok||'')+'"></label>'+
     '<label class="kil-mf"><span>Website</span><input type="text" id="epWeb" value="'+esc(s.website||'')+'"></label></div>'+
-    '<div class="kil-sec">Story highlights <button type="button" class="kil-addhl" onclick="var d=document.createElement(\'div\');d.className=\'kil-hl\';d.innerHTML=\'<img><input class=&quot;hl-label&quot; type=text placeholder=Label><input class=&quot;hl-file&quot; type=file accept=image/*><button type=button class=&quot;hl-del&quot; onclick=&quot;this.parentNode.remove()&quot;>✕</button>\';document.getElementById(\'epHls\').appendChild(d);">+ Add</button></div>'+
-    '<div id="epHls" class="kil-hls">'+editHighlightsHTML()+'</div>'+
     '<div class="kil-sec">Categories — pick what you are</div>'+
     '<div class="kil-cats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+
       '<label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" class="epCat" value="artist" onchange="toggleCat()"> Artist</label>'+
@@ -2360,6 +2357,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260751" defer></script>
+<script src="/v31/v31-shell.js?v=20260752" defer></script>
 </body>
 </html>
