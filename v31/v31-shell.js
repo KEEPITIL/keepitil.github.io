@@ -412,7 +412,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
     +'#kil-bnav a svg{width:26px;height:26px;display:block}'
     +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
-    +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px;width:auto;mix-blend-mode:screen}'
+    +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
     +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
     +'#kil-bnav a:active{transform:scale(.9)}'
     +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2rem;font-weight:800;line-height:1;background:transparent;border:2px solid #00b4ff;border-radius:50%;width:46px;height:46px;padding:0;margin:0 4px;box-shadow:0 0 14px rgba(0,180,255,.7),inset 0 0 8px rgba(0,180,255,.25)}'
