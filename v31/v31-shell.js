@@ -279,7 +279,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           bn.innerHTML=
-            '<a href="/v31/" id="kb-home" aria-label="Home"><i class="kb-logo"></i></a>'
+            '<a href="/v31/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/v3/logo-blue-nav.png" alt="Home"></a>'
             +'<a href="/v31/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
             +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
             +'<a href="/v31/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
@@ -412,7 +412,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
     +'#kil-bnav a svg{width:26px;height:26px;display:block}'
     +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
-    +'#kil-bnav a#kb-home i.kb-logo{display:block;width:30px;height:30px;background:currentColor;-webkit-mask:url(/v3/logo-blue-nav.png) center/contain no-repeat;mask:url(/v3/logo-blue-nav.png) center/contain no-repeat}'
+    +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px;width:auto;mix-blend-mode:screen}'
     +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
     +'#kil-bnav a:active{transform:scale(.9)}'
     +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2rem;font-weight:800;line-height:1;background:transparent;border:2px solid #00b4ff;border-radius:50%;width:46px;height:46px;padding:0;margin:0 4px;box-shadow:0 0 14px rgba(0,180,255,.7),inset 0 0 8px rgba(0,180,255,.25)}'
