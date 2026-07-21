@@ -291,6 +291,15 @@ renderTypebar();renderDiscover();renderFeed();
   function card(r){
     var d=r.data||{}; var media=(d.media&&d.media[0])||{src:d.img||'',mtype:d.mtype||'image'};
     var url='/v31/profile.html?slug='+encodeURIComponent(r.profile_slug);
+    if(r.kind==='event'){
+      var ext=!!d.is_external; var turl=d.ticket_url||('/v31/event.html?e='+encodeURIComponent(d.slug||'')); var tgt=ext?' target="_blank" rel="noopener"':'';
+      var when=''; try{var dt=new Date(d.date); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}catch(x){}
+      return '<div class="fcard fbcard evpost" data-pid="cul:'+h(d.slug||r.id)+'" style="overflow:hidden">'
+        +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar)+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name)+'</b></div></a><button class="fb-more" aria-label="More" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
+        +'<a href="'+h(turl)+'"'+tgt+' style="text-decoration:none;display:block"><div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+h(d.cover||'/v3/blog-default.jpg')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'"><span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
+        +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.2rem;color:#fff;line-height:1.15">'+h(d.title||'Event')+'</div><div style="color:var(--ink3,#9aa);font-size:.82rem;margin-top:5px">'+(when?h(when):'')+(d.venue?(when?' · ':'')+h(d.venue):'')+(d.city?' · '+h(d.city):'')+'</div></div></a>'
+        +'<div style="padding:8px 15px 15px"><a href="'+h(turl)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div></div>';
+    }
     /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
     var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
     var m=(media.mtype==='video'&&media.src)
@@ -325,7 +334,7 @@ renderTypebar();renderDiscover();renderFeed();
   else boot(0);
 })();
 </script>
-<script src="/v31/v31-shell.js?v=20260753" defer></script>
+<script src="/v31/v31-shell.js?v=20260754" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
