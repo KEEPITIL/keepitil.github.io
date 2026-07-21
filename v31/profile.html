@@ -468,9 +468,17 @@ footer a{color:var(--accent2);}
 #pfDashMenu.open{display:block}
 #pfDashMenu button{display:block;width:100%;text-align:left;background:none;border:0;color:#e8e8f0;font-size:.9rem;font-weight:700;padding:11px 12px;border-radius:8px;cursor:pointer}
 #pfDashMenu button:hover{background:rgba(255,255,255,.08)}
-/* Founder 2026-07-20 fixes: close gap before About, attach subfilter to tab bar, equal DASH/Share buttons */
-@media(max-width:768px){.pf-idblock{justify-content:flex-end!important}.pf-meta{margin-top:4px!important}}
-#feed-cat.pf-filter{position:sticky;top:51px;z-index:59;margin-top:0}
+/* Founder 2026-07-20 fixes v2: kill gap after avatar, show category/badges, subfilter = icon only under tab bar */
+@media(max-width:768px){
+  .pf-idblock{justify-content:flex-start!important}
+  .pf-meta{margin-top:2px!important}
+  .pf-panel{padding-top:6px!important}
+}
+.pf-bcrow{display:flex!important;min-height:22px;align-items:center;gap:6px}
+#pfAcctType{display:inline-block!important;background:rgba(139,92,255,.18);color:var(--accent,#8b5cff);padding:4px 10px;border-radius:999px;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+#pfPassport{display:inline-flex!important}
+#pfBadges{display:flex!important;gap:6px}
+#feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;position:sticky!important;top:51px!important;z-index:59}
 .pf-cta #pfDashWrap{flex:1}
 .pf-cta #pfDashWrap>button{width:100%}
 .pf-cta #pfShare{flex:1}
@@ -2006,10 +2014,17 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 (function(){
   var bk=document.getElementById('pfBack'); if(bk&&/\/v31\/scene\.html/.test(document.referrer||'')) bk.style.display='block';
   /* Enforce ABOUT order a->d: move the header's links-dropdown + about text into .pf-meta so CSS order applies */
-  try{ var pm=document.querySelector('.pf-meta'); var ld=document.getElementById('pfLinksDrop'); var at=document.getElementById('pfAboutTop');
+  try{ var pm=document.querySelector('.pf-meta'); var ld=document.getElementById('pfLinksDrop');
+    var idb=document.querySelector('.pf-idblock');
+    /* About flows in the column beside the avatar (kills the dead space under the tall avatar, no shrink) */
+    ['pfAboutTop','pfBio','pfAbout'].forEach(function(id){ var el=document.getElementById(id); if(idb&&el&&el.parentElement!==idb) idb.appendChild(el); });
     if(pm&&ld&&ld.parentElement!==pm) pm.appendChild(ld);
-    if(pm&&at&&at.parentElement!==pm) pm.appendChild(at);
   }catch(e){}
+  /* Make the passport | category | badges row visible (badges from genre + Member) */
+  try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
+    var bg=document.getElementById('pfBadges'); var P=window.PROFILE||{};
+    if(bg && !bg.children.length){ var arr=[]; if(P.genre)arr.push(String(P.genre)); arr.push('Member'); bg.innerHTML=arr.slice(0,4).map(function(x){return '<span class="bdg">'+x.replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
+    if(pollB>20 || (bg&&bg.children.length)) clearInterval(ivB); },600); }catch(e){}
   function esc(u){return String(u).replace(/"/g,'');}
   function build(){
     try{
