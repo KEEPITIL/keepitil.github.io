@@ -415,7 +415,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
     +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
     +'#kil-bnav a:active{transform:scale(.9)}'
-    +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2rem;font-weight:800;line-height:1;background:transparent;border:2px solid #00b4ff;border-radius:50%;width:46px;height:46px;padding:0;margin:0 4px;box-shadow:0 0 14px rgba(0,180,255,.7),inset 0 0 8px rgba(0,180,255,.25)}'
+    +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2.3rem;font-weight:800;line-height:1;background:transparent;border:0;border-radius:0;box-shadow:none;width:auto;height:auto;padding:0;margin:0 4px;text-shadow:0 0 10px rgba(0,180,255,.85)}'
     +'#kil-createmenu a:active{background:rgba(255,255,255,.06)}'
     +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem}'
