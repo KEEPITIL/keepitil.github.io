@@ -317,13 +317,15 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     var m=document.createElement('div'); m.id='kil-profmenu';
     m.style.cssText='position:absolute;z-index:10050;min-width:190px;background:#12121c;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.55)';
     m.innerHTML='<button data-a="edit" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Edit profile</button>'
-      +'<button data-a="settings" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Settings</button>';
+      +'<button data-a="settings" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Settings</button>'
+      +'<button data-a="signout" style="display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid rgba(255,255,255,.09);margin-top:4px;color:#ff6b6b;font:700 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Sign out</button>';
     document.body.appendChild(m);
     var btn=(ev&&(ev.currentTarget||ev.target.closest&&ev.target.closest('a,button')))||null;
     if(btn&&btn.getBoundingClientRect){ var r=btn.getBoundingClientRect(); m.style.top=(r.bottom+window.scrollY+8)+'px'; m.style.left=Math.max(8,(r.right+window.scrollX-m.offsetWidth))+'px'; }
     m.querySelectorAll('button').forEach(function(b){ b.onmouseover=function(){b.style.background='rgba(255,255,255,.07)';}; b.onmouseout=function(){b.style.background='none';}; });
     m.querySelector('[data-a=edit]').onclick=function(){ m.remove(); if(typeof window.openEditProfile==='function'){ window.openEditProfile(); } else { location.href='/v31/profile.html?edit=1'; } };
     m.querySelector('[data-a=settings]').onclick=function(){ m.remove(); location.href='/v31/settings.html'; };
+    m.querySelector('[data-a=signout]').onclick=function(){ m.remove(); try{ if(window.supabase&&window.supabase.createClient){ window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ').auth.signOut(); } }catch(e){} try{ Object.keys(localStorage).forEach(function(k){ if(/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); }catch(e){} location.href='/v31/'; };
     setTimeout(function(){ document.addEventListener('click',function h(e){ var mm=document.getElementById('kil-profmenu'); if(mm&&!mm.contains(e.target)){ mm.remove(); } document.removeEventListener('click',h); }); },0);
   }
   window.kilProfMenu=kilProfMenu;
