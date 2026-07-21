@@ -630,7 +630,15 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="ad-footer-bar"><!-- AdSense: End of Profile --></div>
-<footer><p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> <a href="https://keepitil.com/privacy.html">Privacy Policy</a> &middot; <em>As an Amazon Associate KEEPITIL earns from qualifying purchases.</em></p></footer>
+<footer>
+  <div id="pfFootSocials" style="display:none;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin:0 auto 16px;max-width:640px"></div>
+  <p>&copy; 2026 <a href="https://keepitil.com" target="_blank">KEEPITIL</a> <a href="https://keepitil.com/privacy.html">Privacy Policy</a> &middot; <em>As an Amazon Associate KEEPITIL earns from qualifying purchases.</em></p>
+</footer>
+<script>
+/* Footer: all social + business accounts in ONE row (from profile_meta socials + links). */
+(function(){function b(){var P=window.PROFILE||{};var row=document.getElementById('pfFootSocials');if(!row)return;var soc=P.socials||{};var items=[];['instagram','soundcloud','tiktok','youtube','spotify','website'].forEach(function(k){if(soc[k])items.push([k.charAt(0).toUpperCase()+k.slice(1),soc[k]]);});(P.links||[]).forEach(function(u){if(u)items.push([String(u).replace(/^https?:\/\//,'').replace(/\/.*$/,'').slice(0,26),u]);});if(!items.length){setTimeout(b,700);return;}row.innerHTML=items.map(function(it){var u=String(it[1]).replace(/"/g,'');if(!/^https?:\/\//.test(u))u='https://'+u;return '<a href="'+u+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;font:700 .78rem Inter,sans-serif;letter-spacing:.04em;color:var(--accent2,#5cc8ff);background:rgba(255,255,255,.05);border:1px solid var(--line,rgba(255,255,255,.12));border-radius:999px;padding:7px 14px;text-decoration:none">'+String(it[0]).replace(/[<>]/g,'')+'</a>';}).join('');row.style.display='flex';}
+setTimeout(b,900);})();
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <!-- Nudity / explicit-content moderation for image uploads (in-browser, no keys) -->
@@ -2345,6 +2353,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260748" defer></script>
+<script src="/v31/v31-shell.js?v=20260749" defer></script>
 </body>
 </html>
