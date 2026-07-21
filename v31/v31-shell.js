@@ -257,6 +257,22 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
       /* Re-callable mount: the self-heal loop re-asserts the bottom nav if a page script
          (or an earlier silent exception) leaves it missing — the "nav disappears on pillar
          pages" class of bug. Isolated try so nothing upstream can starve it. */
+      window.__kilCreateMenu=function(){
+        if(document.getElementById('kil-createmenu'))return;
+        var ov=document.createElement('div'); ov.id='kil-createmenu';
+        ov.style.cssText='position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;font-family:Inter,system-ui,sans-serif';
+        var item=function(label,href){return '<a href="'+href+'" style="display:block;color:#e8e8f0;padding:15px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-decoration:none;font-weight:700;font-size:1.02rem">'+label+'</a>';};
+        ov.innerHTML='<div style="background:#15151f;border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:14px 18px 26px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:#fff;font-size:1.08rem">Create</b><button id="kilCX" style="background:none;border:0;color:#888;font-size:1.6rem;line-height:1;cursor:pointer">&times;</button></div>'
+          +item('Feed post','/v31/profile.html?create=feed')
+          +item('Event','/v31/create-event.html')
+          +item('Collection','/v31/profile.html?tab=saved&create=collection')
+          +'<a href="/v31/profile.html?tab=chat&create=chat" style="display:block;color:#e8e8f0;padding:15px 8px;text-decoration:none;font-weight:700;font-size:1.02rem">Chat</a>'
+          +'</div>';
+        document.body.appendChild(ov);
+        ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
+        var x=document.getElementById('kilCX'); if(x) x.onclick=function(){ ov.remove(); };
+      };
       window.__kilMountBnav=function(){
         try{
           if(IN_IFRAME) return;   /* NEVER inside embedded frames — this leaked into the desktop chat card */
@@ -265,6 +281,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           bn.innerHTML=
             '<a href="/v31/" id="kb-home" aria-label="Home"><img src="'+(logoUrl()||'/v3/logo-blue-nav.png')+'" alt="Home" onerror="this.onerror=null;this.src=\'/v3/logo-blue-nav.png\'"></a>'
             +'<a href="/v31/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
+            +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
             +'<a href="/v31/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
             +'<a href="/v31/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
           document.body.appendChild(bn);
@@ -397,6 +414,8 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
     +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
     +'#kil-bnav a:active{transform:scale(.9)}'
+    +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2rem;font-weight:800;line-height:1;background:transparent;border:2px solid #00b4ff;border-radius:50%;width:46px;height:46px;padding:0;margin:0 4px;box-shadow:0 0 14px rgba(0,180,255,.7),inset 0 0 8px rgba(0,180,255,.25)}'
+    +'#kil-createmenu a:active{background:rgba(255,255,255,.06)}'
     +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
