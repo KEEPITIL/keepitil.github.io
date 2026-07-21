@@ -177,7 +177,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
       var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
       // KEEPITIL custom icon set (used in the mobile top-bar icon nav — icons only, no words)
       var ICON={
-        culture:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.5 4.2 1.8 5.5 6 6-4.2.5-5.5 1.8-6 6-.5-4.2-1.8-5.5-6-6 4.2-.5 5.5-1.8 6-6z"/></svg>',
+        culture:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/></svg>',
         scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
         shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
         profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>',
@@ -279,7 +279,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           bn.innerHTML=
-            '<a href="/v31/" id="kb-home" aria-label="Home"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5c.7 5.3 3.2 7.8 8.5 8.5-5.3.7-7.8 3.2-8.5 8.5-.7-5.3-3.2-7.8-8.5-8.5C8.8 9.3 11.3 6.8 12 1.5z"/></svg></a>'
+            '<a href="/v31/" id="kb-home" aria-label="Home"><i class="kb-logo"></i></a>'
             +'<a href="/v31/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
             +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
             +'<a href="/v31/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
@@ -412,6 +412,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
     +'#kil-bnav a svg{width:26px;height:26px;display:block}'
     +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
+    +'#kil-bnav a#kb-home i.kb-logo{display:block;width:30px;height:30px;background:currentColor;-webkit-mask:url(/v3/logo-blue-nav.png) center/contain no-repeat;mask:url(/v3/logo-blue-nav.png) center/contain no-repeat}'
     +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
     +'#kil-bnav a:active{transform:scale(.9)}'
     +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2rem;font-weight:800;line-height:1;background:transparent;border:2px solid #00b4ff;border-radius:50%;width:46px;height:46px;padding:0;margin:0 4px;box-shadow:0 0 14px rgba(0,180,255,.7),inset 0 0 8px rgba(0,180,255,.25)}'
