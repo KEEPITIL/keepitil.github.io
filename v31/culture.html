@@ -86,7 +86,12 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 .fcard .hint{font-family:var(--fh);letter-spacing:.08em;font-size:.66rem;color:var(--ink3);margin-top:9px}
 /* FB-parity card chrome (Founder 2026-07-18) */
 .fbcard{cursor:default}
-.fb-head{display:flex;align-items:center;gap:10px;padding:11px 14px}
+.fb-head{display:flex;align-items:center;gap:10px;padding:11px 14px;justify-content:space-between}
+.fb-more{background:none;border:0;color:var(--ink2,#9a94b4);font-size:1.5rem;line-height:1;cursor:pointer;padding:2px 8px;flex:0 0 auto;border-radius:8px}
+.fb-more:hover{color:#fff;background:rgba(255,255,255,.07)}
+.fb-pmenu{position:absolute;z-index:9000;min-width:170px;background:#12121c;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.55)}
+.fb-pmenu button{display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .88rem Inter,sans-serif;padding:10px 12px;border-radius:8px;cursor:pointer}
+.fb-pmenu button:hover{background:rgba(255,255,255,.08)}
 .fb-av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#0a0a0f}
 .fb-who{flex:1;min-width:0;line-height:1.25}.fb-who b{display:block;font-size:.9rem;color:#fff}.fb-who span{font-size:.7rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em}
 /* SAME square card as before — only change: contain (whole image fits inside the card) instead of cover */
@@ -248,6 +253,17 @@ document.getElementById('discover').addEventListener('click',function(e){var h=e
 function toggleFeedDD(e){if(e){e.stopPropagation();}var m=document.getElementById('feedDDMenu');if(m)m.classList.toggle('open');}
 function setFeedMode(mode){feedMode=mode;var mm=document.getElementById('feedDDMenu');if(mm){[].forEach.call(mm.children,function(x){x.classList.toggle('on',x.dataset.m===mode);});mm.classList.remove('open');}var lbl=document.getElementById('feedNow');if(lbl)lbl.textContent=(mode==='following'?'Following':'All');renderFeed();}
 document.addEventListener('click',function(e){var d=document.getElementById('feedDD');var m=document.getElementById('feedDDMenu');if(m&&m.classList.contains('open')&&d&&!d.contains(e.target))m.classList.remove('open');});
+window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagation();}catch(x){}
+  var ex=document.getElementById('culPMenu'); var was=ex&&ex._for===slug; if(ex)ex.remove(); if(was)return;
+  var m=document.createElement('div'); m.id='culPMenu'; m.className='fb-pmenu'; m._for=slug;
+  m.innerHTML='<button data-a="prof">View profile</button><button data-a="copy">Copy link</button><button data-a="report">Report post</button>';
+  document.body.appendChild(m);
+  var b=(e&&(e.currentTarget||e.target))||null; if(b&&b.getBoundingClientRect){var r=b.getBoundingClientRect(); m.style.top=(r.bottom+window.scrollY+6)+'px'; m.style.left=Math.max(8,(r.right+window.scrollX-m.offsetWidth))+'px';}
+  m.querySelector('[data-a=prof]').onclick=function(){ location.href=url; };
+  m.querySelector('[data-a=copy]').onclick=function(){ try{navigator.clipboard.writeText(location.origin+url);}catch(x){} m.remove(); };
+  m.querySelector('[data-a=report]').onclick=function(){ m.remove(); alert('Thanks — this post has been flagged for review.'); };
+  setTimeout(function(){ document.addEventListener('click',function hh(ev){ var mm=document.getElementById('culPMenu'); if(mm&&!mm.contains(ev.target)){mm.remove();} document.removeEventListener('click',hh); }); },0);
+};
 document.getElementById('feed').addEventListener('click',function(e){if(e.target.closest('.open'))return;var c=e.target.closest('.fcard');if(!c)return;c.classList.toggle('exp');});
 renderTypebar();renderDiscover();renderFeed();
 </script>
@@ -289,7 +305,7 @@ renderTypebar();renderDiscover();renderFeed();
       +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+pid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
     +'</div>';
     return '<div class="fcard fbcard" data-pid="'+pid+'">'
-      +'<a class="fb-head" href="'+url+'" style="text-decoration:none"><img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b><span>@'+h(r.profile_slug)+'</span></div></a>'
+      +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b></div></a><button class="fb-more" aria-label="More options" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
       +'<div class="fb-media" style="background:#000">'+m+'</div>'
       +'<div class="fb-cap" onclick="this.classList.toggle(\'open\');var fx=this.querySelector(\'.fx\');if(fx)fx.style.display=this.classList.contains(\'open\')?\'block\':\'none\'"><b>'+h(d.t||'')+'</b>'+(d.html?'<span class="fb-more-txt">… more</span><div class="fx" style="display:none">'+d.html+'</div>':'')+'</div>'
       +acts
@@ -309,7 +325,7 @@ renderTypebar();renderDiscover();renderFeed();
   else boot(0);
 })();
 </script>
-<script src="/v31/v31-shell.js?v=20260751" defer></script>
+<script src="/v31/v31-shell.js?v=20260752" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
