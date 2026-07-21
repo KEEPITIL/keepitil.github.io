@@ -2059,7 +2059,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   /* Make the passport | category | badges row visible (badges from genre + Member) */
   try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
     var bg=document.getElementById('pfBadges'); var P=window.PROFILE||{};
-    if(bg && !bg.children.length){ var arr=Array.isArray(P.badges)?P.badges.slice():['Member']; bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
+    if(bg && !bg.children.length){ var _ac=String(P.account_type||'').toLowerCase().trim(); var _sn={}; var arr=(Array.isArray(P.badges)?P.badges.slice():['Member']).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_ac||_sn[k])return false; _sn[k]=1; return true;}); bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
     if(pollB>20 || (bg&&bg.children.length)) clearInterval(ivB); },600); }catch(e){}
   function esc(u){return String(u).replace(/"/g,'');}
   function build(){
@@ -2205,7 +2205,7 @@ function toggleArchived(id,val){
         /* editable Links dropdown title */
         try{ var _lb=(m.links_label&&String(m.links_label).trim())||'Links'; var _btn=document.querySelector('#pfLinksDrop button'); if(_btn) _btn.textContent='🔗 '+_lb+' ▾'; }catch(e){}
         /* render preset badges chosen in Edit Profile (fallback: Member) */
-        try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _arr=Array.isArray(m.badges)?m.badges:['Member']; _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
+        try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _acct=String(m.account_type||'').toLowerCase().trim(); var _seen={}; var _arr=(Array.isArray(m.badges)?m.badges:['Member']).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_acct||_seen[k])return false; _seen[k]=1; return true;}); _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
         if(m.about){ var ab=document.getElementById('pfAboutTop'); ab.textContent=m.about; ab.style.display='block'; }
         if(Array.isArray(m.links)&&m.links.length){
           document.getElementById('pfLinksMenu').innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
@@ -2345,6 +2345,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260747" defer></script>
+<script src="/v31/v31-shell.js?v=20260748" defer></script>
 </body>
 </html>
