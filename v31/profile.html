@@ -444,6 +444,7 @@ footer a{color:var(--accent2);}
 .feed-legend.open{display:flex;}
 </style>
 <style>.pf-tab[data-tab="gallery"]{display:none!important}
+#pfPassport{display:none} /* mobile @media re-shows it; hidden on desktop */
 /* Global (both viewports, functional only — no layout change to desktop) */
 #pfDashMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:95;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
 #pfDashMenu.open{display:block}
@@ -2009,6 +2010,8 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     /* About = description block, full-width, directly UNDER the avatar+metrics widget (Instagram layout) */
     ['pfAboutTop'].forEach(function(id){ var el=document.getElementById(id); if(pm&&el&&el.parentElement!==pm) pm.appendChild(el); });
     if(pm&&ld&&ld.parentElement!==pm) pm.appendChild(ld);
+    /* hide the empty tagline (&nbsp;) that was creating the gap above the About text */
+    var _bio=document.getElementById('pfBio'); if(_bio && (_bio.textContent||'').replace(/[\s ]/g,'')==='') _bio.style.display='none';
   }catch(e){}
   /* Make the passport | category | badges row visible (badges from genre + Member) */
   try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
