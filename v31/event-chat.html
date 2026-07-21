@@ -69,15 +69,17 @@
 </style>
 </head>
 <body>
-<header id="main-nav"><div class="hd"><span class="brand">⚡ KEEPITIL</span> <span style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-2);">Scene Room</span> <a class="back" href="/v31/">← Events</a></div></header>
+<header id="main-nav"><div class="hd" style="display:flex;align-items:center;gap:12px;padding:10px 14px">
+  <a class="back" href="/v31/" style="margin-left:0;flex:0 0 auto">← Event</a>
+  <div style="flex:1 1 auto;min-width:0;text-align:center">
+    <div id="ev-title" style="font-weight:800;font-size:1rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Event</div>
+    <div id="ev-date-h" style="font-size:.7rem;font-weight:600;letter-spacing:.03em;color:#8aa"></div>
+  </div>
+  <span id="ev-host" style="flex:0 0 auto;max-width:34%;font-size:.76rem;font-weight:700;color:#9ab;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></span>
+</div></header>
 
 <div id="scroller">
-<div class="ev-hd">
-  <div class="ev-eyebrow">Event Chat · Scene Room</div>
-  <h1 class="ev-title" id="ev-title">Event Chat</h1>
-  <div class="ev-sub" id="ev-sub">Comment, share photos, plan meetups, and keep the memories — this room stays live even after the event.</div>
-</div>
-<div class="scene-note"><div id="conn">Loading the room…</div></div>
+<div class="scene-note" style="display:none"><div id="conn"></div></div>
 
 <main id="thread"><div class="empty">No messages yet. Be the first to start the conversation.</div></main>
 </div><!-- /#scroller -->
@@ -115,14 +117,22 @@
      hide the "← Events" nav, the "Scene Room" label, the event eyebrow/sub + scene-note. */
   if(p.get('mode')==='chat'){
     document.body.classList.add('mode-chat');
-    var _b=document.querySelector('.brand'); if(_b) _b.textContent=title;   /* header shows the CHAT TITLE only, not "⚡ KEEPITIL" */
     var _st=document.createElement('style');
-    _st.textContent='.mode-chat .back,.mode-chat .brand+span,.mode-chat .ev-hd,.mode-chat .scene-note{display:none!important}.mode-chat .brand{font-size:1rem}';
+    _st.textContent='.mode-chat #ev-date-h,.mode-chat #ev-host{display:none!important}';
     document.head.appendChild(_st);
   }
   document.getElementById('ev-title').textContent=title;
   document.title=title+' — Event Chat · KEEPITIL';
   var sb=null; try{ if(window.supabase) sb=window.supabase.createClient(URL,KEY); }catch(e){}
+  /* Header bar: event date (left of center) + host (top-right), fetched by slug. */
+  (function(){ try{ if(!sb||slug==='general'||p.get('mode')==='chat') return;
+    sb.from('events').select('starts_at,owner_handle,title').eq('slug',slug).maybeSingle().then(function(r){
+      var d=r&&r.data; if(!d) return;
+      if(d.title){ document.getElementById('ev-title').textContent=d.title; document.title=d.title+' — Event Chat · KEEPITIL'; }
+      if(d.starts_at){ try{ var dt=new Date(d.starts_at); if(!isNaN(dt)){ document.getElementById('ev-date-h').textContent=dt.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'}); } }catch(e){} }
+      if(d.owner_handle){ document.getElementById('ev-host').textContent='@'+String(d.owner_handle).replace(/^@/,''); }
+    }).catch(function(){});
+  }catch(e){} })();
   var session=null;
   var _firstRender=true;
   function $(id){return document.getElementById(id);}
@@ -151,7 +161,6 @@
     if(!sb){ $('conn').textContent='Chat backend is being set up — check back soon.'; return; }
     sb.from('event_messages').select('*').eq('event_slug',slug).order('created_at',{ascending:true}).then(function(r){
       if(r&&r.error){ $('conn').textContent='This scene room goes live once the community backend is enabled.'; return; }
-      $('conn').textContent='🟢 Live scene room · stays up after the event for memories';
       render(r&&r.data);
     }).catch(function(){ $('conn').textContent='This scene room goes live once the community backend is enabled.'; });
   }
