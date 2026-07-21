@@ -419,17 +419,15 @@ footer a{color:var(--accent2);}
 .ci-no{background:transparent;color:var(--muted);}
 .kil-post img,.kil-post video{max-width:100%;border-radius:12px;}
 /* chat cards share the 3-col grid but size to content */
-.chat-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:9px;transition:transform .18s,border-color .18s;}
-.chat-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
-.chat-card .cc-top{display:flex;align-items:center;gap:10px;}
-.chat-card .cc-av{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--surface2);}
-.chat-card .cc-nm{font-weight:700;font-size:.86rem;color:var(--text);line-height:1.2;}
-.chat-card .cc-cat{font-size:.54rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-top:3px;display:inline-block;}
-.cc-cat.primary{background:color-mix(in srgb,var(--accent2) 20%,transparent);color:var(--accent2);}
-.cc-cat.general{background:var(--surface2);color:var(--muted);}
-.cc-cat.events{background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent);}
-.chat-card .cc-pv{font-size:.78rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.chat-card .cc-rt{position:absolute;top:12px;right:12px;font-size:.66rem;color:var(--muted);}
+#chat-list{display:flex!important;flex-direction:column;gap:2px;}
+#chat-list.agmode{display:block!important;}
+.chat-card{position:relative;background:transparent;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:11px 6px;cursor:pointer;display:flex;flex-direction:row;align-items:center;gap:12px;transition:background .15s;}
+.chat-card:hover{transform:none;background:rgba(255,255,255,.04);}
+.chat-card .cc-av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:var(--surface2);}
+.chat-card .cc-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.chat-card .cc-nm{font-weight:700;font-size:.92rem;color:var(--text);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chat-card .cc-pv{font-size:.8rem;color:var(--muted);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chat-card .cc-rt{flex:0 0 auto;font-size:.68rem;color:var(--muted);align-self:flex-start;padding-top:2px;}
 .chat-card .cc-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:6px;}
 @media(max-width:560px){.pf-grid{gap:7px;}
 /* FEED = 2-column grid (original directive stands). Universal post dimension: any image/video
@@ -471,14 +469,16 @@ footer a{color:var(--accent2);}
   #pfPassport{display:inline-flex!important;flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;white-space:nowrap}
   #pfBadges{display:flex!important;gap:6px}
   #pfBadges .bdg{flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
-  #feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;position:sticky!important;top:51px!important;z-index:59}
+  #feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;overflow:visible!important;position:sticky!important;top:51px!important;z-index:59}
+  #fcatMenu{z-index:200!important}
   .pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
   .pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
   .pf-cta #pfShare>button svg{display:none!important}.pf-cta #pfShare>button .pf-share-lbl{margin-left:0!important}
   .v3s-hamb,.v3s-burger,#kil-mhamb{display:none!important}
   #dm-new{display:none!important}
-  .fba{color:#eef0f6!important}
-  .fba svg{stroke:#eef0f6!important;opacity:1!important}
+  .fba{color:#fff!important}
+  .fba svg{stroke:#fff!important;opacity:1!important}
+  .fba-cmt,.fba-share,.fb-save{color:#fff!important}.fba-cmt svg,.fba-share svg,.fb-save svg{stroke:#fff!important}
   .fba.fba-like.on,.fba.fba-like.on svg{stroke:#ff4d8d!important;color:#ff4d8d!important}
   .fba.fba-resh.on,.fba.fba-resh.on svg{stroke:#22c55e!important;color:#22c55e!important}
 }</style></head>
@@ -1091,6 +1091,7 @@ function editHighlightsHTML(){
     return '<div class="kil-hl" data-i="'+i+'"><img src="'+(h.img||'')+'" onerror="this.style.opacity=.12"><input class="hl-label" type="text" value="'+esc(h.label||'')+'" placeholder="Label"><input class="hl-file" type="file" accept="image/*"><button type="button" class="hl-del" onclick="this.parentNode.remove()">✕</button></div>';
   }).join('');
 }
+var PRESET_BADGES=['Member','Founder','Verified','Artist','DJ','Producer','Promoter','Host','Resident','VIP','Vendor','Photographer','Crew','Team'];
 function openEditProfile(){
   if(!CAN_EDIT()){ toast('Only the profile owner can edit.'); return; }
   closeModal();
@@ -1111,7 +1112,12 @@ function openEditProfile(){
     '<label class="kil-mf"><span>Booking email</span><input type="text" id="epBook" value="'+esc(PROFILE.book_email||'')+'"></label>'+
     '<label class="kil-mf"><span>About section (shown in the header)</span><textarea id="epAbout" rows="2">'+esc(PROFILE.about||'')+'</textarea></label>'+
     '<label class="kil-mf"><span>Account type</span><select id="epAcct"><option value="">—</option><option value="user">User</option><option value="artist">Artist</option><option value="brand">Brand</option><option value="organizer">Organizer</option></select></label>'+
+    '<div class="kil-sec">Badges — pick what shows on your profile</div>'+
+    '<div class="kil-badges" style="display:flex;gap:8px 14px;flex-wrap:wrap;margin-bottom:6px">'+
+      PRESET_BADGES.map(function(b){return '<label style="display:inline-flex;align-items:center;gap:6px;font-size:.85rem"><input type="checkbox" class="epBadge" value="'+esc(b)+'"> '+esc(b)+'</label>';}).join('')+
+    '</div>'+
     '<div class="kil-sec">Profile links (up to 5)</div>'+
+    '<label class="kil-mf"><span>Links dropdown title (what the button says)</span><input type="text" id="epLinksLabel" value="'+esc(PROFILE.links_label||'')+'" placeholder="Links" maxlength="24"></label>'+
     [1,2,3,4,5].map(function(i){return '<label class="kil-mf"><span>Link '+i+'</span><input type="text" id="epL'+i+'" value="'+esc((PROFILE.links||[])[i-1]||'')+'" placeholder="https://…"></label>';}).join('')+
     '<div class="kil-sec">Links</div>'+
     '<div class="kil-row2"><label class="kil-mf"><span>Instagram</span><input type="text" id="epIG" value="'+esc(s.instagram||'')+'"></label>'+
@@ -1166,6 +1172,7 @@ function openEditProfile(){
   // prefill categories + per-category details
   var cats=(PROFILE.categories||[]), det=(PROFILE.cat_details||{});
   document.querySelectorAll('.epCat').forEach(function(c){ c.checked=cats.indexOf(c.value)>-1; });
+  var _pb=Array.isArray(PROFILE.badges)?PROFILE.badges:null; document.querySelectorAll('.epBadge').forEach(function(c){ c.checked=_pb?(_pb.indexOf(c.value)>-1):(c.value==='Member'); });
   function sv(id,val){var e=document.getElementById(id); if(e&&val) e.value=val;}
   var a=det.artist||{},b=det.brand||{},o=det.organizer||{},v=det.venue||{};
   sv('epArtGenre',a.genre);sv('epArtType',a.type);sv('epArtSpot',a.spotify);sv('epArtRel',a.release);
@@ -1205,8 +1212,9 @@ function saveEditProfile(){
       var hlDone=[], pending=hlNodes.length;
       function finalize(){
         var _links=[1,2,3,4,5].map(function(i){return g('epL'+i);}).filter(function(u){return u&&/^https?:\/\//.test(u);}).slice(0,5);
+        var _badges=[].slice.call(document.querySelectorAll('.epBadge:checked')).map(function(c){return c.value;});
         var meta={ slug:PROFILE_SLUG, display_name:g('epName'), handle:g('epHandle').replace(/^@/,''), location:g('epLoc'), bio:g('epBio'), tagline:g('epTag'), pronouns:g('epPro'), book_email:g('epBook'),
-          about:g('epAbout')||null, links:_links.length?_links:null, account_type:(document.getElementById('epAcct')||{}).value||null,
+          about:g('epAbout')||null, links:_links.length?_links:null, links_label:g('epLinksLabel')||null, badges:_badges.length?_badges:null, account_type:(document.getElementById('epAcct')||{}).value||null,
           avatar_url: avUrl || g('epAvatarUrl') || PROFILE.avatar,
           cover_url: cvUrl || g('epCoverUrl') || PROFILE.cover,
           socials:{ instagram:g('epIG'), soundcloud:g('epSC'), tiktok:g('epTT'), website:g('epWeb') },
@@ -1859,7 +1867,7 @@ function openPost(src,idx){
 function toggleLegend(e){ if(e){e.stopPropagation();} var l=document.getElementById('feed-legend'); if(l) l.classList.toggle('open'); }
 document.addEventListener('click',function(e){ var l=document.getElementById('feed-legend'); if(l&&l.classList.contains('open')){ var b=document.getElementById('feed-info-btn'); if(!l.contains(e.target)&&e.target!==b) l.classList.remove('open'); } });
 /* filter state for the unified tabs */
-var GAL_FILTER='all', EV_FILTER='all', CHAT_FILTER='all';
+var GAL_FILTER='all', EV_FILTER='all', CHAT_FILTER='primary';
 function setGalFilter(f){GAL_FILTER=f;renderGallery();}
 function setEvFilter(f){EV_FILTER=f;renderShows();}
 function setChatFilter(f){CHAT_FILTER=f;renderChats();}
@@ -1945,26 +1953,53 @@ function agSend(){
 }
 /* ── CHAT GROUP LIST (IG-style) ── */
 var GT_CHATS=[
-  ['groove-trooper','Groove Trooper · General','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg','general'],
-  ['kingdom','Kingdom @ Catch One','Lineup just dropped','1h','','https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg','events'],
-  ['groove-cruise','Groove Cruise Fam','Miami 2027 who is in','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg','general'],
-  ['oc-techno','OC Techno Heads','Warehouse location?','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg','general']
+  ['groove-trooper','Groove Trooper','Who is going to Kingdom?','2m','3','https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg','primary'],
+  ['groove-cruise','Groove Cruise Fam','Miami 2027 — who is in?','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg','general'],
+  ['oc-techno','OC Techno Heads','Warehouse location drop soon','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg','general']
 ];
 function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general':(/@|event/i.test(c[1])?'events':'primary'); }
+function chatRow(av,title,desc,onclick,time,dot){
+  return '<div class="chat-card" onclick="'+onclick+'">'
+    +'<img class="cc-av" src="'+av+'" alt="" loading="lazy" onerror="this.src=\'/icon-192.png\'">'
+    +'<div class="cc-body"><div class="cc-nm">'+title+'</div><div class="cc-pv">'+desc+'</div></div>'
+    +(time?'<div class="cc-rt">'+time+dot+'</div>':'')
+    +'</div>';
+}
 function renderChats(){
   if(IS_AGENT){ renderAgentChat(); return; }
   var list=document.getElementById('chat-list');if(!list)return;
+  list.classList.remove('agmode');
   var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
   var chips=[['primary','Primary'],['general','General'],['events','Events']];
   var bar=document.getElementById('chat-filter');
   if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(CHAT_FILTER===c[0]?' on':'')+'" onclick="setChatFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
-  var items=GT_CHATS.filter(function(c){return CHAT_FILTER==='all'||chatCat(c)===CHAT_FILTER;});
-  if(!items.length){ list.innerHTML='<div class="pf-empty">'+(CAN_EDIT()?'No messages here yet. Start a scene room to talk with your community.':'No chats here yet.')+(CAN_EDIT()?' <button class="pf-chip" style="margin-top:8px" onclick="addContent(\'chat group\')">Start a chat</button>':'')+'</div>'; return; }
+  if(CHAT_FILTER==='events'){ renderEventChats(list); return; }
+  var items=GT_CHATS.filter(function(c){return chatCat(c)===CHAT_FILTER;});
+  if(!items.length){ list.innerHTML='<div class="pf-empty">'+(CAN_EDIT()?'No chats here yet. Start a group to talk with your community. <button class="pf-chip" style="margin-top:8px" onclick="addContent(\'chat group\')">Start a chat</button>':'No chats here yet.')+'</div>'; return; }
   list.innerHTML=items.map(function(c){
-    var cat=chatCat(c); var nm=c[1].replace(/'/g,'');
+    var nm=String(c[1]).replace(/'/g,'');
     var dot=c[4]?'<span class="cc-dot"></span>':'';
-    return '<div class="chat-card" onclick="openChatGroup(\''+c[0]+'\',\''+nm+'\')"><div class="cc-rt">'+esc(c[3])+dot+'</div><div class="cc-top"><img class="cc-av" src="'+c[5]+'" alt="" loading="lazy"><div><div class="cc-nm">'+esc(c[1])+'</div><span class="cc-cat '+cat+'">'+cat+'</span></div></div><div class="cc-pv">'+esc(c[2])+'</div></div>';
+    return chatRow(c[5]||'/icon-192.png', esc(c[1]), esc(c[2]||''), 'openChatGroup(\''+c[0]+'\',\''+nm+'\')', esc(c[3]||''), dot);
   }).join('');
+}
+/* Events filter = only event chats the viewer bought a ticket to (event_orders via my_ticketed_event_chats). */
+function renderEventChats(list){
+  list.innerHTML='<div class="pf-empty">Loading your event chats…</div>';
+  if(!SB||!SESSION){ list.innerHTML='<div class="pf-empty">Log in to see the event chats you have tickets for.</div>'; return; }
+  SB.rpc('my_ticketed_event_chats').then(function(r){
+    var rows=(r&&r.data)||[];
+    if(!rows.length){ list.innerHTML='<div class="pf-empty">No event chats yet. Buy a ticket to any event to unlock its chat room.</div>'; return; }
+    list.innerHTML=rows.map(function(e){
+      var when=''; try{ if(e.starts_at){ var dt=new Date(e.starts_at); if(!isNaN(dt)) when=dt.toLocaleDateString([], {month:'short',day:'numeric'}); } }catch(x){}
+      var nm=String(e.title||e.slug).replace(/'/g,'');
+      return chatRow(e.cover_url||'/icon-192.png', esc(e.title||e.slug), esc(when?('Event chat · '+when):'Event chat'), 'openEventRoom(\''+e.slug+'\',\''+nm+'\')', '', '');
+    }).join('');
+  }).catch(function(){ list.innerHTML='<div class="pf-empty">Could not load event chats.</div>'; });
+}
+function openEventRoom(slug,name){
+  var f=document.getElementById('chat-frame');if(f)f.src='/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name);
+  var l=document.getElementById('chat-list');if(l)l.style.display='none';
+  var o=document.getElementById('chat-open');if(o)o.style.display='block';
 }
 function openChatGroup(slug,name){
   var f=document.getElementById('chat-frame');if(f)f.src='/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)+'&mode=chat';
@@ -2023,7 +2058,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   /* Make the passport | category | badges row visible (badges from genre + Member) */
   try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
     var bg=document.getElementById('pfBadges'); var P=window.PROFILE||{};
-    if(bg && !bg.children.length){ var arr=[]; if(P.genre)arr.push(String(P.genre)); arr.push('Member'); bg.innerHTML=arr.slice(0,4).map(function(x){return '<span class="bdg">'+x.replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
+    if(bg && !bg.children.length){ var arr=Array.isArray(P.badges)?P.badges.slice():['Member']; bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
     if(pollB>20 || (bg&&bg.children.length)) clearInterval(ivB); },600); }catch(e){}
   function esc(u){return String(u).replace(/"/g,'');}
   function build(){
@@ -2161,10 +2196,15 @@ function toggleArchived(id,val){
         var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=(v==null?0:v);};
         set('stPosts',d.posts); set('stFollowers',d.followers); set('stLikes',d.likes);
       });
-      SB.from('profile_meta').select('about,links,account_type').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
+      SB.from('profile_meta').select('about,links,account_type,links_label,badges').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
         var m=(r&&r.data)||{};
         if(m.account_type){ var a=document.getElementById('pfAcctType'); a.textContent=m.account_type; a.style.display='block'; }
         PROFILE.about=m.about||''; PROFILE.links=Array.isArray(m.links)?m.links:[];
+        PROFILE.links_label=m.links_label||''; PROFILE.badges=Array.isArray(m.badges)?m.badges:null;
+        /* editable Links dropdown title */
+        try{ var _lb=(m.links_label&&String(m.links_label).trim())||'Links'; var _btn=document.querySelector('#pfLinksDrop button'); if(_btn) _btn.textContent='🔗 '+_lb+' ▾'; }catch(e){}
+        /* render preset badges chosen in Edit Profile (fallback: Member) */
+        try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _arr=Array.isArray(m.badges)?m.badges:['Member']; _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
         if(m.about){ var ab=document.getElementById('pfAboutTop'); ab.textContent=m.about; ab.style.display='block'; }
         if(Array.isArray(m.links)&&m.links.length){
           document.getElementById('pfLinksMenu').innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
@@ -2304,6 +2344,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260745" defer></script>
+<script src="/v31/v31-shell.js?v=20260746" defer></script>
 </body>
 </html>
