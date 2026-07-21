@@ -474,7 +474,12 @@ footer a{color:var(--accent2);}
   #feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;position:sticky!important;top:51px!important;z-index:59}
   .pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
   .pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
-  .v3s-hamb,.v3s-burger{display:none!important}
+  .v3s-hamb,.v3s-burger,#kil-mhamb{display:none!important}
+  #dm-new{display:none!important}
+  .fba{color:#eef0f6!important}
+  .fba svg{stroke:#eef0f6!important;opacity:1!important}
+  .fba.fba-like.on,.fba.fba-like.on svg{stroke:#ff4d8d!important;color:#ff4d8d!important}
+  .fba.fba-resh.on,.fba.fba-resh.on svg{stroke:#22c55e!important;color:#22c55e!important}
 }</style></head>
 <body>
 
@@ -2012,6 +2017,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     if(pm&&ld&&ld.parentElement!==pm) pm.appendChild(ld);
     /* hide the empty tagline (&nbsp;) that was creating the gap above the About text */
     var _bio=document.getElementById('pfBio'); if(_bio && (_bio.textContent||'').replace(/[\s ]/g,'')==='') _bio.style.display='none';
+    var _sh=document.querySelector('#pfShare button'); if(_sh && !_sh.querySelector('.pf-share-lbl')){ var _sp=document.createElement('span'); _sp.className='pf-share-lbl'; _sp.textContent='SHARE'; _sp.style.cssText='margin-left:8px;font-weight:700;letter-spacing:.06em'; _sh.appendChild(_sp); }
   }catch(e){}
   /* Make the passport | category | badges row visible (badges from genre + Member) */
   try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
@@ -2182,7 +2188,7 @@ function loadSaved(){
     colls.sort(function(a,b){var A=String(a.name).toLowerCase()==='saved'?0:1,B=String(b.name).toLowerCase()==='saved'?0:1;return A-B;});
     var cbox=document.getElementById('saved-coll');
     cbox.innerHTML=colls.map(function(c){return '<button class="evsub-b'+(CUR_COLL===c.id?' on':'')+'" onclick="CUR_COLL=(CUR_COLL==='+c.id+'?null:'+c.id+');loadSaved()">'+String(c.name).slice(0,24)+'</button>';}).join('')
-      +(CAN_EDIT&&CAN_EDIT()?'<button class="evsub-b create" onclick="newCollection()">＋ New collection</button>':'');
+      ;
     var rows=saves.filter(function(s){return CUR_COLL==null||s.collection_id===CUR_COLL;});
     var g=document.getElementById('saved-grid'), emp=document.getElementById('saved-empty');
     if(!rows.length){ g.innerHTML=''; emp.style.display='block'; return; }
@@ -2297,6 +2303,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260738" defer></script>
+<script src="/v31/v31-shell.js?v=20260739" defer></script>
 </body>
 </html>
