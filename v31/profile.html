@@ -544,7 +544,7 @@ footer a{color:var(--accent2);}
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
-    <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/v31/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/v31/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="location.href='/v31/settings.html'">Settings</button></div></span>
+    <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/v31/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/v31/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="location.href='/v31/settings.html'">Settings</button></div></span><button class="pf-btn book" id="pfInsightsBtn" style="display:none;margin-left:6px" onclick="openInsights()">📊 Insights</button>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
@@ -689,6 +689,28 @@ var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department)
   merch:['Merch','Rock / Metal','Merch & Shop'],beacon:['Beacon','Reggae / Dancehall','Promotion']};
 var IS_AGENT=!!AGENT_INFO[PROFILE_SLUG];
 var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
+/* ── first-party Insights: log a profile view + owner-only Insights popup (free, no 3rd-party analytics) ── */
+function _kilSid(){ try{ var k=localStorage.getItem('kil_sid'); if(!k){ k=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('kil_sid',k); } return k; }catch(e){ return 'anon'; } }
+try{ if(SB && PROFILE_SLUG){ SB.rpc('log_view',{p_kind:'profile',p_target:PROFILE_SLUG,p_owner:PROFILE_SLUG,p_sess:_kilSid()}); } }catch(e){}
+function openInsights(){
+  if(!SB){ return; }
+  var ov=document.createElement('div'); ov.id='insOv';
+  ov.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+  ov.innerHTML='<div style="width:100%;max-width:640px;max-height:88vh;overflow:auto;background:var(--surface2,#14141f);border:1px solid var(--line,#242433);border-radius:16px;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.6)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><b style="font-size:1.15rem;color:#fff">📊 Your Insights</b><button onclick="var o=document.getElementById(\'insOv\');if(o)o.remove()" style="background:none;border:0;color:#9aa0b0;font-size:1.5rem;line-height:1;cursor:pointer">&times;</button></div><div id="insBody" style="color:#9aa0b0">Loading…</div></div>';
+  document.body.appendChild(ov);
+  SB.rpc('get_profile_insights',{p_slug:PROFILE_SLUG}).then(function(r){
+    var m=(r&&r.data)||{}; var b=document.getElementById('insBody'); if(!b) return;
+    if(m.error){ b.innerHTML='Sign in as this profile\'s owner to see your insights.'; return; }
+    function card(l,v){ return '<div style="background:rgba(255,255,255,.045);border:1px solid var(--line,#242433);border-radius:12px;padding:12px 14px"><div style="font:800 1.5rem Inter,sans-serif;color:#fff">'+(v==null?0:v)+'</div><div style="font-size:.7rem;letter-spacing:.05em;color:#9aa0b0;text-transform:uppercase;margin-top:2px">'+l+'</div></div>'; }
+    var grid='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
+      +card('Profile views',m.profile_views_total)+card('Views · 7d',m.profile_views_7d)+card('Reach',m.reach)
+      +card('Impressions',m.impressions_total)+card('Followers',m.followers)+card('New · 7d',m.followers_7d)
+      +card('Likes',m.likes)+card('Comments',m.comments)+card('Reshares',m.reshares)+'</div>';
+    var top=(m.top_posts||[]).map(function(t){ return '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line,#242433)"><span style="color:#e8e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(t.title||'Post')+'</span><span style="color:#9aa0b0;flex:0 0 auto">&hearts; '+(t.likes||0)+' &middot; &#128172; '+(t.comments||0)+'</span></div>'; }).join('');
+    b.innerHTML=grid+(top?'<div style="margin:18px 0 4px;color:#fff;font-weight:800">Top posts</div>'+top:'')+'<div style="margin-top:14px;font-size:.72rem;color:#6b7280">First-party analytics · updates as people view and engage with your profile.</div>';
+  }).catch(function(){ var b=document.getElementById('insBody'); if(b) b.textContent='Could not load insights.'; });
+}
 var SESSION=null, DB_OK=false, OWNS=false;
 /* Edit controls show only in the owner variant AND when the signed-in user actually owns this profile. */
 function CAN_EDIT(){ return IS_OWNER && OWNS; }
@@ -1011,7 +1033,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
   box.innerHTML=(PROFILE.categories||[]).map(function(k){return '<span class="pf-catbadge '+k+'">'+L[k]+'</span>';}).join('');
 }
 function updateOwnerUI(){
-  ['pfDashWrap'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
+  ['pfDashWrap','pfInsightsBtn'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?(id==='pfDashWrap'?'':'inline-flex'):'none'; });
   var _pc=document.getElementById('pfCreate'); if(_pc)_pc.style.display='none';
   try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
   try{ syncNavCta(); }catch(e){}  /* own profile = hamburger menu; someone else's = PROFILE button back to mine */
