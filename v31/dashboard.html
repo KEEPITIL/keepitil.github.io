@@ -14,7 +14,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+:root{--bg:#0c0d1a;--panel:#191c30;--panel2:#20243d;--text:#f3f5ff;--muted:#aab2e0;--line:#2f3556;--brand:#3aa5ff;--brand-2:#26e6a6;--accent:#a56bff;--warn:#ffb43c}
 *{box-sizing:border-box;margin:0;padding:0}
+/* modern, brighter dashboard chrome */
+#subnav button{border:1px solid var(--line);border-radius:999px;padding:8px 15px;font-weight:800;color:var(--muted);background:rgba(255,255,255,.03);transition:all .15s}
+#subnav button:hover{color:var(--text);border-color:var(--brand)}
+#subnav button.on{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#06121f;border-color:transparent}
+.rv{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.rv .acts .approve{border-color:var(--brand-2)!important;color:var(--brand-2)!important}
+.rv .acts .approve:hover{background:var(--brand-2);color:#06121f}
+.head2{color:var(--text)}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.55;padding-top:78px;padding-bottom:80px}
 @media(max-width:860px){body{padding-top:10px}} /* v31 shell: no top nav on mobile (bottom bar instead) */
 body::before{display:none!important} /* organizer tool page — no decorative backdrop */
@@ -236,7 +245,7 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['recommendations','Recommendations'],['staging','STAGING'],['agents','Agents'],['analytics','Analytics'],['posts','AI Daily Posts'],['social','Social Queue'],['venues','Venue Bookings'],['chat','Chat'],['knowledge','Knowledge Bank'],['learning','Assisted Learning'],['golive','Go-Live'],['qa','QA Runs'],['access','Access']];
+var ADMIN_TABS=[['posts','FEED'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events']];
@@ -251,21 +260,24 @@ async function buildAdminTabs(){
   nav.innerHTML=tabs.map(function(t,i){return '<button data-tab="'+t[0]+'"'+(i===0?' class="on"':'')+' onclick="showTab(\''+t[0]+'\')">'+t[1]+'</button>';}).join('');
   nav.style.display = tabs.length>1 ? 'flex' : 'none';
 }
+/* combined tabs: FEED = daily posts + social queue; Crew & Brain = agents + knowledge bank + assisted learning */
+var TAB_GROUPS={posts:['posts','social'], agents:['agents','knowledge','learning']};
 function showTab(name){
-  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on',p.id==='tab-'+name);});
+  var grp=TAB_GROUPS[name]||[name];
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on', grp.indexOf(p.id.replace('tab-',''))>=0);});
   document.querySelectorAll('#subnav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===name);});
-  if(TAB_LOADED[name]) return; TAB_LOADED[name]=true;
-  if(name==='recommendations') loadRecommendations();
-  else if(name==='agents') loadAgents();
-  else if(name==='learning') loadLearning();
-  else if(name==='analytics') loadAnalytics();
-  else if(name==='posts') loadPostReview();
-  else if(name==='social') loadSocialReview();
-  else if(name==='venues') loadBookingReview();
-  else if(name==='chat'){ clearAgentLog(); loadGroup(); }
-  else if(name==='knowledge') loadKnowledge();
-  else if(name==='qa') loadQaRuns();
-  else if(name==='access') loadAdmins();
+  grp.forEach(function(g){
+    if(TAB_LOADED[g]) return; TAB_LOADED[g]=true;
+    if(g==='agents') loadAgents();
+    else if(g==='learning') loadLearning();
+    else if(g==='analytics') loadAnalytics();
+    else if(g==='posts') loadPostReview();
+    else if(g==='social') loadSocialReview();
+    else if(g==='venues') loadBookingReview();
+    else if(g==='chat'){ clearAgentLog(); loadGroup(); }
+    else if(g==='knowledge') loadKnowledge();
+    else if(g==='access') loadAdmins();
+  });
 }
 async function loadAnalytics(){
   try{
@@ -365,7 +377,7 @@ async function loadPostReview(){
     if(!rows.length){ html+='<div class="rv-empty">No blog posts yet.</div>'; }
     else html+=rows.map(function(p){
       var pub=p.status==='published';
-      var act=pub?'<a class="view" href="/v3/post.html?slug='+encodeURIComponent(p.slug)+'" target="_blank">View</a><button class="deny" onclick="pullPost('+p.id+',this)">Deny / Pull</button>'
+      var act=pub?'<a class="view" href="/v31/profile.html?slug='+encodeURIComponent(p.agent_slug||'')+'" target="_blank">View</a><button class="deny" onclick="pullPost('+p.id+',this)">Deny / Pull</button>'
                  :'<span class="pill2 den">Pulled</span><button class="approve" onclick="restorePost('+p.id+',this)">Restore</button>';
       return '<div class="rv"><div class="info"><div class="t">'+esc(p.title)+'</div><div class="d">'+esc((p.dek||'').slice(0,160))+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'').toUpperCase())+'</span><span class="pill2 '+(pub?'pub':'den')+'">'+esc(p.status)+'</span>'+(p.genre?'<span class="pill2">'+esc(p.genre)+'</span>':'')+'</div></div><div class="acts">'+act+'</div></div>';
     }).join('');
