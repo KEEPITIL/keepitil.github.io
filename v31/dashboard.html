@@ -348,17 +348,32 @@ async function setBooking(id,status){ try{ var r=await supa.rpc('set_booking_sta
 async function loadPostReview(){
   var box=$('postReview');
   try{
+    var fr=await supa.rpc('get_feed_review_admin',{p_limit:150}); var feed=(fr&&fr.data)||[];
     var r=await supa.rpc('get_agent_posts_admin',{p_limit:60}); var rows=(r&&r.data)||[];
-    $('postCt').textContent=rows.length+' total';
-    if(!rows.length){ box.innerHTML='<div class="rv-empty">No daily posts yet. The crew publishes here automatically each day.</div>'; return; }
-    box.innerHTML=rows.map(function(p){
+    $('postCt').textContent=feed.length+' to approve · '+rows.length+' blog';
+    var html='';
+    /* NEW: the daily/hourly AI agent feed drafts awaiting approval */
+    html+='<div class="head2" style="margin:0 0 8px">Awaiting your approval <span class="ct">'+feed.length+'</span></div>';
+    if(!feed.length){ html+='<div class="rv-empty">No agent drafts waiting. Hourly + daily posts from all agents land here for you to approve or deny.</div>'; }
+    else html+=feed.map(function(p){
+      var typ=(p.kind==='event')?'event':(p.is_ad?'ad':(p.hourly?'hourly':(p.intent||'post')));
+      var thumb=p.cover?'<img src="'+esc(p.cover)+'" alt="" style="width:84px;height:56px;object-fit:cover;border-radius:8px;flex:0 0 auto" onerror="this.style.display=\'none\'">':'';
+      return '<div class="rv"><div class="info" style="display:flex;gap:10px;align-items:center">'+thumb+'<div style="min-width:0"><div class="t">'+esc(p.title||'(untitled)')+'</div><div class="tags"><span class="pill2">'+esc((p.agent||'').toUpperCase())+'</span><span class="pill2">'+esc(typ)+'</span>'+(p.buy_url?'<span class="pill2">🛒 affiliate</span>':'')+'</div></div></div><div class="acts"><button class="approve" onclick="approveFeed(\''+p.id+'\',this)">Approve</button><button class="deny" onclick="denyFeed(\''+p.id+'\',this)">Deny</button></div></div>';
+    }).join('');
+    /* existing published agent blog posts */
+    html+='<div class="head2" style="margin:20px 0 8px">Published blog posts <span class="ct">'+rows.length+'</span></div>';
+    if(!rows.length){ html+='<div class="rv-empty">No blog posts yet.</div>'; }
+    else html+=rows.map(function(p){
       var pub=p.status==='published';
       var act=pub?'<a class="view" href="/v3/post.html?slug='+encodeURIComponent(p.slug)+'" target="_blank">View</a><button class="deny" onclick="pullPost('+p.id+',this)">Deny / Pull</button>'
                  :'<span class="pill2 den">Pulled</span><button class="approve" onclick="restorePost('+p.id+',this)">Restore</button>';
       return '<div class="rv"><div class="info"><div class="t">'+esc(p.title)+'</div><div class="d">'+esc((p.dek||'').slice(0,160))+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'').toUpperCase())+'</span><span class="pill2 '+(pub?'pub':'den')+'">'+esc(p.status)+'</span>'+(p.genre?'<span class="pill2">'+esc(p.genre)+'</span>':'')+'</div></div><div class="acts">'+act+'</div></div>';
     }).join('');
+    box.innerHTML=html;
   }catch(e){ box.innerHTML='<div class="rv-empty">Could not load posts.</div>'; }
 }
+async function approveFeed(id,btn){ if(btn){btn.disabled=true;btn.textContent='Approving…';} try{ var r=await supa.rpc('set_feed_post_status',{p_id:id,p_status:'approve'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve';} alert('Could not approve: '+(e.message||e)); } }
+async function denyFeed(id,btn){ if(btn){btn.disabled=true;} try{ var r=await supa.rpc('set_feed_post_status',{p_id:id,p_status:'deny'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn){btn.disabled=false;} alert('Could not deny: '+(e.message||e)); } }
 async function pullPost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not pull: '+(e.message||e)); } }
 async function restorePost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'published'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not restore: '+(e.message||e)); } }
 
