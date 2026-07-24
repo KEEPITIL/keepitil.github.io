@@ -327,13 +327,18 @@ renderTypebar();renderDiscover();renderFeed();
   function boot(n){
     var sb=window.__culSB;
     if(!sb){ if(n<30){ setTimeout(function(){boot(n+1);},400); } return; }
-    sb.rpc('get_culture_feed',{p_limit:20}).then(function(r){
-      var rows=(r&&r.data)||[]; if(!rows.length) return;
-      var box=document.getElementById('community-feed'); if(!box) return;
-      rows=rows.filter(function(x){ return !(x.kind==='event' && /^venue-/.test(x.profile_slug||'')); }); /* event shows once (owner copy); venue copy lives on the venue page */
-      box.innerHTML=rows.map(card).join('');
-      try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){}  /* fill like/comment/reshare counts on community cards */
-    }).catch(function(){});
+    function run(viewer){
+      /* ranked feed: server-side score = engagement velocity + recency/quality + personalization (follows + affinity) */
+      sb.rpc('get_culture_feed', viewer?{p_limit:20,p_viewer:viewer}:{p_limit:20}).then(function(r){
+        var rows=(r&&r.data)||[];
+        var box=document.getElementById('community-feed'); if(!box) return;
+        rows=rows.filter(function(x){ return !(x.kind==='event' && /^venue-/.test(x.profile_slug||'')); }); /* event shows once (owner copy); venue copy lives on the venue page */
+        if(!rows.length){ box.innerHTML='<div class="gate"><p style="color:var(--muted,#9aa0b0);margin:0">The feed is warming up — fresh posts are on the way.</p></div>'; return; }
+        box.innerHTML=rows.map(card).join('');
+        try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){}  /* fill like/comment/reshare counts on community cards */
+      }).catch(function(){});
+    }
+    try{ sb.rpc('my_profile_slug').then(function(rr){ run(rr&&!rr.error&&rr.data?rr.data:null); }).catch(function(){ run(null); }); }catch(e){ run(null); }
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){boot(0);});
   else boot(0);
