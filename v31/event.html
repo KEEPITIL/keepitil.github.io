@@ -287,10 +287,12 @@
     var c='';
     if(ev.ticket && ev.ticket!=='#') c+='<a class="cta cta-tix" data-kt="ticket_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>';
     if(ev.vip && ev.ticket) c+='<a class="cta cta-vip" data-kt="vip_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>';
-    c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
+    /* 3rd-party (external) events are listings only — NO scene room / event chat */
+    var _isExt = (ev.is_external===true) || (ev.is_external===undefined && /^https?:\/\//.test(ev.ticket||'') && !/\/v31\/event\.html/.test(ev.ticket||''));
+    if(!_isExt) c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
     $('ev-ctas').innerHTML=c;
-    /* chat = single bar at the bottom of the card (links to the event chat room) */
-    var _cb=$('ev-chatbar'); if(_cb){ _cb.setAttribute('href','/v31/event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)); }
+    /* chat = single bar at the bottom of the card (links to the event chat room); hidden for 3rd-party events */
+    var _cb=$('ev-chatbar'); if(_cb){ if(_isExt){ _cb.style.display='none'; } else { _cb.style.display=''; _cb.setAttribute('href','/v31/event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)); } }
     /* EVENTS back → return to the exact flyer they came from (same-origin), else the homepage */
     var _bk=$('ev-back2'); if(_bk && !_bk._wired){ _bk._wired=1; var _so=false; try{ var _u=new URL(document.referrer); _so=(_u.origin===location.origin && _u.pathname!==location.pathname); }catch(_e){} if(_so){ _bk.addEventListener('click',function(e2){ e2.preventDefault(); history.back(); }); } else { _bk.setAttribute('href','/v31/'); } }
     // JSON-LD
@@ -366,7 +368,7 @@
           ev.date=localDate(x.starts_at,x.tz)||ev.date; ev.genre=x.genres||ev.genre;
           ev.img=x.cover_url||ev.img; ev.description=x.description||ev.description;
           ev.id=x.id; ev.reg=Array.isArray(x.reg_questions)?x.reg_questions:[];
-          ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false;
+          ev.show_lineup=x.show_lineup!==false; ev.show_gallery=x.show_gallery!==false; ev.show_feed=x.show_feed!==false; ev.is_external=x.is_external===true;
           if(!ev.show_feed){ var sf=$('sec-feed'); if(sf) sf.style.display='none'; }
           /* HOST button — only shown once a real organizer resolves (no dead "Host" chip) */
           var _hb=$('ev-host'); if(_hb){ if(x.owner_handle){ _hb.innerHTML='<span style="opacity:.6;font-size:.72rem;letter-spacing:.06em;margin-right:2px">HOST</span> <a href="/v31/profile.html?slug='+encodeURIComponent(x.owner_handle)+'">'+esc(x.owner_name||x.owner_handle)+'</a>'; _hb.style.display='flex'; } else { _hb.style.display='none'; } }
