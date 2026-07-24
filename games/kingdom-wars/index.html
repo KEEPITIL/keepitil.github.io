@@ -1110,6 +1110,13 @@ function update(dt){
       if (ffoe){
         if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, ffoe); }
         u.face = ffoe.u.x >= u.x ? 1 : -1;
+      } else if (u.team===1 && S.stance==='march' && S.marchDir>0 && S.rallyX>=RALLY_MAX-1 && S.castleHP>0){
+        // A forward march that reaches the end of the field becomes a wall
+        // assault: melee presses to the gate instead of freezing 110px short.
+        const d = E_WALL - u.x, rng = ranged ? range : (26 + (u.jit||0));
+        if (d > rng){ moving = steerMove(u, E_WALL - rng, u.y + (u.yPref||0)*.15, spd, dt, 3); u.face = 1; }
+        else if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; u.face = 1; unitFire(u, t, null); }
+        u.x = Math.min(u.x, E_WALL - 18 - (u.jit||0)*.5);
       } else if (!foe && S.castleHP > 0){
         const d = E_WALL - u.x, rng = ranged ? range : 40;
         if (d <= rng && u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, null); }
