@@ -7,10 +7,10 @@
    - Only images/fonts/icons keep stale-while-revalidate (stale pixels can't break logic).
    - VERSION bump evicts every v1/v2 cache on activate + clients.claim().
    To retire this SW: bump VERSION and ship, or restore the self-destruct worker. */
-var VERSION = 'kil-pwa-v37-20260721l';
-var PAGES = 'kil-pages-v37';
-var ASSETS = 'kil-assets-v37';
-var CODE = 'kil-code-v37';
+var VERSION = 'kil-pwa-v38-20260723a';
+var PAGES = 'kil-pages-v38';
+var ASSETS = 'kil-assets-v38';
+var CODE = 'kil-code-v38';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [
