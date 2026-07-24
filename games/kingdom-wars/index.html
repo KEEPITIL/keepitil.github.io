@@ -587,7 +587,7 @@ function updateFormation(dt){
   if (S.stance === 'march' && allies.length){
     const enemyNear = S.units.some(e=>e.team===-1&&e.hp>0&&e.x-S.rallyX<70);
     if (S.marchDir < 0 || (!enemyNear && S.castleHP > 0))
-      S.rallyX = clamp(S.rallyX + 28*S.marchDir*dt, RALLY_MIN, RALLY_MAX);
+      S.rallyX = clamp(S.rallyX + 46*S.marchDir*dt, RALLY_MIN, RALLY_MAX);
   }
   const rallyShift=S.rallyX-oldRally;
   // Six ranks provide room for the 50-soldier army without creating a very
@@ -607,7 +607,13 @@ function updateFormation(dt){
   S.rallyX = Math.max(S.rallyX, Math.min(640 + depth, RALLY_MAX));
   const place=(u,sx,sy,row)=>{
     const settled=S.stance==='march'&&Number.isFinite(u.slotX)&&Math.hypot(u.x-u.slotX,u.y-u.slotY)<7;
-    if(settled&&rallyShift){u.x+=rallyShift;u.formationCarry=true;}
+    if(settled&&rallyShift){
+      u.x+=rallyShift;u.formationCarry=true;
+      // Carried soldiers bypass the velocity system, so step their walk
+      // cadence from the carry distance — otherwise they glide with frozen legs.
+      u.walkPhase=(u.walkPhase||0)+Math.abs(rallyShift)/6.5;
+      u.face=rallyShift>0?1:-1;
+    }
     u.slotX=sx;u.slotY=sy;u.marchOffset=row*.025;
   };
   const meleeSlots=melee.map((_,i)=>{const row=i%rankRows;return{x:S.rallyX-Math.floor(i/rankRows)*cs,y:rows[row],row};});
@@ -649,7 +655,13 @@ function updateEnemyFormation(dt){
     });
     fillFormationGaps(group,groupSlots,(u,sx,sy,row)=>{
       const settled=S.enemyPhase==='march'&&Number.isFinite(u.slotX)&&Math.hypot(u.x-u.slotX,u.y-u.slotY)<7;
-      if(settled&&rallyShift){u.x+=rallyShift;u.formationCarry=true;}
+      if(settled&&rallyShift){
+      u.x+=rallyShift;u.formationCarry=true;
+      // Carried soldiers bypass the velocity system, so step their walk
+      // cadence from the carry distance — otherwise they glide with frozen legs.
+      u.walkPhase=(u.walkPhase||0)+Math.abs(rallyShift)/6.5;
+      u.face=rallyShift>0?1:-1;
+    }
       u.slotX=sx;u.slotY=sy;u.marchOffset=row*.025;
     },-1);
     col+=Math.ceil(group.length/rankRows)+(group.length?1:0);
@@ -1126,7 +1138,7 @@ function update(dt){
     // Advance the animation by distance moved. This keeps cadence physically
     // coupled to mobility and prevents marching soldiers from running in place.
     const actualSpeed=Math.hypot(u.vx||0,u.vy||0);
-    const stepLength=(S.stance==='march'||S.enemyPhase==='march')?9.5:8.25;
+    const stepLength=(S.stance==='march'||S.enemyPhase==='march')?6.5:8.25;
     u.walkPhase=(u.walkPhase||0)+(moving?actualSpeed*dt/stepLength:0);
     if(!moving)brakeUnit(u,dt);
     if(threat&&threat.sourceX!=null)u.face=threat.sourceX>=u.x?1:-1;
