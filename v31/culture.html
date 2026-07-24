@@ -298,7 +298,11 @@ renderTypebar();renderDiscover();renderFeed();
         +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar)+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name)+'</b></div></a><button class="fb-more" aria-label="More" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
         +'<a href="'+h(turl)+'"'+tgt+' style="text-decoration:none;display:block"><div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+h(d.cover||'/v3/blog-default.jpg')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'"><span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
         +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.2rem;color:#fff;line-height:1.15">'+h(d.title||'Event')+'</div><div style="color:var(--ink3,#9aa);font-size:.82rem;margin-top:5px">'+(when?h(when):'')+(d.venue?(when?' · ':'')+h(d.venue):'')+(d.city?' · '+h(d.city):'')+'</div></div></a>'
-        +'<div style="padding:8px 15px 15px"><a href="'+h(turl)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div></div>';
+        +'<div style="padding:8px 15px 4px"><a href="'+h(turl)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div>'
+        +'<div class="fb-actions"><button class="fba fba-like" onclick="fbLike(\'cul:'+h(d.slug)+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
+          +'<button class="fba fba-cmt" onclick="culComments(\''+h(d.slug)+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
+          +'<button class="fba fba-resh" onclick="fbReshareL(\'cul:'+h(d.slug)+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
+          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\'cul:'+h(d.slug)+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button></div></div>';
     }
     /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
     var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
@@ -334,7 +338,7 @@ renderTypebar();renderDiscover();renderFeed();
   else boot(0);
 })();
 </script>
-<script src="/v31/v31-shell.js?v=20260754" defer></script>
+<script src="/v31/v31-shell.js?v=20260755" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
