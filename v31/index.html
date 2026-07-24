@@ -1962,7 +1962,7 @@ function flyer(e,showPick){
   var fb=e.img?'':' style="background:linear-gradient(155deg,#12121c,#241033,#0c0c14)"';
   var ribbon=pk?'<div class="evx-ribbon"><span class="kp">⚡ KEEPITIL PICK</span></div>':'';
   var pr=(e.price&&e.price!=='Tickets')?h(e.price):'';
-  var slug=slugify(e);
+  var slug=e.slug||slugify(e);
   var vip=/club|lounge|nightclub|rooftop|exchange|avalon|catch one|time nightclub|\bsound\b/i.test(e.venue||'');
   var saved=(window.KIL_SAVED&&window.KIL_SAVED.has(slug))?' on':'';
   var chat='event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title);
@@ -1978,7 +1978,7 @@ function flyer(e,showPick){
     +'<div class="evx-actions">'
       +((e.ticket&&e.ticket!=='#')?'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>':'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+epage+'">🎟 Buy Tickets</a>')
       +((vip&&e.ticket&&e.ticket!=='#')?'<a class="evx-act evx-act-vip" data-kt="vip_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
-      +'<a class="evx-act evx-act-chat" data-kt="chat_join" data-event-slug="'+slug+'" href="'+chat+'">💬 Join Event Chat</a>'
+      +(e.keepitil?('<a class="evx-act evx-act-chat" data-kt="chat_join" data-event-slug="'+slug+'" href="'+chat+'">💬 Join Event Chat</a>'):'')
       +'<a class="evx-act evx-act-page" data-kt="event_view" data-event-slug="'+slug+'" href="'+epage+'">ℹ️ Event Details</a>'
     +'</div></div>';
 }
