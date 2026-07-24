@@ -2319,7 +2319,7 @@ function loadTagged(){
 (function(){ var s=document.createElement('style'); s.textContent=
   '#feed-grid{grid-template-columns:1fr!important;gap:18px;max-width:620px;margin:0 auto}'
   +'.fbcard{border-radius:16px;overflow:hidden;background:rgba(12,12,20,.93);border:1px solid var(--line,#242433);cursor:default;padding:0;aspect-ratio:auto!important;height:auto!important}'
-  +'.fbcard::after,.fbcard::before{pointer-events:none!important}'  /* base .pf-card::after is a full-card overlay that was eating every click on the action icons */
+  +'.fbcard::after,.fbcard::before{display:none!important}'  /* remove the .pf-card dark gradient overlay from feed cards — was making the profile feed visibly darker than Culture; now identical */
   +'.fb-head{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer}'
   +'.fb-av{width:36px;height:36px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#0a0a0f}'
   +'.fb-who{flex:1;min-width:0;line-height:1.25}.fb-who b{display:block;font-size:.9rem;color:#fff}.fb-who span{font-size:.7rem;color:#6b6588;text-transform:uppercase;letter-spacing:.06em}'
@@ -2380,6 +2380,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/v31/v31-shell.js?v=20260756" defer></script>
+<script src="/v31/v31-shell.js?v=20260757" defer></script>
 </body>
 </html>
