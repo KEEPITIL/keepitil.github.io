@@ -259,22 +259,36 @@ renderSubs();render();
 (function(){
   var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
   var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
-  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(artist,brand,organizer,venue)',{headers:{apikey:K,Authorization:'Bearer '+K}})
+  function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
+  function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue'); renderSubs();render(); }
+  // claimed artist/brand/organizer profiles from profile_meta
+  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(artist,brand,organizer)',{headers:{apikey:K,Authorization:'Bearer '+K}})
     .then(function(r){return r.json();}).then(function(rows){
       if(!Array.isArray(rows)||!rows.length) return;
-      var have={}; DATA.forEach(function(x){ have[String(x.blog||'').toLowerCase()]=1; have[String(x.name||'').toLowerCase()]=1; });
+      var have=_dedupe();
       rows.forEach(function(p){
         var blog='/v31/profile.html?slug='+p.slug;
         if(have[blog.toLowerCase()]||have[String(p.display_name||'').toLowerCase()]) return;
         DATA.push({name:p.display_name||p.slug, city:p.location||'', county:'', genre:'', ig:'', img:p.cover_url||p.avatar_url||'', blog:blog, type:(p.account_type==='artist'?'DJ':''), kinds:[p.account_type], keepitil:true});
       });
-      cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue');
-      renderSubs();render();
+      _refresh();
+    }).catch(function(){});
+  // venues (incl. auto-created from events) from the venues table -> venue.html
+  fetch(U+'/rest/v1/venues?select=slug,name,city,cover_url,logo_url&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(!Array.isArray(rows)||!rows.length) return;
+      var have=_dedupe();
+      rows.forEach(function(p){
+        var blog='/v31/venue.html?v='+p.slug;
+        if(have[blog.toLowerCase()]||have[String(p.name||'').toLowerCase()]) return;
+        DATA.push({name:p.name||p.slug, city:p.city||'', county:'', genre:'', ig:'', img:p.cover_url||p.logo_url||'', blog:blog, type:'Venue', kinds:['venue'], keepitil:true});
+      });
+      _refresh();
     }).catch(function(){});
 })();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260718" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260738" defer></script>
-<script src="/v31/v31-shell.js?v=20260757" defer></script>
+<script src="/v31/v31-shell.js?v=20260723b" defer></script>
 </body>
 </html>
