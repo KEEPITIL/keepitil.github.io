@@ -215,7 +215,6 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
       f.innerHTML =
         '<div class="v3-foot-inner">'
         +'<div class="v3-foot-about"><a href="/v31/" class="v3-foot-brand">KEEPITIL</a>'
-          +'<p class="v3-foot-desc">The creator ecosystem for the underground electronic scene — events, artists, venues, and community in one place. Built in Orange County &amp; Los Angeles.</p>'
           +'<p class="v3-foot-addr">9252 Garden Grove Blvd, Ste 19 PMB 1066, Garden Grove, CA 92844 · <a href="mailto:info@keepitil.com">info@keepitil.com</a></p></div>'
         +'<nav class="v3-foot-links"><a href="/v31/">Home</a>'
         +'<a href="/v31/culture.html">Culture</a>'
