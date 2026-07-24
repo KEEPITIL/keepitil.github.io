@@ -1,4 +1,4 @@
-const CACHE = 'skw-mobile-v28';
+const CACHE = 'skw-mobile-v29';
 const ASSETS = [
   './', './index.html', './civilizations.js', './balance.js', './ai.js', './core-runtime.js', './progression-system.js', './build-info.js', './platform-service.js', './analytics-service.js', './save-manager.js', './commerce.js', './stripe-commerce.js', './equipment-system.js', './folklore-system.js', './final-siege-system.js', './soldier-visual-system.js', './art-system.js', './audio-system.js', './war-council.js', './campaign-system.js', './experience.js', './manifest.webmanifest', './icon.svg',
   './app-icon-192.png', './app-icon-512.png', './app-icon-maskable.png', './apple-touch-icon.png'
