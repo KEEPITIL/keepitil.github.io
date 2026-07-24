@@ -24,6 +24,27 @@
 .rv .acts .approve{border-color:var(--brand-2)!important;color:var(--brand-2)!important}
 .rv .acts .approve:hover{background:var(--brand-2);color:#06121f}
 .head2{color:var(--text)}
+/* full readable FEED review cards */
+.feedwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;margin-bottom:6px}
+.fc{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.fc-head{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.fc-av{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#0a0a0f;flex:0 0 auto}
+.fc-who{display:flex;flex-direction:column;min-width:0;flex:1}
+.fc-who b{color:#fff;font-size:.92rem}
+.fc-who span{color:var(--muted);font-size:.72rem;letter-spacing:.03em}
+.fc-tag{font:800 .62rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);border:1px solid var(--line);border-radius:999px;padding:4px 9px;flex:0 0 auto}
+.fc-media{width:100%;aspect-ratio:16/9;background:#0a0a0f}
+.fc-media img{width:100%;height:100%;object-fit:cover;display:block}
+.fc-body{padding:12px 15px 4px}
+.fc-title{font-weight:800;color:#fff;font-size:1.02rem;line-height:1.25;margin-bottom:6px}
+.fc-text{color:var(--muted);font-size:.9rem;line-height:1.55}
+.fc-text p{margin:0 0 8px}
+.fc-buy{display:inline-block;margin:6px 0 4px;background:#ff9900;color:#111;font-weight:800;padding:9px 14px;border-radius:10px;text-decoration:none}
+.fc-acts{display:flex;align-items:center;gap:8px;padding:12px 15px;flex-wrap:wrap;margin-top:auto}
+.fc-acts .approve{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#06121f;border:0;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer}
+.fc-acts .deny{background:transparent;border:1px solid #ff6b6b;color:#ff6b6b;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer}
+.fc-view{margin-left:auto;color:var(--muted);font-size:.8rem;text-decoration:none}
+.fc-view:hover{color:var(--brand)}
 body{background:var(--bg,#0a0a0f);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.55;padding-top:78px;padding-bottom:80px}
 @media(max-width:860px){body{padding-top:10px}} /* v31 shell: no top nav on mobile (bottom bar instead) */
 body::before{display:none!important} /* organizer tool page — no decorative backdrop */
@@ -375,11 +396,18 @@ async function loadPostReview(){
     /* NEW: the daily/hourly AI agent feed drafts awaiting approval */
     html+='<div class="head2" style="margin:0 0 8px">Awaiting your approval <span class="ct">'+feed.length+'</span></div>';
     if(!feed.length){ html+='<div class="rv-empty">No agent drafts waiting. Hourly + daily posts from all agents land here for you to approve or deny.</div>'; }
-    else html+=feed.map(function(p){
+    else html+='<div class="feedwrap">'+feed.map(function(p){
       var typ=(p.kind==='event')?'event':(p.is_ad?'ad':(p.hourly?'hourly':(p.intent||'post')));
-      var thumb=p.cover?'<img src="'+esc(p.cover)+'" alt="" style="width:84px;height:56px;object-fit:cover;border-radius:8px;flex:0 0 auto" onerror="this.style.display=\'none\'">':'';
-      return '<div class="rv"><div class="info" style="display:flex;gap:10px;align-items:center">'+thumb+'<div style="min-width:0"><div class="t">'+esc(p.title||'(untitled)')+'</div><div class="tags"><span class="pill2">'+esc((p.agent||'').toUpperCase())+'</span><span class="pill2">'+esc(typ)+'</span>'+(p.buy_url?'<span class="pill2">🛒 affiliate</span>':'')+'</div></div></div><div class="acts"><button class="approve" onclick="approveFeed(\''+p.id+'\',this)">Approve</button><button class="deny" onclick="denyFeed(\''+p.id+'\',this)">Deny</button></div></div>';
-    }).join('');
+      var media=p.cover?'<div class="fc-media"><img src="'+esc(p.cover)+'" alt="" onerror="this.parentNode.style.display=\'none\'"></div>':'';
+      var buy=p.buy_url?'<a class="fc-buy" href="'+esc(p.buy_url)+'" target="_blank" rel="noopener sponsored nofollow">🛒 '+esc(p.buy_label||'Buy on Amazon')+'</a>':'';
+      var when=''; try{ when=new Date(p.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }catch(e){}
+      return '<div class="fc" id="fc-'+p.id+'">'
+        +'<div class="fc-head"><img class="fc-av" src="'+esc(p.agent_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'"><div class="fc-who"><b>'+esc(p.agent_name||'')+'</b><span>'+esc((p.agent||'').toUpperCase())+' · '+esc(when)+'</span></div><span class="fc-tag">'+esc(typ)+'</span></div>'
+        +media
+        +'<div class="fc-body"><div class="fc-title">'+esc(p.title||'(untitled)')+'</div><div class="fc-text">'+(p.body||'')+'</div>'+buy+'</div>'
+        +'<div class="fc-acts"><button class="approve" onclick="approveFeed(\''+p.id+'\',this)">✓ Approve &amp; publish</button><button class="deny" onclick="denyFeed(\''+p.id+'\',this)">✕ Deny</button><a class="fc-view" href="/v31/profile.html?slug='+encodeURIComponent(p.agent||'')+'" target="_blank">View profile ↗</a></div>'
+      +'</div>';
+    }).join('')+'</div>';
     /* existing published agent blog posts */
     html+='<div class="head2" style="margin:20px 0 8px">Published blog posts <span class="ct">'+rows.length+'</span></div>';
     if(!rows.length){ html+='<div class="rv-empty">No blog posts yet.</div>'; }
