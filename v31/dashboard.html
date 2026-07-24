@@ -281,9 +281,17 @@ function showTab(name){
 }
 async function loadAnalytics(){
   try{
-    var r=await supa.rpc('get_admin_analytics'); var a=(r&&r.data)||{};
-    var cards=[['Events',a.events_total],['Published',a.events_published],['Tickets sold',a.tickets_sold],['Revenue',money(a.revenue_cents)],['Daily blogs',a.blogs_published],['Social drafts',a.social_drafts],['Venue inquiries',a.bookings_total],['Booked',a.bookings_booked],['Promo sales',a.promo_paid],['Chat questions',a.chat_questions],['Unanswered',a.chat_unanswered],['Knowledge',a.knowledge_entries],['Members',a.members],['Email contacts',a.marketing_contacts],['Venues',a.venues],['App fees',money(a.app_fees_cents)]];
-    $('aStat').innerHTML=cards.map(function(c){return '<div class="a"><div class="n">'+esc(String(c[1]==null?0:c[1]))+'</div><div class="l">'+esc(c[0])+'</div></div>';}).join('');
+    var m=(await supa.rpc('get_system_ai_metrics')).data||{};
+    if(m.error) throw new Error(m.error);
+    var s=m.system||{}, ai=m.ai||{};
+    function card(label,val){return '<div class="a"><div class="n">'+esc(String(val==null?0:val))+'</div><div class="l">'+esc(label)+'</div></div>';}
+    var sysCards=[card('Members',s.users_total),card('New (7d)',s.users_7d),card('Profiles',s.profiles),card('Upcoming events',s.events_upcoming),card('Venues',s.venues),card('Tickets sold',s.tickets_sold),card('Revenue',money(s.gross_cents)),card('Platform fees',money(s.fees_cents)),card('Live feed posts',s.feed_posts_live),card('Likes',s.likes),card('Comments',s.comments),card('Reshares',s.reshares),card('Saves',s.saves)].join('');
+    var aiCards=[card('Brain entries',ai.brain_size),card('Autopilot 7d',ai.autopilot_7d),card('Round-table 7d',ai.roundtable_7d),card('Chat 7d',ai.chat_7d),card('Gemini ans.',ai.chat_gemini_7d),card('Brain ans.',ai.chat_brain_7d),card('Escalated',ai.chat_escalate_7d),card('Avg latency ms',ai.chat_latency_ms),card('To approve',ai.review_queue),card('Open gaps',ai.open_gaps)].join('');
+    var top=(ai.top_agents||[]).map(function(t){return '<span class="pill2">'+esc((t.agent||'').toUpperCase())+' · '+esc(String(t.knowledge))+'</span>';}).join(' ');
+    $('aStat').style.display='block';
+    $('aStat').innerHTML='<div class="head2" style="margin:0 0 8px">System</div><div class="astat">'+sysCards+'</div>'
+      +'<div class="head2" style="margin:18px 0 8px">AI Crew</div><div class="astat">'+aiCards+'</div>'
+      +'<div style="margin:16px 0 6px;color:var(--muted,#aab2e0);font-size:.85rem">Brain size by agent</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+top+'</div>';
   }catch(e){ $('aStat').innerHTML='<div class="rv-empty">Could not load analytics.</div>'; }
   try{
     var q=await supa.rpc('get_agent_chat_log_admin',{p_limit:50}); var rows=(q&&q.data)||[];
