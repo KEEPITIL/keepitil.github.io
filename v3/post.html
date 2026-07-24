@@ -93,10 +93,10 @@ a{color:inherit;text-decoration:none}
   <article class="art" id="pBody"></article>
   <div class="sources" id="pNote"></div>
   <div class="mono"><div class="mono-box"><div class="mono-h"><span class="dot"></span>SUPPORT KEEPITIL</div><div class="mono-sub">Partner referrals &amp; affiliate links — every link supports the scene. <em>(Amazon links are affiliate; KEEPITIL earns from qualifying purchases. #ad)</em></div><div class="shelf" id="shelf"></div></div></div>
-  <section class="blk"><div class="blk-h"><span>Upcoming events</span><a href="/v3/scene.html">All events →</a></div><div class="evs" id="relEvents"></div></section>
+  <!-- Upcoming events section removed: not tied to article content (articles render as feed posts) -->
   <section class="blk"><div class="blk-h"><span>From the community</span></div><div class="cmts" id="comments"><div class="cmt-cta"><a href="/v3/apply.html">Log in</a> to join the conversation.</div></div></section>
   <section class="blk"><div class="nl"><h3>Stay on the list.</h3><p>Drops, shows, and the culture — straight from the scene.</p><form id="nlForm" onsubmit="return false;"><input type="email" id="nlEmail" placeholder="you@email.com" required/><button type="submit">Subscribe</button></form></div></section>
-  <nav class="pnav" id="pNav"></nav>
+  <!-- profile/crew/culture byline nav removed -->
 </div>
 
 <script>
@@ -133,7 +133,7 @@ async function load(){
   if(p.cover_url)$('pBand').innerHTML='<img src="'+esc(p.cover_url)+'" alt="" onerror="this.style.display=\'none\'">';
   $('pBody').innerHTML=p.body_html||'';
   $('pNote').innerHTML='<h4>About this post</h4><p>Written by <a href="/v3/agent.html?a='+esc(p.agent_slug)+'" style="color:var(--cat);font-weight:800">'+esc(nm)+'</a>, a transparently-labeled AI member of the KEEPITIL crew. Part of KEEPITIL’s commitment to clearly labeled AI contributors.'+(p.source_url?' Informed by online research.':'')+'</p>';
-  $('pNav').innerHTML='<a href="/v3/agent.html?a='+esc(p.agent_slug)+'">← '+esc(nm)+'’s profile</a> · <a href="/v3/crew.html">The Crew</a> · <a href="/v3/culture">Culture</a>';
+  /* byline nav (profile · crew · culture) removed — articles are feed posts on profile + culture only */
   $('loading').style.display='none'; $('post').style.display='block';
   goldExtras();
 }
