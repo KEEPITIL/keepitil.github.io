@@ -150,6 +150,16 @@ body::before{content:""!important;position:fixed!important;inset:0!important;z-i
 .show-tix:hover{filter:brightness(1.1);transform:translateY(-1px);}
 .chat-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;height:620px;background:var(--surface2);}
 .chat-wrap iframe{width:100%;height:100%;border:0;display:block;}
+/* chat opens as a fullscreen popup — fills mobile, large centered modal on desktop */
+.chat-open{position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:22px;}
+.chat-open .chat-modal{display:flex;flex-direction:column;width:100%;max-width:960px;height:86vh;max-height:940px;background:var(--surface2,#12121c);border:1px solid var(--line,rgba(255,255,255,.1));border-radius:16px;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.65);}
+.chat-open .chat-modal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1px solid var(--line,rgba(255,255,255,.08));flex:0 0 auto;}
+.chat-open .chat-back{background:none;border:0;color:var(--muted,#9aa0b0);font-weight:700;font-size:.9rem;cursor:pointer;padding:6px 10px;border-radius:8px;}
+.chat-open .chat-back:hover{color:#fff;background:var(--surface,rgba(255,255,255,.06));}
+.chat-open .chat-x{background:none;border:0;color:var(--muted,#9aa0b0);font-size:1.5rem;line-height:1;cursor:pointer;padding:2px 12px;border-radius:8px;}
+.chat-open .chat-x:hover{color:#fff;background:var(--surface,rgba(255,255,255,.06));}
+.chat-open .chat-wrap{flex:1;height:auto!important;min-height:0;border:0;border-radius:0;}
+@media(max-width:768px){.chat-open{padding:0;}.chat-open .chat-modal{max-width:none;height:100vh;height:100dvh;max-height:none;border-radius:0;border:0;}}
 /* ── COMBINED SUPPORT KEEPITIL SHELF (one widget) ── */
 .mono{max-width:940px;margin:22px auto 24px;padding:0 22px;}
 .mono-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;}
@@ -624,9 +634,14 @@ footer a{color:var(--accent2);}
 <div class="pf-panel" id="tab-chat">
   <div style="display:flex;align-items:center;gap:8px"><div class="pf-filter" id="chat-filter" style="flex:1"></div><button class="evsub-b create" id="dm-new" title="Create a chat" onclick="addContent('chat group')" style="display:none;flex:0 0 auto;white-space:nowrap">＋Create</button></div>
   <div class="pf-grid" id="chat-list"></div>
-  <div class="chat-open" id="chat-open" style="display:none;">
-    <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
-    <div class="chat-wrap"><iframe id="chat-frame" title="Scene Room"></iframe></div>
+  <div class="chat-open" id="chat-open" style="display:none;" onclick="if(event.target===this)closeChatGroup()">
+    <div class="chat-modal">
+      <div class="chat-modal-top">
+        <button class="chat-back" onclick="closeChatGroup()">&larr; Chats</button>
+        <button class="chat-x" onclick="closeChatGroup()" aria-label="Close chat">&times;</button>
+      </div>
+      <div class="chat-wrap"><iframe id="chat-frame" title="Scene Room"></iframe></div>
+    </div>
   </div>
 </div>
 
@@ -2033,21 +2048,20 @@ function renderEventChats(list){
     }).join('');
   }).catch(function(){ list.innerHTML='<div class="pf-empty">Could not load event chats.</div>'; });
 }
-function openEventRoom(slug,name){
-  var f=document.getElementById('chat-frame');if(f)f.src='/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name);
-  var l=document.getElementById('chat-list');if(l)l.style.display='none';
-  var o=document.getElementById('chat-open');if(o)o.style.display='block';
+function _openChatPopup(src){
+  var f=document.getElementById('chat-frame');if(f)f.src=src;
+  var o=document.getElementById('chat-open');if(o)o.style.display='flex';
+  try{document.body.style.overflow='hidden';}catch(e){}
 }
-function openChatGroup(slug,name){
-  var f=document.getElementById('chat-frame');if(f)f.src='/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)+'&mode=chat';
-  var l=document.getElementById('chat-list');if(l)l.style.display='none';
-  var o=document.getElementById('chat-open');if(o)o.style.display='block';
-}
+function openEventRoom(slug,name){ _openChatPopup('/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
+function openChatGroup(slug,name){ _openChatPopup('/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)+'&mode=chat'); }
 function closeChatGroup(){
   var o=document.getElementById('chat-open');if(o)o.style.display='none';
   var l=document.getElementById('chat-list');if(l)l.style.display='';
   var f=document.getElementById('chat-frame');if(f)f.src='';
+  try{document.body.style.overflow='';}catch(e){}
 }
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var o=document.getElementById('chat-open'); if(o&&o.style.display==='flex') closeChatGroup(); } });
 /* Non-demo profiles start EMPTY; real data loads from Supabase (prevents Groove Trooper demo data bleeding into a fresh/unclaimed profile). */
 if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
