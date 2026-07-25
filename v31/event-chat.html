@@ -100,7 +100,7 @@
     <button id="glogin">Log in</button>
     <button id="gsend" class="linky">Email me a magic link instead</button>
     <div class="msg2" id="gmsg"></div>
-    <p class="mini">New here? <a href="/v3/#evx">Create your free account</a> on the homepage.</p>
+    <p class="mini">New here? <a href="/v31/apply.html">Create your free account</a>.</p>
   </div>
 </div>
 
@@ -233,11 +233,19 @@
       +'</div>';
   }
   function startRoom(){
-    sb.auth.getSession().then(function(r){ session=(r&&r.data)?r.data.session:null; setAuthUI(); loadHandle();
-      if(isEventRoom){ if(session){ gateThenStart(); } else { ticketWall(); } }
-    }).catch(function(){ setAuthUI(); if(isEventRoom) ticketWall(); });
-    sb.auth.onAuthStateChange(function(_e,s){ session=s; setAuthUI(); loadHandle(); });
-    if(!isEventRoom){ load(); subscribe(); }
+    var started=false;
+    function haveSession(s){ session=s; setAuthUI(); loadHandle(); if(!started){ started=true; if(isEventRoom){ gateThenStart(); } else { load(); subscribe(); } } }
+    /* a signed-in user (incl. Google/Apple) may have their session restore slightly late — catch it live */
+    sb.auth.onAuthStateChange(function(_e,s){ if(s) haveSession(s); });
+    var tries=0;
+    (function recheck(){
+      if(started) return;
+      sb.auth.getSession().then(function(r){ var s=(r&&r.data)?r.data.session:null;
+        if(s){ haveSession(s); }
+        else if(tries++<3){ setTimeout(recheck,600); }
+        else { setAuthUI(); if(isEventRoom){ ticketWall(); } else { load(); subscribe(); } }
+      }).catch(function(){ if(tries++<3){ setTimeout(recheck,600); } else { setAuthUI(); if(isEventRoom){ ticketWall(); } else { load(); subscribe(); } } });
+    })();
   }
   if(sb){
     if(isEventRoom){
