@@ -228,6 +228,8 @@ async function init(){
     render();
   }catch(err){ $('loading').textContent='Could not load your ticket. Please refresh.'; }
 }
+/* hand the signed-in session down to the embedded chat iframe when it asks */
+window.addEventListener('message',function(e){ if(e&&e.data&&e.data.kilNeedSession&&supa&&e.source){ try{ supa.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(s){ e.source.postMessage({kilSession:{access_token:s.access_token,refresh_token:s.refresh_token}},'*'); } }); }catch(_e){} } });
 init();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260738" defer></script>
