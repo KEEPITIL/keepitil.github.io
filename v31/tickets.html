@@ -213,8 +213,9 @@ function closeChat(){ $('chatOv').classList.remove('open'); $('ovFrame').src='ab
 async function init(){
   if(!supa){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
   var b=$('loginBtn'); if(b) b.href='/v31/apply.html?next='+encodeURIComponent(location.pathname+location.search);
-  var r=await supa.auth.getSession().catch(function(){return null;});
-  var s=r&&r.data?r.data.session:null;
+  /* session can restore a beat late (Google/Apple sign-in) — retry before showing the login gate */
+  var s=null;
+  for(var _i=0;_i<5;_i++){ var r=await supa.auth.getSession().catch(function(){return null;}); s=r&&r.data?r.data.session:null; if(s) break; await new Promise(function(res){setTimeout(res,500);}); }
   if(!s){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
   try{ var ps=await supa.rpc('my_profile_slug'); if(ps&&!ps.error&&ps.data){ BACK='/v31/profile.html?slug='+enc(ps.data)+'&tab=shows'; } }catch(e){}
   try{
