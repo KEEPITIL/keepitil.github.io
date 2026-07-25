@@ -2078,8 +2078,9 @@ function _openChatPopup(src){
   var o=document.getElementById('chat-open');if(o)o.style.display='flex';
   try{document.body.style.overflow='hidden';}catch(e){}
 }
-function openEventRoom(slug,name){ _openChatPopup('/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
-function openChatGroup(slug,name){ _openChatPopup('/v31/event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)+'&mode=chat'); }
+/* opened inside the profile popup → embed=1 so the "← Event" header hides + the session passes from the parent (no login gate) */
+function openEventRoom(slug,name){ _openChatPopup('/v31/event-chat.html?embed=1&e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
+function openChatGroup(slug,name){ _openChatPopup('/v31/event-chat.html?embed=1&mode=chat&e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
 function closeChatGroup(){
   var o=document.getElementById('chat-open');if(o)o.style.display='none';
   var l=document.getElementById('chat-list');if(l)l.style.display='';
