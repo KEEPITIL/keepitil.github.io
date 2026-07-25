@@ -777,9 +777,8 @@ function dbToEv(e,src){
 function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
   var owner=(typeof CAN_EDIT==='function')&&CAN_EDIT();
-  var chips=[['all','All']];
-  if(owner){ chips.push(['mine','My Events'],['tickets','Tickets']); }
-  chips.push(['external','External'],['inapp','In-app'],['saved','Saved'],['joined','Joined']);
+  var chips=[['mine','Events']];
+  if(owner){ chips.push(['tickets','Tickets']); }
   var bar=document.getElementById('ev-filter');
   if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(EV_FILTER===c[0]?' on':'')+'" onclick="setEvFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
   var _es=document.getElementById('evsub'); if(_es)_es.style.display='none';  /* old subfilter replaced by the unified filter chips */
@@ -1942,7 +1941,7 @@ function openPost(src,idx){
 function toggleLegend(e){ if(e){e.stopPropagation();} var l=document.getElementById('feed-legend'); if(l) l.classList.toggle('open'); }
 document.addEventListener('click',function(e){ var l=document.getElementById('feed-legend'); if(l&&l.classList.contains('open')){ var b=document.getElementById('feed-info-btn'); if(!l.contains(e.target)&&e.target!==b) l.classList.remove('open'); } });
 /* filter state for the unified tabs */
-var GAL_FILTER='all', EV_FILTER='all', CHAT_FILTER='primary';
+var GAL_FILTER='all', EV_FILTER='mine', CHAT_FILTER='primary';
 function setGalFilter(f){GAL_FILTER=f;renderGallery();}
 function setEvFilter(f){EV_FILTER=f;renderShows();}
 function setChatFilter(f){CHAT_FILTER=f;renderChats();}
