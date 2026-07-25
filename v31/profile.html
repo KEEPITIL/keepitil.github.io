@@ -761,20 +761,38 @@ function evFlyer(o){
     +tix+'</div></div>';
 }
 function readEvStore(key){ try{var a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];} }
+var MY_EVENTS=[];
+var _MON3=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+var _DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+/* convert a DB event / ticket into the unified flyer shape so everything lives in ONE events feed */
+function dbToEv(e,src){
+  var d=e.starts_at?new Date(e.starts_at):null; var st=(e.status||'').toLowerCase();
+  return { month:d?_MON3[d.getMonth()]:'', day:d?String(d.getDate()):'', dow:d?_DOW[d.getDay()]:'',
+    title:e.title||'Event', venue:e.city||'',
+    tags: src==='tickets'?('🎟 Ticket'+(e.qty>1?' ×'+e.qty:'')):(e.genres||(st&&st!=='published'?st:'')),
+    tix: src==='tickets'?('/v31/tickets.html?e='+encodeURIComponent(e.slug||'')):('/v31/event.html?e='+encodeURIComponent(e.slug||'')),
+    cover:e.cover_url||'', kind:'kil', _src:src, _ts:d?d.getTime():0 };
+}
+/* SINGLE events feed: all event types + my events + my tickets, filterable, newest -> oldest */
 function renderShows(){
   var el=document.getElementById('shows-list');if(!el)return;
-  var chips=[['all','All'],['external','External'],['inapp','In-app'],['saved','Saved'],['joined','Joined'],['battles','Battles']];
+  var owner=(typeof CAN_EDIT==='function')&&CAN_EDIT();
+  var chips=[['all','All']];
+  if(owner){ chips.push(['mine','My Events'],['tickets','Tickets']); }
+  chips.push(['external','External'],['inapp','In-app'],['saved','Saved'],['joined','Joined']);
   var bar=document.getElementById('ev-filter');
   if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(EV_FILTER===c[0]?' on':'')+'" onclick="setEvFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  var _es=document.getElementById('evsub'); if(_es)_es.style.display='none';  /* old subfilter replaced by the unified filter chips */
+  function ts(o){ if(o._ts)return o._ts; var mi=_MON3.indexOf((o.month||'').toUpperCase()); return (mi>=0)?new Date(new Date().getFullYear(),mi,+o.day||1).getTime():0; }
   var all=[];
   GT_SHOWS.map(evFromArr).forEach(function(o){o._src=(o.kind==='kil')?'inapp':'external';all.push(o);});
   readEvStore('kil-saved-events').forEach(function(o){o._src='saved';all.push(o);});
   readEvStore('kil-joined-events').forEach(function(o){o._src='joined';all.push(o);});
-  readEvStore('kil-battles').forEach(function(o){o._src='battles';all.push(o);});
+  (MY_EVENTS||[]).forEach(function(e){all.push(dbToEv(e,'mine'));});
+  (typeof MY_TIX!=='undefined'?MY_TIX:[]||[]).forEach(function(e){all.push(dbToEv(e,'tickets'));});
   var items=all.filter(function(o){return EV_FILTER==='all'||o._src===EV_FILTER;});
-  items.sort(function(a,b){return evKey(b)-evKey(a);}); // newest -> oldest
-  var add='';   /* Create-Event tile removed (Founder 2026-07-18) — the filter chip opens the chooser */
-  el.innerHTML=add+(items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet — create one or save events from the homepage.</div>');
+  items.sort(function(a,b){return ts(b)-ts(a);}); // newest upload / purchase first
+  el.innerHTML=items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet.</div>';
 }
 /* ── MY TICKETS carousel (owner-only): every event the user bought a ticket to, newest→oldest ── */
 var MY_TIX=[];
@@ -794,42 +812,22 @@ function applyEvSub(){
 }
 function evSubReady(k){ var b=document.querySelector('#evsub .evsub-b[data-k="'+k+'"]'); if(b)b.style.display=''; applyEvSub(); }
 function loadMyTickets(){
-  var wrap=document.getElementById('mytix-wrap'); if(!wrap) return;
-  if(!SB||!SESSION||!CAN_EDIT()){ wrap.style.display='none'; return; }
+  var wrap=document.getElementById('mytix-wrap'); if(wrap)wrap.style.display='none';  /* tickets now live in the unified events feed */
+  if(!SB||!SESSION||!CAN_EDIT()){ return; }
   SB.rpc('get_my_tickets').then(function(r){
-    if(r&&r.error){ wrap.style.display='none'; return; }
-    MY_TIX=(r&&r.data)?r.data:[];
-    if(!MY_TIX.length){ wrap.style.display='none'; return; }
-    var row=document.getElementById('mytix-row'); if(!row){ wrap.style.display='none'; return; }
-    row.innerHTML=MY_TIX.map(function(t,i){
-      var img=t.cover_url?'<img class="tix-img" src="'+esc(t.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
-      return '<div class="mytix-card" onclick="goMyTix('+i+')">'+img+'<div class="tix-shade"></div><div class="tix-ribbon"><b>🎟 Ticket'+(t.qty>1?' ×'+t.qty:'')+'</b></div><div class="tix-body"><div class="tix-t">'+esc(t.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(t.starts_at))+(t.city?' · '+esc(t.city):'')+'</div></div></div>';
-    }).join('');
-    wrap.dataset.ready='1'; evSubReady('tix');
-    mytixMark();
-  }).catch(function(){ wrap.style.display='none'; });
+    MY_TIX=(r&&!r.error&&r.data)?r.data:[];
+    renderShows();
+  }).catch(function(){});
 }
 function goMyTix(i){ var t=MY_TIX[i]; if(!t)return; location.href='/v31/tickets.html?e='+encodeURIComponent(t.slug||''); }
 /* ── MY EVENTS carousel: events this profile created/hosts. Owner sees all statuses; public sees published. ── */
 function loadMyEvents(){
-  var wrap=document.getElementById('myev-wrap'); if(!wrap||!SB){ if(wrap)wrap.style.display='none'; return; }
-  var owner=(typeof CAN_EDIT==='function')&&CAN_EDIT();
+  var wrap=document.getElementById('myev-wrap'); if(wrap)wrap.style.display='none';  /* my events now live in the unified events feed */
+  if(!SB){ return; }
   SB.rpc('get_profile_events',{p_handle:PROFILE_SLUG}).then(function(r){
-    if(r&&r.error){ wrap.style.display='none'; return; }
-    var evs=(r&&r.data)?r.data:[];
-    if(!evs.length){ wrap.style.display='none'; return; }
-    var h=document.getElementById('myev-h'); if(h) h.style.display='none';   /* chip identifies the section (Founder pass 2) */
-    /* Dashboard button removed from Events subfilter (Founder 2026-07-20) — Dashboard is in the mid-nav */
-    var row=document.getElementById('myev-row'); if(!row){ wrap.style.display='none'; return; }
-    row.innerHTML=evs.map(function(e){
-      var img=e.cover_url?'<img class="tix-img" src="'+esc(e.cover_url)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="tix-img"></div>';
-      var st=(e.status||'').toLowerCase();
-      var ribbon = owner ? ('<div class="tix-ribbon" style="background:'+(st==='published'?'linear-gradient(90deg,rgba(0,255,136,.97),rgba(0,200,120,.55))':'linear-gradient(90deg,rgba(255,180,60,.97),rgba(255,150,40,.5))')+'"><b>'+(st==='published'?'Published':(st==='review'?'In review':(st||'Draft')))+'</b></div>') : '';
-      return '<div class="mytix-card" onclick="location.href=\'/v31/event.html?e='+encodeURIComponent(e.slug||'')+'\'">'+img+'<div class="tix-shade"></div>'+ribbon+'<div class="tix-body"><div class="tix-t">'+esc(e.title||'Event')+'</div><div class="tix-d">'+esc(fmtTixDate(e.starts_at))+(e.city?' · '+esc(e.city):'')+'</div></div></div>';
-    }).join('');
-    wrap.dataset.ready='1'; evSubReady('mine');
-    myevMark();
-  }).catch(function(){ wrap.style.display='none'; });
+    MY_EVENTS=(r&&!r.error&&r.data)?r.data:[];
+    renderShows();
+  }).catch(function(){});
 }
 function myevScroll(dir){ var row=document.getElementById('myev-row'); if(!row)return; var c=row.querySelector('.mytix-card'); var w=c?(c.offsetWidth+15)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+15))):320; row.scrollBy({left:dir*w,behavior:'smooth'}); }
 function myevMark(){ var car=document.getElementById('myev-car'), row=document.getElementById('myev-row'); if(!car||!row)return; var prev=car.querySelector('.mytix-arrow.prev'), next=car.querySelector('.mytix-arrow.next'); function upd(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); if(prev)prev.disabled=row.scrollLeft<=2; if(next)next.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } upd(); row.onscroll=upd; }
