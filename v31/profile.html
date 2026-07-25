@@ -2078,9 +2078,10 @@ function _openChatPopup(src){
   var o=document.getElementById('chat-open');if(o)o.style.display='flex';
   try{document.body.style.overflow='hidden';}catch(e){}
 }
-/* opened inside the profile popup → embed=1 so the "← Event" header hides + the session passes from the parent (no login gate) */
-function openEventRoom(slug,name){ _openChatPopup('/v31/event-chat.html?embed=1&e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
-function openChatGroup(slug,name){ _openChatPopup('/v31/event-chat.html?embed=1&mode=chat&e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
+/* opened inside the profile popup → embed=1 so the "← Event" header hides + the session passes from the parent (no login gate). v = cache-bust; bump on every event-chat.html change. */
+var CHAT_V='20260725c';
+function openEventRoom(slug,name){ _openChatPopup('/v31/event-chat.html?embed=1&v='+CHAT_V+'&e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
+function openChatGroup(slug,name){ _openChatPopup('/v31/event-chat.html?embed=1&mode=chat&v='+CHAT_V+'&e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(name)); }
 function closeChatGroup(){
   var o=document.getElementById('chat-open');if(o)o.style.display='none';
   var l=document.getElementById('chat-list');if(l)l.style.display='';
