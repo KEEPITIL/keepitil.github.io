@@ -695,6 +695,8 @@ var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,S
 /* ── first-party Insights: log a profile view + owner-only Insights popup (free, no 3rd-party analytics) ── */
 function _kilSid(){ try{ var k=localStorage.getItem('kil_sid'); if(!k){ k=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('kil_sid',k); } return k; }catch(e){ return 'anon'; } }
 try{ if(SB && PROFILE_SLUG){ SB.rpc('log_view',{p_kind:'profile',p_target:PROFILE_SLUG,p_owner:PROFILE_SLUG,p_sess:_kilSid()}); } }catch(e){}
+/* hand the signed-in session down to the embedded chat iframe when it asks */
+window.addEventListener('message',function(e){ if(e&&e.data&&e.data.kilNeedSession&&SB&&e.source){ try{ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(s){ e.source.postMessage({kilSession:{access_token:s.access_token,refresh_token:s.refresh_token}},'*'); } }); }catch(_e){} } });
 function openInsights(){
   if(!SB){ return; }
   var ov=document.createElement('div'); ov.id='insOv';
