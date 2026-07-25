@@ -111,6 +111,8 @@
   var p=new URLSearchParams(location.search);
   var slug=p.get('e')||'general'; var title=p.get('t')||'Event Chat';
   if(p.get('embed')==='1'){ document.body.classList.add('embed'); }
+  /* profile chat section + embedded contexts: the parent provides navigation, so drop the "← Event / Event" header */
+  (function(){ var _hs=document.createElement('style'); _hs.textContent='body.embed .hd,body.mode-chat .hd{display:none!important}'; document.head.appendChild(_hs); })();
   /* mode=chat (opened from a profile) = a PLAIN chat, not an event scene room:
      hide the "← Events" nav, the "Scene Room" label, the event eyebrow/sub + scene-note. */
   if(p.get('mode')==='chat'){
@@ -235,6 +237,17 @@
   function startRoom(){
     var started=false;
     function haveSession(s){ session=s; setAuthUI(); loadHandle(); if(!started){ started=true; if(isEventRoom){ gateThenStart(); } else { load(); subscribe(); } } }
+    function giveUp(){ if(started) return; setAuthUI(); if(isEventRoom){ ticketWall(); } else { load(); subscribe(); } }
+    /* if we're embedded (profile chat / ticket page) and can't find a session, ask the PARENT window for it */
+    function tryParent(cb){
+      if(window.parent===window){ cb(); return; }
+      var done=false;
+      function onMsg(e){ var d=e&&e.data; if(d&&d.kilSession&&d.kilSession.access_token){ done=true; window.removeEventListener('message',onMsg);
+        sb.auth.setSession({access_token:d.kilSession.access_token,refresh_token:d.kilSession.refresh_token}).then(function(r){ var s=r&&r.data?r.data.session:null; if(s){ haveSession(s); } else cb(); }).catch(cb); } }
+      window.addEventListener('message',onMsg);
+      try{ window.parent.postMessage({kilNeedSession:1},'*'); }catch(e){}
+      setTimeout(function(){ if(!done){ window.removeEventListener('message',onMsg); cb(); } },1500);
+    }
     /* a signed-in user (incl. Google/Apple) may have their session restore slightly late — catch it live */
     sb.auth.onAuthStateChange(function(_e,s){ if(s) haveSession(s); });
     var tries=0;
@@ -243,8 +256,8 @@
       sb.auth.getSession().then(function(r){ var s=(r&&r.data)?r.data.session:null;
         if(s){ haveSession(s); }
         else if(tries++<3){ setTimeout(recheck,600); }
-        else { setAuthUI(); if(isEventRoom){ ticketWall(); } else { load(); subscribe(); } }
-      }).catch(function(){ if(tries++<3){ setTimeout(recheck,600); } else { setAuthUI(); if(isEventRoom){ ticketWall(); } else { load(); subscribe(); } } });
+        else { tryParent(giveUp); }
+      }).catch(function(){ if(tries++<3){ setTimeout(recheck,600); } else { tryParent(giveUp); } });
     })();
   }
   if(sb){
