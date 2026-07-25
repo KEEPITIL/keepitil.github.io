@@ -116,7 +116,8 @@
   var p=new URLSearchParams(location.search);
   var slug=p.get('e')||'general'; var title=p.get('t')||'Event Chat';
   if(p.get('embed')==='1'){ document.body.classList.add('embed'); }
-  /* embedded contexts: keep the chat title, drop the back link + date (handled by the body.embed CSS in <style>) */
+  /* noh=1: the parent (profile popup) shows the title on its own bar, so hide our whole header here. */
+  if(p.get('noh')==='1'){ var _nh=document.createElement('style'); _nh.textContent='header#main-nav{display:none!important}#scroller{padding-top:8px!important}'; document.head.appendChild(_nh); }
   document.title = title + ' — Event Chat · KEEPITIL';
   if(document.getElementById('ev-title')){ document.getElementById('ev-title').textContent = title; }
   /* mode=chat (opened from a profile) = a PLAIN chat, not an event scene room:
