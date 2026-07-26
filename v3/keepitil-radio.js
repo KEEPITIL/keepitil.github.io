@@ -150,7 +150,16 @@
   }
   try{if(localStorage.getItem('kil_radio_mini')==='1')setMini(true);}catch(e){}
   if(toggleBtn){toggleBtn.addEventListener('click',function(e){e.stopPropagation();setMini(true);});}
-  if(radio){radio.addEventListener('click',function(){if(miniState)setMini(false);});}
+  if(radio){
+    radio.style.cursor='pointer';
+    radio.addEventListener('click',function(e){
+      if(miniState){setMini(false);return;}
+      /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
+      if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,#kr-toggle,.kil-ad,#kil-ad-link')){return;}
+      if(location.pathname.indexOf('/v31/radio')===0)return; /* already on Radio */
+      location.href='/v31/radio.html';
+    });
+  }
 
   // ── LED state ─────────────────────────────────────────────────────────────
   function goLive(){if(led)led.classList.remove('off');playing=true;}
