@@ -1,0 +1,45 @@
+/* KWPlatform responsive rules — additive to the inline styles in index.html.
+ * Scoped by the data-kw-platform attribute KWPlatform stamps on <html>. */
+
+:root{
+  --kw-safe-top:env(safe-area-inset-top,0px);
+  --kw-safe-bottom:env(safe-area-inset-bottom,0px);
+  --kw-safe-left:env(safe-area-inset-left,0px);
+  --kw-safe-right:env(safe-area-inset-right,0px);
+}
+
+/* ---------- mobile: thumb-sized command bar, safe areas ---------- */
+html[data-kw-platform="mobile"] #unitbar{
+  padding-left:calc(6px + var(--kw-safe-left));
+  padding-right:calc(6px + var(--kw-safe-right));
+  padding-bottom:calc(4px + var(--kw-safe-bottom));
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+html[data-kw-platform="mobile"] #unitbar::-webkit-scrollbar{display:none}
+html[data-kw-platform="mobile"] .ubtn{
+  min-width:64px;
+  min-height:56px; /* ≥44px touch target with margin */
+  font-size:clamp(10px,2.6vw,13px);
+}
+html[data-kw-platform="mobile"] #topbar{
+  padding-top:calc(2px + var(--kw-safe-top));
+  padding-left:calc(4px + var(--kw-safe-left));
+  padding-right:calc(4px + var(--kw-safe-right));
+}
+
+/* portrait phones: two-row wrap for the command bar, battlefield stays king */
+html[data-kw-platform="mobile"][data-kw-orientation="portrait"] #unitbar{
+  flex-wrap:wrap;
+  justify-content:center;
+  max-height:34vh;
+  overflow-y:auto;
+}
+
+/* ---------- desktop: denser HUD, hover affordances ---------- */
+html[data-kw-platform="desktop"] .ubtn{cursor:pointer}
+html[data-kw-platform="desktop"] .ubtn:hover{filter:brightness(1.15)}
+
+/* fluid HUD text everywhere */
+#wavechip{font-size:clamp(10px,1.6vw,13px)}
