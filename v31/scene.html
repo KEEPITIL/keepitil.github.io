@@ -263,7 +263,7 @@ renderSubs();render();
   function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
   function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue'); renderSubs();render(); }
   // claimed artist/brand/organizer profiles from profile_meta
-  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(artist,brand,organizer)',{headers:{apikey:K,Authorization:'Bearer '+K}})
+  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(artist,brand,organizer)&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
     .then(function(r){return r.json();}).then(function(rows){
       if(!Array.isArray(rows)||!rows.length) return;
       var have=_dedupe();
