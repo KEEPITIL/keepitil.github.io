@@ -151,9 +151,9 @@ footer a{color:var(--artist);}
 <script>
 // roster reset 2026-07-21 — rebuild from Google Sheet + web research. Seeded with the 2 gold standards.
 const ART=[
-  {name:'Groove Trooper',city:'Garden Grove',county:'Orange County',genre:'Latin House / Tech House',ig:'Groove_Trooper',img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg',color:'var(--brand)',blog:'/profile-groove-trooper.html',keepitil:true,type:'DJ'}
+  {name:'Groove Trooper',city:'Garden Grove',county:'Orange County',genre:'Latin House / Tech House',ig:'Groove_Trooper',img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg',color:'var(--brand)',blog:'/v31/profile.html?slug=groove-trooper',keepitil:true,type:'DJ'}
 ],BRND=[],ORG=[],VEN=[
-  {name:'BLEU',city:'Santa Ana',county:'Orange County',genre:'Nightclub / Live Music',ig:'',img:'/v3/blog-default.jpg',color:'var(--brand)',blog:'/v3/venue.html?v=bleu',keepitil:true,type:'Nightclub'}
+  {name:'BLEU',city:'Santa Ana',county:'Orange County',genre:'Nightclub / Live Music',ig:'',img:'/v3/blog-default.jpg',color:'var(--brand)',blog:'/v31/venue.html?v=bleu',keepitil:true,type:'Nightclub'}
 ];
 // Each item carries kinds=[...]; multi-category profiles (once claimed) can list several.
 let DATA=[].concat(
@@ -185,7 +185,8 @@ function card(x){
   const d=desc(x);const ig=x.ig?('@'+x.ig):'';
   /* No dead links (Atlas 2026-07-16): internal profile if it exists, else the org's Instagram (new tab), else a non-clickable card. Never href="#". */
   const igurl=x.ig?('https://instagram.com/'+String(x.ig).replace(/^@/,'').trim()):'';
-  const href=x.blog?('/'+x.blog):(igurl||'');
+  /* blog already starts with "/"; only add a leading slash if it's missing. A double slash ("//path") is a protocol-relative URL and sends every card to a dead domain. */
+  const href=x.blog?(String(x.blog).charAt(0)==='/'?x.blog:'/'+x.blog):(igurl||'');
   const ext=!x.blog && !!igurl;
   const img=x.img?('<img loading="lazy" referrerpolicy="no-referrer" src="'+x.img+'" alt="" onerror="this.style.display=\'none\'"/>'):'';
   const fb='<div class="fallback" style="background:linear-gradient(135deg,'+(x.color||'#6d28d9')+',#111)">'+initials(x.name)+'</div>';
