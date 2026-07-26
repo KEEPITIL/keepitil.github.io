@@ -453,6 +453,11 @@ footer a{color:var(--accent2);}
 .chat-card .cc-pv{font-size:.8rem;color:var(--muted);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .chat-card .cc-rt{flex:0 0 auto;font-size:.68rem;color:var(--muted);align-self:flex-start;padding-top:2px;}
 .chat-card .cc-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;margin-left:6px;}
+.chat-card .cc-menu{flex:0 0 auto;background:none;border:0;color:var(--muted,#9aa0b0);font-size:1.35rem;line-height:1;cursor:pointer;padding:4px 8px;border-radius:8px;align-self:center;}
+.chat-card .cc-menu:hover{color:#fff;background:var(--surface,rgba(255,255,255,.06));}
+.cc-pop{position:absolute;z-index:200;background:var(--surface,#15151d);border:1px solid var(--line,rgba(255,255,255,.12));border-radius:10px;box-shadow:0 14px 34px rgba(0,0,0,.5);padding:5px;min-width:150px;}
+.cc-pop .cc-pop-del{display:block;width:100%;text-align:left;background:none;border:0;color:#ff6b6b;font-weight:700;font-size:.86rem;cursor:pointer;padding:9px 12px;border-radius:7px;}
+.cc-pop .cc-pop-del:hover{background:rgba(255,107,107,.12);}
 @media(max-width:560px){.pf-grid{gap:7px;}
 /* FEED = 2-column grid (original directive stands). Universal post dimension: any image/video
    format normalizes to ONE card size via object-fit:cover so cards are even (Founder 2026-07-18).
@@ -2036,11 +2041,17 @@ var GT_CHATS=[
   ['oc-techno','OC Techno Heads','Warehouse location drop soon','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg','general']
 ];
 function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general':(/@|event/i.test(c[1])?'events':'primary'); }
-function chatRow(av,title,desc,onclick,time,dot){
+function chatRow(av,title,desc,onclick,time,dot,delSlug){
+  var menu='';
+  if(delSlug && (typeof CAN_EDIT==='function') && CAN_EDIT()){
+    var s=String(delSlug).replace(/'/g,"\\'"), t=String(title).replace(/<[^>]*>/g,'').replace(/'/g,"\\'");
+    menu='<button class="cc-menu" title="Options" onclick="event.stopPropagation();chatRowMenu(event,\''+s+'\',\''+t+'\')">&#8942;</button>';
+  }
   return '<div class="chat-card" onclick="'+onclick+'">'
     +'<img class="cc-av" src="'+av+'" alt="" loading="lazy" onerror="this.src=\'/icon-192.png\'">'
     +'<div class="cc-body"><div class="cc-nm">'+title+'</div><div class="cc-pv">'+desc+'</div></div>'
     +(time?'<div class="cc-rt">'+time+dot+'</div>':'')
+    +menu
     +'</div>';
 }
 function renderChats(){
@@ -2057,7 +2068,7 @@ function renderChats(){
   list.innerHTML=items.map(function(c){
     var nm=String(c[1]).replace(/'/g,'');
     var dot=c[4]?'<span class="cc-dot"></span>':'';
-    return chatRow(c[5]||'/icon-192.png', esc(c[1]), esc(c[2]||''), 'openChatGroup(\''+c[0]+'\',\''+nm+'\')', esc(c[3]||''), dot);
+    return chatRow(c[5]||'/icon-192.png', esc(c[1]), esc(c[2]||''), 'openChatGroup(\''+c[0]+'\',\''+nm+'\')', esc(c[3]||''), dot, c[0]);
   }).join('');
 }
 /* Events filter = only event chats the viewer bought a ticket to (event_orders via my_ticketed_event_chats). */
@@ -2073,6 +2084,29 @@ function renderEventChats(list){
       return chatRow(e.cover_url||'/icon-192.png', esc(e.title||e.slug), esc(when?('Event chat · '+when):'Event chat'), 'openEventRoom(\''+e.slug+'\',\''+nm+'\')', '', '');
     }).join('');
   }).catch(function(){ list.innerHTML='<div class="pf-empty">Could not load event chats.</div>'; });
+}
+/* owner-only 3-dot menu on a chat row → Delete this chat */
+function chatRowMenu(ev,slug,name){
+  try{ev.stopPropagation();}catch(e){}
+  document.querySelectorAll('.cc-pop').forEach(function(p){p.remove();});
+  var pop=document.createElement('div'); pop.className='cc-pop';
+  pop.innerHTML='<button class="cc-pop-del">Delete chat</button>';
+  document.body.appendChild(pop);
+  var r=ev.target.getBoundingClientRect();
+  pop.style.top=(r.bottom+window.scrollY+4)+'px';
+  pop.style.left=(Math.min(r.left+window.scrollX, window.innerWidth-160))+'px';
+  pop.querySelector('.cc-pop-del').onclick=function(e){ e.stopPropagation(); pop.remove(); deleteChat(slug,name); };
+  setTimeout(function(){ document.addEventListener('click',function _c(){ pop.remove(); document.removeEventListener('click',_c); }); },0);
+}
+function deleteChat(slug,name){
+  if(!confirm('Delete the chat "'+name+'"? This removes it for everyone and cannot be undone.')) return;
+  if(!SB||!SESSION){ toast('Sign in to manage chats.'); return; }
+  SB.from('profile_content').delete().eq('profile_slug',PROFILE_SLUG).eq('kind','chat').filter('data->>slug','eq',slug).then(function(r){
+    if(r&&r.error){ toast('Could not delete chat.'); return; }
+    try{ GT_CHATS=GT_CHATS.filter(function(c){return c[0]!==slug;}); }catch(e){}
+    try{ ADDED.chats=(ADDED.chats||[]).filter(function(c){return c[0]!==slug;}); }catch(e){}
+    renderChats(); toast('Chat deleted.');
+  }).catch(function(){ toast('Could not delete chat.'); });
 }
 function _openChatPopup(src,title){
   var f=document.getElementById('chat-frame');if(f)f.src=src;
