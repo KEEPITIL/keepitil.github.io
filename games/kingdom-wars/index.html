@@ -213,17 +213,20 @@
   <button class="dbtn" id="startbtn">⚔ Start Battle</button>
 </div>
 
-<script src="civilizations.js"></script>
-<script src="balance.js"></script>
-<script src="ai.js"></script>
-<script src="core-runtime.js"></script>
-<script src="progression-system.js"></script>
-<script src="commerce.js"></script>
-<script src="stripe-commerce.js"></script>
-<script src="equipment-system.js"></script>
-<script src="folklore-system.js"></script>
-<script src="final-siege-system.js"></script>
-<script src="soldier-visual-system.js"></script>
+<link rel="stylesheet" href="src/platform/platform.css">
+<script src="src/platform/platform.js"></script>
+<script src="src/core/civilizations.js"></script>
+<script src="src/core/balance.js"></script>
+<script src="src/core/ai.js"></script>
+<script src="src/core/core-runtime.js"></script>
+<script src="src/core/progression-system.js"></script>
+<script src="src/systems/commerce.js"></script>
+<script src="src/systems/stripe-commerce.js"></script>
+<script src="src/systems/equipment-system.js"></script>
+<script src="src/systems/folklore-system.js"></script>
+<script src="src/systems/final-siege-system.js"></script>
+<script src="src/render/soldier-visual-system.js"></script>
+<script src="src/render/soldier-rig.js"></script>
 <script>
 'use strict';
 /* ============================================================
@@ -250,16 +253,16 @@ const TYPES = {
   sword:  { name:'Sword',  role:'ASSAULT', damageType:'SLASHING', cost:50,  hp:60,  dmg:10, spd:62, range:22,  cd:0.85, weapon:'sword',   gold:0 },
   archer: { name:'Archer', role:'RANGED', damageType:'PIERCING', cost:75,  hp:40,  dmg:7,  spd:56, range:440, cd:1.4,  weapon:'bow',     gold:0 },
   spear:  { name:'Spear',  role:'DEFENDER', damageType:'PIERCING', cost:125, hp:120, dmg:15, spd:50, range:48,  cd:1.0,  weapon:'spear',   gold:0 },
-  gunner: { name:'Gunner', role:'SPECIALIST', cost:150, hp:80,  dmg:16, spd:44, range:300, cd:1.6,  weapon:'gun',     gold:0, civReq:11 },
-  laser:  { name:'Laser',  role:'SPECIALIST', cost:250, hp:100, dmg:28, spd:46, range:340, cd:1.5,  weapon:'laser',   gold:0, civReq:18 },
+  gunner: { name:'Gunner', role:'SPECIALIST', cost:150, hp:80,  dmg:16, spd:44, range:560, cd:1.6,  weapon:'gun',     gold:0, civReq:11 },
+  laser:  { name:'Laser',  role:'SPECIALIST', cost:250, hp:100, dmg:28, spd:46, range:620, cd:1.5,  weapon:'laser',   gold:0, civReq:18 },
   aetherwing:{name:'Aetherwing Colossus',role:'ELITE',damageType:'SPECIAL',cost:1800,hp:3600,dmg:145,spd:42,range:390,cd:1.35,weapon:'mech',gold:0,premium:true},
   spartan:{ name:'Spartan',role:'ELITE', cost:0,   hp:150, dmg:18, spd:55, range:44,  cd:0.9,  weapon:'spartan', gold:0 },
   // enemy
   esword: { name:'Sword',  role:'ASSAULT', hp:40,  dmg:8,  spd:56, range:22,  cd:0.95, weapon:'sword', gold:12 },
   espear: { name:'Spear',  role:'DEFENDER', hp:70,  dmg:12, spd:46, range:45,  cd:1.15, weapon:'spear', gold:18 },
   earcher:{ name:'Archer', role:'RANGED', hp:30,  dmg:6,  spd:50, range:310, cd:1.6,  weapon:'bow',   gold:15 },
-  egunner:{ name:'Gunner', role:'SPECIALIST', hp:90,  dmg:16, spd:38, range:300, cd:1.9,  weapon:'gun',   gold:40 },
-  elaser: { name:'Laser',  role:'SPECIALIST', hp:120, dmg:22, spd:40, range:320, cd:1.8,  weapon:'laser', gold:60 },
+  egunner:{ name:'Gunner', role:'SPECIALIST', hp:90,  dmg:16, spd:38, range:540, cd:1.9,  weapon:'gun',   gold:40 },
+  elaser: { name:'Laser',  role:'SPECIALIST', hp:120, dmg:22, spd:40, range:580, cd:1.8,  weapon:'laser', gold:60 },
   eboss:  { name:'Mammoth Chief', role:'BOSS', damageType:'SIEGE', hp:700, dmg:32, spd:34, range:34, cd:1.35, weapon:'hammer', gold:250 },
 };
 
@@ -308,7 +311,7 @@ const WIZ_SPOTS = [
   {x:210,y:240,s:.8},{x:345,y:260,s:.8},{x:508,y:264,s:.75},{x:65,y:296,s:.9},
 ];
 const WIZARD_COST = 250;
-const WIZ_SQUAD = 8;                     // each hired wizard keeps 8 spartans alive
+const WIZ_SQUAD = 12;                    // each wizard deploys & keeps 12 spearmen alive
 // wall catapults (defense upgrades) — mounted ON the castle
 const CATA_SPOTS = [{x:180,y:296,s:.62},{x:318,y:296,s:.62},{x:437,y:296,s:.62}];
 const DEF_COSTS = [300,450,600];
@@ -336,7 +339,7 @@ function reset(){
     garrison: 0, defs: [],
     wizes: [{x:47, y:150, s:1.15, cdT:2, anim:0, base:true}],
     cats: [], upgrades: 0,
-    goldT: 0, shake: 0,
+    goldT: 0, shake: 0, tapRate: 0, tapAoe: 0,
     warCouncil:{research:{military:0,engineering:0,logistics:0},repairsThisWave:0,powerChargesThisWave:0,elitePurchases:0,fortOverdriveT:0},
     randomSeed:((Date.now()^0x9e3779b9)>>>0), randomState:0,
   };
@@ -387,7 +390,7 @@ function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.im
 function simRandom(){let t=(S.randomState=(S.randomState+0x6D2B79F5)>>>0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}
 function simRange(min,max){return min+(max-min)*simRandom();}
 function issueCommand(type,payload){return window.KWRuntime?KWRuntime.commands.enqueue(type,payload):executeCommand({type,payload:payload||{}});}
-function executeCommand(command){const p=command.payload||{};switch(command.type){case'recruit':return spawnAlly(p.type);case'stance':return setStance(p.stance);case'defend':return tapDefend();case'march':return tapMarch();case'garrison':return buyGarrison();case'wizard':return buyWizard();case'defense':return buyDefense();case'evolve':return evolve();case'power':return castGeneral(p.point);}}
+function executeCommand(command){const p=command.payload||{};switch(command.type){case'recruit':return spawnAlly(p.type);case'stance':return setStance(p.stance);case'defend':return tapDefend();case'march':return tapMarch();case'garrison':return buyGarrison();case'wizard':return buyWizard();case'defense':return buyDefense();case'taprate':return buyTapRate();case'tapaoe':return buyTapAoe();case'evolve':return evolve();case'power':return castGeneral(p.point);}}
 function addFloat(x,y,txt,color){ S.floats.push({x,y,txt,color:color||'#ffd54f',t:1.1}); }
 function showMsg(txt, dur){
   const el = document.getElementById('msg');
@@ -403,7 +406,7 @@ const PROTECTION={
 };
 function progression(){return window.KWCampaign?.progression?.()||window.KWProgression?.calculate({},window.KW_DATA?.campaignKingdoms||[],false)||{armyCap:25,passiveIncome:6,combatMultiplier:1};}
 function armyMax(){return progression().armyCap;}
-function enemyMax(){return window.KWProgression?.activeEnemyCap?.(S?.wave||1)||100;}
+function enemyMax(){const p=progression();return window.KWProgression?.activeEnemyCap?.(S?.wave||1,p.armyCap)||100;}
 function unitProtection(type,team){
   const p=PROTECTION[type]||[0,0];
   const shieldScale=team===1 ? (1+.16*((S&&S.civ||1)-1)) : globalEnemyShieldMult();
@@ -433,9 +436,9 @@ function spawnAlly(type){
 }
 function spawnSpartan(owner){
   if (armyCount() >= armyMax()) return false;
-  const m = civMult(), T = TYPES.spartan,eq=window.KWEquipment?.modifiersFor?.(T.role,S.civ)||{damage:1,hp:1,shield:1,armor:1,speed:1,items:[]};
-  const protection=unitProtection('spartan',1);protection.shield=protection.shieldMax=Math.round(protection.shield*eq.shield);protection.armor=protection.armorMax=Math.round(protection.armor*eq.armor);
-  const u = { team:1, type:'spartan', owner, x:simRange(P_SPAWN,P_SPAWN+40), y:simRange(GROUND_TOP,GROUND_BOT),
+  const m = civMult(), T = TYPES.spear,eq=window.KWEquipment?.modifiersFor?.(T.role,S.civ)||{damage:1,hp:1,shield:1,armor:1,speed:1,items:[]};
+  const protection=unitProtection('spear',1);protection.shield=protection.shieldMax=Math.round(protection.shield*eq.shield);protection.armor=protection.armorMax=Math.round(protection.armor*eq.armor);
+  const u = { team:1, type:'spear', owner, x:simRange(P_SPAWN,P_SPAWN+40), y:simRange(GROUND_TOP,GROUND_BOT),
     hp:Math.round(T.hp*m*eq.hp), max:Math.round(T.hp*m*eq.hp), dmg:Math.round(T.dmg*m*eq.damage),
     cdT:.4, anim:0, ph:simRandom()*10, jit:simRandom()*70, yPref:simRandom()*24-12, spdMul:(.92+simRandom()*.16)*eq.speed,equipMods:eq,equipment:eq.items.map(x=>({id:x.id,slot:x.slot,visual:x.visual})), face:1, pose:'idle', ...protection };
   S.units.push(u);
@@ -479,7 +482,7 @@ function buyWizard(){
   const wiz = {x:sp.x, y:sp.y, s:sp.s, cdT:1, anim:0, squad:S.wizes.length, respT:6};
   S.wizes.push(wiz);
   let n = 0; for (let i=0;i<WIZ_SQUAD;i++) if (spawnSpartan(wiz.squad)) n++;
-  showMsg('🧙 A wizard joins!  +'+n+' Spartans (auto-respawn)'); snd.zap();
+  showMsg('🧙 A wizard joins!  +'+n+' Spearmen (auto-respawn)'); snd.zap();
 }
 function buyDefense(){
   if (!started || paused || S.over) return;
@@ -490,6 +493,26 @@ function buyDefense(){
   S.upgrades++;
   S.gateMax += 300; S.gateHP = Math.min(S.gateMax, S.gateHP + 300);
   showMsg('🛠 Defenses upgraded!  Wall catapult + Fort HP'); snd.spawn();
+}
+// ---- gold-bought tap-power upgrades: faster recharge + bigger blast ----
+const TAP_MAX = 5;
+function tapCost(lvl){ return Math.round(180*Math.pow(1.7, lvl)); }
+function refreshTapBtns(){
+  const r=btnEls['taprate'], a=btnEls['tapaoe'];
+  if(r)r.querySelector('.cost').textContent=((S.tapRate||0)>=TAP_MAX)?'MAX':'🪙'+tapCost(S.tapRate||0);
+  if(a)a.querySelector('.cost').textContent=((S.tapAoe||0)>=TAP_MAX)?'MAX':'🪙'+tapCost(S.tapAoe||0);
+}
+function buyTapRate(){
+  if (!started || paused || S.over) return;
+  if ((S.tapRate||0) >= TAP_MAX){ showMsg('Tap rate is maxed'); return; }
+  const c=tapCost(S.tapRate||0); if (S.gold < c){ showMsg('Not enough gold!'); return; }
+  S.gold-=c; S.tapRate=(S.tapRate||0)+1; showMsg('⚡ Tap recharges faster  ('+S.tapRate+'/'+TAP_MAX+')'); snd.spawn(); refreshTapBtns();
+}
+function buyTapAoe(){
+  if (!started || paused || S.over) return;
+  if ((S.tapAoe||0) >= TAP_MAX){ showMsg('Tap blast is maxed'); return; }
+  const c=tapCost(S.tapAoe||0); if (S.gold < c){ showMsg('Not enough gold!'); return; }
+  S.gold-=c; S.tapAoe=(S.tapAoe||0)+1; showMsg('💥 Tap area & damage up  ('+S.tapAoe+'/'+TAP_MAX+')'); snd.spawn(); refreshTapBtns();
 }
 function evolve(){
   if (!started || paused || S.over) return;
@@ -688,9 +711,12 @@ function steerMove(u, tx, ty, maxSpeed, dt, stopRadius){
   dx /= dist; dy /= dist;
   let sx = 0, sy = 0;
   for (const o of S.units){
-    if (o===u || o.team!==u.team || o.hp<=0) continue;
-    const ox=u.x-o.x, oy=(u.y-o.y)*1.35, od=Math.hypot(ox,oy);
-    if (od>0 && od<24){ const push=(24-od)/24; sx+=ox/od*push; sy+=oy/od*push*.7; }
+    if (o===u || o.hp<=0) continue;
+    const ox=u.x-o.x; if (ox>24 || ox<-24) continue;      // cheap x-band cull before the costlier math
+    const oy2=(u.y-o.y); if (oy2>20 || oy2<-20) continue;
+    const R = (o.team===u.team) ? 24 : 16;                // gentle body separation from allies AND enemies
+    const oy=oy2*1.35, od=Math.hypot(ox,oy);
+    if (od>0 && od<R){ const push=(R-od)/R; sx+=ox/od*push; sy+=oy/od*push*.7; }
   }
   const desiredX=(dx+sx*.8)*maxSpeed, desiredY=(dy+sy*.8)*maxSpeed;
   const accel=(u.team===1 && S.retreatT>0 ? 8.5 : 6.2);
@@ -789,7 +815,7 @@ function throwLastSpear(u){
   const flight=Math.max(.5,Math.min(1.35,far/520));
   S.projs.push({kind:'spearp',x:u.x+u.face*8,y:u.y-22,sourceX:u.x,vx:(target.x-u.x)/flight,vy:(target.y-u.y-20)/flight-.5*GRAV*flight,g:GRAV,dmg:Math.round((u.dmg||TYPES[u.type].dmg)*1.35),team:u.team,life:3});
   window.KWRuntime?.events.emit('projectile_released',{kind:'spear',team:u.team,damage:Math.round((u.dmg||TYPES[u.type].dmg)*1.35)});
-  u.spearThrown=true;u.swordOpening=true;u.anim=1;addFloat(u.x,u.y-42,'LAST SPEAR!',u.team===1?'#ffe27a':'#ff9b8f');
+  u.spearThrown=true;u.swordOpening=true;u.throwT=.55;u.anim=1;addFloat(u.x,u.y-42,'LAST SPEAR!',u.team===1?'#ffe27a':'#ff9b8f');
 }
 // one unit fires at a foe (or at the opposing fort when foe is null)
 function unitFire(u, t, foe){
@@ -818,7 +844,14 @@ function unitFire(u, t, foe){
   }
   else {
     if(u.spearThrown&&u.swordOpening&&foe){dmg=Math.round(dmg*1.6);u.swordOpening=false;u.jumpSlashT=.45;addFloat(u.x,u.y-42,'LEAP SLASH!','#ffe27a');}
+    if(u.rage&&u.rageOpening&&foe){dmg=Math.round(dmg*1.7);u.rageOpening=false;u.jumpSlashT=.45;addFloat(u.x,u.y-42,'RAGE OVERHEAD!','#ff7a3c');}
     if (foe) hurt(foe.u, dmg,{kind:'melee',damageType:t.damageType||'SLASHING',sourceX:u.x});
+    // Spear wall: an intact spearman (shield up, spear not thrown) drives attackers
+    // back — they cannot close to the body until the shield is broken or he's overwhelmed.
+    if(foe&&(t.weapon==='spear'||t.weapon==='spartan')&&u.shield>0&&!u.spearThrown){
+      const dir=Math.sign(foe.u.x-u.x)||u.face||1;
+      foe.u.x+=dir*4; foe.u.vx=(foe.u.vx||0)+dir*28; foe.u.speared=.2;
+    }
     else if (u.team === 1){ dmgCastle(dmg); S.fx.push({kind:'flash', x:E_WALL-8, y:u.y-26, t:0}); }
     else { dmgGate(dmg); S.fx.push({kind:'flash', x:P_WALL+14, y:u.y-18, t:0}); }
   }
@@ -869,15 +902,15 @@ function hurt(u, dmg, hit){
   const dtype=hit.damageType||inferred[hit.kind]||'SLASHING';
   const profile=(window.KW_BALANCE&&window.KW_BALANCE.damageTypes[dtype])||{shield:1,armor:1,health:1};
   const frontal=hit.sourceX==null||Math.sign(hit.sourceX-u.x)===(u.face||1);
-  if(u.shield>0){
+  if(u.shield>0&&hit.kind!=='bleed'){
     const hadShield=u.shield>0;
     const raised=u.shieldUp&&frontal;
     if(raised)left*=hit.kind==='blast'?.82:.68;
     const layer=left*profile.shield,take=Math.min(u.shield,layer);u.shield-=take;left-=take/profile.shield;
-    if(take>0){u.blockT=.18;S.fx.push({kind:u.shield<=0?'shieldbreak':'shieldhit',x:u.x+u.face*8,y:u.y-20,t:0});if(window.KWAudio)KWAudio.emit(u.shield<=0?'unit.break.shield':'unit.block.shield',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team,material:(u.team===1?S.civ:S.enemyCiv)===1?'hide':'metal'});if(hadShield&&u.shield<=0)window.KWRuntime?.events.emit('shield_broken',{team:u.team,type:u.type});}
+    if(take>0){u.blockT=.18;S.fx.push({kind:u.shield<=0?'shieldbreak':'shieldhit',x:u.x+u.face*8,y:u.y-20,t:0});if(window.KWAudio)KWAudio.emit(u.shield<=0?'unit.break.shield':'unit.block.shield',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team,material:(u.team===1?S.civ:S.enemyCiv)===1?'hide':'metal'});if(hadShield&&u.shield<=0){window.KWRuntime?.events.emit('shield_broken',{team:u.team,type:u.type});const _w=TYPES[u.type]?.weapon;if(_w==='sword'||_w==='spartan'){u.rage=true;u.rageOpening=true;u.anim=1;addFloat(u.x,u.y-48,'SHIELD BROKEN — CHARGE!','#ff7a3c');}}}
   }
-  if(left>0&&u.armor>0){const hadArmor=u.armor>0,layer=left*profile.armor,take=Math.min(u.armor,layer);u.armor-=take;left-=take/profile.armor;if(take>0){S.fx.push({kind:u.armor<=0?'armorbreak':'armorhit',x:u.x,y:u.y-16,t:0});if(window.KWAudio)KWAudio.emit(u.armor<=0?'unit.break.armor':'unit.hit.armor',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});if(hadArmor&&u.armor<=0)window.KWRuntime?.events.emit('armor_broken',{team:u.team,type:u.type});}}
-  if(left>0){u.hp-=left*profile.health;S.fx.push({kind:'healthhit',x:u.x,y:u.y-15,t:0});if(window.KWAudio)KWAudio.emit('unit.hit.health',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});}
+  if(left>0&&u.armor>0&&hit.kind!=='bleed'){const hadArmor=u.armor>0,layer=left*profile.armor,take=Math.min(u.armor,layer);u.armor-=take;left-=take/profile.armor;if(take>0){S.fx.push({kind:u.armor<=0?'armorbreak':'armorhit',x:u.x,y:u.y-16,t:0});if(window.KWAudio)KWAudio.emit(u.armor<=0?'unit.break.armor':'unit.hit.armor',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});if(hadArmor&&u.armor<=0)window.KWRuntime?.events.emit('armor_broken',{team:u.team,type:u.type});}}
+  if(left>0){u.hp-=left*profile.health;if(window.KWAudio)KWAudio.emit('unit.hit.health',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});}
   u.hurtT = .15;
   snd.hit();
   if(u.shield<=0&&u.armor<=0)throwLastSpear(u);
@@ -889,8 +922,10 @@ function hurt(u, dmg, hit){
       if(window.KWAudio)KWAudio.emit('reward.gold',{civ:S.civ});
       if(window.KWExperience) KWExperience.recordKill();
     }
-    S.corpses.push({x:u.x, y:u.y, t:0, type:u.type, team:u.team});
+    S.corpses.push({x:u.x, y:u.y, t:0, type:u.type, team:u.team, death:u.impaled?'impale':null});
     if ((!window.KWArt||KWArt.allowBlood())&&S.splats.length < 60) S.splats.push({x:u.x, y:u.y, seed:simRandom()*99});
+    const _dw=TYPES[u.type]?.weapon;
+    if((_dw==='gun'||_dw==='laser')&&!u._grenaded){ u._grenaded=true; addFloat(u.x,u.y-54,'GRENADE!','#ffcf5a'); S.fx.push({kind:'boom',x:u.x,y:u.y-14,r:60,t:0}); explode(u.x,u.y-14,64,Math.round((TYPES[u.type].dmg||14)*1.4),u.team); }
     window.KWRuntime?.events.emit('unit_died',{team:u.team,type:u.type,wave:S.wave});
   }
 }
@@ -911,25 +946,26 @@ function endGame(title, text){
 // ---------- general (tap) strikes: rock → arrows → spears → bomb → laser ----------
 function castGeneral(wp){
   if (S.atkCd > 0){ showMsg(GEN_ATKS[S.civ-1].name+' recharging…', 900); return; }
-  S.atkCd = GEN_ATKS[S.civ-1].cd;
+  S.atkCd = GEN_ATKS[S.civ-1].cd * Math.max(0.4, 1 - 0.12*(S.tapRate||0));   // gold-bought rate upgrade
+  const am = 1 + 0.30*(S.tapAoe||0);                                          // gold-bought area/damage upgrade
   window.KWRuntime?.events.emit('power_used',{civilization:S.civ,wave:S.wave});
   if(window.KWAudio)KWAudio.emit('power.warning',{civ:S.civ});
   const ty = clamp(wp.y, GROUND_TOP-6, GROUND_BOT);
   const powerKind=GEN_ATKS[S.civ-1].kind;
   if (powerKind==='rock'){
-    S.projs.push({kind:'rock', x:wp.x, y:120, vx:0, vy:150, g:GRAV, dmg:30, r:42, team:1, life:6, ty});
+    S.projs.push({kind:'rock', x:wp.x, y:120, vx:0, vy:150, g:GRAV, dmg:Math.round(30*am), r:42*am, team:1, life:6, ty});
     beep(200,.12,'square',.05,80);
   } else if(powerKind==='arrows'){
-    for (let i=0;i<8;i++) fireArrow(wp.x-70+simRandom()*140, 60, {x:wp.x-60+simRandom()*120, y:ty}, 9, 1, 520);
+    for (let i=0;i<8;i++) fireArrow(wp.x-70+simRandom()*140, 60, {x:wp.x-60+simRandom()*120, y:ty}, Math.round(9*am), 1, 520);
     snd.shoot();
   } else if(powerKind==='spears'){
     for (let i=0;i<5;i++){
       const sx = wp.x-50+simRandom()*100;
-      S.projs.push({kind:'spearp', x:sx, y:70+simRandom()*40, vx:0, vy:220, g:GRAV, dmg:22, team:1, life:5});
+      S.projs.push({kind:'spearp', x:sx, y:70+simRandom()*40, vx:0, vy:220, g:GRAV, dmg:Math.round(22*am), team:1, life:5});
     }
     beep(300,.14,'triangle',.06,120);
   } else if(powerKind==='bomb'){
-    S.projs.push({kind:'bomb', x:wp.x, y:120, vx:0, vy:120, g:GRAV, dmg:60, team:1, life:6, ty});
+    S.projs.push({kind:'bomb', x:wp.x, y:120, vx:0, vy:120, g:GRAV, dmg:Math.round(60*am), r:70*am, team:1, life:6, ty});
     beep(240,.15,'square',.05,60);
   } else {                 // reserved future-age laser
     S.fx.push({kind:'gbeam', x:wp.x, t:0});
@@ -937,7 +973,7 @@ function castGeneral(wp){
     S.shake = Math.min(12, S.shake + 8);
     for (const u of S.units){
       if (u.team === 1 || u.hp <= 0) continue;
-      if (Math.abs(u.x - wp.x) < 45) hurt(u,120,{kind:'laser',sourceX:wp.x});
+      if (Math.abs(u.x - wp.x) < 45*am) hurt(u,Math.round(120*am),{kind:'laser',sourceX:wp.x});
     }
     if (Math.abs(E_WALL - wp.x) < 80) dmgCastle(90);
     snd.laser(); snd.boom();
@@ -1052,17 +1088,28 @@ function update(dt){
   // units
   S.units = S.units.filter(u=>u.hp>0);
   assignTargets();
+  // Shield wall: while not on a full attack push, the player's frontmost living
+  // melee defenders form a line the enemy cannot pass until that line is killed.
+  S._wallX = null;
+  if (S.stance !== 'attack'){
+    for (const pu of S.units){
+      if (pu.team===1 && pu.hp>0){ const w=TYPES[pu.type]?.weapon;
+        if ((w==='sword'||w==='spear'||w==='spartan') && (S._wallX==null || pu.x>S._wallX)) S._wallX = pu.x; }
+    }
+  }
   for (const u of S.units){
     u.cdT -= dt; u.anim = Math.max(0, u.anim - dt/((ATK_PROFILES[(TYPES[u.type]||{}).weapon]||{dur:.35}).dur)); u.ph += dt;
     u.jumpSlashT=Math.max(0,(u.jumpSlashT||0)-dt);
+    u.throwT=Math.max(0,(u.throwT||0)-dt);
     u.reinforceT=Math.max(0,(u.reinforceT||0)-dt);
     u.upgradeFlash=Math.max(0,(u.upgradeFlash||0)-dt);
     u.hurtT = Math.max(0, (u.hurtT||0) - dt);
     u.blockT = Math.max(0, (u.blockT||0) - dt);
+    if(u.bleed>0&&u.hp>0){u.bleedAcc=(u.bleedAcc||0)+u.bleed*dt;if(u.bleedAcc>=1){const n=Math.floor(u.bleedAcc);u.bleedAcc-=n;hurt(u,n,{kind:'bleed',sourceX:u.x});}if(u.hp<=0)continue;}
     u.mo = clamp((u.mo||0) + ((u.pose==='walk') ? dt*5 : -dt*8), 0, 1);   // accelerate / decelerate
     const t = TYPES[u.type];
     const range=combatRange(u,t);
-    const spd = t.spd * (u.spdMul||1) * (.35+.65*u.mo) * ((u.team===1 && S.retreatT>0) ? 1.4 : 1);
+    const spd = t.spd * (u.spdMul||1) * (.35+.65*u.mo) * ((u.team===1 && S.retreatT>0) ? 1.4 : 1) * (u.rage?1.35:1);
     const foe = (u.tgt && u.tgt.hp > 0) ? {u:u.tgt, d:Math.hypot(u.tgt.x-u.x, (u.tgt.y-u.y)*1.6)} : null;
     const ranged = ['bow','gun','laser'].includes(t.weapon);
     const threat=incomingThreat(u);
@@ -1099,6 +1146,7 @@ function update(dt){
         unitFire(u, t, null);
       }
       u.x = Math.max(u.x, P_WALL + 12);
+      if (S._wallX != null && u.x < S._wallX) u.x = S._wallX;   // held at the shield wall
     } else if (S.stance === 'attack'){
       if (foe){
         if (foe.d > range){ moving=steerMove(u,foe.u.x,foe.u.y+(ranged?0:(u.yPref||0)),spd,dt,range*.82); }
@@ -1168,14 +1216,14 @@ function update(dt){
       S.projs.push({kind:'bolt', x:wz.x+12*wz.s, y:wz.y-34*wz.s, tx:tgt.x, ty:tgt.y-16, tg:tgt, dmg:Math.round(35*playerFort.weapon*(window.KWWarCouncil?.fortressMultiplier?.()||1)), team:1, life:4});
       snd.zap();
     }
-    // hired wizards keep their spartan squad alive (max 8 each)
+    // hired wizards keep their spearman squad alive (12 each)
     if (wz.squad !== undefined && !S.over){
-      const alive = S.units.filter(u=>u.type==='spartan' && u.owner===wz.squad && u.hp>0).length;
+      const alive = S.units.filter(u=>u.type==='spear' && u.owner===wz.squad && u.hp>0).length;
       if (alive < WIZ_SQUAD){
         wz.respT -= dt;
         if (wz.respT <= 0){
           wz.respT = 6;
-          if (spawnSpartan(wz.squad)){ wz.anim = 1; addFloat(P_SPAWN+20, GROUND_TOP-8, '+Spartan', '#8cf0ff'); }
+          if (spawnSpartan(wz.squad)){ wz.anim = 1; addFloat(P_SPAWN+20, GROUND_TOP-8, '+Spearman', '#8cf0ff'); }
         }
       } else wz.respT = 6;
     }
@@ -1222,14 +1270,14 @@ function update(dt){
       continue;
     }
     p.vy += (p.g||0)*dt; p.x += p.vx*dt; p.y += p.vy*dt;
-    if (p.kind === 'bomb'){ if (p.y >= p.ty){ explode(p.x, p.ty, 70, 60, 1); p.life = 0; } continue; }
+    if (p.kind === 'bomb'){ if (p.y >= p.ty){ explode(p.x, p.ty, p.r||70, p.dmg||60, 1); p.life = 0; } continue; }
     if (p.kind === 'rock'){ if (p.y >= p.ty){ explode(p.x, p.ty, p.r||42, p.dmg, 1); p.life = 0; } continue; }
     if (p.kind === 'boulder'){ if (p.y >= p.ty){ explode(p.x, p.ty, 58, p.dmg, 1); p.life = 0; } continue; }
     // arrow / bullet / falling spear vs units
     const hw = p.kind==='spearp' ? 16 : 12;
     for (const u of S.units){
       if (u.team === p.team || u.hp <= 0) continue;
-      if (Math.abs(u.x-p.x) < hw && p.y > u.y-38 && p.y < u.y+4){ hurt(u,p.dmg,{kind:p.kind,sourceX:p.sourceX==null?p.x-(p.vx||0)*.1:p.sourceX}); p.life = 0; break; }
+      if (Math.abs(u.x-p.x) < hw && p.y > u.y-38 && p.y < u.y+4){ hurt(u,p.dmg,{kind:p.kind,sourceX:p.sourceX==null?p.x-(p.vx||0)*.1:p.sourceX}); if(p.kind==='spearp'&&u.hp>0){ u.bleed=(u.bleed||0)+1; u.impaled=true; addFloat(u.x,u.y-46,'IMPALED −1/s','#ff9b8f'); } p.life = 0; break; }
     }
     if (p.life > 0){
       if (p.team === 1 && p.x > E_WALL - 10 && S.castleHP > 0){ dmgCastle(p.dmg); S.fx.push({kind:'flash', x:p.x, y:p.y, t:0}); p.life = 0; }
@@ -1330,6 +1378,27 @@ const CLASS_MOTION={
   ELITE:     {bounce:1.12, lean:1.00, step:1.05},// heavy, powerful, commanding
 };
 
+// Adapter: map a game unit's state to a rig motion and draw it with window.KWRig.
+// Rig figure is ~150 tall in its own space; K scales it to the game's footprint (tune RIG_K).
+const RIG_K = 0.30;
+function drawRigUnit(u, corpse, cls, s, x, y){
+  let st, p, t = u.ph || 0;
+  if(corpse){ st = u.death==='impale' ? 'die_impale' : ((cls==='bow'||cls==='gun') ? 'die_back' : 'die_kneel'); p = Math.min(1, (u.t||0)/1.4); }
+  else if(cls==='spear' && u.throwT>0){ st='throw'; p = Math.min(1, 1 - u.throwT/.55); }
+  else if(u.jumpSlashT>0){ st = cls==='sword' ? 'overhead' : 'attack'; p = Math.min(1, 1 - u.jumpSlashT/.45); }
+  else if(u.anim>0){ st = (cls==='sword' && u.rage) ? 'fury' : 'attack'; p = Math.min(1, Math.max(0, 1 - u.anim)); }
+  else if(u.pose==='walk'){ st='march'; p = ((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
+  else { st='idle'; p = (((u.ph*0.16)%1)+1)%1; }
+  const po = KWRig.poseFor(cls, st, p, t); po._t = t;
+  if(corpse) po.alpha = Math.max(0, 1 - Math.max(0, (u.t||0) - 2.0) / 4.5);   // hold the death, then fade the corpse
+  const C  = KWRig.teamTint(KWRig.PAL[cls], u.team);
+  const K  = RIG_K * s;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale((u.face || (u.team===1?1:-1)) * K, K);
+  KWRig.drawSoldier(ctx, cls, po, C, u.team);
+  ctx.restore();
+}
 function drawStick(u, corpse){
   const T = TYPES[u.type];
   const age=S ? (u.team===1?S.civ:S.enemyCiv) : 1;
@@ -1349,6 +1418,13 @@ function drawStick(u, corpse){
     ctx.fillStyle='#26384b';ctx.fillRect(-24,-35,13,5);ctx.fillRect(11,-35,13,5);ctx.fillStyle=glow;ctx.fillRect(-25,-34,3,3);ctx.fillRect(22,-34,3,3);ctx.restore();
     if(!corpse&&u.hp<u.max){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-28,y-92,56,5);ctx.fillStyle=glow;ctx.fillRect(x-28,y-92,56*clamp(u.hp/u.max,0,1),5);}return;
   }
+  // === NEW MOTION RIG: standard troop types render with the shared soldier rig ===
+  const RIGCLS=({sword:'sword',esword:'sword',spartan:'sword',spear:'spear',espear:'spear',archer:'bow',earcher:'bow',gunner:'gun',egunner:'gun',laser:'gun',elaser:'gun'})[u.type];
+  if(RIGCLS && window.KWRig){
+    // ground shadow (kept from the old renderer)
+    if(!corpse){ ctx.fillStyle='rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(x, y+1.5, 10*s, 3*s, 0, 0, 7); ctx.fill(); }
+    drawRigUnit(u, corpse, RIGCLS, s, x, y);
+  } else {
   // Soldiers always use the articulated rig. The reference atlas is retained
   // as the armor/weapon art standard, never as a static whole-body replacement.
   if (!corpse){
@@ -1695,16 +1771,9 @@ function drawStick(u, corpse){
     ctx.beginPath(); ctx.moveTo(-6,-27.2); ctx.lineTo(-10,-23.6); ctx.stroke();
   }
   ctx.restore();
+  } // end else (old renderer for non-rig types)
 
-  // Layered defense: shield (blue), armor (silver), then health.
-  if(!corpse&&(u.shieldMax>0||u.armor<u.armorMax||u.hp<u.max)){
-    const bw = 20*s;
-    let by=y-45*s;
-    if(u.shieldMax>0){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(x-bw/2,by,bw,2.5);ctx.fillStyle='#55b8e8';ctx.fillRect(x-bw/2,by,bw*clamp(u.shield/u.shieldMax,0,1),2.5);by+=3.5;}
-    if(u.armorMax>0){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(x-bw/2,by,bw,2.5);ctx.fillStyle='#c4c9ce';ctx.fillRect(x-bw/2,by,bw*clamp(u.armor/u.armorMax,0,1),2.5);by+=3.5;}
-    ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(x-bw/2,by,bw,3);
-    ctx.fillStyle=u.team===1?'#66bb6a':'#ef5350';ctx.fillRect(x-bw/2,by,bw*clamp(u.hp/u.max,0,1),3);
-  }
+  // HP bars removed per design — soldiers no longer show floating health/shield/armor bars.
 }
 
 // ---------- castle: detailed stonework, baked; upgrades with the civilization age ----------
@@ -2454,6 +2523,8 @@ function buildUI(){
   mkBtn('garrison','<span class="big">🏹</span><span class="nm" id="glab">Garrison</span><span class="cost">🪙'+GARRISON_COST+'</span>', ()=>issueCommand('garrison'));
   mkBtn('wizard', '<span class="big">🧙</span><span class="nm" id="wlab">Wizard</span><span class="cost">🪙'+WIZARD_COST+'</span>', ()=>issueCommand('wizard'));
   mkBtn('defense','<span class="big">🛠</span><span class="nm" id="dlab">Defense</span><span class="cost" id="dcost">🪙'+DEF_COSTS[0]+'</span>', ()=>issueCommand('defense'));
+  mkBtn('taprate','<span class="big">⚡</span><span class="nm">Tap Rate</span><span class="cost">🪙'+tapCost(0)+'</span>', ()=>issueCommand('taprate'));
+  mkBtn('tapaoe','<span class="big">💥</span><span class="nm">Tap Blast</span><span class="cost">🪙'+tapCost(0)+'</span>', ()=>issueCommand('tapaoe'));
   mkSep();
   mkBtn('evolve', '<span class="big">♛</span><span class="nm" id="elab">Civilization</span><span class="cost" id="ecost">Wave 50</span>', ()=>issueCommand('evolve'), 'evolve');
 }
@@ -2537,7 +2608,7 @@ document.getElementById('startbtn').addEventListener('click', ()=>{
 // ============================================================
 //  MAIN LOOP
 // ============================================================
-const SIM_STEP=1/60, MAX_CATCHUP=.25, BASE_SPEED_MULT=2;
+const SIM_STEP=1/60, MAX_CATCHUP=.25, BASE_SPEED_MULT=1;   // 1× = real time (was 2×, which made 1× feel like 2-3×)
 let lastT = 0, simAccumulator=0;
 function updateDiagnostics(force=false){
   if(!diagnosticsVisible||!S)return;
@@ -2611,18 +2682,19 @@ installBtn.addEventListener('click', async () => {
 window.addEventListener('appinstalled', () => { installBtn.hidden = true; });
 
 // PWA service worker
+if (window.KWResponsive){ KWResponsive.guard(document.getElementById('game')); }
 if ('serviceWorker' in navigator && location.protocol !== 'file:'){
   window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
 </script>
-<script src="build-info.js"></script>
-<script src="platform-service.js"></script>
-<script src="analytics-service.js"></script>
-<script src="save-manager.js"></script>
-<script src="art-system.js"></script>
-<script src="audio-system.js"></script>
-<script src="war-council.js"></script>
-<script src="campaign-system.js"></script>
-<script src="experience.js"></script>
+<script src="src/systems/build-info.js"></script>
+<script src="src/systems/platform-service.js"></script>
+<script src="src/systems/analytics-service.js"></script>
+<script src="src/systems/save-manager.js"></script>
+<script src="src/render/art-system.js"></script>
+<script src="src/render/audio-system.js"></script>
+<script src="src/systems/war-council.js"></script>
+<script src="src/systems/campaign-system.js"></script>
+<script src="src/systems/experience.js"></script>
 </body>
 </html>
