@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="KEEPITIL Radio — curated stations across every genre, creator playlists, live programming, and ways to create, compete and earn.">
+<title>Radio — Stations, Playlists & Creator Opportunities | KEEPITIL</title>
+<link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#00e0a4;--ink:#f4f2fb;--ink2:#9a94b4;--panel:rgba(255,255,255,.04);--brd:rgba(255,255,255,.10);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif}
+html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
+body{padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* room for persistent radio bar */
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+/* nav */
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;height:58px;padding:0 16px;background:rgba(10,10,15,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--brd)}
+.nav .logo{display:flex;align-items:center;gap:9px;font-family:var(--fh);letter-spacing:.14em;font-size:1.15rem}
+.nav .logo img{height:38px;mix-blend-mode:screen}
+.nav ul{display:flex;gap:20px;list-style:none;margin-left:22px}
+.nav ul a{font-size:.82rem;font-weight:700;letter-spacing:.08em;color:var(--ink2)}
+.nav ul a.on,.nav ul a:hover{color:#fff}
+.nav .cta{margin-left:auto;border:1px solid var(--brand);color:var(--brand);padding:8px 16px;border-radius:9px;font-weight:800;letter-spacing:.06em;font-size:.78rem}
+@media(max-width:640px){.nav ul{display:none}}
+/* hero */
+.hero{padding:46px 0 26px;text-align:center}
+.hero h1{font-family:var(--fh);font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.03em;line-height:.95}
+.hero p{color:var(--ink2);max-width:640px;margin:12px auto 0;font-size:1.02rem;line-height:1.55}
+.hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
+.hero .live .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px var(--brand);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+/* section */
+section{padding:30px 0;border-top:1px solid var(--brd)}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em}
+.sh .sub{color:var(--ink2);font-size:.88rem}
+/* grids */
+.grid{display:grid;gap:12px}
+.g-stations{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.g-cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--brand);transform:translateY(-2px)}
+.station{cursor:pointer;min-height:104px;display:flex;flex-direction:column;justify-content:space-between}
+.station .g{font-family:var(--fh);font-size:1.35rem;letter-spacing:.03em;line-height:1}
+.station .s{font-size:.68rem;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.chip{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#06120a;background:var(--brand);padding:3px 8px;border-radius:6px}
+.chip.soon{background:#2a2a3a;color:var(--ink2)}
+.card h3{font-family:var(--fh);font-size:1.25rem;letter-spacing:.02em;margin-bottom:6px}
+.card p{color:var(--ink2);font-size:.84rem;line-height:1.5}
+.card .meta{margin-top:10px;font-size:.72rem;color:var(--ink2);display:flex;flex-wrap:wrap;gap:6px 12px}
+.btn{display:inline-block;background:var(--brand);color:#06120a;font-weight:800;letter-spacing:.05em;padding:11px 18px;border-radius:10px;border:0;cursor:pointer;font-size:.82rem}
+.btn.ghost{background:transparent;border:1px solid var(--brand);color:var(--brand)}
+.disc{font-size:.72rem;color:var(--ink2);margin-top:8px;line-height:1.5}
+/* playlist creator */
+.pl-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:14px}
+.pl-form input{flex:1 1 220px;min-width:0;background:#12121b;border:1px solid var(--brd);border-radius:9px;color:#fff;padding:11px 12px;font-size:.9rem;font-family:inherit}
+.pl-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.pl-item{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:14px}
+.pl-item .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pl-item .top b{font-family:var(--fh);font-size:1.2rem;letter-spacing:.02em;flex:1}
+.pl-item .rm{background:none;border:0;color:#ff6b6b;font-weight:700;cursor:pointer;font-size:.82rem}
+.pl-item iframe{width:100%;height:120px;border:0;border-radius:8px}
+.note{background:rgba(0,224,164,.07);border:1px solid rgba(0,224,164,.3);border-radius:12px;padding:14px;color:#bfeede;font-size:.86rem;line-height:1.6}
+footer{padding:28px 16px;text-align:center;color:var(--ink2);font-size:.82rem;border-top:1px solid var(--brd)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a class="logo" href="/v31/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/>KEEPITIL</a>
+  <ul>
+    <li><a href="/v31/culture.html">CULTURE</a></li>
+    <li><a href="/v31/scene.html">SCENE</a></li>
+    <li><a href="/v31/radio.html" class="on">RADIO</a></li>
+  </ul>
+  <a href="/v31/apply.html" class="cta">LOGIN</a>
+</nav>
+
+<header class="hero wrap">
+  <h1>KEEPITIL RADIO</h1>
+  <p>Curated stations across every genre, creator-built playlists, live programming, and real ways to create, compete and earn — for artists, DJs, organizers, venues, brands and listeners worldwide.</p>
+  <div class="live"><span class="dot"></span> LIVE NOW · the player runs at the bottom of every page</div>
+</header>
+
+<main class="wrap">
+
+<!-- STATIONS -->
+<section id="stations">
+  <div class="sh"><h2>KEEPITIL Stations</h2><span class="sub">Official curated stations — one per genre. Powered by approved public SoundCloud sets.</span></div>
+  <div class="grid g-stations" id="stationGrid"></div>
+  <p class="disc">Stations light up as approved public SoundCloud playlist URLs are added. No scraping, no invented links.</p>
+</section>
+
+<!-- YOUR PLAYLISTS -->
+<section id="playlists">
+  <div class="sh"><h2>Your Playlists</h2><span class="sub">Build a KEEPITIL playlist from any public SoundCloud track, set, or profile URL.</span></div>
+  <div class="pl-form">
+    <input id="plName" type="text" placeholder="Playlist name (e.g. Late Night Drive)" maxlength="60"/>
+    <input id="plUrl" type="url" placeholder="Public SoundCloud URL (soundcloud.com/…)"/>
+    <button class="btn" onclick="addPlaylist()">＋ Save playlist</button>
+  </div>
+  <p class="disc">v1 uses public SoundCloud URLs (the compliant first implementation). Deeper library sync would require SoundCloud OAuth you authorize yourself. Saved locally on this device until accounts sync ships.</p>
+  <div class="pl-list" id="plList"></div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="schedule">
+  <div class="sh"><h2>Programming Schedule</h2><span class="sub">Scheduled blocks — architecture ready for live DJ broadcasts.</span></div>
+  <div class="grid g-cards" id="scheduleGrid"></div>
+</section>
+
+<!-- CREATE COMPETE EARN -->
+<section id="earn">
+  <div class="sh"><h2>Create, Compete &amp; Earn</h2><span class="sub">Opportunities for creators to get rotation, features and rewards.</span></div>
+  <div class="grid g-cards" id="earnGrid"></div>
+  <p class="disc">Entries are reviewed. Votes are never for sale. Placement is subject to editorial review — nothing is guaranteed. Any cash-entry or cash-prize competition launches only after legal &amp; platform compliance review.</p>
+</section>
+
+<!-- CREATOR SERVICES -->
+<section id="services">
+  <div class="sh"><h2>Creator Services</h2><span class="sub">Submit your music, mixes, and requests. Beta — free while we build.</span></div>
+  <div class="grid g-cards" id="servicesGrid"></div>
+  <p class="disc">Each request shows eligibility, review process and expected timeline. Free/beta unless marked. You confirm you hold the rights to anything you submit. No guaranteed placement where review applies.</p>
+</section>
+
+</main>
+
+<footer>KEEPITIL Radio · <a href="/v31/">keepitil.com</a> · Create Loud. Live Louder.</footer>
+
+<!-- persistent synchronized radio bar (same on every page) -->
+<script src="/v3/keepitil-radio.js"></script>
+<script>
+/* ---- KEEPITIL Stations: genre slots. url stays null until an approved public SoundCloud set URL is added. ---- */
+var STATIONS=[
+ ['Hip-Hop'],['House'],['Techno'],['Bass'],['R&B & Soul'],['Pop'],['Rock'],['Metal'],
+ ['Country & Americana'],['Latin'],['Afrobeats & African'],['Reggae & Dancehall'],
+ ['Jazz'],['Classical'],['Indie & Alternative'],['Mixed Discovery']
+].map(function(x){return {genre:x[0],url:x[1]||null};});
+function renderStations(){
+  document.getElementById('stationGrid').innerHTML=STATIONS.map(function(s){
+    var live=!!s.url;
+    return '<div class="station card" onclick="'+(live?("playStation('"+encodeURIComponent(s.url)+"')"):"")+'">'
+      +'<div><div class="g">'+s.genre+'</div><div class="s">Station</div></div>'
+      +'<span class="chip'+(live?'':' soon')+'">'+(live?'▶ Play':'Add URL')+'</span></div>';
+  }).join('');
+}
+function playStation(u){ /* hands the approved public URL to the persistent player when wired */ try{ if(window.KILRadio&&window.KILRadio.play){ window.KILRadio.play(decodeURIComponent(u)); } else { window.open(decodeURIComponent(u),'_blank','noopener'); } }catch(e){} }
+
+/* ---- User playlists from public SoundCloud URLs (localStorage v1) ---- */
+function scValid(u){ return /^https?:\/\/(m\.|www\.)?soundcloud\.com\//i.test(u||''); }
+function loadPls(){ try{ return JSON.parse(localStorage.getItem('kil_radio_playlists')||'[]'); }catch(e){ return []; } }
+function savePls(a){ try{ localStorage.setItem('kil_radio_playlists',JSON.stringify(a)); }catch(e){} }
+function addPlaylist(){
+  var n=document.getElementById('plName').value.trim(), u=document.getElementById('plUrl').value.trim();
+  if(!n){ alert('Give your playlist a name.'); return; }
+  if(!scValid(u)){ alert('Paste a public SoundCloud URL (starts with soundcloud.com/).'); return; }
+  var a=loadPls(); a.unshift({name:n,url:u,ts:Date.now()}); savePls(a);
+  document.getElementById('plName').value=''; document.getElementById('plUrl').value=''; renderPls();
+}
+function rmPlaylist(ts){ savePls(loadPls().filter(function(p){return p.ts!==ts;})); renderPls(); }
+function renderPls(){
+  var a=loadPls(), el=document.getElementById('plList');
+  if(!a.length){ el.innerHTML='<p class="disc">No playlists yet — paste a public SoundCloud URL above to start one.</p>'; return; }
+  el.innerHTML=a.map(function(p){
+    var embed='https://w.soundcloud.com/player/?url='+encodeURIComponent(p.url)+'&color=%2300e0a4&auto_play=false&show_artwork=true&show_comments=false&hide_related=true';
+    return '<div class="pl-item"><div class="top"><b>'+esc(p.name)+'</b><button class="rm" onclick="rmPlaylist('+p.ts+')">Remove</button></div>'
+      +'<iframe loading="lazy" scrolling="no" allow="autoplay" src="'+embed+'"></iframe></div>';
+  }).join('');
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* ---- Schedule blocks (architecture-ready) ---- */
+var BLOCKS=[
+ ['Morning Discovery','Fresh finds to start the day'],['Local Artist Spotlight','Your city, on rotation'],
+ ['Genre Hour','A deep dive, one genre at a time'],['Creator Education','Learn the craft & the business'],
+ ['Venue Talk','Rooms, sound & the people behind them'],['Festival Preview','What to catch this season'],
+ ['Community Picks','Chosen by listeners'],['New Release Hour','Just dropped'],
+ ['AI Crew Show','KEEPITIL agents curate'],['Weekend Mix','Long-play DJ sets']
+];
+document.getElementById('scheduleGrid').innerHTML=BLOCKS.map(function(b){
+  return '<div class="card"><span class="chip soon">Scheduled</span><h3 style="margin-top:8px">'+b[0]+'</h3><p>'+b[1]+'</p></div>';
+}).join('');
+
+/* ---- Create, Compete & Earn ---- */
+var COMPS=[
+ ['Song of the Month','Top track wins rotation + a feature'],['DJ Mix Challenge','Submit a mix, get judged & aired'],
+ ['Remix Competition','Flip the official stems'],['Beat Battle','Producers, head to head'],
+ ['Playlist Curator Challenge','Best-curated KEEPITIL playlist wins a feature'],['Listener Choice Award','Voted by the community'],
+ ['Radio Host Competition','Earn a recurring show'],['Podcast Pitch','Pitch a show, get produced']
+];
+document.getElementById('earnGrid').innerHTML=COMPS.map(function(c){
+  return '<div class="card"><span class="chip">Open soon</span><h3 style="margin-top:8px">'+c[0]+'</h3><p>'+c[1]+'</p>'
+   +'<div class="meta">Rewards: rotation · feature · badge · commission opportunities</div></div>';
+}).join('');
+
+/* ---- Creator Services (mailto request forms, beta) ---- */
+var SERVICES=[
+ ['Add my song','Get your track considered for a station','Free · reviewed'],
+ ['Submit a mix','DJ mixes for shows & rotation','Free · reviewed'],
+ ['Submit a playlist','Pitch a curated playlist','Free · reviewed'],
+ ['Request an interview','Be featured on a show','Free · reviewed'],
+ ['Request a creator spotlight','Editorial feature','Free · reviewed'],
+ ['Promote an event','Get your event on-air','Beta'],
+ ['Advertise on Radio','Reach listeners','Paid · rate card'],
+ ['Sponsor a playlist / show','Brand a station block','Paid · reviewed'],
+ ['Become a referral partner','Earn on referrals','Application'],
+ ['Apply for ticket-sales commission','Earn on tickets you drive','Application']
+];
+document.getElementById('servicesGrid').innerHTML=SERVICES.map(function(s){
+  var subj=encodeURIComponent('KEEPITIL Radio — '+s[0]);
+  var body=encodeURIComponent('Request: '+s[0]+'\n\nName:\nProfile / link:\nDetails:\n\nI confirm I hold the rights to anything I submit.');
+  return '<div class="card"><span class="chip">'+s[2]+'</span><h3 style="margin-top:8px">'+s[0]+'</h3><p>'+s[1]+'</p>'
+   +'<div class="meta">Timeline: reviewed within ~5 business days</div>'
+   +'<a class="btn ghost" style="margin-top:12px" href="mailto:info@keepitil.com?subject='+subj+'&body='+body+'">Request</a></div>';
+}).join('');
+
+renderStations(); renderPls();
+</script>
+</body>
+</html>
