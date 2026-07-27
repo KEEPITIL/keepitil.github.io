@@ -221,12 +221,15 @@
 <script src="src/core/core-runtime.js"></script>
 <script src="src/core/progression-system.js"></script>
 <script src="src/systems/commerce.js"></script>
+<script src="src/systems/stripe-links.config.js"></script>
 <script src="src/systems/stripe-commerce.js"></script>
+<script src="src/systems/purchase-bridge.js"></script>
 <script src="src/systems/equipment-system.js"></script>
 <script src="src/systems/folklore-system.js"></script>
 <script src="src/systems/final-siege-system.js"></script>
 <script src="src/render/soldier-visual-system.js"></script>
 <script src="src/render/soldier-rig.js"></script>
+<script src="src/render/monster-rig.js"></script>
 <script>
 'use strict';
 /* ============================================================
@@ -1654,6 +1657,27 @@ function drawStick(u, corpse){
       ctx.fillStyle='#e0d5bd';ctx.beginPath();ctx.moveTo(-5,-31);ctx.lineTo(0,-37);ctx.lineTo(5,-31);ctx.closePath();ctx.fill();ctx.stroke();
     }
     ctx.restore();
+  }
+  // === GIANT BOSS: render bosses with the KWMonsters rig (Cyclops / Bull / Iron Golem) ===
+  if(u.boss && window.KWMonsters){
+    const gtype = ({2:'bull',4:'golem',5:'cyclops'})[(S&&S.enemyCiv)||1] || 'cyclops';
+    let gst, gp, gt = u.ph||0;
+    if(corpse){ gst='die'; gp=Math.min(1,(u.t||0)/2.4); }
+    else if(u.jumpSlashT>0){ gst='stomp'; gp=Math.min(1,1-(u.jumpSlashT/.45)); }
+    else if(u.anim>0){ gst='slam'; gp=Math.min(1,Math.max(0,1-u.anim)); }
+    else if(u.pose==='walk'){ gst='walk'; gp=((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
+    else { gst='idle'; gp=0; }
+    const monScale = s*0.52;
+    ctx.save(); ctx.translate(x,y);
+    KWMonsters.draw(ctx, gtype, gst, gst==='idle'?gt:gp, gt, monScale, (u.face<0?1:0));
+    ctx.restore();
+    if(!corpse){ const bw=64, by=y-Math.round(150*monScale);
+      ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(x-bw/2,by,bw,6);
+      ctx.fillStyle='#e0452f'; ctx.fillRect(x-bw/2,by,bw*clamp(u.hp/u.max,0,1),6);
+      ctx.strokeStyle='#1a0f08'; ctx.lineWidth=1; ctx.strokeRect(x-bw/2,by,bw,6);
+      if(u.bossName){ctx.fillStyle='#ffd98a';ctx.font='700 11px sans-serif';ctx.textAlign='center';ctx.fillText(u.bossName,x,by-4);ctx.textAlign='left';}
+    }
+    return;
   }
   // The approved base soldier has a perfectly round, featureless face. Identity
   // comes from helmet, armor, weapon, shield, stance and silhouette only.
