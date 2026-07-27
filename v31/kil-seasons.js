@@ -68,7 +68,7 @@
     var layer=document.createElement('div');
     layer.id='kil-season-bg';
     layer.setAttribute('data-season',active.slug);
-    layer.style.cssText='position:fixed;inset:0;z-index:-3;pointer-events:none;background:url("'+url+'") center center / cover no-repeat;opacity:.14';
+    layer.style.cssText='position:fixed;inset:0;z-index:-3;pointer-events:none;background:url("'+url+'") center center / cover no-repeat;opacity:.32';
     document.body.appendChild(layer);
   };
   img.onerror=function(){}; // image not produced yet → nothing shows
