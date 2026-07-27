@@ -28,6 +28,16 @@ function head(ctx,J,C){const [hx,hy]=J.head,r=L.headR,tilt=Math.atan2(J.head[1]-
     ctx.strokeStyle=shade(C.crest,.22);ctx.lineWidth=0.5;for(let i=-4;i<=4;i++){const hx=i*1.5;ctx.beginPath();ctx.moveTo(hx,-r-1);ctx.lineTo(hx,-r-18+Math.abs(i)*1.4);ctx.stroke();}
     ctx.fillStyle=shade(C.metal,.1);ctx.fillRect(-1.4,-r-1,2.8,2);
   } else if(C.crest){ctx.fillStyle=shade(C.crest,-.25);ctx.fillRect(-1.4,-r-1,2.8,2);ctx.fillStyle=C.crest;ctx.beginPath();ctx.moveTo(-r*0.8,-r);ctx.quadraticCurveTo(0,-r-9,r*0.8,-r);ctx.quadraticCurveTo(r*0.5,-r-3.5,0,-r-3);ctx.quadraticCurveTo(-r*0.5,-r-3.5,-r*0.8,-r);ctx.closePath();ctx.fill();ctx.fillStyle=shade(C.crest,.15);ctx.beginPath();ctx.moveTo(-r*0.7,-r);ctx.quadraticCurveTo(0,-r-8,r*0.2,-r-3.5);ctx.lineTo(-r*0.2,-r-1);ctx.closePath();ctx.fill();}
+  if(C.hat==='cap'){                                   // archer soft leather cap over the dome
+    ctx.fillStyle=cyl(ctx,-r-1,r+1,C.leather,.22);ctx.beginPath();ctx.arc(0,-1,r+1.2,Math.PI*0.9,Math.PI*2.1);ctx.fill();
+    ctx.fillStyle=shade(C.leather,.15);ctx.beginPath();ctx.ellipse(-2,-2.2,1.5,3.4,-.3,0,7);ctx.fill();
+    ctx.fillStyle=shade(C.leather,-.35);ctx.fillRect(-r,1.4,2*r,1.5);
+  } else if(C.hat==='tricorne'){                        // gunner three-cornered hat
+    ctx.fillStyle=shade(C.leather,-.05);
+    ctx.beginPath();ctx.moveTo(-r-2.5,-r+1.5);ctx.quadraticCurveTo(0,-r-1.5,r+2.5,-r+1.5);ctx.quadraticCurveTo(r*0.55,-r-6.5,0,-r-7);ctx.quadraticCurveTo(-r*0.55,-r-6.5,-r-2.5,-r+1.5);ctx.closePath();ctx.fill();
+    ctx.strokeStyle=C.trim;ctx.lineWidth=0.8;ctx.stroke();
+    ctx.fillStyle=shade(C.leather,.12);ctx.beginPath();ctx.moveTo(-r*0.5,-r-3);ctx.quadraticCurveTo(0,-r-6,r*0.5,-r-3);ctx.closePath();ctx.fill();
+  }
   ctx.fillStyle=shade(C.metal,-.1);ctx.fillRect(-r,2.4,2*r,1.6);ctx.restore();}
 function legPts(pv,g){const hip=DN-g.fwd,kn=DN-g.fwd+g.bend;const p1=fk(pv,hip,L.thigh),p2=fk(p1,kn,L.shin),p3=fk(p2,0.06+(g.tilt||0),L.foot);return [pv,p1,p2,p3];}
 function armPts(sh,a){const up=DN-a.fwd,fo=DN-a.fwd-a.bend;const e=fk(sh,up,L.uarm),h=fk(e,fo,L.farm);return [sh,e,h];}
@@ -42,8 +52,8 @@ function build(po){
 const PAL={
   sword:{skin:'#1b1b1d',metal:'#c6ccd2',trim:'#e8b23b',tunic:'#9e2b25',leather:'#6d4a2c',shield:'#9e2b25',crest:'#bb2f22',wood:'#7a4a24'},
   spear:{skin:'#1c1c1e',metal:'#c9a24a',trim:'#e8b23b',tunic:'#8f3f2c',leather:'#6d4a2c',shield:'#9e2b25',crest:'#a83828',wood:'#9a6a34',mohawk:true},
-  bow:{skin:'#1c1c1e',metal:'#b7823a',trim:'#e8b23b',tunic:'#9a5a2c',leather:'#6d4a2c',wood:'#a9782f'},
-  gun:{skin:'#1c1c1e',metal:'#7c8790',trim:'#c7ccce',jacket:'#5c6446',leather:'#4f4436',wood:'#7a4a24'}
+  bow:{skin:'#1c1c1e',metal:'#b7823a',trim:'#e8b23b',tunic:'#9a5a2c',leather:'#6d4a2c',wood:'#a9782f',hat:'cap'},
+  gun:{skin:'#1c1c1e',metal:'#7c8790',trim:'#c7ccce',jacket:'#5c6446',leather:'#4f4436',wood:'#7a4a24',hat:'tricorne'}
 };
 function teamTint(C,team){ if(team===1)return C; const c={...C}; c.skin=shade(C.skin,0.86); return c; } // enemy lighter body
 
