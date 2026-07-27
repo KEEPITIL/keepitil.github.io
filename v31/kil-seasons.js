@@ -51,11 +51,17 @@
     S.forEach(function(s){ if(t>=s.start && t<=s.end){ if(!best||s.pri>best.pri) best=s; } });
     return best;
   }
-  // manual preview override: ?season=<slug> (or 'off' to force none)
+  // manual preview override: ?season=<slug> (or 'off'). Persists across navigation so a preview
+  // stays put page-to-page. Real date-based rotation runs on every page load when no override is set.
   var qs=(new URLSearchParams(location.search)).get('season');
+  try{
+    if(qs==='off'){ sessionStorage.removeItem('kil_season_preview'); }
+    else if(qs){ sessionStorage.setItem('kil_season_preview',qs); }
+  }catch(e){}
+  var ov=qs; if(!ov){ try{ ov=sessionStorage.getItem('kil_season_preview'); }catch(e){} }
   var active;
-  if(qs==='off'){ return; }
-  else if(qs){ active=S.filter(function(s){return s.slug===qs;})[0]||{slug:qs,name:qs}; }
+  if(ov==='off'){ return; }
+  else if(ov){ active=S.filter(function(s){return s.slug===ov;})[0]||{slug:ov,name:ov}; }
   else { active=pick(new Date()); }
   if(!active) return; // no seasonal window today → default page background stays
 
