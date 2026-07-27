@@ -51,7 +51,12 @@
     S.forEach(function(s){ if(t>=s.start && t<=s.end){ if(!best||s.pri>best.pri) best=s; } });
     return best;
   }
-  var active=pick(new Date());
+  // manual preview override: ?season=<slug> (or 'off' to force none)
+  var qs=(new URLSearchParams(location.search)).get('season');
+  var active;
+  if(qs==='off'){ return; }
+  else if(qs){ active=S.filter(function(s){return s.slug===qs;})[0]||{slug:qs,name:qs}; }
+  else { active=pick(new Date()); }
   if(!active) return; // no seasonal window today → default page background stays
 
   var isMobile=Math.min(window.innerWidth,window.innerHeight)<=640 || window.innerHeight>window.innerWidth;
