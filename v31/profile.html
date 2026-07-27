@@ -471,7 +471,7 @@ footer a{color:var(--accent2);}
 .feed-legend.open{display:flex;}
 </style>
 <style>.pf-tab[data-tab="gallery"]{display:none!important}
-#tab-shows,.pf-tab[data-tab="shows"]{display:none!important}
+/* EVENTS tab visibility is controlled by applyProfileTabs() (viewer sees FEED+EVENTS; owner sees FEED/SAVED/TAGGED/CHAT) */
 #pfPassport{display:none} /* mobile @media re-shows it; hidden on desktop */
 /* Global (both viewports, functional only — no layout change to desktop) */
 #pfDashMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:95;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
@@ -580,7 +580,8 @@ footer a{color:var(--accent2);}
 
 <div class="pf-tabs" id="pf-tabs">
   <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>FEED</span></div>
-  <!-- EVENT tab removed from all profiles -->
+  <!-- EVENTS tab: shown to subscribed VIEWERS only (public created events → buy tickets). Hidden for the owner. -->
+  <div class="pf-tab" data-tab="shows" id="pfTabEvents" style="display:none" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 16H5V10h14v10z"/></svg><span>EVENTS</span></div>
   <div class="pf-tab" data-tab="saved" onclick="showTab('saved')"><svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg><span>SAVED</span></div>
   <div class="pf-tab" data-tab="tagged" onclick="showTab('tagged')"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 015 5c0 2.76-2.24 5-5 5s-5-2.24-5-5a5 5 0 015-5zm0 12c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/></svg><span>TAGGED</span></div>
   <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>CHAT</span></div>
@@ -794,12 +795,19 @@ function renderShows(){
   var _es=document.getElementById('evsub'); if(_es)_es.style.display='none';  /* old subfilter replaced by the unified filter chips */
   function ts(o){ if(o._ts)return o._ts; var mi=_MON3.indexOf((o.month||'').toUpperCase()); return (mi>=0)?new Date(new Date().getFullYear(),mi,+o.day||1).getTime():0; }
   var all=[];
-  GT_SHOWS.map(evFromArr).forEach(function(o){o._src=(o.kind==='kil')?'inapp':'external';all.push(o);});
-  readEvStore('kil-saved-events').forEach(function(o){o._src='saved';all.push(o);});
-  readEvStore('kil-joined-events').forEach(function(o){o._src='joined';all.push(o);});
-  (MY_EVENTS||[]).forEach(function(e){all.push(dbToEv(e,'mine'));});
-  (typeof MY_TIX!=='undefined'?MY_TIX:[]||[]).forEach(function(e){all.push(dbToEv(e,'tickets'));});
-  var items=all.filter(function(o){return EV_FILTER==='all'||o._src===EV_FILTER;});
+  if(owner){
+    GT_SHOWS.map(evFromArr).forEach(function(o){o._src=(o.kind==='kil')?'inapp':'external';all.push(o);});
+    readEvStore('kil-saved-events').forEach(function(o){o._src='saved';all.push(o);});
+    readEvStore('kil-joined-events').forEach(function(o){o._src='joined';all.push(o);});
+    (MY_EVENTS||[]).forEach(function(e){all.push(dbToEv(e,'mine'));});
+    (typeof MY_TIX!=='undefined'?MY_TIX:[]||[]).forEach(function(e){all.push(dbToEv(e,'tickets'));});
+  } else {
+    /* subscribed viewer: ONLY this profile's public (published) created events → click to buy tickets */
+    if(typeof IS_DEMO!=='undefined' && IS_DEMO){ GT_SHOWS.map(evFromArr).forEach(function(o){o._src='mine';all.push(o);}); }
+    (MY_EVENTS||[]).filter(function(e){return String(e.status||'published').toLowerCase()==='published';}).forEach(function(e){all.push(dbToEv(e,'mine'));});
+    if(bar)bar.innerHTML=''; /* no filter chips for the viewer — just their events */
+  }
+  var items=all.filter(function(o){return !owner||EV_FILTER==='all'||o._src===EV_FILTER;});
   items.sort(function(a,b){return ts(b)-ts(a);}); // newest upload / purchase first
   el.innerHTML=items.length?items.map(evFlyer).join(''):'<div class="pf-empty">No events yet.</div>';
 }
@@ -896,7 +904,19 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 /* ── Supabase-backed persistence (shared across devices + shown to visitors) ── */
 var SEED=null;
 var EVENTS_FEED=[];
-function renderAll(){renderGallery();renderShows();renderArticles();renderChats();try{setTimeout(hydratePosts,0);}catch(e){}}
+function renderAll(){renderGallery();renderShows();renderArticles();renderChats();try{setTimeout(hydratePosts,0);}catch(e){}try{applyProfileTabs();}catch(e){}}
+/* Subscribed viewer (not the owner) sees only FEED + EVENTS. Owner sees FEED/SAVED/TAGGED/CHAT. */
+function applyProfileTabs(){
+  var owner=(typeof CAN_EDIT==='function')&&CAN_EDIT();
+  if(typeof IS_AGENT!=='undefined' && IS_AGENT) return; /* agent pages keep their own layout */
+  function tab(n){return document.querySelector('.pf-tab[data-tab="'+n+'"]');}
+  var ev=document.getElementById('pfTabEvents'), sv=tab('saved'), tg=tab('tagged'), ch=tab('chat');
+  if(owner){ if(ev)ev.style.display='none'; [sv,tg,ch].forEach(function(t){if(t)t.style.display='';}); }
+  else { if(ev)ev.style.display=''; [sv,tg,ch].forEach(function(t){if(t)t.style.display='none';});
+    /* if the viewer is on a now-hidden tab, snap back to FEED */
+    var act=document.querySelector('.pf-tab.active'); if(act&&['saved','tagged','chat'].indexOf(act.dataset.tab)>-1){ try{showTab('article');}catch(e){} }
+  }
+}
 function rebuild(rows){
   GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();EVENTS_FEED=[];
   (rows||[]).forEach(function(r){var d=r.data||{};
@@ -2161,8 +2181,8 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v31/profile.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v31/create-profile.html'); } }).catch(function(){ location.replace('/v31/create-profile.html'); }); }); }
     else { location.replace('/v31/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
-    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
+    SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
 </script>
