@@ -3,90 +3,68 @@
 <head>
 <link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="description" content="KEEPITIL Radio — curated stations across every genre, creator playlists, live programming, and ways to create, compete and earn.">
-<title>Radio — Stations, Playlists & Creator Opportunities | KEEPITIL</title>
+<meta name="description" content="KEEPITIL Radio — curated stations across every genre, creator playlists, live programming, games, the mobile app, and ways to create, compete and earn.">
+<title>Radio — Stations, Playlists, Games & Creator Opportunities | KEEPITIL</title>
 <link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--brand:#00a86b;--neon:#00e0a4;--ink:#0d0d0f;--ink2:#5a5a68;--panel:#f6f7f9;--brd:#e4e6ec;--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif}
-html,body{background:#ffffff;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
-body{padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* room for persistent radio bar */
+:root{--brand:#00e0a4;--neon:#00e0a4;--ink:#f4f2fb;--ink2:#aab2c5;--panel:rgba(16,16,24,.72);--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif}
+html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
+/* image-forward backdrop (same model as home): default KEEPITIL image, seasonal image takes over on its dates */
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1}
+html.has-season body::before{display:none!important}
+body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* clear fixed shell nav + radio bar */
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
-/* nav */
-.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;height:58px;padding:0 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--brd)}
-.nav .logo{display:flex;align-items:center;gap:9px;font-family:var(--fh);letter-spacing:.14em;font-size:1.15rem;color:var(--ink)}
-.nav .logo img{height:38px}
-.nav ul{display:flex;gap:20px;list-style:none;margin-left:22px}
-.nav ul a{font-size:.82rem;font-weight:700;letter-spacing:.08em;color:var(--ink2)}
-.nav ul a.on,.nav ul a:hover{color:var(--brand)}
-.nav .cta{margin-left:auto;border:1px solid var(--brand);color:var(--brand);padding:8px 16px;border-radius:9px;font-weight:800;letter-spacing:.06em;font-size:.78rem}
-@media(max-width:640px){.nav ul{display:none}}
 /* hero */
-.hero{padding:46px 0 26px;text-align:center}
-.hero h1{font-family:var(--fh);font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.03em;line-height:.95}
-.hero p{color:var(--ink2);max-width:640px;margin:12px auto 0;font-size:1.02rem;line-height:1.55}
-.hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
+.hero{padding:34px 0 26px;text-align:center}
+.hero h1{font-family:var(--fh);font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.03em;line-height:.95;text-shadow:0 3px 22px rgba(0,0,0,.6)}
+.hero p{color:#e7e9f2;max-width:640px;margin:12px auto 0;font-size:1.02rem;line-height:1.55;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
 .hero .live .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px var(--brand);animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.35}}
 /* section */
 section{padding:30px 0;border-top:1px solid var(--brd)}
 .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em}
-.sh .sub{color:var(--ink2);font-size:.88rem}
+.sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.sh .sub{color:#d5d9e6;font-size:.88rem;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 /* grids */
 .grid{display:grid;gap:12px}
-.g-stations{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.g-stations{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 .g-cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s}
+.card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s;backdrop-filter:blur(10px);overflow:hidden}
 .card:hover{border-color:var(--brand);transform:translateY(-2px)}
-.station{cursor:pointer;min-height:104px;display:flex;flex-direction:column;justify-content:space-between}
+/* image band on every widget */
+.card-img{height:92px;margin:-16px -16px 12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;position:relative}
+.card-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.35))}
+.station{cursor:pointer;display:flex;flex-direction:column}
 .station .g{font-family:var(--fh);font-size:1.35rem;letter-spacing:.03em;line-height:1}
-.station .s{font-size:.68rem;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
-.chip{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--brand);padding:3px 8px;border-radius:6px}
-.chip.soon{background:#eceef2;color:var(--ink2)}
+.station .s{font-size:.68rem;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.chip{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#06120a;background:var(--brand);padding:3px 8px;border-radius:6px}
+.chip.soon{background:rgba(255,255,255,.14);color:var(--ink2)}
 .card h3{font-family:var(--fh);font-size:1.25rem;letter-spacing:.02em;margin-bottom:6px}
 .card p{color:var(--ink2);font-size:.84rem;line-height:1.5}
 .card .meta{margin-top:10px;font-size:.72rem;color:var(--ink2);display:flex;flex-wrap:wrap;gap:6px 12px}
-.btn{display:inline-block;background:var(--brand);color:#fff;font-weight:800;letter-spacing:.05em;padding:11px 18px;border-radius:10px;border:0;cursor:pointer;font-size:.82rem}
+.btn{display:inline-block;background:var(--brand);color:#06120a;font-weight:800;letter-spacing:.05em;padding:11px 18px;border-radius:10px;border:0;cursor:pointer;font-size:.82rem}
 .btn.ghost{background:transparent;border:1px solid var(--brand);color:var(--brand)}
-.disc{font-size:.72rem;color:var(--ink2);margin-top:8px;line-height:1.5}
-/* playlist creator */
-.pl-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:14px}
-.pl-form input{flex:1 1 220px;min-width:0;background:#fff;border:1px solid var(--brd);border-radius:9px;color:var(--ink);padding:11px 12px;font-size:.9rem;font-family:inherit}
+.disc{font-size:.72rem;color:#cfd4e2;margin-top:8px;line-height:1.5;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.pl-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(10px);border-radius:14px;padding:14px}
+.pl-form input{flex:1 1 220px;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--brd);border-radius:9px;color:var(--ink);padding:11px 12px;font-size:.9rem;font-family:inherit}
 .pl-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
-.pl-item{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:14px}
+.pl-item{background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(10px);border-radius:14px;padding:14px}
 .pl-item .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .pl-item .top b{font-family:var(--fh);font-size:1.2rem;letter-spacing:.02em;flex:1}
 .pl-item .rm{background:none;border:0;color:#ff6b6b;font-weight:700;cursor:pointer;font-size:.82rem}
 .pl-item iframe{width:100%;height:120px;border:0;border-radius:8px}
-.note{background:rgba(0,168,107,.08);border:1px solid rgba(0,168,107,.35);border-radius:12px;padding:14px;color:#0a6b47;font-size:.86rem;line-height:1.6}
-footer{padding:28px 16px;text-align:center;color:var(--ink2);font-size:.82rem;border-top:1px solid var(--brd)}
-/* full-strength seasonal image active → flip headings/labels to read over the image; cards stay white islands */
-html.has-season .hero h1{color:#fff;text-shadow:0 3px 22px rgba(0,0,0,.6)}
-html.has-season .hero p{color:#f2f2f7;text-shadow:0 1px 10px rgba(0,0,0,.55)}
-html.has-season .sh h2{color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.55)}
-html.has-season .sh .sub{color:#ececf2;text-shadow:0 1px 8px rgba(0,0,0,.5)}
-html.has-season .disc{color:#eef;text-shadow:0 1px 8px rgba(0,0,0,.5)}
-html.has-season section{border-top-color:rgba(255,255,255,.22)}
-html.has-season footer{color:#eee;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 </style>
 </head>
 <body>
-<nav class="nav">
-  <a class="logo" href="/v31/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/>KEEPITIL</a>
-  <ul>
-    <li><a href="/v31/culture.html">CULTURE</a></li>
-    <li><a href="/v31/scene.html">SCENE</a></li>
-  </ul>
-  <a href="/v31/apply.html" class="cta">LOGIN</a>
-</nav>
 
 <header class="hero wrap">
   <h1>KEEPITIL RADIO</h1>
-  <p>Curated stations across every genre, creator-built playlists, live programming, and real ways to create, compete and earn — for artists, DJs, organizers, venues, brands and listeners worldwide.</p>
+  <p>Curated stations across every genre, creator-built playlists, live programming, games and a mobile app — plus real ways to create, compete and earn.</p>
   <div class="live"><span class="dot"></span> LIVE NOW · the player runs at the bottom of every page</div>
 </header>
 
@@ -131,30 +109,43 @@ html.has-season footer{color:#eee;text-shadow:0 1px 8px rgba(0,0,0,.5)}
   <p class="disc">Each request shows eligibility, review process and expected timeline. Free/beta unless marked. You confirm you hold the rights to anything you submit. No guaranteed placement where review applies.</p>
 </section>
 
+<!-- GAMES -->
+<section id="games">
+  <div class="sh"><h2>Games</h2><span class="sub">Play free on desktop &amp; mobile — all KEEPITIL games live at keepitil.com/games.</span></div>
+  <div class="grid g-cards" id="gamesGrid"></div>
+  <p class="disc"><a class="btn ghost" href="/games/">Open the Games hub →</a></p>
+</section>
+
+<!-- MOBILE APP -->
+<section id="mobile">
+  <div class="sh"><h2>Mobile App</h2><span class="sub">Take KEEPITIL with you — radio, culture, scene, tickets and games in your pocket.</span></div>
+  <div class="grid g-cards" id="mobileGrid"></div>
+  <p class="disc">Install the free web app now (Add to Home Screen); native iOS/Android apps are on the roadmap.</p>
+</section>
+
 </main>
 
-<footer>KEEPITIL Radio · <a href="/v31/">keepitil.com</a> · Create Loud. Live Louder.</footer>
-
+<!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio rules (same on every page) -->
+<script src="/v31/v31-shell.js?v=20260723b" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/v31/kil-seasons.js?v=20260726e"></script>
-<!-- persistent synchronized radio bar (same on every page) -->
-<script src="/v3/keepitil-radio.js?v=20260726"></script>
+<!-- persistent synchronized radio bar -->
+<script src="/v3/keepitil-radio.js?v=20260726" defer></script>
 <script>
-/* ---- KEEPITIL Stations: genre slots. url stays null until an approved public SoundCloud set URL is added. ---- */
-var STATIONS=[
- ['Hip-Hop'],['House'],['Techno'],['Bass'],['R&B & Soul'],['Pop'],['Rock'],['Metal'],
- ['Country & Americana'],['Latin'],['Afrobeats & African'],['Reggae & Dancehall'],
- ['Jazz'],['Classical'],['Indie & Alternative'],['Mixed Discovery']
-].map(function(x){return {genre:x[0],url:x[1]||null};});
+/* genre → emoji + hue for the card image band */
+var GENRES=[
+ ['Hip-Hop','🎤',280],['House','🏠',200],['Techno','🤖',190],['Bass','🔊',260],['R&B & Soul','💜',300],['Pop','⭐',330],
+ ['Rock','🎸',12],['Metal','🤘',0],['Country & Americana','🤠',35],['Latin','💃',20],['Afrobeats & African','🥁',45],
+ ['Reggae & Dancehall','🌴',140],['Jazz','🎷',270],['Classical','🎻',220],['Indie & Alternative','🎶',170],['Mixed Discovery','🔀',160]
+];
+function band(hue,glyph){return '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',70%,42%),hsl('+((hue+40)%360)+',65%,20%))">'+glyph+'</div>';}
 function renderStations(){
-  document.getElementById('stationGrid').innerHTML=STATIONS.map(function(s){
-    var live=!!s.url;
-    return '<div class="station card" onclick="'+(live?("playStation('"+encodeURIComponent(s.url)+"')"):"")+'">'
-      +'<div><div class="g">'+s.genre+'</div><div class="s">Station</div></div>'
-      +'<span class="chip'+(live?'':' soon')+'">'+(live?'▶ Play':'Add URL')+'</span></div>';
+  document.getElementById('stationGrid').innerHTML=GENRES.map(function(g){
+    return '<div class="station card">'+band(g[2],g[1])
+      +'<div class="g">'+g[0]+'</div><div class="s">Station</div>'
+      +'<span class="chip soon">Add URL</span></div>';
   }).join('');
 }
-function playStation(u){ /* hands the approved public URL to the persistent player when wired */ try{ if(window.KILRadio&&window.KILRadio.play){ window.KILRadio.play(decodeURIComponent(u)); } else { window.open(decodeURIComponent(u),'_blank','noopener'); } }catch(e){} }
 
 /* ---- User playlists from public SoundCloud URLs (localStorage v1) ---- */
 function scValid(u){ return /^https?:\/\/(m\.|www\.)?soundcloud\.com\//i.test(u||''); }
@@ -178,51 +169,57 @@ function renderPls(){
   }).join('');
 }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function iconCard(glyph,hue,chip,title,desc,extra){
+  return '<div class="card">'+band(hue,glyph)+'<span class="chip'+(/soon|scheduled/i.test(chip)?' soon':'')+'">'+chip+'</span>'
+    +'<h3 style="margin-top:8px">'+title+'</h3><p>'+desc+'</p>'+(extra||'')+'</div>';
+}
 
-/* ---- Schedule blocks (architecture-ready) ---- */
-var BLOCKS=[
- ['Morning Discovery','Fresh finds to start the day'],['Local Artist Spotlight','Your city, on rotation'],
- ['Genre Hour','A deep dive, one genre at a time'],['Creator Education','Learn the craft & the business'],
- ['Venue Talk','Rooms, sound & the people behind them'],['Festival Preview','What to catch this season'],
- ['Community Picks','Chosen by listeners'],['New Release Hour','Just dropped'],
- ['AI Crew Show','KEEPITIL agents curate'],['Weekend Mix','Long-play DJ sets']
-];
-document.getElementById('scheduleGrid').innerHTML=BLOCKS.map(function(b){
-  return '<div class="card"><span class="chip soon">Scheduled</span><h3 style="margin-top:8px">'+b[0]+'</h3><p>'+b[1]+'</p></div>';
-}).join('');
+/* ---- Schedule blocks ---- */
+var BLOCKS=[['Morning Discovery','🌅',35,'Fresh finds to start the day'],['Local Artist Spotlight','📍',200,'Your city, on rotation'],
+ ['Genre Hour','🎚️',260,'A deep dive, one genre at a time'],['Creator Education','🎓',150,'Learn the craft & the business'],
+ ['Venue Talk','🏛️',20,'Rooms, sound & the people behind them'],['Festival Preview','🎪',300,'What to catch this season'],
+ ['Community Picks','🫶',330,'Chosen by listeners'],['New Release Hour','🆕',180,'Just dropped'],
+ ['AI Crew Show','🤖',190,'KEEPITIL agents curate'],['Weekend Mix','🎧',270,'Long-play DJ sets']];
+document.getElementById('scheduleGrid').innerHTML=BLOCKS.map(function(b){return iconCard(b[1],b[2],'Scheduled',b[0],b[3]);}).join('');
 
 /* ---- Create, Compete & Earn ---- */
-var COMPS=[
- ['Song of the Month','Top track wins rotation + a feature'],['DJ Mix Challenge','Submit a mix, get judged & aired'],
- ['Remix Competition','Flip the official stems'],['Beat Battle','Producers, head to head'],
- ['Playlist Curator Challenge','Best-curated KEEPITIL playlist wins a feature'],['Listener Choice Award','Voted by the community'],
- ['Radio Host Competition','Earn a recurring show'],['Podcast Pitch','Pitch a show, get produced']
-];
-document.getElementById('earnGrid').innerHTML=COMPS.map(function(c){
-  return '<div class="card"><span class="chip">Open soon</span><h3 style="margin-top:8px">'+c[0]+'</h3><p>'+c[1]+'</p>'
-   +'<div class="meta">Rewards: rotation · feature · badge · commission opportunities</div></div>';
-}).join('');
+var COMPS=[['Song of the Month','🏆',45,'Top track wins rotation + a feature'],['DJ Mix Challenge','🎛️',260,'Submit a mix, get judged & aired'],
+ ['Remix Competition','🔁',200,'Flip the official stems'],['Beat Battle','🥊',0,'Producers, head to head'],
+ ['Playlist Curator Challenge','📻',160,'Best-curated KEEPITIL playlist wins a feature'],['Listener Choice Award','⭐',330,'Voted by the community'],
+ ['Radio Host Competition','🎙️',280,'Earn a recurring show'],['Podcast Pitch','🎧',190,'Pitch a show, get produced']];
+document.getElementById('earnGrid').innerHTML=COMPS.map(function(c){return iconCard(c[1],c[2],'Open soon',c[0],c[3],'<div class="meta">Rewards: rotation · feature · badge · commission</div>');}).join('');
 
-/* ---- Creator Services (mailto request forms, beta) ---- */
-var SERVICES=[
- ['Add my song','Get your track considered for a station','Free · reviewed'],
- ['Submit a mix','DJ mixes for shows & rotation','Free · reviewed'],
- ['Submit a playlist','Pitch a curated playlist','Free · reviewed'],
- ['Request an interview','Be featured on a show','Free · reviewed'],
- ['Request a creator spotlight','Editorial feature','Free · reviewed'],
- ['Promote an event','Get your event on-air','Beta'],
- ['Advertise on Radio','Reach listeners','Paid · rate card'],
- ['Sponsor a playlist / show','Brand a station block','Paid · reviewed'],
- ['Become a referral partner','Earn on referrals','Application'],
- ['Apply for ticket-sales commission','Earn on tickets you drive','Application']
-];
+/* ---- Creator Services ---- */
+var SERVICES=[['Add my song','🎵',160,'Get your track considered for a station','Free · reviewed'],
+ ['Submit a mix','🎚️',260,'DJ mixes for shows & rotation','Free · reviewed'],
+ ['Submit a playlist','📃',200,'Pitch a curated playlist','Free · reviewed'],
+ ['Request an interview','🎤',300,'Be featured on a show','Free · reviewed'],
+ ['Request a spotlight','🌟',45,'Editorial feature','Free · reviewed'],
+ ['Promote an event','📣',20,'Get your event on-air','Beta'],
+ ['Advertise on Radio','📈',190,'Reach listeners','Paid · rate card'],
+ ['Sponsor a show','🤝',140,'Brand a station block','Paid · reviewed'],
+ ['Referral partner','🔗',270,'Earn on referrals','Application'],
+ ['Ticket-sales commission','🎟️',330,'Earn on tickets you drive','Application']];
 document.getElementById('servicesGrid').innerHTML=SERVICES.map(function(s){
   var subj=encodeURIComponent('KEEPITIL Radio — '+s[0]);
   var body=encodeURIComponent('Request: '+s[0]+'\n\nName:\nProfile / link:\nDetails:\n\nI confirm I hold the rights to anything I submit.');
-  return '<div class="card"><span class="chip">'+s[2]+'</span><h3 style="margin-top:8px">'+s[0]+'</h3><p>'+s[1]+'</p>'
-   +'<div class="meta">Timeline: reviewed within ~5 business days</div>'
-   +'<a class="btn ghost" style="margin-top:12px" href="mailto:info@keepitil.com?subject='+subj+'&body='+body+'">Request</a></div>';
+  return iconCard(s[1],s[2],s[4],s[0],s[3],'<div class="meta">Timeline: ~5 business days</div><a class="btn ghost" style="margin-top:12px" href="mailto:info@keepitil.com?subject='+subj+'&body='+body+'">Request</a>');
 }).join('');
+
+/* ---- Games (all live at /games/) ---- */
+var GAMES=[['Age of Wars','⚔️',12,'Strategy war game — build, battle, conquer.','/games/ageofwars/'],
+ ['Kingdom Wars','🏰',270,'Defend your kingdom and rise to the top.','/games/kingdom-wars/'],
+ ['More games','🎮',160,'New titles drop in the Games hub.','/games/']];
+document.getElementById('gamesGrid').innerHTML=GAMES.map(function(g){
+  return '<a class="card" href="'+g[4]+'" style="display:block;color:inherit">'+band(g[2],g[1])
+    +'<span class="chip">Play free</span><h3 style="margin-top:8px">'+g[0]+'</h3><p>'+g[3]+'</p></a>';
+}).join('');
+
+/* ---- Mobile App ---- */
+var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen — works offline, no store needed.'],
+ ['Radio in your pocket','🎧',260,'Keep the stream going anywhere on your phone.'],
+ ['iOS &amp; Android','🍎',150,'Native apps are on the roadmap — web app now.']];
+document.getElementById('mobileGrid').innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
 
 renderStations(); renderPls();
 </script>
