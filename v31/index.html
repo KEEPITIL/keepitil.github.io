@@ -62,6 +62,8 @@
     html{scroll-behavior:smooth;}
     body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
     body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1;} /* full-strength backdrop — ABSOLUTE path: relative 'logo-bg.jpg' resolved to /v31/ and 404'd (Founder 2026-07-18) */
+    /* when a seasonal image is active, the static backdrop yields to the auto-rotating season background */
+    html.has-season body::before{display:none!important;}
     /* (chat FAB placement lives in the later <style> near the end of this file — single source of truth) */
     a{color:inherit;text-decoration:none;}
     img{max-width:100%;display:block;}
@@ -2097,6 +2099,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
 })();
 </script>
 
+<script src="/v31/kil-seasons.js?v=20260726d"></script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
 <script>
 /* Inline KEEPITIL-X save icon (staging preview self-contained; /keepitil-save.js not yet deployed) */
