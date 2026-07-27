@@ -9,6 +9,7 @@
   ]);
   async function purchase(id){
     const p=packs.find(x=>x.id===id);if(!p)return;
+    try{localStorage.setItem('kw-pending-pack',id);}catch(e){}   // remember which pack for return crediting
     const direct=window.KW_STRIPE_PAYMENT_LINKS?.[id];
     if(direct){location.href=direct;return;}
     try{
