@@ -87,8 +87,10 @@
   }
   function transactionHistory(){return state.wallet.transactionHistory.slice().reverse();}
   function spendGems(amount,sourceId){return transact(-Math.max(0,Math.round(amount||0)),'EQUIPMENT_SPEND',sourceId);}
+  // Credit gems from a verified real-money purchase (Stripe/store). sourceId = pack id.
+  function creditPurchase(amount,sourceId,status){return transact(Math.max(0,Math.round(amount||0)),'PURCHASE',sourceId,status||'SERVER_VERIFIED');}
   function renderHistory(showPanel){const rows=transactionHistory().map(t=>'<div class="storeitem"><span>'+t.transactionType+'<small class="menusub">'+new Date(t.timestamp).toLocaleString()+' · '+t.sourceId+'</small></span><b>'+(t.amount>0?'+':'')+t.amount+' 💎</b></div>').join('');showPanel('GEM TRANSACTION HISTORY',rows||'<p class="note">No gem transactions yet.</p>');}
   function hasEntitlement(id){return !!state.entitlements[id];}
   function grantEntitlement(id,source='LOCAL_MIGRATION'){if(!id||state.entitlements[id])return false;state.entitlements[id]={grantedAt:Date.now(),source,validationStatus:'LOCAL_ONLY'};save();return true;}
-  window.KWCommerce=Object.freeze({catalog:Object.freeze(CATALOG.map(Object.freeze)),balance,rewardWave,rewardMission,rewardCampaign,spendGems,buy,equip,color,renderStore,renderHistory,transactionHistory,hasEntitlement,grantEntitlement});
+  window.KWCommerce=Object.freeze({catalog:Object.freeze(CATALOG.map(Object.freeze)),balance,rewardWave,rewardMission,rewardCampaign,spendGems,creditPurchase,buy,equip,color,renderStore,renderHistory,transactionHistory,hasEntitlement,grantEntitlement});
 })();
