@@ -576,7 +576,7 @@ footer a{color:var(--accent2);}
   </div>
 </div>
 
-<div class="hl-row" id="hl-row"></div>
+<!-- highlights removed (Founder 2026-07-27: not using highlights for now) -->
 
 <div class="pf-tabs" id="pf-tabs">
   <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>FEED</span></div>
@@ -2228,7 +2228,6 @@ function toggleCreateMenu(e){
   [['Feed',function(){openCreatePost('feed');}],
    ['Event',openCreateChooser],
    ['Story',function(){openCreatePost('story');}],
-   ['Highlight',createHighlight],
    ['Chat',function(){showTab('chat');}]].forEach(function(it){
     var b=document.createElement('button');
     b.textContent=it[0];
@@ -2330,7 +2329,8 @@ function toggleArchived(id,val){
         try{ var _lb=(m.links_label&&String(m.links_label).trim())||'Links'; var _btn=document.querySelector('#pfLinksDrop button'); if(_btn) _btn.textContent='🔗 '+_lb+' ▾'; }catch(e){}
         /* render preset badges chosen in Edit Profile (fallback: Member) */
         try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _acct=String(m.account_type||'').toLowerCase().trim(); var _seen={}; var _arr=(Array.isArray(m.badges)?m.badges:['Member']).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_acct||_seen[k])return false; _seen[k]=1; return true;}); _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
-        if(m.about){ var ab=document.getElementById('pfAboutTop'); ab.textContent=m.about; ab.style.display='block'; }
+        /* description renders UNDER the avatar in .pf-meta (pfAbout), matching the Groove Trooper gold standard — not beside the avatar (Founder 2026-07-27) */
+        if(m.about){ var _at=document.getElementById('pfAboutTop'); if(_at)_at.style.display='none'; var ab=document.getElementById('pfAbout'); if(ab){ ab.textContent=m.about; ab.style.display='block'; } }
         if(Array.isArray(m.links)&&m.links.length){
           document.getElementById('pfLinksMenu').innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
             return '<a href="'+String(u).replace(/"/g,'')+'" target="_blank" rel="noopener" style="display:block;padding:8px 10px;color:var(--brand,#00b4ff);font-size:.84rem;font-weight:700;border-radius:8px">🔗 '+lbl+'</a>'; }).join('');
