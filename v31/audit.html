@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>KEEPITIL — Full Website Audit &amp; Link Index</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0c12;color:#eef;font:15px/1.55 'Inter',system-ui,sans-serif;padding:28px 18px 80px;max-width:1000px;margin:0 auto}
+h1{font-size:1.7rem;letter-spacing:.02em;margin-bottom:4px}
+.sub{color:#9aa;margin-bottom:8px}
+.meta{color:#7a8;font-size:.82rem;margin-bottom:22px}
+h2{font-size:1.15rem;margin:26px 0 4px;padding-top:16px;border-top:1px solid #22222e;letter-spacing:.02em}
+h2 .c{color:#7a8;font-size:.8rem;font-weight:400;margin-left:8px}
+.note{color:#c9b; font-size:.82rem;margin:2px 0 10px}
+ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 18px;margin:8px 0}
+li{padding:4px 0;border-bottom:1px solid #191922;font-size:.9rem;display:flex;gap:8px;align-items:baseline}
+a{color:#5cc8ff;text-decoration:none}a:hover{text-decoration:underline}
+.tag{font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;flex:0 0 auto}
+.live{background:#0c3;color:#031}.review{background:#fc3;color:#320}.legacy{background:#733;color:#fdd}.gold{background:#d4a017;color:#211}.venue{background:#0aa;color:#022}
+.gold-card{background:#15130b;border:1px solid #d4a01755;border-radius:12px;padding:14px 16px;margin:8px 0}
+.gold-card b{color:#f0d47a}.gold-card .u{color:#8fd;font-size:.82rem}.gold-card .todo{color:#f9a;font-size:.82rem}
+code{background:#191922;padding:1px 6px;border-radius:5px;color:#9fd;font-size:.82rem}
+</style></head><body>
+<h1>KEEPITIL — Full Website Audit &amp; Link Index</h1>
+<div class="sub">Every live page, profile, and venue — titled and clickable.</div>
+<div class="meta">Generated 2026-07-26 · click any link to inspect the live page.</div>
+
+<h2>★ Gold Standard Templates <span class="c">the only 4 — everything else conforms to these</span></h2>
+<div class="note">Target clean URLs + fixes are noted under each. Current working links below.</div>
+<div class="gold-card"><b>1 · Unclaimed profile</b> — <a href="https://keepitil.com/profile-groove-trooper.html" target="_blank">profile-groove-trooper.html ↗</a>
+<div class="todo">TO DO: add universal header nav shell + footer · target URL <code>/profile/groove-trooper</code></div></div>
+<div class="gold-card"><b>2 · Subscribed profile</b> — <a href="https://keepitil.com/v31/profile.html?slug=tuitea" target="_blank">profile.html?slug=tuitea ↗</a>
+<div class="todo">TO DO: clean URL <code>/profile/tuitea</code></div></div>
+<div class="gold-card"><b>3 · Subscribed viewer (unclaimed)</b> — <a href="https://keepitil.com/v31/profile.html?slug=groove-trooper" target="_blank">profile.html?slug=groove-trooper ↗</a>
+<div class="todo">TO DO: add the universal footer like the homepage · clean URL <code>/profile/unclaimed/groove-trooper</code></div></div>
+<div class="gold-card"><b>4 · Venue</b> — <a href="https://keepitil.com/v31/venue.html?v=bleu" target="_blank">venue.html?v=bleu ↗</a>
+<div class="todo">TO DO: clean URL <code>/venue/bleu</code></div></div>
+
+<h2>V3.1 Core Pages <span class="c">live public site</span></h2>
+<ul id="core"></ul>
+
+<h2>Live Profiles <span class="c">DB-driven</span></h2>
+<ul id="profiles"></ul>
+
+<h2>AI Crew Profiles <span class="c">14 agents</span></h2>
+<ul id="agents"></ul>
+
+<h2>Venues <span class="c">30 published</span></h2>
+<ul id="venues"></ul>
+
+<h2>Games <span class="c">/games/</span></h2>
+<ul id="games"></ul>
+
+<h2>Legacy / Purge Candidates <span class="c">not gold standard — proposed for archive</span></h2>
+<div class="note">These are old templates/pages superseded by V3.1. Proposed to archive (not hard-delete) once you confirm.</div>
+<ul id="legacy"></ul>
+
+<script>
+var B='https://keepitil.com';
+function li(url,title,tag){return '<li><span class="tag '+tag[1]+'">'+tag[0]+'</span><a target="_blank" href="'+url+'">'+title+'</a></li>';}
+function fill(id,items){document.getElementById(id).innerHTML=items.join('');}
+
+var CORE=[['/v31/','Home'],['/v31/culture.html','Culture (Feed)'],['/v31/scene.html','Scene (Directory)'],['/v31/radio.html','Radio'],['/v31/event.html','Event'],['/v31/venue.html?v=bleu','Venue'],['/v31/profile.html?slug=tuitea','Profile'],['/v31/u.html','User profile (u)'],['/v31/p.html','Public mini (p)'],['/v31/apply.html','Apply / Login'],['/v31/onboarding.html','Onboarding'],['/v31/create-profile.html','Create profile'],['/v31/create-event.html','Create event'],['/v31/submit-event.html','Submit event'],['/v31/dashboard.html','Dashboard'],['/v31/settings.html','Settings'],['/v31/tickets.html','Tickets'],['/v31/ticket.html','Ticket'],['/v31/my-tickets.html','My tickets'],['/v31/ticket-terms.html','Ticket terms'],['/v31/refund.html','Refund'],['/v31/about.html','About'],['/v31/contact.html','Contact'],['/v31/privacy.html','Privacy'],['/v31/terms.html','Terms'],['/v31/community-guidelines.html','Community guidelines'],['/v31/campaigns.html','Campaigns'],['/v31/image-tool.html','Image tool'],['/v31/event-chat.html?e=general','Event chat'],['/v31/agent.html','Agent']];
+fill('core',CORE.map(function(x){return li(B+x[0],x[1],['live','live']);}));
+
+var PROFILES=[['tuitea','Tuitea','live'],['groove-trooper','Groove Trooper (demo)','live'],['fngrs-crssd','FNGRS CRSSD','review'],['framework-la','Framework','review'],['discotech-app','Discotech','review'],['dirtybird-records','Dirtybird','review']];
+fill('profiles',PROFILES.map(function(p){return li(B+'/v31/profile.html?slug='+p[0],p[1],[p[2].toUpperCase(),p[2]]);}));
+
+var AGENTS='echo atlas pulse nexus sentinel oracle fable nova luna lyric vibe scout merch beacon'.split(' ');
+fill('agents',AGENTS.map(function(a){return li(B+'/v31/profile.html?slug='+a,a.charAt(0).toUpperCase()+a.slice(1),['AGENT','live']);}));
+
+var VEN=['venue-3oz-dive-club|3oz Dive Club','venue-avalon-hollywood|Avalon Hollywood','venue-beach-house-san-diego|Beach House San Diego','venue-berlin|Berlin','bleu|BLEU','venue-california-plaza|California Plaza','venue-catalina-classic-cruises|Catalina Classic Cruises','venue-city-market|City Market','venue-don-quixote|Don Quixote','venue-el-rey-theatre|El Rey Theatre','venue-eq-san-diego|EQ San Diego','venue-exchange-la|Exchange LA','venue-fonda-theatre|Fonda Theatre','venue-gallagher-square|Gallagher Square','venue-harbor-house-dtla|Harbor House DTLA','venue-kiss-kiss-bang-bang|Kiss Kiss Bang Bang','venue-level-8-dtla|Level 8 DTLA','venue-los-angeles-state-historic-park|LA State Historic Park','venue-music-box|Music Box','venue-pershing-square|Pershing Square','venue-quartyard|Quartyard','venue-roosevelt-hotel|Roosevelt Hotel','venue-spin|Spin','venue-the-bellwether|The Bellwether','venue-the-bridge|The Bridge','venue-the-compound-by-dirt-dog|The Compound by Dirt Dog','venue-the-forum|The Forum','venue-the-ohana|The Ohana','venue-the-slipper-clutch|The Slipper Clutch','venue-time-nightclub|Time Nightclub'];
+fill('venues',VEN.map(function(v){var p=v.split('|');return li(B+'/v31/venue.html?v='+p[0],p[1],['VENUE','venue']);}));
+
+fill('games',[['/games/','Games hub'],['/games/ageofwars/','Age of Wars'],['/games/kingdom-wars/','Kingdom Wars']].map(function(x){return li(B+x[0],x[1],['live','live']);}));
+
+var LEGACY=[['/profile-ai-echo.html','profile-ai-echo (v3)'],['/profile-ai-atlas.html','profile-ai-atlas (v3)'],['/profile-ai-nexus.html','profile-ai-nexus (v3)'],['/profile-ai-nova.html','profile-ai-nova (v3)'],['/profile-ai-oracle.html','profile-ai-oracle (v3)'],['/profile-ai-pulse.html','profile-ai-pulse (v3)'],['/profile-ai-sentinel.html','profile-ai-sentinel (v3)'],['/profile-oracle.html','profile-oracle (v3)'],['/profile-org-keepitil.html','profile-org-keepitil (v3)'],['/artist.html','artist.html (v3)'],['/culture-concept-a.html','culture-concept-a'],['/culture-concept-b.html','culture-concept-b'],['/culture-concept-c.html','culture-concept-c'],['/mobile-preview.html','mobile-preview'],['/echo-dashboard.html','echo-dashboard'],['/portal.html','portal'],['/spotlight.html','spotlight'],['/vendors.html','vendors'],['/organizers-directory.html','organizers-directory'],['/organizer-welcome.html','organizer-welcome'],['/radio-control.html','radio-control'],['/grow.html','grow'],['/events.html','events (v3)'],['/artist.html','artist'],['/v3/','entire /v3/ legacy tree (64 pages)']];
+fill('legacy',LEGACY.map(function(x){return li(B+x[0],x[1],['LEGACY','legacy']);}));
+</script>
+</body></html>
