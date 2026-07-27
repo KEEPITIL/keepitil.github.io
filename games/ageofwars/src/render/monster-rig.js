@@ -249,9 +249,163 @@ window.KWMonsters = (function () {
   const COLOSSUS = { skin: '#9a7b3c', skinDark: '#6b5426', skinLit: '#c2a15a', metal: '#9a7b3c', horn: '#c2a15a', eye: '#66f0ff', eyeGlow: 'rgba(90,220,255,.5)', core: '#66f0ff', coreGlow: 'rgba(90,220,255,.5)', loin: '#5a4a2a', wood: '#7a6a52', trim: '#4a3a1c', nail: '#c2a15a' };
   function drawColossus(ctx, po, C) { giantBody(ctx, po, C, { head: headGolem, weapon: drawClub, metal: true, core: true }); }
 
-  const POSES = { cyclops: cyclopsPose, bull: cyclopsPose, golem: cyclopsPose, colossus: cyclopsPose };
-  const DRAW = { cyclops: drawCyclops, bull: drawBull, golem: drawGolem, colossus: drawColossus };
-  const PAL = { cyclops: CYC, bull: BULL, golem: GOLEM, colossus: COLOSSUS };
+  // ==========================================================================
+  //  NON-HUMANOID QUADRUPED BEASTS (Mammoth Titan, War Elephant)
+  //  Own pose + draw (side-profile quadruped), facing +x = the enemy.
+  // ==========================================================================
+  const MAMMOTH = { fur: '#6b4a2c', furDark: '#4a3018', furLit: '#8f6a3e', skin: '#5c4326', tusk: '#efe6cf', tuskDark: '#cdbf9c', eye: '#3a2a14', frost: 'rgba(180,225,255,.6)', nail: '#3b2c18', trim: '#2e2012' };
+  const WELEPH = { fur: '#8a8f96', furDark: '#5c6067', furLit: '#adb2b9', skin: '#7c828a', tusk: '#efe6cf', tuskDark: '#cdbf9c', eye: '#2a1c10', metal: '#b5893c', metalDark: '#6e5222', cloth: '#8f2e2e', clothLit: '#b64848', gold: '#d9b24a', eyeGlow: 'rgba(255,220,120,.4)', nail: '#4a4d52', trim: '#3a2a14' };
+
+  function beastPose(state, p, t) {
+    const po = { px: 0, py: 0, lean: 0, headTilt: 0, alpha: 1, backH: 74, bodyLen: 132,
+      trunk: 0.2, ear: 0, tail: 0, mouth: 0,
+      legs: [{ fwd: 0.06, lift: 0 }, { fwd: -0.05, lift: 0 }, { fwd: -0.06, lift: 0 }, { fwd: 0.05, lift: 0 }], extra: {} };
+    switch (state) {
+      case 'idle': {
+        const b = Math.sin(t * 1.15), b2 = Math.sin(t * 1.15 + 1.4), sway = Math.sin(t * 0.6);
+        po.py = b * 1.6; po.lean = b * 0.01; po.headTilt = sway * 0.05 + b * 0.02;
+        po.trunk = 0.22 + Math.sin(t * 0.9) * 0.12; po.ear = Math.sin(t * 1.8) * 0.5 + 0.5; po.tail = sway;
+        po.legs = po.legs.map((l, i) => ({ fwd: l.fwd + Math.sin(t * 0.6 + i) * 0.015, lift: 0 }));
+        break;
+      }
+      case 'walk': {
+        // diagonal gait: FN+BF together, FF+BN together
+        const ph = p * Math.PI * 2, A = 0.30;
+        const g1 = Math.sin(ph), g2 = Math.sin(ph + Math.PI);
+        po.legs = [
+          { fwd: A * g1, lift: Math.max(0, g1) * 9 },   // front near
+          { fwd: A * g2, lift: Math.max(0, g2) * 9 },   // front far
+          { fwd: A * g1, lift: Math.max(0, g1) * 9 },   // back near (diagonal w/ FN here for a heavy plod)
+          { fwd: A * g2, lift: Math.max(0, g2) * 9 }    // back far
+        ];
+        po.py = -Math.abs(Math.sin(ph * 2)) * 2.2; po.headTilt = Math.sin(ph) * 0.05; po.trunk = 0.24 + Math.sin(ph) * 0.1; po.tail = Math.sin(ph * 0.5);
+        break;
+      }
+      case 'slam': { // rear up then trample front legs down
+        const rear = ss(0, .4, p), down = ss(.4, .58, p), rec = ss(.58, 1, p);
+        po.lean = -0.5 * rear + 0.25 * down - 0.15 * rec; po.py = -rear * 14 + down * 10;
+        po.legs[0] = { fwd: 0.5 * rear - down * 0.2, lift: rear * 40 - down * 40 };
+        po.legs[1] = { fwd: 0.45 * rear - down * 0.2, lift: rear * 34 - down * 34 };
+        po.trunk = 0.7 * rear + 0.3; po.extra.impact = down * (1 - rec); po.mouth = rear * 0.6; po.headTilt = -0.3 * rear;
+        break;
+      }
+      case 'stomp': { const lift = ss(0, .4, p), drop = ss(.4, .55, p), rec = ss(.55, 1, p);
+        po.legs[0] = { fwd: 0.1 + lift * 0.15, lift: lift * 32 - drop * 32 }; po.py = -lift * 4 + drop * 3;
+        po.trunk = 0.3 + lift * 0.3; po.extra.quake = drop * (1 - rec); po.headTilt = lift * 0.1; break; }
+      case 'roar': { const open = ss(0, .3, p) * (1 - ss(.7, 1, p)); po.trunk = 0.4 + open * 0.9; po.headTilt = -0.35 * open; po.mouth = open; po.lean = -0.06 * open; po.extra.roar = open; po.ear = open; break; }
+      case 'die': { const fall = ss(0, .8, p); po.lean = 0.2 * fall; po.py = fall * 22; po.headTilt = 0.6 * fall; po.trunk = 0.2 - 0.2 * fall;
+        po.legs = po.legs.map((l, i) => ({ fwd: (i < 2 ? 0.5 : -0.4) * fall, lift: 0 })); po.alpha = 1 - ss(.85, 1, p) * 0.2; break; }
+      default: po.py = Math.sin(t * 1.1) * 1.4;
+    }
+    return po;
+  }
+
+  // one quadruped leg: hip at (hx,hy), reaches toward ground y=0.
+  function beastLeg(ctx, hx, hy, fwd, lift, wt, wb, col, hoof) {
+    const l1 = (0 - hy) * 0.52, l2 = (0 - hy) * 0.54;
+    const knee = fk([hx, hy], DN + fwd * 0.6, l1);
+    const foot = fk(knee, DN - fwd * 0.35, l2); foot[1] -= lift; foot[0] += fwd * 4;
+    limb(ctx, [hx, hy], knee, wt, wb, col); limb(ctx, knee, foot, wb, wb * 0.82, col);
+    ctx.fillStyle = hoof; ctx.beginPath(); ctx.ellipse(foot[0], foot[1] - 1, wb * 0.9, wb * 0.55, 0, 0, 7); ctx.fill();
+    return foot;
+  }
+
+  function drawBeast(ctx, po, C, opts) {
+    ctx.globalAlpha = po.alpha;
+    const cx = po.px, cy = -(po.backH * 0.64) + po.py, rx = po.bodyLen / 2, ry = po.backH * 0.36;
+    const fur = C.fur, far = shade(fur, -.18);
+    // ground shadow + quake
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(cx, 0, rx * 0.9, 9, 0, 0, 7); ctx.fill();
+    if (po.extra.impact > 0.05 || po.extra.quake > 0.05) { const k = Math.max(po.extra.impact || 0, po.extra.quake || 0); ctx.strokeStyle = 'rgba(210,200,170,' + (0.55 * k) + ')'; ctx.lineWidth = 3; for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(cx + s * 24, 0); ctx.lineTo(cx + s * (24 + 46 * k), -6 - 9 * k); ctx.stroke(); } }
+    ctx.save(); ctx.translate(cx, cy); ctx.rotate(po.lean); ctx.translate(-cx, -cy);
+    // hip/shoulder anchors on belly line
+    const bellyY = cy + ry * 0.5;
+    const shX = cx + rx * 0.60, hpX = cx - rx * 0.62;              // shoulder(front) / hip(back)
+    // FAR legs (back-far idx3, front-far idx1) first, darkened
+    beastLeg(ctx, hpX + 6, bellyY, po.legs[3].fwd, po.legs[3].lift, 11, 8, far, shade(C.nail, -.1));
+    beastLeg(ctx, shX - 6, bellyY, po.legs[1].fwd, po.legs[1].lift, 12, 8, far, shade(C.nail, -.1));
+    // tail (rear)
+    const tailBase = [cx - rx * 0.98, cy - ry * 0.1];
+    ctx.strokeStyle = far; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(tailBase[0], tailBase[1]); ctx.quadraticCurveTo(tailBase[0] - 14, tailBase[1] + 16, tailBase[0] - 8 + po.tail * 6, tailBase[1] + 34); ctx.stroke();
+    ctx.fillStyle = C.furDark; ctx.beginPath(); ctx.arc(tailBase[0] - 8 + po.tail * 6, tailBase[1] + 36, 5, 0, 7); ctx.fill();
+    // BODY barrel
+    ctx.fillStyle = cyl(ctx, cx - rx, cx + rx, fur, .22);
+    ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, 7); ctx.fill();
+    // back hump toward shoulders
+    ctx.fillStyle = shade(fur, .1); ctx.beginPath(); ctx.ellipse(cx + rx * 0.35, cy - ry * 0.62, rx * 0.5, ry * 0.5, -.15, Math.PI, 0); ctx.fill();
+    if (opts.fur) { // shaggy underbelly + back fringe
+      ctx.strokeStyle = shade(fur, -.12); ctx.lineWidth = 3;
+      for (let i = -6; i <= 6; i++) { const fx = cx + i * (rx / 7); const fy = cy + ry * 0.86 + (i % 2 ? 4 : 0); ctx.beginPath(); ctx.moveTo(fx, cy + ry * 0.7); ctx.lineTo(fx - 3, fy + 14); ctx.stroke(); }
+      ctx.strokeStyle = shade(fur, .06); ctx.lineWidth = 2; for (let i = -5; i <= 5; i++) { const fx = cx + i * (rx / 6); ctx.beginPath(); ctx.moveTo(fx, cy - ry * 0.9); ctx.lineTo(fx + 2, cy - ry * 1.02 - (i % 2 ? 5 : 2)); ctx.stroke(); }
+    }
+    if (opts.armor) { // war-elephant caparison: plates over the back + a red saddle cloth
+      ctx.fillStyle = C.cloth; ctx.beginPath(); ctx.moveTo(cx - rx * 0.7, cy - ry * 0.2); ctx.lineTo(cx + rx * 0.55, cy - ry * 0.2); ctx.lineTo(cx + rx * 0.45, cy + ry * 0.95); ctx.lineTo(cx - rx * 0.6, cy + ry * 0.95); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = C.gold; for (let i = -3; i <= 3; i++) { const tx = cx + i * (rx * 0.28); ctx.beginPath(); ctx.moveTo(tx - 6, cy + ry * 0.95); ctx.lineTo(tx + 6, cy + ry * 0.95); ctx.lineTo(tx, cy + ry * 1.1); ctx.closePath(); ctx.fill(); }
+      ctx.strokeStyle = C.gold; ctx.lineWidth = 2; ctx.strokeRect(cx - rx * 0.66, cy - ry * 0.16, rx * 1.18, ry * 1.06);
+      // metal head/shoulder plate
+      ctx.fillStyle = cyl(ctx, cx + rx * 0.3, cx + rx, C.metal, .3); ctx.beginPath(); ctx.ellipse(cx + rx * 0.7, cy - ry * 0.3, rx * 0.32, ry * 0.7, -.1, 0, 7); ctx.fill();
+      ctx.strokeStyle = C.metalDark; ctx.lineWidth = 1.4; ctx.stroke();
+      // war howdah (tower) on the back
+      const hwX = cx - rx * 0.12, hwY = cy - ry * 0.95;
+      ctx.fillStyle = shade(C.metal, -.1); ctx.fillRect(hwX - 26, hwY - 22, 52, 26);
+      ctx.fillStyle = C.cloth; ctx.fillRect(hwX - 26, hwY - 22, 52, 6);
+      ctx.strokeStyle = C.gold; ctx.lineWidth = 2; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(hwX + i * 13, hwY - 22); ctx.lineTo(hwX + i * 13, hwY + 4); ctx.stroke(); }
+      ctx.fillStyle = C.cloth; poly(ctx, [[hwX + 26, hwY - 22], [hwX + 40, hwY - 30], [hwX + 26, hwY - 12]], C.cloth, null, 0); // pennant
+    }
+    // NEAR legs
+    beastLeg(ctx, hpX, bellyY, po.legs[2].fwd, po.legs[2].lift, 13, 9, fur, C.nail);
+    beastLeg(ctx, shX, bellyY, po.legs[0].fwd, po.legs[0].lift, 14, 9, fur, C.nail);
+    // HEAD at front (+x)
+    ctx.save();
+    const hx = cx + rx * 0.98, hy = cy - ry * 0.5;
+    ctx.translate(hx, hy); ctx.rotate(po.headTilt * 0.6 + po.lean * 0.3);
+    const hr = po.backH * 0.34;
+    // skull
+    ctx.fillStyle = cyl(ctx, -hr, hr, opts.fur ? fur : C.skin, .2);
+    ctx.beginPath(); ctx.ellipse(0, 0, hr * 0.95, hr * 1.02, 0, 0, 7); ctx.fill();
+    // domed forehead (mammoth) / armored crown (elephant)
+    if (opts.fur) { ctx.fillStyle = shade(fur, .08); ctx.beginPath(); ctx.ellipse(-hr * 0.1, -hr * 0.7, hr * 0.7, hr * 0.5, 0, 0, 7); ctx.fill(); }
+    else { ctx.fillStyle = cyl(ctx, -hr * 0.7, hr * 0.7, C.metal, .3); ctx.beginPath(); ctx.ellipse(-hr * 0.05, -hr * 0.72, hr * 0.66, hr * 0.42, 0, Math.PI, 0); ctx.fill(); ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(-hr * 0.05, -hr * 0.9, hr * 0.14, 0, 7); ctx.fill(); }
+    // ear (flaps with po.ear)
+    ctx.save(); ctx.translate(-hr * 0.35, -hr * 0.15); ctx.rotate(-0.2 - po.ear * 0.25);
+    ctx.fillStyle = shade(opts.fur ? fur : C.skin, -.1); ctx.beginPath(); ctx.ellipse(-hr * 0.35, hr * 0.1, hr * (opts.fur ? 0.42 : 0.72), hr * (opts.fur ? 0.55 : 0.82), 0, 0, 7); ctx.fill();
+    ctx.fillStyle = shade(opts.fur ? fur : C.skin, .08); ctx.beginPath(); ctx.ellipse(-hr * 0.35, hr * 0.1, hr * (opts.fur ? 0.28 : 0.5), hr * (opts.fur ? 0.4 : 0.62), 0, 0, 7); ctx.fill(); ctx.restore();
+    // eye
+    ctx.fillStyle = C.eyeGlow || 'rgba(0,0,0,0)'; if (C.eyeGlow) { ctx.beginPath(); ctx.arc(hr * 0.42, -hr * 0.12, hr * 0.16, 0, 7); ctx.fill(); }
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(hr * 0.42, -hr * 0.12, hr * 0.13, 0, 7); ctx.fill();
+    ctx.fillStyle = C.eye; ctx.beginPath(); ctx.arc(hr * 0.46, -hr * 0.12, hr * 0.08, 0, 7); ctx.fill();
+    // trunk (curls up with po.trunk: 0 hang → 1 raised)
+    const seg = 5, baseX = hr * 0.7, baseY = hr * 0.35; let tx = baseX, ty = baseY, ang = DN - po.trunk * 2.3;
+    ctx.strokeStyle = cyl(ctx, baseX - hr, baseX + hr, opts.fur ? fur : C.skin, .16); ctx.lineCap = 'round';
+    let pts = [[tx, ty]];
+    for (let i = 0; i < seg; i++) { ang -= po.trunk * 0.28 - 0.04; const L = hr * 0.42; tx += Math.cos(ang) * L; ty += Math.sin(ang) * L; pts.push([tx, ty]); }
+    for (let i = 0; i < pts.length - 1; i++) { ctx.lineWidth = 15 - i * 2.2; ctx.beginPath(); ctx.moveTo(pts[i][0], pts[i][1]); ctx.lineTo(pts[i + 1][0], pts[i + 1][1]); ctx.stroke(); }
+    // trunk ridges
+    ctx.strokeStyle = shade(opts.fur ? fur : C.skin, -.22); ctx.lineWidth = 1; for (let i = 1; i < pts.length; i++) { ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], (14 - i * 2.2) / 2, ang - 2, ang + 2); ctx.stroke(); }
+    // tusks (curved, forward + up). Mammoth = huge sweeping; elephant = shorter painted
+    const tuskLen = opts.fur ? hr * 2.2 : hr * 1.3, tuskCurl = opts.fur ? 1.5 : 0.8;
+    for (const s of [1, 0.82]) {
+      ctx.fillStyle = s === 1 ? C.tusk : C.tuskDark;
+      ctx.beginPath(); const bx = hr * 0.55, by = hr * 0.55;
+      ctx.moveTo(bx, by - 4 * s); ctx.quadraticCurveTo(bx + tuskLen * 0.6, by + tuskLen * 0.2 * s, bx + tuskLen * 0.9, by - tuskLen * tuskCurl * 0.3 * s);
+      ctx.quadraticCurveTo(bx + tuskLen * 0.95, by - tuskLen * tuskCurl * 0.34 * s, bx + tuskLen * 0.8, by - tuskLen * tuskCurl * 0.2 * s);
+      ctx.quadraticCurveTo(bx + tuskLen * 0.5, by + tuskLen * 0.32 * s, bx, by + 8 * s); ctx.closePath(); ctx.fill();
+      if (!opts.fur && s === 1) { ctx.fillStyle = C.gold; ctx.beginPath(); ctx.arc(bx + tuskLen * 0.42, by + tuskLen * 0.1, 4, 0, 7); ctx.fill(); } // gold band
+    }
+    if (opts.fur) { // frost breath on mammoth
+      ctx.fillStyle = C.frost; for (let i = 0; i < 3; i++) { ctx.globalAlpha = po.alpha * (0.4 - i * 0.1); ctx.beginPath(); ctx.arc(pts[pts.length - 1][0] + 8 + i * 10, pts[pts.length - 1][1] - i * 4, 5 + i * 2, 0, 7); ctx.fill(); } ctx.globalAlpha = po.alpha;
+    }
+    if (po.mouth > 0.1) { ctx.fillStyle = '#3a1c14'; ctx.beginPath(); ctx.ellipse(hr * 0.5, hr * 0.28, hr * 0.2, hr * 0.24 * po.mouth + 2, 0, 0, 7); ctx.fill(); }
+    ctx.restore();
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+  function drawMammoth(ctx, po, C) { drawBeast(ctx, po, C, { fur: true, armor: false }); }
+  function drawElephant(ctx, po, C) { drawBeast(ctx, po, C, { fur: false, armor: true }); }
+
+  const POSES = { cyclops: cyclopsPose, bull: cyclopsPose, golem: cyclopsPose, colossus: cyclopsPose, mammoth: beastPose, elephant: beastPose };
+  const DRAW = { cyclops: drawCyclops, bull: drawBull, golem: drawGolem, colossus: drawColossus, mammoth: drawMammoth, elephant: drawElephant };
+  const PAL = { cyclops: CYC, bull: BULL, golem: GOLEM, colossus: COLOSSUS, mammoth: MAMMOTH, elephant: WELEPH };
 
   function draw(ctx, type, state, p, t, scale, team) {
     const poseFn = POSES[type], drawFn = DRAW[type]; if (!poseFn) return false;

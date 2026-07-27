@@ -15,7 +15,7 @@
     khopesh_warrior:unit('khopesh_warrior','BRONZE','ASSAULT',65,{health:94,armor:27,armorReduction:.06,damage:17,attackInterval:.85,speed:58}),
     palace_archer:unit('palace_archer','BRONZE','RANGED',85,{health:64,armor:17,damage:11,attackInterval:1.35,range:450,speed:53,projectileSpeed:470,damageType:'PIERCING'}),
     royal_scale_guard:unit('royal_scale_guard','BRONZE','ELITE',165,{health:190,shield:95,armor:48,armorReduction:.12,damage:22,range:38,speed:45,damageType:'PIERCING',maxActive:8}),
-    chariot_slinger:unit('chariot_slinger','BRONZE','SPECIALIST',150,{health:112,armor:26,damage:16,attackInterval:1.25,range:410,speed:76,projectileSpeed:410,damageType:'BLUNT',maxActive:8}),
+    chariot_slinger:unit('chariot_slinger','BRONZE','SPECIALIST',170,{health:104,armor:24,damage:16,attackInterval:1.28,range:405,speed:68,projectileSpeed:410,damageType:'BLUNT',maxActive:8}),
     hoplite:unit('hoplite','GREEK','DEFENDER',100,{health:145,shield:110,armor:45,armorReduction:.11,damage:16,range:45,speed:47,damageType:'PIERCING',staggerPower:25}),
     greek_swordsman:unit('greek_swordsman','GREEK','ASSAULT',85,{health:108,armor:38,armorReduction:.08,damage:20,attackInterval:.8,speed:57}),
     cretan_archer:unit('cretan_archer','GREEK','RANGED',110,{health:72,armor:20,damage:14,attackInterval:1.25,range:500,speed:54,projectileSpeed:520,armorPiercing:.08,damageType:'PIERCING'}),
