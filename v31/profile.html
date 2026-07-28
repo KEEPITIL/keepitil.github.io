@@ -127,6 +127,8 @@ body::before{content:""!important;position:fixed!important;inset:0!important;z-i
 #pfHandle{display:none!important}
 .alert-bar{display:none!important}
 #pfIG,#pfSC{display:none!important}
+/* social icons live in the About "Links" dropdown on profiles, not in the footer (Founder 2026-07-27) */
+#v3-footer .v3-foot-social{display:none!important}
 #dm-new{display:none!important}
 #pfBadges,#pfPassport{display:none!important}
 .pf-cta #pfShare>button svg{display:none!important}
@@ -1036,6 +1038,19 @@ function applyProfile(){
   /* agent chat header follows the async-loaded meta (avatar lands after first render) */
   if(IS_AGENT){ var _ag=document.querySelector('#agchat .ag-head'); if(_ag){ var _ai=_ag.querySelector('img'); if(_ai&&PROFILE.avatar)_ai.src=PROFILE.avatar; var _ab=_ag.querySelector('b'); if(_ab&&PROFILE.name)_ab.textContent='Ask '+PROFILE.name; } }
   renderHighlights();
+  renderLinksMenu();
+}
+/* About → "Links" dropdown = the profile's social media icons + custom links (Founder 2026-07-27: socials moved here from the footer) */
+function renderLinksMenu(){
+  var menu=document.getElementById('pfLinksMenu'), drop=document.getElementById('pfLinksDrop'); if(!menu) return;
+  var soc=PROFILE.socials||{};
+  var SI=[['instagram','📷','Instagram'],['soundcloud','☁️','SoundCloud'],['tiktok','🎵','TikTok'],['youtube','▶️','YouTube'],['spotify','🎧','Spotify'],['x','✕','X'],['twitter','✕','X'],['facebook','📘','Facebook'],['website','🌐','Website']];
+  var out=[], seen={};
+  SI.forEach(function(k){ var v=soc[k[0]]; if(v&&!seen[k[2]]){ seen[k[2]]=1; var u=String(v).replace(/^@/,''); if(!/^https?:\/\//.test(u))u='https://'+u; out.push([k[1]+' '+k[2],u]); } });
+  (PROFILE.links||[]).forEach(function(u){ if(u){ var uu=String(u); if(!/^https?:\/\//.test(uu))uu='https://'+uu; out.push(['🔗 '+uu.replace(/^https?:\/\//,'').replace(/\/.*$/,'').slice(0,28),uu]); } });
+  if(!out.length){ if(drop)drop.style.display='none'; return; }
+  menu.innerHTML=out.map(function(it){ return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" style="display:block;padding:9px 11px;color:var(--brand,#00b4ff);font-size:.86rem;font-weight:700;border-radius:8px;white-space:nowrap">'+String(it[0]).replace(/[<>]/g,'')+'</a>'; }).join('');
+  if(drop)drop.style.display='';
 }
 function loadProfileMeta(){
   if(!SB) return Promise.resolve();
@@ -1045,6 +1060,7 @@ function loadProfileMeta(){
       PROFILE.bio=(d.bio!=null?d.bio:PROFILE.bio); PROFILE.tagline=(d.tagline!=null?d.tagline:PROFILE.tagline); PROFILE.pronouns=d.pronouns||PROFILE.pronouns;
       PROFILE.avatar=d.avatar_url||PROFILE.avatar; PROFILE.cover=d.cover_url||PROFILE.cover; PROFILE.book_email=d.book_email||PROFILE.book_email;
       if(d.socials&&typeof d.socials==='object')PROFILE.socials=Object.assign({},PROFILE.socials,d.socials);
+      if(Array.isArray(d.links))PROFILE.links=d.links;
       if(Array.isArray(d.highlights)&&d.highlights.length)PROFILE.highlights=d.highlights;
     }
     applyProfile(); loadCategories();
@@ -2349,12 +2365,11 @@ function toggleArchived(id,val){
         try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _acct=String(m.account_type||'').toLowerCase().trim(); var _seen={}; var _arr=(Array.isArray(m.badges)?m.badges:['Member']).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_acct||_seen[k])return false; _seen[k]=1; return true;}); _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
         /* description renders UNDER the avatar in .pf-meta (pfAbout), matching the Groove Trooper gold standard — not beside the avatar (Founder 2026-07-27) */
         if(m.about){ var _at=document.getElementById('pfAboutTop'); if(_at)_at.style.display='none'; var ab=document.getElementById('pfAbout'); if(ab){ ab.textContent=m.about; ab.style.display='block'; } }
-        if(Array.isArray(m.links)&&m.links.length){
-          document.getElementById('pfLinksMenu').innerHTML=m.links.slice(0,5).map(function(u){ var lbl=String(u).replace(/^https?:\/\//,'').slice(0,34);
-            return '<a href="'+String(u).replace(/"/g,'')+'" target="_blank" rel="noopener" style="display:block;padding:8px 10px;color:var(--brand,#00b4ff);font-size:.84rem;font-weight:700;border-radius:8px">🔗 '+lbl+'</a>'; }).join('');
-          document.getElementById('pfLinksDrop').style.display='block';
-          document.addEventListener('click',function(){ var mm=document.getElementById('pfLinksMenu'); if(mm)mm.style.display='none'; });
-        }
+        /* socials + links → the About "Links" dropdown (icons live here, not in the footer) */
+        if(Array.isArray(m.links))PROFILE.links=m.links;
+        if(m.socials&&typeof m.socials==='object')PROFILE.socials=Object.assign({},PROFILE.socials,m.socials);
+        renderLinksMenu();
+        document.addEventListener('click',function(){ var mm=document.getElementById('pfLinksMenu'); if(mm)mm.style.display='none'; });
       });
     }catch(e){}
   }
