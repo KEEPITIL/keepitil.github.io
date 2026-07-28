@@ -335,6 +335,7 @@ function reset(){
     castleHP: 2200, castleMax: 2200,
     units: [], projs: [], fx: [], splats: [], corpses: [], floats: [],
     wave: 0, localWave:0, conquestCycle:0, encounter:'normal', waveQueue: [], spawnT: 0, interT: 5, phase: 'inter',
+    folkSiege:false, folkSiegeStart:0, folkSpawnT:0, folkGiantCd:0,
     over: null,
     stance: 'defend', rallyX: 760, marchDir: 1, retreatT: 0,
     enemyPhase:'form', enemyRallyX:E_SPAWN-35, enemyFormT:0, enemyPulseT:0,
@@ -457,7 +458,8 @@ function spawnEnemy(type){
   const bossScale=type==='eboss'?enc.scale:1;
   const bossName=type==='eboss'?(enc.ruler?RULER_NAMES[Math.min(4,S.enemyCiv-1)]:enc.label+' CAPTAIN'):'';
   const hp=Math.round(T.hp*globalEnemyHealthMult()*bossScale);
-  const folklore=S.finalSiege?window.KWFolklore?.byOrder?.(S.enemyCiv):null,elapsed=S.finalSiege?S.time-(S.finalSiegeStart||0):0,stage=elapsed>=900?4:elapsed>=600?3:elapsed>=360?2:elapsed>=180?1:0,folk=folklore?.units?.[Math.min(stage,type==='eboss'?4:stage)];
+  const siegeOn=S.finalSiege||S.folkSiege,siegeStart=S.finalSiege?(S.finalSiegeStart||0):(S.folkSiegeStart||0);
+  const folklore=siegeOn?window.KWFolklore?.byOrder?.(S.enemyCiv):null,elapsed=siegeOn?S.time-siegeStart:0,stage=elapsed>=900?4:elapsed>=600?3:elapsed>=360?2:elapsed>=180?1:0,folk=folklore?.units?.[Math.min(stage,type==='eboss'?4:stage)];
   S.units.push({ team:-1, type, bossTier, boss:type==='eboss', bossName:folk?.name||bossName, tags:folk?.tags||[T.role==='RANGED'?'ranged':'infantry'], folkloreName:folk?.name||null, x:E_WALL-92-simRandom()*58, y:simRange(GROUND_TOP,GROUND_BOT),
     hp, max:hp, dmg:Math.round(T.dmg*globalEnemyDamageMult()*(type==='eboss'?1+(enc.scale-1)*.35:1)), cdT:simRandom()*.5, anim:0, ph:simRandom()*10, yPref:simRandom()*24-12, spdMul:.92+simRandom()*.16, face:-1, pose:'idle', order:raid?'raid':'line', ...unitProtection(type,-1) });
   window.KWRuntime?.events.emit('unit_spawned',{team:-1,type});
@@ -548,6 +550,51 @@ function advanceCivilization(){
   if(window.KWAnalytics)KWAnalytics.track('civilization_evolved',{civilization:S.civ,wave:S.wave},'critical');
   window.KWRuntime?.events.emit('civilization_evolved',{civilization:S.civ,wave:S.wave});
   window.KWExperience?.saveRun?.();
+}
+
+// ── Folklore Siege: the endless-war climax of each era ─────────────────────
+// After the ruler falls at local wave 50, the fallen civilization unleashes its
+// mythical folklore lord (a giant/monster) leading an unending tide of minions.
+// It does NOT stop until the player shatters the era's castle; then the next
+// era's castle rises to avenge the fallen and the endless war rolls on.
+function pickSiegeMinion(){
+  const r=simRandom();
+  if(S.enemyCiv>=11 && r>.86) return 'egunner';
+  if(r<.40) return 'esword';
+  if(r<.70) return 'espear';
+  if(r<.90) return 'earcher';
+  return 'esword';
+}
+function spawnFolkGiant(){
+  spawnEnemy('eboss');                       // ruler-scale boss; folklore identity applied while folkSiege is on
+  const u=S.units[S.units.length-1];
+  if(u){ u.folkLord=true; u.hp=u.max=Math.round(u.max*1.35); u.dmg=Math.round(u.dmg*1.15); }
+}
+function startFolkloreSiege(){
+  // Conquest cycles (post-launch endless-endless) keep the instant advance.
+  if(S.wave>=LAUNCH_WAVE_MILESTONE){ advanceCivilization(); return; }
+  S.folkSiege=true; S.folkSiegeStart=S.time; S.folkSpawnT=0; S.folkGiantCd=0;
+  S.phase='wave'; S.waveQueue=[]; S.spawnT=0; S.enemyPhase='assault';
+  S.castleMax=S.castleHP=Math.round(2600+S.enemyCiv*680);   // the era castle to bring down
+  const folk=window.KWFolklore?.byOrder?.(S.enemyCiv);
+  const lord=folk?.units?.[4]?.name || (RULER_NAMES[Math.min(4,S.enemyCiv-1)]+' Wraith');
+  spawnFolkGiant();
+  for(let i=0;i<10;i++) spawnEnemy(pickSiegeMinion());
+  showMsg('☠ '+lord+' RISES! Endless legions defend '+(folk?.fortress||'the castle')+' — shatter it to end the era!',4600);
+  snd.horn();
+  if(window.KWAudio)KWAudio.emit('civilization.transition',{civ:S.civ,siege:true});
+  if(window.KWAnalytics)KWAnalytics.track('folklore_siege_started',{wave:S.wave,enemyCivilization:S.enemyCiv},'critical');
+}
+function crumbleAndAdvance(){
+  S.folkSiege=false;
+  for(const u of S.units) if(u.team===-1) u.hp=0;              // the era's host falls with its castle
+  for(let i=0;i<14;i++) S.fx.push({kind:'boom', x:E_WALL+10+Math.random()*190, y:230+Math.random()*250, r:80, t:-i*.1});
+  window.KWRuntime?.events.emit('folklore_siege_won',{wave:S.wave,enemyCivilization:S.enemyCiv});
+  advanceCivilization();                                        // player era advances + fort upgrades
+  const nextName=CIV_NAMES[Math.min(CIV_DEFS.length-1,S.civ-1)];
+  S.castleMax=S.castleHP=Math.round(2200+S.enemyCiv*260);       // a new era castle rises to avenge
+  S.phase='inter'; S.interT=6;
+  showMsg('🏰 The castle crumbles into rubble! A new '+nextName+' castle rises to avenge the fallen — the war goes on!',4800);
 }
 
 // ---------- stances / formation ----------
@@ -873,12 +920,18 @@ function explode(x, y, r, dmg, team){
 }
 function dmgCastle(d){
   if (S.castleHP <= 0) return;
+  // In Endless War the enemy castle is impregnable until its ruler falls: it can ONLY
+  // be shattered during the Folklore Siege (the era-ending event). Campaign kingdom
+  // battles and Final Sieges keep castle destruction as their win condition.
+  if (!S.folkSiege && !S.finalSiege && !S.campaignMissionId) return;
   S.castleHP -= d;
   if (S.castleHP <= 0){
-    S.castleHP = 0; S.over = 'win'; S.shake = 12;
+    S.castleHP = 0; S.shake = 14;
     window.KWRuntime?.events.emit('fortress_destroyed',{team:-1,wave:S.wave,civilization:S.enemyCiv});
     for (let i=0;i<7;i++) S.fx.push({kind:'boom', x:E_WALL+20+Math.random()*160, y:280+Math.random()*200, r:70, t:-i*.13});
     snd.win();
+    if(S.folkSiege){ crumbleAndAdvance(); return; }
+    S.over = 'win';
     if(S.finalSiege){const reward=window.KWFinalSiege?.finish?.(S.civ,S.time-(S.finalSiegeStart||0))||0;endGame('🏆 CIVILIZATION COMPLETELY CONQUERED',window.KWFolklore.byOrder(S.civ).fortress+' has fallen! Folklore Elite, ruler equipment, capital fortress, banner and +'+reward+' Gems unlocked.');return;}
     if(window.KWAudio)KWAudio.emit('victory',{civ:S.civ});
     endGame('🏆 VICTORY!', 'The enemy castle is destroyed — your kingdom stands tall!');
@@ -1061,6 +1114,14 @@ function update(dt){
     if (S.phase === 'inter'){
       S.interT -= dt;
       if (S.interT <= 0) startWave();
+    } else if(S.phase === 'wave' && S.folkSiege) {
+      // Endless folklore siege: the era's giant leads a never-ending tide of
+      // minions. It only ends when the player shatters the enemy castle (see dmgCastle).
+      S.folkSpawnT -= dt;
+      const alive = S.units.filter(u=>u.team===-1&&u.hp>0).length;
+      const cap = Math.min(150, 46 + S.enemyCiv*7);
+      if (S.folkSpawnT <= 0){ if(alive < cap){ spawnEnemy(pickSiegeMinion()); if(alive < cap-8) spawnEnemy(pickSiegeMinion()); } S.folkSpawnT = .5; }
+      if (!S.units.some(u=>u.team===-1&&u.boss&&u.hp>0)){ S.folkGiantCd -= dt; if(S.folkGiantCd<=0){ spawnFolkGiant(); S.folkGiantCd = 16; } }
     } else if(S.phase === 'wave') {
       if (S.waveQueue.length){
         S.spawnT -= dt;
@@ -1078,7 +1139,7 @@ function update(dt){
           if(window.KWAnalytics)KWAnalytics.track('boss_defeated',{wave:S.wave,bossTier:S.wave/10,gold:goldReward,gems:gemReward},'critical');
           if(window.KWExperience)KWExperience.recordBoss();
         }
-        if(ruler)advanceCivilization();
+        if(ruler)startFolkloreSiege();
         window.KWRuntime?.events.emit('wave_completed',{wave:S.wave,civilization:S.civ,enemyCivilization:S.enemyCiv});
         window.KWExperience?.saveRun?.();
       }
