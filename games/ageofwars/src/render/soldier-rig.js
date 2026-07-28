@@ -17,8 +17,12 @@ function rot(pt,piv,a){const dx=pt[0]-piv[0],dy=pt[1]-piv[1];return [piv[0]+dx*M
 function boot(ctx,an,toe,col){const dx=toe[0]-an[0],dy=toe[1]-an[1],a=Math.atan2(dy,dx),len=Math.hypot(dx,dy)||1;ctx.save();ctx.translate(an[0],an[1]);ctx.rotate(a);ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(-3,-4);ctx.lineTo(len+2,-2.2);ctx.quadraticCurveTo(len+4,1.2,len,3);ctx.lineTo(-3,3);ctx.closePath();ctx.fill();ctx.fillStyle=shade(col,-.4);ctx.fillRect(-3,2.4,len+4,1.6);ctx.restore();}
 function hand(ctx,p,fore,col){const a=Math.atan2(p[1]-fore[1],p[0]-fore[0]);ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(a);ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(0.6,0,3,2.6,0,0,7);ctx.fill();ctx.restore();}
 function greave(ctx,k,f,col){const dx=f[0]-k[0],dy=f[1]-k[1],len=Math.hypot(dx,dy)||1,a=Math.atan2(dy,dx);ctx.save();ctx.translate(k[0],k[1]);ctx.rotate(a);poly(ctx,[[2,-3.1],[len-2,-2.6],[len-2,2.6],[2,3.1]],vg(ctx,-3,3,shade(col,.4),shade(col,-.3)),null,0);ctx.restore();}
-function head(ctx,J,C){const [hx,hy]=J.head,r=L.headR,tilt=Math.atan2(J.head[1]-J.neck[1],J.head[0]-J.neck[0])+Math.PI/2;ctx.save();ctx.translate(hx,hy);ctx.rotate(tilt);
+function head(ctx,J,C,bare){const [hx,hy]=J.head,r=L.headR,tilt=Math.atan2(J.head[1]-J.neck[1],J.head[0]-J.neck[0])+Math.PI/2;ctx.save();ctx.translate(hx,hy);ctx.rotate(tilt);
   ctx.fillStyle=shade(C.skin,-.4);ctx.beginPath();ctx.arc(0,0,r,0.15,Math.PI-0.15);ctx.fill();
+  if(bare){ // armor depleted: helmet is gone, only the bare head remains
+    ctx.fillStyle=shade(C.skin,.05);ctx.beginPath();ctx.arc(0,-0.5,r,Math.PI,Math.PI*2);ctx.fill();
+    ctx.restore();return;
+  }
   ctx.fillStyle=cyl(ctx,-r-1.5,r+1.5,C.metal,.32);ctx.strokeStyle=shade(C.metal,-.5);ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,-0.5,r+1.4,Math.PI*0.95,Math.PI*2.05);ctx.fill();ctx.stroke();
   ctx.fillStyle=shade(C.metal,.6);ctx.beginPath();ctx.ellipse(-2.2,-2.4,1.7,4.2,-.3,0,7);ctx.fill();
   if(C.mohawk){
@@ -219,12 +223,12 @@ function drawSoldier(ctx,cls,po,C,team){
   limb(ctx,J.legF[0],J.legF[1],6.7,5.4,sk);limb(ctx,J.legF[1],J.legF[2],5.4,3.6,sk);greave(ctx,J.legF[1],J.legF[2],C.metal);boot(ctx,J.legF[2],J.legF[3],shade(C.leather,-.1));
   if(cls==='sword'&&!po.supine&&!po.extra.impale)drawPteruges(ctx,J,C);
   // head
-  limb(ctx,J.shoulder,fk(J.neck,0,0),4.2,4.2,sk);head(ctx,J,C);
+  limb(ctx,J.shoulder,fk(J.neck,0,0),4.2,4.2,sk);head(ctx,J,C,po.dropHelmet);
   if(po.extra.headArrow){ctx.save();ctx.translate(J.head[0],J.head[1]);ctx.strokeStyle='#6b4a2a';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-15,0);ctx.lineTo(13,0);ctx.stroke();ctx.fillStyle='#dfe4e8';poly(ctx,[[16,0],[12,-2],[12,2]],'#dfe4e8',null,0);ctx.fillStyle='rgba(150,10,10,.7)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(-16-i*2,(i-2)*1.5,1.4,0,7);ctx.fill();}ctx.restore();}
   // near arm (shield for sword/spear; draw for bow; rear for gun)
   limb(ctx,J.armF[0],J.armF[1],5.1,4.1,sk);limb(ctx,J.armF[1],J.armF[2],4.1,3.0,sk);hand(ctx,J.armF[2],J.armF[1],shade(sk,.1));
   if(cls==='sword'&&!po.supine&&!po.extra.impale)drawPauldron(ctx,J.shoulder,C);
-  if(!po.supine&&!po.extra.impale&&!po.extra.dropGear){
+  if(!po.supine&&!po.extra.impale&&!po.extra.dropGear&&!po.dropShield){
     if(cls==='sword')drawScutum(ctx,J,C);
     if(cls==='spear')drawAspis(ctx,J,C,po);
   }

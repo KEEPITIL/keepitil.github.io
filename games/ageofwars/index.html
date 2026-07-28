@@ -245,6 +245,9 @@ const P_SPAWN = 585, E_SPAWN = W - 585;
 // Castle weapons cover only the nearest 40% of the open field. Armies must
 // leave fort protection to control the center instead of being shelled there.
 const FORT_ATTACK_REACH = 760;
+const FIELD_SPAN = E_WALL - P_WALL;                     // playable width between the two forts
+const SPEAR_THROW_MAX = Math.round(FIELD_SPAN * 0.5);   // a thrown last-spear reaches at most half the field
+const ENEMY_RANGE_CAP = Math.round(FIELD_SPAN * 0.25);  // enemy soldiers AND enemy castle fire only 1/4 across the field
 const RALLY_MIN = 700, RALLY_MAX = 2330;
 const GRAV = 620;
 const ARMY_MAX = 500;
@@ -843,7 +846,7 @@ function fireBullet(x, y, tg, dmg, team){
   S.projs.push({kind:'bullet', x, y, sourceX:x, vx:(tg.x-x)/d*880, vy:(tg.y-y)/d*880, g:0, dmg, team, life:2});
   window.KWRuntime?.events.emit('projectile_released',{kind:'bullet',team,damage:dmg});
 }
-function combatRange(u,t){const base=u.spearThrown&&(t.weapon==='spear'||t.weapon==='spartan')?22:t.range;return base*(u.equipMods?.range||1);}
+function combatRange(u,t){const base=u.spearThrown&&(t.weapon==='spear'||t.weapon==='spartan')?22:t.range;let r=base*(u.equipMods?.range||1);if(u.team===-1&&['bow','gun','laser'].includes(t.weapon))r=Math.min(r,ENEMY_RANGE_CAP);return r;}
 function attackCooldown(u,t){return t.cd/(u.equipMods?.attackSpeed||1);}
 function incomingThreat(u){
   if(!(TYPES[u.type].weapon==='spear'||TYPES[u.type].weapon==='spartan')||u.shield<=0)return null;
@@ -867,7 +870,8 @@ function incomingThreat(u){
 function throwLastSpear(u){
   if(u.spearThrown||!(TYPES[u.type].weapon==='spear'||TYPES[u.type].weapon==='spartan'))return;
   let target=null,far=-1;
-  for(const o of S.units)if(o.team!==u.team&&o.hp>0){const d=Math.hypot(o.x-u.x,o.y-u.y);if(d>far){far=d;target=o;}}
+  // Only throw at the furthest enemy WITHIN half the map. If none are in range, keep the spear.
+  for(const o of S.units)if(o.team!==u.team&&o.hp>0){const d=Math.hypot(o.x-u.x,o.y-u.y);if(d<=SPEAR_THROW_MAX&&d>far){far=d;target=o;}}
   if(!target)return;
   const flight=Math.max(.5,Math.min(1.35,far/520));
   S.projs.push({kind:'spearp',x:u.x+u.face*8,y:u.y-22,sourceX:u.x,vx:(target.x-u.x)/flight,vy:(target.y-u.y-20)/flight-.5*GRAV*flight,g:GRAV,dmg:Math.round((u.dmg||TYPES[u.type].dmg)*1.35),team:u.team,life:3});
@@ -1333,7 +1337,7 @@ function update(dt){
   }
   // Enemy fort upgrades mirror the player's wall defenses and only fire from
   // the castle, keeping defensive weapons off the marching field formation.
-  const alliesInEnemyRange=S.units.filter(a=>a.team===1&&a.hp>0&&a.x>E_WALL-FORT_ATTACK_REACH);
+  const alliesInEnemyRange=S.units.filter(a=>a.team===1&&a.hp>0&&a.x>E_WALL-ENEMY_RANGE_CAP);
   const enemyFort=fortAge(1);
   for(const d of S.enemyDefs){
     d.cdT-=dt;d.anim=Math.max(0,d.anim-dt*3);
@@ -1484,6 +1488,10 @@ function drawRigUnit(u, corpse, cls, s, x, y){
   else if(u.pose==='walk'){ st='march'; p = ((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
   else { st='idle'; p = (((u.ph*0.16)%1)+1)%1; }
   const po = KWRig.poseFor(cls, st, p, t); po._t = t;
+  // Layered defense visuals: shield is dropped once its HP is gone; the helmet is
+  // lost once armor is depleted; only then does the bare soldier take HP damage.
+  po.dropShield = !corpse && (u.shieldMax>0) && u.shield<=0;
+  po.dropHelmet = !corpse && (u.armorMax>0) && u.armor<=0;
   if(corpse) po.alpha = Math.max(0, 1 - Math.max(0, (u.t||0) - 2.0) / 4.5);   // hold the death, then fade the corpse
   const C  = KWRig.teamTint(KWRig.PAL[cls], u.team);
   const K  = RIG_K * s;
