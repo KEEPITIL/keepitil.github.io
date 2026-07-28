@@ -568,7 +568,14 @@ function pickSiegeMinion(){
 function spawnFolkGiant(){
   spawnEnemy('eboss');                       // ruler-scale boss; folklore identity applied while folkSiege is on
   const u=S.units[S.units.length-1];
-  if(u){ u.folkLord=true; u.hp=u.max=Math.round(u.max*1.35); u.dmg=Math.round(u.dmg*1.15); }
+  if(u){ u.folkLord=true; u.hp=u.max=Math.round(u.max*1.35); u.dmg=Math.round(u.dmg*1.15); u.x=E_WALL-190; }  // march out from the wall
+}
+// Siege minions muster FORWARD of the castle's guard band and advance on the player,
+// so the wall front can be cleared for a killing blow (see baseScreened).
+function spawnSiegeMinion(){
+  spawnEnemy(pickSiegeMinion());
+  const u=S.units[S.units.length-1];
+  if(u){ u.x = E_WALL - (BASE_GUARD + 30) - simRandom()*70; }
 }
 function startFolkloreSiege(){
   // Conquest cycles (post-launch endless-endless) keep the instant advance.
@@ -579,7 +586,7 @@ function startFolkloreSiege(){
   const folk=window.KWFolklore?.byOrder?.(S.enemyCiv);
   const lord=folk?.units?.[4]?.name || (RULER_NAMES[Math.min(4,S.enemyCiv-1)]+' Wraith');
   spawnFolkGiant();
-  for(let i=0;i<10;i++) spawnEnemy(pickSiegeMinion());
+  for(let i=0;i<10;i++) spawnSiegeMinion();
   showMsg('☠ '+lord+' RISES! Endless legions defend '+(folk?.fortress||'the castle')+' — shatter it to end the era!',4600);
   snd.horn();
   if(window.KWAudio)KWAudio.emit('civilization.transition',{civ:S.civ,siege:true});
@@ -918,12 +925,20 @@ function explode(x, y, r, dmg, team){
     if (d < r) hurt(u, dmg * (1 - d/r*.5),{kind:'blast',sourceX:x});
   }
 }
+// A base is shielded while its own soldiers still hold the approach lane in front of
+// it. Attackers must defeat that screen and clear a path before the wall takes damage.
+const BASE_GUARD = 155;
+function baseScreened(team){
+  if (team === 1) return S.units.some(u=>u.team===1 && u.hp>0 && u.x < P_WALL + BASE_GUARD);
+  return S.units.some(u=>u.team===-1 && u.hp>0 && u.x > E_WALL - BASE_GUARD);
+}
 function dmgCastle(d){
   if (S.castleHP <= 0) return;
   // In Endless War the enemy castle is impregnable until its ruler falls: it can ONLY
   // be shattered during the Folklore Siege (the era-ending event). Campaign kingdom
   // battles and Final Sieges keep castle destruction as their win condition.
   if (!S.folkSiege && !S.finalSiege && !S.campaignMissionId) return;
+  if (baseScreened(-1)) return;   // enemy soldiers still screen their castle — clear them first
   S.castleHP -= d;
   if (S.castleHP <= 0){
     S.castleHP = 0; S.shake = 14;
@@ -939,6 +954,7 @@ function dmgCastle(d){
 }
 function dmgGate(d){
   if (S.gateHP <= 0 || S.over) return;
+  if (baseScreened(1)) return;    // our soldiers still hold the line — the gate is safe until they fall
   S.gateHP -= d;
   if(window.KWAudio)KWAudio.emit('fortress.hit',{civ:S.civ,team:-1});
   if (S.gateHP <= 0){
@@ -1120,7 +1136,7 @@ function update(dt){
       S.folkSpawnT -= dt;
       const alive = S.units.filter(u=>u.team===-1&&u.hp>0).length;
       const cap = Math.min(150, 46 + S.enemyCiv*7);
-      if (S.folkSpawnT <= 0){ if(alive < cap){ spawnEnemy(pickSiegeMinion()); if(alive < cap-8) spawnEnemy(pickSiegeMinion()); } S.folkSpawnT = .5; }
+      if (S.folkSpawnT <= 0){ if(alive < cap){ spawnSiegeMinion(); if(alive < cap-8) spawnSiegeMinion(); } S.folkSpawnT = .5; }
       if (!S.units.some(u=>u.team===-1&&u.boss&&u.hp>0)){ S.folkGiantCd -= dt; if(S.folkGiantCd<=0){ spawnFolkGiant(); S.folkGiantCd = 16; } }
     } else if(S.phase === 'wave') {
       if (S.waveQueue.length){
