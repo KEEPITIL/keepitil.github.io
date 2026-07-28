@@ -571,7 +571,7 @@ function pickSiegeMinion(){
 function spawnFolkGiant(){
   spawnEnemy('eboss');                       // ruler-scale boss; folklore identity applied while folkSiege is on
   const u=S.units[S.units.length-1];
-  if(u){ u.folkLord=true; u.hp=u.max=Math.round(u.max*1.35); u.dmg=Math.round(u.dmg*1.15); u.x=E_WALL-190; }  // march out from the wall
+  if(u){ u.folkLord=true; u.hp=u.max=Math.round(u.max*1.35*3); u.dmg=Math.round(u.dmg*1.15); u.x=E_WALL-190; }  // 3x HP, marches out from the wall
 }
 // Siege minions muster FORWARD of the castle's guard band and advance on the player,
 // so the wall front can be cleared for a killing blow (see baseScreened).
@@ -933,7 +933,15 @@ function explode(x, y, r, dmg, team){
 // it. Attackers must defeat that screen and clear a path before the wall takes damage.
 const BASE_GUARD = 155;
 function baseScreened(team){
-  if (team === 1) return S.units.some(u=>u.team===1 && u.hp>0 && u.x < P_WALL + BASE_GUARD);
+  if (team === 1){
+    // Player gate: shielded while ANY of the player's soldiers still hold the field
+    // in front of it — arrows and assaults must get through the living army first.
+    // The gate is only exposed once that army is defeated (or has pushed entirely
+    // into the enemy's ground, leaving a clear path back to the fort).
+    return S.units.some(u=>u.team===1 && u.hp>0 && u.x > P_WALL+20 && u.x < E_WALL-150);
+  }
+  // Enemy castle: only the enemies RIGHT at the wall screen it, so a siege can be
+  // broken by clearing the wall-front (kept deliberately tight).
   return S.units.some(u=>u.team===-1 && u.hp>0 && u.x > E_WALL - BASE_GUARD);
 }
 function dmgCastle(d){
@@ -1520,27 +1528,40 @@ function drawStick(u, corpse){
     ctx.fillStyle='#26384b';ctx.fillRect(-24,-35,13,5);ctx.fillRect(11,-35,13,5);ctx.fillStyle=glow;ctx.fillRect(-25,-34,3,3);ctx.fillRect(22,-34,3,3);ctx.restore();
     if(!corpse&&u.hp<u.max){ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(x-28,y-92,56,5);ctx.fillStyle=glow;ctx.fillRect(x-28,y-92,56*clamp(u.hp/u.max,0,1),5);}return;
   }
-  // === GIANT BOSS: render bosses with the KWMonsters rig ONLY (never the soldier
-  // renderer — a boss lacks soldier fields, and running it first could abort the
-  // whole frame, blanking every unit drawn after it). Must come before the rig path.
-  if(u.boss && window.KWMonsters){
-    const gtype = ({1:'mammoth',2:'bull',3:'elephant',4:'golem',5:'cyclops'})[(S&&S.enemyCiv)||1] || 'cyclops';
-    let gst, gp, gt = u.ph||0;
-    if(corpse){ gst='die'; gp=Math.min(1,(u.t||0)/2.4); }
-    else if(u.jumpSlashT>0){ gst='stomp'; gp=Math.min(1,1-(u.jumpSlashT/.45)); }
-    else if(u.anim>0){ gst='slam'; gp=Math.min(1,Math.max(0,1-u.anim)); }
-    else if(u.pose==='walk'){ gst='walk'; gp=((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
-    else { gst='idle'; gp=0; }
-    const monScale = s*0.52;
-    ctx.save(); ctx.translate(x,y);
-    try { KWMonsters.draw(ctx, gtype, gst, gst==='idle'?gt:gp, gt, monScale, (u.face<0?1:0)); } catch(e){}
-    ctx.restore();
-    if(!corpse){ const bw=64, by=y-Math.round(150*monScale);
+  // === BOSSES ===
+  // Giants / folklore monsters appear ONLY during the Folklore Siege (after the
+  // king is slain at wave 50). The commanders and the king at waves 10/20/30/40/50
+  // are human LEADER champions, varied by tier, rendered with the soldier rig.
+  if(u.boss){
+    const bossBar=(by,bw)=>{ if(corpse)return;
       ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(x-bw/2,by,bw,6);
       ctx.fillStyle='#e0452f'; ctx.fillRect(x-bw/2,by,bw*clamp(u.hp/u.max,0,1),6);
       ctx.strokeStyle='#1a0f08'; ctx.lineWidth=1; ctx.strokeRect(x-bw/2,by,bw,6);
       if(u.bossName){ctx.fillStyle='#ffd98a';ctx.font='700 11px sans-serif';ctx.textAlign='center';ctx.fillText(u.bossName,x,by-4);ctx.textAlign='left';}
+    };
+    if((u.folkLord || S.folkSiege) && window.KWMonsters){
+      const gtype = ({1:'mammoth',2:'bull',3:'elephant',4:'golem',5:'cyclops'})[(S&&S.enemyCiv)||1] || 'cyclops';
+      let gst, gp, gt = u.ph||0;
+      if(corpse){ gst='die'; gp=Math.min(1,(u.t||0)/2.4); }
+      else if(u.jumpSlashT>0){ gst='stomp'; gp=Math.min(1,1-(u.jumpSlashT/.45)); }
+      else if(u.anim>0){ gst='slam'; gp=Math.min(1,Math.max(0,1-u.anim)); }
+      else if(u.pose==='walk'){ gst='walk'; gp=((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
+      else { gst='idle'; gp=0; }
+      const monScale = s*1.04;   // double the previous giant size
+      ctx.save(); ctx.translate(x,y);
+      try { KWMonsters.draw(ctx, gtype, gst, gst==='idle'?gt:gp, gt, monScale, (u.face<0?1:0)); } catch(e){}
+      ctx.restore();
+      bossBar(y-Math.round(150*monScale), 64);
+      return;
     }
+    // Human leader champion (commander / mini-boss / king). Vary the class by tier
+    // so successive leaders look different, and make the wave-50 king the largest.
+    const local = localWaveFor(S.wave||0);
+    const LEAD = ['sword','spear','bow','spear','sword'];
+    const lc = (local>=50) ? 'sword' : (LEAD[Math.max(0,Math.floor(local/10)-1)] || 'sword');
+    const leadScale = s * (local>=50 ? 1.18 : 1.04);
+    try { drawRigUnit(u, corpse, lc, leadScale, x, y); } catch(e){}
+    bossBar(y-Math.round(58*leadScale), 58);
     return;
   }
   // === NEW MOTION RIG: standard troop types render with the shared soldier rig ===
