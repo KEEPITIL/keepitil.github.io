@@ -1091,8 +1091,8 @@ function startWave(){
   for (let i=0;i<1+Math.floor(local*.18)+Math.floor(pressure*.3);i++) q.push('earcher');
   if (S.enemyCiv >= 11) for (let i=0;i<1+Math.floor(local/12);i++) q.push('egunner');
   const bossWave=encounter.kind!=='normal';
-  // Battles open with a proper 20-soldier company, then add roughly three
-  // soldiers every two global waves until reaching the 100-enemy field cap.
+  // Enemy army opens at 50 soldiers on wave 1 and grows steadily to 100 by wave 50
+  // (see KWProgression.enemyWavePopulation), then keeps escalating in later eras.
   const targetArmy=Math.max(20,(window.KWProgression?.enemyWavePopulation?.(w)||20))-(bossWave?1:0);
   while(q.length<targetArmy){
     const roll=simRandom();
@@ -1258,9 +1258,10 @@ function update(dt){
       if (ffoe){
         if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, ffoe); }
         u.face = ffoe.u.x >= u.x ? 1 : -1;
-      } else if (sealed){
-        // Castle sealed: a forward march that outruns its formation intercepts the
-        // nearest enemy rather than piling onto the unbreakable wall.
+      } else if (sealed && S.stance==='march' && S.marchDir>0){
+        // Only while actively marching FORWARD onto a sealed wall: intercept the
+        // nearest enemy rather than piling onto the unbreakable castle. In defend
+        // (or marching back) units hold their formation slot instead of chasing.
         const nn = nearest(u);
         if (nn && nn.d > range){ moving = steerMove(u, nn.u.x, nn.u.y+(ranged?0:(u.yPref||0)), spd, dt, range*.82); u.face = nn.u.x>=u.x?1:-1; }
       } else if (u.team===1 && S.stance==='march' && S.marchDir>0 && S.rallyX>=RALLY_MAX-1 && S.castleHP>0){

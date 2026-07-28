@@ -15,7 +15,7 @@
   }
   function enemyWavePopulation(wave){
     wave=Math.max(1,Math.floor(wave||1));
-    if(wave<=50)return Math.round(25+(wave-1)*(75/49));
+    if(wave<=50)return Math.round(50+(wave-1)*(50/49));
     if(wave<=740)return Math.round(101+(wave-51)*(1398/689));
     return 1500;
   }
