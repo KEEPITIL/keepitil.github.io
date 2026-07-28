@@ -1180,6 +1180,9 @@ function update(dt){
     u.shieldUp=!!threat||(!u.spearThrown&&!ranged&&u.shield>0&&((u.team===1&&S.stance!=='attack')||(u.team===-1&&S.enemyPhase!=='assault')));
     if(threat&&threat.sourceX!=null)u.face=threat.sourceX>=u.x?1:-1;
     let moving = false;
+    // The enemy castle is impregnable outside a siege, so forward orders must NOT
+    // march allies into an unbreakable wall — they hunt enemies and hold the line.
+    const sealed = (u.team===1) && !S.folkSiege && !S.finalSiege && !S.campaignMissionId;
 
     if (u.team === -1){
       if(S.enemyPhase==='form'||(u.order!=='raid'&&S.enemyPhase!=='assault')){
@@ -1212,16 +1215,21 @@ function update(dt){
       u.x = Math.max(u.x, P_WALL + 12);
       if (S._wallX != null && u.x < S._wallX) u.x = S._wallX;   // held at the shield wall
     } else if (S.stance === 'attack'){
-      if (foe){
-        if (foe.d > range){ moving=steerMove(u,foe.u.x,foe.u.y+(ranged?0:(u.yPref||0)),spd,dt,range*.82); }
-        else if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, foe); }
-        u.face = foe.u.x >= u.x ? 1 : -1;
-      } else if (S.castleHP > 0){
+      const tgt = (foe && foe.u.hp>0) ? foe : nearest(u);   // always hunt the nearest enemy — never march past one
+      if (tgt){
+        if (tgt.d > range){ moving=steerMove(u,tgt.u.x,tgt.u.y+(ranged?0:(u.yPref||0)),spd,dt,range*.82); }
+        else if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, tgt); }
+        u.face = tgt.u.x >= u.x ? 1 : -1;
+      } else if (!sealed && S.castleHP > 0){
         const jit = u.jit||0, d = E_WALL - u.x, rng = ranged ? range : (26 + jit);
         if (d > rng){ moving=steerMove(u,E_WALL-rng,u.y+(u.yPref||0)*.15,spd,dt,3); }
         else if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, null); }
         u.face = 1;
-      } else if (u.x < E_WALL - 80){ moving=steerMove(u,E_WALL-80,u.y,spd,dt,3); u.face = 1; }
+      } else if (!sealed && u.x < E_WALL - 80){ moving=steerMove(u,E_WALL-80,u.y,spd,dt,3); u.face = 1; }
+      else if (sealed){ // no enemies left (between waves): hold a forward guard line, don't storm the wall
+        const holdX = E_WALL - 240;
+        if (u.x > holdX + 6){ moving=steerMove(u,holdX,u.y,spd*.6,dt,3); u.face=-1; }
+      }
       u.x = Math.min(u.x, E_WALL - 18 - (u.jit||0)*.5);
     } else {
       const carried=!!u.formationCarry;u.formationCarry=false;
@@ -1234,6 +1242,11 @@ function update(dt){
       if (ffoe){
         if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, ffoe); }
         u.face = ffoe.u.x >= u.x ? 1 : -1;
+      } else if (sealed){
+        // Castle sealed: a forward march that outruns its formation intercepts the
+        // nearest enemy rather than piling onto the unbreakable wall.
+        const nn = nearest(u);
+        if (nn && nn.d > range){ moving = steerMove(u, nn.u.x, nn.u.y+(ranged?0:(u.yPref||0)), spd, dt, range*.82); u.face = nn.u.x>=u.x?1:-1; }
       } else if (u.team===1 && S.stance==='march' && S.marchDir>0 && S.rallyX>=RALLY_MAX-1 && S.castleHP>0){
         // A forward march that reaches the end of the field becomes a wall
         // assault: melee presses to the gate instead of freezing 110px short.
