@@ -2582,7 +2582,25 @@ mini.addEventListener('pointerdown', e => {
   window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
 });
 
+// ---- Hidden QA debug (players never see this): enable with ?debug=1 or
+//      localStorage 'kw-debug'='1'. Keys: B = jump to next boss/commander wave,
+//      N = jump to next ruler wave (triggers the Folklore Siege), K = +5000 gold. ----
+const KW_DEBUG = /[?&]debug=1\b/.test(location.search) || (function(){try{return localStorage.getItem('kw-debug')==='1';}catch(e){return false;}})();
+if (KW_DEBUG) try{ console.log('%c[KW] debug wave-jump ON — B: next boss · N: next ruler/siege · K: +5000 gold','color:#e0452f;font-weight:700'); }catch(e){}
+function debugJump(target){
+  if(!started || S.over) return;
+  S.wave = Math.max(0, target-1);
+  S.localWave = localWaveFor(S.wave); S.conquestCycle = conquestCycleFor(S.wave);
+  S.folkSiege = false;
+  S.units = S.units.filter(u=>u.team===1 && u.hp>0);   // keep the player army, clear the field
+  S.projs = []; S.fx = []; S.waveQueue = [];
+  S.phase = 'inter'; S.interT = 0.5; S.gold += 5000;
+  showMsg('🔧 DEBUG → jumping to wave '+target);
+}
 window.addEventListener('keydown', e => {
+  if (KW_DEBUG && (e.key==='b'||e.key==='B')) { debugJump(Math.floor((S.wave||0)/10)*10+10); return; }
+  else if (KW_DEBUG && (e.key==='n'||e.key==='N')) { debugJump(Math.floor((S.wave||0)/50)*50+50); return; }
+  else if (KW_DEBUG && (e.key==='k'||e.key==='K')) { if(started){ S.gold+=5000; showMsg('🔧 DEBUG +5000 gold'); } return; }
   if (e.key === '1') issueCommand('recruit',{type:'sword'});
   else if (e.key === '2') issueCommand('recruit',{type:'archer'});
   else if (e.key === '3') issueCommand('recruit',{type:'spear'});
