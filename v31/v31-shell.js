@@ -25,9 +25,9 @@
   var PAGE_STD={
     home:{radio:true,bell:'never',gear:'none',nav:true}, culture:{radio:true,bell:'signed_in',gear:'none',nav:true},
     scene:{radio:true,bell:'never',gear:'none',nav:true}, shop:{radio:true,bell:'never',gear:'none',nav:true},
-    event:{radio:true,bell:'never',gear:'none',nav:false}, profile:{radio:true,bell:'signed_in',gear:'hamburger',nav:true},/* event = chromeless card like checkout (Founder 2026-07-16: shell nav must not show on event page); radio stays on desktop */
+    event:{radio:true,bell:'never',gear:'none',nav:true}, profile:{radio:true,bell:'signed_in',gear:'hamburger',nav:true},/* Founder 2026-07-27: universal header nav + footer on EVERY page, no exception — event & checkout no longer chromeless */
     standard:{radio:true,bell:'never',gear:'none',nav:true}, tool:{radio:true,bell:'never',gear:'none',nav:true},
-    dashboard:{radio:true,bell:'never',gear:'none',nav:true}, checkout:{radio:true,bell:'never',gear:'none',nav:false},
+    dashboard:{radio:true,bell:'never',gear:'none',nav:true}, checkout:{radio:true,bell:'never',gear:'none',nav:true},
     system:{radio:false,bell:'never',gear:'none',nav:false}
   };
   var RULES=PAGE_STD[PAGE_TYPE]||PAGE_STD.standard;
