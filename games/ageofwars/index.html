@@ -397,7 +397,18 @@ function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.im
 function simRandom(){let t=(S.randomState=(S.randomState+0x6D2B79F5)>>>0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}
 function simRange(min,max){return min+(max-min)*simRandom();}
 function issueCommand(type,payload){return window.KWRuntime?KWRuntime.commands.enqueue(type,payload):executeCommand({type,payload:payload||{}});}
-function executeCommand(command){const p=command.payload||{};switch(command.type){case'recruit':return spawnAlly(p.type);case'stance':return setStance(p.stance);case'defend':return tapDefend();case'march':return tapMarch();case'garrison':return buyGarrison();case'wizard':return buyWizard();case'defense':return buyDefense();case'taprate':return buyTapRate();case'tapaoe':return buyTapAoe();case'evolve':return evolve();case'power':return castGeneral(p.point);case'throwspears':return throwSpearsNow();}}
+function executeCommand(command){const p=command.payload||{};switch(command.type){case'recruit':return spawnAlly(p.type);case'stance':return setStance(p.stance);case'defend':return tapDefend();case'march':return tapMarch();case'garrison':return buyGarrison();case'wizard':return buyWizard();case'defense':return buyDefense();case'taprate':return buyTapRate();case'tapaoe':return buyTapAoe();case'evolve':return evolve();case'power':return castGeneral(p.point);case'throwspears':return throwSpearsNow();case'charge':return chargeClass(p.group);}}
+// Player command: send only one class to charge while the rest hold formation.
+function chargeClass(group){
+  if(!started||paused||S.over)return;
+  const match=u=>{const w=TYPES[u.type].weapon;
+    if(group==='ranged')return w==='bow'||w==='gun'||w==='laser';
+    if(group==='spear')return w==='spear'||w==='spartan';
+    return w==='sword';};                                  // 'sword' group
+  let n=0; for(const u of S.units){ if(u.team===1&&u.hp>0&&match(u)){ u.charge=true; n++; } }
+  showMsg(n? '⚔ '+n+' '+group+(n>1?'s':'')+' charging — rest hold formation!' : 'No '+group+' units to charge');
+  if(n)snd.horn();
+}
 // Player command: order every spearman still holding a spear to hurl it now, then draw swords.
 function throwSpearsNow(){
   if(!started||paused||S.over)return;
@@ -646,6 +657,7 @@ function tapMarch(){
 function setStance(s){
   if (!started || S.stance === s) return;
   S.stance = s;
+  for(const u of S.units) if(u.team===1) u.charge=false;   // any new order recalls charging units to the line
   if (s === 'defend'){
     const xs = S.units.filter(u=>u.team===1&&u.hp>0).map(u=>u.x);
     if (xs.length) S.rallyX = clamp(Math.max(...xs), RALLY_MIN, RALLY_MAX);
@@ -673,7 +685,7 @@ function fillFormationGaps(pool,slots,place,frontDir){
 }
 function updateFormation(dt){
   if (S.stance === 'attack') return;
-  const allies = S.units.filter(u=>u.team===1&&u.hp>0);
+  const allies = S.units.filter(u=>u.team===1&&u.hp>0&&!u.charge);   // charging units leave the ranks
   const oldRally=S.rallyX;
   if (S.stance === 'march' && allies.length){
     const enemyNear = S.units.some(e=>e.team===-1&&e.hp>0&&e.x-S.rallyX<70);
@@ -687,9 +699,18 @@ function updateFormation(dt){
   const RANGED = t=>['bow','gun','laser'].includes(TYPES[t].weapon);
   // Phalanx frontage: shields and long spears first, swords in support,
   // missile troops far enough behind to shoot over the formation.
+  // Formation order, front to back:
+  //  1) spearmen who still have a shield   2) other shielded soldiers
+  //  3) soldiers whose shield is gone       4) ranged (split out below, kept furthest back)
+  const isSpear=u=>{const w=TYPES[u.type].weapon;return w==='spear'||w==='spartan';};
+  const tier=u=>{
+    if((u.shield||0)<=0) return 2;                 // no shield -> rear melee rank
+    if(isSpear(u) && !u.spearThrown) return 0;     // spear + shield -> very front line
+    return 1;                                       // sword + shield (incl. spearmen who threw) -> reform 2nd rank
+  };
   const melee = allies.filter(u=>!RANGED(u.type)).sort((a,b)=>{
     const rank=t=>(t==='spartan'?0:t==='spear'?1:t==='sword'?2:3);
-    return rank(a.type)-rank(b.type);
+    return tier(a)-tier(b) || rank(a.type)-rank(b.type);
   });
   const ranged = allies.filter(u=>RANGED(u.type));
   const mCols = Math.max(1, Math.ceil(melee.length/rankRows));
@@ -732,7 +753,10 @@ function updateEnemyFormation(dt){
   const rows=[428,443,458,473,488,503],cs=28,rankRows=rows.length;
   const rank=t=>(t==='espear'?0:t==='esword'?1:t==='eboss'?2:t==='egunner'||t==='elaser'?4:3);
   enemies.sort((a,b)=>rank(a.type)-rank(b.type));
-  const groups=[enemies.filter(u=>u.type==='espear'),enemies.filter(u=>u.type==='esword'),enemies.filter(u=>u.type==='eboss'),enemies.filter(u=>u.type==='earcher'),enemies.filter(u=>u.type==='egunner'||u.type==='elaser')];
+  // Spearmen who have thrown (sword+shield) reform toward the rear of the spear block,
+  // behind those still holding a spear — mirrors the player formation.
+  const espearOrdered=enemies.filter(u=>u.type==='espear').sort((a,b)=>((a.spearThrown?1:0)-(b.spearThrown?1:0))||(((b.shield||0)>0?1:0)-((a.shield||0)>0?1:0)));
+  const groups=[espearOrdered,enemies.filter(u=>u.type==='esword'),enemies.filter(u=>u.type==='eboss'),enemies.filter(u=>u.type==='earcher'),enemies.filter(u=>u.type==='egunner'||u.type==='elaser')];
   const totalCols=groups.reduce((n,g)=>n+Math.ceil(g.length/rankRows)+(g.length?1:0),0);
   // Rear rank stays clear of the enemy masonry; every soldier forms on grass.
   const castleSafeFront=E_WALL-72-Math.max(0,totalCols-1)*cs;
@@ -885,8 +909,9 @@ function throwLastSpear(u){
   S.projs.push({kind:'spearp',x:u.x+u.face*8,y:u.y-22,sourceX:u.x,vx:(target.x-u.x)/flight,vy:(target.y-u.y-20)/flight-.5*GRAV*flight,g:GRAV,dmg:Math.round((u.dmg||TYPES[u.type].dmg)*1.35),team:u.team,life:3});
   window.KWRuntime?.events.emit('projectile_released',{kind:'spear',team:u.team,damage:Math.round((u.dmg||TYPES[u.type].dmg)*1.35)});
   u.spearThrown=true;u.swordOpening=true;u.throwT=.55;u.anim=1;
-  u.rage=true;u.rageOpening=true;                       // shield & spear gone -> dual-sword rage charge
-  addFloat(u.x,u.y-42,'DUAL BLADES — RAGE!','#ff7a3c');
+  // Spear gone -> sword drawn. Shield is kept if still intact (single sword + shield);
+  // the 2nd sword and rage only come once the shield is broken (handled in hurt()).
+  addFloat(u.x,u.y-42,'SPEAR THROWN — SWORD OUT!',u.team===1?'#ffe27a':'#ff9b8f');
 }
 // one unit fires at a foe (or at the opposing fort when foe is null)
 function unitFire(u, t, foe){
@@ -996,16 +1021,26 @@ function hurt(u, dmg, hit){
   const dtype=hit.damageType||inferred[hit.kind]||'SLASHING';
   const profile=(window.KW_BALANCE&&window.KW_BALANCE.damageTypes[dtype])||{shield:1,armor:1,health:1};
   const frontal=hit.sourceX==null||Math.sign(hit.sourceX-u.x)===(u.face||1);
+  // Shield wall: holding ranks in a march/defense formation with shield up toward the
+  // enemy doubles defense (incoming damage halved) while the line stays intact.
+  const inFormation = (u.team===1) ? (S.stance==='march'||S.stance==='defend') : (S.enemyPhase==='march'||S.enemyPhase==='form');
+  if(inFormation && u.shieldUp && frontal && hit.kind!=='bleed') left *= 0.5;
   if(u.shield>0&&hit.kind!=='bleed'){
     const hadShield=u.shield>0;
     const raised=u.shieldUp&&frontal;
     if(raised)left*=hit.kind==='blast'?.82:.68;
     const layer=left*profile.shield,take=Math.min(u.shield,layer);u.shield-=take;left-=take/profile.shield;
-    if(take>0){u.blockT=.18;S.fx.push({kind:u.shield<=0?'shieldbreak':'shieldhit',x:u.x+u.face*8,y:u.y-20,t:0});if(window.KWAudio)KWAudio.emit(u.shield<=0?'unit.break.shield':'unit.block.shield',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team,material:(u.team===1?S.civ:S.enemyCiv)===1?'hide':'metal'});if(hadShield&&u.shield<=0){window.KWRuntime?.events.emit('shield_broken',{team:u.team,type:u.type});const _w=TYPES[u.type]?.weapon;if(_w==='sword'||_w==='spartan'){u.rage=true;u.rageOpening=true;u.anim=1;addFloat(u.x,u.y-48,'SHIELD BROKEN — CHARGE!','#ff7a3c');}}}
+    if(take>0){u.blockT=.18;S.fx.push({kind:u.shield<=0?'shieldbreak':'shieldhit',x:u.x+u.face*8,y:u.y-20,t:0});if(window.KWAudio)KWAudio.emit(u.shield<=0?'unit.break.shield':'unit.block.shield',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team,material:(u.team===1?S.civ:S.enemyCiv)===1?'hide':'metal'});if(hadShield&&u.shield<=0){window.KWRuntime?.events.emit('shield_broken',{team:u.team,type:u.type});const _w=TYPES[u.type]?.weapon;if(_w==='sword'||_w==='spartan'||_w==='spear'){u.rage=true;u.rageOpening=true;u.anim=1;addFloat(u.x,u.y-48,'SHIELD BROKEN — RAGE!','#ff7a3c');}}}
   }
   if(left>0&&u.armor>0&&hit.kind!=='bleed'){const hadArmor=u.armor>0,layer=left*profile.armor,take=Math.min(u.armor,layer);u.armor-=take;left-=take/profile.armor;if(take>0){S.fx.push({kind:u.armor<=0?'armorbreak':'armorhit',x:u.x,y:u.y-16,t:0});if(window.KWAudio)KWAudio.emit(u.armor<=0?'unit.break.armor':'unit.hit.armor',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});if(hadArmor&&u.armor<=0)window.KWRuntime?.events.emit('armor_broken',{team:u.team,type:u.type});}}
   if(left>0){u.hp-=left*profile.health;if(window.KWAudio)KWAudio.emit('unit.hit.health',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});}
   u.hurtT = .15;
+  // Combat juice: knockback away from the blow, an impact spark, and shake on heavy hits.
+  const kdir = (hit.sourceX!=null ? (Math.sign(u.x-hit.sourceX)||1) : -(u.face||1));
+  u.knockX = (u.knockX||0) + kdir * Math.min(7, 1.4 + dmg*0.10);
+  const skind = (hit.kind==='melee'||hit.kind==null) ? 'spark' : null;
+  if(skind) S.fx.push({kind:'spark', x:u.x + (u.face||1)*6, y:u.y-22, t:0, dir:-(u.face||1)});
+  if(dmg>=22) S.shake = Math.min(9, S.shake + 2);
   snd.hit();
   if(u.shield<=0)throwLastSpear(u);   // shield broken & depleted -> hurl the last spear, then draw the sword
   if (u.hp <= 0){
@@ -1252,8 +1287,10 @@ function update(dt){
       }
       u.x = Math.max(u.x, P_WALL + 12);
       if (S._wallX != null && u.x < S._wallX) u.x = S._wallX;   // held at the shield wall
-    } else if (S.stance === 'attack'){
-      const tgt = (foe && foe.u.hp>0) ? foe : nearest(u);   // always hunt the nearest enemy — never march past one
+    } else if (S.stance === 'attack' || (u.team===1 && u.charge) || (u.team===1 && u.rage && S.stance!=='defend')){
+      // attack stance, a per-class charge order, OR a raged (shield-broken) soldier —
+      // but in DEFENSE a raged soldier instead falls back to the no-shield rank (below).
+      const tgt = (foe && foe.u.hp>0) ? foe : nearest(u);
       if (tgt){
         if (tgt.d > range){ moving=steerMove(u,tgt.u.x,tgt.u.y+(ranged?0:(u.yPref||0)),spd,dt,range*.82); }
         else if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, tgt); }
@@ -1309,6 +1346,23 @@ function update(dt){
     u.y = clamp(u.y, GROUND_TOP, GROUND_BOT);
     u.pose = moving ? 'walk' : (u.anim > 0 ? 'attack' : 'idle');
   }
+  // Anti-overlap: engaged/attacking soldiers keep realistic spacing so they don't
+  // stack on the same spot at the front line. A small capped push apart, run after
+  // movement (covers stationary attackers that steerMove no longer separates).
+  for(const u of S.units){ if(u.hp<=0) continue;
+    let px=0,py=0,cnt=0;
+    for(const o of S.units){ if(o===u||o.hp<=0) continue;
+      const dx=u.x-o.x; if(dx>16||dx<-16) continue;
+      const dy=u.y-o.y; if(dy>15||dy<-15) continue;
+      const d=Math.hypot(dx,dy*1.3)||0.01, R=14;
+      if(d<R){ const f=(R-d)/R; px+=dx/d*f; py+=dy/d*f; cnt++; }
+    }
+    if(cnt){ u.x += Math.max(-5,Math.min(5,px*2.6)); u.y = clamp(u.y + Math.max(-4,Math.min(4,py*2.2)), GROUND_TOP, GROUND_BOT); }
+  }
+  // apply + decay hit knockback, then re-bound to the field so nothing is shoved through a wall
+  for(const u of S.units){ if(u.hp<=0) continue;
+    if(u.knockX){ u.x += u.knockX; u.knockX *= 0.80; if(Math.abs(u.knockX)<0.15) u.knockX=0; }
+    u.x=clamp(u.x,P_WALL+12,E_WALL-18); if(S._wallX!=null&&u.team===-1&&u.x<S._wallX)u.x=S._wallX; }
   if(window.KW_AI){
     for(const u of S.units)KW_AI.syncState(u,{dt,retreating:u.team===1&&S.retreatT>0,forming:u.team===-1&&S.enemyPhase==='form',threatened:!!incomingThreat(u)});
   }
@@ -1498,10 +1552,12 @@ const CLASS_MOTION={
 // Rig figure is ~150 tall in its own space; K scales it to the game's footprint (tune RIG_K).
 const RIG_K = 0.30;
 function drawRigUnit(u, corpse, cls, s, x, y){
-  // A spearman who has thrown their last spear fights (and dies) with the sword —
-  // switch to the sword rig once the throw arc has finished playing.
-  const thrownToSword = (cls==='spear' && u.spearThrown && !(u.throwT>0));
-  const rcls = thrownToSword ? 'sword' : cls;
+  // A spearman who has thrown their spear keeps their spearman identity (armor,
+  // shield, mohawk) but fights with a SWORD: sword weapon+motion (rcls), spear
+  // armor (armorCls). Only once the shield is depleted do they reveal a 2nd sword.
+  const swordMode = (cls==='spear' && u.spearThrown && !(u.throwT>0));
+  const rcls = swordMode ? 'sword' : cls;      // weapon + swing motion
+  const armorCls = swordMode ? 'spear' : cls;  // keep the spearman's armor/shield/helmet
   let st, p, t = u.ph || 0;
   if(corpse){ st = u.death==='impale' ? 'die_impale' : ((rcls==='bow'||rcls==='gun') ? 'die_back' : 'die_kneel'); p = Math.min(1, (u.t||0)/1.4); }
   else if(cls==='spear' && u.throwT>0){ st='throw'; p = Math.min(1, 1 - u.throwT/.55); }
@@ -1510,7 +1566,9 @@ function drawRigUnit(u, corpse, cls, s, x, y){
   else if(u.pose==='walk'){ st='march'; p = ((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
   else { st='idle'; p = (((u.ph*0.16)%1)+1)%1; }
   const po = KWRig.poseFor(rcls, st, p, t); po._t = t;
-  if(thrownToSword){ po.extra.dualSword = 1; }          // ex-spearman fights with two swords
+  // 2nd sword ONLY once the shield is depleted/broken (an ex-spearman with a shield
+  // still fights with a single sword + shield); rage/oversized blades on shield break.
+  if(swordMode && (u.shieldMax>0) && u.shield<=0){ po.extra.dualSword = 1; }
   if(rcls==='sword' && u.rage){ po.extra.bigSword = 1; } // shield broken -> raged, oversized blade(s)
   po.era = S ? (u.team===1 ? S.civ : S.enemyCiv) : 1;   // civilization-fitted armor tier
   // Layered defense visuals: shield is dropped once its HP is gone; the helmet is
@@ -1518,12 +1576,12 @@ function drawRigUnit(u, corpse, cls, s, x, y){
   po.dropShield = !corpse && (u.shieldMax>0) && u.shield<=0;
   po.dropHelmet = !corpse && (u.armorMax>0) && u.armor<=0;
   if(corpse) po.alpha = Math.max(0, 1 - Math.max(0, (u.t||0) - 2.0) / 4.5);   // hold the death, then fade the corpse
-  const C  = KWRig.teamTint(KWRig.PAL[rcls], u.team);
+  const C  = KWRig.teamTint(KWRig.PAL[armorCls], u.team);   // spearman keeps their palette (mohawk, colors)
   const K  = RIG_K * s;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale((u.face || (u.team===1?1:-1)) * K, K);
-  KWRig.drawSoldier(ctx, rcls, po, C, u.team);
+  KWRig.drawSoldier(ctx, rcls, po, C, u.team, armorCls);
   ctx.restore();
 }
 function drawStick(u, corpse){
@@ -2422,6 +2480,14 @@ function drawProj(p){
   }
 }
 function drawFx(f){
+  if (f.kind === 'spark'){
+    const k=f.t/.3; ctx.globalAlpha=(1-k);
+    const dir=f.dir||1;
+    ctx.strokeStyle='#ffe9a8'; ctx.lineWidth=1.6; ctx.lineCap='round';
+    for(let i=0;i<5;i++){ const a=(-0.9+i*0.45)*dir - 0.3; const L=(6+11*k); ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.lineTo(f.x+Math.cos(a)*L*dir, f.y+Math.sin(a)*L); ctx.stroke(); }
+    ctx.fillStyle='#fff4cf'; ctx.beginPath(); ctx.arc(f.x,f.y,2.4*(1-k),0,7); ctx.fill();
+    ctx.globalAlpha=1; return;
+  }
   if (f.kind === 'boom'){
     if (f.t < 0) return;
     const k = f.t/.6;
@@ -2736,6 +2802,9 @@ window.addEventListener('keydown', e => {
   else if (e.key === 'w' || e.key === 'W') issueCommand('march');
   else if (e.key === 'e' || e.key === 'E') issueCommand('stance',{stance:'attack'});
   else if (e.key === 'x' || e.key === 'X') issueCommand('throwspears');
+  else if (e.key === 'z' || e.key === 'Z') issueCommand('charge',{group:'sword'});
+  else if (e.key === 'c' || e.key === 'C') issueCommand('charge',{group:'spear'});
+  else if (e.key === 'b' || e.key === 'B') issueCommand('charge',{group:'ranged'});
   else if (e.key === 'g' || e.key === 'G') issueCommand('garrison');
   else if (e.key === 't' || e.key === 'T') issueCommand('wizard');
   else if (e.key === 'r' || e.key === 'R') issueCommand('defense');
@@ -2781,6 +2850,9 @@ function buildUI(){
   mkBtn('march',  '<span class="big">🚩</span><span class="nm">March</span><span class="cost">[W] 2×⇄</span>', ()=>issueCommand('march'));
   mkBtn('attack', '<span class="big">⚔️</span><span class="nm">Attack</span><span class="cost">[E]</span>', ()=>issueCommand('stance',{stance:'attack'}));
   mkBtn('throwspears', '<span class="big">🗡</span><span class="nm">Throw Spears</span><span class="cost">[X]</span>', ()=>issueCommand('throwspears'));
+  mkBtn('chargesword', '<span class="big">⚔️</span><span class="nm">Charge Swords</span><span class="cost">[Z]</span>', ()=>issueCommand('charge',{group:'sword'}));
+  mkBtn('chargespear', '<span class="big">🔱</span><span class="nm">Charge Spears</span><span class="cost">[C]</span>', ()=>issueCommand('charge',{group:'spear'}));
+  mkBtn('chargeranged','<span class="big">🏹</span><span class="nm">Charge Ranged</span><span class="cost">[B]</span>', ()=>issueCommand('charge',{group:'ranged'}));
   mkSep();
   mkBtn('garrison','<span class="big">🏹</span><span class="nm" id="glab">Garrison</span><span class="cost">🪙'+GARRISON_COST+'</span>', ()=>issueCommand('garrison'));
   mkBtn('wizard', '<span class="big">🧙</span><span class="nm" id="wlab">Wizard</span><span class="cost">🪙'+WIZARD_COST+'</span>', ()=>issueCommand('wizard'));

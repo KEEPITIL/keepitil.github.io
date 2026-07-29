@@ -258,7 +258,8 @@ function drawCuirass(ctx,J,C,style){
   ctx.restore();
 }
 
-function drawSoldier(ctx,cls,po,C,team){
+function drawSoldier(ctx,cls,po,C,team,armorCls){
+  armorCls=armorCls||cls;   // motion/weapon follows `cls`; worn armor & shield follow `armorCls`
   if(po.era){ const k=eraKit(po.era); C={...C, metal:k.metal, trim:k.trim, _chest:k.chest}; }  // civilization armor tier
   const J=build(po),sk=C.skin,far=shade(sk,team===1?0.1:-0.1);
   if(po.extra.dropGear){ctx.save();ctx.globalAlpha=po.alpha*po.extra.dropGear;ctx.fillStyle=cyl(ctx,po.px-16,po.px+16,C.shield||'#8a8f96',.1);ctx.strokeStyle='#3a3f45';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(po.px-6,1,15,5,0,0,7);ctx.fill();ctx.stroke();ctx.restore();}
@@ -278,20 +279,20 @@ function drawSoldier(ctx,cls,po,C,team){
   // torso
   limb(ctx,J.pelvis,J.shoulder,6.2,7.6,sk);
   const jc=C.jacket||C.tunic; ctx.save();const sA=Math.atan2(J.pelvis[1]-J.shoulder[1],J.pelvis[0]-J.shoulder[0]);ctx.translate(J.shoulder[0],J.shoulder[1]);ctx.rotate(sA-Math.PI/2);const tl=Math.hypot(J.pelvis[0]-J.shoulder[0],J.pelvis[1]-J.shoulder[1]);poly(ctx,[[-7.6,3],[7.6,3],[6.3,tl],[-6.3,tl]],cyl(ctx,-7.6,7.6,jc,.15),shade(jc,-.4),0.7);ctx.restore();
-  if(cls==='sword'&&!po.supine&&!po.extra.impale)drawSegmentata(ctx,J,C);
-  if((cls==='spear'||cls==='bow'||cls==='gun')&&!po.supine&&!po.extra.impale)drawCuirass(ctx,J,C,C._chest||'plate');  // era-fitted breastplate
+  if(armorCls==='sword'&&!po.supine&&!po.extra.impale)drawSegmentata(ctx,J,C);
+  if((armorCls==='spear'||armorCls==='bow'||armorCls==='gun')&&!po.supine&&!po.extra.impale)drawCuirass(ctx,J,C,C._chest||'plate');  // era-fitted breastplate
   // near leg
   limb(ctx,J.legF[0],J.legF[1],6.7,5.4,sk);limb(ctx,J.legF[1],J.legF[2],5.4,3.6,sk);greave(ctx,J.legF[1],J.legF[2],C.metal);boot(ctx,J.legF[2],J.legF[3],shade(C.leather,-.1));
-  if(cls==='sword'&&!po.supine&&!po.extra.impale)drawPteruges(ctx,J,C);
+  if(armorCls==='sword'&&!po.supine&&!po.extra.impale)drawPteruges(ctx,J,C);
   // head
   limb(ctx,J.shoulder,fk(J.neck,0,0),4.2,4.2,sk);head(ctx,J,C,po.dropHelmet);
   if(po.extra.headArrow){ctx.save();ctx.translate(J.head[0],J.head[1]);ctx.strokeStyle='#6b4a2a';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-15,0);ctx.lineTo(13,0);ctx.stroke();ctx.fillStyle='#dfe4e8';poly(ctx,[[16,0],[12,-2],[12,2]],'#dfe4e8',null,0);ctx.fillStyle='rgba(150,10,10,.7)';for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(-16-i*2,(i-2)*1.5,1.4,0,7);ctx.fill();}ctx.restore();}
   // near arm (shield for sword/spear; draw for bow; rear for gun)
   limb(ctx,J.armF[0],J.armF[1],5.1,4.1,sk);limb(ctx,J.armF[1],J.armF[2],4.1,3.0,sk);hand(ctx,J.armF[2],J.armF[1],shade(sk,.1));
-  if(cls==='sword'&&!po.supine&&!po.extra.impale)drawPauldron(ctx,J.shoulder,C);
+  if(armorCls==='sword'&&!po.supine&&!po.extra.impale)drawPauldron(ctx,J.shoulder,C);
   if(!po.supine&&!po.extra.impale&&!po.extra.dropGear&&!po.dropShield){
-    if(cls==='sword')drawScutum(ctx,J,C);
-    if(cls==='spear')drawAspis(ctx,J,C,po);
+    if(armorCls==='sword')drawScutum(ctx,J,C);
+    if(armorCls==='spear')drawAspis(ctx,J,C,po);
   }
   if(cls==='gun'&&!po.supine)drawRifle(ctx,J.armF[2],J.armB[2],po,C);
   if(po.extra.impale){const cx=lerp(J.shoulder[0],J.pelvis[0],0.4),cy=lerp(J.shoulder[1],J.pelvis[1],0.42);const d=[Math.cos(po.extra.impale),Math.sin(po.extra.impale)];ctx.strokeStyle=shade(C.wood||'#8a5a2c',-.1);ctx.lineWidth=2.4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(cx+d[0]*38,cy+d[1]*38);ctx.lineTo(cx-d[0]*16,cy-d[1]*16);ctx.stroke();ctx.fillStyle='#5a0e0e';ctx.beginPath();ctx.arc(cx,cy,2.4,0,7);ctx.fill();}
