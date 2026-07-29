@@ -61,6 +61,15 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 /* Mobile = FEEDs only (Founder directive 2026-07-16): hide intro + discovery column; "+" add-post and ♥ notifications appear in the feed header */
 .cul-add,.cul-heart{display:none;align-items:center;justify-content:center;flex:0 0 auto;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#fff;font-size:1.25rem;font-weight:800;line-height:1;text-decoration:none;cursor:pointer}
 .cul-heart svg{width:20px;height:20px}
+/* Culture mobile top bar — gear (logged-in Type/Filter) + full-width dropdown (Founder 2026-07-29) */
+.cul-gear{display:none;align-items:center;justify-content:center;flex:0 0 auto;width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:#fff;font-size:1.2rem;line-height:1;cursor:pointer}
+.cul-gear-menu{display:none;position:absolute;top:calc(100% + 6px);left:8px;z-index:85;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px;min-width:240px;max-width:82vw;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.cul-gear-menu.open{display:block}
+.cul-gear-menu .gm-h{font:800 .6rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8a8a99;margin:4px 4px 6px}
+.cul-gear-menu button{display:block;width:100%;text-align:left;background:none;border:0;color:#e8e8f0;font-size:.9rem;font-weight:600;padding:9px 11px;border-radius:8px;cursor:pointer}
+.cul-gear-menu button small{display:block;font-weight:400;color:#8a8a99;font-size:.72rem;margin-top:1px}
+.cul-gear-menu button.on,.cul-gear-menu button:hover{background:rgba(255,255,255,.09);color:#fff}
+.cul-gear-menu hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:9px 0}
 @media(max-width:860px){
   .chero-intro,.discovercol{display:none!important}
   /* Founder 2026-07-16: mobile Culture nav = "+ | FEED | FOLLOW | ♥" + one even row of 5 pillar icons */
@@ -68,8 +77,9 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
   /* MOBILE: keep the +/toggle/bell row and LOCK it to the top of the page (Founder 2026-07-18) */
   .feedhd{position:sticky;top:0;z-index:60;margin:0 -26px 10px;border-radius:0;background:#0a0a0f;border-left:0;border-right:0;padding:12px 26px}
   .feedhd h2{display:none}
-  .feedhd .feeddd{margin:0 auto!important}
-  .feedhd .feeddd-menu{left:50%;right:auto;transform:translateX(-50%)}
+  .feedhd .feeddd{flex:1;margin:0 8px!important}
+  .feedhd .feeddd-btn{width:100%;justify-content:center}
+  .feedhd .feeddd-menu{left:50%;right:auto;transform:translateX(-50%);min-width:210px}
   .feedhd .toggle{flex:1;justify-content:center}
   .feedhd .toggle button{flex:1;text-transform:uppercase;letter-spacing:.12em}
   .cul-pillars{display:flex!important}
@@ -150,8 +160,20 @@ footer a{color:var(--purple)}
   <section class="feedcol">
     <div class="feedhd">
       <a class="cul-add" id="cul-add" href="/v31/profile.html?create=feed" aria-label="Create a feed post" title="Create a feed post" style="display:none">+</a>
+      <button class="cul-gear" id="cul-gear" style="display:none" aria-label="Feed settings" onclick="toggleCulGear(event)">&#9881;</button>
+      <div class="cul-gear-menu" id="culGearMenu">
+        <div class="gm-h">Type</div>
+        <button data-ct="all" class="on" onclick="setCulType('all')">All<small>Public feed from everyone · ranked</small></button>
+        <button data-ct="following" onclick="setCulType('following')">Following<small>Profiles you follow</small></button>
+        <button data-ct="followers" onclick="setCulType('followers')">Followers<small>Profiles that follow you</small></button>
+        <hr>
+        <div class="gm-h">Filter</div>
+        <button data-cf="feed" class="on" onclick="setCulFilter('feed')">Feed<small>Universal posts from everyone</small></button>
+        <button data-cf="articles" onclick="setCulFilter('articles')">Articles<small>Created by KEEPITIL only</small></button>
+        <button data-cf="user" onclick="setCulFilter('user')">User content<small>Blogs, articles, videos, events, images &amp; reshares from users</small></button>
+      </div>
       <h2 id="feedNow" style="font-family:var(--fs);font-weight:900;font-size:1.6rem;color:#fff">All</h2>
-      <div class="feeddd" id="feedDD"><button class="feeddd-btn" id="feedDDBtn" onclick="toggleFeedDD(event)">KEEPITIL <span aria-hidden="true">&#9662;</span></button><div class="feeddd-menu" id="feedDDMenu"><button data-m="feed" class="on" onclick="setFeedMode('feed')">Feed</button><button data-m="following" onclick="setFeedMode('following')">Following</button></div></div>
+      <div class="feeddd" id="feedDD"><button class="feeddd-btn" id="feedDDBtn" onclick="toggleFeedDD(event)">EXPLORE <span aria-hidden="true">&#9662;</span></button><div class="feeddd-menu" id="feedDDMenu"><button onclick="culNav('radio')">📻 Radio</button><button onclick="culNav('battles')">⚔️ Battles</button><button onclick="culNav('games')">🎮 Games</button><button onclick="culNav('apps')">🧩 Apps</button><button onclick="culNav('services')">🛠 Services</button></div></div>
       <button class="cul-heart" id="cul-heart" style="display:none" aria-label="Notifications" title="Notifications" onclick="var b=document.querySelector('.kiln-bell'); if(b){b.click();}else{location.href='/v31/apply.html';}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg></button>
     </div>
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
@@ -172,7 +194,10 @@ var SOON={
  battles:{i:'⚔️',t:'Battles',d:'DJ battles, art & photo contests, and community challenges — KEEPITIL-run and member-created. Compete, vote, and earn Community Rewards. Launching soon.'},
  gallery:{i:'📷',t:'Gallery',d:'Community photos, flyers and moments from the SoCal scene. Upload yours once profiles + galleries go live. Coming soon.'},
  hotspot:{i:'🔥',t:'Hotspot',d:'The top community-voted content — the best photos, blogs, flyers and events, ranked by the scene. Coming soon.'},
- profiles:{i:'👤',t:'Profiles',d:'Discover artists, brands and organizers across OC & LA.',cta:'/v31/scene.html',ctaT:'Browse the directory →'}
+ profiles:{i:'👤',t:'Profiles',d:'Discover artists, brands and organizers across OC & LA.',cta:'/v31/scene.html',ctaT:'Browse the directory →'},
+ games:{i:'🎮',t:'Games',d:'Community games, trivia and interactive challenges from the scene. Coming soon.'},
+ apps:{i:'🧩',t:'Apps',d:'Creator tools and mini-apps built into KEEPITIL. Coming soon.'},
+ services:{i:'🛠',t:'Services',d:'Book promotion, design, production and other creator services. Coming soon.'}
 };
 var activeType='all', activeCat='all', feedMode='feed';
 /* proxy "newest first": later-in-array treated as newer */
@@ -253,8 +278,49 @@ document.getElementById('typebar').addEventListener('click',function(e){var b=e.
 renderTypebar();renderDiscover();renderFeed();});
 document.getElementById('discover').addEventListener('click',function(e){var h=e.target.closest('.ch');if(!h)return;activeCat=h.dataset.cat;renderFeed();window.scrollTo({top:document.querySelector('.chero').offsetHeight,behavior:'smooth'});});
 function toggleFeedDD(e){if(e){e.stopPropagation();}var m=document.getElementById('feedDDMenu');if(m)m.classList.toggle('open');}
+/* ── Culture EXPLORE dropdown: radio / battles / games / apps / services ── */
+function culNav(section){
+  var m=document.getElementById('feedDDMenu'); if(m)m.classList.remove('open');
+  if(section==='radio'){ location.href='/v31/radio.html'; return; }
+  var s=SOON[section]; if(!s) return;
+  var cf=document.getElementById('community-feed'); if(cf)cf.style.display='none';
+  var f=document.getElementById('feed'); if(f)f.innerHTML='<div class="gate"><div class="i">'+s.i+'</div><h3>'+s.t+'</h3><p>'+s.d+'</p><a href="'+(s.cta||'/v31/apply.html#plans')+'">'+(s.ctaT||'Join to get early access →')+'</a></div>';
+  var now=document.getElementById('feedNow'); if(now)now.textContent=s.t;
+}
+/* ── logged-in gear: Type (all/following/followers) + Filter (feed/articles/user) ── */
+var culType='all', culFilter='feed';
+var CUL_AGENTS={echo:1,atlas:1,pulse:1,nexus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
+function toggleCulGear(e){if(e){e.stopPropagation();}var m=document.getElementById('culGearMenu');if(m)m.classList.toggle('open');}
+function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearMenu button['+attr+']'),function(b){b.classList.toggle('on',b.getAttribute(attr)===val);});}
+function setCulType(t){ culType=t; _culMark('data-ct',t); applyCulFilters(); }
+function setCulFilter(f){ culFilter=f; _culMark('data-cf',f); applyCulFilters(); }
+function applyCulFilters(){
+  var box=document.getElementById('community-feed'); if(!box||!window.__culRenderRows) return;
+  var cf=document.getElementById('community-feed'); if(cf)cf.style.display='';
+  var rows=(window.__culAllRows||[]).slice();
+  /* Filter */
+  if(culFilter==='articles'){ rows=rows.filter(function(x){ return x.kind==='article' && CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
+  else if(culFilter==='user'){ rows=rows.filter(function(x){ return !CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
+  /* Type */
+  if(culType==='following' && window.__culFollowing){ rows=rows.filter(function(x){ return window.__culFollowing[String(x.profile_slug||'').toLowerCase()]; }); }
+  else if(culType==='followers' && window.__culFollowers){ rows=rows.filter(function(x){ return window.__culFollowers[String(x.profile_slug||'').toLowerCase()]; }); }
+  window.__culRenderRows(rows);
+  if((culType==='following'||culType==='followers') && !rows.length){
+    box.innerHTML='<div class="gate"><div class="i">👥</div><h3>Nothing here yet</h3><p>No posts from your '+culType+' yet — follow more of the scene.</p><a href="/v31/scene.html">Browse the directory →</a></div>';
+  }
+}
+function loadCulRelations(){
+  var sb=window.__culSB; if(!sb||window.__culRelLoaded) return; window.__culRelLoaded=true;
+  sb.rpc('my_profile_slug').then(function(rr){ var me=rr&&!rr.error?rr.data:null;
+    sb.auth.getUser().then(function(ur){ var uid=ur&&ur.data&&ur.data.user?ur.data.user.id:null;
+      if(uid){ sb.from('follows').select('profile_slug').eq('follower_id',uid).then(function(r){ var m={}; ((r&&r.data)||[]).forEach(function(x){m[String(x.profile_slug).toLowerCase()]=1;}); window.__culFollowing=m; }); }
+      if(me){ sb.from('follows').select('follower_id').eq('profile_slug',me).then(function(r){ var ids=((r&&r.data)||[]).map(function(x){return x.follower_id;}); if(!ids.length){window.__culFollowers={};return;} sb.from('app_users').select('handle').in('id',ids).then(function(r2){ var m={}; ((r2&&r2.data)||[]).forEach(function(u){ if(u.handle)m[String(u.handle).toLowerCase()]=1; }); window.__culFollowers=m; }); }); }
+    });
+  }).catch(function(){});
+}
 function setFeedMode(mode){feedMode=mode;var mm=document.getElementById('feedDDMenu');if(mm){[].forEach.call(mm.children,function(x){x.classList.toggle('on',x.dataset.m===mode);});mm.classList.remove('open');}var lbl=document.getElementById('feedNow');if(lbl)lbl.textContent=(mode==='following'?'Following':'All');renderFeed();}
-document.addEventListener('click',function(e){var d=document.getElementById('feedDD');var m=document.getElementById('feedDDMenu');if(m&&m.classList.contains('open')&&d&&!d.contains(e.target))m.classList.remove('open');});
+document.addEventListener('click',function(e){var d=document.getElementById('feedDD');var m=document.getElementById('feedDDMenu');if(m&&m.classList.contains('open')&&d&&!d.contains(e.target))m.classList.remove('open');
+  var gm=document.getElementById('culGearMenu');var gb=document.getElementById('cul-gear');if(gm&&gm.classList.contains('open')&&!gm.contains(e.target)&&e.target!==gb)gm.classList.remove('open');});
 window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagation();}catch(x){}
   var ex=document.getElementById('culPMenu'); var was=ex&&ex._for===slug; if(ex)ex.remove(); if(was)return;
   var m=document.createElement('div'); m.id='culPMenu'; m.className='fb-pmenu'; m._for=slug;
@@ -272,8 +338,9 @@ renderTypebar();renderDiscover();renderFeed();
 <script>
 /* V3.1 template: mobile logged-in ONLY -> "+" (create a feed) top-left + bell top-right */
 (function(){
-  function show(){ var a=document.getElementById('cul-add'), h=document.getElementById('cul-heart');
-    if(a)a.style.display='inline-flex'; if(h)h.style.display='inline-flex'; }
+  function show(){ var g=document.getElementById('cul-gear'), h=document.getElementById('cul-heart');
+    /* logged-in: the top-left "+" becomes a settings gear (Type/Filter); create-post lives in the bottom bar (Founder 2026-07-29) */
+    if(g)g.style.display='inline-flex'; if(h)h.style.display='inline-flex'; window.__culSignedIn=true; }
   function boot(n){ try{
     if(!window.supabase){ if(n<25) setTimeout(function(){boot(n+1);},400); return; }
     if(!window.__culSB) window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
@@ -337,9 +404,14 @@ renderTypebar();renderDiscover();renderFeed();
         var rows=(r&&r.data)||[];
         var box=document.getElementById('community-feed'); if(!box) return;
         rows=rows.filter(function(x){ return !(x.kind==='event' && /^venue-/.test(x.profile_slug||'')); }); /* event shows once (owner copy); venue copy lives on the venue page */
-        if(!rows.length){ box.innerHTML='<div class="gate"><p style="color:var(--muted,#9aa0b0);margin:0">The feed is warming up — fresh posts are on the way.</p></div>'; return; }
-        box.innerHTML=rows.map(card).join('');
-        try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){}  /* fill like/comment/reshare counts on community cards */
+        window.__culAllRows=rows;
+        /* render function used by both initial paint and the gear Type/Filter (Founder 2026-07-29) */
+        window.__culRenderRows=function(list){ var b=document.getElementById('community-feed'); if(!b)return;
+          if(!list||!list.length){ b.innerHTML='<div class="gate"><p style="color:var(--muted,#9aa0b0);margin:0">The feed is warming up — fresh posts are on the way.</p></div>'; return; }
+          b.innerHTML=list.map(card).join('');
+          try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){} };
+        if(typeof applyCulFilters==='function' && (window.__culSignedIn)){ try{ if(typeof loadCulRelations==='function') loadCulRelations(); }catch(e){} applyCulFilters(); }
+        else { window.__culRenderRows(rows); }
       }).catch(function(){});
     }
     try{ sb.rpc('my_profile_slug').then(function(rr){ run(rr&&!rr.error&&rr.data?rr.data:null); }).catch(function(){ run(null); }); }catch(e){ run(null); }
