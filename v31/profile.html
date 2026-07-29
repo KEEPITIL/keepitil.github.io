@@ -2164,7 +2164,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var o=doc
 if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
 /* Unclaimed directory profiles (no owner row, not the demo/agent) show a "Claim this profile" CTA so the real artist/brand/organizer can claim it. Auto-built profiles are unclaimed by default. */
 (function(){
-  if(IS_DEMO || IS_AGENT || !SB || !PROFILE_SLUG) return;
+  if(IS_AGENT || !SB || !PROFILE_SLUG) return; /* groove-trooper (demo) IS the unclaimed gold standard → show the Claim CTA (Founder 2026-07-28) */
   SB.from('profile_owners').select('owner_id').eq('profile_slug',PROFILE_SLUG).maybeSingle().then(function(r){
     var hasOwner=!!(r&&r.data&&r.data.owner_id);
     var b=document.getElementById('pfClaim'); if(!b) return;
