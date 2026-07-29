@@ -2005,7 +2005,8 @@ function flyer(e,showPick){
       +((e.ticket&&e.ticket!=='#')?'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>':'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+epage+'">🎟 Buy Tickets</a>')
       +((vip&&e.ticket&&e.ticket!=='#')?'<a class="evx-act evx-act-vip" data-kt="vip_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
       +(e.keepitil?('<a class="evx-act evx-act-chat" data-kt="chat_join" data-event-slug="'+slug+'" href="'+chat+'">💬 Join Event Chat</a>'):'')
-      +'<a class="evx-act evx-act-page" data-kt="event_view" data-event-slug="'+slug+'" href="'+epage+'">ℹ️ Event Details</a>'
+      /* internal Event Details/Chat only for KEEPITIL events; 3rd-party events go straight to the external ticket link above */
+      +(e.keepitil?('<a class="evx-act evx-act-page" data-kt="event_view" data-event-slug="'+slug+'" href="'+epage+'">ℹ️ Event Details</a>'):'')
     +'</div></div>';
 }
 function buildMonths(){
@@ -2182,7 +2183,8 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
           var db=r.data.filter(function(e){return e.starts_at;}).map(function(e){
             var g=e.genres||e.genre||'';
             var _cl=classify(g,e.title);
-            var internal=!e.source||e.source==='organizer';
+            /* 3rd-party = has a full external ticket URL → send people straight there (Founder 2026-07-28). Only truly internal KEEPITIL events (no external source_url) get the on-site event page/chat. */
+            var internal=!e.source_url||!/^https?:\/\//i.test(e.source_url);
             return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
               genre:g||'KEEPITIL',gcat:_cl.gcat,ecat:_cl.ecat,img:e.cover_url||e.img||'',
               ticket:(e.source_url&&!internal)?e.source_url:('/v31/event.html?e='+encodeURIComponent(e.slug||'')),
