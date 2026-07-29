@@ -1496,6 +1496,7 @@ function drawRigUnit(u, corpse, cls, s, x, y){
   else if(u.pose==='walk'){ st='march'; p = ((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
   else { st='idle'; p = (((u.ph*0.16)%1)+1)%1; }
   const po = KWRig.poseFor(cls, st, p, t); po._t = t;
+  po.era = S ? (u.team===1 ? S.civ : S.enemyCiv) : 1;   // civilization-fitted armor tier
   // Layered defense visuals: shield is dropped once its HP is gone; the helmet is
   // lost once armor is depleted; only then does the bare soldier take HP damage.
   po.dropShield = !corpse && (u.shieldMax>0) && u.shield<=0;
@@ -2272,25 +2273,102 @@ function drawCatapult(c){
   ctx.beginPath(); ctx.arc(18,-1,6.5,0,7); ctx.fill();
   ctx.restore();
 }
-// wall archers show only their upper body behind the parapet
+// Wall archers: upper body behind the parapet with real body movement — idle
+// breathing sway, a nock→draw→release bowstring, and firing recoil.
+const GARRISON_HELM = ['#6b4a2c','#b08d3c','#c9a24a','#8a9199','#b6c0c8','#9aa4ac','#7d858c','#8a5a2c','#7f8790','#b3392f','#8f8f93','#5a6470','#4f5b66','#5c6b57','#6b7079'];
 function drawGarrisonArcher(d){
-  ctx.save(); ctx.translate(d.x, d.y); ctx.scale(d.flip?-d.s:d.s, d.s);
+  const T = (S?S.time:0)*2.2 + d.x*0.06;               // per-figure clock
+  const breathe = Math.sin(T)*0.7;                     // chest rise/fall
+  const fire = d.anim||0;                              // 1 right after release, decays to 0
+  const recoil = fire*3.2;                             // torso snaps back on release
+  const civ = d.flip ? (S?S.enemyCiv:1) : (S?S.civ:1);
+  const helm = GARRISON_HELM[Math.max(0,Math.min(14,(civ||1)-1))];
+  ctx.save(); ctx.translate(d.x, d.y+breathe); ctx.scale(d.flip?-d.s:d.s, d.s);
   ctx.strokeStyle = '#161616'; ctx.fillStyle = '#161616'; ctx.lineWidth = 2.8; ctx.lineCap='round';
+  const hx = -recoil*0.35;                             // head/torso lean from recoil
   ctx.beginPath();
-  ctx.moveTo(0,0); ctx.lineTo(0,-12);                              // torso rising from behind the wall
-  ctx.moveTo(0,-9); ctx.lineTo(8,-11);                             // bow arm
-  ctx.moveTo(0,-9); ctx.lineTo(d.anim>0? 1:-4,-10);                // draw arm
+  ctx.moveTo(0,0); ctx.lineTo(hx,-12);                                  // torso
+  ctx.moveTo(hx,-9); ctx.lineTo(9,-11);                                 // bow arm reaches out
+  // draw hand: pulled fully back while nocking, flicks forward the instant of release
+  const drawX = fire>0.45 ? 5 : (-5 - Math.max(0,Math.sin(T*1.1))*1.4);
+  ctx.moveTo(hx,-9); ctx.lineTo(drawX,-10);                             // draw arm
   ctx.stroke();
-  ctx.beginPath(); ctx.arc(0,-15.5,4.9,0,7); ctx.fill();           // round head
-  ctx.fillStyle = '#ffffff';                                       // dot eyes
-  ctx.beginPath(); ctx.arc(1.7,-15.7,.95,0,7); ctx.fill();
-  ctx.beginPath(); ctx.arc(3.9,-15.7,.95,0,7); ctx.fill();
-  ctx.fillStyle = '#161616';
-  ctx.beginPath(); ctx.arc(8,-11,6,-1.25,1.25); ctx.stroke();      // bow
-  ctx.beginPath(); ctx.moveTo(8,-16.7); ctx.lineTo(8,-5.3); ctx.stroke();
-  // quiver tip over the shoulder
-  ctx.fillStyle = '#5a4326'; ctx.fillRect(-6,-15,3.4,6);
+  ctx.beginPath(); ctx.arc(hx,-15.5,4.9,0,7); ctx.fill();               // head
+  ctx.fillStyle = helm;                                                 // civ-tinted helmet cap
+  ctx.beginPath(); ctx.arc(hx,-16.5,5.2,Math.PI*1.02,Math.PI*1.98); ctx.fill();
+  ctx.fillStyle = '#ffffff';                                            // eyes
+  ctx.beginPath(); ctx.arc(hx+1.7,-15.5,.95,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(hx+3.9,-15.5,.95,0,7); ctx.fill();
+  ctx.strokeStyle = '#161616'; ctx.fillStyle = '#161616';
+  ctx.beginPath(); ctx.arc(9,-11,6,-1.25,1.25); ctx.stroke();           // bow
+  // bowstring: bent back to the draw hand while nocking, straight on release
+  ctx.beginPath(); ctx.moveTo(9,-16.7); ctx.lineTo(drawX,-10); ctx.lineTo(9,-5.3); ctx.stroke();
+  ctx.fillStyle = '#5a4326'; ctx.fillRect(-6,-15,3.4,6);                // quiver
   ctx.restore();
+}
+// Attackers scaling the wall: when the assault presses a fort, a few figures
+// climb its face hand-over-hand, then get thrown back near the top.
+function drawWallScalers(side){
+  if(!S) return;
+  const wallX = side===0 ? P_WALL : E_WALL;
+  const atkTeam = side===0 ? -1 : 1;
+  const alive = side===0 ? (S.gateHP>0) : (S.castleHP>0);
+  if(!alive) return;
+  let count=0;
+  for(const u of S.units){ if(u.team!==atkTeam || u.hp<=0) continue; if(Math.abs(u.x-wallX) < 54) count++; }
+  const n = Math.min(4, count); if(!n) return;
+  const topY=340, baseY=498, dir = side===0 ? 1 : -1;
+  for(let i=0;i<n;i++){
+    const ph = ((S.time*0.55 + i*0.41) % 1);                 // 0..1 climb cycle
+    const cy = baseY - (baseY-topY)*ph;
+    const cx = wallX + dir*(9 + (i%2)*7);
+    const reach = Math.sin(S.time*7 + i*2.1);
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(dir*0.9, 0.9);
+    ctx.globalAlpha = Math.max(0, 1 - Math.max(0, ph-0.86)*7);   // flung off near the top
+    ctx.strokeStyle='#141414'; ctx.fillStyle='#141414'; ctx.lineWidth=2.4; ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(1.5,-12);                         // torso pressed to the wall
+    ctx.moveTo(1.5,-9); ctx.lineTo(5,-17+reach*3.2);              // upper arm reaching up
+    ctx.moveTo(1.5,-9); ctx.lineTo(5,-15-reach*3.2);             // other arm gripping
+    ctx.moveTo(1.5,-1); ctx.lineTo(4.5,4+reach*2.4);             // legs bracing on the stone
+    ctx.moveTo(1.5,-1); ctx.lineTo(4.5,6-reach*2.4);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(1.5,-15,4,0,7); ctx.fill();
+    ctx.globalAlpha=1; ctx.restore();
+  }
+}
+// Melee defenders on the parapet: when attackers reach the fort, swordsmen lean
+// over the wall and hack down at the scalers.
+function drawWallMelee(side){
+  if(!S) return;
+  const wallX = side===0 ? P_WALL : E_WALL;
+  const alive = side===0 ? (S.gateHP>0) : (S.castleHP>0);
+  if(!alive) return;
+  const atkTeam = side===0 ? -1 : 1;
+  let threat=false;
+  for(const u of S.units){ if(u.team===atkTeam && u.hp>0 && Math.abs(u.x-wallX)<66){ threat=true; break; } }
+  if(!threat) return;
+  const dir = side===0 ? 1 : -1;
+  const civ = side===0 ? S.civ : S.enemyCiv;
+  const helm = GARRISON_HELM[Math.max(0,Math.min(14,(civ||1)-1))];
+  for(let i=0;i<2;i++){
+    const px = wallX + dir*(20 + i*30), py = 352;
+    const swing = Math.sin(S.time*6 + i*2.3);            // hack down / recover
+    const sa = 0.35 + Math.max(0,swing)*1.15;            // arm angle, chops on the down-beat
+    ctx.save(); ctx.translate(px,py); ctx.scale(dir*0.95,0.95);
+    ctx.strokeStyle='#161616'; ctx.fillStyle='#161616'; ctx.lineWidth=2.8; ctx.lineCap='round';
+    const hx=Math.cos(sa)*10, hy=-9-Math.sin(sa)*10;
+    ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(1,-13);                  // torso above the parapet
+    ctx.moveTo(1,-10); ctx.lineTo(hx,hy);                // sword arm
+    ctx.moveTo(1,-10); ctx.lineTo(-4,-11);               // shield arm braced
+    ctx.stroke();
+    ctx.strokeStyle='#c6ccd2'; ctx.lineWidth=2.3;        // blade continues from the hand, down over the wall
+    ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(hx+Math.cos(sa)*14, hy+Math.sin(sa-1.2)*14); ctx.stroke();
+    ctx.fillStyle='#161616'; ctx.beginPath(); ctx.arc(1,-16.5,4.6,0,7); ctx.fill();
+    ctx.fillStyle=helm; ctx.beginPath(); ctx.arc(1,-17.4,4.9,Math.PI*1.02,Math.PI*1.98); ctx.fill();
+    ctx.restore();
+  }
 }
 
 // ---------- projectiles / fx ----------
@@ -2475,6 +2553,8 @@ function render(){
   for (const c of S.cats) drawCatapult(c);
   for (const d of S.enemyDefs) drawGarrisonArcher(d);
   for (const c of S.enemyCats) drawCatapult(c);
+  drawWallScalers(0); drawWallScalers(1);   // attackers climbing each fort face
+  drawWallMelee(0); drawWallMelee(1);        // defenders hacking down at them
 
   if (started && S.stance !== 'attack' && !S.over){
     ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([8,8]); ctx.lineWidth = 2.5;

@@ -125,8 +125,18 @@ function poseFor(cls,st,p,t){
     po.armF2={fwd:1.44,bend:0.34};         // front hand
     po.armN ={fwd:0.66,bend:1.86};         // rear/trigger
     po.extra.rifle=1;
-    if(st!=='march'&&st!=='run'){po.legF={fwd:0.38,bend:0.10,tilt:0};po.legB={fwd:-0.36,bend:0.20,tilt:0.14};} // braced gunman stance
-    if(st==='attack'){const k=Math.max(0,Math.sin(t*13))*Math.pow(Math.max(0,Math.sin(t*13)),4);po.px=-k*3;po.extra.fire=k;po.headTilt=0.1;}
+    if(st!=='march'&&st!=='run'){po.legF={fwd:0.42,bend:0.34,tilt:0};po.legB={fwd:-0.30,bend:0.55,tilt:0.16};po.py=3;} // low firing-line crouch (front leg planted, rear knee dropped)
+    if(st==='attack'){
+      // One aimed shot per attack: settle → muzzle flash + recoil → rack the bolt (reload) → back on aim.
+      const fire = ss(.10,.18,p)*(1-ss(.18,.30,p));       // sharp flash spike
+      const rack = ss(.34,.58,p)*(1-ss(.58,.86,p));       // trigger hand cycles the action
+      po.px = -fire*4.5 + rack*1.4;                        // recoil kick back, small settle forward on rack
+      po.lean = fire*0.07;
+      po.extra.fire = fire;                                // drives the muzzle flash in drawRifle
+      po.armN  = {fwd:0.66 - rack*0.55, bend:1.86 + rack*0.5};   // rear hand pulls the bolt back and returns
+      po.armF2 = {fwd:1.44 - fire*0.12, bend:0.34 + fire*0.05};  // front hand absorbs the kick
+      po.headTilt = 0.12 - fire*0.04;                      // cheek on the stock, tiny lift on the shot
+    }
     else if(st!=='idle'&&st!=='march'){po.headTilt=0.1;}
   }
   // ---- deaths ----
@@ -199,8 +209,45 @@ function drawPauldron(ctx,sh,C){
   ctx.beginPath();ctx.ellipse(sh[0],sh[1]+1.5,7.5,5.2,0,0,7);ctx.fill();ctx.stroke();
   ctx.strokeStyle=shade(C.metal,.1);ctx.lineWidth=0.5;ctx.beginPath();ctx.ellipse(sh[0],sh[1]+1.5,5,3.4,0,0,7);ctx.stroke();
 }
+// Civilization armor tiers across the 15 eras — recolors the metal/trim of every
+// worn piece (helmet, greaves, cuirass) and picks the chest style so a tribal
+// spearman, a bronze hoplite and an industrial trooper are unmistakable.
+function eraKit(civ){
+  civ=Math.max(1,Math.min(15,(civ|0)||1));
+  const T=[
+    [1,1,'#8a6a45','#c8a45a','hide'],   // tribal hide
+    [2,2,'#b5893c','#e8c46a','scale'],  // bronze scale
+    [3,4,'#9aa2aa','#c7ccce','plate'],  // late-bronze / iron
+    [5,6,'#c2a15a','#e8d28a','muscle'], // classical bronze muscle cuirass
+    [7,8,'#aeb4bb','#cfd4d8','mail'],   // late-antique / viking mail
+    [9,10,'#c6ccd2','#e8b23b','plate'], // medieval / steppe plate
+    [11,13,'#8f8f93','#c7ccce','coat'], // renaissance → napoleonic
+    [14,15,'#6f757c','#aab0b6','coat']  // industrial / world-war
+  ];
+  for(const t of T) if(civ>=t[0]&&civ<=t[1]) return {metal:t[2],trim:t[3],chest:t[4]};
+  return {metal:'#8f8f93',trim:'#c7ccce',chest:'coat'};
+}
+// A fitted breastplate that follows the torso (shoulder→pelvis) and carries an
+// era-specific surface: hide straps, bronze scales, mail rings, muscle relief, coat.
+function drawCuirass(ctx,J,C,style){
+  const sh=J.shoulder,pv=J.pelvis;const a=Math.atan2(pv[1]-sh[1],pv[0]-sh[0]);
+  const tl=Math.hypot(pv[0]-sh[0],pv[1]-sh[1]);
+  ctx.save();ctx.translate(sh[0],sh[1]);ctx.rotate(a-Math.PI/2);
+  const top=1.5, bot=tl*0.66;
+  ctx.fillStyle=cyl(ctx,-8,8,C.metal,.34);ctx.strokeStyle=shade(C.metal,-.5);ctx.lineWidth=0.8;
+  ctx.beginPath();ctx.moveTo(-8,top);ctx.quadraticCurveTo(-9,bot*0.5,-6,bot);ctx.lineTo(6,bot);ctx.quadraticCurveTo(9,bot*0.5,8,top);ctx.quadraticCurveTo(0,top-2,-8,top);ctx.closePath();ctx.fill();ctx.stroke();
+  if(style==='scale'){ctx.fillStyle=shade(C.metal,-.16);for(let r=0;r<4;r++)for(let c=-2;c<=2;c++){ctx.beginPath();ctx.arc(c*3.2+(r%2?1.6:0),top+4+r*4,1.7,0,Math.PI);ctx.fill();}}
+  else if(style==='mail'){ctx.fillStyle=shade(C.metal,-.22);for(let r=0;r<5;r++)for(let c=-2;c<=2;c++){ctx.beginPath();ctx.arc(c*3+(r%2?1.5:0),top+3+r*3,0.8,0,7);ctx.fill();}}
+  else if(style==='muscle'){ctx.strokeStyle=shade(C.metal,-.28);ctx.lineWidth=0.7;ctx.beginPath();ctx.arc(-3,top+bot*0.28,3,0.1,Math.PI-0.1);ctx.arc(3.2,top+bot*0.28,3,0.1,Math.PI-0.1);ctx.moveTo(0,top+bot*0.42);ctx.lineTo(0,bot*0.86);ctx.stroke();}
+  else if(style==='hide'){ctx.strokeStyle=shade(C.metal,-.3);ctx.lineWidth=1.4;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-7,top+3+i*4.6);ctx.lineTo(7,top+2+i*4.6);ctx.stroke();}}
+  else if(style==='coat'){ctx.strokeStyle=shade(C.metal,-.3);ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(0,top);ctx.lineTo(0,bot);ctx.stroke();ctx.fillStyle=C.trim;for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,top+3.5+i*4.6,0.9,0,7);ctx.fill();}}
+  else {ctx.strokeStyle=shade(C.metal,.12);ctx.lineWidth=0.6;ctx.beginPath();ctx.moveTo(-6,top+bot*0.5);ctx.lineTo(6,top+bot*0.5);ctx.stroke();}
+  ctx.strokeStyle=C.trim;ctx.lineWidth=1.0;ctx.beginPath();ctx.moveTo(-8,top);ctx.quadraticCurveTo(0,top-2,8,top);ctx.stroke();
+  ctx.restore();
+}
 
 function drawSoldier(ctx,cls,po,C,team){
+  if(po.era){ const k=eraKit(po.era); C={...C, metal:k.metal, trim:k.trim, _chest:k.chest}; }  // civilization armor tier
   const J=build(po),sk=C.skin,far=shade(sk,team===1?0.1:-0.1);
   if(po.extra.dropGear){ctx.save();ctx.globalAlpha=po.alpha*po.extra.dropGear;ctx.fillStyle=cyl(ctx,po.px-16,po.px+16,C.shield||'#8a8f96',.1);ctx.strokeStyle='#3a3f45';ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(po.px-6,1,15,5,0,0,7);ctx.fill();ctx.stroke();ctx.restore();}
   ctx.globalAlpha=po.alpha;
@@ -219,6 +266,7 @@ function drawSoldier(ctx,cls,po,C,team){
   limb(ctx,J.pelvis,J.shoulder,6.2,7.6,sk);
   const jc=C.jacket||C.tunic; ctx.save();const sA=Math.atan2(J.pelvis[1]-J.shoulder[1],J.pelvis[0]-J.shoulder[0]);ctx.translate(J.shoulder[0],J.shoulder[1]);ctx.rotate(sA-Math.PI/2);const tl=Math.hypot(J.pelvis[0]-J.shoulder[0],J.pelvis[1]-J.shoulder[1]);poly(ctx,[[-7.6,3],[7.6,3],[6.3,tl],[-6.3,tl]],cyl(ctx,-7.6,7.6,jc,.15),shade(jc,-.4),0.7);ctx.restore();
   if(cls==='sword'&&!po.supine&&!po.extra.impale)drawSegmentata(ctx,J,C);
+  if((cls==='spear'||cls==='bow'||cls==='gun')&&!po.supine&&!po.extra.impale)drawCuirass(ctx,J,C,C._chest||'plate');  // era-fitted breastplate
   // near leg
   limb(ctx,J.legF[0],J.legF[1],6.7,5.4,sk);limb(ctx,J.legF[1],J.legF[2],5.4,3.6,sk);greave(ctx,J.legF[1],J.legF[2],C.metal);boot(ctx,J.legF[2],J.legF[3],shade(C.leather,-.1));
   if(cls==='sword'&&!po.supine&&!po.extra.impale)drawPteruges(ctx,J,C);
