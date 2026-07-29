@@ -169,7 +169,8 @@ function drawGladius(ctx,J,po,C){
   const ang = po.extra.chop!=null ? lerp(-2.5,0.78,po.extra.chop)   // overhead: raised behind -> slam down-forward
             : lerp(-1.46,-0.05,trail);                              // idle upright -> forward thrust
   const d=[Math.cos(ang),Math.sin(ang)],nx=-d[1],ny=d[0];
-  const blade=64,grip=9,guardW=7.5;
+  const big=po.extra.bigSword?1.6:1;                       // raged: oversized greatsword
+  const blade=64*big,grip=9,guardW=7.5*big,bw=2.9*big;
   const tip=[h[0]+d[0]*blade,h[1]+d[1]*blade];
   const gripEnd=[h[0]-d[0]*grip,h[1]-d[1]*grip];
   // grip + pommel (behind hand)
@@ -179,9 +180,20 @@ function drawGladius(ctx,J,po,C){
   ctx.strokeStyle=C.trim;ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(h[0]+nx*guardW,h[1]+ny*guardW);ctx.lineTo(h[0]-nx*guardW,h[1]-ny*guardW);ctx.stroke();
   // tapered blade
   const b0=[h[0]+d[0]*2,h[1]+d[1]*2];
-  poly(ctx,[[b0[0]+nx*2.9,b0[1]+ny*2.9],[tip[0]+nx*0.5,tip[1]+ny*0.5],[tip[0]+d[0]*2.4,tip[1]+d[1]*2.4],[tip[0]-nx*0.5,tip[1]-ny*0.5],[b0[0]-nx*2.9,b0[1]-ny*2.9]],'#e9edf1',shade('#e9edf1',-.35),0.6);
+  poly(ctx,[[b0[0]+nx*bw,b0[1]+ny*bw],[tip[0]+nx*0.6,tip[1]+ny*0.6],[tip[0]+d[0]*2.4,tip[1]+d[1]*2.4],[tip[0]-nx*0.6,tip[1]-ny*0.6],[b0[0]-nx*bw,b0[1]-ny*bw]],'#e9edf1',shade('#e9edf1',-.35),0.6);
   // fuller highlight
   ctx.strokeStyle=shade('#e9edf1',.25);ctx.lineWidth=0.8;ctx.beginPath();ctx.moveTo(b0[0]+d[0]*3,b0[1]+d[1]*3);ctx.lineTo(tip[0]-d[0]*5,tip[1]-d[1]*5);ctx.stroke();
+}
+// Second sword in the near (former shield) hand — for the ex-spearman dual-blade rage.
+function drawGladius2(ctx,J,po,C){
+  const h=J.armF[2];const trail=po.extra.trail||0;
+  const ang = (po.extra.chop!=null ? lerp(-2.5,0.78,po.extra.chop) : lerp(-1.46,-0.05,trail)) + 0.55;  // offset so the two blades slash out of phase
+  const d=[Math.cos(ang),Math.sin(ang)],nx=-d[1],ny=d[0];const big=po.extra.bigSword?1.55:1;const blade=58*big,grip=8,bw=2.6*big;
+  const tip=[h[0]+d[0]*blade,h[1]+d[1]*blade],gripEnd=[h[0]-d[0]*grip,h[1]-d[1]*grip];
+  ctx.strokeStyle=shade(C.leather,-.05);ctx.lineWidth=2.8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(h[0],h[1]);ctx.lineTo(gripEnd[0],gripEnd[1]);ctx.stroke();
+  ctx.strokeStyle=C.trim;ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(h[0]+nx*6.5,h[1]+ny*6.5);ctx.lineTo(h[0]-nx*6.5,h[1]-ny*6.5);ctx.stroke();
+  const b0=[h[0]+d[0]*2,h[1]+d[1]*2];
+  poly(ctx,[[b0[0]+nx*bw,b0[1]+ny*bw],[tip[0]+nx*0.5,tip[1]+ny*0.5],[tip[0]+d[0]*2.2,tip[1]+d[1]*2.2],[tip[0]-nx*0.5,tip[1]-ny*0.5],[b0[0]-nx*bw,b0[1]-ny*bw]],'#e9edf1',shade('#e9edf1',-.35),0.6);
 }
 function drawBow(ctx,G,dh,po){const half=40,depth=15;const aim=po.extra.nocked?Math.atan2(G[1]-dh[1],G[0]-dh[0]):0;ctx.save();ctx.translate(G[0],G[1]);ctx.rotate(aim);const T=[-depth,-half],B=[-depth,half];ctx.strokeStyle='#8a5a2c';ctx.lineWidth=2.6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(T[0],T[1]);ctx.quadraticCurveTo(2,-half*0.5,2,0);ctx.quadraticCurveTo(2,half*0.5,B[0],B[1]);ctx.stroke();let nock;if(po.extra.nocked){const dx=dh[0]-G[0],dy=dh[1]-G[1];nock=[dx*Math.cos(aim)+dy*Math.sin(aim),-dx*Math.sin(aim)+dy*Math.cos(aim)];}else nock=[-depth,0];ctx.strokeStyle='rgba(238,232,214,.8)';ctx.lineWidth=0.7;ctx.beginPath();ctx.moveTo(T[0],T[1]);ctx.lineTo(nock[0],nock[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();if(po.extra.nocked){ctx.strokeStyle='#7a5330';ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(nock[0],nock[1]);ctx.lineTo(22,0);ctx.stroke();ctx.fillStyle='#e6ebef';poly(ctx,[[26,0],[22,-2],[22,2]],'#e6ebef',null,0);}ctx.restore();}
 function drawRifle(ctx,rear,front,po,C){const ang=Math.atan2(front[1]-rear[1],front[0]-rear[0]),len=Math.hypot(front[0]-rear[0],front[1]-rear[1]);ctx.save();ctx.translate(rear[0],rear[1]);ctx.rotate(ang);const muzzle=len+24;ctx.fillStyle=shade(C.wood,-.1);ctx.beginPath();ctx.moveTo(-16,-3.4);ctx.lineTo(-2,-2.2);ctx.lineTo(-2,2);ctx.lineTo(-16,3.6);ctx.closePath();ctx.fill();ctx.fillStyle=cyl(ctx,-3,3,C.metal,.3);ctx.beginPath();ctx.roundRect(-2,-2.4,len*0.5+4,4.2,1);ctx.fill();ctx.fillStyle=shade(C.metal,-.1);ctx.beginPath();ctx.moveTo(3,2);ctx.lineTo(8,2);ctx.lineTo(7,9);ctx.lineTo(4,9);ctx.closePath();ctx.fill();ctx.fillStyle=shade(C.metal,.1);ctx.fillRect(len*0.4,-1.2,muzzle-len*0.4,2.4);ctx.fillStyle=shade(C.wood,-.05);ctx.beginPath();ctx.roundRect(len-8,-2.2,16,4.4,1.2);ctx.fill();if(po.extra.fire>0.05){ctx.globalAlpha=Math.min(1,po.extra.fire*1.4);ctx.fillStyle='#ffd24a';poly(ctx,[[muzzle+2,0],[muzzle+9,-4],[muzzle+15,0],[muzzle+9,4]],'#ffd24a',null,0);ctx.globalAlpha=1;}ctx.restore();}
@@ -262,6 +274,7 @@ function drawSoldier(ctx,cls,po,C,team){
     if(cls==='bow')drawBow(ctx,J.armB[2],J.armF[2],po);
   }
   if(cls==='sword'&&!po.supine)drawGladius(ctx,J,po,C);
+  if(cls==='sword'&&!po.supine&&po.extra.dualSword)drawGladius2(ctx,J,po,C);   // dual-blade ex-spearman
   // torso
   limb(ctx,J.pelvis,J.shoulder,6.2,7.6,sk);
   const jc=C.jacket||C.tunic; ctx.save();const sA=Math.atan2(J.pelvis[1]-J.shoulder[1],J.pelvis[0]-J.shoulder[0]);ctx.translate(J.shoulder[0],J.shoulder[1]);ctx.rotate(sA-Math.PI/2);const tl=Math.hypot(J.pelvis[0]-J.shoulder[0],J.pelvis[1]-J.shoulder[1]);poly(ctx,[[-7.6,3],[7.6,3],[6.3,tl],[-6.3,tl]],cyl(ctx,-7.6,7.6,jc,.15),shade(jc,-.4),0.7);ctx.restore();

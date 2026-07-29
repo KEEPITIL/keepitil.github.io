@@ -397,7 +397,15 @@ function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.im
 function simRandom(){let t=(S.randomState=(S.randomState+0x6D2B79F5)>>>0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}
 function simRange(min,max){return min+(max-min)*simRandom();}
 function issueCommand(type,payload){return window.KWRuntime?KWRuntime.commands.enqueue(type,payload):executeCommand({type,payload:payload||{}});}
-function executeCommand(command){const p=command.payload||{};switch(command.type){case'recruit':return spawnAlly(p.type);case'stance':return setStance(p.stance);case'defend':return tapDefend();case'march':return tapMarch();case'garrison':return buyGarrison();case'wizard':return buyWizard();case'defense':return buyDefense();case'taprate':return buyTapRate();case'tapaoe':return buyTapAoe();case'evolve':return evolve();case'power':return castGeneral(p.point);}}
+function executeCommand(command){const p=command.payload||{};switch(command.type){case'recruit':return spawnAlly(p.type);case'stance':return setStance(p.stance);case'defend':return tapDefend();case'march':return tapMarch();case'garrison':return buyGarrison();case'wizard':return buyWizard();case'defense':return buyDefense();case'taprate':return buyTapRate();case'tapaoe':return buyTapAoe();case'evolve':return evolve();case'power':return castGeneral(p.point);case'throwspears':return throwSpearsNow();}}
+// Player command: order every spearman still holding a spear to hurl it now, then draw swords.
+function throwSpearsNow(){
+  if(!started||paused||S.over)return;
+  let n=0;
+  for(const u of S.units){ if(u.team===1&&u.hp>0&&!u.spearThrown&&(TYPES[u.type].weapon==='spear'||TYPES[u.type].weapon==='spartan')){ throwLastSpear(u); if(u.spearThrown)n++; } }
+  showMsg(n? '🗡 '+n+' spear'+(n>1?'s':'')+' hurled — blades out!' : 'No spearmen with a target in range');
+  if(n)snd.horn();
+}
 function addFloat(x,y,txt,color){ S.floats.push({x,y,txt,color:color||'#ffd54f',t:1.1}); }
 function showMsg(txt, dur){
   const el = document.getElementById('msg');
@@ -876,7 +884,9 @@ function throwLastSpear(u){
   const flight=Math.max(.5,Math.min(1.35,far/520));
   S.projs.push({kind:'spearp',x:u.x+u.face*8,y:u.y-22,sourceX:u.x,vx:(target.x-u.x)/flight,vy:(target.y-u.y-20)/flight-.5*GRAV*flight,g:GRAV,dmg:Math.round((u.dmg||TYPES[u.type].dmg)*1.35),team:u.team,life:3});
   window.KWRuntime?.events.emit('projectile_released',{kind:'spear',team:u.team,damage:Math.round((u.dmg||TYPES[u.type].dmg)*1.35)});
-  u.spearThrown=true;u.swordOpening=true;u.throwT=.55;u.anim=1;addFloat(u.x,u.y-42,'LAST SPEAR!',u.team===1?'#ffe27a':'#ff9b8f');
+  u.spearThrown=true;u.swordOpening=true;u.throwT=.55;u.anim=1;
+  u.rage=true;u.rageOpening=true;                       // shield & spear gone -> dual-sword rage charge
+  addFloat(u.x,u.y-42,'DUAL BLADES — RAGE!','#ff7a3c');
 }
 // one unit fires at a foe (or at the opposing fort when foe is null)
 function unitFire(u, t, foe){
@@ -997,7 +1007,7 @@ function hurt(u, dmg, hit){
   if(left>0){u.hp-=left*profile.health;if(window.KWAudio)KWAudio.emit('unit.hit.health',{civ:u.team===1?S.civ:S.enemyCiv,team:u.team});}
   u.hurtT = .15;
   snd.hit();
-  if(u.shield<=0&&u.armor<=0)throwLastSpear(u);
+  if(u.shield<=0)throwLastSpear(u);   // shield broken & depleted -> hurl the last spear, then draw the sword
   if (u.hp <= 0){
     u.hp = 0;
     if (u.team === -1){
@@ -1006,7 +1016,7 @@ function hurt(u, dmg, hit){
       if(window.KWAudio)KWAudio.emit('reward.gold',{civ:S.civ});
       if(window.KWExperience) KWExperience.recordKill();
     }
-    S.corpses.push({x:u.x, y:u.y, t:0, type:u.type, team:u.team, death:u.impaled?'impale':null});
+    S.corpses.push({x:u.x, y:u.y, t:0, type:u.type, team:u.team, death:u.impaled?'impale':null, spearThrown:!!u.spearThrown, ph:u.ph});
     if ((!window.KWArt||KWArt.allowBlood())&&S.splats.length < 60) S.splats.push({x:u.x, y:u.y, seed:simRandom()*99});
     const _dw=TYPES[u.type]?.weapon;
     if((_dw==='gun'||_dw==='laser')&&!u._grenaded){ u._grenaded=true; addFloat(u.x,u.y-54,'GRENADE!','#ffcf5a'); S.fx.push({kind:'boom',x:u.x,y:u.y-14,r:60,t:0}); explode(u.x,u.y-14,64,Math.round((TYPES[u.type].dmg||14)*1.4),u.team); }
@@ -1488,26 +1498,32 @@ const CLASS_MOTION={
 // Rig figure is ~150 tall in its own space; K scales it to the game's footprint (tune RIG_K).
 const RIG_K = 0.30;
 function drawRigUnit(u, corpse, cls, s, x, y){
+  // A spearman who has thrown their last spear fights (and dies) with the sword —
+  // switch to the sword rig once the throw arc has finished playing.
+  const thrownToSword = (cls==='spear' && u.spearThrown && !(u.throwT>0));
+  const rcls = thrownToSword ? 'sword' : cls;
   let st, p, t = u.ph || 0;
-  if(corpse){ st = u.death==='impale' ? 'die_impale' : ((cls==='bow'||cls==='gun') ? 'die_back' : 'die_kneel'); p = Math.min(1, (u.t||0)/1.4); }
+  if(corpse){ st = u.death==='impale' ? 'die_impale' : ((rcls==='bow'||rcls==='gun') ? 'die_back' : 'die_kneel'); p = Math.min(1, (u.t||0)/1.4); }
   else if(cls==='spear' && u.throwT>0){ st='throw'; p = Math.min(1, 1 - u.throwT/.55); }
-  else if(u.jumpSlashT>0){ st = cls==='sword' ? 'overhead' : 'attack'; p = Math.min(1, 1 - u.jumpSlashT/.45); }
-  else if(u.anim>0){ st = (cls==='sword' && u.rage) ? 'fury' : 'attack'; p = Math.min(1, Math.max(0, 1 - u.anim)); }
+  else if(u.jumpSlashT>0){ st = rcls==='sword' ? 'overhead' : 'attack'; p = Math.min(1, 1 - u.jumpSlashT/.45); }
+  else if(u.anim>0){ st = (rcls==='sword' && u.rage) ? 'fury' : 'attack'; p = Math.min(1, Math.max(0, 1 - u.anim)); }
   else if(u.pose==='walk'){ st='march'; p = ((((u.walkPhase||u.ph||0)/(Math.PI*2))%1)+1)%1; }
   else { st='idle'; p = (((u.ph*0.16)%1)+1)%1; }
-  const po = KWRig.poseFor(cls, st, p, t); po._t = t;
+  const po = KWRig.poseFor(rcls, st, p, t); po._t = t;
+  if(thrownToSword){ po.extra.dualSword = 1; }          // ex-spearman fights with two swords
+  if(rcls==='sword' && u.rage){ po.extra.bigSword = 1; } // shield broken -> raged, oversized blade(s)
   po.era = S ? (u.team===1 ? S.civ : S.enemyCiv) : 1;   // civilization-fitted armor tier
   // Layered defense visuals: shield is dropped once its HP is gone; the helmet is
   // lost once armor is depleted; only then does the bare soldier take HP damage.
   po.dropShield = !corpse && (u.shieldMax>0) && u.shield<=0;
   po.dropHelmet = !corpse && (u.armorMax>0) && u.armor<=0;
   if(corpse) po.alpha = Math.max(0, 1 - Math.max(0, (u.t||0) - 2.0) / 4.5);   // hold the death, then fade the corpse
-  const C  = KWRig.teamTint(KWRig.PAL[cls], u.team);
+  const C  = KWRig.teamTint(KWRig.PAL[rcls], u.team);
   const K  = RIG_K * s;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale((u.face || (u.team===1?1:-1)) * K, K);
-  KWRig.drawSoldier(ctx, cls, po, C, u.team);
+  KWRig.drawSoldier(ctx, rcls, po, C, u.team);
   ctx.restore();
 }
 function drawStick(u, corpse){
@@ -2719,6 +2735,7 @@ window.addEventListener('keydown', e => {
   else if (e.key === 'q' || e.key === 'Q') issueCommand('defend');
   else if (e.key === 'w' || e.key === 'W') issueCommand('march');
   else if (e.key === 'e' || e.key === 'E') issueCommand('stance',{stance:'attack'});
+  else if (e.key === 'x' || e.key === 'X') issueCommand('throwspears');
   else if (e.key === 'g' || e.key === 'G') issueCommand('garrison');
   else if (e.key === 't' || e.key === 'T') issueCommand('wizard');
   else if (e.key === 'r' || e.key === 'R') issueCommand('defense');
@@ -2763,6 +2780,7 @@ function buildUI(){
   mkBtn('defend', '<span class="big">🛡</span><span class="nm">Defend</span><span class="cost">[Q] 2×⛨</span>', ()=>issueCommand('defend'));
   mkBtn('march',  '<span class="big">🚩</span><span class="nm">March</span><span class="cost">[W] 2×⇄</span>', ()=>issueCommand('march'));
   mkBtn('attack', '<span class="big">⚔️</span><span class="nm">Attack</span><span class="cost">[E]</span>', ()=>issueCommand('stance',{stance:'attack'}));
+  mkBtn('throwspears', '<span class="big">🗡</span><span class="nm">Throw Spears</span><span class="cost">[X]</span>', ()=>issueCommand('throwspears'));
   mkSep();
   mkBtn('garrison','<span class="big">🏹</span><span class="nm" id="glab">Garrison</span><span class="cost">🪙'+GARRISON_COST+'</span>', ()=>issueCommand('garrison'));
   mkBtn('wizard', '<span class="big">🧙</span><span class="nm" id="wlab">Wizard</span><span class="cost">🪙'+WIZARD_COST+'</span>', ()=>issueCommand('wizard'));
