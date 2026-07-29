@@ -44,8 +44,11 @@ h1.pt{font-family:var(--fh);font-size:2.4rem;letter-spacing:.03em;margin-bottom:
 .tog{position:relative;width:46px;height:26px;flex:0 0 auto;border-radius:999px;background:var(--surface2);border:1px solid var(--line);cursor:pointer;transition:.2s}
 .tog::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
 .tog.on{background:var(--brand);border-color:var(--brand)}.tog.on::after{left:22px}
-select,input[type=text]{background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--fb);font-size:.9rem;outline:none}
-select:focus{border-color:var(--brand)}
+select,input[type=text],input[type=email],input[type=password]{background:var(--surface2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:var(--fb);font-size:.9rem;outline:none}
+select:focus,input[type=text]:focus,input[type=email]:focus,input[type=password]:focus{border-color:var(--brand)}
+/* back-to-profile bar */
+.sback{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--text-soft);font-family:var(--fb);font-weight:600;font-size:.92rem;cursor:pointer;padding:6px 0;margin-bottom:6px}
+.sback:hover{color:var(--brand)}
 /* theme swatches */
 .themes{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
 .sw{width:54px;height:54px;border-radius:14px;border:2px solid var(--line);cursor:pointer;position:relative;overflow:hidden}
@@ -70,6 +73,7 @@ select:focus{border-color:var(--brand)}
 </head>
 <body>
 <div class="wrap">
+  <button class="sback" onclick="goProfile()">‹ Back to profile</button>
   <h1 class="pt">Settings</h1>
 
   <div id="gate" class="gate" style="display:none">
@@ -93,11 +97,17 @@ select:focus{border-color:var(--brand)}
     <section class="panel">
       <!-- ACCOUNT -->
       <div class="grp on" data-g="account">
-        <h2>Account</h2><div class="psub">Your KEEPITIL identity.</div>
+        <h2>Account</h2><div class="psub">Manage how you sign in.</div>
         <div class="row"><div class="lbl">Handle</div><div class="val" id="acc-handle">—</div></div>
-        <div class="row"><div class="lbl">Email</div><div class="val" id="acc-email">—</div></div>
-        <div class="row"><div class="lbl">Edit profile</div><div class="val"><a id="acc-profile" class="btn" href="/v31/profile.html?edit=1">Edit profile →</a></div></div>
+        <div class="row"><div class="lbl">Email<small>Used to sign in and for account notices</small></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="email" id="acc-email-in" placeholder="you@email.com" style="min-width:180px"><button class="btn primary" onclick="saveEmail()">Update</button></div></div>
+        <div class="row"><div class="lbl">Change password<small>At least 8 characters</small></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="password" id="acc-pass" placeholder="New password" style="min-width:150px"><button class="btn" onclick="savePass()">Change</button></div></div>
+        <div class="row"><div class="lbl">Language</div>
+          <select data-k="language"><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="pt">Português</option><option value="de">Deutsch</option></select></div>
+        <div class="row"><div class="lbl">Two-factor authentication<small>Extra security at sign-in</small></div><a class="btn" href="/v3/contact.html">Set up →</a></div>
         <div class="row"><div class="lbl">Sign out<small>End your session on this device</small></div><button class="btn danger" onclick="doLogout()">Log out</button></div>
+        <div class="savez" id="sz-account"></div>
       </div>
 
       <!-- APPEARANCE -->
@@ -276,6 +286,17 @@ function initPush(){
   };
 }
 
+function goProfile(){ var h=window.__myHandle; if(h){ location.href='/v31/profile.html?slug='+encodeURIComponent(h); } else if(document.referrer&&/\/v31\//.test(document.referrer)){ history.back(); } else { location.href='/v31/'; } }
+function saveEmail(){ var sz=document.getElementById('sz-account'); var el=document.getElementById('acc-email-in'); var email=(el.value||'').trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ if(sz){sz.textContent='Enter a valid email';setTimeout(function(){sz.textContent='';},2200);} return; }
+  if(!SB||!SIGNED){ if(sz)sz.textContent='Log in to change your email'; return; }
+  if(sz)sz.textContent='Updating…';
+  SB.auth.updateUser({email:email}).then(function(r){ if(sz){ sz.textContent=(r&&r.error)?('Could not update: '+r.error.message):'Check your new email to confirm the change ✓'; setTimeout(function(){sz.textContent='';},4000);} }); }
+function savePass(){ var sz=document.getElementById('sz-account'); var el=document.getElementById('acc-pass'); var p=(el.value||'');
+  if(p.length<8){ if(sz){sz.textContent='Password must be at least 8 characters';setTimeout(function(){sz.textContent='';},2200);} return; }
+  if(!SB||!SIGNED){ if(sz)sz.textContent='Log in to change your password'; return; }
+  if(sz)sz.textContent='Updating…';
+  SB.auth.updateUser({password:p}).then(function(r){ el.value=''; if(sz){ sz.textContent=(r&&r.error)?('Could not update: '+r.error.message):'Password changed ✓'; setTimeout(function(){sz.textContent='';},3000);} }); }
 function doLogout(){ if(SB){ SB.auth.signOut().then(function(){ location.href='/v31/'; }); } else { location.href='/v31/'; } }
 function showAnyway(){ document.getElementById('gate').style.display='none'; document.getElementById('cols').style.display='grid'; renderThemes(); }
 
@@ -289,10 +310,10 @@ function showAnyway(){ document.getElementById('gate').style.display='none'; doc
     SIGNED=true;
     document.getElementById('cols').style.display='grid';
     var u=s.user||{};
-    document.getElementById('acc-email').textContent=u.email||'—';
+    var emIn=document.getElementById('acc-email-in'); if(emIn) emIn.value=u.email||'';
     var handle=(u.user_metadata&&(u.user_metadata.handle||u.user_metadata.username))||'';
     document.getElementById('acc-handle').textContent=handle?('@'+handle):'—';
-    if(handle) document.getElementById('acc-profile').href='/v31/profile.html?edit=1&slug='+encodeURIComponent(handle);
+    window.__myHandle=handle;
     SB.rpc('get_my_settings').then(function(r){
       STATE = (r && r.data) ? r.data : {};
       // sensible defaults
