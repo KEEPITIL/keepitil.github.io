@@ -296,6 +296,15 @@ footer a{color:var(--accent2);}
   .kil-sec{font-family:var(--font-head);font-size:1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:6px 0 2px;padding-top:8px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;}
   .kil-sec:first-child{border-top:none;padding-top:0;}
   .kil-photos{display:flex;gap:14px;flex-wrap:wrap;}.kil-photos .kil-mf{flex:1;min-width:180px;}
+  /* Edit Profile — 3 aspect-ratio photo widgets in a single row (Founder 2026-07-29) */
+  .kil-ph3{display:flex;gap:10px;flex-wrap:nowrap;}
+  .kil-ph3 .kil-mf{flex:1 1 0;min-width:0;}
+  .kil-ph3 .kil-prev{width:100%;max-height:none;margin-top:0;background:var(--bg);border:1px solid var(--line);object-fit:cover;}
+  .kil-ph3 .kil-ar11{aspect-ratio:1/1;}
+  .kil-ph3 .kil-ar916{aspect-ratio:9/16;}
+  .kil-ph3 .kil-ar169{aspect-ratio:16/9;}
+  .kil-ph3 input[type=file]{font-size:.68rem;}
+  .kil-ph3 .kil-mf>span{font-size:.62rem;}
   .kil-row2{display:flex;gap:12px;flex-wrap:wrap;}.kil-row2 .kil-mf{flex:1;min-width:150px;}
   .kil-mf input[type=password]{font-family:inherit;font-size:.95rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;width:100%;box-sizing:border-box;}
   .kil-mf input[type=password]:focus{outline:none;border-color:var(--accent);}
@@ -475,6 +484,7 @@ footer a{color:var(--accent2);}
 <style>.pf-tab[data-tab="gallery"]{display:none!important}
 /* EVENTS tab visibility is controlled by applyProfileTabs() (viewer sees FEED+EVENTS; owner sees FEED/SAVED/TAGGED/CHAT) */
 #pfPassport{display:none} /* mobile @media re-shows it; hidden on desktop */
+.pf-passport-row{display:none} /* desktop hides the standalone passport row; mobile re-shows it before the description */
 /* Global (both viewports, functional only — no layout change to desktop) */
 #pfDashMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:95;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
 #pfDashMenu.open{display:block}
@@ -492,10 +502,14 @@ footer a{color:var(--accent2);}
   .pf-meta{display:flex!important;flex-direction:column;margin-top:0!important;padding-top:0!important}
   .pf-head{padding-bottom:0!important;margin-bottom:0!important}
   .pf-idblock{justify-content:center!important}
-  .pf-bio{order:1}#pfAbout{order:1}#pfAboutTop{order:1}
-  #pfLinks{order:2}#pfLinksDrop{order:2}
-  .pf-bcrow{order:3;display:flex!important;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 10px;min-height:22px}
+  /* Mobile stack order (Founder 2026-07-29): category → passport → description → links */
+  .pf-bcrow{order:1;display:flex!important;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 6px;min-height:22px}
   .pf-bcrow::-webkit-scrollbar{display:none}
+  .pf-passport-row{order:2;display:block!important;margin:0 0 8px}
+  .pf-bio{order:3}#pfAbout{order:3}#pfAboutTop{order:3}
+  #pfLinks{order:4;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:10px;margin:8px 0 4px;-webkit-overflow-scrolling:touch}
+  #pfLinks::-webkit-scrollbar{display:none}
+  #pfLinksDrop{display:none!important}/* links show as a scrollable icon row on mobile, not a dropdown */
   .pf-cta{order:4}
   #pfAcctType{display:inline-block!important;margin-bottom:0!important;background:rgba(139,92,255,.18);color:var(--accent,#8b5cff);padding:4px 10px;border-radius:999px;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
   #pfPassport{display:inline-flex!important;flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;white-space:nowrap}
@@ -549,7 +563,8 @@ footer a{color:var(--accent2);}
   </div>
 </div>
 <div class="pf-meta">
-  <div class="pf-bcrow"><span id="pfPassport">✔ Passport</span><div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)"></div><div id="pfBadges"></div></div>
+  <div class="pf-bcrow"><div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)"></div><div id="pfBadges"></div></div>
+  <div class="pf-passport-row"><span id="pfPassport">✔ Passport</span></div>
   <div class="pf-bio" id="pfBio">&nbsp;</div>
   <div id="pfAbout" style="display:none;color:var(--text-soft,#c9cede);font-size:.9rem;line-height:1.6;margin:6px 0"></div>
   <div id="pfLinks" style="display:none;flex-wrap:wrap;gap:8px;margin:6px 0"></div>
@@ -557,7 +572,7 @@ footer a{color:var(--accent2);}
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <a class="pf-btn book" id="pfClaim" style="display:none" href="#">✋ CLAIM THIS PROFILE</a>
     <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
-    <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/v31/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/v31/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="openInsights()">📊 Insights</button><button type="button" onclick="location.href='/v31/settings.html'">Settings</button></div></span>
+    <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/v31/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/v31/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="openInsights()">Insights</button><button type="button" onclick="location.href='/v31/settings.html'">Settings</button></div></span>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
@@ -711,18 +726,27 @@ function openInsights(){
   var ov=document.createElement('div'); ov.id='insOv';
   ov.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(4,4,10,.72);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px';
   ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
-  ov.innerHTML='<div style="width:100%;max-width:640px;max-height:88vh;overflow:auto;background:var(--surface2,#14141f);border:1px solid var(--line,#242433);border-radius:16px;padding:18px;box-shadow:0 30px 90px rgba(0,0,0,.6)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><b style="font-size:1.15rem;color:#fff">📊 Your Insights</b><button onclick="var o=document.getElementById(\'insOv\');if(o)o.remove()" style="background:none;border:0;color:#9aa0b0;font-size:1.5rem;line-height:1;cursor:pointer">&times;</button></div><div id="insBody" style="color:#9aa0b0">Loading…</div></div>';
+  ov.innerHTML='<div style="width:100%;max-width:660px;max-height:90vh;overflow:auto;background:linear-gradient(180deg,#16161f,#101017);border:1px solid var(--line,#242433);border-radius:20px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.6)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="font-size:1.35rem;color:#fff;letter-spacing:.01em">Insights</b><button onclick="var o=document.getElementById(\'insOv\');if(o)o.remove()" style="background:none;border:0;color:#9aa0b0;font-size:1.6rem;line-height:1;cursor:pointer">&times;</button></div><div style="color:#6b7280;font-size:.8rem;margin-bottom:16px">Last 14 days · first-party analytics</div><div id="insBody" style="color:#9aa0b0">Loading…</div></div>';
   document.body.appendChild(ov);
   SB.rpc('get_profile_insights',{p_slug:PROFILE_SLUG}).then(function(r){
     var m=(r&&r.data)||{}; var b=document.getElementById('insBody'); if(!b) return;
     if(m.error){ b.innerHTML='Sign in as this profile\'s owner to see your insights.'; return; }
-    function card(l,v){ return '<div style="background:rgba(255,255,255,.045);border:1px solid var(--line,#242433);border-radius:12px;padding:12px 14px"><div style="font:800 1.5rem Inter,sans-serif;color:#fff">'+(v==null?0:v)+'</div><div style="font-size:.7rem;letter-spacing:.05em;color:#9aa0b0;text-transform:uppercase;margin-top:2px">'+l+'</div></div>'; }
-    var grid='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">'
-      +card('Profile views',m.profile_views_total)+card('Views · 7d',m.profile_views_7d)+card('Reach',m.reach)
-      +card('Impressions',m.impressions_total)+card('Followers',m.followers)+card('New · 7d',m.followers_7d)
-      +card('Likes',m.likes)+card('Comments',m.comments)+card('Reshares',m.reshares)+'</div>';
-    var top=(m.top_posts||[]).map(function(t){ return '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line,#242433)"><span style="color:#e8e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(t.title||'Post')+'</span><span style="color:#9aa0b0;flex:0 0 auto">&hearts; '+(t.likes||0)+' &middot; &#128172; '+(t.comments||0)+'</span></div>'; }).join('');
-    b.innerHTML=grid+(top?'<div style="margin:18px 0 4px;color:#fff;font-weight:800">Top posts</div>'+top:'')+'<div style="margin-top:14px;font-size:.72rem;color:#6b7280">First-party analytics · updates as people view and engage with your profile.</div>';
+    function n(v){ v=v==null?0:v; return v>=1000?(v/1000).toFixed(1).replace(/\.0$/,'')+'k':(''+v); }
+    function tile(l,v,sub){ return '<div style="background:rgba(255,255,255,.05);border:1px solid var(--line,#242433);border-radius:14px;padding:14px 15px"><div style="font:800 1.7rem/1 Inter,system-ui,sans-serif;color:#fff">'+n(v)+'</div>'+(sub?'<div style="font-size:.68rem;color:#22c55e;font-weight:700;margin-top:3px">'+sub+'</div>':'')+'<div style="font-size:.68rem;letter-spacing:.06em;color:#9aa0b0;text-transform:uppercase;margin-top:4px">'+l+'</div></div>'; }
+    /* CSS bar chart — no external library ($0) */
+    function chart(series,color){ series=series||[]; var max=1; series.forEach(function(p){ if((p.v||0)>max)max=p.v; });
+      var bars=series.map(function(p){ var h=Math.round((p.v||0)/max*100); return '<div title="'+p.d+': '+(p.v||0)+'" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px"><div style="width:100%;max-width:16px;height:'+Math.max(h,3)+'%;min-height:3px;border-radius:5px 5px 0 0;background:'+color+'"></div></div>'; }).join('');
+      var labels=series.map(function(p,i){ return '<div style="flex:1;text-align:center;font-size:.55rem;color:#6b7280">'+((i%3===0||i===series.length-1)?p.d:'')+'</div>'; }).join('');
+      return '<div style="height:120px;display:flex;align-items:flex-end;gap:3px;padding:6px 2px 0">'+bars+'</div><div style="display:flex;gap:3px;margin-top:4px">'+labels+'</div>'; }
+    var grid='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">'
+      +tile('Profile views',m.profile_views_total, (m.profile_views_7d?('+'+n(m.profile_views_7d)+' · 7d'):''))
+      +tile('Reach',m.reach)+tile('Impressions',m.impressions_total)
+      +tile('Followers',m.followers, (m.followers_7d?('+'+n(m.followers_7d)+' · 7d'):''))
+      +tile('Likes',m.likes)+tile('Comments',m.comments)+'</div>';
+    var chartsBox='<div style="background:rgba(255,255,255,.03);border:1px solid var(--line,#242433);border-radius:16px;padding:16px 16px 12px;margin-bottom:16px"><div style="color:#fff;font-weight:700;font-size:.92rem;margin-bottom:2px">Profile views</div>'+chart(m.views_series,'linear-gradient(180deg,#8b5cff,#00e0a4)')+'</div>'
+      +'<div style="background:rgba(255,255,255,.03);border:1px solid var(--line,#242433);border-radius:16px;padding:16px 16px 12px;margin-bottom:16px"><div style="color:#fff;font-weight:700;font-size:.92rem;margin-bottom:2px">New followers</div>'+chart(m.follows_series,'linear-gradient(180deg,#22d3ee,#22c55e)')+'</div>';
+    var top=(m.top_posts||[]).map(function(t){ return '<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#242433)"><span style="color:#e8e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(t.title||'Post')+'</span><span style="color:#9aa0b0;flex:0 0 auto">&hearts; '+(t.likes||0)+' &middot; &#128172; '+(t.comments||0)+'</span></div>'; }).join('');
+    b.innerHTML=grid+chartsBox+(top?'<div style="margin:6px 0 2px;color:#fff;font-weight:800">Top posts</div>'+top:'')+'<div style="margin-top:14px;font-size:.7rem;color:#6b7280">Updates as people view and engage with your profile.</div>';
   }).catch(function(){ var b=document.getElementById('insBody'); if(b) b.textContent='Could not load insights.'; });
 }
 var SESSION=null, DB_OK=false, OWNS=false;
@@ -1025,7 +1049,7 @@ function applyProfile(){
   var g=function(id){return document.getElementById(id);};
   try{document.title=(PROFILE.name?PROFILE.name+' — ':'')+'Artist Profile | KEEPITIL';}catch(e){}
   /* the profile "cover" is now the LOCKED BACKGROUND image (editable in Edit Profile) */
-  try{ document.documentElement.style.setProperty('--pf-bg', PROFILE.cover?("url('"+String(PROFILE.cover).replace(/'/g,"%27")+"')"):"url('/v3/logo-bg.jpg')"); }catch(e){}
+  try{ var _isM=window.matchMedia('(max-width:768px)').matches; var _bg=(_isM&&PROFILE.cover_mobile)?PROFILE.cover_mobile:PROFILE.cover; document.documentElement.style.setProperty('--pf-bg', _bg?("url('"+String(_bg).replace(/'/g,"%27")+"')"):"url('/v3/logo-bg.jpg')"); }catch(e){}
   var _av=g('pfAvatar'); if(_av){ _av.classList.remove('pf-skel'); if(PROFILE.avatar){ _av.style.display=''; _av.src=PROFILE.avatar; } }
   if(g('pfName'))g('pfName').textContent=PROFILE.name||' ';
   if(g('pfHandle'))g('pfHandle').textContent=PROFILE.handle?('@'+PROFILE.handle+(PROFILE.location?' · '+PROFILE.location:'')+(PROFILE.pronouns?' · '+PROFILE.pronouns:'')):' ';
@@ -1048,9 +1072,12 @@ function renderLinksMenu(){
   var out=[], seen={};
   SI.forEach(function(k){ var v=soc[k[0]]; if(v&&!seen[k[2]]){ seen[k[2]]=1; var u=String(v).replace(/^@/,''); if(!/^https?:\/\//.test(u))u='https://'+u; out.push([k[1]+' '+k[2],u]); } });
   (PROFILE.links||[]).forEach(function(u){ if(u){ var uu=String(u); if(!/^https?:\/\//.test(uu))uu='https://'+uu; out.push(['🔗 '+uu.replace(/^https?:\/\//,'').replace(/\/.*$/,'').slice(0,28),uu]); } });
-  if(!out.length){ if(drop)drop.style.display='none'; return; }
+  var row=document.getElementById('pfLinks');
+  if(!out.length){ if(drop)drop.style.display='none'; if(row)row.innerHTML=''; return; }
   menu.innerHTML=out.map(function(it){ return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" style="display:block;padding:9px 11px;color:var(--brand,#00b4ff);font-size:.86rem;font-weight:700;border-radius:8px;white-space:nowrap">'+String(it[0]).replace(/[<>]/g,'')+'</a>'; }).join('');
   if(drop)drop.style.display='';
+  /* Mobile: scrollable single-row icon links (icon = first glyph of the label) */
+  if(row){ row.innerHTML=out.map(function(it){ var icon=String(it[0]).trim().split(' ')[0]; var lbl=String(it[0]).replace(/^[^ ]+ /,''); return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" title="'+lbl.replace(/"/g,'')+'" aria-label="'+lbl.replace(/"/g,'')+'" style="flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--line,rgba(255,255,255,.12));text-decoration:none">'+icon+'</a>'; }).join(''); }
 }
 function loadProfileMeta(){
   if(!SB) return Promise.resolve();
@@ -1058,7 +1085,7 @@ function loadProfileMeta(){
     if(r&&r.data){var d=r.data;
       PROFILE.name=d.display_name||PROFILE.name; PROFILE.handle=d.handle||PROFILE.handle; PROFILE.location=d.location||PROFILE.location;
       PROFILE.bio=(d.bio!=null?d.bio:PROFILE.bio); PROFILE.tagline=(d.tagline!=null?d.tagline:PROFILE.tagline); PROFILE.pronouns=d.pronouns||PROFILE.pronouns;
-      PROFILE.avatar=d.avatar_url||PROFILE.avatar; PROFILE.cover=d.cover_url||PROFILE.cover; PROFILE.book_email=d.book_email||PROFILE.book_email;
+      PROFILE.avatar=d.avatar_url||PROFILE.avatar; PROFILE.cover=d.cover_url||PROFILE.cover; PROFILE.cover_mobile=d.cover_mobile_url||PROFILE.cover_mobile; PROFILE.book_email=d.book_email||PROFILE.book_email;
       if(d.socials&&typeof d.socials==='object')PROFILE.socials=Object.assign({},PROFILE.socials,d.socials);
       if(Array.isArray(d.links))PROFILE.links=d.links;
       if(Array.isArray(d.highlights)&&d.highlights.length)PROFILE.highlights=d.highlights;
@@ -1202,16 +1229,16 @@ function openEditProfile(){
   '<div class="kil-modal kil-wide"><div class="kil-mh">Edit Profile<button class="kil-mx" onclick="closeModal()">&times;</button></div>'+
   '<div class="kil-mb">'+
     '<div class="kil-sec">Photos</div>'+
-    '<div class="kil-photos"><label class="kil-mf"><span>Profile photo</span><img class="kil-prev on" id="epAvatarPrev" src="'+PROFILE.avatar+'"><input type="file" accept="image/*" id="epAvatarFile"><input type="text" id="epAvatarUrl" placeholder="…or image URL"></label>'+
-    '<label class="kil-mf"><span>Background image (fills the page behind your feed)</span><img class="kil-prev on" id="epCoverPrev" src="'+PROFILE.cover+'"><input type="file" accept="image/*" id="epCoverFile"><input type="text" id="epCoverUrl" placeholder="…or image URL"></label></div>'+
+    '<div class="kil-photos kil-ph3">'+
+      '<label class="kil-mf"><span>Profile · 1:1</span><img class="kil-prev on kil-ar11" id="epAvatarPrev" src="'+esc(PROFILE.avatar||'')+'"><input type="file" accept="image/*" id="epAvatarFile"><input type="text" id="epAvatarUrl" placeholder="…or URL"></label>'+
+      '<label class="kil-mf"><span>Mobile BG · 9:16</span><img class="kil-prev on kil-ar916" id="epCoverMPrev" src="'+esc(PROFILE.cover_mobile||'')+'"><input type="file" accept="image/*" id="epCoverMFile"><input type="text" id="epCoverMUrl" placeholder="…or URL"></label>'+
+      '<label class="kil-mf"><span>Desktop BG · 16:9</span><img class="kil-prev on kil-ar169" id="epCoverPrev" src="'+esc(PROFILE.cover||'')+'"><input type="file" accept="image/*" id="epCoverFile"><input type="text" id="epCoverUrl" placeholder="…or URL"></label>'+
+    '</div>'+
     '<div class="kil-sec">Profile</div>'+
     '<label class="kil-mf"><span>Display name</span><input type="text" id="epName" value="'+esc(PROFILE.name)+'"></label>'+
     '<div class="kil-row2"><label class="kil-mf"><span>@ Handle</span><input type="text" id="epHandle" value="'+esc(PROFILE.handle)+'"></label>'+
     '<label class="kil-mf"><span>Location</span><input type="text" id="epLoc" value="'+esc(PROFILE.location||'')+'"></label></div>'+
-    '<label class="kil-mf"><span>Pronouns (optional)</span><input type="text" id="epPro" value="'+esc(PROFILE.pronouns||'')+'" placeholder="she/her, they/them…"></label>'+
     '<label class="kil-mf"><span>About me</span><textarea id="epBio" rows="3">'+esc(PROFILE.bio||'')+'</textarea></label>'+
-    '<label class="kil-mf"><span>Tagline (highlighted line)</span><input type="text" id="epTag" value="'+esc(PROFILE.tagline||'')+'"></label>'+
-    '<label class="kil-mf"><span>Booking email</span><input type="text" id="epBook" value="'+esc(PROFILE.book_email||'')+'"></label>'+
     '<label class="kil-mf"><span>About section (shown in the header)</span><textarea id="epAbout" rows="2">'+esc(PROFILE.about||'')+'</textarea></label>'+
     '<label class="kil-mf"><span>Account type</span><select id="epAcct"><option value="">—</option><option value="user">User</option><option value="artist">Artist</option><option value="brand">Brand</option><option value="organizer">Organizer</option></select></label>'+
     '<div class="kil-sec">Profile links (up to 5)</div>'+
@@ -1263,7 +1290,7 @@ function openEditProfile(){
   var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kilModal';ov.innerHTML=html;document.body.appendChild(ov);
   ov.addEventListener('click',function(e){if(e.target===ov)closeModal();});
   function bindPrev(fileId,prevId){var f=document.getElementById(fileId);if(!f)return;f.addEventListener('change',function(){var file=f.files&&f.files[0];if(!file)return;var rd=new FileReader();rd.onload=function(){var p=document.getElementById(prevId);if(p)p.src=rd.result;};rd.readAsDataURL(file);});}
-  bindPrev('epAvatarFile','epAvatarPrev'); bindPrev('epCoverFile','epCoverPrev');
+  bindPrev('epAvatarFile','epAvatarPrev'); bindPrev('epCoverFile','epCoverPrev'); bindPrev('epCoverMFile','epCoverMPrev');
   document.getElementById('epSave').onclick=saveEditProfile;
   // prefill categories + per-category details
   var cats=(PROFILE.categories||[]), det=(PROFILE.cat_details||{});
@@ -1303,22 +1330,27 @@ function saveEditProfile(){
   var hlNodes=[].slice.call(document.querySelectorAll('#epHls .kil-hl'));
   var avatarFile=(document.getElementById('epAvatarFile')||{}).files; avatarFile=avatarFile&&avatarFile[0];
   var coverFile=(document.getElementById('epCoverFile')||{}).files; coverFile=coverFile&&coverFile[0];
+  var coverMFile=(document.getElementById('epCoverMFile')||{}).files; coverMFile=coverMFile&&coverMFile[0];
   uploadImage(avatarFile,function(avUrl){
+   uploadImage(coverMFile,function(cvmUrl){
     uploadImage(coverFile,function(cvUrl){
       var hlDone=[], pending=hlNodes.length;
       function finalize(){
         var _links=[1,2,3,4,5].map(function(i){return g('epL'+i);}).filter(function(u){return u&&/^https?:\/\//.test(u);}).slice(0,5);
         var _badges=[].slice.call(document.querySelectorAll('.epBadge:checked')).map(function(c){return c.value;});
-        var meta={ slug:PROFILE_SLUG, display_name:g('epName'), handle:g('epHandle').replace(/^@/,''), location:g('epLoc'), bio:g('epBio'), tagline:g('epTag'), pronouns:g('epPro'), book_email:g('epBook'),
+        /* pronouns/tagline/booking-email fields were removed from Edit Profile (dup) — preserve existing values (Founder 2026-07-29) */
+        var meta={ slug:PROFILE_SLUG, display_name:g('epName'), handle:g('epHandle').replace(/^@/,''), location:g('epLoc'), bio:g('epBio'),
+          tagline:(document.getElementById('epTag')?g('epTag'):(PROFILE.tagline||null)), pronouns:(document.getElementById('epPro')?g('epPro'):(PROFILE.pronouns||null)), book_email:(document.getElementById('epBook')?g('epBook'):(PROFILE.book_email||null)),
           about:g('epAbout')||null, links:_links.length?_links:null, links_label:g('epLinksLabel')||null, badges:_badges.length?_badges:null, account_type:(document.getElementById('epAcct')||{}).value||null,
           avatar_url: avUrl || g('epAvatarUrl') || PROFILE.avatar,
           cover_url: cvUrl || g('epCoverUrl') || PROFILE.cover,
+          cover_mobile_url: cvmUrl || g('epCoverMUrl') || PROFILE.cover_mobile || null,
           socials:{ instagram:g('epIG'), soundcloud:g('epSC'), tiktok:g('epTT'), website:g('epWeb') },
           highlights: hlDone, updated_at:new Date().toISOString() };
-        if(!SB||!SESSION){ Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,socials:meta.socials,highlights:meta.highlights}); applyProfile(); closeModal(); toast('Saved locally — sign in as owner to publish.'); return; }
+        if(!SB||!SESSION){ Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,cover_mobile:meta.cover_mobile_url,socials:meta.socials,highlights:meta.highlights}); applyProfile(); closeModal(); toast('Saved locally — sign in as owner to publish.'); return; }
         SB.from('profile_meta').upsert(meta).then(function(r){
           if(r&&r.error){ toast('Could not save profile: '+(r.error.message||'')); if(btn){btn.disabled=false;btn.textContent='Save changes';} return; }
-          Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,socials:meta.socials,highlights:meta.highlights});
+          Object.assign(PROFILE,{name:meta.display_name,handle:meta.handle,location:meta.location,bio:meta.bio,tagline:meta.tagline,pronouns:meta.pronouns,book_email:meta.book_email,avatar:meta.avatar_url,cover:meta.cover_url,cover_mobile:meta.cover_mobile_url,socials:meta.socials,highlights:meta.highlights});
           applyProfile();
           saveCategories();
           // account email/password
@@ -1335,6 +1367,7 @@ function saveEditProfile(){
         uploadImage(file,function(u){ var img=u|| (existing.indexOf('data:')===0?existing:existing) ; if(label||img)hlDone.push({label:label,img:img}); pending--; if(pending===0)finalize(); });
       });
     });
+   });
   });
 }
 function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40)||('group-'+Date.now());}
