@@ -229,6 +229,7 @@
 <script src="src/systems/final-siege-system.js"></script>
 <script src="src/render/soldier-visual-system.js"></script>
 <script src="src/render/soldier-rig.js"></script>
+<script src="src/render/skeletal-adapter.js"></script>
 <script src="src/render/monster-rig.js"></script>
 <script>
 'use strict';
@@ -332,7 +333,7 @@ const perfStats = {fps:0,minFps:Infinity,frames:0,elapsed:0,simSteps:0,sampleSte
 
 function reset(){
   S = {
-    time: 0, gold: 150,
+    time: 0, gold: 250,
     civ: 1, atkCd: 0,
     gateHP: 1000, gateMax: 1000,
     castleHP: 2200, castleMax: 2200,
@@ -713,7 +714,16 @@ function updateFormation(dt){
     return tier(a)-tier(b) || rank(a.type)-rank(b.type);
   });
   const ranged = allies.filter(u=>RANGED(u.type));
-  const mCols = Math.max(1, Math.ceil(melee.length/rankRows));
+  // Lay the three melee tiers out in separate column bands with a one-column GAP
+  // between each, so the groups (spear line / shield line / no-shield) read clearly.
+  const tierGroups=[0,1,2].map(tv=>melee.filter(u=>tier(u)===tv)).filter(g=>g.length);
+  const orderedM=[]; const colOfM=[]; let colBase=0;
+  for(const g of tierGroups){
+    const gcols=Math.ceil(g.length/rankRows);
+    g.forEach((u,i)=>{ orderedM.push(u); colOfM.push(colBase+Math.floor(i/rankRows)); });
+    colBase += gcols + 1;   // +1 empty column = visible gap before the next group
+  }
+  const mCols = Math.max(1, colBase);
   const rCols = Math.ceil(ranged.length/rankRows);
   const depth = ranged.length ? mCols*cs + 70 + (rCols-1)*cs : (mCols-1)*cs;
   S.rallyX = Math.max(S.rallyX, Math.min(640 + depth, RALLY_MAX));
@@ -728,9 +738,9 @@ function updateFormation(dt){
     }
     u.slotX=sx;u.slotY=sy;u.marchOffset=row*.025;
   };
-  const meleeSlots=melee.map((_,i)=>{const row=i%rankRows;return{x:S.rallyX-Math.floor(i/rankRows)*cs,y:rows[row],row};});
+  const meleeSlots=orderedM.map((u,i)=>{const row=i%rankRows;return{x:S.rallyX-colOfM[i]*cs,y:rows[row],row};});
   const rangedSlots=ranged.map((_,i)=>{const row=i%rankRows;return{x:S.rallyX-mCols*cs-70-Math.floor(i/rankRows)*cs,y:rows[row],row};});
-  fillFormationGaps(melee,meleeSlots,place,1);
+  fillFormationGaps(orderedM,meleeSlots,place,1);
   fillFormationGaps(ranged,rangedSlots,place,1);
 }
 
@@ -1287,9 +1297,10 @@ function update(dt){
       }
       u.x = Math.max(u.x, P_WALL + 12);
       if (S._wallX != null && u.x < S._wallX) u.x = S._wallX;   // held at the shield wall
-    } else if (S.stance === 'attack' || (u.team===1 && u.charge) || (u.team===1 && u.rage && S.stance!=='defend')){
-      // attack stance, a per-class charge order, OR a raged (shield-broken) soldier —
-      // but in DEFENSE a raged soldier instead falls back to the no-shield rank (below).
+    } else if (S.stance === 'attack' || (u.team===1 && u.charge)){
+      // Only an explicit Attack stance or a per-class Charge order breaks a unit out to
+      // hunt the enemy. In March/Defense everyone (raged or not) holds the formation
+      // line so marching stays intact; rage still changes their weapon/animation & combat.
       const tgt = (foe && foe.u.hp>0) ? foe : nearest(u);
       if (tgt){
         if (tgt.d > range){ moving=steerMove(u,tgt.u.x,tgt.u.y+(ranged?0:(u.yPref||0)),spd,dt,range*.82); }
@@ -1317,13 +1328,7 @@ function update(dt){
       if (ffoe){
         if (u.cdT <= 0){ u.cdT = attackCooldown(u,t); u.anim = 1; unitFire(u, t, ffoe); }
         u.face = ffoe.u.x >= u.x ? 1 : -1;
-      } else if (sealed && S.stance==='march' && S.marchDir>0){
-        // Only while actively marching FORWARD onto a sealed wall: intercept the
-        // nearest enemy rather than piling onto the unbreakable castle. In defend
-        // (or marching back) units hold their formation slot instead of chasing.
-        const nn = nearest(u);
-        if (nn && nn.d > range){ moving = steerMove(u, nn.u.x, nn.u.y+(ranged?0:(u.yPref||0)), spd, dt, range*.82); u.face = nn.u.x>=u.x?1:-1; }
-      } else if (u.team===1 && S.stance==='march' && S.marchDir>0 && S.rallyX>=RALLY_MAX-1 && S.castleHP>0){
+      } else if (!sealed && u.team===1 && S.stance==='march' && S.marchDir>0 && S.rallyX>=RALLY_MAX-1 && S.castleHP>0){
         // A forward march that reaches the end of the field becomes a wall
         // assault: melee presses to the gate instead of freezing 110px short.
         const d = E_WALL - u.x, rng = ranged ? range : (26 + (u.jit||0));
@@ -1376,6 +1381,23 @@ function update(dt){
       let best = null, bd = 1e9;
       for (const e of inRange){ const dd = Math.hypot(e.x-d.x, e.y-d.y); if (dd < bd){ bd = dd; best = e; } }
       if (best){ d.cdT = (2.0 + simRandom()*.8)*playerFort.reload*((S.warCouncil?.fortOverdriveT||0)>0?.5:1); d.anim = 1; fireArrow(d.x+9*d.s, d.y-22*d.s, best, Math.round(8*playerFort.weapon*(window.KWWarCouncil?.fortressMultiplier?.()||1)), 1, 600+S.civ*18); snd.shoot(); }
+    }
+  }
+  // Boiling oil: when attackers mass at a fort wall, the defenders pour scalding oil,
+  // splashing everyone pressed against the stone (a fort answer to wall-scaling).
+  S._oilT = (S._oilT||0) - dt;
+  if(S._oilT<=0){
+    S._oilT = 3.4;
+    for(const side of [0,1]){
+      const wallX=side===0?P_WALL:E_WALL, atkTeam=side===0?-1:1, alive=side===0?S.gateHP>0:S.castleHP>0;
+      if(!alive) continue;
+      const near=S.units.filter(u=>u.team===atkTeam&&u.hp>0&&Math.abs(u.x-wallX)<50);
+      if(near.length>=3){
+        for(const u of near) hurt(u, 26+S.wave*0.6, {kind:'blast',sourceX:wallX});
+        for(let i=0;i<3;i++) S.fx.push({kind:'boom', x:wallX+(side===0?14+i*10:-14-i*10), y:452+i*14, r:30, t:-i*.06});
+        S.shake=Math.min(8,S.shake+3);
+        if(window.KWAudio)KWAudio.emit('fortress.hit',{civ:side===0?S.civ:S.enemyCiv,team:side===0?1:-1});
+      }
     }
   }
   for (const wz of S.wizes){
@@ -1570,6 +1592,7 @@ function drawRigUnit(u, corpse, cls, s, x, y){
   // still fights with a single sword + shield); rage/oversized blades on shield break.
   if(swordMode && (u.shieldMax>0) && u.shield<=0){ po.extra.dualSword = 1; }
   if(rcls==='sword' && u.rage){ po.extra.bigSword = 1; } // shield broken -> raged, oversized blade(s)
+  if(armorCls==='spear' && u.shieldUp && !u.charge){ po.extra.brace = 1; } // shield-wall brace when holding vs a threat
   po.era = S ? (u.team===1 ? S.civ : S.enemyCiv) : 1;   // civilization-fitted armor tier
   // Layered defense visuals: shield is dropped once its HP is gone; the helmet is
   // lost once armor is depleted; only then does the bare soldier take HP damage.
@@ -1581,8 +1604,24 @@ function drawRigUnit(u, corpse, cls, s, x, y){
   ctx.save();
   ctx.translate(x, y);
   ctx.scale((u.face || (u.team===1?1:-1)) * K, K);
-  KWRig.drawSoldier(ctx, rcls, po, C, u.team, armorCls);
+  // Renderer selector (Evolution Directive §4): skeletal art when a class has
+  // registered assets, else the procedural rig — which remains the guaranteed
+  // fallback, so unfinished art can never break the game.
+  const skel = window.KWSkeletal && KWSkeletal.ready(rcls) &&
+    KWSkeletal.draw(ctx, rcls, st, p, {team:u.team, era:po.era, alpha:po.alpha,
+      dropShield:po.dropShield, dropHelmet:po.dropHelmet, extra:po.extra});
+  if (!skel){
+    if (rigLite()) KWRig.drawSoldierLite(ctx, rcls, po, C, u.team);
+    else KWRig.drawSoldier(ctx, rcls, po, C, u.team, armorCls);
+  }
   ctx.restore();
+}
+// Weaker / performance "lite" soldiers: on when the graphics setting is 'lite', or
+// auto when the battlefield is very crowded so weak devices keep a smooth framerate.
+function rigLite(){
+  if(window.KWArt && KWArt.settings && KWArt.settings.graphics==='lite') return true;
+  if(window.KWArt && KWArt.settings && KWArt.settings.graphics==='high') return false;
+  return !!(S && S.units && S.units.length > 170);   // auto fallback only in 'auto' mode
 }
 function drawStick(u, corpse){
   const T = TYPES[u.type];

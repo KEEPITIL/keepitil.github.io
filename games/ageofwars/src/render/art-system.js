@@ -8,7 +8,8 @@
     {id:'roman',material:'iron · mail · leather · painted wood',classification:'A/B',cloth:'#8f2929',enemy:'#3e5269',metal:'#aeb4b8',shield:'scutum',cadence:5.8,helmet:'cheek_guard'},
     {id:'medieval',material:'mail · plate · heraldic cloth',classification:'B',cloth:'#526b89',enemy:'#722d32',metal:'#c5c9cc',shield:'heater',cadence:4.95,helmet:'kettle_bascinet'}
   ];
-  let settings;try{settings={violence:'standard',reducedEffects:false,...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch(e){settings={violence:'standard',reducedEffects:false};}
+  // graphics: 'high' (detailed soldiers) | 'lite' (cheaper/weaker) | 'auto' (lite only when crowded)
+  let settings;try{settings={violence:'standard',reducedEffects:false,graphics:'auto',...JSON.parse(localStorage.getItem(KEY)||'{}')};}catch(e){settings={violence:'standard',reducedEffects:false,graphics:'auto'};}
   const era=n=>ERAS[Math.max(0,Math.min(4,(n||1)-1))];
   function setSetting(k,v){settings[k]=v;localStorage.setItem(KEY,JSON.stringify(settings));}
   function tunic(age,team){const p=era(age);return team===1?p.cloth:p.enemy;}

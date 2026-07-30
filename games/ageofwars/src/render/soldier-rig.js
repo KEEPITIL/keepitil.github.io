@@ -306,5 +306,28 @@ function drawSoldier(ctx,cls,po,C,team,armorCls){
 }
 
 
-return {drawSoldier,poseFor,build,PAL,teamTint,poly,shade};
+// ---- LITE renderer: deliberately lower-quality / cheaper draw for weak devices or
+// very high unit counts. Same skeleton + states, thin sticks, no fine armor detail. ----
+function drawSoldierLite(ctx,cls,po,C,team){
+  const J=build(po),sk=C.skin;
+  ctx.globalAlpha=po.alpha;
+  ctx.fillStyle='rgba(0,0,0,.20)';ctx.beginPath();ctx.ellipse(po.px,2,9,3,0,0,7);ctx.fill();
+  ctx.strokeStyle=sk;ctx.lineWidth=3.2;ctx.lineCap='round';
+  const seg=(a,b,w)=>{ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();};
+  seg(J.legB[0],J.legB[1],3.2);seg(J.legB[1],J.legB[2],3);
+  seg(J.legF[0],J.legF[1],3.2);seg(J.legF[1],J.legF[2],3);
+  seg(J.pelvis,J.shoulder,4.6);
+  seg(J.armB[0],J.armB[1],3);seg(J.armB[1],J.armB[2],2.6);
+  seg(J.armF[0],J.armF[1],3);seg(J.armF[1],J.armF[2],2.6);
+  ctx.fillStyle=sk;ctx.beginPath();ctx.arc(J.head[0],J.head[1],4.4,0,7);ctx.fill();
+  ctx.fillStyle=C.metal||'#9aa2aa';ctx.beginPath();ctx.arc(J.head[0],J.head[1]-1,4.6,Math.PI,0);ctx.fill();
+  // one flat weapon line per class
+  if(cls==='spear'&&!po.extra.spearGone){const h=J.armB[2],a=po.extra.spearAng||-1.4;ctx.strokeStyle=C.wood||'#8a5a2c';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(h[0]-Math.cos(a)*30,h[1]-Math.sin(a)*30);ctx.lineTo(h[0]+Math.cos(a)*42,h[1]+Math.sin(a)*42);ctx.stroke();}
+  else if(cls==='sword'){const h=J.armB[2],a=-1.2+(po.extra.trail||0)*1.3,big=po.extra.dualSword?1:1;ctx.strokeStyle='#d7dde2';ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(h[0],h[1]);ctx.lineTo(h[0]+Math.cos(a)*24*big,h[1]+Math.sin(a)*24*big);ctx.stroke();}
+  else if(cls==='bow'){const g=J.armF[2];ctx.strokeStyle='#8a5a2c';ctx.lineWidth=2;ctx.beginPath();ctx.arc(g[0],g[1],8,-1.2,1.2);ctx.stroke();}
+  else if(cls==='gun'){const f=J.armF[2],r=J.armB[2];ctx.strokeStyle='#555';ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(r[0],r[1]);ctx.lineTo(f[0]+(f[0]-r[0])*1.5,f[1]+(f[1]-r[1])*1.5);ctx.stroke();}
+  if((cls==='spear'||cls==='sword')&&!po.dropShield&&!po.supine){ctx.fillStyle=C.shield||'#9e2b25';ctx.beginPath();ctx.arc(J.armF[2][0],J.armF[2][1],6.5,0,7);ctx.fill();}
+  ctx.globalAlpha=1;
+}
+return {drawSoldier,drawSoldierLite,poseFor,build,PAL,teamTint,poly,shade};
 })();
