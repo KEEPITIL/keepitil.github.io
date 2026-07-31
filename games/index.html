@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KEEPITIL Games — Play Free on Desktop &amp; Mobile</title>
-<meta name="description" content="Free games by KEEPITIL. Play instantly in your browser on desktop, or install on your phone and play like a native app.">
+<title>KEEPITIL APPS — Games, Utilities &amp; Marketing Tools</title>
+<meta name="description" content="Apps built by KEEPITIL — games, utilities and marketing tools. Play or use instantly in your browser, or install on your phone like a native app.">
 <link rel="icon" href="ageofwars/icon.svg">
 <link rel="apple-touch-icon" href="ageofwars/apple-touch-icon.png">
-<meta property="og:title" content="KEEPITIL Games">
-<meta property="og:description" content="Play free strategy games on desktop or mobile.">
+<meta property="og:title" content="KEEPITIL APPS">
+<meta property="og:description" content="Games, utilities and marketing tools built by KEEPITIL.">
 <style>
   :root{
     --bg:#141c24; --panel:#1d2833; --panel2:#22303c; --ink:#eef3f7; --dim:#93a5b3;
@@ -25,12 +25,20 @@
   .home:hover{color:var(--ink);border-color:var(--dim)}
   h1{font-size:clamp(28px,5vw,44px);margin:26px 0 10px;letter-spacing:.02em}
   h1 em{font-style:normal;color:var(--gold)}
-  .sub{color:var(--dim);font-size:15px;line-height:1.6;max-width:620px;margin-bottom:34px}
+  .sub{color:var(--dim);font-size:15px;line-height:1.6;max-width:620px;margin-bottom:22px}
+  /* filter tabs */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+  .filters button{background:var(--panel);border:1px solid var(--line);color:var(--dim);font:700 13px/1 inherit;letter-spacing:.06em;text-transform:uppercase;padding:10px 18px;border-radius:999px;cursor:pointer;transition:all .15s}
+  .filters button:hover{color:var(--ink);border-color:#456}
+  .filters button.on{background:var(--gold);border-color:var(--gold);color:#211}
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px}
   .card{background:linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s ease,border-color .15s ease}
   .card:hover{transform:translateY(-3px);border-color:#456}
   .art{position:relative;aspect-ratio:16/9;background:linear-gradient(180deg,#8fc4e8 0%,#bfe0f2 45%,#79b56a 45.5%,#5d9e50 100%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .art.util{background:linear-gradient(135deg,#334b63,#22303c)}
+  .art.mkt{background:linear-gradient(135deg,#5a3d63,#22303c)}
   .art img{width:84px;height:84px;border-radius:20px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  .art .glyph{font-size:52px}
   .badge{position:absolute;top:10px;left:10px;background:rgba(20,28,36,.85);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:999px}
   .body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:10px;flex:1}
   .body h2{font-size:20px}
@@ -41,6 +49,7 @@
   .play:hover{filter:brightness(1.08)}
   .soon .art{filter:grayscale(.6) brightness(.7)}
   .soon .play{background:var(--line);color:var(--dim);pointer-events:none}
+  .empty{grid-column:1/-1;color:var(--dim);text-align:center;padding:40px 0}
   .how{margin-top:52px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px 22px}
   .how h3{font-size:17px;margin-bottom:14px;color:var(--gold)}
   .how ol{margin-left:20px;color:var(--dim);font-size:14px;line-height:1.9}
@@ -52,49 +61,99 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="brand"><a href="/">KEEP<span>ITIL</span> · GAMES</a></div>
+    <div class="brand"><a href="/">KEEP<span>ITIL</span> · APPS</a></div>
     <a class="home" href="/">← keepitil.com</a>
   </header>
 
-  <h1>Play. <em>Anywhere.</em></h1>
-  <p class="sub">Games built by KEEPITIL. Every title runs instantly in your browser on desktop — and installs on your phone as a full-screen app, no app store needed.</p>
+  <h1>Build. Play. <em>Use.</em></h1>
+  <p class="sub">Apps built by KEEPITIL — games, utilities and marketing tools. Everything runs instantly in your browser, and games install on your phone as a full-screen app, no app store needed.</p>
 
-  <div class="grid">
-    <div class="card">
+  <div class="filters" id="filters">
+    <button data-cat="all" class="on">All</button>
+    <button data-cat="games">Games</button>
+    <button data-cat="utility">Utility</button>
+    <button data-cat="marketing">Marketing</button>
+  </div>
+
+  <div class="grid" id="grid">
+    <!-- GAMES -->
+    <div class="card" data-cat="games">
       <div class="art">
-        <span class="badge">STRATEGY</span>
-        <img src="ageofwars/app-icon-192.png" alt="Kingdom Wars icon">
+        <span class="badge">GAME · STRATEGY</span>
+        <img src="ageofwars/app-icon-192.png" alt="Age of War icon">
       </div>
       <div class="body">
-        <h2>Kingdom Wars</h2>
-        <p>Fort-defense war across five ages. Raise your stick army, defend the castle, evolve from stone clubs to laser rifles, and crush the enemy fort. Endless war, world crusade, missions and more.</p>
+        <h2>Age of War</h2>
+        <p>Fort-defense war across five ages. Raise your stick army, defend the castle, evolve from stone clubs to laser rifles, and crush the enemy fort.</p>
         <div class="tags"><span class="tag">Free</span><span class="tag">Offline-ready</span><span class="tag">Desktop + Mobile</span></div>
         <a class="play" href="ageofwars/">▶ PLAY NOW</a>
       </div>
     </div>
 
-    <div class="card soon">
-      <div class="art"><span class="badge">COMING SOON</span></div>
+    <div class="card" data-cat="games">
+      <div class="art">
+        <span class="badge">GAME · STRATEGY</span>
+        <img src="ageofwars/app-icon-192.png" alt="AOW2 icon">
+      </div>
       <div class="body">
-        <h2>Next title</h2>
-        <p>New KEEPITIL games land here first. Check back soon.</p>
+        <h2>AOW2</h2>
+        <p>The sequel — bigger armies, new ages, world crusade, missions and endless war. Evolve your forces and take the fight across the map.</p>
+        <div class="tags"><span class="tag">Free</span><span class="tag">Offline-ready</span><span class="tag">Desktop + Mobile</span></div>
+        <a class="play" href="kingdom-wars/">▶ PLAY NOW</a>
+      </div>
+    </div>
+
+    <!-- UTILITY -->
+    <div class="card soon" data-cat="utility">
+      <div class="art util"><span class="badge">UTILITY</span><span class="glyph">📡</span></div>
+      <div class="body">
+        <h2>WIFI Remote</h2>
+        <p>Turn your phone into a remote for the KEEPITIL radio and event screens over local WiFi. Coming soon.</p>
         <div class="tags"><span class="tag">TBA</span></div>
         <a class="play" href="#">COMING SOON</a>
       </div>
     </div>
+
+    <!-- MARKETING -->
+    <div class="card soon" data-cat="marketing">
+      <div class="art mkt"><span class="badge">MARKETING</span><span class="glyph">🧾</span></div>
+      <div class="body">
+        <h2>KFORM</h2>
+        <p>Fast form + lead-capture builder for events, RSVPs and creator sign-ups — wired straight into KEEPITIL. Coming soon.</p>
+        <div class="tags"><span class="tag">TBA</span></div>
+        <a class="play" href="#">COMING SOON</a>
+      </div>
+    </div>
+
+    <div class="empty" id="empty" style="display:none">Nothing here yet — check back soon.</div>
   </div>
 
   <div class="how">
     <h3>📱 Install on your phone (free, no app store)</h3>
     <ol>
-      <li>Open the game on your phone and tap <b>Play Now</b>.</li>
+      <li>Open the app on your phone and tap <b>Play Now</b>.</li>
       <li><b>iPhone / iPad:</b> tap the Share button <b>⬆</b> in Safari, then <b>Add to Home Screen</b>.</li>
       <li><b>Android:</b> tap the <b>⋮</b> menu in Chrome, then <b>Install app</b> (or <b>Add to Home screen</b>).</li>
-      <li>Launch it from your home screen — it plays full-screen like a native app, even offline.</li>
+      <li>Launch it from your home screen — it runs full-screen like a native app, even offline.</li>
     </ol>
   </div>
 
   <footer>© KEEPITIL · <a href="/">keepitil.com</a></footer>
 </div>
+<script>
+(function(){
+  var fbar=document.getElementById('filters'), grid=document.getElementById('grid'), empty=document.getElementById('empty');
+  function apply(cat){
+    var shown=0;
+    [].forEach.call(grid.querySelectorAll('.card'),function(c){
+      var ok=(cat==='all'||c.getAttribute('data-cat')===cat);
+      c.style.display=ok?'':'none'; if(ok)shown++;
+    });
+    empty.style.display=shown?'none':'block';
+    [].forEach.call(fbar.querySelectorAll('button'),function(b){b.classList.toggle('on',b.getAttribute('data-cat')===cat);});
+  }
+  fbar.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;apply(b.getAttribute('data-cat'));});
+})();
+</script>
 </body>
 </html>
