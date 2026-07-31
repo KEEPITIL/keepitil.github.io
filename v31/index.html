@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="default">
 <head>
-  <meta name="impact-site-verification" value="f6189904-b262-4ca6-b4be-4da97d33e8bf">
 <link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/>    <meta charset="UTF-8"/>
   <!-- Password-recovery guard: forward Supabase recovery tokens to the reset page; forward expired/invalid links to the portal's "get a fresh link" screen instead of dead-ending here -->
   <script>(function(){try{var h=location.hash||'';
@@ -329,6 +328,10 @@
   background:linear-gradient(180deg,rgba(9,9,14,.975),rgba(9,9,14,.995));}
 #evx .evx-sec{max-width:1180px;margin:0 auto;padding:30px 0 0;}
 #evx .evx-hd{margin:0 24px 16px;}
+#evx .evx-fy-why{margin-top:6px;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#66727e;display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+#evx .evx-fy-why b{color:var(--brand,#00b4ff);font-weight:800;}
+#evx .evx-fy-why a{color:#66727e;text-decoration:underline;text-underline-offset:2px;font-weight:700;}
+#evx .evx-fy-why a:hover{color:var(--brand,#00b4ff);}
 #evx .evx-eyebrow{display:block;font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
 #evx .evx-title-lg{font-family:var(--font-head);font-size:clamp(1.7rem,3.2vw,2.4rem);letter-spacing:.04em;color:#fff;margin:0;line-height:1;}
 #evx .evx-row{display:flex;gap:15px;overflow-x:auto;scrollbar-width:none;padding:4px 24px 14px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
@@ -1523,6 +1526,15 @@
   <div class="events-hub">
 <!-- EVENTS -->
 <div id="evx">
+  <!-- PERSONALIZED (Founder PRIORITY 4): only rendered for users with onboarding signals.
+       Signed-out / no-signal visitors never see it — the page is byte-identical for them. -->
+  <section class="evx-sec" id="evx-foryou-sec" style="display:none">
+    <div class="evx-hd">
+      <h2 class="evx-title-lg" id="evx-fy-label">FOR YOU</h2>
+      <div class="evx-fy-why" id="evx-fy-why"></div>
+    </div>
+    <div class="evx-row" id="evx-foryou"></div>
+  </section>
   <section class="evx-sec">
     <div class="evx-hd"><h2 class="evx-title-lg" id="evx-ms-label">MUST-SEE EVENTS</h2></div>
     <div class="evx-row" id="evx-mustsee"></div>
@@ -1953,16 +1965,18 @@ var DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 /* ── DISCOVERY MAP (Founder PRIORITY 3, 2026-07-26): events are "Google Maps for creativity",
    not an EDM calendar. Top row = INDUSTRY CATEGORY, second row = that category's sub-genres.
    Categories only render when the loaded events actually contain them (no empty tabs). ── */
+/* Homepage top filter (Founder 2026-07-31): ALL · MUSIC · VS · SFTU · FESTIVAL — each with a subfilter.
+   These 5 always render (even when a bucket is empty, so the structure is always visible). */
 var CATS=[
   ['','ALL',[]],
-  ['music','MUSIC',[['house','House'],['techno','Techno'],['trance','Trance'],['bass','Bass'],['dnb','DnB'],['garage','Garage'],['disco','Disco'],['hiphop','Hip-Hop'],['rnb','R&B'],['latin','Latin'],['afrobeats','Afrobeats'],['country','Country'],['rock','Rock'],['indie','Indie'],['jazz','Jazz'],['pop','Pop'],['reggae','Reggae']]],
-  ['comedy','COMEDY',[['standup','Stand-Up'],['improv','Improv'],['openmic','Open Mic']]],
-  ['art','ART & DESIGN',[['gallery','Galleries'],['mural','Murals'],['popupart','Pop-Ups'],['workshop','Workshops']]],
-  ['film','FILM',[['screening','Screenings'],['festivalfilm','Film Festivals'],['premiere','Premieres']]],
-  ['gaming','GAMING',[['esports','Esports'],['lan','LAN & Tournaments'],['gameexpo','Expos']]],
-  ['community','COMMUNITY',[['market','Markets'],['popup','Pop-Ups'],['meetup','Meetups'],['benefit','Benefits']]],
-  ['business','BUSINESS',[['conference','Conferences'],['networking','Networking'],['panel','Panels & Talks']]]
+  ['music','MUSIC',[['afrobeat','Afrobeat'],['bass','Bass'],['edm','EDM'],['house','House'],['techno','Techno'],['country','Country'],['hiphop','HipHop'],['rnb','R&B'],['rock','Rock']]],
+  ['vs','VS',[['dj','DJ'],['photography','Photography'],['videography','Videography'],['song','Song / Paint / etc.']]],
+  ['sftu','SFTU',[['raves','Raves'],['warehouse','Warehouse']]],
+  ['festival','FESTIVAL',[['edm','EDM'],['country','Country'],['etc','Other']]]
 ];
+var CAT_ALWAYS={ '':1, music:1, vs:1, sftu:1, festival:1 }; /* these top tabs always show */
+/* VS is a submission/signup lane — each sub links to its challenge signup */
+var VS_SIGNUP={ dj:'/v31/submit-event.html?vs=dj', photography:'/v31/submit-event.html?vs=photography', videography:'/v31/submit-event.html?vs=videography', song:'/v31/submit-event.html?vs=song' };
 var GENRES=CATS; /* back-compat alias */
 function h(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function parts(d){var p=(d||'2026-01-01').split('-');return {y:+p[0],m:+p[1],day:+p[2]};}
@@ -1977,7 +1991,15 @@ function mLabel(mk){return MON3[(+mk.slice(5,7))-1];}
 function mFull(mk){return MONF[(+mk.slice(5,7))-1]+' '+mk.slice(0,4);}
 function inGenre(e){
   if(activeCat && (e.ecat||'music')!==activeCat) return false;
-  if(activeGenre && e.gcat!==activeGenre) return false;
+  if(activeGenre){
+    var g=String(e.gcat||'').toLowerCase();
+    if(activeGenre==='edm') return ['edm','house','techno','trance','dnb','bass','garage','electro','dubstep','hardstyle'].indexOf(g)>=0;
+    if(activeGenre==='afrobeat') return g==='afrobeat'||g==='afrobeats';
+    if(activeGenre==='hiphop') return g==='hiphop'||g==='hip-hop'||g==='rap';
+    if(activeGenre==='rnb') return g==='rnb'||g==='r&b';
+    if(activeGenre==='etc') return true; /* Festival · Other = any festival */
+    return g===activeGenre;
+  }
   return true;
 }
 
@@ -2017,9 +2039,10 @@ function buildMonths(){
 }
 function buildGenres(){
   var el=document.getElementById('evx-genres'); if(!el) return;
-  /* only show categories that actually have events (plus ALL) — no dead tabs */
+  /* Founder 2026-07-31: the 5 top tabs (ALL · MUSIC · VS · SFTU · FESTIVAL) ALWAYS render,
+     even when a bucket is currently empty, so the filter structure is always visible. */
   var present={}; EVENTS.forEach(function(e){ present[e.ecat||'music']=1; });
-  var cats=CATS.filter(function(c){ return c[0]==='' || present[c[0]]; });
+  var cats=CATS.filter(function(c){ return CAT_ALWAYS[c[0]] || present[c[0]]; });
   el.innerHTML=cats.map(function(c){return '<button class="evx-gn'+(c[0]===activeCat?' active':'')+'" data-c="'+c[0]+'">'+c[1]+'</button>';}).join('');
   el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setCat(b.dataset.c);};});
   buildSubGenres();
@@ -2028,10 +2051,8 @@ function buildSubGenres(){
   var el=document.getElementById('evx-subgenres'); if(!el) return;
   var cat=null; for(var i=0;i<CATS.length;i++){ if(CATS[i][0]===activeCat) cat=CATS[i]; }
   if(!activeCat||!cat||!cat[2].length){ el.className='evx-nav-row evx-subrow'; el.innerHTML=''; return; }
-  /* only sub-genres present within this category */
-  var present={}; EVENTS.forEach(function(e){ if((e.ecat||'music')===activeCat && e.gcat) present[e.gcat]=1; });
-  var subs=cat[2].filter(function(s){ return present[s[0]]; });
-  if(subs.length<2){ el.className='evx-nav-row evx-subrow'; el.innerHTML=''; return; }
+  /* Founder 2026-07-31: show the FULL subfilter for the active category (always visible), not only present ones. */
+  var subs=cat[2];
   el.className='evx-nav-row evx-subrow on';
   el.innerHTML='<button class="evx-gn'+(activeGenre===''?' active':'')+'" data-g="">ALL '+cat[1]+'</button>'
     +subs.map(function(s){return '<button class="evx-gn'+(s[0]===activeGenre?' active':'')+'" data-g="'+s[0]+'">'+s[1]+'</button>';}).join('');
@@ -2100,7 +2121,122 @@ function setGenre(g){
   buildMustSee(); buildRecent(); buildDays();
 }
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(markScroll,120);});
-function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDays();}
+/* ── PERSONALIZED HOMEPAGE (Founder PRIORITY 4, 2026-07-29) ───────────────────────────
+   Signals, cheapest first: localStorage (written by /v31/onboarding.html — instant, no
+   network), then the signed-in user's `user_onboarding` row, then who they follow.
+   Scored, never filtered: the full calendar below is untouched, we only ADD a rail. With no
+   signals nothing renders. A country artist gets country first instead of warehouse techno. */
+var ME={genres:[],cats:[],catsOnly:[],role:'',loc:'',follows:[]};
+/* onboarding genre labels → the discovery taxonomy (ecat/gcat) built in PRIORITY 3 */
+var GENRE_MAP={
+  'house':['music','house'],'techno':['music','techno'],'trance':['music','trance'],
+  'bass / dubstep':['music','bass'],'drum & bass':['music','dnb'],'hip-hop':['music','hiphop'],
+  'r&b':['music','rnb'],'pop':['music','pop'],'rock':['music','rock'],'indie':['music','indie'],
+  'country':['music','country'],'latin':['music','latin'],'reggaeton':['music','latin'],
+  'afrobeats':['music','afrobeats'],'jazz':['music','jazz'],
+  'comedy':['comedy',''],'art':['art',''],'film':['film',''],'gaming':['gaming','']
+};
+function fyLoad(){
+  try{
+    var g=localStorage.getItem('kil_genres');
+    if(g) ME.genres=g.split(',').map(function(x){return x.trim().toLowerCase();}).filter(Boolean);
+    ME.role=localStorage.getItem('kil_role')||'';
+    ME.loc=(localStorage.getItem('kil_loc')||'').toLowerCase();
+  }catch(e){}
+  fyCats();
+}
+/* cats = every industry implied; catsOnly = industries the user chose wholesale (no sub-genre) */
+function fyCats(){
+  ME.cats=[]; ME.catsOnly=[];
+  ME.genres.forEach(function(x){
+    var m=GENRE_MAP[x]; if(!m) return;
+    if(ME.cats.indexOf(m[0])<0) ME.cats.push(m[0]);
+    if(!m[1] && ME.catsOnly.indexOf(m[0])<0) ME.catsOnly.push(m[0]);
+  });
+}
+function fySubs(){ /* the gcat keys this user cares about */
+  var out=[]; ME.genres.forEach(function(x){ var m=GENRE_MAP[x]; if(m&&m[1]) out.push(m[1]); }); return out;
+}
+/* Scoring rule that makes the directive true: an event must MATCH THE USER'S TASTE to enter
+   the rail. Location and KEEPITIL-pick are boosters that reorder matches — never qualifiers.
+   A generic "music" overlap does NOT qualify: that is precisely how a country artist ends up
+   staring at warehouse techno. Categories the user chose WITHOUT sub-genres (comedy, art,
+   film, gaming) DO qualify at category level, because that's the whole granularity we asked for. */
+function fyScore(e){
+  var subs=fySubs(), qualifies=false, s=0;
+  if(e.gcat && subs.indexOf(e.gcat)>-1){ qualifies=true; s+=10; }        /* exact sub-genre they picked */
+  else if(ME.catsOnly.length && ME.catsOnly.indexOf(e.ecat||'music')>-1){ qualifies=true; s+=7; } /* whole-industry pick */
+  if(ME.follows.length && e.owner && ME.follows.indexOf(e.owner)>-1){ qualifies=true; s+=8; } /* someone they follow */
+  if(!qualifies) return 0;                                               /* taste gate */
+  if(ME.loc){                                                            /* booster: their scene */
+    var city=(e.city||'').toLowerCase(), loc=ME.loc;
+    if(city && (city.indexOf(loc)>-1 || loc.indexOf(city)>-1)) s+=5;
+    else if(/orange county|\boc\b/.test(loc) && /(santa ana|anaheim|costa mesa|garden grove|irvine|fullerton|long beach|huntington)/.test(city)) s+=4;
+    else if(/los angeles|\bla\b/.test(loc) && /(los angeles|hollywood|dtla|pasadena|venice|highland park|culver)/.test(city)) s+=4;
+    else if(/san diego/.test(loc) && /san diego/.test(city)) s+=4;
+  }
+  if(e.pick) s+=1;                                                       /* gentle nudge, never decisive */
+  return s;
+}
+function buildForYou(){
+  var sec=document.getElementById('evx-foryou-sec'), row=document.getElementById('evx-foryou');
+  if(!sec||!row) return;
+  var haveSignal=ME.genres.length||ME.loc||ME.follows.length;
+  if(!haveSignal){ sec.style.display='none'; return; }
+  var today=new Date().toISOString().slice(0,10);
+  var seenFy={};
+  var scored=EVENTS.filter(function(e){ return e.date && e.date>=today; })
+                   .map(function(e){ return {e:e,s:fyScore(e)}; })
+                   .filter(function(x){ return x.s>0; })        /* fyScore already gated on taste */
+                   .sort(function(a,b){ return b.s-a.s || (a.e.date||'').localeCompare(b.e.date||''); }) /* score desc, then soonest */
+                   .filter(function(x){
+                     /* Two passes of hygiene:
+                        (1) cross-source duplicates carry DIFFERENT slugs, so key on normalized
+                            title+date the way the DB dedupe_key does, not on slug;
+                        (2) VARIETY CAP — a residency that runs every other week is several real
+                            events, but it should not eat multiple slots in a 10-card discovery
+                            rail. Keep only its soonest date here; the calendar below shows them all. */
+                     var t=(x.e.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
+                     var k=t+'|'+(x.e.date||'');
+                     if(seenFy[k]||seenFy['t:'+t]) return false;
+                     seenFy[k]=1; seenFy['t:'+t]=1; return true;
+                   })
+                   .slice(0,10);
+  if(scored.length<3){ sec.style.display='none'; return; }      /* too thin to be useful */
+  sec.style.display='';
+  var lab=document.getElementById('evx-fy-label');
+  if(lab) lab.textContent='FOR YOU';
+  var why=document.getElementById('evx-fy-why');
+  if(why){
+    var bits=[];
+    if(ME.genres.length) bits.push('<b>'+ME.genres.slice(0,3).map(h).join(' · ')+'</b>');
+    if(ME.loc) bits.push('near <b>'+h(localStorage.getItem('kil_loc')||'')+'</b>');
+    why.innerHTML='Matched to '+(bits.join(' · ')||'your profile')
+      +' · <a href="/v31/onboarding.html?redo=1">change</a>';
+  }
+  row.innerHTML=scored.map(function(x){ return flyer(x.e,false); }).join('');
+  if(typeof markScroll==='function'){ try{ markScroll(); }catch(e){} }
+}
+/* signed-in refinement: authoritative onboarding row + follows, then re-render the rail */
+function fyEnrich(sb){
+  if(!sb) return;
+  sb.auth.getSession().then(function(r){
+    var s=r&&r.data&&r.data.session; if(!s) return;
+    sb.from('user_onboarding').select('genres,location,role').eq('user_id',s.user.id).maybeSingle().then(function(o){
+      if(o&&o.data){
+        if(o.data.genres&&o.data.genres.length) ME.genres=o.data.genres.map(function(x){return String(x).toLowerCase();});
+        if(o.data.location) ME.loc=String(o.data.location).toLowerCase();
+        if(o.data.role) ME.role=o.data.role;
+        fyCats();
+      }
+      sb.from('follows').select('profile_slug').eq('follower_id',s.user.id).then(function(fr){
+        if(fr&&fr.data) ME.follows=fr.data.map(function(x){return x.profile_slug;});
+        try{ buildForYou(); }catch(e){}
+      }).catch(function(){ try{ buildForYou(); }catch(e){} });
+    }).catch(function(){});
+  }).catch(function(){});
+}
+function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee();buildRecent();buildDays();}
 /* Calendar = external/Posh music events (baked EVENTS above) + KEEPITIL member-created events layered on top additively. Only Founder-approved (status='published') KEEPITIL events surface. */
 (function(){
   function boot2(){try{boot();}catch(e){}}
@@ -2189,7 +2325,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
             return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
               genre:g||'KEEPITIL',gcat:_cl.gcat,ecat:_cl.ecat,img:e.cover_url||e.img||'',
               ticket:(e.source_url&&!internal)?e.source_url:('/v31/event.html?e='+encodeURIComponent(e.slug||'')),
-              price:'Tickets',pick:!!e.featured,keepitil:internal,slug:e.slug};
+              price:'Tickets',pick:!!e.featured,keepitil:internal,slug:e.slug,owner:e.owner_handle||''};
           });
           if(db.length>=10){ EVENTS=db; }
           else {
@@ -2201,6 +2337,7 @@ function boot(){buildMonths();buildGenres();buildMustSee();buildRecent();buildDa
           if(MONTHS.indexOf(activeMonth)<0)activeMonth=MONTHS[0]||activeMonth;
         }
         boot2();
+        try{ fyEnrich(_sb); }catch(e){}
       }).catch(boot2);
     }else{boot2();}
   }catch(e){boot2();}
