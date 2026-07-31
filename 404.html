@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>KEEPITIL</title>
+<style>html,body{margin:0;height:100%;background:#0a0a0f;color:#eef;font:15px/1.6 'Inter',system-ui,sans-serif}
+.wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+a{color:#5cc8ff}</style>
+<script>
+/* KEEPITIL clean-URL router (Founder 2026-07-31).
+   GitHub Pages serves this 404.html for any unmatched path; we translate pretty URLs
+   to the working /v31/ pages via a client-side redirect. Falls through to a real 404 message. */
+(function(){
+  var p = location.pathname.replace(/\/+$/,''); // strip trailing slash
+  var seg = p.split('/').filter(Boolean);       // path segments
+  var q = location.search || '';
+  var hash = location.hash || '';
+  function go(url){ location.replace(url + hash); }
+  var slug = seg.length ? decodeURIComponent(seg[seg.length-1]).toLowerCase().replace(/[^a-z0-9-]/g,'') : '';
+
+  // /unclaimed/profile/<slug>
+  if(seg.length===3 && seg[0]==='unclaimed' && seg[1]==='profile'){
+    if(slug==='groove-trooper') return go('/profile-groove-trooper.html');
+    return go('/v31/profile.html?slug='+encodeURIComponent(slug));
+  }
+  // /public/profile/<slug>
+  if(seg.length===3 && seg[0]==='public' && seg[1]==='profile'){
+    return go('/v31/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
+  }
+  // /profile/<slug>
+  if(seg.length===2 && seg[0]==='profile'){
+    return go('/v31/profile.html?slug='+encodeURIComponent(slug));
+  }
+  // /venue/<slug>
+  if(seg.length===2 && seg[0]==='venue'){
+    return go('/v31/venue.html?v='+encodeURIComponent(slug));
+  }
+  // /event/<name>
+  if(seg.length===2 && seg[0]==='event'){
+    return go('/v31/event.html?e='+encodeURIComponent(slug));
+  }
+  // single-segment section aliases
+  var SECTION={culture:'/v31/culture.html',scene:'/v31/scene.html',radio:'/v31/radio.html',
+               apps:'/games/',games:'/games/',events:'/v31/',home:'/v31/'};
+  if(seg.length===1 && SECTION[seg[0].toLowerCase()]) return go(SECTION[seg[0].toLowerCase()]);
+
+  // No route matched — show a minimal 404 with a way home.
+  document.documentElement.setAttribute('data-nomatch','1');
+})();
+</script>
+</head><body>
+<div class="wrap" id="fourohfour" style="display:none">
+  <h1 style="font-size:2rem;margin:0 0 8px">Page not found</h1>
+  <p style="color:#9aa;margin:0 0 18px">That link doesn't exist (or has moved).</p>
+  <a href="/v31/">← Back to KEEPITIL</a>
+</div>
+<script>
+/* only reveal the 404 message if the router didn't redirect */
+if(document.documentElement.getAttribute('data-nomatch')){ document.getElementById('fourohfour').style.display='flex'; }
+</script>
+</body></html>
