@@ -137,6 +137,7 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
   <div id="app" style="display:none">
     <div class="subnav" id="subnav"></div>
     <div class="panel on" id="tab-events"><div class="summary" id="summary"></div><div id="list"></div></div>
+    <div class="panel" id="tab-insights"><div id="insightsBody" style="color:var(--muted,#9aa0b0)">Loading…</div></div>
     <div class="panel" id="tab-analytics"><div class="astat" id="aStat"></div><div class="head2">Recent questions asked <span class="ct" id="qCt"></span></div><div id="qLog"></div></div>
     <div class="panel" id="tab-posts"><div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div><div id="postReview"></div></div>
     <div class="panel" id="tab-social"><div class="head2">Social Queue <span class="ct" id="socialCt"></span></div><div id="socialReview"></div></div>
@@ -269,7 +270,7 @@ var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'
 var ADMIN_TABS=[['posts','FEED'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
-  var nav=$('subnav'); var tabs=[['events','Events']];
+  var nav=$('subnav'); var tabs=[['events','Events'],['insights','Insights']];
   if(IS_ADMIN){
     tabs=tabs.concat(ADMIN_TABS);
     try{ var h1=document.querySelector('.head h1'); if(h1) h1.innerHTML='Website <b>Brain</b>'; document.title='Website Brain — KEEPITIL'; }catch(e){}
@@ -298,7 +299,32 @@ function showTab(name){
     else if(g==='chat'){ clearAgentLog(); loadGroup(); }
     else if(g==='knowledge') loadKnowledge();
     else if(g==='access') loadAdmins();
+    else if(g==='insights') loadInsights();
   });
+}
+/* POSH-style profile Insights for the signed-in user (Founder 2026-07-31) — same data as the profile Insights popup. */
+async function loadInsights(){
+  var b=$('insightsBody'); if(!b) return;
+  try{
+    var sl=await supa.rpc('my_profile_slug'); var slug=sl&&!sl.error?sl.data:null;
+    if(!slug){ b.innerHTML='Complete your profile to see insights.'; return; }
+    var r=await supa.rpc('get_profile_insights',{p_slug:slug}); var m=(r&&r.data)||{};
+    if(m.error){ b.innerHTML='Insights are available once your profile is live.'; return; }
+    function n(v){ v=v==null?0:v; return v>=1000?(v/1000).toFixed(1).replace(/\.0$/,'')+'k':(''+v); }
+    function tile(l,v,sub){ return '<div style="background:var(--panel2,#20243d);border:1px solid var(--line,#2f3556);border-radius:14px;padding:14px 15px"><div style="font:800 1.7rem/1 inherit;color:#fff">'+n(v)+'</div>'+(sub?'<div style="font-size:.68rem;color:#26e6a6;font-weight:700;margin-top:3px">'+sub+'</div>':'')+'<div style="font-size:.68rem;letter-spacing:.06em;color:var(--muted,#aab2e0);text-transform:uppercase;margin-top:4px">'+l+'</div></div>'; }
+    function chart(series,color){ series=series||[]; var max=1; series.forEach(function(p){ if((p.v||0)>max)max=p.v; });
+      var bars=series.map(function(p){ var hh=Math.round((p.v||0)/max*100); return '<div title="'+p.d+': '+(p.v||0)+'" style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center"><div style="width:100%;max-width:16px;height:'+Math.max(hh,3)+'%;min-height:3px;border-radius:5px 5px 0 0;background:'+color+'"></div></div>'; }).join('');
+      var labels=series.map(function(p,i){ return '<div style="flex:1;text-align:center;font-size:.55rem;color:var(--muted,#aab2e0)">'+((i%3===0||i===series.length-1)?p.d:'')+'</div>'; }).join('');
+      return '<div style="height:120px;display:flex;align-items:flex-end;gap:3px;padding:6px 2px 0">'+bars+'</div><div style="display:flex;gap:3px;margin-top:4px">'+labels+'</div>'; }
+    var grid='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">'
+      +tile('Profile views',m.profile_views_total,(m.profile_views_7d?('+'+n(m.profile_views_7d)+' · 7d'):''))
+      +tile('Reach',m.reach)+tile('Impressions',m.impressions_total)
+      +tile('Followers',m.followers,(m.followers_7d?('+'+n(m.followers_7d)+' · 7d'):''))
+      +tile('Likes',m.likes)+tile('Comments',m.comments)+'</div>';
+    var charts='<div style="background:var(--panel,#191c30);border:1px solid var(--line,#2f3556);border-radius:16px;padding:16px;margin-bottom:14px"><div style="color:#fff;font-weight:700;margin-bottom:2px">Profile views · 14 days</div>'+chart(m.views_series,'linear-gradient(180deg,#a56bff,#26e6a6)')+'</div>'
+      +'<div style="background:var(--panel,#191c30);border:1px solid var(--line,#2f3556);border-radius:16px;padding:16px"><div style="color:#fff;font-weight:700;margin-bottom:2px">New followers · 14 days</div>'+chart(m.follows_series,'linear-gradient(180deg,#3aa5ff,#26e6a6)')+'</div>';
+    b.innerHTML=grid+charts;
+  }catch(e){ b.innerHTML='Could not load insights.'; }
 }
 async function loadAnalytics(){
   try{
