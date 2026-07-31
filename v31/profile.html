@@ -2203,17 +2203,17 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
-  /* First-run: a signed-in user viewing their OWN profile with no onboarding row gets the
-     Echo conversational setup once (skip persists via kil_ob_skip; loop-guard per session). */
+  /* REQUIREMENT (Founder 2026-07-31): every first-time / new user MUST complete onboarding
+     before they can view their profile. Gate on completed_at — a row without it (skipped mid-way)
+     does NOT satisfy the gate. A per-session guard prevents a hard loop if the save ever fails. */
   function checkOnboarding(){
     try{
       if(!SESSION||!SESSION.user) return;
       if(!((typeof CAN_EDIT==='function')&&CAN_EDIT())) return;
-      if(localStorage.getItem('kil_ob_skip')==='1') return;
-      if(sessionStorage.getItem('kil_ob_seen')==='1') return;
-      SB.from('user_onboarding').select('user_id').eq('user_id',SESSION.user.id).maybeSingle().then(function(o){
+      if(sessionStorage.getItem('kil_ob_gated')==='1') return; /* safety valve: at most one forced redirect per session */
+      SB.from('user_onboarding').select('completed_at').eq('user_id',SESSION.user.id).maybeSingle().then(function(o){
         if(o&&o.error) return;
-        if(!(o&&o.data)){ try{ sessionStorage.setItem('kil_ob_seen','1'); }catch(e){} location.href='/v31/onboarding.html'; }
+        if(!(o&&o.data&&o.data.completed_at)){ try{ sessionStorage.setItem('kil_ob_gated','1'); }catch(e){} location.href='/v31/onboarding.html?required=1'; }
       });
     }catch(e){}
   }
