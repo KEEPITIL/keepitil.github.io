@@ -5,76 +5,166 @@
 <title>KEEPITIL — Full Website Audit &amp; Link Index</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0c0c12;color:#eef;font:15px/1.55 'Inter',system-ui,sans-serif;padding:28px 18px 80px;max-width:1000px;margin:0 auto}
+body{background:#0c0c12;color:#eef;font:15px/1.55 'Inter',system-ui,sans-serif;padding:28px 18px 90px;max-width:1000px;margin:0 auto}
 h1{font-size:1.7rem;letter-spacing:.02em;margin-bottom:4px}
 .sub{color:#9aa;margin-bottom:8px}
 .meta{color:#7a8;font-size:.82rem;margin-bottom:22px}
-h2{font-size:1.15rem;margin:26px 0 4px;padding-top:16px;border-top:1px solid #22222e;letter-spacing:.02em}
+h2{font-size:1.15rem;margin:30px 0 4px;padding-top:16px;border-top:1px solid #22222e;letter-spacing:.02em}
 h2 .c{color:#7a8;font-size:.8rem;font-weight:400;margin-left:8px}
-.note{color:#c9b; font-size:.82rem;margin:2px 0 10px}
-ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 18px;margin:8px 0}
-li{padding:4px 0;border-bottom:1px solid #191922;font-size:.9rem;display:flex;gap:8px;align-items:baseline}
+.note{color:#c9b;font-size:.82rem;margin:2px 0 10px}
+ul{list-style:none;margin:8px 0}
+li{padding:6px 0;border-bottom:1px solid #191922;font-size:.92rem}
+li .ttl{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 a{color:#5cc8ff;text-decoration:none}a:hover{text-decoration:underline}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:4px 18px}
+.grid li{display:flex;gap:8px;align-items:baseline}
 .tag{font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;flex:0 0 auto}
-.live{background:#0c3;color:#031}.review{background:#fc3;color:#320}.legacy{background:#733;color:#fdd}.gold{background:#d4a017;color:#211}.venue{background:#0aa;color:#022}
+.live{background:#0c3;color:#031}.review{background:#fc3;color:#320}.legacy{background:#733;color:#fdd}.gold{background:#d4a017;color:#211}.venue{background:#0aa;color:#022}.del{background:#911;color:#fdd}
+.st{font-size:.58rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:5px;flex:0 0 auto}
+.done{background:#0c3;color:#031}.todo{background:#fc3;color:#320}
+.todo-line{color:#f9a;font-size:.82rem;margin:3px 0 2px;padding-left:2px}
+.done-line{color:#8fd;font-size:.82rem;margin:3px 0 2px;padding-left:2px}
+.sub-note{color:#bcd;font-size:.8rem;margin:1px 0 1px 16px}
 .gold-card{background:#15130b;border:1px solid #d4a01755;border-radius:12px;padding:14px 16px;margin:8px 0}
-.gold-card b{color:#f0d47a}.gold-card .u{color:#8fd;font-size:.82rem}.gold-card .todo{color:#f9a;font-size:.82rem}
+.gold-card b{color:#f0d47a}.gold-card .u{color:#8fd;font-size:.82rem}
 code{background:#191922;padding:1px 6px;border-radius:5px;color:#9fd;font-size:.82rem}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:#9aa;margin:6px 0 4px}
+.legend span{display:inline-flex;gap:5px;align-items:center}
 </style></head><body>
 <h1>KEEPITIL — Full Website Audit &amp; Link Index</h1>
 <div class="sub">Every live page, profile, and venue — titled and clickable.</div>
-<div class="meta">Generated 2026-07-26 · click any link to inspect the live page.</div>
+<div class="meta">Updated 2026-07-31 · click any link to inspect the live page.</div>
+<div class="legend">
+  <span><span class="st done">DONE</span> shipped this pass</span>
+  <span><span class="st todo">TODO</span> planned / in progress</span>
+  <span><span class="tag del">DELETE</span> removed, do not recreate</span>
+</div>
 
 <h2>★ Gold Standard Templates <span class="c">the only 4 — everything else conforms to these</span></h2>
-<div class="note">Target clean URLs + fixes are noted under each. Current working links below.</div>
+<div class="note">Target clean URLs + fixes noted under each. Clean URLs are live via the site router (404.html).</div>
+
 <div class="gold-card"><b>1 · Unclaimed profile</b> — <a href="https://keepitil.com/profile-groove-trooper.html" target="_blank">profile-groove-trooper.html ↗</a>
-<div class="todo">TO DO: add universal header nav shell + footer · target URL <code>/profile/groove-trooper</code></div></div>
-<div class="gold-card"><b>2 · Subscribed profile</b> — <a href="https://keepitil.com/v31/profile.html?slug=tuitea" target="_blank">profile.html?slug=tuitea ↗</a>
-<div class="todo">TO DO: clean URL <code>/profile/tuitea</code></div></div>
-<div class="gold-card"><b>3 · Subscribed viewer (unclaimed)</b> — <a href="https://keepitil.com/v31/profile.html?slug=groove-trooper" target="_blank">profile.html?slug=groove-trooper ↗</a>
-<div class="todo">TO DO: add the universal footer like the homepage · clean URL <code>/profile/unclaimed/groove-trooper</code></div></div>
+<div class="done-line"><span class="st done">DONE</span> clean URL live: <a href="https://keepitil.com/unclaimed/profile/groove-trooper" target="_blank"><code>/unclaimed/profile/groove-trooper</code> ↗</a></div></div>
+
+<div class="gold-card"><b>2 · Claimed profile</b> — <a href="https://keepitil.com/v31/profile.html?slug=tuitea" target="_blank">profile.html?slug=tuitea ↗</a>
+<div class="done-line"><span class="st done">DONE</span> clean URL live: <a href="https://keepitil.com/profile/tuitea" target="_blank"><code>/profile/tuitea</code> ↗</a></div>
+<div class="done-line"><span class="st done">DONE</span> removed the duplicate Instagram / SoundCloud / TikTok / Website links at the bottom of the page — socials now live only in the header Links row.</div></div>
+
+<div class="gold-card"><b>3 · Public profile</b> — <a href="https://keepitil.com/v31/profile.html?slug=tuitea" target="_blank">profile.html?slug=tuitea ↗</a>
+<div class="done-line"><span class="st done">DONE</span> clean URL live: <a href="https://keepitil.com/public/profile/tuitea" target="_blank"><code>/public/profile/tuitea</code> ↗</a></div></div>
+
 <div class="gold-card"><b>4 · Venue</b> — <a href="https://keepitil.com/v31/venue.html?v=bleu" target="_blank">venue.html?v=bleu ↗</a>
-<div class="todo">TO DO: clean URL <code>/venue/bleu</code></div></div>
+<div class="done-line"><span class="st done">DONE</span> clean URL live: <a href="https://keepitil.com/venue/bleu" target="_blank"><code>/venue/bleu</code> ↗</a></div></div>
 
-<h2>V3.1 Core Pages <span class="c">live public site</span></h2>
-<ul id="core"></ul>
+<h2>Shell <span class="c">applied on every live page</span></h2>
+<ul>
+  <li><div class="ttl"><span class="tag live">LIVE</span> Header nav · Footer · Radio bar (mobile &amp; desktop)</div>
+  <div class="sub-note">Universal shell (v31-shell.js) injects header + footer; radio bar renders on mobile &amp; desktop.</div></li>
+</ul>
 
-<h2>Live Profiles <span class="c">DB-driven</span></h2>
-<ul id="profiles"></ul>
+<h2>V3.1 Core Pages <span class="c">live public site — TODO notes below each</span></h2>
+<ul>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/" target="_blank">Home</a> <span class="st todo">TODO</span></div>
+    <div class="todo-line">Events only, in categories. Top filter → <b>ALL · MUSIC · VS · SFTU · FESTIVAL</b>, each with a subfilter:</div>
+    <div class="sub-note"><b>Music:</b> Afrobeat, Bass, EDM (everything EDM), House, Techno, Country, HipHop, R&amp;B, Rock</div>
+    <div class="sub-note"><b>VS:</b> DJ (mix-battle signup), Photography (image-challenge signup), Videography (video-challenge signup), Song/painting/etc.</div>
+    <div class="sub-note"><b>SFTU</b> (Straight From The Underground): Raves, Warehouse</div>
+    <div class="sub-note"><b>Festival:</b> EDM, Country, etc.</div></li>
+
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/culture.html" target="_blank">Culture</a> <span class="st todo">TODO</span> <span class="st done">DONE</span> <code>/culture</code></div>
+    <div class="done-line">Clean URL live: <a href="https://keepitil.com/culture" target="_blank"><code>/culture</code> ↗</a></div>
+    <div class="todo-line">Content only, in categories. Sub-sections:</div>
+    <div class="sub-note"><b>1 · Feed</b> — all content + VS event submissions from every category. Filter A (Feed, Blog, Articles, Vid, Pix, VS) scroll L/R to change category. Filter B (All, Following, Followers, Circle) like the homepage filter bar. Content scrolls full-screen — one item per screen, scroll up for next.</div>
+    <div class="sub-note"><b>2 · Radio</b> — music playlist, SoundCloud only, must follow KEEPITIL.</div>
+    <div class="sub-note"><b>3 · VS</b> — artist battles (DJ mixes, paint, photo, video…), submitted content only. Full-screen scroll; scroll L/R for category, up for next.</div>
+    <div class="sub-note"><b>4 · Givebacks</b> — Shopify, charity links, affiliate links, referral links.</div></li>
+
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/scene.html" target="_blank">Scene</a> <span class="st done">DONE</span> <code>/scene</code></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/radio.html" target="_blank">Radio</a> <span class="st done">DONE</span> <code>/radio</code></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/event.html" target="_blank">Event</a> <span class="st done">DONE</span> <code>/event/&lt;eventname&gt;</code></div>
+    <div class="done-line">Clean URL live via router: <code>/event/&lt;eventname&gt;</code> → event page.</div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/venue.html?v=bleu" target="_blank">Venue</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/profile.html?slug=tuitea" target="_blank">Profile</a></div></li>
+
+  <li><div class="ttl"><span class="tag del">DELETE</span>User profile (u.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Public mini (p.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/apply.html" target="_blank">Apply / Login</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/onboarding.html" target="_blank">Onboarding</a> <span class="st todo">TODO</span></div>
+    <div class="todo-line">Make this a requirement for every first-time / new user before they can view their profile.</div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Create profile (create-profile.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/create-event.html" target="_blank">Create event</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/submit-event.html" target="_blank">Submit event</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/dashboard.html" target="_blank">Dashboard</a> <span class="st todo">TODO</span></div>
+    <div class="todo-line">Simplify to full profile insight + event dashboard, POSH-style only.</div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/settings.html" target="_blank">Settings</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/tickets.html" target="_blank">Tickets</a></div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Ticket (ticket.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>My tickets (my-tickets.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/ticket-terms.html" target="_blank">Ticket terms</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/refund.html" target="_blank">Refund</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/about.html" target="_blank">About</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/contact.html" target="_blank">Contact</a> <span class="st done">DONE</span></div>
+    <div class="done-line">Removed GET FEATURED (and its “Apply as artist, brand or organizer →” CTA).</div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/privacy.html" target="_blank">Privacy</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/terms.html" target="_blank">Terms</a></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/community-guidelines.html" target="_blank">Community guidelines</a></div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Campaigns (campaigns.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Image tool (image-tool.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Event chat (event-chat.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+  <li><div class="ttl"><span class="tag del">DELETE</span>Agent (agent.html)</div>
+    <div class="todo-line">Deleted — do not recreate.</div></li>
+</ul>
+
+<h2>Live Profiles</h2>
+<ul class="grid">
+  <li><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/profile.html?slug=tuitea" target="_blank">Tuitea</a></li>
+  <li><span class="tag live">LIVE</span><a href="https://keepitil.com/v31/profile.html?slug=groove-trooper" target="_blank">Groove Trooper</a></li>
+</ul>
 
 <h2>AI Crew Profiles <span class="c">14 agents</span></h2>
-<ul id="agents"></ul>
+<ul class="grid" id="agents"></ul>
 
-<h2>Venues <span class="c">30 published</span></h2>
-<ul id="venues"></ul>
+<h2>Venues <span class="c">1 published</span></h2>
+<ul class="grid">
+  <li><span class="tag venue">VENUE</span><a href="https://keepitil.com/v31/venue.html?v=bleu" target="_blank">BLEU</a></li>
+</ul>
 
-<h2>Games <span class="c">/games/</span></h2>
-<ul id="games"></ul>
+<h2>APPS <span class="c">/games/ → renamed APPS · filter All · Games · Utility · Marketing</span></h2>
+<div class="note"><span class="st todo">TODO</span> rename Games hub → <b>APPS</b>; filter all KEEPITIL-built apps by All / Games / Utility / Marketing.</div>
+<ul>
+  <li><div class="ttl"><span class="tag live">LIVE</span><a href="https://keepitil.com/games/" target="_blank">APPS hub</a> <span class="st todo">TODO</span></div></li>
+  <li><div class="ttl"><span class="tag live">LIVE</span> <b>Games:</b> <a href="https://keepitil.com/games/ageofwars/" target="_blank">Age of War</a> · AOW2</div></li>
+  <li><div class="ttl"><span class="tag review">SOON</span> <b>Utility:</b> WIFI Remote</div></li>
+  <li><div class="ttl"><span class="tag review">SOON</span> <b>Marketing:</b> KFORM</div></li>
+</ul>
 
-<h2>Legacy / Purge Candidates <span class="c">not gold standard — proposed for archive</span></h2>
-<div class="note">These are old templates/pages superseded by V3.1. Proposed to archive (not hard-delete) once you confirm.</div>
-<ul id="legacy"></ul>
+<h2>Deleted this pass <span class="c">removed from the repo · do not recreate</span></h2>
+<ul class="grid">
+  <li><span class="tag del">DELETE</span>u.html</li>
+  <li><span class="tag del">DELETE</span>p.html</li>
+  <li><span class="tag del">DELETE</span>create-profile.html</li>
+  <li><span class="tag del">DELETE</span>ticket.html</li>
+  <li><span class="tag del">DELETE</span>my-tickets.html</li>
+  <li><span class="tag del">DELETE</span>campaigns.html</li>
+  <li><span class="tag del">DELETE</span>image-tool.html</li>
+  <li><span class="tag del">DELETE</span>event-chat.html</li>
+  <li><span class="tag del">DELETE</span>agent.html</li>
+</ul>
 
 <script>
 var B='https://keepitil.com';
-function li(url,title,tag){return '<li><span class="tag '+tag[1]+'">'+tag[0]+'</span><a target="_blank" href="'+url+'">'+title+'</a></li>';}
-function fill(id,items){document.getElementById(id).innerHTML=items.join('');}
-
-var CORE=[['/v31/','Home'],['/v31/culture.html','Culture (Feed)'],['/v31/scene.html','Scene (Directory)'],['/v31/radio.html','Radio'],['/v31/event.html','Event'],['/v31/venue.html?v=bleu','Venue'],['/v31/profile.html?slug=tuitea','Profile'],['/v31/u.html','User profile (u)'],['/v31/p.html','Public mini (p)'],['/v31/apply.html','Apply / Login'],['/v31/onboarding.html','Onboarding'],['/v31/create-profile.html','Create profile'],['/v31/create-event.html','Create event'],['/v31/submit-event.html','Submit event'],['/v31/dashboard.html','Dashboard'],['/v31/settings.html','Settings'],['/v31/tickets.html','Tickets'],['/v31/ticket.html','Ticket'],['/v31/my-tickets.html','My tickets'],['/v31/ticket-terms.html','Ticket terms'],['/v31/refund.html','Refund'],['/v31/about.html','About'],['/v31/contact.html','Contact'],['/v31/privacy.html','Privacy'],['/v31/terms.html','Terms'],['/v31/community-guidelines.html','Community guidelines'],['/v31/campaigns.html','Campaigns'],['/v31/image-tool.html','Image tool'],['/v31/event-chat.html?e=general','Event chat'],['/v31/agent.html','Agent']];
-fill('core',CORE.map(function(x){return li(B+x[0],x[1],['live','live']);}));
-
-var PROFILES=[['tuitea','Tuitea','live'],['groove-trooper','Groove Trooper (demo)','live'],['fngrs-crssd','FNGRS CRSSD','review'],['framework-la','Framework','review'],['discotech-app','Discotech','review'],['dirtybird-records','Dirtybird','review']];
-fill('profiles',PROFILES.map(function(p){return li(B+'/v31/profile.html?slug='+p[0],p[1],[p[2].toUpperCase(),p[2]]);}));
-
 var AGENTS='echo atlas pulse nexus sentinel oracle fable nova luna lyric vibe scout merch beacon'.split(' ');
-fill('agents',AGENTS.map(function(a){return li(B+'/v31/profile.html?slug='+a,a.charAt(0).toUpperCase()+a.slice(1),['AGENT','live']);}));
-
-var VEN=['venue-3oz-dive-club|3oz Dive Club','venue-avalon-hollywood|Avalon Hollywood','venue-beach-house-san-diego|Beach House San Diego','venue-berlin|Berlin','bleu|BLEU','venue-california-plaza|California Plaza','venue-catalina-classic-cruises|Catalina Classic Cruises','venue-city-market|City Market','venue-don-quixote|Don Quixote','venue-el-rey-theatre|El Rey Theatre','venue-eq-san-diego|EQ San Diego','venue-exchange-la|Exchange LA','venue-fonda-theatre|Fonda Theatre','venue-gallagher-square|Gallagher Square','venue-harbor-house-dtla|Harbor House DTLA','venue-kiss-kiss-bang-bang|Kiss Kiss Bang Bang','venue-level-8-dtla|Level 8 DTLA','venue-los-angeles-state-historic-park|LA State Historic Park','venue-music-box|Music Box','venue-pershing-square|Pershing Square','venue-quartyard|Quartyard','venue-roosevelt-hotel|Roosevelt Hotel','venue-spin|Spin','venue-the-bellwether|The Bellwether','venue-the-bridge|The Bridge','venue-the-compound-by-dirt-dog|The Compound by Dirt Dog','venue-the-forum|The Forum','venue-the-ohana|The Ohana','venue-the-slipper-clutch|The Slipper Clutch','venue-time-nightclub|Time Nightclub'];
-fill('venues',VEN.map(function(v){var p=v.split('|');return li(B+'/v31/venue.html?v='+p[0],p[1],['VENUE','venue']);}));
-
-fill('games',[['/games/','Games hub'],['/games/ageofwars/','Age of Wars'],['/games/kingdom-wars/','Kingdom Wars']].map(function(x){return li(B+x[0],x[1],['live','live']);}));
-
-var LEGACY=[['/profile-ai-echo.html','profile-ai-echo (v3)'],['/profile-ai-atlas.html','profile-ai-atlas (v3)'],['/profile-ai-nexus.html','profile-ai-nexus (v3)'],['/profile-ai-nova.html','profile-ai-nova (v3)'],['/profile-ai-oracle.html','profile-ai-oracle (v3)'],['/profile-ai-pulse.html','profile-ai-pulse (v3)'],['/profile-ai-sentinel.html','profile-ai-sentinel (v3)'],['/profile-oracle.html','profile-oracle (v3)'],['/profile-org-keepitil.html','profile-org-keepitil (v3)'],['/artist.html','artist.html (v3)'],['/culture-concept-a.html','culture-concept-a'],['/culture-concept-b.html','culture-concept-b'],['/culture-concept-c.html','culture-concept-c'],['/mobile-preview.html','mobile-preview'],['/echo-dashboard.html','echo-dashboard'],['/portal.html','portal'],['/spotlight.html','spotlight'],['/vendors.html','vendors'],['/organizers-directory.html','organizers-directory'],['/organizer-welcome.html','organizer-welcome'],['/radio-control.html','radio-control'],['/grow.html','grow'],['/events.html','events (v3)'],['/artist.html','artist'],['/v3/','entire /v3/ legacy tree (64 pages)']];
-fill('legacy',LEGACY.map(function(x){return li(B+x[0],x[1],['LEGACY','legacy']);}));
+document.getElementById('agents').innerHTML=AGENTS.map(function(a){
+  return '<li><span class="tag live">AGENT</span><a target="_blank" href="'+B+'/v31/profile.html?slug='+a+'">'+a.charAt(0).toUpperCase()+a.slice(1)+'</a></li>';
+}).join('');
 </script>
 </body></html>
