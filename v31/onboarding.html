@@ -241,10 +241,13 @@ function tick(ev,i){
 }
 
 /* ── boot ─────────────────────────────────────────────────── */
+/* Onboarding is REQUIRED for first-time users (Founder 2026-07-31): when arriving via the
+   profile gate (?required=1) the Skip option is hidden so they complete the short flow.
+   For a voluntary redo, Skip records completed_at so the profile gate is satisfied. */
+(function(){ var req=/[?&]required=1/.test(location.search); var sb=document.getElementById('skipBtn'); if(req&&sb) sb.style.display='none'; })();
 document.getElementById('skipBtn').onclick=function(e){
   e.preventDefault();
-  try{ localStorage.setItem('kil_ob_skip','1'); }catch(x){}
-  if(!PREVIEW && USER) SB.from('user_onboarding').upsert({user_id:USER.id,updated_at:new Date().toISOString()}).then(function(){ location.href='/v31/profile.html'; });
+  if(!PREVIEW && USER) SB.from('user_onboarding').upsert({user_id:USER.id,completed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).then(function(){ location.href='/v31/profile.html'; });
   else location.href='/v31/profile.html';
 };
 SB.auth.getSession().then(function(r){
