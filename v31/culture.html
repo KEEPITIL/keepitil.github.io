@@ -70,6 +70,27 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .cul-gear-menu button small{display:block;font-weight:400;color:#8a8a99;font-size:.72rem;margin-top:1px}
 .cul-gear-menu button.on,.cul-gear-menu button:hover{background:rgba(255,255,255,.09);color:#fff}
 .cul-gear-menu hr{border:0;border-top:1px solid rgba(255,255,255,.1);margin:9px 0}
+/* Filter A — content-type bar, scroll L/R (Founder 2026-07-31) */
+.cul-typebar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px 0 12px;margin:0 0 6px}
+.cul-typebar::-webkit-scrollbar{display:none}
+.cul-typebar button{flex:0 0 auto;font-family:var(--fh,inherit);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem;color:#cfc9e6;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:8px 16px;cursor:pointer;transition:all .15s}
+.cul-typebar button:hover{color:#fff;border-color:rgba(160,107,255,.5)}
+.cul-typebar button.on{background:linear-gradient(90deg,#00b4ff,#5cc8ff);border-color:transparent;color:#04121b}
+/* Full-screen scroll (Founder 2026-07-31): one item per screen, snap to next.
+   Enabled on mobile via body.cul-fs; toggled by the Feed section. */
+body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
+@media(max-width:860px){
+  body.cul-fs #community-feed>.fcard,body.cul-fs #feed>.fcard{scroll-snap-align:start;scroll-snap-stop:always;min-height:calc(100vh - 120px);display:flex;flex-direction:column;justify-content:center}
+}
+/* Givebacks / VS section panels */
+#cul-section-panel .cul-sec-h{font-family:var(--fs);font-weight:900;font-size:1.5rem;color:#fff;margin:6px 0 4px}
+#cul-section-panel .cul-sec-sub{color:var(--ink2,#9aa);font-size:.9rem;margin-bottom:16px}
+.gb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.gb-card{display:block;background:rgba(12,12,20,.85);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px;text-decoration:none;color:#fff;transition:border-color .2s,transform .2s}
+.gb-card:hover{border-color:rgba(0,180,255,.45);transform:translateY(-2px)}
+.gb-card .gb-k{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#00e0a4}
+.gb-card h3{font-size:1.05rem;margin:6px 0 4px}
+.gb-card p{color:var(--ink2,#9aa);font-size:.82rem;line-height:1.4}
 @media(max-width:860px){
   .chero-intro,.discovercol{display:none!important}
   /* Founder 2026-07-16: mobile Culture nav = "+ | FEED | FOLLOW | ♥" + one even row of 5 pillar icons */
@@ -166,18 +187,25 @@ footer a{color:var(--purple)}
         <button data-ct="all" class="on" onclick="setCulType('all')">All<small>Public feed from everyone · ranked</small></button>
         <button data-ct="following" onclick="setCulType('following')">Following<small>Profiles you follow</small></button>
         <button data-ct="followers" onclick="setCulType('followers')">Followers<small>Profiles that follow you</small></button>
-        <hr>
-        <div class="gm-h">Filter</div>
-        <button data-cf="feed" class="on" onclick="setCulFilter('feed')">Feed<small>Universal posts from everyone</small></button>
-        <button data-cf="articles" onclick="setCulFilter('articles')">Articles<small>Created by KEEPITIL only</small></button>
-        <button data-cf="user" onclick="setCulFilter('user')">User content<small>Blogs, articles, videos, events, images &amp; reshares from users</small></button>
+        <button data-ct="circle" onclick="setCulType('circle')">Circle<small>People you follow who follow you back</small></button>
       </div>
-      <h2 id="feedNow" style="font-family:var(--fs);font-weight:900;font-size:1.6rem;color:#fff">All</h2>
-      <div class="feeddd" id="feedDD"><button class="feeddd-btn" id="feedDDBtn" onclick="toggleFeedDD(event)">EXPLORE <span aria-hidden="true">&#9662;</span></button><div class="feeddd-menu" id="feedDDMenu"><button onclick="culNav('radio')">📻 Radio</button><button onclick="culNav('battles')">⚔️ Battles</button><button onclick="culNav('games')">🎮 Games</button><button onclick="culNav('apps')">🧩 Apps</button><button onclick="culNav('services')">🛠 Services</button></div></div>
+      <h2 id="feedNow" style="font-family:var(--fs);font-weight:900;font-size:1.6rem;color:#fff">Feed</h2>
+      <div class="feeddd" id="feedDD"><button class="feeddd-btn" id="feedDDBtn" onclick="toggleFeedDD(event)">EXPLORE <span aria-hidden="true">&#9662;</span></button><div class="feeddd-menu" id="feedDDMenu"><button onclick="culSection('feed')">📰 Feed</button><button onclick="culSection('radio')">📻 Radio</button><button onclick="culSection('vs')">⚔️ VS</button><button onclick="culSection('givebacks')">💚 Givebacks</button></div></div>
       <button class="cul-heart" id="cul-heart" style="display:none" aria-label="Notifications" title="Notifications" onclick="var b=document.querySelector('.kiln-bell'); if(b){b.click();}else{location.href='/v31/apply.html';}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg></button>
+    </div>
+    <!-- Filter A: content type — scroll L/R (Founder 2026-07-31) -->
+    <div class="cul-typebar" id="culTypeBar">
+      <button data-tp="all" class="on" onclick="setCulContentType('all')">Feed</button>
+      <button data-tp="blog" onclick="setCulContentType('blog')">Blog</button>
+      <button data-tp="article" onclick="setCulContentType('article')">Articles</button>
+      <button data-tp="video" onclick="setCulContentType('video')">Vid</button>
+      <button data-tp="image" onclick="setCulContentType('image')">Pix</button>
+      <button data-tp="vs" onclick="setCulContentType('vs')">VS</button>
     </div>
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
     <div class="feed" id="feed"></div>
+    <!-- Culture sections (Radio / VS / Givebacks) render here when selected -->
+    <div id="cul-section-panel" style="display:none"></div>
   </section>
   <div class="typebar" id="typebar" style="display:none"></div><div id="discover" style="display:none"></div>
 </div></div>
@@ -287,26 +315,78 @@ function culNav(section){
   var f=document.getElementById('feed'); if(f)f.innerHTML='<div class="gate"><div class="i">'+s.i+'</div><h3>'+s.t+'</h3><p>'+s.d+'</p><a href="'+(s.cta||'/v31/apply.html#plans')+'">'+(s.ctaT||'Join to get early access →')+'</a></div>';
   var now=document.getElementById('feedNow'); if(now)now.textContent=s.t;
 }
-/* ── logged-in gear: Type (all/following/followers) + Filter (feed/articles/user) ── */
-var culType='all', culFilter='feed';
+/* ── Culture sections: Feed / Radio / VS / Givebacks (Founder 2026-07-31) ── */
+function culSection(sec){
+  var m=document.getElementById('feedDDMenu'); if(m)m.classList.remove('open');
+  var feedEls=[document.getElementById('culTypeBar'),document.getElementById('community-feed'),document.getElementById('feed')];
+  var panel=document.getElementById('cul-section-panel');
+  var now=document.getElementById('feedNow');
+  if(sec==='radio'){ location.href='/v31/radio.html'; return; }
+  if(sec==='feed'){
+    feedEls.forEach(function(e){ if(e)e.style.display=''; });
+    if(panel){ panel.style.display='none'; panel.innerHTML=''; }
+    if(now)now.textContent='Feed';
+    if(window.matchMedia('(max-width:860px)').matches) document.body.classList.add('cul-fs'); /* full-screen scroll on mobile */
+    if(typeof applyCulFilters==='function') applyCulFilters();
+    return;
+  }
+  document.body.classList.remove('cul-fs');
+  feedEls.forEach(function(e){ if(e)e.style.display='none'; });
+  if(now)now.textContent=(sec==='vs'?'VS':'Givebacks');
+  if(!panel) return; panel.style.display='block';
+  if(sec==='vs'){
+    panel.innerHTML='<div class="cul-sec-h">⚔️ VS — Artist Battles</div><div class="cul-sec-sub">DJ mixes, paint, photo &amp; video battles — submitted content only. Enter a challenge and let the scene vote.</div>'
+      +'<div class="gb-grid">'
+      +'<a class="gb-card" href="/v31/submit-event.html?vs=dj"><div class="gb-k">DJ</div><h3>Mix Battle</h3><p>Submit a mix and go head-to-head.</p></a>'
+      +'<a class="gb-card" href="/v31/submit-event.html?vs=photography"><div class="gb-k">Photo</div><h3>Image Challenge</h3><p>Enter your best shot.</p></a>'
+      +'<a class="gb-card" href="/v31/submit-event.html?vs=videography"><div class="gb-k">Video</div><h3>Video Challenge</h3><p>Submit a clip or edit.</p></a>'
+      +'<a class="gb-card" href="/v31/submit-event.html?vs=song"><div class="gb-k">Open</div><h3>Song / Paint / etc.</h3><p>Any craft — enter your work.</p></a>'
+      +'</div>';
+  } else if(sec==='givebacks'){
+    panel.innerHTML='<div class="cul-sec-h">💚 Givebacks</div><div class="cul-sec-sub">Every link supports the scene — shop, donate, or sign up. Amazon links are affiliate; KEEPITIL earns from qualifying purchases.</div>'
+      +'<div class="gb-grid">'
+      +'<a class="gb-card" href="/shop.html"><div class="gb-k">Shop</div><h3>KEEPITIL Store</h3><p>Apparel &amp; merch on Shopify.</p></a>'
+      +'<a class="gb-card" href="https://www.amazon.com/?tag=tuitea09-20" target="_blank" rel="noopener sponsored nofollow"><div class="gb-k">Affiliate</div><h3>Rave Essentials</h3><p>Curated gear on Amazon. #ad</p></a>'
+      +'<a class="gb-card" href="https://distrokid.com/vip/seven/2860536" target="_blank" rel="noopener"><div class="gb-k">Referral</div><h3>DistroKid</h3><p>7% off your first year of distribution.</p></a>'
+      +'<a class="gb-card" href="https://freecash.com/r/Tuitea" target="_blank" rel="noopener"><div class="gb-k">Referral</div><h3>FreeCash</h3><p>Earn while you support the scene.</p></a>'
+      +'</div>';
+  }
+}
+/* ── logged-in gear: Type (all/following/followers/circle) + Filter (feed/articles/user) + content-type (Filter A) ── */
+var culType='all', culFilter='feed', culContentType='all';
 var CUL_AGENTS={echo:1,atlas:1,pulse:1,nexus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
 function toggleCulGear(e){if(e){e.stopPropagation();}var m=document.getElementById('culGearMenu');if(m)m.classList.toggle('open');}
 function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearMenu button['+attr+']'),function(b){b.classList.toggle('on',b.getAttribute(attr)===val);});}
 function setCulType(t){ culType=t; _culMark('data-ct',t); applyCulFilters(); }
 function setCulFilter(f){ culFilter=f; _culMark('data-cf',f); applyCulFilters(); }
+function setCulContentType(t){ culContentType=t; [].forEach.call(document.querySelectorAll('#culTypeBar button'),function(b){b.classList.toggle('on',b.getAttribute('data-tp')===t);}); applyCulFilters(); }
+function _culKindMatch(kind){
+  var k=String(kind||'').toLowerCase();
+  if(culContentType==='all') return true;
+  if(culContentType==='blog') return k==='blog';
+  if(culContentType==='article') return k==='article';
+  if(culContentType==='video') return k==='video';
+  if(culContentType==='image') return k==='photo'||k==='image';
+  if(culContentType==='vs') return k==='vs'||k==='battle';
+  return true;
+}
 function applyCulFilters(){
   var box=document.getElementById('community-feed'); if(!box||!window.__culRenderRows) return;
   var cf=document.getElementById('community-feed'); if(cf)cf.style.display='';
   var rows=(window.__culAllRows||[]).slice();
-  /* Filter */
+  /* Filter A — content type */
+  rows=rows.filter(function(x){ return _culKindMatch(x.kind); });
+  /* Filter (gear) */
   if(culFilter==='articles'){ rows=rows.filter(function(x){ return x.kind==='article' && CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
   else if(culFilter==='user'){ rows=rows.filter(function(x){ return !CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
-  /* Type */
-  if(culType==='following' && window.__culFollowing){ rows=rows.filter(function(x){ return window.__culFollowing[String(x.profile_slug||'').toLowerCase()]; }); }
-  else if(culType==='followers' && window.__culFollowers){ rows=rows.filter(function(x){ return window.__culFollowers[String(x.profile_slug||'').toLowerCase()]; }); }
+  /* Type (gear) — all / following / followers / circle */
+  var fg=window.__culFollowing||{}, fr=window.__culFollowers||{};
+  if(culType==='following'){ rows=rows.filter(function(x){ return fg[String(x.profile_slug||'').toLowerCase()]; }); }
+  else if(culType==='followers'){ rows=rows.filter(function(x){ return fr[String(x.profile_slug||'').toLowerCase()]; }); }
+  else if(culType==='circle'){ rows=rows.filter(function(x){ var s=String(x.profile_slug||'').toLowerCase(); return fg[s]&&fr[s]; }); }
   window.__culRenderRows(rows);
-  if((culType==='following'||culType==='followers') && !rows.length){
-    box.innerHTML='<div class="gate"><div class="i">👥</div><h3>Nothing here yet</h3><p>No posts from your '+culType+' yet — follow more of the scene.</p><a href="/v31/scene.html">Browse the directory →</a></div>';
+  if(culType!=='all' && !rows.length){
+    box.innerHTML='<div class="gate"><div class="i">👥</div><h3>Nothing here yet</h3><p>No posts in your '+culType+' yet — follow more of the scene.</p><a href="/v31/scene.html">Browse the directory →</a></div>';
   }
 }
 function loadCulRelations(){
