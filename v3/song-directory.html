@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<meta name="robots" content="index,follow"/>
+<title>Song Directory — Lyrics & Tracks by Genre &amp; Artist | KEEPITIL</title>
+<meta name="description" content="Find songs by genre and artist — jump straight to the lyrics (via Genius) and the track on SoundCloud. A KEEPITIL music directory."/>
+<link rel="canonical" href="https://keepitil.com/songs"/>
+<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:opsz,wght@9..144,600;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{--page:#f6f4fb;--card:#ffffff;--ink:#191426;--ink2:#544c6b;--ink3:#8b839e;--line:rgba(30,15,60,.12);--blue:#5b21b6;--blue2:#7c3aed;--accent:#0071e3;--good:#0a8f5b;--fh:'Bebas Neue',sans-serif;--fs:'Fraunces',Georgia,serif;--fb:'Inter',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--page);color:var(--ink);font-family:var(--fb);line-height:1.6;padding:0 0 60px}
+body::before{display:none!important}
+.wrap{max-width:1000px;margin:0 auto;padding:92px 20px 0}
+.head h1{font-family:var(--fs);font-weight:900;font-size:clamp(2rem,5vw,3rem);letter-spacing:-.01em;color:#120e1f}
+.head p{color:var(--ink2);font-size:1.08rem;max-width:640px;margin-top:10px}
+.disc{margin-top:12px;font-size:.82rem;color:var(--ink3)}
+.disc a{color:var(--accent)}
+/* filter bar */
+.filters{position:sticky;top:70px;z-index:20;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--page);padding:16px 0 12px;margin-top:14px;border-bottom:1px solid var(--line)}
+.filters input,.filters select{font-family:inherit;font-size:.95rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;outline:none}
+.filters input{flex:1;min-width:200px}
+.filters input:focus,.filters select:focus{border-color:var(--blue2)}
+.count{margin-left:auto;color:var(--ink3);font-size:.85rem;font-weight:600}
+/* genre chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 4px}
+.chip{font-family:var(--fh);letter-spacing:.06em;font-size:.82rem;color:var(--ink2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--blue2);color:var(--blue2)}
+.chip.on{background:linear-gradient(90deg,var(--blue2),var(--accent));border-color:transparent;color:#fff}
+/* song list */
+.list{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.song{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 4px 16px rgba(30,15,60,.04)}
+.song .gtag{flex:0 0 auto;font-family:var(--fh);letter-spacing:.05em;font-size:.7rem;color:#fff;background:var(--blue2);border-radius:6px;padding:4px 9px;text-transform:uppercase}
+.song .info{flex:1;min-width:0}
+.song .t{font-weight:700;color:#160f24;font-size:1.05rem}
+.song .a{color:var(--ink2);font-size:.9rem}
+.song .yr{color:var(--ink3);font-size:.82rem}
+.song .acts{display:flex;gap:8px;flex:0 0 auto;flex-wrap:wrap}
+.song .acts a{font-weight:700;font-size:.82rem;text-decoration:none;padding:8px 13px;border-radius:999px;white-space:nowrap}
+.a-lyr{background:linear-gradient(90deg,var(--blue2),var(--accent));color:#fff}
+.a-sc{background:none;border:1.5px solid #ff7700;color:#ff5500}
+.empty{text-align:center;color:var(--ink3);padding:50px 0}
+@media(max-width:640px){.song{flex-wrap:wrap}.song .acts{width:100%}.song .acts a{flex:1;text-align:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Song Directory</h1>
+    <p>Find tracks by genre and artist, then jump straight to the lyrics and the song. Built for the KEEPITIL scene across every lane.</p>
+    <div class="disc">Lyrics open on <a href="https://genius.com" target="_blank" rel="noopener">Genius</a> (licensed); tracks open on <a href="https://soundcloud.com" target="_blank" rel="noopener">SoundCloud</a>. KEEPITIL links out — it doesn't host lyrics.</div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div class="filters">
+    <input id="q" type="search" placeholder="Search song or artist…" oninput="render()"/>
+    <select id="artist" onchange="render()"><option value="">All artists</option></select>
+    <span class="count" id="count"></span>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+
+<script>
+/* KEEPITIL song directory. Entries are FACTS (title/artist/genre/year) — no lyrics stored here.
+   Each row links to the lyrics on Genius (licensed) and the track on SoundCloud, via search so we
+   never hard-link an unverified URL. Add rows to SONGS to grow the directory. */
+var SONGS=[
+  {t:"Your Love",a:"Frankie Knuckles",g:"House",y:1987},
+  {t:"Can You Feel It",a:"Mr. Fingers",g:"House",y:1986},
+  {t:"Music Sounds Better with You",a:"Stardust",g:"House",y:1998},
+  {t:"One More Time",a:"Daft Punk",g:"House",y:2000},
+  {t:"Finally",a:"CeCe Peniston",g:"House",y:1991},
+  {t:"Strings of Life",a:"Rhythim Is Rhythim (Derrick May)",g:"Techno",y:1987},
+  {t:"No UFO's",a:"Model 500 (Juan Atkins)",g:"Techno",y:1985},
+  {t:"Spastik",a:"Plastikman (Richie Hawtin)",g:"Techno",y:1993},
+  {t:"Doctor Pressure",a:"Mylo vs. Miami Sound Machine",g:"Techno",y:2005},
+  {t:"For an Angel",a:"Paul van Dyk",g:"Trance",y:1994},
+  {t:"Adagio for Strings",a:"Tiësto",g:"Trance",y:2005},
+  {t:"Silence",a:"Delerium ft. Sarah McLachlan",g:"Trance",y:2000},
+  {t:"Midnight Request Line",a:"Skream",g:"Bass",y:2005},
+  {t:"Scary Monsters and Nice Sprites",a:"Skrillex",g:"Bass",y:2010},
+  {t:"Where's Your Head At",a:"Basement Jaxx",g:"Bass",y:2001},
+  {t:"Inner City Life",a:"Goldie",g:"Drum & Bass",y:1994},
+  {t:"Original Nuttah",a:"UK Apache & Shy FX",g:"Drum & Bass",y:1994},
+  {t:"Nuthin' but a 'G' Thang",a:"Dr. Dre ft. Snoop Dogg",g:"Hip-Hop",y:1992},
+  {t:"California Love",a:"2Pac ft. Dr. Dre",g:"Hip-Hop",y:1995},
+  {t:"It Was a Good Day",a:"Ice Cube",g:"Hip-Hop",y:1992},
+  {t:"Alright",a:"Kendrick Lamar",g:"Hip-Hop",y:2015},
+  {t:"No Diggity",a:"Blackstreet ft. Dr. Dre & Queen Pen",g:"R&B",y:1996},
+  {t:"Are You That Somebody",a:"Aaliyah",g:"R&B",y:1998},
+  {t:"Best Part",a:"Daniel Caesar ft. H.E.R.",g:"R&B",y:2017},
+  {t:"Suavemente",a:"Elvis Crespo",g:"Latin",y:1998},
+  {t:"Gasolina",a:"Daddy Yankee",g:"Latin",y:2004},
+  {t:"Tití Me Preguntó",a:"Bad Bunny",g:"Latin",y:2022},
+  {t:"Ye",a:"Burna Boy",g:"Afrobeats",y:2018},
+  {t:"Essence",a:"Wizkid ft. Tems",g:"Afrobeats",y:2020},
+  {t:"Wait for U",a:"Future ft. Drake & Tems",g:"Afrobeats",y:2022},
+  {t:"Take Me Home, Country Roads",a:"John Denver",g:"Country",y:1971},
+  {t:"Jolene",a:"Dolly Parton",g:"Country",y:1973},
+  {t:"The Bones",a:"Maren Morris",g:"Country",y:2019},
+  {t:"Seven Nation Army",a:"The White Stripes",g:"Rock",y:2003},
+  {t:"Mr. Brightside",a:"The Killers",g:"Rock",y:2003},
+  {t:"Everlong",a:"Foo Fighters",g:"Rock",y:1997},
+  {t:"Could You Be Loved",a:"Bob Marley & The Wailers",g:"Reggae",y:1980},
+  {t:"Here Comes the Hotstepper",a:"Ini Kamoze",g:"Reggae",y:1994}
+];
+var activeGenre='';
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function genres(){var s={};SONGS.forEach(function(x){s[x.g]=1;});return Object.keys(s).sort();}
+function initChips(){
+  var host=document.getElementById('chips');
+  host.innerHTML='<span class="chip'+(!activeGenre?' on':'')+'" data-g="">All genres</span>'+genres().map(function(g){return '<span class="chip" data-g="'+esc(g)+'">'+esc(g)+'</span>';}).join('');
+  host.addEventListener('click',function(e){var c=e.target.closest('.chip');if(!c)return;activeGenre=c.getAttribute('data-g');[].forEach.call(host.children,function(x){x.classList.toggle('on',x.getAttribute('data-g')===activeGenre);});render();});
+}
+function initArtists(){
+  var sel=document.getElementById('artist');var a={};SONGS.forEach(function(x){a[x.a]=1;});
+  sel.innerHTML='<option value="">All artists</option>'+Object.keys(a).sort().map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>';}).join('');
+}
+function q(str){return encodeURIComponent(str);}
+function render(){
+  var qs=(document.getElementById('q').value||'').toLowerCase().trim();
+  var artist=document.getElementById('artist').value;
+  var rows=SONGS.filter(function(x){
+    if(activeGenre && x.g!==activeGenre) return false;
+    if(artist && x.a!==artist) return false;
+    if(qs && (x.t+' '+x.a).toLowerCase().indexOf(qs)<0) return false;
+    return true;
+  }).sort(function(m,n){return m.a.localeCompare(n.a)||m.t.localeCompare(n.t);});
+  document.getElementById('count').textContent=rows.length+' song'+(rows.length===1?'':'s');
+  var host=document.getElementById('list');
+  if(!rows.length){ host.innerHTML='<div class="empty">No songs match. Try a different genre or search.</div>'; return; }
+  host.innerHTML=rows.map(function(x){
+    var lyr='https://genius.com/search?q='+q(x.a+' '+x.t);
+    var sc='https://soundcloud.com/search?q='+q(x.a+' '+x.t);
+    return '<div class="song"><span class="gtag">'+esc(x.g)+'</span>'
+      +'<div class="info"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+' <span class="yr">· '+x.y+'</span></div></div>'
+      +'<div class="acts"><a class="a-lyr" href="'+lyr+'" target="_blank" rel="noopener">📖 Lyrics</a>'
+      +'<a class="a-sc" href="'+sc+'" target="_blank" rel="noopener">▶ SoundCloud</a></div></div>';
+  }).join('');
+}
+/* keep the address bar branded: /songs */
+try{ if(/\/v3\/song-directory\.html$/.test(location.pathname)) history.replaceState(null,'','/songs'+(location.search||'')); }catch(e){}
+initChips(); initArtists(); render();
+</script>
+<script src="/v3/keepitil-ai.js?v=20260719d" defer></script>
+<script src="/v31/v31-shell.js?v=20260731b" defer></script>
+</body>
+</html>
