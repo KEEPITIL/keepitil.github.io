@@ -39,10 +39,21 @@ body::before{display:none!important}
 .song .a{color:var(--ink2);font-size:.9rem}
 .song .yr{color:var(--ink3);font-size:.82rem}
 .song .acts{display:flex;gap:8px;flex:0 0 auto;flex-wrap:wrap}
-.song .acts a{font-weight:700;font-size:.82rem;text-decoration:none;padding:8px 13px;border-radius:999px;white-space:nowrap}
+.song .acts a,.song .acts button{font-family:inherit;font-weight:700;font-size:.82rem;text-decoration:none;padding:8px 13px;border-radius:999px;white-space:nowrap;cursor:pointer;border:0}
 .a-lyr{background:linear-gradient(90deg,var(--blue2),var(--accent));color:#fff}
-.a-sc{background:none;border:1.5px solid #ff7700;color:#ff5500}
-.a-yt{background:none;border:1.5px solid #e0203a;color:#c00}
+.a-sc{background:none;border:1.5px solid #ff7700!important;color:#ff5500}
+.a-yt{background:none;border:1.5px solid #e0203a!important;color:#c00}
+/* lyrics modal */
+.lyr-ov{position:fixed;inset:0;z-index:9999;background:rgba(12,8,24,.6);display:none;align-items:center;justify-content:center;padding:18px}
+.lyr-ov.on{display:flex}
+.lyr-box{background:var(--card);border:1px solid var(--line);border-radius:18px;max-width:600px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(20,10,40,.4)}
+.lyr-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px;border-bottom:1px solid var(--line)}
+.lyr-hd b{font-family:var(--fs);font-size:1.2rem;color:#160f24}
+.lyr-hd .x{background:none;border:0;font-size:1.6rem;color:var(--ink3);cursor:pointer;line-height:1}
+.lyr-bd{padding:18px 22px;overflow:auto;white-space:pre-wrap;font-size:1rem;line-height:1.7;color:#2b2540}
+.lyr-ft{padding:12px 22px 18px;border-top:1px solid var(--line);color:var(--ink3);font-size:.78rem}
+.lyr-ft a{color:var(--accent)}
+.lyr-cta{display:inline-flex;margin-top:8px;background:linear-gradient(90deg,var(--blue2),var(--accent));color:#fff;font-weight:800;padding:11px 20px;border-radius:999px;text-decoration:none;font-size:.9rem}
 .empty{text-align:center;color:var(--ink3);padding:50px 0}
 @media(max-width:640px){.song{flex-wrap:wrap}.song .acts{width:100%}.song .acts a{flex:1;text-align:center}}
 </style>
@@ -142,7 +153,7 @@ function render(){
     var yt='https://www.youtube.com/results?search_query='+q(query);   /* fallback listen when a track isn't on SoundCloud */
     return '<div class="song"><span class="gtag">'+esc(x.g)+'</span>'
       +'<div class="info"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+' <span class="yr">· '+x.y+'</span></div></div>'
-      +'<div class="acts"><a class="a-lyr" href="'+lyr+'" target="_blank" rel="noopener">📖 Lyrics</a>'
+      +'<div class="acts"><button class="a-lyr" data-artist="'+esc(artistClean)+'" data-title="'+esc(x.t)+'" data-genius="'+esc(lyr)+'" onclick="openLyrics(this)">📖 Lyrics</button>'
       +'<a class="a-sc" href="'+sc+'" target="_blank" rel="noopener">▶ SoundCloud</a>'
       +'<a class="a-yt" href="'+yt+'" target="_blank" rel="noopener">▶ YouTube</a></div></div>';
   }).join('');
@@ -150,6 +161,49 @@ function render(){
 /* keep the address bar branded: /songs */
 try{ if(/\/v3\/song-directory\.html$/.test(location.pathname)) history.replaceState(null,'','/songs'+(location.search||'')); }catch(e){}
 initChips(); initArtists(); render();
+</script>
+<!-- Licensed lyrics modal — content is fetched live from the provider (Musixmatch) via the
+     get-lyrics edge function; KEEPITIL stores no lyrics. Falls back to Genius until the key is set. -->
+<div class="lyr-ov" id="lyrOv" onclick="if(event.target===this)lyrClose()">
+  <div class="lyr-box">
+    <div class="lyr-hd"><b id="lyrTitle"></b><button class="x" aria-label="Close" onclick="lyrClose()">&times;</button></div>
+    <div class="lyr-bd" id="lyrBody"></div>
+    <div class="lyr-ft" id="lyrFoot"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var SUPA='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  window.lyrClose=function(){var o=document.getElementById('lyrOv');if(o)o.classList.remove('on');};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')window.lyrClose();});
+  window.openLyrics=function(btn){
+    var artist=btn.getAttribute('data-artist'),title=btn.getAttribute('data-title'),genius=btn.getAttribute('data-genius');
+    var ov=document.getElementById('lyrOv');
+    document.getElementById('lyrTitle').textContent=title+' — '+artist;
+    document.getElementById('lyrBody').textContent='Loading lyrics…';
+    document.getElementById('lyrFoot').innerHTML='';
+    ov.classList.add('on');
+    fetch(SUPA+'/functions/v1/get-lyrics?artist='+encodeURIComponent(artist)+'&title='+encodeURIComponent(title),{headers:{'Authorization':'Bearer '+ANON,'apikey':ANON}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        var body=document.getElementById('lyrBody'),foot=document.getElementById('lyrFoot');
+        if(d&&d.found&&d.lyrics){
+          body.textContent=d.lyrics;                 /* provider-supplied, licensed */
+          var cp=(d.copyright||'').replace(/[<>]/g,'');
+          foot.innerHTML=(d.attribution||'Lyrics powered by Musixmatch')+(cp?'<br>'+cp:'')+'<br><a href="'+genius+'" target="_blank" rel="noopener">Open on Genius →</a>';
+          if(d.pixel_url){var im=new Image();im.src=d.pixel_url;}   /* required provider tracking pixel */
+        } else {
+          body.textContent=(d&&d.configured===false)?'On-site lyrics aren’t enabled yet — opening the licensed source instead.':'Lyrics for this track aren’t available from the licensed provider.';
+          foot.innerHTML='<a class="lyr-cta" href="'+((d&&d.fallback)||genius)+'" target="_blank" rel="noopener">📖 Read on Genius →</a>';
+        }
+      })
+      .catch(function(){
+        document.getElementById('lyrBody').textContent='Could not load lyrics right now.';
+        document.getElementById('lyrFoot').innerHTML='<a class="lyr-cta" href="'+genius+'" target="_blank" rel="noopener">📖 Read on Genius →</a>';
+      });
+  };
+})();
 </script>
 <script src="/v3/keepitil-ai.js?v=20260719d" defer></script>
 <script src="/v31/v31-shell.js?v=20260731b" defer></script>
