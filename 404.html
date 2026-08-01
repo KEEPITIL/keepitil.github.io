@@ -40,10 +40,17 @@ a{color:#5cc8ff}</style>
   if(seg.length===2 && seg[0]==='event'){
     return go('/v31/event.html?e='+encodeURIComponent(slug));
   }
-  // single-segment section aliases
+  // single-segment section aliases + every core page (clean URL, no /v31/ or /v3/ shown)
   var SECTION={culture:'/v31/culture.html',scene:'/v31/scene.html',radio:'/v31/radio.html',
                apps:'/games/',games:'/games/',events:'/v31/',home:'/v31/'};
-  if(seg.length===1 && SECTION[seg[0].toLowerCase()]) return go(SECTION[seg[0].toLowerCase()]);
+  var V31PAGES=['about','apply','audit','community-guidelines','contact','create-event','dashboard',
+                'event','onboarding','privacy','refund','settings','submit-event','terms',
+                'ticket-terms','tickets'];
+  if(seg.length===1){
+    var one=seg[0].toLowerCase();
+    if(SECTION[one]) return go(SECTION[one]);
+    if(V31PAGES.indexOf(one)>=0) return go('/v31/'+one+'.html'+q);
+  }
 
   // No route matched — show a minimal 404 with a way home.
   document.documentElement.setAttribute('data-nomatch','1');
