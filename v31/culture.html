@@ -399,6 +399,8 @@ function loadCulRelations(){
   }).catch(function(){});
 }
 function setFeedMode(mode){feedMode=mode;var mm=document.getElementById('feedDDMenu');if(mm){[].forEach.call(mm.children,function(x){x.classList.toggle('on',x.dataset.m===mode);});mm.classList.remove('open');}var lbl=document.getElementById('feedNow');if(lbl)lbl.textContent=(mode==='following'?'Following':'All');renderFeed();}
+/* Full-screen one-item-per-screen scroll ON by default on mobile (Founder 2026-07-31) */
+try{ if(window.matchMedia('(max-width:860px)').matches) document.body.classList.add('cul-fs'); }catch(e){}
 document.addEventListener('click',function(e){var d=document.getElementById('feedDD');var m=document.getElementById('feedDDMenu');if(m&&m.classList.contains('open')&&d&&!d.contains(e.target))m.classList.remove('open');
   var gm=document.getElementById('culGearMenu');var gb=document.getElementById('cul-gear');if(gm&&gm.classList.contains('open')&&!gm.contains(e.target)&&e.target!==gb)gm.classList.remove('open');});
 window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagation();}catch(x){}
