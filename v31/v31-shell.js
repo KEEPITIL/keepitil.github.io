@@ -50,6 +50,8 @@
     else if(/^\/v31\/event\.html$/.test(_p)){ var _e=_qp('e'); if(_e) _clean='/event/'+encodeURIComponent(_e); }
     else if(/^\/v31\/(index\.html)?$/.test(_p)){ _clean='/'; }
     else if(/^\/v31\/[a-z0-9\-]+\.html$/.test(_p)){ _clean='/'+_p.replace(/^\/v31\//,'').replace(/\.html$/,''); }
+    else if(/^\/v3\/blog-[a-z0-9\-]+\.html$/.test(_p)){ _clean='/article/'+_p.replace(/^\/v3\/blog-/,'').replace(/\.html$/,''); } /* AI articles → /article/<slug> */
+    else if(/^\/v3\/shop\.html$/.test(_p)){ _clean='/shop'; }
     else if(/^\/profile-groove-trooper\.html$/.test(_p)){ _clean='/unclaimed/profile/groove-trooper'; }
     if(_clean){ var _target=_clean+_s+_h; if(_target!==(_p+_s+_h)) history.replaceState(null,'',_target); }
   }catch(e){}
