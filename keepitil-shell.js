@@ -1,0 +1,482 @@
+/* KEEPITIL V3.1 — TRIMMED public shell (fork of v3-shell.js, Founder 2026-07-17).
+   V3.1 = the simplified live face: nav is ONLY Home / Scene / Login (My Tickets when
+   signed in). All shell links stay inside /v31/; V3 keeps its own shell untouched. */
+(function(){
+  try{var _st=localStorage.getItem('kil-v3theme'); if(_st) document.documentElement.setAttribute('data-theme',_st);}catch(e){}
+  /* ══ P1 STANDARDS REGULATOR (2026-07-16) — the shell OBEYS public.page_standards.
+     This map MIRRORS the DB (source of truth); the daily audit enforces both stay in sync.
+     One rule source drives radio bar, bell, and gear on every page — pages can no longer diverge.
+     Override for a one-off page: set <html data-page-type="..."> ══ */
+  var PAGE_TYPE=(function(){
+    try{
+      var ex=document.documentElement.getAttribute('data-page-type'); if(ex) return ex;
+      var p=location.pathname;
+      if(/\/v31\/(tickets|ticket|event-chat)\.html$/.test(p)) return 'checkout';
+      if(/\/v31\/scene\.html$/.test(p)) return 'scene';
+      if(/\/v31\/event\.html$/.test(p)) return 'event';
+      if(/\/v31\/culture\.html$/.test(p)) return 'culture';
+      if(/\/v31\/profile\.html$/.test(p)) return 'profile';
+      if(/^\/v31\/(index\.html)?$/.test(p)) return 'home';
+      return 'standard';
+    }catch(e){ return 'standard'; }
+  })();
+  /* Mirrors public.page_standards (corrected 2026-07-16): DESKTOP radio on EVERY page type
+     except system; checkout (tickets/ticket/scan) is chromeless — nav:false, back-link only. */
+  var PAGE_STD={
+    home:{radio:true,bell:'never',gear:'none',nav:true}, culture:{radio:true,bell:'signed_in',gear:'none',nav:true},
+    scene:{radio:true,bell:'never',gear:'none',nav:true}, shop:{radio:true,bell:'never',gear:'none',nav:true},
+    event:{radio:true,bell:'never',gear:'none',nav:true}, profile:{radio:true,bell:'signed_in',gear:'hamburger',nav:true},/* Founder 2026-07-27: universal header nav + footer on EVERY page, no exception — event & checkout no longer chromeless */
+    standard:{radio:true,bell:'never',gear:'none',nav:true}, tool:{radio:true,bell:'never',gear:'none',nav:true},
+    dashboard:{radio:true,bell:'never',gear:'none',nav:true}, checkout:{radio:true,bell:'never',gear:'none',nav:true},
+    system:{radio:false,bell:'never',gear:'none',nav:false}
+  };
+  var RULES=PAGE_STD[PAGE_TYPE]||PAGE_STD.standard;
+  /* STRICT desktop/mobile separation (Founder 2026-07-16): mobile behavior is decided ONCE here.
+     IN_IFRAME guard: embedded frames (e.g. the event chat) NEVER get bottom-nav/radio/banner —
+     this was the "mobile filter bar" leaking into the desktop chat card. */
+  var IN_IFRAME=false; try{ IN_IFRAME=(window.self!==window.top); }catch(e){ IN_IFRAME=true; }
+  var IS_MOBILE=false; try{ IS_MOBILE=window.matchMedia('(max-width:860px)').matches; }catch(e){}
+  try{ window.KIL=window.KIL||{}; window.KIL.pageType=PAGE_TYPE; window.KIL.pageRules=RULES; window.KIL.isMobile=IS_MOBILE; }catch(e){}
+  /* ══ BRAND URLS (Founder 2026-07-31): the address bar must always read keepitil.com/<clean> —
+     never /v3 or /v31. PAGE_TYPE above is already resolved from the real path, and page inline
+     scripts have already captured their query params, so cleaning the bar here is safe.
+     The full query string is PRESERVED so nothing that reads location.search later breaks. ══ */
+  try{
+    var _p=location.pathname, _s=location.search||'', _h=location.hash||'';
+    function _qp(k){ try{ return new URLSearchParams(_s).get(k); }catch(e){ return null; } }
+    var _clean=null;
+    if(/^\/v31\/profile\.html$/.test(_p)){ var _sl=_qp('slug'); if(_sl) _clean=(_qp('view')==='public'?'/public/profile/':'/profile/')+encodeURIComponent(_sl); }
+    else if(/^\/v31\/venue\.html$/.test(_p)){ var _v=_qp('v'); if(_v) _clean='/venue/'+encodeURIComponent(_v); }
+    else if(/^\/v31\/event\.html$/.test(_p)){ var _e=_qp('e'); if(_e) _clean='/event/'+encodeURIComponent(_e); }
+    else if(/^\/v31\/(index\.html)?$/.test(_p)){ _clean='/'; }
+    else if(/^\/v31\/[a-z0-9\-]+\.html$/.test(_p)){ _clean='/'+_p.replace(/^\/v31\//,'').replace(/\.html$/,''); }
+    else if(/^\/v3\/blog-[a-z0-9\-]+\.html$/.test(_p)){ _clean='/article/'+_p.replace(/^\/v3\/blog-/,'').replace(/\.html$/,''); } /* AI articles → /article/<slug> */
+    else if(/^\/v3\/shop\.html$/.test(_p)){ _clean='/shop'; }
+    else if(/^\/profile-groove-trooper\.html$/.test(_p)){ _clean='/unclaimed/profile/groove-trooper'; }
+    if(_clean){ var _target=_clean+_s+_h; if(_target!==(_p+_s+_h)) history.replaceState(null,'',_target); }
+  }catch(e){}
+  /* Radio: DESKTOP = bar+audio on every page (standards). MOBILE = no bar anywhere;
+     background AUDIO only on the homepage. Iframes: never. */
+  try{
+    var RADIO_ALLOWED = RULES.radio && !IN_IFRAME && (!IS_MOBILE || PAGE_TYPE==='home');
+    if(!RADIO_ALLOWED){
+      var _rk=document.createElement('style'); _rk.textContent='#kil-radio,#kil-sc{display:none!important}'; document.head.appendChild(_rk);
+      /* kill the BAR and the AUDIO ENGINE (#kil-sc soundcloud iframe survives bar removal —
+         that leaked background audio onto non-home mobile pages). */
+      var _kill=function(){ try{ document.querySelectorAll('#kil-radio,#kil-sc,iframe[src*="soundcloud"]').forEach(function(b){b.remove();}); }catch(e){} };
+      window.__kilRadioKill=_kill;   /* self-heal loop re-runs this */
+      document.addEventListener('DOMContentLoaded',function(){ _kill(); setTimeout(_kill,1200); setTimeout(_kill,4000); });
+    } else {
+      document.addEventListener('DOMContentLoaded',function(){ try{
+        if(!document.getElementById('kil-radio') && !document.querySelector('script[src*="keepitil-radio"]')){
+          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/v3/keepitil-radio.js?v=20260718'; document.body.appendChild(_rs);
+        }
+      }catch(e){} });
+    }
+  }catch(e){}
+  /* Google Analytics 4 — site-wide on V3 (property "keepitil", stream "KEEPITIL Web"). Added 2026-07-09. */
+  try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
+    var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
+    window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
+  } }catch(e){}
+  /* Microsoft Clarity — heatmaps + session replay, site-wide on V3 (project "KEEPITIL"). Added 2026-07-10. */
+  try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
+    (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
+  } }catch(e){}
+  /* Customer feedback widget — V3 only (floating "Feedback" pill -> Supabase feedback table). Added 2026-07-10. */
+  try{ if(!window.__kilFeedbackLoad){ window.__kilFeedbackLoad=1;
+    var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/v3/keepitil-feedback.js'; document.head.appendChild(_fb);
+  } }catch(e){}
+  /* Universal social: share-to-any-platform + save, site-wide on V3. Added 2026-07-11. */
+  try{ if(!window.__kilSocialLoad){ window.__kilSocialLoad=1;
+    var _so=document.createElement('script'); _so.defer=true; _so.src='/v3/keepitil-social.js'; document.head.appendChild(_so);
+  } }catch(e){}
+  /* In-app notification center (bell + panel + opt-in) — logged-in members only.
+     Standards-driven (page_standards.bell_visibility): bell loads only where the page type allows. */
+  try{ if(!window.__kilNotifyLoad && RULES.bell==='signed_in'){ window.__kilNotifyLoad=1;
+    var _no=document.createElement('script'); _no.defer=true; _no.src='/v3/keepitil-notify.js'; document.head.appendChild(_no);
+  } }catch(e){}
+  /* ── PWA: manifest + iOS install meta + service worker + install hint. Added 2026-07-16.
+     SW is conservative: never caches page HTML or Supabase — see /sw.js. ── */
+  try{
+    if(!document.querySelector('link[rel="manifest"]')){ var _mf=document.createElement('link'); _mf.rel='manifest'; _mf.href='/manifest.webmanifest'; document.head.appendChild(_mf); }
+    [['theme-color','#0b0b0b'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-status-bar-style','black-translucent'],['apple-mobile-web-app-title','KEEPITIL']].forEach(function(m){
+      if(!document.querySelector('meta[name="'+m[0]+'"]')){ var t=document.createElement('meta'); t.name=m[0]; t.content=m[1]; document.head.appendChild(t); }
+    });
+    if(!document.querySelector('link[rel="apple-touch-icon"]')){ var _ai=document.createElement('link'); _ai.rel='apple-touch-icon'; _ai.href='/apple-touch-icon.png'; document.head.appendChild(_ai); }
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }
+  }catch(e){}
+  /* Install banner: Android/desktop via beforeinstallprompt; iOS gets a one-time Share hint. */
+  try{
+    var _IK='kil-pwa-hint-2026';
+    var _standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
+    /* FOUNDER DIRECTIVE 2026-07-16: install UI is OFF until the real App Store launch.
+       PWA plumbing (manifest, SW, push) stays live — only the prompt/banner is suppressed. */
+    var _INSTALL_UI=false;
+    if(_INSTALL_UI && !_standalone && !localStorage.getItem(_IK)){
+      var _dismiss=function(){ try{localStorage.setItem(_IK,'1');}catch(e){} var b=document.getElementById('kil-pwa-banner'); if(b)b.remove(); };
+      var _show=function(msg,btnLabel,onBtn){
+        if(document.getElementById('kil-pwa-banner'))return;
+        var b=document.createElement('div'); b.id='kil-pwa-banner';
+        b.style.cssText='position:fixed;left:12px;right:12px;bottom:104px;z-index:900;background:#12121c;border:1px solid #2a2a3a;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);font-family:Inter,system-ui,sans-serif;font-size:.85rem;color:#f0f0f0;max-width:520px;margin:0 auto';
+        b.innerHTML='<img src="/icon-192.png" alt="" style="width:34px;height:34px;border-radius:8px;flex:0 0 34px">'+
+          '<span style="flex:1;line-height:1.35">'+msg+'</span>'+
+          (btnLabel?'<button id="kil-pwa-go" style="background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:9px;padding:8px 14px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">'+btnLabel+'</button>':'')+
+          '<button id="kil-pwa-x" aria-label="Dismiss" style="background:none;border:0;color:#9aa0b0;font-size:1.1rem;cursor:pointer;padding:4px">&times;</button>';
+        document.body.appendChild(b);
+        var x=document.getElementById('kil-pwa-x'); if(x)x.addEventListener('click',_dismiss);
+        var g=document.getElementById('kil-pwa-go'); if(g&&onBtn)g.addEventListener('click',onBtn);
+      };
+      var _ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+      var _dp=null;
+      /* Full-screen step-by-step overlay for when no native prompt is available (iOS always; Android if the prompt was consumed). */
+      var _instr=function(){
+        if(document.getElementById('kil-pwa-instr'))return;
+        var steps=_ios
+          ? '1. Tap the <b>Share</b> icon <span style="font-size:1.1em">&#x2191;</span> at the bottom of Safari.<br>2. Scroll down and tap <b>Add to Home Screen</b>.<br>3. Tap <b>Add</b> — KEEPITIL lands on your home screen.'
+          : '1. Open your browser menu <b>&#8942;</b> (top-right).<br>2. Tap <b>Install app</b> or <b>Add to Home screen</b>.<br>3. Confirm — KEEPITIL lands on your home screen.';
+        var o=document.createElement('div'); o.id='kil-pwa-instr';
+        o.style.cssText='position:fixed;inset:0;z-index:1200;background:rgba(4,6,12,.88);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,system-ui,sans-serif';
+        o.innerHTML='<div style="background:#12121c;border:1px solid #2a2a3a;border-radius:16px;max-width:360px;width:100%;padding:22px;color:#f0f0f0;box-shadow:0 20px 60px rgba(0,0,0,.6)">'+
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><img src="/icon-192.png" alt="" style="width:38px;height:38px;border-radius:9px">'+
+          '<span style="font-weight:800;font-size:1.05rem">Install KEEPITIL</span></div>'+
+          '<p style="line-height:1.6;font-size:.9rem;color:#d5d8e2;margin:0 0 16px">'+steps+'</p>'+
+          '<button id="kil-pwa-instr-x" style="width:100%;background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:10px;padding:11px;font-weight:800;cursor:pointer;font-family:inherit">Got it</button></div>';
+        o.addEventListener('click',function(e){ if(e.target===o||e.target.id==='kil-pwa-instr-x'){ o.remove(); } });
+        document.body.appendChild(o);
+      };
+      /* The banner button ALWAYS does something: native prompt if we have it, else instructions. */
+      var _onInstall=function(){
+        if(_dp){ try{ _dp.prompt(); _dp.userChoice.then(_dismiss); _dp=null; return; }catch(e){} }
+        _instr();
+      };
+      var _showBanner=function(){ _show('Add <b>KEEPITIL</b> to your home screen — events, scene &amp; radio, one tap away.','Install',_onInstall); };
+      window.addEventListener('beforeinstallprompt',function(ev){ ev.preventDefault(); _dp=ev; _showBanner(); });
+      window.addEventListener('appinstalled',_dismiss);
+      /* iOS never fires beforeinstallprompt, so show the banner ourselves; its button opens the instructions. */
+      if(_ios){ setTimeout(_showBanner,2600); }
+    }
+  }catch(e){}
+  /* ── KIL.eventDate / KIL.localDate — THE sitewide event date formatter. Added 2026-07-16.
+     Events happen in the VENUE's timezone (events.tz, default America/Los_Angeles) — never the
+     viewer's, never UTC. A stored 2026-08-17 04:00Z late-night event is SUN AUG 16 in LA;
+     rendering UTC (or slicing the ISO string) shows the wrong weekday + day. Always use these. ── */
+  try{
+    window.KIL=window.KIL||{};
+    window.KIL.TZ_DEFAULT='America/Los_Angeles';
+    window.KIL.eventDate=function(iso,tz){
+      try{
+        if(!iso) return {weekday:'',date:'',time:'',full:'Date TBD'};
+        var d=new Date(iso); if(isNaN(d)) return {weekday:'',date:'',time:'',full:''};
+        tz=tz||window.KIL.TZ_DEFAULT;
+        var f=function(o){ o.timeZone=tz; return new Intl.DateTimeFormat('en-US',o).format(d); };
+        var w=f({weekday:'short'}), dt=f({month:'short',day:'numeric',year:'numeric'}), tm=f({hour:'numeric',minute:'2-digit'});
+        return {weekday:w,date:dt,time:tm,full:w+', '+dt+' · '+tm};
+      }catch(e){ return {weekday:'',date:'',time:'',full:''}; }
+    };
+    /* local calendar date as YYYY-MM-DD in the event's tz (for grouping/dedupe keys) */
+    window.KIL.localDate=function(iso,tz){
+      try{
+        if(!iso) return '';
+        var d=new Date(iso); if(isNaN(d)) return '';
+        return new Intl.DateTimeFormat('en-CA',{timeZone:tz||window.KIL.TZ_DEFAULT,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);
+      }catch(e){ return String(iso).slice(0,10); }
+    };
+  }catch(e){}
+  /* IMMUTABLE V3.1 TEMPLATE (Founder 2026-07-17): LOGO=Home · Culture(feed) · SCENE · LOGIN/PROFILE — never change this nav when adding/removing features. */
+var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
+  var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
+  function build(){
+    try{
+      // remove existing header nav(s) + footer(s) + any injected mobile nav
+      document.querySelectorAll('#main-nav, nav#main-nav, nav.main-nav, #v3shell-nav, footer, #kil-mnav, .kil-mnav').forEach(function(el){ el.remove(); });
+      var links = NAV.map(function(n){ return '<a href="'+n[0]+'">'+n[1]+'</a>'; }).join('');
+      var cur=document.documentElement.getAttribute('data-theme')||'default';
+      var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
+      // KEEPITIL custom icon set (used in the mobile top-bar icon nav — icons only, no words)
+      var ICON={
+        culture:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/></svg>',
+        scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
+        shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+        profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>',
+        settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/></svg>'
+      };
+      var iconRow='<div class="v3s-icons">'
+        +'<a href="/v31/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
+        +'<a href="/v31/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
+        +'<a href="/v31/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
+        +'</div>';
+      var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
+      if(RULES.gear==='hamburger') hdr.classList.add('on-profile');
+      hdr.innerHTML =
+        '<div class="v3s-inner">'
+        +'<div class="v3s-brand">'
+          +'<button class="v3s-logobtn" id="v3s-logobtn" title="Change style" aria-label="Home / change site style"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL"></button>'
+          +'<a href="/v31/" class="v3s-brandtext">KEEPITIL</a>'
+          +'<div class="v3t-pop" id="v3t-pop">'+swatches+'</div>'
+        +'</div>'
+        +'<div class="v3s-links">'+links+'</div>'
+        +iconRow
+        /* P0c (Founder 2026-07-16): NO settings gear in the shell nav — Settings is reachable ONLY via the profile-page hamburger. */
+        +'<a href="/v31/apply.html" class="v3s-cta">LOGIN</a>'
+        +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
+        +'</div>'
+        +'<div class="v3s-menu">'+links+'<a href="/v31/apply.html" id="v3s-mlogin">Login</a></div>';
+      /* checkout/system pages are chromeless (page_standards.loads_shell_nav=false): no top nav.
+         Mobile: the top bar is REMOVED entirely (bottom-nav only) — desktop keeps it as-is. */
+      if(RULES.nav!==false){
+        document.body.insertBefore(hdr, document.body.firstChild);
+        try{ if(!IS_MOBILE) document.body.style.paddingTop='66px'; }catch(e){}  // desktop offset for the fixed nav
+      }
+
+      var f = document.createElement('footer'); f.id='v3-footer';
+      f.innerHTML =
+        '<div class="v3-foot-inner">'
+        +'<div class="v3-foot-about"><a href="/v31/" class="v3-foot-brand">KEEPITIL</a>'
+          +'<p class="v3-foot-addr">9252 Garden Grove Blvd, Ste 19 PMB 1066, Garden Grove, CA 92844 · <a href="mailto:info@keepitil.com">info@keepitil.com</a></p></div>'
+        +'<nav class="v3-foot-links"><a href="/v31/">Home</a>'
+        +'<a href="/v31/culture.html">Culture</a>'
+        +'<a href="/v31/scene.html">Scene</a>'
+        +'<a href="/v31/apply.html">Login</a></nav>'
+        +'<div class="v3-foot-social">'
+          +'<a href="https://instagram.com/keepitil" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>'
+          +'<a href="https://soundcloud.com/keepitil" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M1.5 13.6c-.1 0-.15.07-.16.17l-.19 1.63.19 1.6c.01.1.06.17.16.17s.15-.07.16-.17l.22-1.6-.22-1.63c-.01-.1-.06-.17-.16-.17zm2.02.62c-.11 0-.18.08-.19.19l-.16 1 .16.97c.01.11.08.19.19.19s.18-.08.19-.19l.19-.97-.19-1c-.01-.11-.08-.19-.19-.19zm13.24-4.72c-.5 0-.98.1-1.41.29-.29-3.24-3.02-5.79-6.35-5.79-.82 0-1.62.16-2.32.44-.27.11-.34.22-.34.43v10.06c0 .22.17.4.38.42h10.04a2.94 2.94 0 002.94-2.94 2.94 2.94 0 00-2.94-2.91z"/></svg></a>'
+          +'<a href="https://tiktok.com/@keepitil" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16.6 5.82a4.28 4.28 0 01-1.06-2.82h-3.11v12.34a2.34 2.34 0 01-2.34 2.28 2.34 2.34 0 01-2.34-2.34 2.34 2.34 0 013.02-2.24V9.87a5.44 5.44 0 00-.68-.04A5.45 5.45 0 003.6 15.28a5.45 5.45 0 0010.9 0V8.9a7.35 7.35 0 004.3 1.38V7.16a4.28 4.28 0 01-2.2-1.34z"/></svg></a>'
+          +'<a href="https://youtube.com/@keepitil" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M23 12s0-3.4-.43-5.02a2.62 2.62 0 00-1.84-1.85C19.1 4.7 12 4.7 12 4.7s-7.1 0-8.73.43A2.62 2.62 0 001.43 6.98C1 8.6 1 12 1 12s0 3.4.43 5.02a2.62 2.62 0 001.84 1.85C4.9 19.3 12 19.3 12 19.3s7.1 0 8.73-.43a2.62 2.62 0 001.84-1.85C23 15.4 23 12 23 12zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg></a>'
+          +'<a href="https://open.spotify.com/user/keepitil" target="_blank" rel="noopener" aria-label="Spotify"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm4.6 14.44a.62.62 0 01-.86.21c-2.35-1.44-5.3-1.76-8.79-.96a.62.62 0 11-.28-1.22c3.8-.87 7.07-.5 9.71 1.11.3.18.39.58.22.86zm1.23-2.74a.78.78 0 01-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.78.78 0 11-.45-1.5c3.63-1.09 8.15-.55 11.24 1.34.36.22.48.7.25 1.07zm.1-2.85C14.8 8.99 9.5 8.82 6.42 9.75a.94.94 0 11-.54-1.8c3.53-1.06 9.38-.86 13.08 1.34a.94.94 0 01-.96 1.62z"/></svg></a>'
+          +'<a href="https://x.com/keepitil" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.82-5.97 6.82H1.66l7.73-8.84L1.24 2.25h6.83l4.71 6.23 5.46-6.23zm-1.16 17.52h1.83L7.01 4.13H5.05l12.03 15.64z"/></svg></a>'
+          +'<a href="https://facebook.com/keepitil" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22 12a10 10 0 10-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0022 12z"/></svg></a>'
+          +'<a href="mailto:info@keepitil.com" aria-label="Email KEEPITIL"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>'
+        +'</div></div>'
+        +'<div class="v3-foot-legal" style="max-width:var(--maxw,1400px);margin:14px auto 0;font-size:.78rem;opacity:.7;display:flex;gap:14px;flex-wrap:wrap;align-items:center">'
+        +'<a href="/v31/terms.html">Terms</a><a href="/v31/privacy.html">Privacy</a><a href="/v31/refund.html">Refunds</a>'
+        +'<a href="/v31/ticket-terms.html">Ticket Terms</a><a href="/v31/community-guidelines.html">Community Guidelines</a>'
+        +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
+      if(RULES.nav!==false) document.body.appendChild(f);
+
+      // active state on the mobile top-bar icon nav
+      try{ var p=location.pathname; var amap={'/v31/culture.html':/culture/,'/v31/scene.html':/scene/,'/v31/apply.html':/(profile\.html|my-tickets\.html|apply\.html)/};
+        hdr.querySelectorAll('.v3s-icons a').forEach(function(a){ var h=a.getAttribute('href'); var rx=amap[h]; if(rx&&rx.test(p)) a.classList.add('on'); }); }catch(e){}
+
+      // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
+      // The "KEEPITIL" text is the home link only. (Old bottom-left 🎨 fab removed.)
+      var lb=hdr.querySelector('#v3s-logobtn'), pop=hdr.querySelector('#v3t-pop');
+      if(lb&&pop){
+        lb.addEventListener('click',function(e){ e.stopPropagation();
+          /* on mobile the logo is HOME (no theme filter); on desktop it opens the style switcher */
+          if(window.matchMedia('(max-width:860px)').matches){ location.href='/v31/'; return; }
+          pop.classList.toggle('open'); });
+        pop.querySelectorAll('.v3t-sw').forEach(function(sw){ sw.addEventListener('click',function(e){
+          e.stopPropagation();
+          var k=sw.dataset.t; document.documentElement.setAttribute('data-theme',k);
+          try{ localStorage.setItem('kil-v3theme',k); }catch(e){}
+          pop.querySelectorAll('.v3t-sw').forEach(function(x){ x.classList.toggle('on',x===sw); });
+          pop.classList.remove('open');
+        }); });
+        document.addEventListener('click',function(){ pop.classList.remove('open'); });
+      }
+
+      /* ── MOBILE BOTTOM NAV (Instagram model, 2026-07-16): 5 icons pinned bottom on ≤860px.
+         Replaces the radio bar UI on mobile — the radio bar is moved off-screen (NOT removed),
+         so the audio engine keeps playing in the background. Desktop unchanged. ── */
+      /* Re-callable mount: the self-heal loop re-asserts the bottom nav if a page script
+         (or an earlier silent exception) leaves it missing — the "nav disappears on pillar
+         pages" class of bug. Isolated try so nothing upstream can starve it. */
+      window.__kilCreateMenu=function(){
+        if(document.getElementById('kil-createmenu'))return;
+        var ov=document.createElement('div'); ov.id='kil-createmenu';
+        ov.style.cssText='position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;font-family:Inter,system-ui,sans-serif';
+        var item=function(label,href){return '<a href="'+href+'" style="display:block;color:#e8e8f0;padding:15px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-decoration:none;font-weight:700;font-size:1.02rem">'+label+'</a>';};
+        ov.innerHTML='<div style="background:#15151f;border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:14px 18px 26px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:#fff;font-size:1.08rem">Create</b><button id="kilCX" style="background:none;border:0;color:#888;font-size:1.6rem;line-height:1;cursor:pointer">&times;</button></div>'
+          +item('Feed post','/v31/profile.html?create=feed')
+          +item('Event','/v31/create-event.html')
+          +item('Collection','/v31/profile.html?tab=saved&create=collection')
+          +'<a href="/v31/profile.html?tab=chat&create=chat" style="display:block;color:#e8e8f0;padding:15px 8px;text-decoration:none;font-weight:700;font-size:1.02rem">Chat</a>'
+          +'</div>';
+        document.body.appendChild(ov);
+        ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
+        var x=document.getElementById('kilCX'); if(x) x.onclick=function(){ ov.remove(); };
+      };
+      window.__kilMountBnav=function(){
+        try{
+          if(IN_IFRAME) return;   /* NEVER inside embedded frames — this leaked into the desktop chat card */
+          if(document.getElementById('kil-bnav')) return;
+          var bn=document.createElement('nav'); bn.id='kil-bnav';
+          bn.innerHTML=
+            '<a href="/v31/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/keepitil-x-blue.png" alt="Home"></a>'
+            +'<a href="/v31/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
+            +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
+            +'<a href="/v31/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
+            +'<a href="/v31/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
+          document.body.appendChild(bn);
+          var _bp=location.pathname;
+          var _bmap=[/^\/v31\/(index\.html)?$/, /culture/, /scene/, /(profile\.html|my-tickets\.html|apply\.html)/];
+          bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
+          /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
+          if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
+            var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/v31/settings.html'; mh.setAttribute('aria-label','Settings');
+            mh.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+            document.body.appendChild(mh);
+          }
+        }catch(e){}
+      };
+      window.__kilMountBnav();
+      style();
+      var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
+      if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
+      authNav(hdr);   // signed in -> LOGIN becomes PROFILE (+ the notification bell shows)
+    }catch(e){}
+  }
+  /* ── AUTH-AWARE NAV: the one CTA is LOGIN when logged out, PROFILE when logged in.
+     The session persists (Supabase stores it) — you stay signed in on this device until
+     you log out or trigger a global sign-out. The bell (keepitil-notify.js) only mounts
+     when signed in, so logged-out visitors see LOGIN only, no bell. ── */
+  var SB_URL="https://ovmqtzjfpzrbzrlkxwgw.supabase.co";
+  var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ";
+  function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
+  function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
+  /* profile hamburger dropdown: Edit profile · Settings */
+  function kilProfMenu(ev){ try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
+    var ex=document.getElementById('kil-profmenu'); if(ex){ ex.remove(); return; }
+    var m=document.createElement('div'); m.id='kil-profmenu';
+    m.style.cssText='position:absolute;z-index:10050;min-width:190px;background:#12121c;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.55)';
+    m.innerHTML='<button data-a="edit" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Edit profile</button>'
+      +'<button data-a="settings" style="display:block;width:100%;text-align:left;background:none;border:0;color:#eceefb;font:600 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Settings</button>'
+      +'<button data-a="signout" style="display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid rgba(255,255,255,.09);margin-top:4px;color:#ff6b6b;font:700 .9rem Inter,sans-serif;padding:11px 13px;border-radius:8px;cursor:pointer">Sign out</button>';
+    document.body.appendChild(m);
+    var btn=(ev&&(ev.currentTarget||ev.target.closest&&ev.target.closest('a,button')))||null;
+    if(btn&&btn.getBoundingClientRect){ var r=btn.getBoundingClientRect(); m.style.top=(r.bottom+window.scrollY+8)+'px'; m.style.left=Math.max(8,(r.right+window.scrollX-m.offsetWidth))+'px'; }
+    m.querySelectorAll('button').forEach(function(b){ b.onmouseover=function(){b.style.background='rgba(255,255,255,.07)';}; b.onmouseout=function(){b.style.background='none';}; });
+    m.querySelector('[data-a=edit]').onclick=function(){ m.remove(); if(typeof window.openEditProfile==='function'){ window.openEditProfile(); } else { location.href='/v31/profile.html?edit=1'; } };
+    m.querySelector('[data-a=settings]').onclick=function(){ m.remove(); location.href='/v31/settings.html'; };
+    m.querySelector('[data-a=signout]').onclick=function(){ m.remove(); try{ if(window.supabase&&window.supabase.createClient){ window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ').auth.signOut(); } }catch(e){} try{ Object.keys(localStorage).forEach(function(k){ if(/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); }catch(e){} location.href='/v31/'; };
+    setTimeout(function(){ document.addEventListener('click',function h(e){ var mm=document.getElementById('kil-profmenu'); if(mm&&!mm.contains(e.target)){ mm.remove(); } document.removeEventListener('click',h); }); },0);
+  }
+  window.kilProfMenu=kilProfMenu;
+  function applyAuthState(hdr, s){
+    /* mobile floating hamburger: profile pages, signed-in, mobile viewport only */
+    try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
+    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); return; }
+    /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
+       Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
+    var onProfile=(RULES.gear==='hamburger');   /* standards-driven: page_standards.gear_rule */
+    var HAMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+    var cta=hdr.querySelector('.v3s-cta'), mlog=hdr.querySelector('#v3s-mlogin');
+    if(cta){
+      if(s && onProfile){ cta.innerHTML=HAMB; cta.setAttribute('href','#'); cta.setAttribute('title','Menu'); cta.setAttribute('aria-label','Profile menu'); cta.classList.add('v3s-hamb'); cta.style.cssText='color:var(--text,#fff);display:inline-flex;align-items:center;justify-content:center;padding:8px 12px';
+        var _sv=cta.querySelector('svg'); if(_sv){ _sv.style.width='22px'; _sv.style.height='22px'; }
+        try{ cta.onclick=kilProfMenu; }catch(e){} }
+      else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
+    }
+    if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
+    var iprof=document.getElementById('v3s-iconprof');
+    if(iprof){
+      if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/v31/settings.html'); iprof.setAttribute('aria-label','Settings'); }
+      else iprof.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
+    }
+    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
+  }
+  function authNav(hdr){
+    ensureSB(function(){
+      var c=shellClient(); if(!c) return;
+      try{ c.auth.getSession().then(function(r){ applyAuthState(hdr, r&&r.data?r.data.session:null); }, function(){}); }catch(e){}
+      if(!window.__kilShellAuthSub){ window.__kilShellAuthSub=1;
+        try{ c.auth.onAuthStateChange(function(_e,session){ applyAuthState(document.getElementById('v3shell-nav'), session); }); }catch(e){}
+      }
+    });
+  }
+  function logoUrl(){
+    try{ var v=getComputedStyle(document.documentElement).getPropertyValue('--theme-logo').trim();
+      var mm=v.match(/url\(([^)]+)\)/); return mm?mm[1].replace(/['"]/g,''):'/v3/logo-blue-nav.png';
+    }catch(e){ return '/v3/logo-blue-nav.png'; }
+  }
+  function style(){
+    if(document.getElementById('v3shell-style'))return;
+    var s=document.createElement('style'); s.id='v3shell-style';
+    s.textContent=
+     '#v3shell-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,18,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07)}'
+    +'#v3shell-nav .v3s-inner{max-width:1400px;margin:0 auto;height:66px;display:flex;align-items:center;padding:0 32px}'
+    +'#v3shell-nav .v3s-brand{position:relative;display:flex;align-items:center;gap:10px}'
+    +'#v3shell-nav .v3s-logobtn{background:none;border:0;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;line-height:0}'
+    +'#v3shell-nav .v3s-logobtn:hover{filter:drop-shadow(0 0 8px var(--brand,#00b4ff))}'
+    +'#v3shell-nav .v3s-brandtext{font-family:"Bebas Neue",sans-serif;font-weight:400;letter-spacing:.13em;font-size:1.5rem;text-decoration:none;color:#fff}'
+    +'#v3shell-nav .v3s-logo{height:44px;width:auto;mix-blend-mode:screen}'
+    +'#v3shell-nav .v3t-pop{display:none;position:absolute;top:52px;left:0;flex-direction:row;gap:9px;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:10px 12px;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:1001}'
+    +'#v3shell-nav .v3t-pop.open{display:flex}'
+    +'#v3shell-nav .v3t-sw{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.22);cursor:pointer;padding:0;transition:transform .15s}'
+    +'#v3shell-nav .v3t-sw:hover{transform:scale(1.12)}'
+    +'#v3shell-nav .v3t-sw.on{border-color:#fff;box-shadow:0 0 0 2px #fff}'
+    +'#v3shell-nav .v3s-links{flex:1;display:flex;justify-content:space-evenly;align-items:center}'
+    +'#v3shell-nav .v3s-links a{font-family:"Bebas Neue",sans-serif;color:rgba(255,255,255,.75);font-weight:400;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;white-space:nowrap;transition:color .2s}'
+    +'#v3shell-nav .v3s-links a:hover{color:#fff}'
+    +'#v3shell-nav .v3s-cta{font-family:"Bebas Neue",sans-serif;border:2px solid var(--brand,#00b4ff);color:var(--brand,#00b4ff);padding:7px 22px;border-radius:4px;font-weight:400;font-size:1rem;letter-spacing:.14em;text-decoration:none;white-space:nowrap;transition:background .2s,color .2s}'
+    +'#v3shell-nav .v3s-cta:hover{background:var(--brand,#00b4ff);color:#04121b}'
+    +'#v3shell-nav .v3s-burger{display:none;flex-direction:column;gap:4px;background:none;border:0;cursor:pointer;padding:6px}'
+    +'#v3shell-nav .v3s-burger span{width:22px;height:2px;background:var(--text,#f0f0f0);border-radius:2px}'
+    +'#v3shell-nav .v3s-menu{display:none;flex-direction:column;padding:10px var(--sp-3,20px) 16px;border-top:1px solid var(--line,rgba(255,255,255,.08));gap:2px}'
+    +'#v3shell-nav .v3s-menu.open{display:flex}'
+    +'#v3shell-nav .v3s-menu a{color:var(--text,#f0f0f0);text-decoration:none;font-weight:700;font-size:.9rem;letter-spacing:.1em;text-transform:uppercase;padding:8px 0}'
+    +'#v3shell-nav .v3s-icons{display:none;align-items:center;gap:2px;margin-left:auto}'
+    +'#v3shell-nav .v3s-icons a svg,#v3shell-nav .v3s-gear svg{width:23px;height:23px}'
+    +'#v3shell-nav .v3s-gear{display:flex;align-items:center;color:#fff;opacity:.75;margin-right:12px;transition:opacity .2s}'
+    +'#v3shell-nav .v3s-gear:hover{opacity:1}'
+    +'#v3shell-nav .v3s-icons a{display:flex;align-items:center;justify-content:center;padding:8px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
+    +'#v3shell-nav .v3s-icons a svg{width:25px;height:25px;display:block}'
+    +'#v3shell-nav .v3s-icons a.on{color:var(--brand,#00b4ff)}'
+    +'#v3shell-nav .v3s-icons a:active{transform:scale(.88)}'
+    /* FOUNDER 2026-07-16 (P1): full Instagram on mobile — bottom nav ONLY. The top icon row is gone;
+       the ONLY survivor is the Settings hamburger slot on the profile page (top-right, per directive). */
+    /* MOBILE (Founder 2026-07-16): the top bar is REMOVED entirely — bottom nav only.
+       Profile pages get a floating Settings hamburger instead (signed-in only, JS-toggled). */
+    +'@media(max-width:860px){#v3shell-nav{display:none!important}}'
+    +'#kil-mhamb{display:none;position:fixed;top:12px;right:12px;z-index:960;width:40px;height:40px;border-radius:12px;background:rgba(10,10,16,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.16);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
+    +'#kil-mhamb svg{width:20px;height:20px;display:block}'
+    +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
+    +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
+    /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
+    +'#kil-bnav{display:none;position:fixed;top:auto!important;height:auto!important;min-height:0!important;max-height:96px;left:0;right:0;bottom:0;z-index:950;background:rgba(10,10,16,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:space-around}'
+    +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
+    +'#kil-bnav a svg{width:26px;height:26px;display:block}'
+    +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
+    +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
+    +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
+    +'#kil-bnav a:active{transform:scale(.9)}'
+    +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2.3rem;font-weight:800;line-height:1;background:transparent;border:0;border-radius:0;box-shadow:none;width:auto;height:auto;padding:0;margin:0 4px;text-shadow:0 0 10px rgba(0,180,255,.85)}'
+    +'#kil-createmenu a:active{background:rgba(255,255,255,.06)}'
+    +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}}'
+    +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem;text-align:left}'
+    +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
+    +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
+    +'#v3-footer .v3-foot-links{display:flex;gap:16px;font-weight:600;flex-wrap:wrap}#v3-footer a{color:inherit;text-decoration:none}#v3-footer .v3-foot-links a:hover{color:var(--brand,#00b4ff)}'
+    +'#v3-footer .v3-foot-social{display:flex;gap:14px;align-items:center;flex-wrap:wrap}#v3-footer .v3-foot-social a{color:var(--muted,#888);display:inline-flex;transition:color .2s,transform .2s}#v3-footer .v3-foot-social a:hover{color:var(--brand,#00b4ff);transform:translateY(-2px)}'
+    +'#v3-footer .v3-foot-inner{align-items:flex-start}#v3-footer .v3-foot-about{max-width:420px;flex:1 1 300px;text-align:left}#v3-footer .v3-foot-brand,#v3-footer .v3-foot-addr{text-align:left;display:block}'
+    +'#v3-footer .v3-foot-desc{margin:10px 0 0;font-size:.82rem;line-height:1.55;color:var(--muted,#9a94b4);opacity:.9}'
+    +'#v3-footer .v3-foot-addr{margin:8px 0 0;font-size:.74rem;line-height:1.5;color:var(--muted,#888);opacity:.7}#v3-footer .v3-foot-addr a{color:var(--brand-2,#5cc8ff)}'
+    +'#v3-theme{position:fixed;left:16px;bottom:124px;z-index:600;display:flex;flex-direction:column-reverse;align-items:center;gap:8px}'
+    +'#v3-theme .v3t-btn{width:44px;height:44px;border-radius:50%;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));color:var(--text,#f0f0f0);font-size:1.15rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);line-height:1}'
+    +'#v3-theme .v3t-pop{display:none;flex-direction:column;gap:9px;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));border-radius:26px;padding:10px;box-shadow:0 12px 30px rgba(0,0,0,.5)}'
+    +'#v3-theme.open .v3t-pop{display:flex}'
+    +'#v3-theme .v3t-sw{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.22);cursor:pointer;padding:0;transition:transform .15s}'
+    +'#v3-theme .v3t-sw:hover{transform:scale(1.12)}#v3-theme .v3t-sw.on{border-color:var(--text,#fff);box-shadow:0 0 0 2px var(--text,#fff)}';
+    document.head.appendChild(s);
+  }
+  if(document.body) build(); else document.addEventListener('DOMContentLoaded', build);
+  /* ── SELF-HEAL (P0 nav bug, 2026-07-17): pillar pages intermittently lost their chrome
+     (bottom nav missing on giveback.html after click-through; silent page-script exceptions
+     can starve the mount). Re-assert every 2.5s + on history navigation:
+     top nav rebuilt if absent, bottom nav re-mounted if absent, radio kill re-applied on
+     pages where audio is not allowed. All idempotent, all no-ops when everything is present. */
+  try{
+    var _heal=function(){
+      try{
+        if(IN_IFRAME) return;
+        if(RULES.nav!==false && !document.getElementById('v3shell-nav')) build();
+        if(window.__kilMountBnav) window.__kilMountBnav();
+        if(window.__kilRadioKill) window.__kilRadioKill();
+      }catch(e){}
+    };
+    window.addEventListener('popstate', function(){ setTimeout(_heal, 60); });
+    setInterval(_heal, 2500);
+  }catch(e){}
+})();
