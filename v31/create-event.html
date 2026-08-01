@@ -477,6 +477,9 @@ async function init(){
   var r=await supa.auth.getSession().catch(function(){return null;});
   var s=r&&r.data?r.data.session:null;
   if(!s){ $('gate').style.display='block'; return; }
+  /* PERMISSION (Founder 2026-07-31): only KEEPITIL / the company can create KEEPITIL events (Stripe-tied)
+     and VS events. Everyone else can only SUBMIT 3rd-party events → route them to submit-event.html. */
+  try{ var adm=await supa.rpc('is_admin'); if(!(adm&&adm.data)){ location.replace('/v31/submit-event.html?why=keepitil-events-are-company-only'); return; } }catch(e){ location.replace('/v31/submit-event.html'); return; }
   var uid=s.user&&s.user.id, payok=false;
   try{ if(uid){ var q=await supa.from('app_users').select('handle,payouts_enabled').eq('id',uid).maybeSingle(); if(q&&q.data){ if(q.data.handle) MY_HANDLE=q.data.handle; payok=!!q.data.payouts_enabled; } } }catch(e){}
   try{ if(uid && new URLSearchParams(location.search).get('payouts')==='done' && !payok){ await supa.rpc('mark_payouts_enabled'); payok=true; } }catch(e){}
