@@ -42,6 +42,7 @@ body::before{display:none!important}
 .song .acts a{font-weight:700;font-size:.82rem;text-decoration:none;padding:8px 13px;border-radius:999px;white-space:nowrap}
 .a-lyr{background:linear-gradient(90deg,var(--blue2),var(--accent));color:#fff}
 .a-sc{background:none;border:1.5px solid #ff7700;color:#ff5500}
+.a-yt{background:none;border:1.5px solid #e0203a;color:#c00}
 .empty{text-align:center;color:var(--ink3);padding:50px 0}
 @media(max-width:640px){.song{flex-wrap:wrap}.song .acts{width:100%}.song .acts a{flex:1;text-align:center}}
 </style>
@@ -134,12 +135,16 @@ function render(){
   var host=document.getElementById('list');
   if(!rows.length){ host.innerHTML='<div class="empty">No songs match. Try a different genre or search.</div>'; return; }
   host.innerHTML=rows.map(function(x){
-    var lyr='https://genius.com/search?q='+q(x.a+' '+x.t);
-    var sc='https://soundcloud.com/search?q='+q(x.a+' '+x.t);
+    var artistClean=String(x.a).replace(/\s*\([^)]*\)/g,'').trim();   /* drop "(real name)" so search resolves */
+    var query=artistClean+' '+x.t;
+    var lyr='https://genius.com/search?q='+q(query);
+    var sc='https://soundcloud.com/search?q='+q(query);
+    var yt='https://www.youtube.com/results?search_query='+q(query);   /* fallback listen when a track isn't on SoundCloud */
     return '<div class="song"><span class="gtag">'+esc(x.g)+'</span>'
       +'<div class="info"><div class="t">'+esc(x.t)+'</div><div class="a">'+esc(x.a)+' <span class="yr">· '+x.y+'</span></div></div>'
       +'<div class="acts"><a class="a-lyr" href="'+lyr+'" target="_blank" rel="noopener">📖 Lyrics</a>'
-      +'<a class="a-sc" href="'+sc+'" target="_blank" rel="noopener">▶ SoundCloud</a></div></div>';
+      +'<a class="a-sc" href="'+sc+'" target="_blank" rel="noopener">▶ SoundCloud</a>'
+      +'<a class="a-yt" href="'+yt+'" target="_blank" rel="noopener">▶ YouTube</a></div></div>';
   }).join('');
 }
 /* keep the address bar branded: /songs */
