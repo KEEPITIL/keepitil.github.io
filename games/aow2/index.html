@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>AOW2 — Age of Wars 3D</title>
+<meta name="description" content="AOW2 — the 3D sequel to Age of War. Command a 3D stick army, orbit the battlefield, build your castle and crush the enemy fort.">
+<meta name="theme-color" content="#071018">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AOW2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:#071018;color:#f8e7bd;font-family:Inter,system-ui,sans-serif}canvas{position:fixed;inset:0;width:100vw;height:100dvh;display:block;touch-action:none}.hud{position:fixed;inset:0;width:100vw;height:100dvh;pointer-events:none}.top{display:flex;gap:10px;align-items:center;padding:10px 14px;background:linear-gradient(#06101ee8,#06101e00)}.brand{font:900 22px Georgia;color:#f2bd59;text-shadow:0 2px #000}.pill{padding:8px 12px;border:1px solid #bd8937aa;border-radius:18px;background:#0c1728dd;color:#fff;font-weight:800}.hp{width:min(260px,24vw);height:13px;background:#221c19;border:2px solid #6f5432;border-radius:9px;overflow:hidden}.hp i{display:block;height:100%;background:linear-gradient(90deg,#aa2727,#f16b42);width:100%}.enemy{margin-left:auto}#unitbar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;gap:5px;justify-content:flex-start;align-items:flex-end;padding:6px max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));overflow-x:auto;scrollbar-width:none;background:linear-gradient(rgba(7,17,29,0),rgba(7,17,29,.8));pointer-events:auto}#unitbar::-webkit-scrollbar{display:none}.ubtn{position:relative;flex:0 0 auto;min-width:62px;height:62px;border:1px solid #9d7738;border-radius:11px;cursor:pointer;background:linear-gradient(#27354a,#101927);color:#fff;box-shadow:0 3px 0 #06101e,0 4px 10px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-family:inherit;padding:0 6px}.ubtn .big{font-size:20px;line-height:22px}.ubtn .nm{font-size:10px;font-weight:bold;letter-spacing:.2px}.ubtn .cost{font-size:10px;color:#f4c86c;font-weight:bold}.ubtn:active{transform:translateY(2px)}.ubtn.active{background:linear-gradient(#f2c94d,#c98f1d);color:#4a3405}.ubtn.active .cost{color:#4a3405}.ubtn.evolve{background:linear-gradient(#7a4fbc,#553083)}.sep{flex:0 0 2px;height:46px;background:rgba(255,255,255,.16);border-radius:2px;align-self:center}.era{position:absolute;right:14px;top:66px;pointer-events:auto;background:#07111de8;border:1px solid #82632e;border-radius:12px;padding:8px}.era select{background:#172337;color:#fff;border:1px solid #b88a3c;border-radius:7px;padding:7px}.banner{position:absolute;left:50%;top:18%;transform:translateX(-50%);font:900 clamp(30px,6vw,70px) Georgia;color:#ffd36c;text-shadow:0 4px 12px #000;opacity:0;transition:.3s}.banner.show{opacity:1}.mobile{display:none}@media(max-width:850px){.brand{font-size:16px}.pill{font-size:11px;padding:6px}.ubtn{min-width:56px;height:56px}.ubtn .big{font-size:18px}.mobile{display:block}}
+</style></head><body><canvas id="c"></canvas><div class="hud"><div class="top"><div class="brand">AOW2</div><div class="pill">Gold <b id="gold">500</b></div><div class="pill">Wave <b id="wave">1</b></div><div class="pill">Army <b id="count">0</b>/50</div><div class="hp"><i id="ph"></i></div><div class="hp enemy"><i id="eh"></i></div><button class="pill" id="speed" style="pointer-events:auto">1× SPEED</button><button class="pill" id="zin" style="pointer-events:auto">➕</button><button class="pill" id="zout" style="pointer-events:auto">➖</button><button class="pill" id="rl" style="pointer-events:auto">↺</button><button class="pill" id="rr" style="pointer-events:auto">↻</button></div><div class="era"><select id="era"><option value="tribal">Tribal Stone Age</option><option value="greek">Classical Greece</option><option value="rome" selected>Imperial Rome</option><option value="viking">Viking Age</option><option value="japan">Feudal Japan</option><option value="future">Future Era</option></select></div><div id="unitbar"><button class="ubtn" data-unit="defender"><span class="big">🛡</span><span class="nm">Defender</span><span class="cost">80</span></button><button class="ubtn" data-unit="assault"><span class="big">⚔</span><span class="nm">Assault</span><span class="cost">65</span></button><button class="ubtn" data-unit="ranged"><span class="big">🏹</span><span class="nm">Ranged</span><span class="cost">90</span></button><button class="ubtn" data-unit="champion"><span class="big">👑</span><span class="nm">Champion</span><span class="cost">220</span></button><div class="sep"></div><button class="ubtn active" data-cmd="defend"><span class="big">🛡</span><span class="nm">Defend</span></button><button class="ubtn" data-cmd="march"><span class="big">🚶</span><span class="nm">March</span></button><button class="ubtn" data-cmd="attack"><span class="big">⚔</span><span class="nm">Attack</span></button><button class="ubtn" data-action="spear"><span class="big">🔱</span><span class="nm">Spear</span><span class="cost">volley</span></button><button class="ubtn" data-charge="defender"><span class="big">🔱</span><span class="nm">Charge</span><span class="cost">Spears</span></button><button class="ubtn" data-charge="assault"><span class="big">⚔</span><span class="nm">Charge</span><span class="cost">Swords</span></button><button class="ubtn" data-charge="ranged"><span class="big">🏹</span><span class="nm">Charge</span><span class="cost">Archers</span></button><div class="sep"></div><button class="ubtn" data-system="garrison"><span class="big">🏯</span><span class="nm">Garrison</span><span class="cost">150</span></button><button class="ubtn" data-system="wizard"><span class="big">🧙</span><span class="nm">Wizard</span><span class="cost">250</span></button><button class="ubtn" data-system="fortify"><span class="big">🧱</span><span class="nm">Fortify</span><span class="cost">300</span></button><button class="ubtn evolve" data-system="evolve"><span class="big">⬆</span><span class="nm">Evolve</span><span class="cost">600</span></button><button class="ubtn" data-system="power"><span class="big">💥</span><span class="nm">Power</span></button><div class="sep"></div><button class="ubtn" data-build="1"><span class="big">🏰</span><span class="nm">Build</span><span class="cost">castle</span></button></div><div class="banner" id="banner"></div></div>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');let W,H,DPR=1;
+function size(){DPR=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0)}addEventListener('resize',size);size();
+const ERA={tribal:{name:'Tribal Stone Age',main:'#6c4d2f',metal:'#999083',accent:'#d9c28b',helm:'fur'},greek:{name:'Classical Greece',main:'#7d2020',metal:'#c99636',accent:'#e5c45f',helm:'crest'},rome:{name:'Imperial Rome',main:'#8e2020',metal:'#c7c9c8',accent:'#d7a52e',helm:'crest'},viking:{name:'Viking Age',main:'#334455',metal:'#92989b',accent:'#76512f',helm:'horn'},japan:{name:'Feudal Japan',main:'#7d1717',metal:'#24292c',accent:'#d4862c',helm:'kabuto'},future:{name:'Future Era',main:'#1d3145',metal:'#627587',accent:'#29cfff',helm:'visor'}};
+const WORLD=210,PLAYER_FORT=10,ENEMY_FORT=200,COST={defender:80,assault:65,ranged:90,champion:220},ERA_ORDER=['tribal','greek','rome','viking','japan','future'];let era='rome',gold=500,wave=1,speed=1,stance='defend',fortHP=2200,fortMax=2200,enemyHP=2200,enemyMax=2200,t=0,last=performance.now(),waveState='forming',formClock=8,bannerT=0,id=0,garrison=0,fortLevel=1,powerCd=0,playerRally=30,enemyRally=180,marchDir=1,lastDefendTap=0,lastMarchTap=0,oilCd=0,fortArchCd=0,fortArchSide=1,tapCd=0,spearCd=0,zoom=1,camA=0,castleCd=0,castleFront=18,CASTLE=null;
+try{const _m=location.hash.match(/castle=([^&]+)/);CASTLE=_m?JSON.parse(decodeURIComponent(_m[1])):JSON.parse(localStorage.getItem('aow2_castle'));if(CASTLE&&_m){localStorage.setItem('aow2_castle',JSON.stringify(CASTLE));}}catch(e){CASTLE=null;}
+const units=[],shots=[],fx=[],wizards=[],defenses=[];
+// Locked side view: both castles and the complete battlefield always fill the screen.
+function proj(X,Y,Z){let ca=Math.cos(camA),sa=Math.sin(camA),dx=X-WORLD/2,rx=WORLD/2+dx*ca-Z*sa,rz=Z*ca+dx*sa,margin=Math.max(18,W*.02),depth=(rz+52)/104,sc0=Math.max(3.2,Math.min(6.7,H/108))*(.9+depth*.18),bx=margin+rx/WORLD*(W-margin*2),by=H*.73+rz*(H*.0047)-Y*sc0,cx=W*.5,cy=H*.62;return{x:(bx-cx)*zoom+cx,y:(by-cy)*zoom+cy,s:sc0*zoom,d:rz}}
+function line3(a,b,w,c){let A=proj(...a),B=proj(...b);x.strokeStyle=c;x.lineWidth=Math.max(1,w*(A.s+B.s)/2);x.lineCap='round';x.beginPath();x.moveTo(A.x,A.y);x.lineTo(B.x,B.y);x.stroke()}
+function ball(X,Y,Z,r,c,edge='#17120d'){let p=proj(X,Y,Z),rr=Math.max(1,r*p.s),g=x.createRadialGradient(p.x-rr*.3,p.y-rr*.4,rr*.1,p.x,p.y,rr);g.addColorStop(0,'#fff8');g.addColorStop(.18,c);g.addColorStop(1,shade(c,-45));x.fillStyle=g;x.beginPath();x.arc(p.x,p.y,rr,0,7);x.fill();x.strokeStyle=edge;x.lineWidth=Math.max(1,p.s*.6);x.stroke()}
+function poly3(a,c,edge='#17120d'){let ps=a.map(v=>proj(...v));x.fillStyle=c;x.beginPath();ps.forEach((p,i)=>i?x.lineTo(p.x,p.y):x.moveTo(p.x,p.y));x.closePath();x.fill();x.strokeStyle=edge;x.lineWidth=1.2;x.stroke()}
+function box3(X,Y,Z,wx,hy,wz,c){let l=X-wx/2,r=X+wx/2,b=Z-wz/2,f=Z+wz/2,t=Y+hy;let F=[[[[l,Y,b],[r,Y,b],[r,t,b],[l,t,b]],-20],[[[l,Y,f],[r,Y,f],[r,t,f],[l,t,f]],-6],[[[l,Y,b],[l,Y,f],[l,t,f],[l,t,b]],-30],[[[r,Y,b],[r,Y,f],[r,t,f],[r,t,b]],-30],[[[l,t,b],[r,t,b],[r,t,f],[l,t,f]],24],[[[l,Y,b],[r,Y,b],[r,Y,f],[l,Y,f]],-46]];for(let g of F){let p=g[0];g[2]=proj((p[0][0]+p[2][0])/2,(p[0][1]+p[2][1])/2,(p[0][2]+p[2][2])/2).d;}F.sort((p,q)=>p[2]-q[2]);for(let g of F){let fc=shade(c,g[1]);poly3(g[0],fc,fc);}}
+function shade(c,n){let m=String(c).match(/\d+/g),r,g,b;if(String(c).startsWith('#')){let s=c.slice(1),v=parseInt(s.length===3?s.split('').map(q=>q+q).join(''):s,16);r=v>>16;g=v>>8&255;b=v&255}else{r=+(m?.[0]||80);g=+(m?.[1]||80);b=+(m?.[2]||80)}r=Math.max(0,Math.min(255,r+n));g=Math.max(0,Math.min(255,g+n));b=Math.max(0,Math.min(255,b+n));return`rgb(${r},${g},${b})`}
+const CB=2.6;   // world size of one builder block
+// shared builder-cell -> world mapping (uniform cubes, centered on the lane band, front toward the field)
+function ccWorld(b){return[PLAYER_FORT+3+(b.x-11)*CB,b.y*CB,(b.z-5.5)*CB];}
+function fort(X,team){
+  // Player's custom castle from the Castle Builder (voxels) overrides the default fort.
+  if(team===1&&CASTLE&&CASTLE.length){const CC=['#b0a38e','#6f6a63','#3a2b1c','#33456a','#2456a4','#c8a45a','#7a4fbc','#2f8f5a','#b8402f'];for(const b of CASTLE){const w=ccWorld(b);box3(w[0],w[1],w[2],CB,CB,CB,CC[b.t]||'#b0a38e');}return;}
+  let own=team===1,dir=own?1:-1;
+  let stone=own?'#b0a38e':'#746a72',c=shade(stone,-10),dark=shade(stone,-24),a=own?'#2456a4':'#a32625',roof=own?'#33456a':'#5a2d2a';
+  let tier=own?fortLevel:Math.min(5,1+Math.floor(wave/3)),front=X+dir*8,back=X-dir*10,wallH=24+tier*2.4,kh=40+tier*3;
+  // keep — big central tower (drawn first = furthest back)
+  box3(back,0,0,22,kh,30,c);
+  box3(back,kh,0,25,3,32,dark);
+  for(let z=-13;z<=13;z+=6)box3(back,kh+2.5,z,4,4,4,dark);              // keep merlons
+  poly3([[back,kh+5,-13],[back,kh+22,0],[back,kh+5,13]],roof,'#120d0a');// roof
+  line3([back,kh+22,0],[back,kh+36,0],.5,'#3a2a18');                    // flagpole
+  poly3([[back,kh+36,0],[back,kh+36,dir*12],[back,kh+28,dir*12]],a);    // pennant
+  // curtain wall facing the field, full lane depth
+  box3(X,0,0,16,wallH,58,stone);
+  for(let z=-27;z<=27;z+=6)box3(front,wallH,z,3.6,4,4,dark);            // crenellations
+  // gatehouse towers flanking the gate
+  for(let z of[-24,24]){
+    box3(front,0,z,11,wallH+9,11,c);
+    box3(front,wallH+9,z,12,2.6,12,dark);
+    poly3([[front,wallH+12,z-7],[front,wallH+28,z],[front,wallH+12,z+7]],roof,'#120d0a');
+    line3([front,wallH+12,z],[front,wallH+22,z],.4,'#3a2a18');
+    poly3([[front,wallH+22,z],[front,wallH+22,z-dir*7],[front,wallH+16,z-dir*7]],a);
+  }
+  // portcullis gate + grille
+  poly3([[front,0,-7],[front,0,7],[front,18,7],[front,18,-7]],'#251b15','#120d0a');
+  for(let z=-6;z<=6;z+=2.5)line3([front+dir*.1,1,z],[front+dir*.1,17,z],.16,'#7a6754');
+  for(let y=4;y<=15;y+=4)line3([front+dir*.1,y,-7],[front+dir*.1,y,7],.16,'#7a6754');
+  // large field banner over the gate
+  poly3([[front+dir*.2,19,-5],[front+dir*.2,19,5],[front+dir*.2,36,5],[front+dir*.2,36,-5]],a,'#120d0a');
+  // rear corner towers at higher tiers
+  if(tier>2)for(let z of[-30,30]){box3(back-dir*5,0,z,8,30,8,dark);poly3([[back-dir*5,30,z-5],[back-dir*5,42,z],[back-dir*5,30,z+5]],roof);}
+  // arrow slits
+  for(let z of[-18,0,18])for(let y of[12,22]){let py=proj(front,y,z);x.fillStyle='#141009';x.beginPath();x.arc(py.x,py.y,Math.max(1.4,py.s*.5),0,7);x.fill();}
+}
+function add(role,team,slot,extra={}){let hp=role==='champion'?260:role==='defender'?150:role==='assault'?95:75;if(extra.boss)hp*=4;units.push({id:id++,role,team,x:team===1?PLAYER_FORT+8:ENEMY_FORT-8,z:slot??((Math.random()-.5)*38),y:0,hp,max:hp,shield:role==='defender'?95:role==='champion'?120:0,armor:role==='champion'?90:role==='defender'?55:30,phase:Math.random()*6.28,cd:Math.random(),target:null,attackSlot:0,state:team===-1?'forming':'idle',era:team===1?era:(wave>8?'future':wave>5?'viking':'rome'),vx:0,vz:0,slotX:null,slotZ:null,face:team,originalRole:role,...extra})}
+function soldier(u){let E=ERA[u.era],dir=u.face||u.team,walk=Math.sin(u.phase),moving=Math.hypot(u.vx||0,u.vz||0)>.1,run=(u.charge&&moving)?1:0,bob=moving?Math.abs(Math.sin(u.phase))*(0.16+run*0.34):Math.sin(t*2+u.id)*.05,Y=(u.platformY||0)+bob;let hip=[u.x,Y+3.7,u.z],ch=[u.x,Y+8.3,u.z],head=[u.x,Y+10.8,u.z],leg=1.25*walk*(1+run*.95),arm=-.85*walk*(1+run*1.05);
+// shadow
+let p=proj(u.x,.05,u.z);x.fillStyle='#0005';x.beginPath();x.ellipse(p.x,p.y,3.3*p.s,1.1*p.s,0,0,7);x.fill();
+// cape/fur
+if(u.role==='champion'||E.helm==='fur')poly3([[u.x-dir*.2,Y+8.5,u.z-.3],[u.x-dir*1.2,Y+4,u.z-1.5],[u.x-dir*.8,Y+3.5,u.z+1.5],[u.x,Y+8.5,u.z+.4]],u.role==='champion'?E.main:'#382b22');
+// legs two-bone
+for(let side of[-1,1]){let k=leg*side,kn=[u.x+dir*k*.55,Y+2.2,u.z+side*.48],ft=[u.x+dir*k,Y+.12,u.z+side*.5];line3(hip,kn,.6,'#17181a');line3(kn,ft,.62,'#17181a');ball(...ft,.48,shade(E.metal,-35))}
+// torso armor
+box3(u.x,Y+3.4,u.z,1.9,2.0,2.5,shade(E.metal,-8));box3(u.x,Y+4.6,u.z,1.8,3.9,2.6,E.metal);for(let q=-.7;q<=.7;q+=.45)line3([u.x+dir*.95,Y+4.6,u.z+q],[u.x+dir*.95,Y+8,u.z+q],.1,E.accent);
+// head + helmet
+ball(...head,1.25,'#111417');if(E.helm==='crest'){poly3([[u.x-1,Y+11.7,u.z],[u.x+1,Y+11.7,u.z],[u.x,Y+13.1,u.z]],E.main)}else if(E.helm==='horn'){line3([u.x,Y+11.5,u.z-.8],[u.x-dir*.5,Y+13,u.z-1.7],.25,E.metal);line3([u.x,Y+11.5,u.z+.8],[u.x-dir*.5,Y+13,u.z+1.7],.25,E.metal)}else if(E.helm==='kabuto'){poly3([[u.x-1.5,Y+11,u.z-1],[u.x+1.5,Y+11,u.z-1],[u.x,Y+12.5,u.z]],E.metal)}else if(E.helm==='visor')line3([u.x-dir*1.15,Y+11,u.z-.7],[u.x-dir*1.15,Y+11,u.z+.7],.35,E.accent);
+// arms and weapon poses
+let atk=u.state==='attack'?Math.sin(Math.min(1,u.cd)*Math.PI):0;
+for(let side of[-1,1]){
+  // z+ side is the shield arm on shielded troops: braced steady so it does NOT swing with the gait
+  let steady=(side>0&&u.role==='defender'&&!u.spearThrown),swg=steady?0:arm*side,ax=(side<0)?atk:0;
+  let sh=[u.x,Y+7.9,u.z+side*1.15],
+      el=[u.x+dir*(swg+ax*1.1+(steady?.8:0)),Y+6.4+ax*.4,u.z+side*1.45],
+      ha=[u.x+dir*(swg+1.3+ax*1.6+(steady?.25:0)),Y+(steady?6.2:5.7)+ax*.2,u.z+side*1.1];
+  line3(sh,el,.55,'#17181a');line3(el,ha,.48,'#17181a');ball(...ha,.38,'#17181a');
+}
+if(u.role==='defender'){let sx=u.x+dir*.65,tip=u.x+dir*12.8,innerZ=u.z-1.35,outerZ=u.z+1.9,spearY=Y+6.8+atk*.45;line3([u.x-dir*2.0,spearY,innerZ],[tip,spearY,innerZ],.2,'#76522e');poly3([[tip+dir*1.05,spearY,innerZ],[tip-dir*.08,spearY-.52,innerZ-.42],[tip-dir*.08,spearY+.52,innerZ+.42]],E.metal);ball(u.x+dir*1.55,Y+6.4,u.z+1.5,2.4,E.main,E.accent)}else if(u.role==='ranged'){let bx=u.x+dir*1.4,tN=[bx,Y+9,u.z-1.4],bN=[bx,Y+4,u.z-1.4],belly=[bx+dir*1.2,Y+6.5,u.z-1.4];line3(tN,belly,.16,'#8a5a28');line3(belly,bN,.16,'#8a5a28');let draw=[bx-dir*(.2+atk*1.4),Y+6.5,u.z-1.4];line3(tN,draw,.05,'#e8e2cf');line3(draw,bN,.05,'#e8e2cf');if(atk>.05)line3(draw,[bx+dir*(2.4+atk*1.5),Y+6.5,u.z-1.4],.07,'#6b4526')}else{let len=u.role==='champion'?4.8:3.6,hz=u.z-1.3,hx=u.x+dir*(.5+atk*1.2),hy=Y+6.8-atk*1.0,rt=[u.x-dir*.6,Y+10.4],ht=[u.x+dir*(len+3.0),Y+3.6],tx=rt[0]+(ht[0]-rt[0])*atk,ty=rt[1]+(ht[1]-rt[1])*atk;line3([hx,hy,hz],[tx,ty,hz],u.role==='champion'?.34:.24,E.metal);line3([u.x+dir*.35,Y+5.9,u.z-1.6],[u.x+dir*1.0,Y+6.3,u.z-.9],.32,E.accent);if(u.dualSwords){line3([u.x+dir*(.5+atk*.7),hy,u.z+1.3],[tx,ty,u.z+1.3],.24,E.metal);line3([u.x+dir*.3,Y+5.9,u.z+1.6],[u.x+dir*1.0,Y+6.3,u.z+.9],.32,E.accent)}}
+if(u.hp<u.max){let h=proj(u.x,Y+14,u.z);x.fillStyle='#160d0d';x.fillRect(h.x-15,h.y,30,4);x.fillStyle=u.team===1?'#39a8ff':'#f14c41';x.fillRect(h.x-15,h.y,30*u.hp/u.max,4)} }
+function hit(u,d){let hadShield=u.shield>0;if(u.shield>0){let q=Math.min(u.shield,d);u.shield-=q;d-=q}if(hadShield&&u.shield<=0&&u.role==='defender'&&!u.fortDef){u.shield=0;u.pendingSpearThrow=true;u.dualSwords=true;u.role='assault';u.retreating=true;u.fallbackX=u.x-u.team*8;u.fallbackZ=u.z;u.cd=0}if(d>0&&u.armor>0){let q=Math.min(u.armor,d*.65);u.armor-=q;d-=q*.7}u.hp-=d;if(u.hp<=0)fx.push({x:u.x,z:u.z,life:1,type:'burst'})}
+function roleOrder(u){return u.role==='defender'?0:u.role==='champion'?1:u.role==='assault'?2:3}
+function fillSlots(pool,slots){let left=pool.slice();for(let s of slots){if(!left.length)break;let bi=0,bd=1e9;for(let i=0;i<left.length;i++){let u=left[i],d=Math.hypot(u.x-s.x,u.z-s.z);if(d<bd){bd=d;bi=i}}let u=left.splice(bi,1)[0];u.slotX=s.x;u.slotZ=s.z;u.lane=s.lane;u.slotRank=s.rank;u.spearRank=u.role==='defender'?s.rank:99}}
+function layoutFormation(team,rally){
+  let army=units.filter(u=>u.team===team&&u.hp>0&&!u.fortDef),
+      lanes=[-19.5,-15.2,-10.9,-6.6,-2.3,2.3,6.6,10.9,15.2,19.5],
+      dir=team===1?1:-1,cursor=0,rankGap=5.4,groupGap=7.6;
+  // 4-tier battle line (like the 2D game), each band split by a visible gap:
+  //  0) spear + shield (front)   1) sword + shield   2) no-shield melee   3) ranged (rear)
+  let melee=army.filter(u=>u.role!=='ranged'),ranged=army.filter(u=>u.role==='ranged'),
+      tierOf=u=>(u.shield>0?(u.role==='defender'?0:1):2),
+      bands=[melee.filter(u=>tierOf(u)===0),melee.filter(u=>tierOf(u)===1),melee.filter(u=>tierOf(u)===2),ranged].filter(g=>g.length),
+      depth=bands.reduce((n,g)=>n+Math.ceil(g.length/10)*rankGap,0)+Math.max(0,bands.length-1)*groupGap;
+  rally=team===1?Math.max(rally,PLAYER_FORT+12+depth):Math.min(rally,ENEMY_FORT-12-depth);
+  bands.forEach((group,gi)=>{
+    group.sort((a,b)=>a.id-b.id);
+    let slots=[];
+    for(let i=0;i<group.length;i++){let rank=Math.floor(i/10);slots.push({x:rally-dir*(cursor+rank*rankGap),z:lanes[i%10],lane:i%10,rank});}
+    fillSlots(group,slots);
+    cursor+=Math.ceil(group.length/10)*rankGap+(gi<bands.length-1?groupGap:0);
+  });
+}
+function steer(u,tx,tz,sp,dt){let dx=tx-u.x,dz=tz-u.z,d=Math.hypot(dx,dz),ox=u.x,oz=u.z;if(d<.25){u.vx*=Math.max(0,1-dt*9);u.vz*=Math.max(0,1-dt*9)}else{let wantX=dx/d*sp,wantZ=dz/d*sp,acc=Math.min(1,dt*6);u.vx+=(wantX-u.vx)*acc;u.vz+=(wantZ-u.vz)*acc}u.face=u.team;u.x+=u.vx*dt;u.z+=u.vz*dt;let moved=Math.hypot(u.x-ox,u.z-oz);if(moved>.015){u.phase+=moved*1.18;u.state='walk'}return moved}
+function assignTargets(){let claims=new Map,alive=units.filter(u=>u.hp>0);for(let u of alive){if(u.fortDef&&u.team===-1)continue;let best=null,score=1e9,organized=(u.team===1&&stance!=='attack'&&!u.charge)||(u.team===-1&&waveState!=='attack');for(let o of alive)if(o.team!==u.team){if(organized&&Math.abs((u.lane??Math.round((u.z+19.5)/4.3))-(o.lane??Math.round((o.z+19.5)/4.3)))>1)continue;let d=Math.hypot(o.x-u.x,o.z-u.z),c=claims.get(o.id)||0;if(c>=8)continue;let lane=Math.abs(o.z-u.z),pen=organized?c*12:c*5,s=d+lane*(organized?.7:.16)+pen;if(s<score){score=s;best=o}}u.target=best?best.id:null;if(best){u.attackSlot=claims.get(best.id)||0;claims.set(best.id,u.attackSlot+1)}else u.attackSlot=0}}
+function targetOf(u){let o=units.find(q=>q.id===u.target&&q.hp>0);return o&&{o,d:Math.hypot(o.x-u.x,o.z-u.z)}}
+function spearThrowTarget(u,dmg=28){let foes=units.filter(o=>o.team!==u.team&&o.hp>0&&!o.fortDef);if(!foes.length)return null;let killable=foes.filter(o=>o.hp+o.armor+o.shield<=dmg);if(killable.length)return killable.sort((a,b)=>Math.hypot(a.x-u.x,a.z-u.z)-Math.hypot(b.x-u.x,b.z-u.z))[0];return foes.sort((a,b)=>u.team===1?b.x-a.x:a.x-b.x)[0]}
+function engagementPoint(u,o){let ring=[[1,0],[.72,.72],[0,1],[-.72,.72],[-1,0],[-.72,-.72],[0,-1],[.72,-.72]][u.attackSlot%8],gap=u.role==='defender'?7.8:3.8;return{x:o.x+ring[0]*gap,z:o.z+ring[1]*4.2}}
+function separateArmy(){let mob=units.filter(u=>u.hp>0&&!u.fortDef),MIN=3.6;for(let i=0;i<mob.length;i++)for(let j=i+1;j<mob.length;j++){let a=mob[i],b=mob[j];if(a.team!==b.team)continue;if(a._forming||b._forming)continue;/* let allies pass THROUGH each other while marching to their slot */let dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz);if(d>0&&d<MIN){let push=(MIN-d)*.5,nx=dx/d,nz=dz/d;a.x-=nx*push;a.z-=nz*push;b.x+=nx*push;b.z+=nz*push}}}
+function enforcePhalanx(team){let organized=team===1?stance!=='attack':waveState!=='attack';if(!organized)return;let guards=units.filter(u=>u.team===team&&u.hp>0&&!u.fortDef&&u.role==='defender'&&u.spearRank<2);if(!guards.length)return;for(let e of units){if(e.team===team||e.hp<=0||e.fortDef)continue;let lane=Math.max(0,Math.min(9,Math.round((e.z+19.5)/4.3))),near=guards.filter(g=>Math.abs(g.lane-lane)<=1);if(!near.length)continue;if(team===1){let front=Math.max(...near.map(g=>g.x)),wall=front+6.5;if(e.x<wall){e.x=wall;e.vx=Math.max(0,e.vx)}}else{let front=Math.min(...near.map(g=>g.x)),wall=front-6.5;if(e.x>wall){e.x=wall;e.vx=Math.min(0,e.vx)}}}}
+function nextWave(){
+  wave++;waveState='forming';enemyRally=180;formClock=Math.max(3,6-wave*.08);
+  let siege=wave%10===0,n=Math.min(100,20+wave*4);
+  gold+=siege?300:150;enemyMax=2200+wave*100;enemyHP=enemyMax;
+  // enemy civilisation advances every 10 waves (era progression like the 2D game)
+  let eeras=['tribal','greek','rome','viking','japan','future'],eera=eeras[Math.min(5,Math.floor((wave-1)/10))];
+  if(siege){
+    let names=['Gorehoof the Trampler','Old One-Eye','Ashmaw the Devourer','Stonefist Warlord','Nightmother Wraith','Iron Colossus'];
+    let nm=names[Math.min(5,Math.floor(wave/10)-1)]||'The Titan',bhp=2600+wave*140;
+    show('☠ FOLKLORE SIEGE — '+nm);
+    add('champion',-1,0,{x:ENEMY_FORT-14,boss:true,folkName:nm,era:eera,hp:bhp,max:bhp,armor:240,shield:0});
+    for(let i=0;i<n;i++){let role=i%7===0?'ranged':i%4===0?'defender':'assault',row=Math.floor(i/10),slot=(i%10-4.5)*4;add(role,-1,slot,{x:ENEMY_FORT-8-row*1.2,era:eera});}
+  }else{
+    show('WAVE '+wave);
+    for(let i=0;i<n;i++){let role=i%7===0?'ranged':i%5===0?'defender':'assault',row=Math.floor(i/10),slot=(i%10-4.5)*4;add(role,-1,slot,{x:ENEMY_FORT-8-row*1.2,era:eera});}
+  }
+}
+function update(dt){t+=dt;gold+=dt*3;tapCd=Math.max(0,tapCd-dt);spearCd=Math.max(0,spearCd-dt);castleCd=Math.max(0,castleCd-dt);powerCd=Math.max(0,powerCd-dt);bannerT-=dt;document.getElementById('banner').classList.toggle('show',bannerT>0);if(units.filter(u=>u.team===-1&&u.hp>0).length===0)nextWave();for(let w of wizards){w.cd-=dt;w.attackCd=(w.attackCd||0)-dt;let owned=units.filter(u=>u.team===1&&u.wizard===w.id&&u.role==='defender');if(owned.length<10&&w.cd<=0&&units.filter(u=>u.team===1).length<50){let slot=owned.length;add('defender',1,(slot-4.5)*4,{wizard:w.id});w.cd=.8}let targets=units.filter(u=>u.team===-1&&u.hp>0&&u.x<70);if(targets.length&&w.attackCd<=0){let q=targets.reduce((a,b)=>a.x<b.x?a:b);shots.push({kind:'magic',x:(w.x!=null?w.x:PLAYER_FORT+1),y:(w.y!=null?w.y:15)+8,z:(w.z!=null?w.z:-9+(w.id-1)*4.5),tx:q.x,tz:q.z,ty:5,target:q.id,team:1,d:34,life:1});w.attackCd=2.8}}
+if(stance==='march'){let contact=units.some(a=>a.team===1&&units.some(e=>e.team===-1&&Math.hypot(e.x-a.x,e.z-a.z)<14)),pace=contact?3.1:4.8;playerRally=Math.max(30,Math.min(158,playerRally+marchDir*pace*dt))}if(waveState==='forming'){layoutFormation(-1,enemyRally);let ready=units.filter(u=>u.team===-1&&!u.fortDef).every(u=>Number.isFinite(u.slotX)&&Math.hypot(u.x-u.slotX,u.z-u.slotZ)<3.4);formClock-=dt*(ready?1:.5);if(formClock<=0){waveState='marching';show('ENEMY MARCH')}}else if(waveState==='marching'){enemyRally=Math.max(42,enemyRally-4.2*dt);if(enemyRally-playerRally<18||units.some(a=>a.team===1&&units.some(e=>e.team===-1&&Math.hypot(e.x-a.x,e.z-a.z)<12))){waveState='attack';show('ENEMY ASSAULT')}}if(stance!=='attack')layoutFormation(1,playerRally);if(waveState!=='attack')layoutFormation(-1,enemyRally);assignTargets();
+// --- player fortress active defense: wall archers + boiling oil ---
+fortArchCd-=dt;
+if(fortArchCd<=0){let tg=units.filter(u=>u.team===-1&&u.hp>0&&u.x<PLAYER_FORT+72);if(tg.length){let q=tg.reduce((a,b)=>a.x<b.x?a:b);fortArchSide=-fortArchSide;shots.push({kind:'arrow',x:PLAYER_FORT+2,y:24,z:fortArchSide*20,tx:q.x,tz:q.z,ty:5,target:q.id,team:1,d:14,life:1});fortArchCd=Math.max(.4,1.15-fortLevel*.13);}else fortArchCd=.3;}
+oilCd-=dt;
+if(oilCd<=0){let near=units.filter(u=>u.team===-1&&u.hp>0&&u.x<PLAYER_FORT+12);if(near.length>=3){for(let u of near)hit(u,28+wave*.6+fortLevel*4);for(let i=0;i<4;i++)fx.push({x:PLAYER_FORT+9,z:(Math.random()-.5)*34,life:1,type:'burst'});show('🔥 BOILING OIL');oilCd=3.4;}else oilCd=.5;}
+for(let u of units){
+  if(u.hp<=0)continue;
+  u.cd-=dt;u.state='idle';u.face=u.team;
+  let formed=!u.fortDef&&!u.charge&&((u.team===1&&stance!=='attack')||(u.team===-1&&waveState!=='attack'));
+  u._forming=formed;   // in-formation soldiers keep their exact slot (crisp ranks) AND pass through allies while moving up
+  let n=targetOf(u),range=u.fortDef?52:u.role==='ranged'?58:u.role==='defender'?(u.spearRank===0?14:u.spearRank===1?18:9):8;
+  if(u.pendingSpearThrow){
+    let q=spearThrowTarget(u,28);
+    if(q)shots.push({kind:'spear',x:u.x,y:(u.platformY||0)+8,z:u.z,tx:q.x,tz:q.z,ty:5,target:q.id,team:u.team,d:28,life:1,impale:true});
+    u.pendingSpearThrow=false;u.state='attack';
+  }
+  let engage=n&&!formed&&u.role!=='ranged'&&!u.fortDef?engagementPoint(u,n.o):null;
+  let inCombatCell=!engage||Math.hypot(u.x-engage.x,u.z-engage.z)<1.15;
+  let spearLineReady=!formed||u.role!=='defender'||u.spearRank<2;
+  // Strike whoever is actually within reach (esp. spearmen at their tips), not only the assigned target.
+  let hitFoe=(n&&n.d<range)?n:null;
+  if(!hitFoe&&!u.retreating){let bo=null,bd=range;for(let o of units){if(o.team===u.team||o.hp<=0)continue;let d=Math.hypot(o.x-u.x,o.z-u.z);if(d<bd){bd=d;bo=o;}}if(bo)hitFoe={o:bo,d:bd};}
+  let canHit=!u.retreating&&hitFoe&&spearLineReady&&(!u.fortDef||hitFoe.o.x<67);
+  if(u.retreating){
+    let tx=formed&&u.slotX!=null?u.slotX:u.fallbackX,tz=formed&&u.slotZ!=null?u.slotZ:u.fallbackZ;
+    if(Math.hypot(tx-u.x,tz-u.z)<.7){u.retreating=false}else steer(u,tx,tz,7.2,dt);
+  }else if(canHit){
+    u.vx*=Math.max(0,1-dt*10);u.vz*=Math.max(0,1-dt*10);u.state='attack';
+    if(u.cd<=0){u.cd=u.role==='ranged'?1.45:u.role==='champion'?.7:1;let dmg=u.role==='champion'?32:u.role==='assault'?18:u.role==='ranged'?15:11;if(u.role==='ranged'||u.fortDef)shots.push({kind:u.role==='defender'?'spear':'arrow',x:u.x,y:(u.platformY||0)+8,z:u.z,tx:hitFoe.o.x,tz:hitFoe.o.z,ty:5,target:hitFoe.o.id,team:u.team,d:dmg,life:1});else{hit(hitFoe.o,dmg);if(formed&&u.role==='defender'){hitFoe.o.x+=u.team*1.15;hitFoe.o.vx+=u.team*2.2}}}
+    let combatMarch=(u.team===1&&stance==='march')||(u.team===-1&&waveState==='marching');if(combatMarch&&u.slotX!=null){let dx=u.slotX-u.x,dz=u.slotZ-u.z,d=Math.hypot(dx,dz);if(d>.15){let step=Math.min(d,2.5*dt);u.x+=dx/d*step;u.z+=dz/d*step;u.phase+=step*.7}}
+  }else if(formed){steer(u,u.slotX,u.slotZ,u.role==='defender'?5.2:6.2,dt)
+  }else if(!u.fortDef&&n){let p=engagementPoint(u,n.o);steer(u,p.x,p.z,(u.role==='defender'?5.2:u.role==='champion'?6.1:6.8)*(u.charge?1.8:1),dt)
+  }else if(!u.fortDef){let tx=u.team===1?ENEMY_FORT:PLAYER_FORT;steer(u,tx,u.z,6*(u.charge?1.8:1),dt)
+  }else{u.vx=0;u.vz=0}
+  u.face=u.team;u.z=Math.max(-20,Math.min(20,u.z));
+  if(!u.fortDef)u.x=Math.max(u.x,castleFront+2);   // no soldier (ally or enemy) walks through the castle wall
+  if(u.team===1&&u.x>ENEMY_FORT-2){enemyHP-=10*dt;if(enemyHP<=0){enemyHP=0;show('ENEMY FORT FALLS')}}
+  if(u.team===-1&&u.x<PLAYER_FORT+2){fortHP-=10*dt;if(fortHP<=0){fortHP=fortMax;show('FORTRESS RESTORED')}}
+}
+enforcePhalanx(1);enforcePhalanx(-1);
+separateArmy();
+for(let s of shots){if(s.age==null){s.age=0;s.sx=s.x;s.sz=s.z;s.sy=s.y;s.duration=s.kind==='spear'?.95:s.kind==='magic'?.8:1.2}s.age+=dt;let k=Math.min(1,s.age/s.duration),target=units.find(u=>u.id===s.target&&u.hp>0);if(target){s.tx=target.x;s.tz=target.z;s.ty=(target.platformY||0)+5}s.x=s.sx+(s.tx-s.sx)*k;s.z=s.sz+(s.tz-s.sz)*k;let base=s.sy+((s.ty??5)-s.sy)*k,arc=s.kind==='spear'?7:s.kind==='magic'?9:14;s.y=base+Math.sin(k*Math.PI)*arc;s.life=1-k;if(k>=1){if(s.aoe){for(let u of units){if(u.team!==s.team&&u.hp>0&&Math.hypot(u.x-s.tx,u.z-s.tz)<s.aoe)hit(u,s.d)}for(let i=0;i<4;i++)fx.push({x:s.tx+(Math.random()-.5)*8,z:s.tz+(Math.random()-.5)*8,life:1,type:'burst'})}else{let q=target||units.find(u=>u.team!==s.team&&u.hp>0&&Math.hypot(u.x-s.x,u.z-s.z)<5);if(q)hit(q,s.d)}}}shots.splice(0,shots.length,...shots.filter(s=>s.life>0));units.splice(0,units.length,...units.filter(u=>u.hp>0));for(let f of fx)f.life-=dt;fx.splice(0,fx.length,...fx.filter(f=>f.life>0));document.getElementById('gold').textContent=Math.floor(gold);document.getElementById('wave').textContent=wave;document.getElementById('count').textContent=units.filter(u=>u.team===1).length;document.getElementById('ph').style.width=100*fortHP/fortMax+'%';document.getElementById('eh').style.width=100*enemyHP/enemyMax+'%'}
+function terrain(){let sky=x.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#14243a');sky.addColorStop(.48,'#6f9eaa');sky.addColorStop(1,'#d7c38e');x.fillStyle=sky;x.fillRect(0,0,W,H);
+// open-field ground base — always fills below the horizon so there is no empty space at any camera angle
+let gnd=x.createLinearGradient(0,H*.42,0,H);gnd.addColorStop(0,'#63824a');gnd.addColorStop(1,'#3d5330');x.fillStyle=gnd;x.fillRect(0,H*.46,W,H*.54);let sun=x.createRadialGradient(W*.78,H*.16,4,W*.78,H*.16,H*.18);sun.addColorStop(0,'#fff3b8cc');sun.addColorStop(1,'#fff0');x.fillStyle=sun;x.fillRect(0,0,W,H*.55);x.fillStyle='#425863';x.beginPath();x.moveTo(0,H*.47);for(let i=0;i<=12;i++){let px=i*W/12,py=H*(.29+.13*Math.sin(i*2.1)+.06*Math.sin(i*.73));x.lineTo(px,py)}x.lineTo(W,H*.58);x.lineTo(0,H*.58);x.fill();x.fillStyle='#61745d';x.beginPath();x.moveTo(0,H*.52);for(let i=0;i<=18;i++)x.lineTo(i*W/18,H*(.43+.035*Math.sin(i*1.8)));x.lineTo(W,H*.62);x.lineTo(0,H*.62);x.fill();for(let i=0;i<34;i++){let px=(i*97%W),py=H*(.43+(i%4)*.012),r=8+(i%5)*3;x.fillStyle=i%3?'#263d32':'#334a37';x.beginPath();x.moveTo(px-r,py+r);x.lineTo(px,py-r*2);x.lineTo(px+r,py+r);x.fill()}let corners=[[-45,0,-120],[WORLD+45,0,-120],[WORLD+45,0,120],[-45,0,120]].map(v=>proj(...v));let grd=x.createLinearGradient(0,H*.35,0,H);grd.addColorStop(0,'#70814d');grd.addColorStop(1,'#3f5632');x.fillStyle=grd;x.beginPath();corners.forEach((p,i)=>i?x.lineTo(p.x,p.y):x.moveTo(p.x,p.y));x.closePath();x.fill();poly3([[0,.03,-12],[WORLD,.03,-12],[WORLD,.03,12],[0,.03,12]],'#91764b','#796039');poly3([[0,.05,-7],[WORLD,.05,-7],[WORLD,.05,7],[0,.05,7]],'#aa8b58','#8b7049');for(let i=5;i<WORLD;i+=10){line3([i,.07,-6],[i,.07,6],.05,'#c8aa72aa');for(let z of[-41,-31,31,41]){let h=.35+((i+z)%4)*.12;line3([i,.05,z],[i-1,h,z-.5],.07,'#89a555');line3([i,.05,z],[i+1,h,z+.5],.07,'#526f39')}}for(let X=20;X<WORLD;X+=18)for(let Z of[-47,47])ball(X,.35,Z,.45+(X%3)*.15,'#6d6658','#4b4439');
+// receding perspective depth lines across the open field
+for(let z=-100;z<=100;z+=15)line3([-30,.04,z],[WORLD+30,.04,z],.04,'rgba(255,255,255,.05)');
+// atmosphere: depth haze toward the horizon
+let hz=x.createLinearGradient(0,H*.40,0,H*.66);hz.addColorStop(0,'rgba(214,224,210,0)');hz.addColorStop(.5,'rgba(210,222,205,.42)');hz.addColorStop(1,'rgba(210,222,205,0)');x.fillStyle=hz;x.fillRect(0,H*.40,W,H*.26)}
+function castleWizard(w,i){let X=(w.x!=null?w.x:PLAYER_FORT),Z=(w.z!=null?w.z:-9+i*4.5),Y=(w.y!=null?w.y:15),glow=.65+.25*Math.sin(t*4+i);poly3([[X-1,Y,Z-1],[X+1,Y,Z-1],[X+.65,Y+5,Z],[X-.65,Y+5,Z]],'#354fbd','#18295f');ball(X,Y+6,Z,1,'#111417','#d9b36d');poly3([[X-1.5,Y+6.7,Z],[X+1.5,Y+6.7,Z],[X,Y+9.2,Z]],'#354fbd','#18295f');line3([X+1,Y,Z+1],[X+1,Y+8,Z+1],.18,'#6b4526');ball(X+1,Y+8.5,Z+1,.42+glow*.15,'#73edff','#d9ffff')}
+function drawArrow(s){if(s.kind==='boulder'){ball(s.x,s.y,s.z,1.7,'#7a7f85','#3a3d42');return}if(s.kind==='magic'){line3([s.x-1,s.y,s.z],[s.x+1,s.y,s.z],.32,'#78efff');ball(s.x,s.y,s.z,.55,'#78efff','#d9ffff');return}let dx=s.tx-s.x,dz=s.tz-s.z,d=Math.hypot(dx,dz)||1,nx=dx/d,nz=dz/d,L=s.kind==='spear'?3.6:1.7,tail=[s.x-nx*L,s.y,s.z-nz*L],tip=[s.x+nx*(s.kind==='spear'?2.2:1.2),s.y,s.z+nz*(s.kind==='spear'?2.2:1.2)];line3(tail,tip,s.kind==='spear'?.15:.09,'#6b4526');if(s.kind!=='spear')line3(tail,[tail[0]-nx*.45,tail[1]+.3,tail[2]-nz*.45],.07,'#e7dfc6');poly3([[tip[0]+nx*.55,tip[1],tip[2]+nz*.55],[tip[0]-nz*.22,tip[1]-.25,tip[2]+nx*.22],[tip[0]+nz*.22,tip[1]+.25,tip[2]-nx*.22]],'#dce2e6','#70777c')}
+// Folklore-siege giant — a hulking brute (~3x a soldier) that leads milestone assaults.
+function giant(u){
+  let E=ERA[u.era]||ERA.rome,dir=u.face||u.team||-1,walk=Math.sin(u.phase),
+      moving=Math.hypot(u.vx||0,u.vz||0)>.1,bob=moving?Math.abs(Math.sin(u.phase))*.6:Math.sin(t*1.4+u.id)*.15,Y=bob;
+  let p=proj(u.x,.05,u.z);x.fillStyle='#0006';x.beginPath();x.ellipse(p.x,p.y,7*p.s,2.4*p.s,0,0,7);x.fill();
+  for(let s of[-1,1]){let k=1.7*walk*s;line3([u.x,Y+9,u.z+s*2.2],[u.x+dir*k,Y+.5,u.z+s*2.6],1.7,'#332a22');ball(u.x+dir*k,Y+.6,u.z+s*2.6,1.6,shade(E.metal,-30));}
+  box3(u.x,Y+9,u.z,7,11,9,shade(E.main,-8));
+  poly3([[u.x-dir*2,Y+9,u.z-4.6],[u.x+dir*3.6,Y+9,u.z-4.6],[u.x+dir*4,Y+20,u.z-3.6],[u.x-dir*2.6,Y+20,u.z-3.6]],E.metal,'#120d0a');
+  for(let s of[-1,1]){let a=-1.1*walk*s;line3([u.x,Y+19,u.z+s*4.6],[u.x+dir*(a+2),Y+13,u.z+s*5.2],1.4,'#332a22');}
+  let atk=u.state==='attack'?Math.sin(Math.min(1,u.cd)*Math.PI):0;
+  line3([u.x+dir*3,Y+16,u.z-5.5],[u.x+dir*(7.5+atk*3),Y+(9-atk*6),u.z-5.5],1.7,'#5a3f22');
+  ball(u.x+dir*(7.5+atk*3),Y+(9-atk*6),u.z-5.5,3.1,shade(E.metal,-12));
+  ball(u.x,Y+23,u.z,3.3,'#2a2018');
+  for(let s of[-1,1])line3([u.x,Y+25,u.z+s*1.7],[u.x-dir*1.6,Y+29,u.z+s*3.2],.55,'#e8e0d0');
+  let hb=proj(u.x,Y+33,u.z);x.fillStyle='#160d0d';x.fillRect(hb.x-26,hb.y,52,5);x.fillStyle='#e0452f';x.fillRect(hb.x-26,hb.y,52*Math.max(0,u.hp/u.max),5);
+  if(u.folkName){x.fillStyle='#ffd98a';x.font='700 12px Georgia';x.textAlign='center';x.fillText(u.folkName,hb.x,hb.y-5);x.textAlign='left';}
+}
+function draw(){terrain();let things=[{d:proj(PLAYER_FORT,0,0).d,f:()=>fort(PLAYER_FORT,1)},{d:proj(ENEMY_FORT,0,0).d,f:()=>fort(ENEMY_FORT,-1)},...wizards.map((w,i)=>({d:proj(w.x!=null?w.x:PLAYER_FORT,w.y!=null?w.y:15,w.z!=null?w.z:-9+i*4.5).d,f:()=>castleWizard(w,i)})),...units.map(u=>({d:proj(u.x,0,u.z).d,f:()=>u.boss?giant(u):soldier(u)}))].sort((a,b)=>a.d-b.d);things.forEach(o=>o.f());for(let s of shots)drawArrow(s);for(let f of fx){let p=proj(f.x,2,f.z);x.strokeStyle=`rgba(255,160,30,${f.life})`;x.lineWidth=8*(1-f.life)+2;x.beginPath();x.arc(p.x,p.y,25*(1-f.life),0,7);x.stroke()}}
+function loop(now){let dt=Math.min(.04,(now-last)/1000)*speed;last=now;update(dt);draw();requestAnimationFrame(loop)}
+function show(s){let b=document.getElementById('banner');b.textContent=s;bannerT=2;b.classList.add('show')}
+function setCommand(cmd){let now=performance.now();for(let u of units)if(u.team===1)u.charge=false;if(cmd==='defend'){if(now-lastDefendTap<350){stance='defend';playerRally=30;marchDir=1;show('RETREAT TO FORT')}else{stance='defend';let front=units.filter(u=>u.team===1&&!u.fortDef&&u.hp>0).reduce((m,u)=>Math.max(m,u.x),28);playerRally=Math.max(30,Math.min(158,front));show('HOLD FORMATION')}lastDefendTap=now}else if(cmd==='march'){if(stance==='march'&&now-lastMarchTap<350){marchDir*=-1;show(marchDir>0?'MARCH FORWARD':'REVERSE MARCH')}else{stance='march';show(marchDir>0?'MARCH FORWARD':'MARCH HOME')}lastMarchTap=now}else{stance='attack';for(let u of units)if(u.team===1){u.slotX=null;u.slotZ=null}show('FULL ATTACK')}document.querySelectorAll('[data-cmd]').forEach(q=>q.classList.toggle('active',q.dataset.cmd===stance))}
+document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{let r=b.dataset.unit,c=COST[r];if(gold<c||units.filter(u=>u.team===1).length>=50)return;gold-=c;let n=units.filter(u=>u.team===1&&!u.fortDef).length;add(r,1,(n%10-4.5)*4,{x:PLAYER_FORT+8+Math.floor(n/10)*1.2})});document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>setCommand(b.dataset.cmd));document.querySelectorAll('[data-charge]').forEach(b=>b.onclick=()=>{let k=b.dataset.charge,n=0;for(let u of units){if(u.team!==1||u.hp<=0||u.fortDef)continue;if(u.role===k){u.charge=true;n++;}}show(n?'⚔ '+n+' charging — rest hold the line!':'No units of that type')});document.querySelectorAll('[data-build]').forEach(b=>b.onclick=()=>location.href='castle-builder.html');
+document.querySelectorAll('[data-action="spear"]').forEach(b=>b.onclick=()=>{if(spearCd>0){show('Spears reloading…');return}let n=0;for(let u of units){if(u.team!==1||u.hp<=0||u.fortDef||u.role!=='defender')continue;let q=spearThrowTarget(u,28);if(q){shots.push({kind:'spear',x:u.x,y:8,z:u.z,tx:q.x,tz:q.z,ty:5,target:q.id,team:1,d:24,life:1,impale:true});u.state='attack';u.cd=1;n++}}spearCd=n?5:0;show(n?'🔱 SPEAR VOLLEY!':'No spearmen to throw')});
+document.getElementById('zin').onclick=()=>{zoom=Math.min(2.4,+(zoom+0.3).toFixed(2))};
+document.getElementById('zout').onclick=()=>{zoom=Math.max(1,+(zoom-0.3).toFixed(2))};
+document.getElementById('rl').onclick=()=>{camA-=0.35};document.getElementById('rr').onclick=()=>{camA+=0.35};document.querySelectorAll('[data-system]').forEach(b=>b.onclick=()=>{let k=b.dataset.system;if(k==='garrison'&&gold>=150&&garrison<12){gold-=150;for(let i=0;i<2;i++){let slot=garrison+i;add('ranged',1,-17+slot*3.1,{x:PLAYER_FORT,fortDef:true,platformY:15})}garrison+=2;show('WALL ARCHERS '+garrison+'/12')}else if(k==='wizard'&&gold>=250&&wizards.length<5){gold-=250;wizards.push({id:wizards.length+1,cd:0,attackCd:0});show('WIZARD SUMMONS 10 SPEARMEN')}else if(k==='fortify'&&gold>=300&&fortLevel<5){gold-=300;fortLevel++;fortMax+=500;fortHP=Math.min(fortMax,fortHP+500);add('defender',1,(fortLevel-3)*6,{x:PLAYER_FORT,fortDef:true,platformY:15});show('FORTRESS TIER '+fortLevel)}else if(k==='evolve'&&gold>=600){gold-=600;era=ERA_ORDER[(ERA_ORDER.indexOf(era)+1)%ERA_ORDER.length];document.getElementById('era').value=era;for(let u of units)if(u.team===1)u.era=era;fortLevel=Math.min(5,fortLevel+1);fortMax+=350;fortHP=fortMax;show(ERA[era].name.toUpperCase())}else if(k==='power'&&powerCd<=0){let foes=units.filter(u=>u.team===-1);for(let u of foes)hit(u,28+ERA_ORDER.indexOf(era)*12);for(let i=0;i<9;i++)fx.push({x:30+Math.random()*60,z:(Math.random()-.5)*70,life:1,type:'burst'});powerCd=18;show('ERA POWER')}});document.getElementById('speed').onclick=e=>{speed=speed%3+1;e.target.textContent=speed+'× SPEED'};document.getElementById('era').onchange=e=>{era=e.target.value;for(let u of units)if(u.team===1)u.era=era};
+// Spawn the player's garrison from the Castle Builder slots (wizard / range / defense).
+function applyCastle(){if(!CASTLE||!CASTLE.length)return;castleFront=PLAYER_FORT+8;for(const b of CASTLE){const w=ccWorld(b),px=w[0],py=w[1],pz=w[2];
+  if(b.t<6)castleFront=Math.max(castleFront,px+CB/2);   // front wall line for collision
+  if(b.t===6){if(wizards.length<6)wizards.push({id:wizards.length+1,cd:0,attackCd:0,x:px,z:pz,y:py});}
+  else if(b.t===7){add('ranged',1,pz,{x:px,fortDef:true,platformY:py});}
+  else if(b.t===8){defenses.push({x:px,z:pz,y:py});}
+}}
+applyCastle();
+// Camera like the builder: DRAG to orbit, wheel to zoom. A TAP fires the castle defenses.
+// One finger = orbit + tap-fire. Two fingers = pinch zoom. Mouse wheel = zoom.
+let gdrag=null,ptrs=new Map(),pinch0=0,zoom0=1;
+cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId)}catch(_){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===1){gdrag={x:e.clientX,sx:e.clientX,sy:e.clientY,moved:false,id:e.pointerId};}
+  else{gdrag=null;const p=[...ptrs.values()];pinch0=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);zoom0=zoom;}});
+cv.addEventListener('pointermove',e=>{if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size>=2){const p=[...ptrs.values()],d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(pinch0>0)zoom=Math.max(1,Math.min(2.6,zoom0*d/pinch0));return;}
+  if(!gdrag)return;if(Math.abs(e.clientX-gdrag.sx)+Math.abs(e.clientY-gdrag.sy)>8)gdrag.moved=true;camA+=(e.clientX-gdrag.x)*0.006;gdrag.x=e.clientX;});
+function endPtr(e){
+  if(gdrag&&gdrag.id===e.pointerId&&!gdrag.moved&&ptrs.size===1&&castleCd<=0){
+    let r=cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top,best=null,bd=1e9;
+    for(let u of units){if(u.team!==-1||u.hp<=0)continue;let p=proj(u.x,4,u.z),d=Math.hypot(p.x-mx,p.y-my);if(d<bd){bd=d;best=u;}}
+    if(best&&bd<=175){let fired=0;
+      for(let dw of defenses){shots.push({kind:'boulder',x:dw.x,y:(dw.y||18)+6,z:dw.z,tx:best.x,tz:best.z,ty:5,d:40+fortLevel*12,team:1,life:1,aoe:12});fired++;}
+      for(let u of units){if(u.team===1&&u.fortDef&&u.role==='ranged'&&u.hp>0){shots.push({kind:'arrow',x:u.x,y:(u.platformY||0)+8,z:u.z,tx:best.x,tz:best.z,ty:5,target:best.id,team:1,d:16,life:1});fired++;}}
+      if(!fired)shots.push({kind:'boulder',x:PLAYER_FORT+2,y:24,z:0,tx:best.x,tz:best.z,ty:5,d:32+fortLevel*10,team:1,life:1,aoe:10});
+      castleCd=Math.max(.5,2.6-fortLevel*.42);
+    }
+  }
+  ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=0;if(ptrs.size===0)gdrag=null;
+}
+cv.addEventListener('pointerup',endPtr);cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('wheel',e=>{zoom=Math.max(1,Math.min(2.6,zoom-e.deltaY*0.0012));e.preventDefault();},{passive:false});
+for(let i=0;i<20;i++)add(i%7===0?'ranged':i%5===0?'defender':'assault',-1,(i%10-4.5)*4,{x:ENEMY_FORT-8-Math.floor(i/10)*1.2});requestAnimationFrame(loop);
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script></body></html>
