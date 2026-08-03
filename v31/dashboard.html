@@ -140,7 +140,7 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <div class="panel" id="tab-insights"><div id="insightsBody" style="color:var(--muted,#9aa0b0)">Loading…</div></div>
     <div class="panel" id="tab-analytics"><div class="astat" id="aStat"></div><div class="head2">Recent questions asked <span class="ct" id="qCt"></span></div><div id="qLog"></div></div>
     <div class="panel" id="tab-posts"><div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div><div id="postReview"></div></div>
-    <div class="panel" id="tab-social"><div class="head2">Social Queue <span class="ct" id="socialCt"></span></div><div id="socialReview"></div></div>
+    <div class="panel" id="tab-social"><div class="head2">Social Command <span class="ct" id="socialCt"></span></div><div id="socialFilters"></div><div id="socialReview"></div></div>
     <div class="panel" id="tab-venues"><div class="head2">Venue Bookings <span class="ct" id="bookCt"></span></div><div id="bookReview"></div></div>
     <div class="panel" id="tab-chat">
       <div class="chatwrap">
@@ -267,7 +267,7 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['posts','FEED'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
+var ADMIN_TABS=[['posts','FEED'],['social','Social Command'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events'],['insights','Insights']];
@@ -453,27 +453,92 @@ async function denyFeed(id,btn){ if(btn){btn.disabled=true;} try{ var r=await su
 async function pullPost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; var rv=btn&&btn.closest?btn.closest('.rv'):null; if(rv){rv.style.transition='opacity .2s';rv.style.opacity='0';setTimeout(function(){rv.remove();},200);} }catch(e){ if(btn)btn.disabled=false; alert('Could not pull: '+(e.message||e)); } }
 async function restorePost(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_agent_post_status',{p_id:id,p_status:'published'}); if(r.error)throw r.error; loadPostReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not restore: '+(e.message||e)); } }
 
+/* ===== Social Command (Founder 2026-08-02): filterable list of ALL social posts with
+   approve / deny / edit+schedule / mark-posted. Publish-on-approve fires the Zapier hook
+   (platform_config.zapier_hook_url) when configured; otherwise approve just queues. ===== */
+var SOCIAL_ROWS=[], SOC_STATUS='all', SOC_PLATFORM='all';
+function socStat(p){ if(p.crossposted_at) return 'posted'; if(p.status==='denied') return 'denied'; if(p.status==='approved') return 'approved'; return 'pending'; }
+function socWhen(p){ var t=p.scheduled_for||p.crossposted_at||p.reviewed_at||p.created_at; if(!t) return ''; var d=new Date(String(t).replace(' ','T')); if(isNaN(d)) return ''; return d.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
 async function loadSocialReview(){
-  var box=$('socialReview');
+  var box=$('socialReview'); box.innerHTML='<div class="rv-empty">Loading…</div>';
   try{
-    var r=await supa.rpc('get_social_posts_admin',{p_status:'draft',p_limit:80}); var rows=(r&&r.data)||[];
-    $('socialCt').textContent=rows.length+' awaiting approval';
-    if(!rows.length){ box.innerHTML='<div class="rv-empty">No social drafts awaiting approval. The marketing agent queues platform-ready posts here.</div>'; return; }
-    box.innerHTML=rows.map(function(p){
-      return '<div class="rv"><div class="info"><div class="t">'+esc((p.platform||'').toUpperCase())+'</div><div class="d">'+esc(p.body)+'</div><div class="tags"><span class="pill2">'+esc((p.agent_slug||'agent').toUpperCase())+'</span>'+(p.link_url?'<span class="pill2">→ '+esc(p.link_url.replace(/^https?:\/\//,''))+'</span>':'')+'</div></div><div class="acts"><button class="approve" onclick="approveSocial('+p.id+',this)">Approve &amp; post</button><button class="deny" onclick="denySocial('+p.id+',this)">Deny</button></div></div>';
-    }).join('');
+    var r=await supa.rpc('get_social_posts_admin',{p_status:null,p_limit:300}); SOCIAL_ROWS=(r&&r.data)||[];
+    renderSocial();
   }catch(e){ box.innerHTML='<div class="rv-empty">Could not load social queue.</div>'; }
 }
+function setSocStatus(s){ SOC_STATUS=s; renderSocial(); }
+function setSocPlatform(p){ SOC_PLATFORM=p; renderSocial(); }
+function renderSocial(){
+  var counts={all:SOCIAL_ROWS.length,pending:0,approved:0,posted:0,denied:0};
+  SOCIAL_ROWS.forEach(function(p){counts[socStat(p)]++;});
+  var labels=[['all','All'],['pending','Pending'],['approved','Approved'],['posted','Posted'],['denied','Denied']];
+  var pfs=['all','instagram','x','facebook','tiktok'];
+  var note = ZAP_HOOK ? '' : '<div style="background:#2a2410;border:1px solid #5a4a1a;color:#e8c15a;border-radius:10px;padding:9px 12px;font-size:.74rem;margin:2px 0 12px">Publishing hook not set — Approve queues the post; set <b>platform_config.zapier_hook_url</b> to auto-post on approve.</div>';
+  var fh=note+'<div style="display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 10px">'
+    +labels.map(function(l){return '<button onclick="setSocStatus(\''+l[0]+'\')" style="cursor:pointer;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.72rem;'+(SOC_STATUS===l[0]?'background:var(--accent);border-color:var(--accent);color:#fff':'background:var(--panel);color:var(--muted)')+'">'+l[1]+' '+(counts[l[0]]||0)+'</button>';}).join('')
+    +'</div><div style="margin:0 0 12px"><select onchange="setSocPlatform(this.value)" style="background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:7px 11px;font-size:.8rem">'
+    +pfs.map(function(x){return '<option value="'+x+'"'+(SOC_PLATFORM===x?' selected':'')+'>'+(x==='all'?'All platforms':x.charAt(0).toUpperCase()+x.slice(1))+'</option>';}).join('')
+    +'</select></div>';
+  $('socialFilters').innerHTML=fh;
+  var rows=SOCIAL_ROWS.filter(function(p){ if(SOC_STATUS!=='all'&&socStat(p)!==SOC_STATUS)return false; if(SOC_PLATFORM!=='all'&&p.platform!==SOC_PLATFORM)return false; return true; });
+  $('socialCt').textContent=rows.length+' post'+(rows.length!==1?'s':'');
+  var box=$('socialReview');
+  if(!rows.length){ box.innerHTML='<div class="rv-empty">No posts match these filters. New agent drafts land here as they’re queued.</div>'; return; }
+  var col={pending:'var(--warn)',approved:'var(--brand)',posted:'var(--brand-2)',denied:'#ff6b6b'};
+  box.innerHTML=rows.map(function(p){
+    var s=socStat(p);
+    var acts='<div class="acts">';
+    if(s!=='approved'&&s!=='posted') acts+='<button class="approve" onclick="approveSocial('+p.id+',this)">Approve</button>';
+    if(s!=='denied') acts+='<button class="deny" onclick="denySocial('+p.id+',this)">Deny</button>';
+    acts+='<button onclick="editSocial('+p.id+')" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 12px;font-weight:700;cursor:pointer">Edit / Schedule</button>';
+    if(s!=='posted') acts+='<button onclick="markPostedSocial('+p.id+',this)" style="background:var(--brand-2);border:0;color:#04241a;border-radius:8px;padding:7px 12px;font-weight:800;cursor:pointer">Mark Posted</button>';
+    acts+='</div>';
+    return '<div class="rv"><div class="info"><div class="t">'+esc((p.platform||'').toUpperCase())
+      +' <span style="color:var(--muted);font-weight:600">'+esc((p.agent_slug||'').toUpperCase())+'</span>'
+      +' <span style="color:'+col[s]+';font-size:.62rem;font-weight:800;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 7px;margin-left:3px">'+s+'</span>'
+      +(socWhen(p)?' <span style="color:var(--muted);font-size:.72rem;font-weight:500">· '+esc(socWhen(p))+'</span>':'')
+      +'</div><div class="d" style="white-space:pre-wrap">'+esc(p.body||'')+'</div>'
+      +(p.link_url?'<div class="tags"><span class="pill2">→ '+esc(p.link_url.replace(/^https?:\/\//,''))+'</span></div>':'')
+      +'</div>'+acts+'</div>';
+  }).join('');
+}
 async function approveSocial(id,btn){
-  if(btn){btn.disabled=true;btn.textContent='Posting…';}
+  if(btn){btn.disabled=true;btn.textContent='…';}
   try{
     var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'approved'}); if(r.error)throw r.error;
     var post=r.data;
     if(ZAP_HOOK && post){ try{ await fetch(ZAP_HOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'social',platform:post.platform,body:post.body,media_url:post.media_url,link_url:post.link_url})}); await supa.rpc('set_social_post_status',{p_id:id,p_status:'posted'}); }catch(e){} }
-    loadSocialReview();
-  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve & post';} alert('Could not approve: '+(e.message||e)); }
+    await loadSocialReview();
+  }catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve';} alert('Could not approve: '+(e.message||e)); }
 }
-async function denySocial(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; loadSocialReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not deny: '+(e.message||e)); } }
+async function denySocial(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'denied'}); if(r.error)throw r.error; await loadSocialReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not deny: '+(e.message||e)); } }
+async function markPostedSocial(id,btn){ if(btn)btn.disabled=true; try{ var r=await supa.rpc('set_social_post_status',{p_id:id,p_status:'posted'}); if(r.error)throw r.error; await loadSocialReview(); }catch(e){ if(btn)btn.disabled=false; alert('Could not update: '+(e.message||e)); } }
+function editSocial(id){
+  var p=SOCIAL_ROWS.filter(function(x){return x.id===id;})[0]; if(!p) return;
+  var w=''; if(p.scheduled_for){var d=new Date(String(p.scheduled_for).replace(' ','T')); if(!isNaN(d)){var pad=function(n){return String(n).padStart(2,'0');}; w=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());}}
+  var ov=document.createElement('div'); ov.id='socEditOv'; ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px';
+  ov.innerHTML='<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:540px;width:100%;padding:18px;max-height:88vh;overflow:auto">'
+    +'<div style="font-weight:800;color:#fff;margin-bottom:8px">Edit · '+esc(p.platform)+' · '+esc(p.agent_slug||'')+'</div>'
+    +'<label style="display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin:10px 0 4px">Post text</label>'
+    +'<textarea id="socEBody" style="width:100%;min-height:130px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px;font:inherit;font-size:.85rem"></textarea>'
+    +'<label style="display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin:10px 0 4px">Link URL</label>'
+    +'<input id="socELink" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 10px;font:inherit">'
+    +'<label style="display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin:10px 0 4px">Schedule for (blank = unscheduled)</label>'
+    +'<input id="socEWhen" type="datetime-local" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 10px;font:inherit">'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button onclick="closeSocEdit()" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer">Cancel</button><button id="socESave" style="background:var(--brand);border:0;color:#04121b;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer">Save</button></div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)closeSocEdit();});
+  $('socEBody').value=p.body||''; $('socELink').value=p.link_url||''; $('socEWhen').value=w;
+  $('socESave').onclick=async function(){
+    var body=$('socEBody').value, link=$('socELink').value.trim(), wv=$('socEWhen').value;
+    var sched= wv? new Date(wv).toISOString() : null;
+    this.disabled=true; this.textContent='Saving…';
+    try{ var r=await supa.rpc('set_social_post_content',{p_id:id,p_body:body,p_link:link||null,p_scheduled:sched}); if(r.error)throw r.error; closeSocEdit(); await loadSocialReview(); }
+    catch(e){ this.disabled=false; this.textContent='Save'; alert('Save failed: '+(e.message||e)); }
+  };
+}
+function closeSocEdit(){ var o=$('socEditOv'); if(o)o.remove(); }
 
 /* ===== Website Brain: QA runs + admin access ===== */
 async function loadQaRuns(){
