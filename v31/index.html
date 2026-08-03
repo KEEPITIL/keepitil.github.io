@@ -462,6 +462,14 @@
   #evx .evx-subinline .evx-gn.active{border-style:solid;opacity:1;background:var(--green);border-color:var(--green);color:#06120a;}
 }
 @media(max-width:860px){ #evx .evx-subinline{display:none;} }
+/* ── MOBILE (Founder 2026-08-02): no category chip row — the whole page swipes left/right to
+   change category. Top bar keeps ONLY Months + the active category's subfilter. A brief center
+   toast confirms the category on each swipe. ── */
+@media(max-width:860px){
+  #evx #evx-genres{display:none!important;}
+  #evx .evx-cat-toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1200;background:rgba(6,6,12,.9);color:#fff;border:1px solid var(--green);border-radius:14px;padding:13px 26px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.95rem;opacity:0;transition:opacity .18s;pointer-events:none;white-space:nowrap;}
+  #evx .evx-cat-toast.on{opacity:1;}
+}
 #evx #evx-months{gap:8px;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:54px;padding:8px 4px;text-align:center;font-size:.66rem;letter-spacing:.06em;}
 #evx .evx-mhead{display:flex;align-items:baseline;gap:12px;max-width:1180px;margin:52px auto 2px;padding:0 24px;scroll-margin-top:150px;}
@@ -2167,6 +2175,35 @@ function setGenre(g){
 document.addEventListener('click',function(e){ var dd=document.getElementById('evx-catdd'); if(dd&&!dd.contains(e.target)){ var m=document.getElementById('evx-catdd-menu'); if(m)m.classList.remove('on'); var b=document.getElementById('evx-catdd-btn'); if(b)b.setAttribute('aria-expanded','false'); } });
 /* re-render the filter bar on desktop<->mobile crossover so the right UI (dropdown vs chips) shows */
 var _fbMed; try{ _fbMed=window.matchMedia('(min-width:861px)'); (_fbMed.addEventListener?_fbMed.addEventListener('change',function(){buildGenres();}):_fbMed.addListener(function(){buildGenres();})); }catch(e){}
+/* ── MOBILE swipe-to-change-category (Founder 2026-08-02) ──────────────────────────────────
+   Horizontal swipe anywhere OUTSIDE a horizontal scroller (the per-day carousels, the nav rows)
+   cycles the top-level category. A center toast confirms the change. Desktop is unaffected. */
+function isMobileNow(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
+var _catToastT;
+function showCatToast(label){
+  var el=document.querySelector('#evx .evx-cat-toast');
+  if(!el){ el=document.createElement('div'); el.className='evx-cat-toast'; (document.getElementById('evx')||document.body).appendChild(el); }
+  el.textContent=label; el.classList.add('on'); clearTimeout(_catToastT); _catToastT=setTimeout(function(){ el.classList.remove('on'); },900);
+}
+(function(){
+  var x0=null,y0=null,t0=0;
+  document.addEventListener('touchstart',function(e){
+    if(!isMobileNow()){ x0=null; return; }
+    var t=e.target;
+    if(t&&t.closest&&t.closest('.evx-carousel,.evx-row,.evx-nav-row,#kil-bnav,#kil-radio,.evx-catdd-menu,input,textarea,select')){ x0=null; return; }
+    var tt=e.touches[0]; x0=tt.clientX; y0=tt.clientY; t0=Date.now();
+  },{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(x0==null) return;
+    var tt=e.changedTouches[0]; var dx=tt.clientX-x0, dy=tt.clientY-y0, dt=Date.now()-t0; x0=null;
+    if(dt>700) return;
+    if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.7) return; /* clearly-horizontal only */
+    var i=0; for(var k=0;k<CATS.length;k++){ if(CATS[k][0]===activeCat){ i=k; break; } }
+    var n=CATS.length, ni=dx<0?(i+1)%n:(i-1+n)%n;
+    setCat(CATS[ni][0]); showCatToast(CATS[ni][1]);
+    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(_e){ window.scrollTo(0,0); }
+  },{passive:true});
+})();
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(markScroll,120);});
 /* ── PERSONALIZED HOMEPAGE (Founder PRIORITY 4, 2026-07-29) ───────────────────────────
    Signals, cheapest first: localStorage (written by /v31/onboarding.html — instant, no
