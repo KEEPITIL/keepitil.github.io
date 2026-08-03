@@ -1,0 +1,13 @@
+'use strict';
+const fs=require('fs'),path=require('path');
+const root=__dirname,registry=JSON.parse(fs.readFileSync(path.join(root,'metadata/launch_audio_registry.json'),'utf8'));
+const requiredFolders=['music','ambience','ui','weapons','projectiles','impacts','fortress','bosses','voice','rewards','exports','metadata','archive'];
+const errors=[];
+for(const f of requiredFolders)if(!fs.existsSync(path.join(root,f)))errors.push('Missing audio folder: '+f);
+if(registry.classification!=='historically_inspired')errors.push('Historical classification must remain historically_inspired');
+if(!registry.maximumAudibleVoices||registry.maximumAudibleVoices.mobile!==32)errors.push('Mobile voice budget must be 32');
+if(!Array.isArray(registry.civilizations)||registry.civilizations.length!==5)errors.push('Five civilization audio identities required');
+for(const e of registry.events||[])for(const k of ['eventId','category','priority','maximumInstances','minimumReplayDelay','mixerGroup'])if(e[k]===undefined)errors.push(e.eventId+' missing '+k);
+const name=/^audio_[a-z0-9]+_[a-z0-9]+(?:_[a-z0-9]+){2,}_[0-9]{2}_v[0-9]{2}$/;
+const template=JSON.parse(fs.readFileSync(path.join(root,'metadata/audio_asset_template.json'),'utf8'));if(!name.test(template.audioId))errors.push('Template audioId violates naming standard');
+if(errors.length){console.error(errors.join('\n'));process.exit(1);}console.log('Audio production foundation validation passed');

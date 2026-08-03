@@ -1322,7 +1322,11 @@ function update(dt){
       const dx = (u.slotX||u.x) - u.x, dy = (u.slotY||u.y) - u.y, dist = Math.hypot(dx,dy);
       if (dist > .8) moving=steerMove(u,u.slotX||u.x,u.slotY||u.y,spd*(u.reinforceT>0?1.28:1),dt,.8);
       else if(carried)moving=true;
-      u.face = (moving && Math.abs(dx) > 1) ? (dx >= 0 ? 1 : -1) : 1;   // turn to face the direction of travel
+      // Hold the line facing the enemy. Only turn toward travel during a GENUINE
+      // reposition (a long move back, e.g. reverse march or retreat). Tiny slot
+      // corrections and the ±5px anti-overlap/knockback nudges must NOT flip facing,
+      // or settling soldiers jitter between facing the castle and the enemy.
+      u.face = (moving && dx < -22) ? -1 : 1;   // face enemy by default; -1 only on a real march/retreat backward
       let ffoe = (foe && foe.d <= range + 6) ? foe : null;
       if (!ffoe){ const nn = nearest(u); if (nn && nn.d <= range + 6) ffoe = nn; }
       if (ffoe){

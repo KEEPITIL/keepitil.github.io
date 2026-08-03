@@ -67,14 +67,19 @@ function poseFor(cls,st,p,t){
   let po={px:0,py:0,lean:0,headTilt:0,alpha:1,
     legF:{fwd:0.05,bend:0.16,tilt:0},legB:{fwd:-0.05,bend:0.16,tilt:0},
     armN:{fwd:0.3,bend:1.2},armF2:{fwd:0.4,bend:1.2},extra:{}};
-  const walk=(amp)=>{const ml=(ps)=>({fwd:amp*ps,bend:0.18+Math.max(0,-ps)*0.8,tilt:Math.max(0,-ps)*0.4});po.legF=ml(s);po.legB=ml(-s);po.py=-Math.abs(s2)*2.0;po.lean=0.06;};
-  if(st==='idle'){ po.py=Math.sin(t*1.5)*0.9; }
-  else if(st==='march'){ walk(0.24); po.lean=0.03; }        // tight formation steps, upright
-  else if(st==='run'){ walk(0.54); po.lean=0.20; po.py-=1.4; } // long stride, leaning charge
+  const walk=(amp,run)=>{const ml=(ps)=>({fwd:amp*ps,bend:0.18+Math.max(0,-ps)*0.8,tilt:Math.max(0,-ps)*0.4});
+    po.legF=ml(s);po.legB=ml(-s);
+    po.py=-Math.abs(s2)*(run?2.6:2.0);          // vertical bob on each footfall
+    po.headTilt=-s*(run?0.06:0.04);             // head counter-sways to stay level (secondary motion)
+    po.px=s*(run?1.3:0.55);                       // subtle weight-shift into each stride
+    po.extra.stride=s;};
+  if(st==='idle'){ const b=Math.sin(t*1.5), sway=Math.sin(t*0.8); po.py=b*0.9; po.lean=0.01+b*0.012; po.headTilt=sway*0.03; po.extra.breathe=b; }
+  else if(st==='march'){ walk(0.24,false); po.lean=0.03; }        // tight formation steps, upright
+  else if(st==='run'){ walk(0.54,true); po.lean=0.20; po.py-=1.4; } // long stride, leaning charge
   if(cls==='sword'){
     po.armF2={fwd:0.28,bend:1.5};          // shield arm (near, drawn as F front)
     po.armN ={fwd:0.10,bend:1.32};         // sword arm (far)
-    if(st==='attack'){const thr=ss(.15,.45,p)*(1-ss(.55,.9,p));po.px=thr*8;po.armN={fwd:lerp(0.1,1.5,thr),bend:lerp(1.32,0.15,thr)};po.extra.trail=thr;}
+    if(st==='attack'){const wind=ss(0,.15,p),thr=ss(.15,.45,p)*(1-ss(.55,.9,p));po.px=-wind*3+thr*12;po.lean=thr*0.16-wind*0.04;po.legF={fwd:0.05+thr*0.3,bend:0.16,tilt:0};po.armN={fwd:lerp(0.1,1.55,thr),bend:lerp(1.32,0.12,thr)};po.extra.trail=thr;}
     else if(st==='overhead'){                       // flying overhead chop (post shield-break charge)
       const rise=ss(0,.4,p), slam=ss(.4,.6,p);
       po.py = -Math.sin(ss(0,.62,p)*Math.PI)*20;     // leap up then land
