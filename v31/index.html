@@ -441,6 +441,27 @@
 #evx .evx-subrow.on{display:flex;}
 #evx .evx-subrow .evx-gn{flex:0 0 auto;font-size:.58rem;opacity:.9;border-style:dashed;}
 #evx .evx-subrow .evx-gn.active{border-style:solid;opacity:1;}
+/* ── DESKTOP category dropdown (Founder 2026-08-02): collapse ALL·MUSIC·VS·SFTU·FESTIVAL into a
+   single dropdown-icon selector; the active category's subfilters render INLINE on the same row.
+   Mobile is untouched (keeps the scrollable chip rows). ── */
+@media(min-width:861px){
+  #evx #evx-genres.evx-catdd-row{overflow:visible;justify-content:flex-start;flex-wrap:nowrap;gap:12px;}
+  #evx #evx-subgenres{display:none!important;} /* on desktop the subfilters move inline next to the dropdown */
+  #evx .evx-catdd{position:relative;flex:0 0 auto;}
+  #evx .evx-catdd-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;background:var(--green);border:1px solid var(--green);color:#06120a;font-size:.66rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;white-space:nowrap;}
+  #evx .evx-catdd-ic{font-size:.8rem;line-height:1;transition:transform .2s;}
+  #evx .evx-catdd-btn[aria-expanded="true"] .evx-catdd-ic{transform:rotate(180deg);}
+  #evx .evx-catdd-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:60;display:none;flex-direction:column;min-width:170px;background:#0d0d16;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;box-shadow:0 14px 40px rgba(0,0,0,.6);}
+  #evx .evx-catdd-menu.on{display:flex;}
+  #evx .evx-catdd-opt{text-align:left;padding:9px 12px;border-radius:8px;background:transparent;border:0;color:#c8d0d8;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;}
+  #evx .evx-catdd-opt:hover{background:rgba(255,255,255,.06);color:#fff;}
+  #evx .evx-catdd-opt.active{color:var(--green);}
+  #evx .evx-subinline{display:inline-flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;min-width:0;}
+  #evx .evx-subinline::-webkit-scrollbar{display:none;}
+  #evx .evx-subinline .evx-gn{flex:0 0 auto;font-size:.58rem;opacity:.9;border-style:dashed;}
+  #evx .evx-subinline .evx-gn.active{border-style:solid;opacity:1;background:var(--green);border-color:var(--green);color:#06120a;}
+}
+@media(max-width:860px){ #evx .evx-subinline{display:none;} }
 #evx #evx-months{gap:8px;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:54px;padding:8px 4px;text-align:center;font-size:.66rem;letter-spacing:.06em;}
 #evx .evx-mhead{display:flex;align-items:baseline;gap:12px;max-width:1180px;margin:52px auto 2px;padding:0 24px;scroll-margin-top:150px;}
@@ -2037,23 +2058,44 @@ function buildMonths(){
   el.innerHTML=MONTHS.map(function(mk){return '<button class="evx-mo'+(mk===activeMonth?' active':'')+'" data-m="'+mk+'">'+mLabel(mk)+'</button>';}).join('');
   el.querySelectorAll('.evx-mo').forEach(function(b){b.onclick=function(){gotoMonth(b.dataset.m);};});
 }
+function isDeskFilters(){ try{ return window.matchMedia('(min-width:861px)').matches; }catch(e){ return true; } }
 function buildGenres(){
   var el=document.getElementById('evx-genres'); if(!el) return;
   /* Founder 2026-07-31: the 5 top tabs (ALL · MUSIC · VS · SFTU · FESTIVAL) ALWAYS render,
      even when a bucket is currently empty, so the filter structure is always visible. */
   var present={}; EVENTS.forEach(function(e){ present[e.ecat||'music']=1; });
   var cats=CATS.filter(function(c){ return CAT_ALWAYS[c[0]] || present[c[0]]; });
-  el.innerHTML=cats.map(function(c){return '<button class="evx-gn'+(c[0]===activeCat?' active':'')+'" data-c="'+c[0]+'">'+c[1]+'</button>';}).join('');
-  el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setCat(b.dataset.c);};});
+  if(isDeskFilters()){
+    /* DESKTOP (Founder 2026-08-02): single dropdown-icon selector; subfilters render inline on the same row. */
+    var cur=null; for(var i=0;i<CATS.length;i++){ if(CATS[i][0]===activeCat) cur=CATS[i]; } if(!cur) cur=CATS[0];
+    el.classList.add('evx-catdd-row');
+    el.innerHTML='<div class="evx-catdd" id="evx-catdd">'
+      +'<button type="button" class="evx-catdd-btn" id="evx-catdd-btn" aria-haspopup="true" aria-expanded="false"><span class="evx-catdd-ic">▾</span><span class="evx-catdd-lb">'+cur[1]+'</span></button>'
+      +'<div class="evx-catdd-menu" id="evx-catdd-menu" role="menu">'
+        +cats.map(function(c){return '<button type="button" class="evx-catdd-opt'+(c[0]===activeCat?' active':'')+'" data-c="'+c[0]+'" role="menuitem">'+c[1]+'</button>';}).join('')
+      +'</div></div><span class="evx-subinline" id="evx-subinline"></span>';
+    var btn=document.getElementById('evx-catdd-btn'), menu=document.getElementById('evx-catdd-menu');
+    btn.onclick=function(ev){ ev.stopPropagation(); var open=menu.classList.toggle('on'); btn.setAttribute('aria-expanded',open?'true':'false'); };
+    menu.querySelectorAll('.evx-catdd-opt').forEach(function(b){ b.onclick=function(){ menu.classList.remove('on'); btn.setAttribute('aria-expanded','false'); setCat(b.dataset.c); }; });
+  } else {
+    /* MOBILE: unchanged scrollable chip row */
+    el.classList.remove('evx-catdd-row');
+    el.innerHTML=cats.map(function(c){return '<button class="evx-gn'+(c[0]===activeCat?' active':'')+'" data-c="'+c[0]+'">'+c[1]+'</button>';}).join('');
+    el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setCat(b.dataset.c);};});
+  }
   buildSubGenres();
 }
 function buildSubGenres(){
-  var el=document.getElementById('evx-subgenres'); if(!el) return;
+  var desk=isDeskFilters();
+  var el=desk?document.getElementById('evx-subinline'):document.getElementById('evx-subgenres');
+  var other=desk?document.getElementById('evx-subgenres'):document.getElementById('evx-subinline');
+  if(other){ other.innerHTML=''; if(other.id==='evx-subgenres') other.className='evx-nav-row evx-subrow'; }
+  if(!el) return;
   var cat=null; for(var i=0;i<CATS.length;i++){ if(CATS[i][0]===activeCat) cat=CATS[i]; }
-  if(!activeCat||!cat||!cat[2].length){ el.className='evx-nav-row evx-subrow'; el.innerHTML=''; return; }
+  if(!activeCat||!cat||!cat[2].length){ if(el.id==='evx-subgenres') el.className='evx-nav-row evx-subrow'; el.innerHTML=''; return; }
   /* Founder 2026-07-31: show the FULL subfilter for the active category (always visible), not only present ones. */
   var subs=cat[2];
-  el.className='evx-nav-row evx-subrow on';
+  if(el.id==='evx-subgenres') el.className='evx-nav-row evx-subrow on';
   el.innerHTML='<button class="evx-gn'+(activeGenre===''?' active':'')+'" data-g="">ALL '+cat[1]+'</button>'
     +subs.map(function(s){return '<button class="evx-gn'+(s[0]===activeGenre?' active':'')+'" data-g="'+s[0]+'">'+s[1]+'</button>';}).join('');
   el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setGenre(b.dataset.g);};});
@@ -2112,14 +2154,19 @@ function markScroll(){document.querySelectorAll('#evx .evx-carousel').forEach(up
 function gotoMonth(mk){activeMonth=mk;document.querySelectorAll('#evx .evx-mo').forEach(function(b){b.classList.toggle('active',b.dataset.m===mk);});buildMustSee();buildRecent();var mh=document.getElementById('evx-mh-'+mk);if(mh)mh.scrollIntoView({behavior:'smooth',block:'start'});}
 function setCat(c){
   activeCat=c; activeGenre=''; /* switching industry resets the sub-filter */
-  document.querySelectorAll('#evx-genres .evx-gn').forEach(function(b){b.classList.toggle('active',b.dataset.c===c);});
-  buildSubGenres(); buildMustSee(); buildRecent(); buildDays();
+  if(isDeskFilters()){ buildGenres(); } /* re-render dropdown label + inline subfilters */
+  else { document.querySelectorAll('#evx-genres .evx-gn').forEach(function(b){b.classList.toggle('active',b.dataset.c===c);}); buildSubGenres(); }
+  buildMustSee(); buildRecent(); buildDays();
 }
 function setGenre(g){
   activeGenre=g;
-  document.querySelectorAll('#evx-subgenres .evx-gn').forEach(function(b){b.classList.toggle('active',b.dataset.g===g);});
+  document.querySelectorAll('#evx-subgenres .evx-gn,#evx-subinline .evx-gn').forEach(function(b){b.classList.toggle('active',b.dataset.g===g);});
   buildMustSee(); buildRecent(); buildDays();
 }
+/* close the desktop category dropdown on any outside click (attached once) */
+document.addEventListener('click',function(e){ var dd=document.getElementById('evx-catdd'); if(dd&&!dd.contains(e.target)){ var m=document.getElementById('evx-catdd-menu'); if(m)m.classList.remove('on'); var b=document.getElementById('evx-catdd-btn'); if(b)b.setAttribute('aria-expanded','false'); } });
+/* re-render the filter bar on desktop<->mobile crossover so the right UI (dropdown vs chips) shows */
+var _fbMed; try{ _fbMed=window.matchMedia('(min-width:861px)'); (_fbMed.addEventListener?_fbMed.addEventListener('change',function(){buildGenres();}):_fbMed.addListener(function(){buildGenres();})); }catch(e){}
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(markScroll,120);});
 /* ── PERSONALIZED HOMEPAGE (Founder PRIORITY 4, 2026-07-29) ───────────────────────────
    Signals, cheapest first: localStorage (written by /v31/onboarding.html — instant, no
