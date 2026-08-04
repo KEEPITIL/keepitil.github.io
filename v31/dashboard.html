@@ -141,6 +141,7 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <div class="panel" id="tab-analytics"><div class="astat" id="aStat"></div><div class="head2">Recent questions asked <span class="ct" id="qCt"></span></div><div id="qLog"></div></div>
     <div class="panel" id="tab-posts"><div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div><div id="postReview"></div></div>
     <div class="panel" id="tab-social"><div class="head2">Social Command <span class="ct" id="socialCt"></span></div><div id="socialFilters"></div><div id="socialReview"></div></div>
+    <div class="panel" id="tab-campaigns"><div class="head2">Campaigns <span class="ct" id="campCt"></span></div><div id="campControls"></div><div id="campBody"></div></div>
     <div class="panel" id="tab-venues"><div class="head2">Venue Bookings <span class="ct" id="bookCt"></span></div><div id="bookReview"></div></div>
     <div class="panel" id="tab-chat">
       <div class="chatwrap">
@@ -267,7 +268,7 @@ async function load(){
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
 var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
-var ADMIN_TABS=[['posts','FEED'],['social','Social Command'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
+var ADMIN_TABS=[['posts','FEED'],['social','Social Command'],['campaigns','Campaigns'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
   var nav=$('subnav'); var tabs=[['events','Events'],['insights','Insights']];
@@ -295,6 +296,7 @@ function showTab(name){
     else if(g==='analytics') loadAnalytics();
     else if(g==='posts') loadPostReview();
     else if(g==='social') loadSocialReview();
+    else if(g==='campaigns') loadCampaigns();
     else if(g==='venues') loadBookingReview();
     else if(g==='chat'){ clearAgentLog(); loadGroup(); }
     else if(g==='knowledge') loadKnowledge();
@@ -539,6 +541,129 @@ function editSocial(id){
   };
 }
 function closeSocEdit(){ var o=$('socEditOv'); if(o)o.remove(); }
+
+/* ===== Campaigns (Postiz-style: List + month Calendar) — Founder 2026-08-04 ===== */
+var CAMP_VIEW='list', CAMPAIGNS=[], CVARIANTS=[], CRESULTS=[], campCalRef=new Date();
+try{ CAMP_VIEW=localStorage.getItem('camp_view')||'list'; }catch(e){}
+function campColor(s){ return {pending:'var(--warn)',ready_for_review:'var(--warn)',approved:'var(--brand)',scheduled:'var(--brand-2)',publishing:'var(--brand-2)',published:'var(--brand-2)',denied:'#ff6b6b',changes_requested:'#ff9f43',draft_failed:'#ff6b6b'}[s]||'var(--muted)'; }
+function campWhen(v){ if(!v.scheduled_for) return ''; var d=new Date(String(v.scheduled_for).replace(' ','T')); return isNaN(d)?'':d.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
+async function loadCampaigns(){
+  var box=$('campBody'); box.innerHTML='<div class="rv-empty">Loading…</div>';
+  try{
+    var cr=await supa.from('marketing_campaigns').select('*').order('created_at',{ascending:false}); CAMPAIGNS=(cr&&cr.data)||[];
+    var vr=await supa.from('campaign_variants').select('*'); CVARIANTS=(vr&&vr.data)||[];
+    var mr=await supa.from('marketing_results').select('*'); CRESULTS=(mr&&mr.data)||[];
+    var byC={}; CVARIANTS.forEach(function(v){ (byC[v.campaign_id]=byC[v.campaign_id]||[]).push(v); });
+    CAMPAIGNS.forEach(function(c){ c._v=(byC[c.id]||[]).sort(function(a,b){return a.platform<b.platform?-1:1;}); });
+    var fr=await supa.from('platform_config').select('key,value').in('key',['campaigns_beta_enabled','campaigns_postiz_enabled']);
+    var f={}; ((fr&&fr.data)||[]).forEach(function(x){f[x.key]=x.value;}); window.__campGate=(f.campaigns_beta_enabled==='true'&&f.campaigns_postiz_enabled==='true');
+    renderCamp();
+  }catch(e){ box.innerHTML='<div class="rv-empty">Could not load campaigns.</div>'; }
+}
+function setCampView(v){ CAMP_VIEW=v; try{localStorage.setItem('camp_view',v);}catch(e){} renderCamp(); }
+function campCalMove(n){ campCalRef=new Date(campCalRef.getFullYear(),campCalRef.getMonth()+n,1); renderCamp(); }
+function renderCamp(){
+  $('campCt').textContent=CAMPAIGNS.length+' campaign'+(CAMPAIGNS.length!==1?'s':'');
+  var gate=window.__campGate?'':'<div style="background:#2a2410;border:1px solid #5a4a1a;color:#e8c15a;border-radius:10px;padding:9px 12px;font-size:.74rem;margin:2px 0 12px">Publishing OFF — Approve/Schedule only stages posts; nothing goes live until <b>campaigns_beta_enabled</b> + <b>campaigns_postiz_enabled</b> are ON.</div>';
+  var seg='<div style="display:inline-flex;background:var(--panel2);border-radius:9px;padding:3px;margin-bottom:12px">'
+    +'<button onclick="setCampView(\'list\')" style="border:0;border-radius:7px;padding:6px 14px;font-weight:700;font-size:.75rem;cursor:pointer;'+(CAMP_VIEW==='list'?'background:var(--panel);color:#fff':'background:none;color:var(--muted)')+'">&#9776; List</button>'
+    +'<button onclick="setCampView(\'cal\')" style="border:0;border-radius:7px;padding:6px 14px;font-weight:700;font-size:.75rem;cursor:pointer;'+(CAMP_VIEW==='cal'?'background:var(--panel);color:#fff':'background:none;color:var(--muted)')+'">&#9638; Calendar</button>'
+    +'<button onclick="setCampView(\'metrics\')" style="border:0;border-radius:7px;padding:6px 14px;font-weight:700;font-size:.75rem;cursor:pointer;'+(CAMP_VIEW==='metrics'?'background:var(--panel);color:#fff':'background:none;color:var(--muted)')+'">&#128202; Metrics</button></div>';
+  $('campControls').innerHTML=gate+seg;
+  if(CAMP_VIEW==='metrics'){ $('campBody').innerHTML=campMetricsHTML(); return; }
+  if(!CAMPAIGNS.length){ $('campBody').innerHTML='<div class="rv-empty">No campaigns yet. The Conductor drafts them into READY_FOR_REVIEW.</div>'; return; }
+  $('campBody').innerHTML = CAMP_VIEW==='cal' ? campCalHTML() : campListHTML();
+}
+function campListHTML(){
+  return CAMPAIGNS.map(function(c){
+    var head='<div class="rv" style="display:block"><div class="info"><div class="t">'+esc(c.objective||'Campaign')
+      +' <span style="color:'+campColor(c.status)+';font-size:.6rem;font-weight:800;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 7px;margin-left:4px">'+esc(c.status)+'</span></div>'
+      +'<div class="d" style="color:var(--muted)">'+esc(c.audience||'')+' &middot; '+esc(c.cta||'')+' &rarr; '+esc((c.destination||'').replace(/^https?:\/\//,''))+'</div>'
+      +'<div class="tags"><span class="pill2">agents: '+esc((c.agents||[]).join(', '))+'</span>'+((c.revenue_opportunity&&c.revenue_opportunity.affiliate)?'<span class="pill2">aff: '+esc(c.revenue_opportunity.affiliate)+'</span>':'')+'</div></div>';
+    var vs=(c._v||[]).map(function(v){
+      var s=v.approval_status; var acts='<div class="acts">';
+      if(s!=='approved') acts+='<button class="approve" onclick="campApprove('+v.id+','+(v.content_version||1)+',this)">Approve</button>';
+      if(s!=='denied') acts+='<button class="deny" onclick="campDeny('+v.id+',this)">Deny</button>';
+      acts+='<button onclick="campEdit('+v.id+')" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Edit / Schedule</button></div>';
+      return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;background:var(--panel2)">'
+        +'<div><span style="text-transform:uppercase;font-size:.7rem;font-weight:800;color:var(--brand)">'+esc(v.platform)+'</span>'
+        +' <span style="color:'+campColor(s)+';font-size:.58rem;font-weight:800;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 6px;margin-left:3px">'+esc(s)+'</span>'
+        +(campWhen(v)?' <span style="color:var(--muted);font-size:.72rem">&middot; '+esc(campWhen(v))+'</span>':'')+'</div>'
+        +'<div style="font-weight:700;margin-top:4px">'+esc(v.hook||'')+'</div><div style="color:var(--muted);font-size:.85rem;white-space:pre-wrap;margin-top:2px">'+esc(v.body||'')+'</div>'+acts+'</div>';
+    }).join('');
+    return head+vs+'</div>';
+  }).join('');
+}
+function campCalHTML(){
+  var y=campCalRef.getFullYear(), m=campCalRef.getMonth(), first=new Date(y,m,1), start=first.getDay(), days=new Date(y,m+1,0).getDate();
+  var today=new Date(); today.setHours(0,0,0,0);
+  var byDay={}, unsched=[]; var pc={instagram:'#c13584',x:'#111',facebook:'#1877f2',tiktok:'#1a1a1a',youtube:'#ff0000'};
+  CVARIANTS.forEach(function(v){ if(!v.scheduled_for){unsched.push(v);return;} var d=new Date(String(v.scheduled_for).replace(' ','T')); if(isNaN(d)){unsched.push(v);return;} if(d.getFullYear()===y&&d.getMonth()===m){(byDay[d.getDate()]=byDay[d.getDate()]||[]).push(v);} });
+  var mn=campCalRef.toLocaleString([], {month:'long',year:'numeric'});
+  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><b style="font-size:15px">'+mn+'</b><div style="display:flex;gap:6px"><button onclick="campCalMove(-1)" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&lsaquo;</button><button onclick="campCalRef=new Date();renderCamp()" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">Today</button><button onclick="campCalMove(1)" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&rsaquo;</button></div></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(function(d){return '<div style="font-size:.6rem;font-weight:800;color:var(--muted);text-align:center;text-transform:uppercase">'+d+'</div>';}).join('');
+  for(var i=0;i<start;i++) h+='<div style="background:var(--panel2);border-radius:8px;min-height:76px;opacity:.4"></div>';
+  for(var d=1;d<=days;d++){ var cd=new Date(y,m,d); var isT=cd.getTime()===today.getTime(); var posts=byDay[d]||[];
+    h+='<div style="background:var(--panel2);border:1px solid var(--line);border-radius:8px;min-height:76px;padding:5px"><div style="font-size:.66rem;font-weight:700;color:'+(isT?'#ffe08a':'var(--muted)')+'">'+d+'</div>'
+      +posts.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:block;font-size:.6rem;margin-top:3px;padding:2px 5px;border-radius:5px;color:#fff;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:'+(pc[v.platform]||'#555')+'">'+esc(v.platform.slice(0,2).toUpperCase())+' '+esc(v.approval_status.slice(0,4))+'</span>';}).join('')+'</div>';
+  }
+  h+='</div>';
+  if(unsched.length){ h+='<div style="background:var(--panel);border:1px dashed var(--line);border-radius:11px;padding:11px;margin-top:14px"><div style="font-size:.72rem;color:var(--muted);margin-bottom:7px">Unscheduled ('+unsched.length+') &mdash; open a variant to set a date</div>'
+    +unsched.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:inline-block;margin:3px;font-size:.66rem;padding:3px 8px;border-radius:6px;color:#fff;cursor:pointer;background:'+(pc[v.platform]||'#555')+'">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</span>';}).join('')+'</div>'; }
+  return h;
+}
+async function campApprove(id,ver,btn){ if(btn){btn.disabled=true;btn.textContent='…';}
+  try{ var r=await supa.rpc('approve_variant',{p_variant_id:id,p_content_version:ver}); if(r.error)throw r.error; loadCampaigns(); }
+  catch(e){ if(btn){btn.disabled=false;btn.textContent='Approve';} alert('Approve failed: '+(e.message||e)); } }
+async function campDeny(id,btn){ if(btn)btn.disabled=true;
+  try{ var r=await supa.from('campaign_variants').update({approval_status:'denied'}).eq('id',id); if(r.error)throw r.error; loadCampaigns(); }
+  catch(e){ if(btn)btn.disabled=false; alert('Deny failed: '+(e.message||e)); } }
+function campEdit(id){
+  var v=CVARIANTS.filter(function(x){return x.id===id;})[0]; if(!v) return;
+  var w=''; if(v.scheduled_for){var d=new Date(String(v.scheduled_for).replace(' ','T')); if(!isNaN(d)){var p=function(n){return String(n).padStart(2,'0');}; w=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());}}
+  var ov=document.createElement('div'); ov.id='campEditOv'; ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px';
+  ov.innerHTML='<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:540px;width:100%;padding:18px;max-height:88vh;overflow:auto">'
+    +'<div style="font-weight:800;color:#fff;margin-bottom:6px">Edit &middot; '+esc(v.platform)+'</div>'
+    +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:8px">Editing bumps the version and clears prior approval (content-hash safety).</div>'
+    +'<label style="display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin:8px 0 4px">Hook</label>'
+    +'<input id="campEHook" type="text" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 10px;font:inherit">'
+    +'<label style="display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin:10px 0 4px">Body</label>'
+    +'<textarea id="campEBody" style="width:100%;min-height:110px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px;font:inherit;font-size:.85rem"></textarea>'
+    +'<label style="display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin:10px 0 4px">Schedule for (blank = unscheduled)</label>'
+    +'<input id="campEWhen" type="datetime-local" style="width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:9px 10px;font:inherit">'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button onclick="closeCampEdit()" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer">Cancel</button><button id="campESave" style="background:var(--brand);border:0;color:#04121b;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer">Save</button></div></div>';
+  document.body.appendChild(ov); ov.addEventListener('click',function(e){if(e.target===ov)closeCampEdit();});
+  $('campEHook').value=v.hook||''; $('campEBody').value=v.body||''; $('campEWhen').value=w;
+  $('campESave').onclick=async function(){
+    var wv=$('campEWhen').value; var sched= wv? new Date(wv).toISOString() : null;
+    this.disabled=true; this.textContent='Saving…';
+    try{ var r=await supa.from('campaign_variants').update({hook:$('campEHook').value, body:$('campEBody').value, scheduled_for:sched, content_version:(v.content_version||1)+1, approval_status:'ready_for_review', approved_content_hash:null, approved_by:null, approved_at:null}).eq('id',id); if(r.error)throw r.error; closeCampEdit(); loadCampaigns(); }
+    catch(e){ this.disabled=false; this.textContent='Save'; alert('Save failed: '+(e.message||e)); }
+  };
+}
+function closeCampEdit(){ var o=$('campEditOv'); if(o)o.remove(); }
+function campMetricsHTML(){
+  var published=CVARIANTS.filter(function(v){return v.approval_status==='published';}).length;
+  if(!CRESULTS.length){
+    return '<div class="rv-empty" style="line-height:1.7">No metrics yet.<br><small>Impressions, reach, clicks, ticket clicks and revenue populate here automatically once campaigns publish and analytics sync from Postiz. '+
+      (published?published+' variant(s) published — analytics arrive on the next sync.':'Nothing published yet (publishing is gated OFF).')+'</small></div>';
+  }
+  var sum=function(k){ return CRESULTS.reduce(function(a,r){return a+(Number(r[k])||0);},0); };
+  var money=function(c){ return '$'+((c||0)/100).toFixed(2); };
+  var tile=function(l,v,accent){ return '<div style="background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 15px"><div style="font:800 1.6rem/1 inherit;color:#fff">'+v+'</div><div style="font-size:.66rem;letter-spacing:.06em;color:'+(accent||'var(--muted)')+';text-transform:uppercase;margin-top:5px">'+l+'</div></div>'; };
+  var grid='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px">'
+    +tile('Impressions', n(sum('impressions')))
+    +tile('Reach', n(sum('reach')))
+    +tile('Clicks', n(sum('clicks')))
+    +tile('Profile visits', n(sum('profile_visits')))
+    +tile('Event views', n(sum('event_views')))
+    +tile('Ticket clicks', n(sum('ticket_clicks')),'var(--brand-2)')
+    +tile('Conversions', n(sum('conversions')),'var(--brand-2)')
+    +tile('Affiliate rev', money(sum('affiliate_revenue_cents')),'var(--brand-2)')
+    +tile('Referral rev', money(sum('referral_revenue_cents')),'var(--brand-2)')
+    +'</div>';
+  return grid+'<div style="color:var(--muted);font-size:.74rem">Aggregated across '+CRESULTS.length+' result row(s). Per-post analytics sync from Postiz after publish; ticket/affiliate revenue ties back to KEEPITIL events.</div>';
+}
 
 /* ===== Website Brain: QA runs + admin access ===== */
 async function loadQaRuns(){
