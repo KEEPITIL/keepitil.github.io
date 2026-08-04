@@ -617,16 +617,17 @@ function renderCamp(){
   var content = campLegend() + (CAMP_VIEW==='cal' ? campCalHTML() : campListHTML());
   $('campBody').innerHTML='<div style="display:flex;gap:14px;align-items:flex-start">'+campChannelsRail()+'<div style="flex:1;min-width:0">'+content+'</div></div>';
 }
+function campSchedAllBtn(c){ var n=(c._v||[]).filter(function(v){return v.approval_status==='approved'&&v.scheduled_for;}).length; return n?'<button onclick="campScheduleAll('+c.id+',this)" style="margin-top:8px;background:var(--brand);border:0;color:#08210f;border-radius:9px;padding:7px 14px;font-weight:800;cursor:pointer">⏱ Schedule all &rarr; Postiz ('+n+')</button>':''; }
 function campListHTML(){
   return CAMPAIGNS.map(function(c){
     var head='<div class="rv" style="display:block"><div class="info"><div class="t">'+esc(c.objective||'Campaign')
       +' <span style="color:'+campColor(c.status)+';font-size:.6rem;font-weight:800;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 7px;margin-left:4px">'+esc(c.status)+'</span></div>'
       +'<div class="d" style="color:var(--muted)">'+esc(c.audience||'')+' &middot; '+esc(c.cta||'')+' &rarr; '+esc((c.destination||'').replace(/^https?:\/\//,''))+'</div>'
-      +'<div class="tags"><span class="pill2">agents: '+esc((c.agents||[]).join(', '))+'</span>'+((c.revenue_opportunity&&c.revenue_opportunity.affiliate)?'<span class="pill2">aff: '+esc(c.revenue_opportunity.affiliate)+'</span>':'')+'</div></div>';
+      +'<div class="tags"><span class="pill2">agents: '+esc((c.agents||[]).join(', '))+'</span>'+((c.revenue_opportunity&&c.revenue_opportunity.affiliate)?'<span class="pill2">aff: '+esc(c.revenue_opportunity.affiliate)+'</span>':'')+'</div></div>'+campSchedAllBtn(c);
     var vs=(c._v||[]).filter(function(v){return CAMP_PLAT==='all'||v.platform===CAMP_PLAT;}).map(function(v){
       var s=v.approval_status; var acts='<div class="acts">';
       if(s!=='approved'&&s!=='published') acts+='<button class="approve" onclick="campApprove('+v.id+','+(v.content_version||1)+',this)">Approve</button>';
-      if(s==='approved') acts+='<button onclick="campDryRun('+v.id+',this)" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Dry-run</button><button onclick="campPublish('+v.id+',this)" style="background:linear-gradient(135deg,#7c5bd6,#3aa5ff);border:0;color:#fff;border-radius:8px;padding:6px 13px;font-weight:800;cursor:pointer">Publish now</button>';
+      if(s==='approved') acts+='<button onclick="campDryRun('+v.id+',this)" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Dry-run</button>'+(v.scheduled_for?'<button onclick="campSchedule('+v.id+',this)" style="background:var(--panel2);border:1px solid var(--brand);color:var(--brand);border-radius:8px;padding:6px 11px;font-weight:800;cursor:pointer">Schedule &rarr; Postiz</button>':'')+'<button onclick="campPublish('+v.id+',this)" style="background:linear-gradient(135deg,#7c5bd6,#3aa5ff);border:0;color:#fff;border-radius:8px;padding:6px 13px;font-weight:800;cursor:pointer">Publish now</button>';
       if(s==='published') acts+='<span style="color:#26e6a6;font-weight:800;font-size:.8rem">&#10003; Posted</span>';
       if(s!=='denied'&&s!=='approved'&&s!=='published') acts+='<button class="deny" onclick="campDeny('+v.id+',this)">Deny</button>';
       acts+='<button onclick="campEdit('+v.id+')" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Edit / Schedule</button></div>';
@@ -718,6 +719,19 @@ async function campPublish(id,btn){
   if(btn){btn.disabled=true;btn.textContent='…';}
   try{ var r=await supa.functions.invoke('publish-dispatch',{body:{variant_id:id,mode:'now'}}); if(r.error)throw r.error; campDispatchResult(r.data,false); loadCampaigns(); }
   catch(e){ if(btn){btn.disabled=false;btn.textContent='Publish now';} alert('Publish failed: '+(e.message||e)); } }
+async function campSchedule(id,btn){ if(btn){btn.disabled=true;btn.textContent='…';}
+  try{ var r=await supa.functions.invoke('publish-dispatch',{body:{variant_id:id,mode:'schedule'}}); if(r.error)throw r.error; campDispatchResult(r.data,false); loadCampaigns(); }
+  catch(e){ if(btn){btn.disabled=false;btn.textContent='Schedule → Postiz';} alert('Schedule failed: '+(e.message||e)); } }
+async function campScheduleAll(cid,btn){
+  var c=CAMPAIGNS.filter(function(x){return x.id===cid;})[0]; if(!c) return;
+  var vs=(c._v||[]).filter(function(v){return v.approval_status==='approved'&&v.scheduled_for;});
+  if(!vs.length){ alert('No approved+scheduled variants to send.'); return; }
+  if(!confirm('Schedule all '+vs.length+' approved variant(s) to Postiz now?')) return;
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  var out=[];
+  for(var i=0;i<vs.length;i++){ try{ var r=await supa.functions.invoke('publish-dispatch',{body:{variant_id:vs[i].id,mode:'schedule'}}); var d=r.data||{}; out.push(vs[i].platform+': '+(d.ok?('scheduled'+(d.delivery_id?(' #'+d.delivery_id):'')):(d.refused?('refused@'+d.gate+' — '+(d.reason||'')):(d.error||'error')))); }catch(e){ out.push(vs[i].platform+': '+(e.message||e)); } }
+  if(btn){btn.disabled=false;btn.textContent='⏱ Schedule all → Postiz';}
+  alert('Schedule results:\n\n'+out.join('\n')); loadCampaigns(); }
 function campEdit(id){
   var v=CVARIANTS.filter(function(x){return x.id===id;})[0]; if(!v) return;
   var w=''; if(v.scheduled_for){var d=new Date(String(v.scheduled_for).replace(' ','T')); if(!isNaN(d)){var p=function(n){return String(n).padStart(2,'0');}; w=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());}}
