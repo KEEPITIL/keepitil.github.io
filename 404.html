@@ -19,10 +19,9 @@ a{color:#5cc8ff}</style>
   function go(url){ location.replace(url + hash); }
   var slug = seg.length ? decodeURIComponent(seg[seg.length-1]).toLowerCase().replace(/[^a-z0-9-]/g,'') : '';
 
-  // /unclaimed/profile/<slug>
+  // /unclaimed/profile/<slug>  → dynamic template (public view); no stale static clones (Founder 2026-08-04)
   if(seg.length===3 && seg[0]==='unclaimed' && seg[1]==='profile'){
-    if(slug==='groove-trooper') return go('/profile-groove-trooper.html');
-    return go('/v31/profile.html?slug='+encodeURIComponent(slug));
+    return go('/v31/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
   }
   // /public/profile/<slug>
   if(seg.length===3 && seg[0]==='public' && seg[1]==='profile'){
