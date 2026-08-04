@@ -723,6 +723,64 @@ function campEdit(id){
   };
 }
 function closeCampEdit(){ var o=$('campEditOv'); if(o)o.remove(); }
+
+/* ===== Create Post composer (KEEPITIL-native, Postiz-style two-panel) — Founder 2026-08-04 ===== */
+var CP_CHANS={}, CP_MEDIA='';
+function cpPal(){ var L=CAMP_THEME==='light'; return L?{bg:'#ffffff',panel:'#f4f6fa',line:'#e2e6ec',text:'#1a1f2b',muted:'#5a6472',soft:'#eef1f6'}:{bg:'#161827',panel:'#1e2136',line:'#2f3556',text:'#f3f5ff',muted:'#aab2e0',soft:'#252a44'}; }
+var CP_PC={x:'#111',instagram:'#c13584',facebook:'#1877f2',tiktok:'#111',youtube:'#ff0000'};
+function openCreatePost(){
+  CP_CHANS={}; CP_MEDIA=''; var P=cpPal();
+  var ov=document.createElement('div'); ov.id='cpOv'; ov.style.cssText='position:fixed;inset:0;background:rgba(6,8,16,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:300;padding:18px';
+  var left='<div style="flex:1.25;min-width:0;padding:20px 22px;overflow:auto">'
+    +'<div style="font-size:20px;font-weight:800">Create Post</div>'
+    +'<div id="cpChannels" style="display:flex;gap:10px;margin:16px 0 14px;flex-wrap:wrap"></div>'
+    +'<div style="background:'+P.soft+';border:1px solid '+P.line+';border-radius:14px;padding:12px">'
+      +'<textarea id="cpText" placeholder="Write something…" oninput="cpPreview()" style="width:100%;min-height:190px;background:transparent;border:0;outline:none;color:'+P.text+';font:inherit;font-size:15px;line-height:1.5;resize:vertical"></textarea>'
+      +'<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid '+P.line+';padding-top:10px;margin-top:6px">'
+        +'<button onclick="cpMedia()" style="background:'+P.panel+';border:1px solid '+P.line+';color:'+P.text+';border-radius:8px;padding:6px 11px;font-weight:700;font-size:.78rem;cursor:pointer">&#128247; Insert Media</button>'
+        +'<span id="cpMediaTag" style="font-size:.72rem;color:'+P.muted+'"></span>'
+      +'</div>'
+    +'</div>'
+    +'<div style="font-size:.72rem;color:'+P.muted+';margin-top:10px">Pick channels above; each becomes a platform-native variant. Publishing stays gated &mdash; this saves a draft into Campaigns.</div>'
+  +'</div>';
+  var right='<div style="flex:1;min-width:0;padding:20px 22px;overflow:auto;background:'+P.panel+';border-left:1px solid '+P.line+'">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:20px;font-weight:800">Post Preview</div><button onclick="closeCP()" style="background:none;border:0;color:'+P.muted+';font-size:22px;cursor:pointer;line-height:1">&times;</button></div>'
+    +'<div id="cpPreview" style="margin-top:16px;color:'+P.muted+'">Start writing your post for a preview</div>'
+  +'</div>';
+  var footer='<div style="border-top:1px solid '+P.line+';padding:12px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+    +'<span style="color:'+P.muted+';font-size:.74rem">&#128197; Schedule</span><input id="cpWhen" type="datetime-local" style="background:'+P.soft+';border:1px solid '+P.line+';color:'+P.text+';border-radius:9px;padding:8px 10px;font:inherit">'
+    +'<div style="margin-left:auto;display:flex;gap:8px"><button onclick="cpSave(\'draft\')" style="background:'+P.soft+';border:1px solid '+P.line+';color:'+P.text+';border-radius:10px;padding:9px 16px;font-weight:700;cursor:pointer">Save as draft</button>'
+    +'<button onclick="cpSave(\'schedule\')" style="background:linear-gradient(135deg,#7c5bd6,#3aa5ff);border:0;color:#fff;border-radius:10px;padding:9px 18px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(120,90,220,.35)">Schedule Post</button></div>'
+  +'</div>';
+  ov.innerHTML='<div style="background:'+P.bg+';color:'+P.text+';border:1px solid '+P.line+';border-radius:20px;max-width:1080px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 90px rgba(0,0,0,.55)"><div style="display:flex;flex:1;min-height:0">'+left+right+'</div>'+footer+'</div>';
+  document.body.appendChild(ov); ov.addEventListener('click',function(e){if(e.target===ov)closeCP();});
+  cpRenderChannels(); cpPreview();
+}
+function cpRenderChannels(){ var el=document.getElementById('cpChannels'); if(!el) return;
+  el.innerHTML=CHANNELS.map(function(c){var on=CP_CHANS[c.p]; return '<div onclick="cpToggle(\''+c.p+'\')" title="'+esc(c.n)+'" style="width:42px;height:42px;border-radius:50%;background:'+(CP_PC[c.p]||'#555')+';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.68rem;cursor:pointer;border:3px solid '+(on?'#26e6a6':'transparent')+';opacity:'+(on?'1':'.5')+';transition:all .15s">'+(CAMP_ICON[c.p]||'?')+'</div>';}).join('');
+}
+function cpToggle(p){ CP_CHANS[p]=!CP_CHANS[p]; cpRenderChannels(); cpPreview(); }
+function cpSelected(){ return CHANNELS.map(function(c){return c.p;}).filter(function(p){return CP_CHANS[p];}); }
+function cpMedia(){ var u=prompt('Paste an image URL to attach:'); if(u){ CP_MEDIA=u; var mt=document.getElementById('cpMediaTag'); if(mt)mt.textContent='🖼 '+u; cpPreview(); } }
+function cpPreview(){ var el=document.getElementById('cpPreview'); if(!el) return; var t=(document.getElementById('cpText')||{}).value||''; var sel=cpSelected(); var P=cpPal();
+  if(!t.trim()&&!sel.length){ el.innerHTML='Start writing your post for a preview'; return; }
+  el.innerHTML=(sel.length?sel:['(pick a channel)']).map(function(p){ return '<div style="background:'+P.bg+';border:1px solid '+P.line+';border-radius:12px;padding:12px 14px;margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="width:24px;height:24px;border-radius:50%;background:'+(CP_PC[p]||'#555')+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800">'+(CAMP_ICON[p]||'?')+'</span><b>KEEPITIL</b><span style="color:'+P.muted+';font-size:.72rem">&middot; '+esc(p)+'</span></div><div style="white-space:pre-wrap;font-size:.9rem">'+esc(t||'…')+'</div>'+(CP_MEDIA?'<div style="margin-top:8px;color:'+P.muted+';font-size:.72rem">&#128247; '+esc(CP_MEDIA)+'</div>':'')+'</div>'; }).join('');
+}
+function closeCP(){ var o=document.getElementById('cpOv'); if(o)o.remove(); CP_MEDIA=''; }
+async function cpSave(mode){
+  var sel=cpSelected(); if(!sel.length){ alert('Pick at least one channel above.'); return; }
+  var t=(document.getElementById('cpText')||{}).value.trim(); if(!t){ alert('Write something first.'); return; }
+  var when=(document.getElementById('cpWhen')||{}).value;
+  if(mode==='schedule'&&!when){ alert('Pick a date & time to schedule, or use Save as draft.'); return; }
+  var sched=(mode==='schedule'&&when)? new Date(when).toISOString() : null;
+  try{
+    var cr=await supa.from('marketing_campaigns').insert({objective:(t.split('\n')[0]||'Post').slice(0,80),owner_handle:'tuitea',created_by_mode:'manual',status:'ready_for_review',destination:'https://keepitil.com/'}).select().maybeSingle(); if(cr.error)throw cr.error;
+    var cid=cr.data.id; var media=CP_MEDIA?[{url:CP_MEDIA}]:[];
+    var rows=sel.map(function(p){return {campaign_id:cid,platform:p,body:t,settings:{__type:p},media:media,approval_status:'ready_for_review',content_version:1,scheduled_for:sched};});
+    var vr=await supa.from('campaign_variants').insert(rows); if(vr.error)throw vr.error;
+    closeCP(); setCampView('list'); loadCampaigns();
+  }catch(e){ alert('Save failed: '+(e.message||e)); }
+}
 function campMetricsHTML(){
   var published=CVARIANTS.filter(function(v){return v.approval_status==='published';}).length;
   if(!CRESULTS.length){
