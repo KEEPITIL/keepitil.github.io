@@ -76,6 +76,17 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .cul-typebar button{flex:0 0 auto;font-family:var(--fh,inherit);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem;color:#cfc9e6;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:8px 16px;cursor:pointer;transition:all .15s}
 .cul-typebar button:hover{color:#fff;border-color:rgba(160,107,255,.5)}
 .cul-typebar button.on{background:linear-gradient(90deg,#00b4ff,#5cc8ff);border-color:transparent;color:#04121b}
+/* Vertical audience filter rail — desktop only (Founder 2026-08-04): icons that expand to reveal their label on hover */
+.cul-vrail{display:none}
+@media(min-width:861px){
+  .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:11px;width:46px;height:46px;padding:0 12px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(14,13,22,.82);backdrop-filter:blur(12px);color:#cfc9e6;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.15rem;flex:0 0 auto;line-height:1;width:20px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.82rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:158px}
+  .cul-vrail:hover .cvr .tx{opacity:1}
+  .cul-vrail .cvr.on{background:linear-gradient(90deg,#a855f7,#c084fc);border-color:transparent;color:#0a0710}
+}
 /* ── MOBILE (Founder 2026-08-02): the EXPLORE page-dropdown fills the top; a horizontal swipe
    cycles the subfilter (type) pages of the current section. Bottom nav is untouched. ── */
 @media(max-width:860px){
@@ -217,6 +228,13 @@ footer a{color:var(--purple)}
     <!-- Culture sections (Radio / VS / Givebacks) render here when selected -->
     <div id="cul-section-panel" style="display:none"></div>
   </section>
+  <!-- Vertical audience filter rail (desktop): icon-first, expands to labels on hover (Founder 2026-08-04) -->
+  <div class="cul-vrail" id="culVRail" aria-label="Feed audience filter">
+    <button class="cvr on" data-ct="all" onclick="setCulType('all');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">🌐</span><span class="tx">All</span></button>
+    <button class="cvr" data-ct="following" onclick="setCulType('following');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">✔</span><span class="tx">Following</span></button>
+    <button class="cvr" data-ct="followers" onclick="setCulType('followers');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">👥</span><span class="tx">Followers</span></button>
+    <button class="cvr" data-ct="circle" onclick="setCulType('circle');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">◎</span><span class="tx">Circle</span></button>
+  </div>
   <div class="typebar" id="typebar" style="display:none"></div><div id="discover" style="display:none"></div>
 </div></div>
 <footer>KEEPITIL <a href="/v31/">keepitil.com</a> — Culture &amp; Community</footer>
