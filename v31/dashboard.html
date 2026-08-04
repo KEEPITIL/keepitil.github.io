@@ -543,8 +543,19 @@ function editSocial(id){
 function closeSocEdit(){ var o=$('socEditOv'); if(o)o.remove(); }
 
 /* ===== Campaigns (Postiz-style: List + month Calendar) — Founder 2026-08-04 ===== */
-var CAMP_VIEW='list', CAMPAIGNS=[], CVARIANTS=[], CRESULTS=[], campCalRef=new Date();
+var CAMP_VIEW='list', CAMPAIGNS=[], CVARIANTS=[], CRESULTS=[], campCalRef=new Date(), CAMP_PLAT='all', CAMP_CALMODE='month';
 try{ CAMP_VIEW=localStorage.getItem('camp_view')||'list'; }catch(e){}
+var CHANNELS=[{p:'x',n:'keepitil',c:'#111'},{p:'instagram',n:'KEEPITIL',c:'#c13584'},{p:'facebook',n:'Keepitil',c:'#1877f2'},{p:'tiktok',n:'KEEPITIL',c:'#111'},{p:'youtube',n:'KEEPITIL',c:'#ff0000'}];
+function setCampPlat(p){ CAMP_PLAT=p; renderCamp(); }
+function setCalMode(m){ CAMP_CALMODE=m; renderCamp(); }
+function campVars(){ return CVARIANTS.filter(function(v){ return CAMP_PLAT==='all'||v.platform===CAMP_PLAT; }); }
+function campChannelsRail(){
+  var pc={x:'#111',instagram:'#c13584',facebook:'#1877f2',tiktok:'#111',youtube:'#ff0000'};
+  var item=function(p,n){ var on=(CAMP_PLAT===p); return '<div onclick="setCampPlat(\''+p+'\')" style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;cursor:pointer;margin-bottom:4px;'+(on?'background:var(--panel2);border:1px solid var(--line)':'border:1px solid transparent')+'"><span style="width:9px;height:9px;border-radius:50%;background:'+(pc[p]||'#888')+';flex:0 0 auto"></span><div><div style="font-weight:700;font-size:.82rem;color:#fff">'+esc(n)+'</div><div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">'+esc(p)+'</div></div></div>'; };
+  return '<div style="flex:0 0 190px;min-width:170px"><div style="font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:2px 4px 8px">Channels</div>'
+    +'<div onclick="setCampPlat(\'all\')" style="padding:8px 10px;border-radius:10px;cursor:pointer;margin-bottom:6px;font-weight:700;font-size:.82rem;color:#fff;'+(CAMP_PLAT==='all'?'background:var(--panel2);border:1px solid var(--line)':'border:1px solid transparent')+'">All channels</div>'
+    +CHANNELS.map(function(c){return item(c.p,c.n);}).join('')+'</div>';
+}
 function campColor(s){ return {pending:'var(--warn)',ready_for_review:'var(--warn)',approved:'var(--brand)',scheduled:'var(--brand-2)',publishing:'var(--brand-2)',published:'var(--brand-2)',denied:'#ff6b6b',changes_requested:'#ff9f43',draft_failed:'#ff6b6b'}[s]||'var(--muted)'; }
 function campWhen(v){ if(!v.scheduled_for) return ''; var d=new Date(String(v.scheduled_for).replace(' ','T')); return isNaN(d)?'':d.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
 async function loadCampaigns(){
@@ -569,10 +580,13 @@ function renderCamp(){
     +'<button onclick="setCampView(\'list\')" style="border:0;border-radius:7px;padding:6px 14px;font-weight:700;font-size:.75rem;cursor:pointer;'+(CAMP_VIEW==='list'?'background:var(--panel);color:#fff':'background:none;color:var(--muted)')+'">&#9776; List</button>'
     +'<button onclick="setCampView(\'cal\')" style="border:0;border-radius:7px;padding:6px 14px;font-weight:700;font-size:.75rem;cursor:pointer;'+(CAMP_VIEW==='cal'?'background:var(--panel);color:#fff':'background:none;color:var(--muted)')+'">&#9638; Calendar</button>'
     +'<button onclick="setCampView(\'metrics\')" style="border:0;border-radius:7px;padding:6px 14px;font-weight:700;font-size:.75rem;cursor:pointer;'+(CAMP_VIEW==='metrics'?'background:var(--panel);color:#fff':'background:none;color:var(--muted)')+'">&#128202; Metrics</button></div>';
-  $('campControls').innerHTML=gate+seg;
+  var modeToggle='';
+  if(CAMP_VIEW==='cal'){ var mb=function(m,l){return '<button onclick="setCalMode(\''+m+'\')" style="border:1px solid var(--line);border-radius:7px;padding:5px 11px;font-weight:700;font-size:.72rem;cursor:pointer;margin-left:6px;'+(CAMP_CALMODE===m?'background:var(--brand);color:#04121b;border-color:var(--brand)':'background:var(--panel2);color:var(--muted)')+'">'+l+'</button>';}; modeToggle='<span style="display:inline-block;margin:0 0 12px 8px">'+mb('day','Day')+mb('week','Week')+mb('month','Month')+'</span>'; }
+  $('campControls').innerHTML=gate+'<div style="display:flex;align-items:center;flex-wrap:wrap">'+seg+modeToggle+'</div>';
   if(CAMP_VIEW==='metrics'){ $('campBody').innerHTML=campMetricsHTML(); return; }
   if(!CAMPAIGNS.length){ $('campBody').innerHTML='<div class="rv-empty">No campaigns yet. The Conductor drafts them into READY_FOR_REVIEW.</div>'; return; }
-  $('campBody').innerHTML = CAMP_VIEW==='cal' ? campCalHTML() : campListHTML();
+  var content = CAMP_VIEW==='cal' ? campCalHTML() : campListHTML();
+  $('campBody').innerHTML='<div style="display:flex;gap:14px;align-items:flex-start">'+campChannelsRail()+'<div style="flex:1;min-width:0">'+content+'</div></div>';
 }
 function campListHTML(){
   return CAMPAIGNS.map(function(c){
@@ -580,7 +594,7 @@ function campListHTML(){
       +' <span style="color:'+campColor(c.status)+';font-size:.6rem;font-weight:800;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 7px;margin-left:4px">'+esc(c.status)+'</span></div>'
       +'<div class="d" style="color:var(--muted)">'+esc(c.audience||'')+' &middot; '+esc(c.cta||'')+' &rarr; '+esc((c.destination||'').replace(/^https?:\/\//,''))+'</div>'
       +'<div class="tags"><span class="pill2">agents: '+esc((c.agents||[]).join(', '))+'</span>'+((c.revenue_opportunity&&c.revenue_opportunity.affiliate)?'<span class="pill2">aff: '+esc(c.revenue_opportunity.affiliate)+'</span>':'')+'</div></div>';
-    var vs=(c._v||[]).map(function(v){
+    var vs=(c._v||[]).filter(function(v){return CAMP_PLAT==='all'||v.platform===CAMP_PLAT;}).map(function(v){
       var s=v.approval_status; var acts='<div class="acts">';
       if(s!=='approved') acts+='<button class="approve" onclick="campApprove('+v.id+','+(v.content_version||1)+',this)">Approve</button>';
       if(s!=='denied') acts+='<button class="deny" onclick="campDeny('+v.id+',this)">Deny</button>';
@@ -594,11 +608,14 @@ function campListHTML(){
     return head+vs+'</div>';
   }).join('');
 }
+var CAMP_PC={instagram:'#c13584',x:'#111',facebook:'#1877f2',tiktok:'#1a1a1a',youtube:'#ff0000'};
 function campCalHTML(){
+  if(CAMP_CALMODE==='week') return campWeekHTML();
+  if(CAMP_CALMODE==='day') return campDayHTML();
   var y=campCalRef.getFullYear(), m=campCalRef.getMonth(), first=new Date(y,m,1), start=first.getDay(), days=new Date(y,m+1,0).getDate();
   var today=new Date(); today.setHours(0,0,0,0);
-  var byDay={}, unsched=[]; var pc={instagram:'#c13584',x:'#111',facebook:'#1877f2',tiktok:'#1a1a1a',youtube:'#ff0000'};
-  CVARIANTS.forEach(function(v){ if(!v.scheduled_for){unsched.push(v);return;} var d=new Date(String(v.scheduled_for).replace(' ','T')); if(isNaN(d)){unsched.push(v);return;} if(d.getFullYear()===y&&d.getMonth()===m){(byDay[d.getDate()]=byDay[d.getDate()]||[]).push(v);} });
+  var byDay={}, unsched=[]; var pc=CAMP_PC;
+  campVars().forEach(function(v){ if(!v.scheduled_for){unsched.push(v);return;} var d=new Date(String(v.scheduled_for).replace(' ','T')); if(isNaN(d)){unsched.push(v);return;} if(d.getFullYear()===y&&d.getMonth()===m){(byDay[d.getDate()]=byDay[d.getDate()]||[]).push(v);} });
   var mn=campCalRef.toLocaleString([], {month:'long',year:'numeric'});
   var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><b style="font-size:15px">'+mn+'</b><div style="display:flex;gap:6px"><button onclick="campCalMove(-1)" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&lsaquo;</button><button onclick="campCalRef=new Date();renderCamp()" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">Today</button><button onclick="campCalMove(1)" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&rsaquo;</button></div></div>';
   h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px">'+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(function(d){return '<div style="font-size:.6rem;font-weight:800;color:var(--muted);text-align:center;text-transform:uppercase">'+d+'</div>';}).join('');
@@ -610,6 +627,30 @@ function campCalHTML(){
   h+='</div>';
   if(unsched.length){ h+='<div style="background:var(--panel);border:1px dashed var(--line);border-radius:11px;padding:11px;margin-top:14px"><div style="font-size:.72rem;color:var(--muted);margin-bottom:7px">Unscheduled ('+unsched.length+') &mdash; open a variant to set a date</div>'
     +unsched.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:inline-block;margin:3px;font-size:.66rem;padding:3px 8px;border-radius:6px;color:#fff;cursor:pointer;background:'+(pc[v.platform]||'#555')+'">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</span>';}).join('')+'</div>'; }
+  return h;
+}
+function campShift(nd){ campCalRef=new Date(campCalRef.getFullYear(),campCalRef.getMonth(),campCalRef.getDate()+nd); renderCamp(); }
+function campVarsOn(dt){ return campVars().filter(function(v){ if(!v.scheduled_for) return false; var d=new Date(String(v.scheduled_for).replace(' ','T')); return !isNaN(d)&&d.getFullYear()===dt.getFullYear()&&d.getMonth()===dt.getMonth()&&d.getDate()===dt.getDate(); }); }
+function campDayChip(v){ return '<div onclick="campEdit('+v.id+')" style="cursor:pointer;background:'+(CAMP_PC[v.platform]||'#555')+';color:#fff;border-radius:7px;padding:5px 8px;margin-top:5px"><div style="font-size:.6rem;font-weight:800;text-transform:uppercase">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</div><div style="font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(v.hook||v.body||'')+'</div></div>'; }
+function campNavBtns(back,fwd){ return '<div style="display:flex;gap:6px"><button onclick="'+back+'" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&lsaquo;</button><button onclick="campCalRef=new Date();renderCamp()" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">Today</button><button onclick="'+fwd+'" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&rsaquo;</button></div>'; }
+function campWeekHTML(){
+  var b=new Date(campCalRef), ws=new Date(b.getFullYear(),b.getMonth(),b.getDate()-b.getDay()), we=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6);
+  var today=new Date(); today.setHours(0,0,0,0); var fmt=function(d){return (d.getMonth()+1)+'/'+d.getDate();}; var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><b style="font-size:14px">'+fmt(ws)+' &ndash; '+fmt(we)+'</b>'+campNavBtns('campShift(-7)','campShift(7)')+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">';
+  for(var i=0;i<7;i++){ var d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i); var isT=(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()===today.getTime()); var posts=campVarsOn(d);
+    h+='<div style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;min-height:150px;padding:6px"><div style="font-size:.64rem;font-weight:800;color:'+(isT?'#ffe08a':'var(--muted)')+';text-align:center">'+dow[i]+' '+d.getDate()+'</div>'+posts.map(campDayChip).join('')+'</div>'; }
+  h+='</div>';
+  var uns=campVars().filter(function(v){return !v.scheduled_for;});
+  if(uns.length) h+='<div style="background:var(--panel);border:1px dashed var(--line);border-radius:11px;padding:11px;margin-top:14px"><div style="font-size:.72rem;color:var(--muted);margin-bottom:7px">Unscheduled ('+uns.length+')</div>'+uns.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:inline-block;margin:3px;font-size:.66rem;padding:3px 8px;border-radius:6px;color:#fff;cursor:pointer;background:'+(CAMP_PC[v.platform]||'#555')+'">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</span>';}).join('')+'</div>';
+  return h;
+}
+function campDayHTML(){
+  var d=new Date(campCalRef); var lbl=d.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric'});
+  var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><b style="font-size:15px">'+lbl+'</b>'+campNavBtns('campShift(-1)','campShift(1)')+'</div>';
+  var posts=campVarsOn(d);
+  if(!posts.length) return h+'<div class="rv-empty">No posts scheduled for this day. Open a variant &rarr; Edit / Schedule to place it here.</div>';
+  h+=posts.map(function(v){ return '<div style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--panel2);border-left:4px solid '+(CAMP_PC[v.platform]||'#555')+'"><div><span style="text-transform:uppercase;font-size:.7rem;font-weight:800;color:var(--brand)">'+esc(v.platform)+'</span> <span style="color:var(--muted);font-size:.72rem">&middot; '+esc(campWhen(v))+' &middot; '+esc(v.approval_status)+'</span></div><div style="font-weight:700;margin-top:3px">'+esc(v.hook||'')+'</div><div style="color:var(--muted);font-size:.85rem;white-space:pre-wrap">'+esc(v.body||'')+'</div><div class="acts" style="margin-top:6px"><button onclick="campEdit('+v.id+')" style="background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Edit / Schedule</button></div></div>'; }).join('');
   return h;
 }
 async function campApprove(id,ver,btn){ if(btn){btn.disabled=true;btn.textContent='…';}
