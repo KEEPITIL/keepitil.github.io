@@ -604,7 +604,7 @@ footer a{color:var(--accent2);}
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="pf-filter" id="feed-cat" style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin:0 0 12px;position:sticky;top:118px;z-index:55;background:var(--bg,#0a0a0f);padding:8px 0"></div>
+  <div class="pf-filter" id="feed-cat" style="display:flex;gap:8px;justify-content:space-around;flex-wrap:nowrap;margin:0 0 12px;position:sticky;top:118px;z-index:55;background:var(--bg,#0a0a0f);padding:8px 0"></div>
   <div id="collab-pending"></div>
   <div class="pf-grid" id="feed-grid"></div>
 </div>
@@ -698,7 +698,9 @@ var IS_OWNER = document.documentElement.getAttribute('data-view')!=='public' && 
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q)return q.toLowerCase().replace(/[^a-z0-9-]/g,'');}catch(e){}return '';})();
-var IS_DEMO=(PROFILE_SLUG==='groove-trooper');
+var IS_DEMO=false;/* Founder 2026-08-04: unclaimed profiles (incl. groove-trooper) show identity from profile_meta but NO demo posts/events — a fresh unclaimed profile is empty until claimed. */
+/* Canonical public URL = /public/profile/<slug> (Founder 2026-08-04) */
+try{ if(PROFILE_SLUG){ var _pu='https://keepitil.com/public/profile/'+PROFILE_SLUG; var _c=document.querySelector('link[rel="canonical"]'); if(_c)_c.href=_pu; var _ou=document.querySelector('meta[property="og:url"]'); if(_ou)_ou.setAttribute('content',_pu); } }catch(e){}
 /* the 14 KEEPITIL agents answer live via the ask-echo edge fn (agent-scoped brain + personality);
    their CHAT tab becomes a real "ask this agent" chat — normal profiles keep scene-room chats */
 var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department) — fallback identity when profile_meta has no row */
@@ -1067,11 +1069,14 @@ function renderLinksMenu(){
   SI.forEach(function(k){ var v=soc[k[0]]; if(v&&!seen[k[2]]){ seen[k[2]]=1; var u=String(v).replace(/^@/,''); if(!/^https?:\/\//.test(u))u='https://'+u; out.push([k[1]+' '+k[2],u]); } });
   (PROFILE.links||[]).forEach(function(u){ if(u){ var uu=String(u); if(!/^https?:\/\//.test(uu))uu='https://'+uu; out.push(['🔗 '+uu.replace(/^https?:\/\//,'').replace(/\/.*$/,'').slice(0,28),uu]); } });
   var row=document.getElementById('pfLinks');
-  if(!out.length){ if(drop)drop.style.display='none'; if(row)row.innerHTML=''; return; }
-  menu.innerHTML=out.map(function(it){ return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" style="display:block;padding:9px 11px;color:var(--brand,#00b4ff);font-size:.86rem;font-weight:700;border-radius:8px;white-space:nowrap">'+String(it[0]).replace(/[<>]/g,'')+'</a>'; }).join('');
-  if(drop)drop.style.display='';
-  /* Mobile: scrollable single-row icon links (icon = first glyph of the label) */
-  if(row){ row.innerHTML=out.map(function(it){ var icon=String(it[0]).trim().split(' ')[0]; var lbl=String(it[0]).replace(/^[^ ]+ /,''); return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" title="'+lbl.replace(/"/g,'')+'" aria-label="'+lbl.replace(/"/g,'')+'" style="flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--line,rgba(255,255,255,.12));text-decoration:none">'+icon+'</a>'; }).join(''); }
+  if(!out.length){ if(drop)drop.style.display='none'; if(row){row.style.display='none';row.innerHTML='';} return; }
+  /* Single icon row (Founder 2026-08-04): website first, then up to 5 social icons — no dropdown, on desktop AND mobile. */
+  var web=out.filter(function(it){return /🌐/.test(it[0]);});
+  var rest=out.filter(function(it){return !/🌐/.test(it[0]);}).slice(0,5);
+  var capped=web.concat(rest);
+  if(drop)drop.style.display='none';
+  if(menu)menu.innerHTML='';
+  if(row){ row.style.display='flex'; row.innerHTML=capped.map(function(it){ var icon=String(it[0]).trim().split(' ')[0]; var lbl=String(it[0]).replace(/^[^ ]+ /,''); return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" title="'+lbl.replace(/"/g,'')+'" aria-label="'+lbl.replace(/"/g,'')+'" style="flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--line,rgba(255,255,255,.12));text-decoration:none">'+icon+'</a>'; }).join(''); }
 }
 function loadProfileMeta(){
   if(!SB) return Promise.resolve();
@@ -1968,7 +1973,7 @@ function postCard(p){
     : '<img src="'+esc(p.media||authorAv||'/icon-192.png')+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.src=\'/icon-192.png\'">';  /* every post shows an image — fall back to the author avatar */
   var col=(p.collab&&p.collab.length)?' <span style="color:var(--accent)">✦ @'+p.collab.map(esc).join(', @')+'</span>':'';
   var hid=(CAN_EDIT()&&isHiddenFromFeed(p))?'<span class="pc-hidden">Gallery only</span>':'';
-  var plink='/v31/profile.html?slug='+encodeURIComponent(authorSlug);
+  var plink='/public/profile/'+encodeURIComponent(authorSlug);
   return '<div class="pf-card fbcard" data-kind="'+p.type+'" data-pid="'+esc(pid)+'">'
     +'<div class="fb-head">'
       +'<a class="fb-avlink" href="'+plink+'"><img class="fb-av" src="'+esc(authorAv)+'" alt="" onerror="this.src=\'/icon-192.png\'"></a>'
@@ -2210,7 +2215,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   applyProfile(); renderAll();
   if(!PROFILE_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
-    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v31/profile.html?slug='+encodeURIComponent(rr.data)); } else { location.replace('/v31/create-profile.html'); } }).catch(function(){ location.replace('/v31/create-profile.html'); }); }); }
+    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/public/profile/'+encodeURIComponent(rr.data)); } else { location.replace('/v31/create-profile.html'); } }).catch(function(){ location.replace('/v31/create-profile.html'); }); }); }
     else { location.replace('/v31/apply.html'); }
   } else if(SB){
     SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
