@@ -51,7 +51,7 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .pf-cover{display:none!important;}
 /* Locked full-page backdrop (like culture + homepage) — content scrolls over it. Image is editable via --pf-bg. Dark scrim keeps feed text readable over any image. */
 body{background:transparent!important;}
-body::before{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;background:linear-gradient(rgba(6,7,14,.62),rgba(6,7,14,.62)),var(--pf-bg,url('/v3/logo-bg.jpg')) center center/cover no-repeat #0a0a0f!important;opacity:1!important;}
+body::before{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;background:linear-gradient(rgba(6,7,14,.62),rgba(6,7,14,.62)),var(--pf-bg,url('/v3/scene-hero.jpg')) center center/cover no-repeat #0a0a0f!important;opacity:1!important;}
 .pf-cover img{width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62);}
 .pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
 .pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:28px;}
@@ -570,7 +570,6 @@ footer a{color:var(--accent2);}
   <div id="pfLinks" style="display:none;flex-wrap:wrap;gap:8px;margin:6px 0"></div>
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
-    <a class="pf-btn book" id="pfClaim" style="display:none" href="#">✋ CLAIM THIS PROFILE</a>
     <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
     <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/v31/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/v31/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="openInsights()">Insights</button><button type="button" onclick="location.href='/v31/settings.html'">Settings</button></div></span>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
@@ -2190,16 +2189,7 @@ function closeChatGroup(){
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var o=document.getElementById('chat-open'); if(o&&o.style.display==='flex') closeChatGroup(); } });
 /* Non-demo profiles start EMPTY; real data loads from Supabase (prevents Groove Trooper demo data bleeding into a fresh/unclaimed profile). */
 if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:'',pronouns:'',avatar:'',cover:'',book_email:'',socials:{},highlights:[]}; GAL_IMGS=[]; GT_SHOWS=[]; if(typeof GT_ARTICLES!=='undefined')GT_ARTICLES=[]; if(typeof GT_CHATS!=='undefined')GT_CHATS=[]; }
-/* Unclaimed directory profiles (no owner row, not the demo/agent) show a "Claim this profile" CTA so the real artist/brand/organizer can claim it. Auto-built profiles are unclaimed by default. */
-(function(){
-  if(IS_AGENT || !SB || !PROFILE_SLUG) return; /* groove-trooper (demo) IS the unclaimed gold standard → show the Claim CTA (Founder 2026-07-28) */
-  SB.from('profile_owners').select('owner_id').eq('profile_slug',PROFILE_SLUG).maybeSingle().then(function(r){
-    var hasOwner=!!(r&&r.data&&r.data.owner_id);
-    var b=document.getElementById('pfClaim'); if(!b) return;
-    if(hasOwner){ b.style.display='none'; }
-    else { b.href='/v31/apply.html?claim='+encodeURIComponent(PROFILE_SLUG); b.style.display=''; }
-  }).catch(function(){});
-})();
+/* Claim CTA removed (Founder 2026-08-04): unclaimed profiles are simply the live public profile; claiming happens elsewhere, not via an on-profile button. */
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
