@@ -58,6 +58,16 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
 .pl-item .top b{font-family:var(--fh);font-size:1.2rem;letter-spacing:.02em;flex:1}
 .pl-item .rm{background:none;border:0;color:#ff6b6b;font-weight:700;cursor:pointer;font-size:.82rem}
 .pl-item iframe{width:100%;height:120px;border:0;border-radius:8px}
+/* Sections as single-row carousels that expand into the full grid via a down-arrow (Founder 2026-08-04) */
+.sec-toggle{margin-left:auto;flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--brd);background:var(--panel);color:var(--ink);font-size:.95rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .22s,border-color .15s;backdrop-filter:blur(8px)}
+.sec-toggle:hover{border-color:var(--brand);color:var(--brand)}
+section.open .sec-toggle{transform:rotate(180deg)}
+.grid.rad-carou{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+.grid.rad-carou::-webkit-scrollbar{height:6px}
+.grid.rad-carou::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+.grid.rad-carou>*{flex:0 0 230px;scroll-snap-align:start}
+.grid.g-stations.rad-carou>*{flex:0 0 168px}
+section.open .grid.rad-carou{display:grid;overflow:visible}
 </style>
 </head>
 <body>
@@ -207,21 +217,31 @@ document.getElementById('servicesGrid').innerHTML=SERVICES.map(function(s){
 }).join('');
 
 /* ---- Games (all live at /games/) ---- */
+/* Games: only real, playable titles (Founder 2026-08-04) — the Games hub link lives in the section footer */
 var GAMES=[['Age of Wars','⚔️',12,'Strategy war game — build, battle, conquer.','/games/ageofwars/'],
- ['Kingdom Wars','🏰',270,'Defend your kingdom and rise to the top.','/games/kingdom-wars/'],
- ['More games','🎮',160,'New titles drop in the Games hub.','/games/']];
+ ['Kingdom Wars','🏰',270,'Defend your kingdom and rise to the top.','/games/kingdom-wars/']];
 document.getElementById('gamesGrid').innerHTML=GAMES.map(function(g){
   return '<a class="card" href="'+g[4]+'" style="display:block;color:inherit">'+band(g[2],g[1])
     +'<span class="chip">Play free</span><h3 style="margin-top:8px">'+g[0]+'</h3><p>'+g[3]+'</p></a>';
 }).join('');
 
 /* ---- Mobile App ---- */
+/* Mobile: only what's actually usable today — the installable web app (Founder 2026-08-04) */
 var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen — works offline, no store needed.'],
- ['Radio in your pocket','🎧',260,'Keep the stream going anywhere on your phone.'],
- ['iOS &amp; Android','🍎',150,'Native apps are on the roadmap — web app now.']];
+ ['Radio in your pocket','🎧',260,'Keep the stream going anywhere on your phone.']];
 document.getElementById('mobileGrid').innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
 
 renderStations(); renderPls();
+/* Decorate each section: single-row carousel by default + a down-arrow to expand into the full grid (Founder 2026-08-04) */
+(function(){
+  [].forEach.call(document.querySelectorAll('main > section'), function(sec){
+    var grid=sec.querySelector('.grid'); var sh=sec.querySelector('.sh'); if(!grid||!sh) return;
+    grid.classList.add('rad-carou');
+    var btn=document.createElement('button'); btn.type='button'; btn.className='sec-toggle'; btn.setAttribute('aria-label','Expand section'); btn.innerHTML='&#9662;';
+    btn.addEventListener('click',function(){ var open=sec.classList.toggle('open'); btn.setAttribute('aria-label', open?'Collapse section':'Expand section'); });
+    sh.appendChild(btn);
+  });
+})();
 </script>
 </body>
 </html>
