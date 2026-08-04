@@ -625,8 +625,10 @@ function campListHTML(){
       +'<div class="tags"><span class="pill2">agents: '+esc((c.agents||[]).join(', '))+'</span>'+((c.revenue_opportunity&&c.revenue_opportunity.affiliate)?'<span class="pill2">aff: '+esc(c.revenue_opportunity.affiliate)+'</span>':'')+'</div></div>';
     var vs=(c._v||[]).filter(function(v){return CAMP_PLAT==='all'||v.platform===CAMP_PLAT;}).map(function(v){
       var s=v.approval_status; var acts='<div class="acts">';
-      if(s!=='approved') acts+='<button class="approve" onclick="campApprove('+v.id+','+(v.content_version||1)+',this)">Approve</button>';
-      if(s!=='denied') acts+='<button class="deny" onclick="campDeny('+v.id+',this)">Deny</button>';
+      if(s!=='approved'&&s!=='published') acts+='<button class="approve" onclick="campApprove('+v.id+','+(v.content_version||1)+',this)">Approve</button>';
+      if(s==='approved') acts+='<button onclick="campDryRun('+v.id+',this)" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Dry-run</button><button onclick="campPublish('+v.id+',this)" style="background:linear-gradient(135deg,#7c5bd6,#3aa5ff);border:0;color:#fff;border-radius:8px;padding:6px 13px;font-weight:800;cursor:pointer">Publish now</button>';
+      if(s==='published') acts+='<span style="color:#26e6a6;font-weight:800;font-size:.8rem">&#10003; Posted</span>';
+      if(s!=='denied'&&s!=='approved'&&s!=='published') acts+='<button class="deny" onclick="campDeny('+v.id+',this)">Deny</button>';
       acts+='<button onclick="campEdit('+v.id+')" style="background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Edit / Schedule</button></div>';
       return '<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;background:var(--panel2)">'
         +'<div><span style="text-transform:uppercase;font-size:.7rem;font-weight:800;color:var(--brand)">'+esc(v.platform)+'</span>'
@@ -699,6 +701,23 @@ async function campApprove(id,ver,btn){ if(btn){btn.disabled=true;btn.textConten
 async function campDeny(id,btn){ if(btn)btn.disabled=true;
   try{ var r=await supa.from('campaign_variants').update({approval_status:'denied'}).eq('id',id); if(r.error)throw r.error; loadCampaigns(); }
   catch(e){ if(btn)btn.disabled=false; alert('Deny failed: '+(e.message||e)); } }
+/* Gated publish controls — call publish-dispatch (enforces approval hash + kill switches + cost + idempotency). Session JWT (admin) is attached automatically. */
+function campDispatchResult(d,isDry){
+  if(!d){ alert('No response from publish-dispatch.'); return; }
+  if(d.ok&&d.dry_run){ alert('Dry-run — all gates passed ✓\nWould publish to '+(d.platform||'')+'. Nothing was sent.'); return; }
+  if(d.ok&&(d.published||d.scheduled)){ alert('Published ✓ '+(d.platform||'')+(d.delivery_id?('\nPostiz id: '+d.delivery_id):'')); return; }
+  if(d.ok&&d.idempotent_replay){ alert('Already published earlier — no second post sent.'); return; }
+  if(d.refused){ var g=d.gates?('\n\ngates: '+JSON.stringify(d.gates)):''; alert('Refused at "'+d.gate+'"\n'+(d.reason||'')+g); return; }
+  alert('publish-dispatch: '+String(d.error||JSON.stringify(d)).slice(0,300)); }
+async function campDryRun(id,btn){ if(btn){btn.disabled=true;btn.textContent='…';}
+  try{ var r=await supa.functions.invoke('publish-dispatch',{body:{variant_id:id,mode:'now',dry_run:true}}); if(r.error)throw r.error; campDispatchResult(r.data,true); }
+  catch(e){ alert('Dry-run failed: '+(e.message||e)); }
+  finally{ if(btn){btn.disabled=false;btn.textContent='Dry-run';} } }
+async function campPublish(id,btn){
+  if(!confirm('Publish this variant LIVE now? It posts to the connected account.')) return;
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  try{ var r=await supa.functions.invoke('publish-dispatch',{body:{variant_id:id,mode:'now'}}); if(r.error)throw r.error; campDispatchResult(r.data,false); loadCampaigns(); }
+  catch(e){ if(btn){btn.disabled=false;btn.textContent='Publish now';} alert('Publish failed: '+(e.message||e)); } }
 function campEdit(id){
   var v=CVARIANTS.filter(function(x){return x.id===id;})[0]; if(!v) return;
   var w=''; if(v.scheduled_for){var d=new Date(String(v.scheduled_for).replace(' ','T')); if(!isNaN(d)){var p=function(n){return String(n).padStart(2,'0');}; w=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());}}
