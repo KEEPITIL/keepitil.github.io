@@ -633,24 +633,35 @@ function campShift(nd){ campCalRef=new Date(campCalRef.getFullYear(),campCalRef.
 function campVarsOn(dt){ return campVars().filter(function(v){ if(!v.scheduled_for) return false; var d=new Date(String(v.scheduled_for).replace(' ','T')); return !isNaN(d)&&d.getFullYear()===dt.getFullYear()&&d.getMonth()===dt.getMonth()&&d.getDate()===dt.getDate(); }); }
 function campDayChip(v){ return '<div onclick="campEdit('+v.id+')" style="cursor:pointer;background:'+(CAMP_PC[v.platform]||'#555')+';color:#fff;border-radius:7px;padding:5px 8px;margin-top:5px"><div style="font-size:.6rem;font-weight:800;text-transform:uppercase">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</div><div style="font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(v.hook||v.body||'')+'</div></div>'; }
 function campNavBtns(back,fwd){ return '<div style="display:flex;gap:6px"><button onclick="'+back+'" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&lsaquo;</button><button onclick="campCalRef=new Date();renderCamp()" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">Today</button><button onclick="'+fwd+'" style="border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:5px 11px;cursor:pointer">&rsaquo;</button></div>'; }
+function campHrLbl(hr){ return hr===0?'12 AM':hr<12?hr+' AM':hr===12?'12 PM':(hr-12)+' PM'; }
 function campWeekHTML(){
   var b=new Date(campCalRef), ws=new Date(b.getFullYear(),b.getMonth(),b.getDate()-b.getDay()), we=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+6);
   var today=new Date(); today.setHours(0,0,0,0); var fmt=function(d){return (d.getMonth()+1)+'/'+d.getDate();}; var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var wsD=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()).getTime();
+  var buckets={}; campVars().forEach(function(v){ if(!v.scheduled_for) return; var d=new Date(String(v.scheduled_for).replace(' ','T')); if(isNaN(d)) return; var di=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()-wsD)/86400000); if(di<0||di>6) return; var k=di+'_'+d.getHours(); (buckets[k]=buckets[k]||[]).push(v); });
   var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><b style="font-size:14px">'+fmt(ws)+' &ndash; '+fmt(we)+'</b>'+campNavBtns('campShift(-7)','campShift(7)')+'</div>';
-  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">';
-  for(var i=0;i<7;i++){ var d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i); var isT=(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()===today.getTime()); var posts=campVarsOn(d);
-    h+='<div style="background:var(--panel2);border:1px solid var(--line);border-radius:9px;min-height:150px;padding:6px"><div style="font-size:.64rem;font-weight:800;color:'+(isT?'#ffe08a':'var(--muted)')+';text-align:center">'+dow[i]+' '+d.getDate()+'</div>'+posts.map(campDayChip).join('')+'</div>'; }
-  h+='</div>';
+  h+='<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden">';
+  h+='<div style="display:grid;grid-template-columns:50px repeat(7,1fr);background:var(--panel)"><div></div>'+[0,1,2,3,4,5,6].map(function(i){var d=new Date(ws.getFullYear(),ws.getMonth(),ws.getDate()+i); var isT=(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()===today.getTime()); return '<div style="padding:7px 3px;text-align:center;font-size:.6rem;font-weight:800;color:'+(isT?'#ffe08a':'var(--muted)')+';border-left:1px solid var(--line)">'+dow[i]+' '+d.getDate()+'</div>';}).join('')+'</div>';
+  h+='<div style="max-height:520px;overflow-y:auto">';
+  for(var hr=0;hr<24;hr++){ h+='<div style="display:grid;grid-template-columns:50px repeat(7,1fr);border-top:1px solid var(--line);min-height:34px"><div style="font-size:.56rem;color:var(--muted);padding:3px 4px">'+campHrLbl(hr)+'</div>';
+    for(var di=0;di<7;di++){ var ps=buckets[di+'_'+hr]||[]; h+='<div style="border-left:1px solid var(--line);padding:2px">'+ps.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:block;font-size:.56rem;padding:2px 4px;border-radius:4px;color:#fff;cursor:pointer;background:'+(CAMP_PC[v.platform]||'#555')+';margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(v.platform.slice(0,2).toUpperCase())+' '+esc(v.hook||v.body||'')+'</span>';}).join('')+'</div>'; }
+    h+='</div>'; }
+  h+='</div></div>';
   var uns=campVars().filter(function(v){return !v.scheduled_for;});
-  if(uns.length) h+='<div style="background:var(--panel);border:1px dashed var(--line);border-radius:11px;padding:11px;margin-top:14px"><div style="font-size:.72rem;color:var(--muted);margin-bottom:7px">Unscheduled ('+uns.length+')</div>'+uns.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:inline-block;margin:3px;font-size:.66rem;padding:3px 8px;border-radius:6px;color:#fff;cursor:pointer;background:'+(CAMP_PC[v.platform]||'#555')+'">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</span>';}).join('')+'</div>';
+  if(uns.length) h+='<div style="background:var(--panel);border:1px dashed var(--line);border-radius:11px;padding:11px;margin-top:14px"><div style="font-size:.72rem;color:var(--muted);margin-bottom:7px">Unscheduled ('+uns.length+') &mdash; open to set a time</div>'+uns.map(function(v){return '<span onclick="campEdit('+v.id+')" style="display:inline-block;margin:3px;font-size:.66rem;padding:3px 8px;border-radius:6px;color:#fff;cursor:pointer;background:'+(CAMP_PC[v.platform]||'#555')+'">'+esc(v.platform)+' &middot; '+esc(v.approval_status)+'</span>';}).join('')+'</div>';
   return h;
 }
 function campDayHTML(){
   var d=new Date(campCalRef); var lbl=d.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric'});
+  var byHr={}; campVarsOn(d).forEach(function(v){ var dd=new Date(String(v.scheduled_for).replace(' ','T')); (byHr[dd.getHours()]=byHr[dd.getHours()]||[]).push(v); });
   var h='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><b style="font-size:15px">'+lbl+'</b>'+campNavBtns('campShift(-1)','campShift(1)')+'</div>';
-  var posts=campVarsOn(d);
-  if(!posts.length) return h+'<div class="rv-empty">No posts scheduled for this day. Open a variant &rarr; Edit / Schedule to place it here.</div>';
-  h+=posts.map(function(v){ return '<div style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--panel2);border-left:4px solid '+(CAMP_PC[v.platform]||'#555')+'"><div><span style="text-transform:uppercase;font-size:.7rem;font-weight:800;color:var(--brand)">'+esc(v.platform)+'</span> <span style="color:var(--muted);font-size:.72rem">&middot; '+esc(campWhen(v))+' &middot; '+esc(v.approval_status)+'</span></div><div style="font-weight:700;margin-top:3px">'+esc(v.hook||'')+'</div><div style="color:var(--muted);font-size:.85rem;white-space:pre-wrap">'+esc(v.body||'')+'</div><div class="acts" style="margin-top:6px"><button onclick="campEdit('+v.id+')" style="background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 11px;font-weight:700;cursor:pointer">Edit / Schedule</button></div></div>'; }).join('');
+  h+='<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden"><div style="max-height:560px;overflow-y:auto">';
+  for(var hr=0;hr<24;hr++){ var ps=byHr[hr]||[]; h+='<div style="display:grid;grid-template-columns:64px 1fr;border-top:1px solid var(--line);min-height:40px"><div style="font-size:.62rem;color:var(--muted);padding:4px 6px">'+campHrLbl(hr)+'</div><div style="padding:3px">'
+    +ps.map(function(v){return '<div onclick="campEdit('+v.id+')" style="cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-left:3px solid '+(CAMP_PC[v.platform]||'#555')+';border-radius:7px;padding:5px 8px;margin-bottom:3px"><span style="text-transform:uppercase;font-size:.62rem;font-weight:800;color:var(--brand)">'+esc(v.platform)+'</span> <span style="color:var(--muted);font-size:.62rem">&middot; '+esc(v.approval_status)+'</span><div style="font-size:.78rem;font-weight:600">'+esc(v.hook||v.body||'')+'</div></div>';}).join('')
+    +'</div></div>'; }
+  h+='</div></div>';
+  var uns=campVars().filter(function(v){return !v.scheduled_for;});
+  if(uns.length) h+='<div style="color:var(--muted);font-size:.72rem;margin-top:10px">'+uns.length+' unscheduled variant(s) &mdash; switch to Week/Month or open a variant to schedule.</div>';
   return h;
 }
 async function campApprove(id,ver,btn){ if(btn){btn.disabled=true;btn.textContent='…';}
