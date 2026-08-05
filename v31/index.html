@@ -2429,7 +2429,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
 })();
 </script>
 
-<script src="/v31/kil-seasons.js?v=20260805c"></script>
+<script src="/v31/kil-seasons.js?v=20260805d"></script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
 <script>
 /* Inline KEEPITIL-X save icon (staging preview self-contained; /keepitil-save.js not yet deployed) */
@@ -2717,40 +2717,75 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
   <!-- HOME BACKGROUND PICKER (Founder 2026-08-05): click the KEEPITIL logo on the home page to
        filter the background image live. Reads window.kilSeason from kil-seasons.js; shell untouched. -->
   <style>
-  #kilBgPick{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;padding:0 0 96px}
-  #kilBgPick .kbp-card{background:rgba(16,16,24,.97);border:1px solid rgba(255,255,255,.16);border-radius:18px;max-width:580px;width:calc(100% - 24px);max-height:62vh;overflow:auto;padding:16px 16px 18px;box-shadow:0 24px 70px rgba(0,0,0,.65);backdrop-filter:blur(12px)}
-  #kilBgPick .kbp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
-  #kilBgPick .kbp-head b{font-size:1.12rem;color:#fff;letter-spacing:.02em}
+  /* hero words recolor to match the active background — readability + palette match (Founder 2026-08-05) */
+  html.has-season .hero h1 .accent{color:var(--kil-season-tint,#00b4ff)!important;text-shadow:0 0 22px var(--kil-season-tint,#00b4ff),0 2px 20px rgba(0,0,0,.72)!important}
+  html.has-season .hero h1 .typewriter{border-right-color:var(--kil-season-tint,#00b4ff)!important}
+  html.has-season .hero h1{text-shadow:0 2px 22px rgba(0,0,0,.6)}
+  /* background picker — grouped single-column scrollable list */
+  #kilBgPick{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:0 0 90px}
+  #kilBgPick .kbp-card{background:rgba(13,13,21,.98);border:1px solid rgba(255,255,255,.16);border-radius:18px;max-width:430px;width:calc(100% - 24px);max-height:70vh;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,.65);backdrop-filter:blur(12px)}
+  #kilBgPick .kbp-head{display:flex;align-items:center;justify-content:space-between;padding:15px 16px 4px}
+  #kilBgPick .kbp-head b{font-size:1.12rem;color:#fff}
   #kilBgPick .kbp-x{background:none;border:0;color:#9aa0b0;font-size:1.7rem;line-height:1;cursor:pointer;padding:0 4px}
-  #kilBgPick .kbp-sub{color:#9aa0b0;font-size:.82rem;margin-bottom:13px}
-  #kilBgPick .kbp-row{display:flex;gap:8px;margin-bottom:11px;flex-wrap:wrap}
-  #kilBgPick .kbp-grid{display:flex;flex-wrap:wrap;gap:8px}
-  #kilBgPick .kbp-chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#e8e6f2;border-radius:999px;padding:8px 13px;font:600 .8rem 'Inter',system-ui,sans-serif;cursor:pointer;white-space:nowrap;transition:border-color .15s,background .15s}
-  #kilBgPick .kbp-chip.alt{background:rgba(255,255,255,.11)}
-  #kilBgPick .kbp-chip.on{background:linear-gradient(90deg,#00b4ff,#5cc8ff);border-color:transparent;color:#04121b}
-  #kilBgPick .kbp-chip:hover{border-color:#00b4ff}
+  #kilBgPick .kbp-sub{color:#9aa0b0;font-size:.8rem;padding:0 16px 8px}
+  #kilBgPick .kbp-scroll{overflow-y:auto;padding:2px 12px 14px;-webkit-overflow-scrolling:touch}
+  #kilBgPick .kbp-row2{display:flex;gap:8px;padding:4px 2px 2px}
+  #kilBgPick .kbp-hd{color:var(--kil-season-tint,#00b4ff);font:800 .67rem 'Inter',system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;margin:14px 6px 6px;opacity:.92}
+  #kilBgPick .kbp-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#e8e6f2;border-radius:11px;padding:11px 13px;margin-bottom:6px;font:600 .9rem 'Inter',system-ui,sans-serif;cursor:pointer;transition:border-color .13s,background .13s}
+  #kilBgPick .kbp-item:hover{border-color:#00b4ff;background:rgba(0,180,255,.08)}
+  #kilBgPick .kbp-item.on{border-color:#00b4ff;background:linear-gradient(90deg,rgba(0,180,255,.22),rgba(0,180,255,.04))}
+  #kilBgPick .kbp-item .dot{width:15px;height:15px;border-radius:50%;flex:0 0 auto;border:1px solid rgba(255,255,255,.35);box-shadow:0 0 8px rgba(0,0,0,.4)}
+  #kilBgPick .kbp-item .lbl{flex:1}
+  #kilBgPick .kbp-item .chk{color:#00b4ff;font-weight:800;opacity:0}
+  #kilBgPick .kbp-item.on .chk{opacity:1}
+  #kilBgPick .kbp-item.alt{flex:1;justify-content:center;background:rgba(255,255,255,.09);font-weight:700}
   </style>
   <script>
   (function(){
     function isHome(){ var p=location.pathname; return p==='/'||p===''||/\/v31\/(index\.html)?$/.test(p); }
     function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    /* organized by season, then calendar month (Founder 2026-08-05) */
+    var GROUPS=[
+      ['Seasons',['winter-ambient','spring-ambient','summer-ambient','autumn-ambient']],
+      ['January',['mlk-day']],
+      ['February',['super-bowl','lunar-new-year','valentines','presidents-day']],
+      ['March',['st-patricks','march-madness']],
+      ['April',['easter','four-twenty']],
+      ['May',['cinco-de-mayo','may-the-4th','mothers-day','memorial-day']],
+      ['June',['fathers-day']],
+      ['July',['independence-day']],
+      ['August',['summer-finale']],
+      ['September',['labor-day','patriot-day','oktoberfest']],
+      ['October',['halloween','down-syndrome-awareness','cancer-awareness']],
+      ['November',['veterans-day','thanksgiving','black-friday']],
+      ['December',['christmas','new-years-eve']],
+      ['KEEPITIL',['default']]
+    ];
     function openPicker(){
       if(document.getElementById('kilBgPick'))return;
       var api=window.kilSeason;
       if(!api){ return; }
-      var seasons=api.seasons||[], cur=(api.current&&api.current())||'';
-      var chips=seasons.map(function(s){ return '<button class="kbp-chip'+(s.slug===cur?' on':'')+'" data-slug="'+esc(s.slug)+'">'+esc(s.name)+'</button>'; }).join('');
+      var cur=(api.current&&api.current())||'';
+      var nameOf={}; (api.seasons||[]).forEach(function(s){ nameOf[s.slug]=s.name; });
+      var list='<div class="kbp-row2"><button class="kbp-item alt" data-act="auto">✨ Auto (today)</button><button class="kbp-item alt" data-act="off">🚫 None</button></div>';
+      GROUPS.forEach(function(g){
+        list+='<div class="kbp-hd">'+esc(g[0])+'</div>';
+        g[1].forEach(function(slug){
+          var nm=nameOf[slug]||slug, acc=(api.accent&&api.accent(slug))||'#888';
+          list+='<button class="kbp-item'+(slug===cur?' on':'')+'" data-slug="'+esc(slug)+'">'
+            +'<span class="dot" style="background:'+acc+'"></span><span class="lbl">'+esc(nm)+'</span><span class="chk">✓</span></button>';
+        });
+      });
       var ov=document.createElement('div'); ov.id='kilBgPick';
       ov.innerHTML='<div class="kbp-card">'
         +'<div class="kbp-head"><b>Background</b><button class="kbp-x" aria-label="Close">&times;</button></div>'
-        +'<div class="kbp-sub">Pick a background — it applies live. “Auto” follows today’s date.</div>'
-        +'<div class="kbp-row"><button class="kbp-chip alt" data-act="auto">✨ Auto (today)</button><button class="kbp-chip alt" data-act="off">🚫 None</button></div>'
-        +'<div class="kbp-grid">'+chips+'</div></div>';
+        +'<div class="kbp-sub">Pick a background — applies live. “Auto” follows today’s date.</div>'
+        +'<div class="kbp-scroll">'+list+'</div></div>';
       document.body.appendChild(ov);
-      function mark(slug){ [].forEach.call(ov.querySelectorAll('.kbp-chip'),function(b){ b.classList.toggle('on', b.getAttribute('data-slug')===slug); }); }
+      function mark(slug){ [].forEach.call(ov.querySelectorAll('.kbp-item'),function(b){ if(b.hasAttribute('data-slug')) b.classList.toggle('on', b.getAttribute('data-slug')===slug); }); }
       ov.addEventListener('click',function(e){
         if(e.target===ov||e.target.classList.contains('kbp-x')){ ov.remove(); return; }
-        var c=e.target.closest('.kbp-chip'); if(!c)return;
+        var c=e.target.closest('.kbp-item'); if(!c)return;
         var act=c.getAttribute('data-act'), slug=c.getAttribute('data-slug');
         if(act==='auto'){ api.auto&&api.auto(); mark((api.current&&api.current())||null); }
         else if(act==='off'){ api.off&&api.off(); mark(null); }
