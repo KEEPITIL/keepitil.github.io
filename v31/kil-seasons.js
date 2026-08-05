@@ -66,26 +66,42 @@
     else if(qs){ sessionStorage.setItem('kil_season_preview',qs); }
   }catch(e){}
   var ov=qs; if(!ov){ try{ ov=sessionStorage.getItem('kil_season_preview'); }catch(e){} }
-  var active;
-  if(ov==='off'){ return; }
-  else if(ov){ active=S.filter(function(s){return s.slug===ov;})[0]||{slug:ov,name:ov}; }
-  else { active=pick(new Date()) || {slug:'default',name:'KEEPITIL'}; } // gap fallback → default brand backdrop (Founder 2026-08-05)
-  if(!active) return;
 
-  var isMobile=Math.min(window.innerWidth,window.innerHeight)<=640 || window.innerHeight>window.innerWidth;
-  var url='/v3/seasons/'+active.slug+'-'+(isMobile?'mobile':'desktop')+'.jpg';
+  // paint a given season slug (desktop/mobile variant chosen live) — only if the image exists
+  function paintSeason(slug){
+    var isMobile=Math.min(window.innerWidth,window.innerHeight)<=640 || window.innerHeight>window.innerWidth;
+    var url='/v3/seasons/'+slug+'-'+(isMobile?'mobile':'desktop')+'.jpg';
+    var img=new Image();
+    img.onload=function(){
+      var layer=document.getElementById('kil-season-bg');
+      if(!layer){ layer=document.createElement('div'); layer.id='kil-season-bg';
+        layer.style.cssText='position:fixed;inset:0;z-index:-3;pointer-events:none;background-position:center;background-size:cover;background-repeat:no-repeat;opacity:1';
+        document.body.appendChild(layer); }
+      layer.setAttribute('data-season',slug);
+      layer.style.backgroundImage='url("'+url+'")';
+      document.documentElement.classList.add('has-season');
+      document.body.style.background='transparent';
+    };
+    img.onerror=function(){};
+    img.src=url;
+  }
+  function clearSeason(){ var l=document.getElementById('kil-season-bg'); if(l)l.remove(); document.documentElement.classList.remove('has-season'); document.body.style.background=''; }
 
-  // preload; only paint if the image actually exists
-  var img=new Image();
-  img.onload=function(){
-    var layer=document.createElement('div');
-    layer.id='kil-season-bg';
-    layer.setAttribute('data-season',active.slug);
-    layer.style.cssText='position:fixed;inset:0;z-index:-3;pointer-events:none;background:url("'+url+'") center center / cover no-repeat;opacity:1';
-    document.body.appendChild(layer);
-    document.documentElement.classList.add('has-season'); // flips text to readable-over-image
-    document.body.style.background='transparent';          // let the full image show
+  // ── public API for the home-page background picker (Founder 2026-08-05) ──
+  var _seen={}, _list=[];
+  S.forEach(function(s){ if(!_seen[s.slug]){ _seen[s.slug]=1; _list.push({slug:s.slug,name:s.name}); } });
+  _list.push({slug:'default',name:'KEEPITIL (default)'});
+  window.kilSeason={
+    seasons:_list,
+    current:function(){ var l=document.getElementById('kil-season-bg'); return l?l.getAttribute('data-season'):null; },
+    apply:function(slug){ try{sessionStorage.setItem('kil_season_preview',slug);}catch(e){} paintSeason(slug); },
+    auto:function(){ try{sessionStorage.removeItem('kil_season_preview');}catch(e){} var a=pick(new Date())||{slug:'default'}; paintSeason(a.slug); },
+    off:function(){ try{sessionStorage.setItem('kil_season_preview','off');}catch(e){} clearSeason(); }
   };
-  img.onerror=function(){}; // image not produced yet → nothing shows
-  img.src=url;
+
+  // initial paint from override (?season / saved preview) or today's date; API stays available even when 'off'
+  if(ov!=='off'){
+    var active = ov ? (S.filter(function(s){return s.slug===ov;})[0]||{slug:ov}) : (pick(new Date())||{slug:'default'});
+    paintSeason(active.slug);
+  }
 })();
