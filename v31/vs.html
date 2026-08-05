@@ -70,11 +70,14 @@ footer a{color:var(--brand-2)}
     <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
   </div>
   <div class="vr-div"></div>
-  <!-- VS feed subfilters — KODE wires these to the VS feed (All / Voting Now / Winners / etc. per §4) -->
-  <button class="cvr sf on" data-k="all" onclick="vsFilter('all',this)"><span class="ic" aria-hidden="true">🏆</span><span class="tx">All</span></button>
-  <button class="cvr sf" data-k="voting" onclick="vsFilter('voting',this)"><span class="ic" aria-hidden="true">🗳️</span><span class="tx">Voting Now</span></button>
-  <button class="cvr sf" data-k="open" onclick="vsFilter('open',this)"><span class="ic" aria-hidden="true">📥</span><span class="tx">Submissions Open</span></button>
-  <button class="cvr sf" data-k="winners" onclick="vsFilter('winners',this)"><span class="ic" aria-hidden="true">👑</span><span class="tx">Winners</span></button>
+  <!-- VS subpage views (Founder 2026-08-05). Drive vs-app.js via window.vsGo(view); KODE builds vote/join/winners. -->
+  <button class="cvr sf on" data-v="feed"    onclick="vrNav('feed',this)"    aria-label="Feed — all submissions"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
+  <button class="cvr sf"    data-v="vote"    onclick="vrNav('vote',this)"    aria-label="Vote — pick a competition"><span class="ic" aria-hidden="true">🗳️</span><span class="tx">Vote</span></button>
+  <button class="cvr sf"    data-v="join"    onclick="vrNav('join',this)"    aria-label="Join — enter a competition"><span class="ic" aria-hidden="true">➕</span><span class="tx">Join</span></button>
+  <button class="cvr sf"    data-v="winners" onclick="vrNav('winners',this)" aria-label="Winners"><span class="ic" aria-hidden="true">👑</span><span class="tx">Winners</span></button>
+  <button class="cvr sf"    data-v="votes"   onclick="vrNav('votes',this)"   aria-label="My Votes"><span class="ic" aria-hidden="true">✅</span><span class="tx">My Votes</span></button>
+  <button class="cvr sf"    data-v="mine"    onclick="vrNav('mine',this)"    aria-label="My Entry"><span class="ic" aria-hidden="true">🎫</span><span class="tx">My Entry</span></button>
+  <button class="cvr sf" id="vrManage" data-v="admin" onclick="vrNav('admin',this)" aria-label="Manage (admin only)" style="display:none"><span class="ic" aria-hidden="true">⚙️</span><span class="tx">Manage</span></button>
 </div>
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio bar (same on every page) -->
@@ -88,6 +91,15 @@ footer a{color:var(--brand-2)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/v31/vs-app.js?v=20260805c"></script>
 <script>
+/* VS subpage view switch (Founder 2026-08-05): rail drives vs-app.js via window.vsGo(view).
+   FEED/My Votes/My Entry/Manage map to existing app views; Vote/Join/Winners are new (KODE). */
+function vrNav(view, el){
+  try{ var rail=document.getElementById('vsVRail');
+       if(rail&&el){ [].forEach.call(rail.querySelectorAll('.cvr.sf'),function(b){ b.classList.toggle('on', b===el); }); } }catch(x){}
+  if(typeof window.vsGo==='function'){ try{ window.vsGo(view); return; }catch(e){} }
+  /* fallback until vs-app.js exposes vsGo: FEED still works via the legacy filter hook */
+  if(view==='feed' && typeof window.vsFilter==='function'){ try{ window.vsFilter('all'); }catch(e){} }
+}
 /* subpage dropdown (uniform with Culture/Radio) — Founder 2026-08-04 */
 function vrToggleSub(e){ if(e){try{e.stopPropagation();}catch(x){}} var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.toggle('open'); }
 function vrGoSub(sp){ var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.remove('open'); location.href=(sp==='feed'?'/culture':(sp==='radio'?'/culture/radio':'/culture/vs')); }
