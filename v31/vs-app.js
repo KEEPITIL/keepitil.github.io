@@ -438,7 +438,7 @@
         + '<label>Tools / software</label><input id="eTools" maxlength="160">'
         + '<label>AI disclosure</label><input id="eAI" maxlength="160" placeholder="Describe any AI use, if required by the rules">'
         + '<label>Collaborators</label><input id="eCollab" maxlength="160">'
-        + '<label>Media (image, video or audio — 50MB max)</label><input id="eFile" type="file" multiple accept="image/*,video/*,audio/*">'
+        + '<label>Media (image, video or audio — 500MB max)</label><input id="eFile" type="file" multiple accept="image/*,video/*,audio/*">'
         + '<div class="vs-note" id="eFiles"></div>'
         + '<label style="display:flex;gap:9px;align-items:flex-start;text-transform:none;letter-spacing:0;color:#cfd3df;font-weight:500">'
         + '<input type="checkbox" id="eTerms" style="width:auto;margin-top:3px">'
@@ -521,7 +521,7 @@
       var path = ME.id + '/' + entryId + '/' + Date.now() + '-' + f.name.replace(/[^a-zA-Z0-9.\-_]+/g, '_');
       return SB.storage.from('vs-entries').upload(path, f, { upsert: false })
         .then(function(up){
-          if(up.error) throw up.error;   // bucket enforces type + 50MB, so this is a real gate
+          if(up.error) throw up.error;   // bucket enforces type + 500MB, so this is a real gate
           var url = SB.storage.from('vs-entries').getPublicUrl(path).data.publicUrl;
           var kind = f.type.indexOf('video') === 0 ? 'video' : (f.type.indexOf('audio') === 0 ? 'audio' : 'image');
           return SB.rpc('vs_add_entry_media', { p_entry: entryId, p_url: url, p_mtype: kind, p_thumb: null });
