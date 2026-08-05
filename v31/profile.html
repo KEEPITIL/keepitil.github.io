@@ -712,19 +712,8 @@ var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department)
   merch:['Merch','Rock / Metal','Merch & Shop'],beacon:['Beacon','Reggae / Dancehall','Promotion']};
 var IS_AGENT=!!AGENT_INFO[PROFILE_SLUG];
 var SB=null; try{ if(window.supabase) SB=window.supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
-/* Founder 2026-08-05: the PROFILE button lands here with NO slug. If someone is signed in,
-   send them to THEIR OWN logged-in profile (owner view) instead of the empty/public default.
-   Resolve slug from profile_owners (authoritative), fall back to their @handle. */
-if(!PROFILE_SLUG && SB){ try{ SB.auth.getSession().then(function(r){
-  var s=r&&r.data?r.data.session:null; if(!s) return;   /* logged out → stays public/login */
-  SB.from('profile_owners').select('profile_slug').eq('owner_id',s.user.id).limit(1).maybeSingle().then(function(o){
-    var sl=o&&o.data&&o.data.profile_slug;
-    if(sl){ location.replace('/v31/profile.html?slug='+encodeURIComponent(sl)); return; }
-    SB.from('app_users').select('handle').eq('id',s.user.id).maybeSingle().then(function(u){
-      var hnd=u&&u.data&&u.data.handle; if(hnd) location.replace('/v31/profile.html?slug='+encodeURIComponent(String(hnd).toLowerCase()));
-    });
-  });
-}); }catch(e){} }
+/* No-slug → own-profile redirect is handled once, authoritatively, at the end of boot
+   (my_profile_slug RPC → OWNER view). Founder 2026-08-05. */
 /* ── first-party Insights: log a profile view + owner-only Insights popup (free, no 3rd-party analytics) ── */
 function _kilSid(){ try{ var k=localStorage.getItem('kil_sid'); if(!k){ k=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem('kil_sid',k); } return k; }catch(e){ return 'anon'; } }
 try{ if(SB && PROFILE_SLUG){ SB.rpc('log_view',{p_kind:'profile',p_target:PROFILE_SLUG,p_owner:PROFILE_SLUG,p_sess:_kilSid()}); } }catch(e){}
@@ -1074,22 +1063,34 @@ function applyProfile(){
   renderLinksMenu();
 }
 /* About → "Links" dropdown = the profile's social media icons + custom links (Founder 2026-07-27: socials moved here from the footer) */
+/* Real social-media brand icons (Founder 2026-08-05: real logos only, no emoji). */
+var PF_BRAND={
+  instagram:'M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z',
+  soundcloud:'M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z',
+  tiktok:'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.08-.14 1.62.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z',
+  youtube:'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z',
+  spotify:'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.56.3z',
+  x:'M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.82-5.97 6.82H1.66l7.73-8.84L1.24 2.25h6.83l4.71 6.23 5.46-6.23zm-1.16 17.52h1.83L7.01 4.13H5.05l12.03 15.64z',
+  facebook:'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z',
+  website:'M12 2a10 10 0 100 20 10 10 0 000-20zm6.93 6h-2.95a15.6 15.6 0 00-1.38-3.56A8.03 8.03 0 0118.93 8zM12 4c.83 1.2 1.48 2.53 1.91 4h-3.82c.43-1.47 1.08-2.8 1.91-4zM4.26 14a7.96 7.96 0 010-4h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.81 2h2.95c.32 1.28.79 2.49 1.38 3.56A8.03 8.03 0 015.07 16zm2.95-8H5.07a8.03 8.03 0 014.33-3.56A15.6 15.6 0 008.02 8zM12 20c-.83-1.2-1.48-2.53-1.91-4h3.82c-.43 1.47-1.08 2.8-1.91 4zm2.34-6H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.59-1.07 1.06-2.28 1.38-3.56h2.95a8.03 8.03 0 01-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38a7.96 7.96 0 010 4h-3.38z'
+};
+function pfSvg(key){ var k=(key==='twitter')?'x':key; var p=PF_BRAND[k]||PF_BRAND.website; return '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="'+p+'"/></svg>'; }
 function renderLinksMenu(){
   var menu=document.getElementById('pfLinksMenu'), drop=document.getElementById('pfLinksDrop'); if(!menu) return;
   var soc=PROFILE.socials||{};
-  var SI=[['instagram','📷','Instagram'],['soundcloud','☁️','SoundCloud'],['tiktok','🎵','TikTok'],['youtube','▶️','YouTube'],['spotify','🎧','Spotify'],['x','✕','X'],['twitter','✕','X'],['facebook','📘','Facebook'],['website','🌐','Website']];
+  var SI=[['instagram','Instagram'],['soundcloud','SoundCloud'],['tiktok','TikTok'],['youtube','YouTube'],['spotify','Spotify'],['x','X'],['twitter','X'],['facebook','Facebook'],['website','Website']];
   var out=[], seen={};
-  SI.forEach(function(k){ var v=soc[k[0]]; if(v&&!seen[k[2]]){ seen[k[2]]=1; var u=String(v).replace(/^@/,''); if(!/^https?:\/\//.test(u))u='https://'+u; out.push([k[1]+' '+k[2],u]); } });
-  (PROFILE.links||[]).forEach(function(u){ if(u){ var uu=String(u); if(!/^https?:\/\//.test(uu))uu='https://'+uu; out.push(['🔗 '+uu.replace(/^https?:\/\//,'').replace(/\/.*$/,'').slice(0,28),uu]); } });
+  SI.forEach(function(k){ var v=soc[k[0]]; if(v&&!seen[k[1]]){ seen[k[1]]=1; var u=String(v).replace(/^@/,''); if(!/^https?:\/\//.test(u))u='https://'+u; out.push({key:k[0],label:k[1],url:u,web:(k[0]==='website')}); } });
+  (PROFILE.links||[]).forEach(function(u){ if(u){ var uu=String(u); if(!/^https?:\/\//.test(uu))uu='https://'+uu; out.push({key:'website',label:uu.replace(/^https?:\/\//,'').replace(/\/.*$/,'').slice(0,28),url:uu,web:true}); } });
   var row=document.getElementById('pfLinks');
   if(!out.length){ if(drop)drop.style.display='none'; if(row){row.style.display='none';row.innerHTML='';} return; }
-  /* Single icon row (Founder 2026-08-04): website first, then up to 5 social icons — no dropdown, on desktop AND mobile. */
-  var web=out.filter(function(it){return /🌐/.test(it[0]);});
-  var rest=out.filter(function(it){return !/🌐/.test(it[0]);}).slice(0,5);
+  /* Single icon row (Founder 2026-08-04): website first, then up to 5 real social brand icons — desktop AND mobile. */
+  var web=out.filter(function(it){return it.web;});
+  var rest=out.filter(function(it){return !it.web;}).slice(0,5);
   var capped=web.concat(rest);
   if(drop)drop.style.display='none';
   if(menu)menu.innerHTML='';
-  if(row){ row.style.display='flex'; row.innerHTML=capped.map(function(it){ var icon=String(it[0]).trim().split(' ')[0]; var lbl=String(it[0]).replace(/^[^ ]+ /,''); return '<a href="'+String(it[1]).replace(/"/g,'')+'" target="_blank" rel="noopener" title="'+lbl.replace(/"/g,'')+'" aria-label="'+lbl.replace(/"/g,'')+'" style="flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--line,rgba(255,255,255,.12));text-decoration:none">'+icon+'</a>'; }).join(''); }
+  if(row){ row.style.display='flex'; row.innerHTML=capped.map(function(it){ return '<a href="'+String(it.url).replace(/"/g,'')+'" target="_blank" rel="noopener" title="'+it.label.replace(/"/g,'')+'" aria-label="'+it.label.replace(/"/g,'')+'" style="flex:0 0 auto;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid var(--line,rgba(255,255,255,.12));text-decoration:none;color:#fff">'+pfSvg(it.key)+'</a>'; }).join(''); }
 }
 function loadProfileMeta(){
   if(!SB) return Promise.resolve();
@@ -2228,7 +2229,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   applyProfile(); renderAll();
   if(!PROFILE_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
-    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/public/profile/'+encodeURIComponent(rr.data)); } else { location.replace('/v31/create-profile.html'); } }).catch(function(){ location.replace('/v31/create-profile.html'); }); }); }
+    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/v31/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/v31/profile.html?slug='+encodeURIComponent(rr.data)); /* OWNER view, not /public/ (Founder 2026-08-05) */ } else { location.replace('/v31/create-profile.html'); } }).catch(function(){ location.replace('/v31/create-profile.html'); }); }); }
     else { location.replace('/v31/apply.html'); }
   } else if(SB){
     SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
