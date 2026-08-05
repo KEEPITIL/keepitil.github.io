@@ -79,7 +79,7 @@
 
   /* ── nav ───────────────────────────────────────────────────────────────────────── */
   function navBar(active){
-    var b = [['feed','Feed'],['mine','My Entries'],['votes','My Votes']];
+    var b = [['feed','Feed'],['enter','Enter'],['mine','My Entries'],['votes','My Votes']];
     if(IS_ADMIN) b.push(['admin','Manage']);
     return '<div class="vs-bar">'
       + b.map(function(x){ return '<button class="'+(active===x[0]?'on':'')+'" data-nav="'+x[0]+'">'+h(x[1])+'</button>'; }).join('')
@@ -370,6 +370,167 @@
     }).catch(err);
   }
 
+  /* ── ENTER A COMPETITION (§8, §25, §27) ────────────────────────────────────────────
+     Self-serve path: pick an open competition -> read rules + accept terms -> free comps
+     grant the entitlement directly / paid comps go through the vs_entry checkout branch ->
+     fill the form + upload media -> submit for review. Every gate is re-checked server-side;
+     this screen only collects. */
+  function renderEnter(compId){
+    if(!ME){
+      APP.innerHTML = navBar('enter')
+        + '<div class="soon"><div class="i">🔐</div><h2>Sign in to enter</h2>'
+        + '<p>You need an account to submit an entry.</p>'
+        + '<a class="vs-cta" href="/v31/apply.html">Sign in</a></div>';
+      return;
+    }
+    if(compId) return renderEntryForm(Number(compId));
+
+    busy('Loading open competitions…');
+    SB.rpc('vs_open_competitions').then(function(r){
+      if(r.error) throw r.error;
+      var rows = r.data || [];
+      if(!rows.length){
+        APP.innerHTML = navBar('enter')
+          + '<div class="soon"><div class="i">📥</div><h2>Nothing open right now</h2>'
+          + '<p>No competition is accepting entries at the moment. Check back soon.</p></div>';
+        return;
+      }
+      APP.innerHTML = navBar('enter')
+        + '<h2 class="vs-h">Open for entries</h2>'
+        + '<p class="vs-note" style="margin-bottom:14px">Pick a competition to read its rules and enter.</p>'
+        + '<div class="vs-grid">' + rows.map(function(c){
+            var fee = c.entry_fee_cents ? '$' + (c.entry_fee_cents/100).toFixed(2) : 'Free';
+            var closes = c.submissions_close_at
+              ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString() : 'No deadline set';
+            return '<div class="vs-card" data-enter="'+c.id+'"><div class="bd">'
+              + '<h3>'+h(c.title)+'</h3>'
+              + '<div class="by">'+h(c.description || '')+'</div>'
+              + '<div style="margin-top:8px"><span class="vs-pill '+(c.entry_fee_cents?'':'ok')+'">'+fee+'</span>'
+              + '<span class="vs-pill">'+h(closes)+'</span></div>'
+              + '</div></div>';
+          }).join('') + '</div>';
+      [].forEach.call(APP.querySelectorAll('[data-enter]'), function(el){
+        el.onclick = function(){ go({view:'enter', c: el.dataset.enter}); };
+      });
+    }).catch(err);
+  }
+
+  function renderEntryForm(compId){
+    busy('Loading competition…');
+    SB.rpc('vs_open_competitions').then(function(r){
+      var comp = (r.data || []).filter(function(c){ return c.id === compId; })[0];
+      if(!comp){ empty('Not open for entries', 'This competition is closed or unavailable.'); return; }
+      var paid = comp.entry_fee_cents > 0;
+
+      APP.innerHTML = navBar('enter')
+        + '<div class="vs-form">'
+        + '<button class="vs-pill" data-nav="enter">‹ All competitions</button>'
+        + '<h2 class="vs-h">'+h(comp.title)+'</h2>'
+        + '<p class="vs-note">'+h(comp.description || '')+'</p>'
+        + (comp.rules ? '<div><label>Rules</label><p class="vs-note">'+h(comp.rules)+'</p></div>' : '')
+        + (comp.requirements ? '<div><label>Requirements</label><p class="vs-note">'+h(comp.requirements)+'</p></div>' : '')
+        + '<div class="vs-note"><b>'+(paid ? 'Entry fee: $'+(comp.entry_fee_cents/100).toFixed(2) : 'Free to enter')+'</b>'
+        + (paid ? '<br>Payment allows you to submit an entry for review. Entries that violate competition rules may be rejected or disqualified according to the published event policy.' : '')
+        + '</div>'
+        + '<label>Entry title *</label><input id="eTitle" maxlength="120" placeholder="Name your entry">'
+        + '<label>Description</label><textarea id="eDesc" rows="3"></textarea>'
+        + '<label>Creator statement</label><textarea id="eStmt" rows="2" placeholder="What is this piece about?"></textarea>'
+        + '<label>Tools / software</label><input id="eTools" maxlength="160">'
+        + '<label>AI disclosure</label><input id="eAI" maxlength="160" placeholder="Describe any AI use, if required by the rules">'
+        + '<label>Collaborators</label><input id="eCollab" maxlength="160">'
+        + '<label>Media (image, video or audio — 50MB max)</label><input id="eFile" type="file" multiple accept="image/*,video/*,audio/*">'
+        + '<div class="vs-note" id="eFiles"></div>'
+        + '<label style="display:flex;gap:9px;align-items:flex-start;text-transform:none;letter-spacing:0;color:#cfd3df;font-weight:500">'
+        + '<input type="checkbox" id="eTerms" style="width:auto;margin-top:3px">'
+        + '<span>I own this work or have permission to submit it, I accept the competition rules and terms'
+        + (paid ? ', and I understand the entry fee is governed by the published refund policy' : '')
+        + '.</span></label>'
+        + '<button class="vs-cta" id="eGo">'+(paid ? 'Continue to payment' : 'Create entry')+'</button>'
+        + '<p class="vs-note" id="eMsg"></p>'
+        + '</div>';
+
+      var picked = [];
+      document.getElementById('eFile').onchange = function(){
+        picked = [].slice.call(this.files || []);
+        document.getElementById('eFiles').textContent = picked.length
+          ? picked.length + ' file(s) selected: ' + picked.map(function(f){ return f.name; }).join(', ')
+          : '';
+      };
+
+      document.getElementById('eGo').onclick = function(){
+        var btn = this, msg = document.getElementById('eMsg');
+        var title = document.getElementById('eTitle').value.trim();
+        if(!title){ msg.textContent = 'A title is required.'; return; }
+        if(!document.getElementById('eTerms').checked){ msg.textContent = 'Please accept the terms to continue.'; return; }
+        btn.disabled = true; msg.textContent = 'Creating your entry…';
+
+        var payload = {
+          title: title,
+          description: document.getElementById('eDesc').value.trim(),
+          creator_statement: document.getElementById('eStmt').value.trim(),
+          tools: document.getElementById('eTools').value.trim(),
+          ai_disclosure: document.getElementById('eAI').value.trim(),
+          collaborators: document.getElementById('eCollab').value.trim()
+        };
+        var entryId = null;
+
+        SB.rpc('vs_create_entry', { p_comp: compId, p: payload })
+          .then(function(res){
+            if(res.error) throw res.error;
+            var row = Array.isArray(res.data) ? res.data[0] : res.data;
+            entryId = row.id;
+            if(!picked.length) return null;
+            msg.textContent = 'Uploading media…';
+            return uploadAll(entryId, picked, msg);
+          })
+          .then(function(){
+            msg.textContent = paid ? 'Opening secure checkout…' : 'Finishing up…';
+            // Free OR paid both go through create-checkout: the FUNCTION decides, using the
+            // fee stored on the competition. A free comp returns {free:true} and never touches
+            // Stripe; the client never asserts the price.
+            return SB.functions.invoke('create-checkout', {
+              body: { kind: 'vs_entry', vs_entry_id: entryId, return_base: 'v31' }
+            });
+          })
+          .then(function(fn){
+            if(fn && fn.error) throw fn.error;
+            var d = fn && fn.data;
+            if(d && d.url){ location.href = d.url; return; }          // paid -> Stripe
+            // free -> entitlement already granted; submit for review now
+            return SB.rpc('vs_submit_entry', { p_entry: entryId, p_terms_version: comp.terms_version || 'v1' })
+              .then(function(sr){
+                if(sr.error) throw sr.error;
+                go({ view: 'mine' });
+              });
+          })
+          .catch(function(e){
+            msg.textContent = String(e && e.message || e);
+            btn.disabled = false;
+          });
+      };
+    }).catch(err);
+  }
+
+  /* sequential upload so a slow connection cannot fire a burst of parallel requests (§29) */
+  function uploadAll(entryId, files, msg){
+    var i = 0;
+    function next(){
+      if(i >= files.length) return Promise.resolve();
+      var f = files[i++];
+      if(msg) msg.textContent = 'Uploading ' + i + ' of ' + files.length + '…';
+      var path = ME.id + '/' + entryId + '/' + Date.now() + '-' + f.name.replace(/[^a-zA-Z0-9.\-_]+/g, '_');
+      return SB.storage.from('vs-entries').upload(path, f, { upsert: false })
+        .then(function(up){
+          if(up.error) throw up.error;   // bucket enforces type + 50MB, so this is a real gate
+          var url = SB.storage.from('vs-entries').getPublicUrl(path).data.publicUrl;
+          var kind = f.type.indexOf('video') === 0 ? 'video' : (f.type.indexOf('audio') === 0 ? 'audio' : 'image');
+          return SB.rpc('vs_add_entry_media', { p_entry: entryId, p_url: url, p_mtype: kind, p_thumb: null });
+        })
+        .then(next);
+    }
+    return next();
+  }
+
   /* ── router ────────────────────────────────────────────────────────────────────── */
   function route(){
     if(!SB){ err('Supabase client unavailable'); return; }
@@ -377,6 +538,7 @@
     if(v === 'entry' && q('e')) return renderEntry(q('e'));
     if(v === 'mine')  return renderMine();
     if(v === 'votes') return renderVotes();
+    if(v === 'enter') return renderEnter(q('c'));
     if(v === 'admin') return renderAdmin();
     return renderFeed();
   }
