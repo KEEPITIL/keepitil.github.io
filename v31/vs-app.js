@@ -79,11 +79,9 @@
 
   /* ── nav ───────────────────────────────────────────────────────────────────────── */
   function navBar(active){
-    var b = [['feed','Feed'],['enter','Enter'],['mine','My Entries'],['votes','My Votes']];
-    if(IS_ADMIN) b.push(['admin','Manage']);
-    return '<div class="vs-bar">'
-      + b.map(function(x){ return '<button class="'+(active===x[0]?'on':'')+'" data-nav="'+x[0]+'">'+h(x[1])+'</button>'; }).join('')
-      + '</div>';
+    /* In-app nav retired 2026-08-05 (Founder): the /culture/vs vertical rail is the nav now
+       (window.vsGo). Kept as a no-op so existing call sites need no change. */
+    return '';
   }
   APP.addEventListener('click', function(e){
     var n = e.target.closest && e.target.closest('[data-nav]');
@@ -109,10 +107,8 @@
       if(FILTER==='voting') rows = rows.filter(function(x){ return x.voting_open; });
       if(FILTER==='open')   rows = rows.filter(function(x){ return !x.voting_open; });
       if(!rows.length){
-        APP.innerHTML = navBar('feed')
-          + '<div class="soon"><div class="i">⚔️</div><h2>No entries yet</h2><p>'
-          + (IS_ADMIN ? 'Create the first competition from <b>Manage</b>.' : 'Competitions are opening soon — check back shortly.')
-          + '</p></div>';
+        APP.innerHTML = '<div class="soon"><div class="i">⚔️</div><h2>Be the first to enter</h2>'
+          + '<p>Ten annual competitions are open for submissions right now. Tap <b>Join</b> on the rail to enter one — approved entries appear here for voting.</p></div>';
         return;
       }
       APP.innerHTML = navBar('feed') + '<div class="vs-grid">' + rows.map(function(x){
@@ -531,6 +527,16 @@
     return next();
   }
 
+  function renderWinnersSoon(){
+    empty('Winners', 'Season highlights, category spotlights (season & all-time) and per-competition leaderboards land here once the first monthly round is scored.');
+  }
+
+  /* Rail contract (window.vsGo) — the /culture/vs vertical rail drives views through this.
+     Interim mapping until KODE builds the full Vote/Join/Winners screens:
+       feed→feed · vote→feed(entries to vote on) · join→enter · winners→soon · votes/mine→as-is.
+     Manage(admin) is intentionally NOT exposed here — it is moving to the profile dashboard. */
+  window.vsGo = function(view){ go({ view: view || 'feed' }); };
+
   /* ── router ────────────────────────────────────────────────────────────────────── */
   function route(){
     if(!SB){ err('Supabase client unavailable'); return; }
@@ -538,8 +544,10 @@
     if(v === 'entry' && q('e')) return renderEntry(q('e'));
     if(v === 'mine')  return renderMine();
     if(v === 'votes') return renderVotes();
-    if(v === 'enter') return renderEnter(q('c'));
-    if(v === 'admin') return renderAdmin();
+    if(v === 'enter' || v === 'join') return renderEnter(q('c'));
+    if(v === 'vote')  return renderFeed();
+    if(v === 'winners') return renderWinnersSoon();
+    if(v === 'admin') return renderAdmin();   // reachable by URL for admins; not linked from VS
     return renderFeed();
   }
 
