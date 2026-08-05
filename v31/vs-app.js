@@ -286,7 +286,9 @@
   function renderAdmin(){
     if(!IS_ADMIN){ empty('Admins only', 'Competition creation is restricted to the KEEPITIL team.'); return; }
     busy('Loading manager…');
-    SB.from('vs_competitions').select('*').order('id', { ascending: false }).then(function(r){
+    /* definer RPC, not a direct select: drafts are invisible to a client SELECT by design,
+       which is exactly what dead-ended the admin at "Create as draft" (handoff #54). */
+    SB.rpc('vs_admin_competitions').then(function(r){
       var comps = r.data || [];
       APP.innerHTML = navBar('admin')
         + '<div class="vs-form" id="vsNew">'
@@ -339,19 +341,22 @@
                  .then(function(r){ if(r.error) throw r.error; renderAdmin(); })
                  .catch(function(e){ alert(String(e && e.message || e)); }); }
         var p = ev.target.closest && ev.target.closest('[data-pub]');
-        if(p){ SB.from('vs_competitions').update({ status: 'published' }).eq('id', Number(p.dataset.pub))
-                 .then(function(){ renderAdmin(); }); }
+        if(p){ SB.rpc('vs_publish_competition', { p_comp: Number(p.dataset.pub) })
+                 .then(function(r){ if(r.error) throw r.error; renderAdmin(); })
+                 .catch(function(e){ alert(String(e && e.message || e)); }); }
       });
 
-      SB.from('vs_entries').select('id,title,creator_handle,status,competition_id').in('status', ['submitted','under_review'])
+      /* same reason: submitted/under_review entries are not client-readable, so the queue
+         was always empty. Definer RPC returns them for admins only. */
+      SB.rpc('vs_admin_review_queue')
         .then(function(qr){
           var rows = qr.data || [], box = document.getElementById('vsQueue'); if(!box) return;
           box.innerHTML = rows.length
             ? rows.map(function(x){
                 return '<div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--vsl)">'
                   + '<div style="flex:1"><b>'+h(x.title)+'</b><div class="vs-note">@'+h(x.creator_handle||'')+'</div></div>'
-                  + '<button class="vs-pill ok" data-ok="'+x.id+'">Approve</button>'
-                  + '<button class="vs-pill warn" data-no="'+x.id+'">Reject</button></div>';
+                  + '<button class="vs-pill ok" data-ok="'+x.entry_id+'">Approve</button>'
+                  + '<button class="vs-pill warn" data-no="'+x.entry_id+'">Reject</button></div>';
               }).join('')
             : '<p class="vs-note">Nothing awaiting review.</p>';
           box.onclick = function(ev){
