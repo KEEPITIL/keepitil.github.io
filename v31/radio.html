@@ -68,6 +68,21 @@ section.open .sec-toggle{transform:rotate(180deg)}
 .grid.rad-carou>*{flex:0 0 230px;scroll-snap-align:start}
 .grid.g-stations.rad-carou>*{flex:0 0 168px}
 section.open .grid.rad-carou{display:grid;overflow:visible}
+/* Vertical sidebar (desktop): subpages on top + this page's sections below (Founder 2026-08-04) */
+.cul-vrail{display:none}
+@media(min-width:861px){
+  .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:11px;width:46px;height:46px;padding:0 12px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(12,20,18,.85);backdrop-filter:blur(12px);color:#cfe6df;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.15rem;flex:0 0 auto;line-height:1;width:20px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.82rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:158px}
+  .cul-vrail:hover .cvr .tx{opacity:1}
+  .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
+  .cul-vrail .cvr.sp.on,.cul-vrail .cvr.sf.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+}
+/* universal locked footer — sits at the bottom before the radio bar */
+body{display:flex;flex-direction:column;min-height:100vh}
+footer{margin-top:auto}
 </style>
 </head>
 <body>
@@ -134,6 +149,23 @@ section.open .grid.rad-carou{display:grid;overflow:visible}
 </section>
 
 </main>
+
+<!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, this page's sections below (Founder 2026-08-04) -->
+<div class="cul-vrail" id="radVRail" aria-label="Subpages and sections">
+  <button class="cvr sp" onclick="location.href='/culture'"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
+  <button class="cvr sp on" onclick="location.href='/culture/radio'"><span class="ic" aria-hidden="true">📻</span><span class="tx">Radio</span></button>
+  <button class="cvr sp" onclick="location.href='/culture/vs'"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+  <div class="vr-div"></div>
+  <button class="cvr sf on" onclick="radScroll('stations',this)"><span class="ic" aria-hidden="true">📡</span><span class="tx">Channel</span></button>
+  <button class="cvr sf" onclick="radScroll('playlists',this)"><span class="ic" aria-hidden="true">🎧</span><span class="tx">Playlist</span></button>
+  <button class="cvr sf" onclick="radScroll('schedule',this)"><span class="ic" aria-hidden="true">🗓️</span><span class="tx">Schedule</span></button>
+  <button class="cvr sf" onclick="radScroll('earn',this)"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+  <button class="cvr sf" onclick="radScroll('mobile',this)"><span class="ic" aria-hidden="true">📱</span><span class="tx">Apps</span></button>
+  <button class="cvr sf" onclick="radScroll('games',this)"><span class="ic" aria-hidden="true">🎮</span><span class="tx">Games</span></button>
+</div>
+<script>
+function radScroll(id,el){ var s=document.getElementById(id); if(s){ try{ s.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ location.hash=id; } } if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); } }
+</script>
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio rules (same on every page) -->
 <script src="/keepitil-shell.js?v=20260801b" defer></script>
