@@ -62,8 +62,8 @@
   var active;
   if(ov==='off'){ return; }
   else if(ov){ active=S.filter(function(s){return s.slug===ov;})[0]||{slug:ov,name:ov}; }
-  else { active=pick(new Date()); }
-  if(!active) return; // no seasonal window today → default page background stays
+  else { active=pick(new Date()) || {slug:'default',name:'KEEPITIL'}; } // gap fallback → default brand backdrop (Founder 2026-08-05)
+  if(!active) return;
 
   var isMobile=Math.min(window.innerWidth,window.innerHeight)<=640 || window.innerHeight>window.innerWidth;
   var url='/v3/seasons/'+active.slug+'-'+(isMobile?'mobile':'desktop')+'.jpg';
