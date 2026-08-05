@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="KEEPITIL VS — creator competitions & community voting. Create. Compete. Get Seen."/>
+<title>VS — Create. Compete. Get Seen. | KEEPITIL</title>
+<link rel="canonical" href="https://keepitil.com/culture/vs"/>
+<link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#a855f7;--brand-2:#c084fc;--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fs:'Fraunces',serif}
+html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
+body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/culture-hero.jpg') center/cover no-repeat;opacity:.55}
+body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,15,.7),rgba(10,10,15,.92))}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px;width:100%}
+.hero{padding:34px 0 18px;text-align:center}
+.hero h1{font-family:var(--fh);font-size:clamp(3rem,11vw,6rem);letter-spacing:.04em;line-height:.9;background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#e7e5f2;font-family:var(--fh);letter-spacing:.14em;font-size:1.1rem;margin-top:6px}
+.soon{background:rgba(255,255,255,.035);border:1px solid var(--brd);border-radius:18px;padding:52px 26px;text-align:center;margin:22px 0}
+.soon .i{font-size:3rem}
+.soon h2{font-family:var(--fs);font-weight:600;font-size:1.6rem;color:#fff;margin:12px 0 8px}
+.soon p{color:var(--ink2);max-width:460px;margin:0 auto}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:30px;text-align:center;color:var(--ink3);font-size:.82rem;margin-top:auto}
+footer a{color:var(--brand-2)}
+/* Vertical sidebar (desktop): subpages on top + VS filters below — same pattern as Culture/Radio (Founder 2026-08-04) */
+.cul-vrail{display:none}
+@media(min-width:861px){
+  .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:11px;width:46px;height:46px;padding:0 12px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(20,18,30,.9);backdrop-filter:blur(12px);color:#cfc9e6;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.15rem;flex:0 0 auto;line-height:1;width:20px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.82rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:158px}
+  .cul-vrail:hover .cvr .tx{opacity:1}
+  .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
+  .cul-vrail .cvr.sp.on{background:linear-gradient(90deg,#7c3aed,#a855f7);border-color:transparent;color:#fff}
+  .cul-vrail .cvr.sf.on{background:linear-gradient(90deg,#3aa5ff,#5cc8ff);border-color:transparent;color:#04121b}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="hero">
+    <h1>VS</h1>
+    <p>Create. Compete. Get Seen.</p>
+  </header>
+  <!-- KODE renders the VS competition platform (feed, competition pages, admin manager, submission flow) into #vs-app -->
+  <div id="vs-app">
+    <div class="soon"><div class="i">⚔️</div><h2>Competitions are on the way</h2><p>The VS creator-competition platform is being built. Enter, vote, and win — soon.</p></div>
+  </div>
+</main>
+
+<!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, VS filters below -->
+<div class="cul-vrail" id="vsVRail" aria-label="Subpages and filters">
+  <button class="cvr sp" onclick="location.href='/culture'"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
+  <button class="cvr sp" onclick="location.href='/culture/radio'"><span class="ic" aria-hidden="true">📻</span><span class="tx">Radio</span></button>
+  <button class="cvr sp on" onclick="location.href='/culture/vs'"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+  <div class="vr-div"></div>
+  <!-- VS feed subfilters — KODE wires these to the VS feed (All / Voting Now / Winners / etc. per §4) -->
+  <button class="cvr sf on" data-k="all" onclick="vsFilter('all',this)"><span class="ic" aria-hidden="true">🏆</span><span class="tx">All</span></button>
+  <button class="cvr sf" data-k="voting" onclick="vsFilter('voting',this)"><span class="ic" aria-hidden="true">🗳️</span><span class="tx">Voting Now</span></button>
+  <button class="cvr sf" data-k="open" onclick="vsFilter('open',this)"><span class="ic" aria-hidden="true">📥</span><span class="tx">Submissions Open</span></button>
+  <button class="cvr sf" data-k="winners" onclick="vsFilter('winners',this)"><span class="ic" aria-hidden="true">👑</span><span class="tx">Winners</span></button>
+</div>
+
+<!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio bar (same on every page) -->
+<script src="/keepitil-shell.js?v=20260801b" defer></script>
+<script src="/v31/kil-seasons.js?v=20260726e"></script>
+<script src="/v3/keepitil-radio.js?v=20260726" defer></script>
+<script>
+/* Placeholder VS filter hook — KODE replaces with real feed filtering. Keeps the rail interactive meanwhile. */
+window.vsFilter=window.vsFilter||function(k,el){ if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); } };
+</script>
+</body>
+</html>
