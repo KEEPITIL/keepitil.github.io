@@ -76,7 +76,16 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .cul-typebar button{flex:0 0 auto;font-family:var(--fh,inherit);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem;color:#cfc9e6;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:8px 16px;cursor:pointer;transition:all .15s}
 .cul-typebar button:hover{color:#fff;border-color:rgba(160,107,255,.5)}
 .cul-typebar button.on{background:linear-gradient(90deg,#00b4ff,#5cc8ff);border-color:transparent;color:#04121b}
-/* Vertical audience filter rail — desktop only (Founder 2026-08-04): icons that expand to reveal their label on hover */
+@media(min-width:861px){.cul-typebar{display:none}} /* desktop: content-type filters moved to the vertical rail (Founder 2026-08-04); mobile keeps the horizontal bar */
+/* Desktop subpage tabs (Feed / Radio / VS) — Founder 2026-08-04 */
+.cul-subpages{display:none}
+@media(min-width:861px){
+  .cul-subpages{display:flex;gap:8px;margin:0 0 14px}
+  .cul-subpages .csp{flex:0 0 auto;font-family:var(--fh);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.82rem;color:#cfc9e6;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:9px 20px;cursor:pointer;transition:all .15s}
+  .cul-subpages .csp:hover{color:#fff;border-color:rgba(160,107,255,.5)}
+  .cul-subpages .csp.on{background:linear-gradient(90deg,#a855f7,#c084fc);border-color:transparent;color:#0a0710}
+}
+/* Vertical content-type rail — desktop only (Founder 2026-08-04): icons that expand to reveal their label on hover */
 .cul-vrail{display:none}
 @media(min-width:861px){
   .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
@@ -200,6 +209,12 @@ footer a{color:var(--purple)}
 <div class="wrap"><div class="merge">
   <!-- LEFT: live feed -->
   <section class="feedcol">
+    <!-- Desktop subpage tabs (Feed / Radio / VS) — mobile keeps its own nav; desktop-only (Founder 2026-08-04) -->
+    <div class="cul-subpages" aria-label="Culture subpages">
+      <button class="csp on" data-sp="feed" onclick="culSection('feed');document.querySelectorAll('.cul-subpages .csp').forEach(function(b){b.classList.remove('on')});this.classList.add('on')">Feed</button>
+      <button class="csp" data-sp="radio" onclick="culSection('radio');document.querySelectorAll('.cul-subpages .csp').forEach(function(b){b.classList.remove('on')});this.classList.add('on')">Radio</button>
+      <button class="csp" data-sp="vs" onclick="culSection('vs');document.querySelectorAll('.cul-subpages .csp').forEach(function(b){b.classList.remove('on')});this.classList.add('on')">VS</button>
+    </div>
     <div class="feedhd">
       <a class="cul-add" id="cul-add" href="/v31/profile.html?create=feed" aria-label="Create a feed post" title="Create a feed post" style="display:none">+</a>
       <button class="cul-gear" id="cul-gear" style="display:none" aria-label="Feed settings" onclick="toggleCulGear(event)">&#9881;</button>
@@ -229,11 +244,13 @@ footer a{color:var(--purple)}
     <div id="cul-section-panel" style="display:none"></div>
   </section>
   <!-- Vertical audience filter rail (desktop): icon-first, expands to labels on hover (Founder 2026-08-04) -->
-  <div class="cul-vrail" id="culVRail" aria-label="Feed audience filter">
-    <button class="cvr on" data-ct="all" onclick="setCulType('all');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">🌐</span><span class="tx">All</span></button>
-    <button class="cvr" data-ct="following" onclick="setCulType('following');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">✔</span><span class="tx">Following</span></button>
-    <button class="cvr" data-ct="followers" onclick="setCulType('followers');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">👥</span><span class="tx">Followers</span></button>
-    <button class="cvr" data-ct="circle" onclick="setCulType('circle');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">◎</span><span class="tx">Circle</span></button>
+  <div class="cul-vrail" id="culVRail" aria-label="Feed content type">
+    <button class="cvr on" data-tp="all" onclick="setCulContentType('all');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
+    <button class="cvr" data-tp="blog" onclick="setCulContentType('blog');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📝</span><span class="tx">Blog</span></button>
+    <button class="cvr" data-tp="article" onclick="setCulContentType('article');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📄</span><span class="tx">Articles</span></button>
+    <button class="cvr" data-tp="video" onclick="setCulContentType('video');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">🎬</span><span class="tx">Vid</span></button>
+    <button class="cvr" data-tp="image" onclick="setCulContentType('image');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📷</span><span class="tx">Pix</span></button>
+    <button class="cvr" data-tp="vs" onclick="setCulContentType('vs');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
   </div>
   <div class="typebar" id="typebar" style="display:none"></div><div id="discover" style="display:none"></div>
 </div></div>
@@ -560,6 +577,127 @@ renderTypebar();renderDiscover();renderFeed();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){boot(0);});
   else boot(0);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════════════════════════════
+     MOBILE CULTURE (Founder 2026-08-04, handoff #44) — story-format feed.
+     STRICTLY ≤860px. Desktop is untouched: every rule is inside the media query and the JS
+     no-ops above 860px. Reuses the EXISTING .fb-actions buttons as the vertical rail, so
+     like/comment/repost/share/save/more stay wired to the live backend with no rewiring.
+     Values are proportional to the Founder's locked 302x600 frame.
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
+<style>
+@media(max-width:860px){
+  /* ── subpage tabs: Feed · Radio · VS (nav 6,6 290x38 @302 → 2% inset, ~6.3% height) ── */
+  #culMTabs{position:sticky;top:0;z-index:70;display:flex;gap:6px;margin:0 0 6px;padding:0;
+    background:#0a0a0f;height:46px;align-items:center}
+  #culMTabs button{flex:1 1 0;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);color:#e8e6f2;font:800 .82rem/1 var(--fh,Inter),sans-serif;
+    letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  #culMTabs button.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));
+    border-color:transparent;color:#04121b}
+  /* the old wrap-around header is replaced by the tabs on mobile */
+  body.cul-m .feedhd{display:none!important}
+
+  /* ── subfilter carousel: transparent, directly below the tabs (6,44 290x30) ── */
+  body.cul-m .cul-typebar{position:sticky;top:46px;z-index:65;background:transparent;
+    margin:0 0 4px;padding:2px 0 6px;height:36px;align-items:center}
+  body.cul-m .cul-typebar button{background:rgba(255,255,255,.06);font-size:.72rem;padding:6px 13px}
+
+  /* ── story card: media fills, nothing letterboxed away ── */
+  body.cul-m.cul-fs #community-feed>.fcard, body.cul-m.cul-fs #feed>.fcard{
+    position:relative;min-height:calc(100dvh - 150px);border-radius:14px;overflow:hidden;
+    display:block;padding:0;margin:0 0 10px}
+  body.cul-m .fcard .fb-head{position:absolute;top:8px;left:8px;right:56px;z-index:4;
+    background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);border:0;padding:6px 8px;border-radius:10px}
+  body.cul-m .fcard .fb-media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto!important;
+    background-size:cover;background-position:center;border-radius:14px}
+  body.cul-m .fcard .fb-media img,body.cul-m .fcard .fb-media video{width:100%;height:100%;object-fit:cover}
+  /* readability scrim behind the caption */
+  body.cul-m .fcard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;
+    background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));pointer-events:none;z-index:2}
+
+  /* ── vertical action rail: right edge, 6 icons, spread from ~40% height to just above nav ── */
+  body.cul-m .fcard .fb-actions{position:absolute;right:3%;top:40%;bottom:14px;width:44px;z-index:6;
+    display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+    gap:4px;padding:0;background:none;border:0}
+  body.cul-m .fcard .fb-actions .fba{width:37px;height:37px;min-width:0;border-radius:50%;
+    background:rgba(10,10,16,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);
+    display:flex;align-items:center;justify-content:center;padding:0;color:#fff}
+  body.cul-m .fcard .fb-actions .fba svg{width:18px;height:18px}
+  body.cul-m .fcard .fb-actions .fba b{display:none}
+  body.cul-m .fcard .fb-actions .fba.on{color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff)}
+
+  /* ── description: bottom-anchored, ~77% wide, ...more expands upward ── */
+  body.cul-m .fcard .fb-cap{position:absolute;left:2%;width:84%;bottom:12px;z-index:5;
+    max-height:96px;overflow:hidden;background:none;border:0;padding:0;color:#fff;
+    font-size:.8rem;line-height:1.35;transition:max-height .22s ease}
+  body.cul-m .fcard .fb-cap b{display:block;font-size:.88rem;font-weight:500;margin-bottom:2px}
+  body.cul-m .fcard.capopen .fb-cap{max-height:60dvh;overflow-y:auto}
+  /* EVENT cards: Buy stays pinned and reachable however long the copy runs */
+  body.cul-m .fcard.evpost .fb-cap{bottom:62px}
+  body.cul-m .fcard .cul-buy{position:absolute;left:6%;width:73%;height:42px;bottom:12px;z-index:7;
+    display:flex;align-items:center;justify-content:center;border-radius:11px;text-decoration:none;
+    background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;
+    font:800 .9rem/1 var(--fh,Inter),sans-serif;letter-spacing:.06em}
+  /* section-name pop that fades (~0.9s) */
+  #culSwToast{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:90;
+    background:rgba(10,10,16,.86);border:1px solid rgba(255,255,255,.16);border-radius:999px;
+    padding:7px 18px;color:#fff;font:800 .78rem/1 var(--fh,Inter),sans-serif;letter-spacing:.12em;
+    text-transform:uppercase;opacity:0;transition:opacity .9s ease;pointer-events:none}
+  #culSwToast.on{opacity:1;transition:opacity .12s ease}
+}
+</style>
+<script>
+/* MOBILE CULTURE enhancer — additive, ≤860px only. Above 860px every branch below no-ops. */
+(function(){
+  function isMob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
+  function sync(){ document.body.classList.toggle('cul-m', isMob()); }
+  sync(); window.addEventListener('resize', sync);
+  if(!isMob()) return;
+
+  /* 1 — subpage tabs (Feed · Radio · VS). Radio/VS reuse the existing culSection router. */
+  var host=document.getElementById('culTypeBar');
+  if(host && !document.getElementById('culMTabs')){
+    var tabs=document.createElement('div'); tabs.id='culMTabs';
+    tabs.innerHTML='<button data-s="feed" class="on">Feed</button>'
+                  +'<button data-s="radio">Radio</button>'
+                  +'<button data-s="vs">VS</button>';
+    host.parentNode.insertBefore(tabs, host);
+    tabs.addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b) return;
+      [].forEach.call(tabs.children,function(x){ x.classList.toggle('on', x===b); });
+      if(typeof culSection==='function') culSection(b.dataset.s);
+    });
+  }
+
+  /* 2 — caption "…more": expand upward, collapse again. Never hijacks a link tap. */
+  document.addEventListener('click',function(e){
+    if(!isMob()) return;
+    var a=e.target.closest && e.target.closest('.fb-cap a'); if(a) return;   /* let the one link work */
+    var cap=e.target.closest && e.target.closest('.fb-cap'); if(!cap) return;
+    var card=cap.closest('.fcard'); if(!card) return;
+    if(cap.scrollHeight>cap.clientHeight || card.classList.contains('capopen')){
+      e.preventDefault(); e.stopPropagation();
+      card.classList.toggle('capopen');
+    }
+  },true);
+
+  /* 3 — EVENT cards get a locked Buy button so it stays reachable above a long description */
+  function addBuy(){
+    if(!isMob()) return;
+    [].forEach.call(document.querySelectorAll('.fcard.evpost'),function(c){
+      if(c.querySelector('.cul-buy')) return;
+      var slug=(c.dataset.pid||'').replace(/^cul:/,''); if(!slug) return;
+      var a=document.createElement('a'); a.className='cul-buy';
+      a.href='/v31/event.html?e='+encodeURIComponent(slug); a.textContent='BUY';
+      a.addEventListener('click',function(ev){ ev.stopPropagation(); });
+      c.appendChild(a);
+    });
+  }
+  addBuy();
+  new MutationObserver(addBuy).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 <script src="/keepitil-shell.js?v=20260801b" defer></script>
