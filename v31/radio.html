@@ -72,10 +72,16 @@ section.open .grid.rad-carou{display:grid;overflow:visible}
 .cul-vrail{display:none}
 @media(min-width:861px){
   .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
-  .cul-vrail .cvr{display:flex;align-items:center;gap:11px;width:46px;height:46px;padding:0 12px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(12,20,18,.85);backdrop-filter:blur(12px);color:#cfe6df;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
-  .cul-vrail .cvr .ic{font-size:1.15rem;flex:0 0 auto;line-height:1;width:20px;text-align:center}
-  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.82rem;opacity:0;transition:opacity .12s}
-  .cul-vrail:hover .cvr{width:158px}
+  .cul-vrail{overflow:visible}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:13px;width:58px;height:58px;padding:0 15px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(12,20,18,.85);backdrop-filter:blur(12px);color:#cfe6df;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.55rem;flex:0 0 auto;line-height:1;width:26px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.9rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:180px}
+  .cul-vrail .vr-subdd{position:absolute;right:66px;top:0;display:none;flex-direction:column;gap:2px;background:#0d1613;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:7px;min-width:150px;z-index:60;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .cul-vrail .vr-subdd.open{display:flex}
+  .cul-vrail .vr-subdd button{display:flex;align-items:center;gap:11px;background:none;border:0;color:#dff0ea;font-size:.95rem;font-weight:600;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;white-space:nowrap}
+  .cul-vrail .vr-subdd button .ic{font-size:1.2rem}
+  .cul-vrail .vr-subdd button:hover{background:rgba(255,255,255,.09);color:#fff}
   .cul-vrail:hover .cvr .tx{opacity:1}
   .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
   .cul-vrail .cvr.sp.on,.cul-vrail .cvr.sf.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
@@ -152,9 +158,12 @@ footer{margin-top:auto}
 
 <!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, this page's sections below (Founder 2026-08-04) -->
 <div class="cul-vrail" id="radVRail" aria-label="Subpages and sections">
-  <button class="cvr sp" onclick="location.href='/culture'"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
-  <button class="cvr sp on" onclick="location.href='/culture/radio'"><span class="ic" aria-hidden="true">📻</span><span class="tx">Radio</span></button>
-  <button class="cvr sp" onclick="location.href='/culture/vs'"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+  <button class="cvr sp" id="vrSubBtn" onclick="vrToggleSub(event)" aria-label="Switch subpage"><span class="ic" aria-hidden="true">☰</span><span class="tx" id="vrSubLbl">Radio ▾</span></button>
+  <div class="vr-subdd" id="vrSubDD">
+    <button onclick="vrGoSub('feed')"><span class="ic" aria-hidden="true">📰</span><span>Feed</span></button>
+    <button onclick="vrGoSub('radio')"><span class="ic" aria-hidden="true">📻</span><span>Radio</span></button>
+    <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
+  </div>
   <div class="vr-div"></div>
   <button class="cvr sf on" onclick="radScroll('stations',this)"><span class="ic" aria-hidden="true">📡</span><span class="tx">Channel</span></button>
   <button class="cvr sf" onclick="radScroll('playlists',this)"><span class="ic" aria-hidden="true">🎧</span><span class="tx">Playlist</span></button>
@@ -165,6 +174,9 @@ footer{margin-top:auto}
 </div>
 <script>
 function radScroll(id,el){ var s=document.getElementById(id); if(s){ try{ s.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ location.hash=id; } } if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); } }
+function vrToggleSub(e){ if(e){try{e.stopPropagation();}catch(x){}} var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.toggle('open'); }
+function vrGoSub(sp){ var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.remove('open'); location.href=(sp==='feed'?'/culture':(sp==='radio'?'/culture/radio':'/culture/vs')); }
+document.addEventListener('click',function(e){ var dd=document.getElementById('vrSubDD'),b=document.getElementById('vrSubBtn'); if(dd&&dd.classList.contains('open')&&!dd.contains(e.target)&&b&&!b.contains(e.target))dd.classList.remove('open'); });
 </script>
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio rules (same on every page) -->
