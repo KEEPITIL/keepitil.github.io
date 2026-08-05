@@ -51,8 +51,14 @@ a{color:#5cc8ff}</style>
   if(seg[0]==='blog'){
     return go('/v31/culture.html');
   }
+  // /culture/<sub> — Radio & VS live as Culture subpages (Founder 2026-08-04)
+  if(seg.length===2 && seg[0]==='culture'){
+    if(seg[1]==='radio') return go('/v31/radio.html'+q);
+    if(seg[1]==='vs') return go('/v31/culture.html?sub=vs');
+    if(seg[1]==='feed') return go('/v31/culture.html'+q);
+  }
   // single-segment section aliases + every core page (clean URL, no /v31/ or /v3/ shown)
-  var SECTION={culture:'/v31/culture.html',scene:'/v31/scene.html',radio:'/v31/radio.html',
+  var SECTION={culture:'/v31/culture.html',scene:'/v31/scene.html',radio:'/culture/radio',
                apps:'/games/',games:'/games/',events:'/v31/',home:'/v31/',shop:'/v3/shop.html',
                songs:'/v3/song-directory.html',lyrics:'/v3/song-directory.html'};
   var V31PAGES=['about','apply','audit','community-guidelines','contact','create-event','dashboard',
