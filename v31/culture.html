@@ -95,6 +95,9 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
   .cul-vrail:hover .cvr{width:158px}
   .cul-vrail:hover .cvr .tx{opacity:1}
   .cul-vrail .cvr.on{background:linear-gradient(90deg,#a855f7,#c084fc);border-color:transparent;color:#0a0710}
+  .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
+  .cul-vrail .cvr.sp.on{background:linear-gradient(90deg,#7c3aed,#a855f7);border-color:transparent;color:#fff}
+  .cul-vrail .cvr.sf.on{background:linear-gradient(90deg,#3aa5ff,#5cc8ff);border-color:transparent;color:#04121b}
 }
 /* ── MOBILE (Founder 2026-08-02): the EXPLORE page-dropdown fills the top; a horizontal swipe
    cycles the subfilter (type) pages of the current section. Bottom nav is untouched. ── */
@@ -209,12 +212,6 @@ footer a{color:var(--purple)}
 <div class="wrap"><div class="merge">
   <!-- LEFT: live feed -->
   <section class="feedcol">
-    <!-- Desktop subpage tabs (Feed / Radio / VS) — mobile keeps its own nav; desktop-only (Founder 2026-08-04) -->
-    <div class="cul-subpages" aria-label="Culture subpages">
-      <button class="csp on" data-sp="feed" onclick="culSection('feed');document.querySelectorAll('.cul-subpages .csp').forEach(function(b){b.classList.remove('on')});this.classList.add('on')">Feed</button>
-      <button class="csp" data-sp="radio" onclick="culSection('radio');document.querySelectorAll('.cul-subpages .csp').forEach(function(b){b.classList.remove('on')});this.classList.add('on')">Radio</button>
-      <button class="csp" data-sp="vs" onclick="culSection('vs');document.querySelectorAll('.cul-subpages .csp').forEach(function(b){b.classList.remove('on')});this.classList.add('on')">VS</button>
-    </div>
     <div class="feedhd">
       <a class="cul-add" id="cul-add" href="/v31/profile.html?create=feed" aria-label="Create a feed post" title="Create a feed post" style="display:none">+</a>
       <button class="cul-gear" id="cul-gear" style="display:none" aria-label="Feed settings" onclick="toggleCulGear(event)">&#9881;</button>
@@ -243,14 +240,13 @@ footer a{color:var(--purple)}
     <!-- Culture sections (Radio / VS / Givebacks) render here when selected -->
     <div id="cul-section-panel" style="display:none"></div>
   </section>
-  <!-- Vertical audience filter rail (desktop): icon-first, expands to labels on hover (Founder 2026-08-04) -->
-  <div class="cul-vrail" id="culVRail" aria-label="Feed content type">
-    <button class="cvr on" data-tp="all" onclick="setCulContentType('all');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
-    <button class="cvr" data-tp="blog" onclick="setCulContentType('blog');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📝</span><span class="tx">Blog</span></button>
-    <button class="cvr" data-tp="article" onclick="setCulContentType('article');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📄</span><span class="tx">Articles</span></button>
-    <button class="cvr" data-tp="video" onclick="setCulContentType('video');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">🎬</span><span class="tx">Vid</span></button>
-    <button class="cvr" data-tp="image" onclick="setCulContentType('image');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">📷</span><span class="tx">Pix</span></button>
-    <button class="cvr" data-tp="vs" onclick="setCulContentType('vs');document.querySelectorAll('.cul-vrail .cvr').forEach(function(b){b.classList.remove('on')});this.classList.add('on')"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+  <!-- Vertical sidebar (desktop): subpages on top, the selected subpage's subfilters stacked below (Founder 2026-08-04) -->
+  <div class="cul-vrail" id="culVRail" aria-label="Subpages and filters">
+    <button class="cvr sp on" data-sp="feed" onclick="vrSP('feed',this)"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
+    <button class="cvr sp" data-sp="radio" onclick="vrSP('radio',this)"><span class="ic" aria-hidden="true">📻</span><span class="tx">Radio</span></button>
+    <button class="cvr sp" data-sp="vs" onclick="vrSP('vs',this)"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+    <div class="vr-div"></div>
+    <div id="vrFilters" style="display:flex;flex-direction:column;gap:9px;align-items:inherit"></div>
   </div>
   <div class="typebar" id="typebar" style="display:none"></div><div id="discover" style="display:none"></div>
 </div></div>
@@ -605,6 +601,13 @@ renderTypebar();renderDiscover();renderFeed();
     margin:0 0 4px;padding:2px 0 6px;height:36px;align-items:center}
   body.cul-m .cul-typebar button{background:rgba(255,255,255,.06);font-size:.72rem;padding:6px 13px}
 
+  /* full-bleed: cards run edge-to-edge so the rail/caption land on the screen edges the
+     Founder measured against (otherwise the column padding insets everything) */
+  body.cul-m .wrap{padding-left:0!important;padding-right:0!important}
+  body.cul-m .feedcol,body.cul-m .merge{max-width:none!important;padding-left:0!important;padding-right:0!important}
+  body.cul-m #community-feed,body.cul-m #feed{padding-left:0!important;padding-right:0!important}
+  /* the tabs + subfilter row keep their own inset so they don't sit flush to the bezel */
+  body.cul-m #culMTabs,body.cul-m .cul-typebar{padding-left:2%;padding-right:2%}
   /* ── story card: media fills, nothing letterboxed away ── */
   body.cul-m.cul-fs #community-feed>.fcard, body.cul-m.cul-fs #feed>.fcard{
     position:relative;min-height:calc(100dvh - 150px);border-radius:14px;overflow:hidden;
@@ -612,14 +615,19 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m .fcard .fb-head{position:absolute;top:8px;left:8px;right:56px;z-index:4;
     background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);border:0;padding:6px 8px;border-radius:10px}
   body.cul-m .fcard .fb-media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto!important;
-    background-size:cover;background-position:center;border-radius:14px}
-  body.cul-m .fcard .fb-media img,body.cul-m .fcard .fb-media video{width:100%;height:100%;object-fit:cover}
+    background-size:cover!important;background-position:center!important;background-repeat:no-repeat;border-radius:14px}
+  body.cul-m .fcard .fb-caro,body.cul-m .fcard .fb-caro>*{height:100%!important}
+  /* MOBILE ONLY: the story format fills the screen. This intentionally overrides the older
+     desktop "show the ENTIRE upload" letterbox rule (object-fit:contain), which still applies
+     above 860px — hence the !important, which is load-bearing here, not decoration. */
+  body.cul-m .fcard .fb-media img,body.cul-m .fcard .fb-media video{
+    width:100%!important;height:100%!important;object-fit:cover!important;max-height:none!important}
   /* readability scrim behind the caption */
   body.cul-m .fcard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;
     background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));pointer-events:none;z-index:2}
 
   /* ── vertical action rail: right edge, 6 icons, spread from ~40% height to just above nav ── */
-  body.cul-m .fcard .fb-actions{position:absolute;right:3%;top:40%;bottom:14px;width:44px;z-index:6;
+  body.cul-m .fcard .fb-actions{position:absolute;right:3%;top:34%;bottom:14px;width:44px;z-index:6;
     display:flex;flex-direction:column;align-items:center;justify-content:space-between;
     gap:4px;padding:0;background:none;border:0}
   body.cul-m .fcard .fb-actions .fba{width:37px;height:37px;min-width:0;border-radius:50%;
@@ -632,8 +640,13 @@ renderTypebar();renderDiscover();renderFeed();
   /* ── description: bottom-anchored, ~77% wide, ...more expands upward ── */
   body.cul-m .fcard .fb-cap{position:absolute;left:2%;width:84%;bottom:12px;z-index:5;
     max-height:96px;overflow:hidden;background:none;border:0;padding:0;color:#fff;
-    font-size:.8rem;line-height:1.35;transition:max-height .22s ease}
-  body.cul-m .fcard .fb-cap b{display:block;font-size:.88rem;font-weight:500;margin-bottom:2px}
+    font-family:var(--fb,Inter),system-ui,sans-serif!important;font-size:.78rem!important;
+    line-height:1.35;transition:max-height .22s ease}
+  /* the feed card's headline styles are desktop-scale; story captions need their own scale */
+  body.cul-m .fcard .fb-cap b,body.cul-m .fcard .fb-cap h3,body.cul-m .fcard .fb-cap *{
+    font-family:inherit!important;font-size:.86rem!important;line-height:1.3!important}
+  body.cul-m .fcard .fb-cap b{display:block;font-weight:500;margin-bottom:2px}
+  body.cul-m .fcard .fb-cap .fb-more-txt{color:var(--brand,#00b4ff);font-weight:700}
   body.cul-m .fcard.capopen .fb-cap{max-height:60dvh;overflow-y:auto}
   /* EVENT cards: Buy stays pinned and reachable however long the copy runs */
   body.cul-m .fcard.evpost .fb-cap{bottom:62px}
@@ -641,6 +654,9 @@ renderTypebar();renderDiscover();renderFeed();
     display:flex;align-items:center;justify-content:center;border-radius:11px;text-decoration:none;
     background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;
     font:800 .9rem/1 var(--fh,Inter),sans-serif;letter-spacing:.06em}
+  /* the floating AI bubble sits exactly where the rail's last icons land — nudge it up */
+  body.cul-m #kilo-fab,body.cul-m .kilo-fab{bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;
+    transform:scale(.86);transform-origin:100% 100%}
   /* section-name pop that fades (~0.9s) */
   #culSwToast{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:90;
     background:rgba(10,10,16,.86);border:1px solid rgba(255,255,255,.16);border-radius:999px;
@@ -696,8 +712,26 @@ renderTypebar();renderDiscover();renderFeed();
       c.appendChild(a);
     });
   }
-  addBuy();
-  new MutationObserver(addBuy).observe(document.body,{childList:true,subtree:true});
+  /* 4 — 6th rail action: More (…) → the existing culPostMenu (view profile / copy / report) */
+  function addMore(){
+    if(!isMob()) return;
+    [].forEach.call(document.querySelectorAll('.fcard .fb-actions'),function(act){
+      if(act.querySelector('.fba-more')) return;
+      var card=act.closest('.fcard'); if(!card) return;
+      var slug=(card.dataset.slug||(card.dataset.pid||'').replace(/^cul:/,''));
+      var b=document.createElement('button');
+      b.className='fba fba-more'; b.title='More';
+      b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
+      b.addEventListener('click',function(ev){
+        ev.preventDefault(); ev.stopPropagation();
+        if(typeof window.culPostMenu==='function') window.culPostMenu(ev, slug, location.origin+'/blog-'+slug+'.html');
+      });
+      act.appendChild(b);
+    });
+  }
+  function enhance(){ addBuy(); addMore(); }
+  enhance();
+  new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
 <script src="/keepitil-shell.js?v=20260801b" defer></script>
@@ -775,5 +809,29 @@ renderTypebar();renderDiscover();renderFeed();
   var _rf=window.renderFeed;if(typeof _rf==='function'){window.renderFeed=function(){_rf.apply(this,arguments);setTimeout(hydrate,30);};}
   (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
 })();
+</script>
+<script>
+/* Vertical sidebar: subpages (top) + the selected subpage's subfilters below (Founder 2026-08-04) */
+var VR_SUBS={
+  feed:[['all','📰','Feed'],['blog','📝','Blog'],['article','📄','Articles'],['video','🎬','Vid'],['image','📷','Pix'],['vs','⚔️','VS']],
+  radio:[['channel','📡','Channel'],['playlist','🎧','Playlist'],['schedule','🗓️','Schedule'],['vs','⚔️','VS'],['apps','📱','Apps'],['games','🎮','Games']],
+  vs:[['battles','🥊','Battles'],['vote','🗳️','Vote'],['board','🏆','Leaderboard']]
+};
+function vrRenderFilters(sp){
+  var box=document.getElementById('vrFilters'); if(!box) return;
+  box.innerHTML=(VR_SUBS[sp]||[]).map(function(f,i){
+    return '<button class="cvr sf'+(i===0?' on':'')+'" data-k="'+f[0]+'" onclick="vrSF(\''+sp+'\',\''+f[0]+'\',this)"><span class="ic" aria-hidden="true">'+f[1]+'</span><span class="tx">'+f[2]+'</span></button>';
+  }).join('');
+}
+function vrSP(sp,el){
+  var r=document.getElementById('culVRail'); if(r){ [].forEach.call(r.querySelectorAll('.cvr.sp'),function(b){b.classList.remove('on');}); } if(el)el.classList.add('on');
+  if(typeof culSection==='function'){ try{ culSection(sp); }catch(e){} }
+  vrRenderFilters(sp);
+}
+function vrSF(sp,k,el){
+  if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); }
+  if(sp==='feed' && typeof setCulContentType==='function'){ try{ setCulContentType(k); }catch(e){} }
+}
+try{ vrRenderFilters('feed'); }catch(e){}
 </script>
 </body></html>
