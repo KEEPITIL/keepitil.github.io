@@ -627,18 +627,20 @@ renderTypebar();renderDiscover();renderFeed();
     background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));pointer-events:none;z-index:2}
 
   /* ── vertical action rail: right edge, 6 icons, spread from ~40% height to just above nav ── */
-  body.cul-m .fcard .fb-actions{position:absolute;right:3%;top:34%;bottom:14px;width:44px;z-index:6;
+  /* locked values (302x600 frame): rail 44 wide, right ~13px, icons 30px, gap 4px,
+     starting ~40% of SCREEN height — 34% of the CARD, since the card starts below the nav. */
+  body.cul-m .fcard .fb-actions{position:absolute;right:3%;top:34%;bottom:20px;width:44px;z-index:6;
     display:flex;flex-direction:column;align-items:center;justify-content:space-between;
     gap:4px;padding:0;background:none;border:0}
-  body.cul-m .fcard .fb-actions .fba{width:37px;height:37px;min-width:0;border-radius:50%;
+  body.cul-m .fcard .fb-actions .fba{width:34px;height:34px;min-width:0;border-radius:50%;
     background:rgba(10,10,16,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);
     display:flex;align-items:center;justify-content:center;padding:0;color:#fff}
-  body.cul-m .fcard .fb-actions .fba svg{width:18px;height:18px}
+  body.cul-m .fcard .fb-actions .fba svg{width:16px;height:16px}
   body.cul-m .fcard .fb-actions .fba b{display:none}
   body.cul-m .fcard .fb-actions .fba.on{color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff)}
 
   /* ── description: bottom-anchored, ~77% wide, ...more expands upward ── */
-  body.cul-m .fcard .fb-cap{position:absolute;left:2%;width:84%;bottom:12px;z-index:5;
+  body.cul-m .fcard .fb-cap{position:absolute;left:2%;width:84%;bottom:20px;z-index:5;
     max-height:96px;overflow:hidden;background:none;border:0;padding:0;color:#fff;
     font-family:var(--fb,Inter),system-ui,sans-serif!important;font-size:.78rem!important;
     line-height:1.35;transition:max-height .22s ease}
@@ -649,14 +651,16 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m .fcard .fb-cap .fb-more-txt{color:var(--brand,#00b4ff);font-weight:700}
   body.cul-m .fcard.capopen .fb-cap{max-height:60dvh;overflow-y:auto}
   /* EVENT cards: Buy stays pinned and reachable however long the copy runs */
-  body.cul-m .fcard.evpost .fb-cap{bottom:62px}
+  body.cul-m .fcard.evpost .fb-cap{bottom:70px}
   body.cul-m .fcard .cul-buy{position:absolute;left:6%;width:73%;height:42px;bottom:12px;z-index:7;
     display:flex;align-items:center;justify-content:center;border-radius:11px;text-decoration:none;
     background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;
     font:800 .9rem/1 var(--fh,Inter),sans-serif;letter-spacing:.06em}
-  /* the floating AI bubble sits exactly where the rail's last icons land — nudge it up */
-  body.cul-m #kilo-fab,body.cul-m .kilo-fab{bottom:calc(72px + env(safe-area-inset-bottom,0px))!important;
-    transform:scale(.86);transform-origin:100% 100%}
+  /* The floating AI bubble lands exactly on the rail's Save/More icons. The real id is
+     #kilo-btn (keepitil-ai.js) — my first attempt guessed #kilo-fab and did nothing.
+     Move it LEFT of the rail rather than up, so it never collides at any rail length. */
+  body.cul-m #kilo-btn{right:64px!important;bottom:calc(78px + env(safe-area-inset-bottom,0px))!important;
+    transform:scale(.85);transform-origin:100% 100%}
   /* section-name pop that fades (~0.9s) */
   #culSwToast{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:90;
     background:rgba(10,10,16,.86);border:1px solid rgba(255,255,255,.16);border-radius:999px;
