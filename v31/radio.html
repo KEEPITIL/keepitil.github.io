@@ -168,6 +168,124 @@ function radScroll(id,el){ var s=document.getElementById(id); if(s){ try{ s.scro
 </script>
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio rules (same on every page) -->
+
+<!-- ══════════════════════════════════════════════════════════════════════════════════════
+     MOBILE RADIO (Founder 2026-08-04, handoff #58) — same reusable pattern as Culture.
+     STRICTLY ≤860px; desktop (per-section carousels + accordions) is untouched.
+     Locked values, 302x600 frame: navBar 6,6 290x30 · sectionCarousel 6,36 290x28 ·
+     mini-player 44px above the 56px bottom nav.
+     RENAMES per spec: Stations→Channel, Create/Compete/Earn→VS.
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
+<style>
+@media(max-width:860px){
+  /* subpage tabs — Radio active, teal accent */
+  /* the shell reserves top-nav space even though it hides the bar ≤860px — reclaim it here only */
+  body.rad-m{padding-top:0!important;margin-top:0!important}
+  #radMTabs{position:sticky;top:0;z-index:70;display:flex;gap:6px;height:38px;align-items:center;
+    padding:0 2%;background:#0a0a0f;margin:0 0 4px}
+  #radMTabs button{flex:1 1 0;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);color:#cfe6df;font:800 .74rem/1 var(--fh,Inter),sans-serif;
+    letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  #radMTabs button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+  /* section carousel — transparent, horizontally scrollable */
+  #radMSecs{position:sticky;top:38px;z-index:65;display:flex;gap:7px;height:36px;align-items:center;
+    padding:0 2%;overflow-x:auto;scrollbar-width:none;background:transparent;margin:0 0 8px}
+  #radMSecs::-webkit-scrollbar{display:none}
+  #radMSecs button{flex:0 0 auto;height:28px;padding:0 13px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#cfe6df;
+    font:800 .7rem/1 var(--fh,Inter),sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  #radMSecs button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+  /* one section at a time on mobile; swipe cycles them */
+  body.rad-m main.wrap>section{display:none;border-top:0;padding:6px 0 20px}
+  body.rad-m main.wrap>section.rad-on{display:block}
+  body.rad-m .hero{display:none}
+  /* the desktop accordion collapses grids until .open — on mobile always show them */
+  body.rad-m section .grid.rad-carou{display:grid!important;overflow:visible!important}
+  body.rad-m .sec-toggle{display:none}
+  /* persistent mini-player docked above the bottom nav (the shared shell hides it on mobile;
+     this page is the one place it must stay visible) */
+  body.rad-m #kil-radio{transform:none!important;pointer-events:auto!important;
+    position:fixed!important;left:8px;right:8px;bottom:calc(56px + 8px + env(safe-area-inset-bottom,0px))!important;
+    z-index:60;border-radius:12px}
+  body.rad-m{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}
+  /* section-name pop that fades, same affordance as Culture */
+  #radSwToast{position:fixed;left:50%;top:calc(38px + 36px + 10px);transform:translateX(-50%);z-index:90;
+    background:rgba(10,16,14,.88);border:1px solid rgba(0,224,164,.35);border-radius:999px;
+    padding:7px 18px;color:#d9fff2;font:800 .76rem/1 var(--fh,Inter),sans-serif;letter-spacing:.12em;
+    text-transform:uppercase;opacity:0;transition:opacity .9s ease;pointer-events:none}
+  #radSwToast.on{opacity:1;transition:opacity .12s ease}
+}
+</style>
+<script>
+/* MOBILE RADIO enhancer — additive, ≤860px only; returns early above that. */
+(function(){
+  function isMob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
+  function sync(){ document.body.classList.toggle('rad-m', isMob()); }
+  sync(); window.addEventListener('resize', sync);
+  if(!isMob()) return;
+
+  /* section id -> label, using the Founder's renames */
+  var SECS = [
+    ['stations','Channel'], ['playlists','Playlist'], ['schedule','Schedule'],
+    ['earn','VS'], ['services','Apps'], ['games','Games']
+  ].filter(function(s){ return document.getElementById(s[0]); });
+  if(!SECS.length) return;
+  var idx = 0;
+
+  var main = document.querySelector('main.wrap'); if(!main) return;
+  var tabs = document.createElement('div'); tabs.id = 'radMTabs';
+  tabs.innerHTML = '<button data-go="/culture">Feed</button>'
+                 + '<button class="on">Radio</button>'
+                 + '<button data-go="/culture/vs">VS</button>';
+  var secbar = document.createElement('div'); secbar.id = 'radMSecs';
+  secbar.innerHTML = SECS.map(function(s,i){
+    return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'">'+s[1]+'</button>';
+  }).join('');
+  main.parentNode.insertBefore(tabs, main);
+  main.parentNode.insertBefore(secbar, main);
+
+  tabs.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(b && b.dataset.go) location.href = b.dataset.go;
+  });
+  secbar.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(b) show(Number(b.dataset.i));
+  });
+
+  function toast(t){
+    var el = document.getElementById('radSwToast');
+    if(!el){ el = document.createElement('div'); el.id='radSwToast'; document.body.appendChild(el); }
+    el.textContent = t; el.classList.add('on');
+    clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('on'); }, 850);
+  }
+  function show(i, quiet){
+    idx = (i + SECS.length) % SECS.length;
+    SECS.forEach(function(s, n){
+      var el = document.getElementById(s[0]);
+      if(el) el.classList.toggle('rad-on', n === idx);
+    });
+    [].forEach.call(secbar.children, function(b, n){ b.classList.toggle('on', n === idx); });
+    var active = secbar.children[idx];
+    if(active && active.scrollIntoView) active.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+    if(!quiet) toast(SECS[idx][1]);
+  }
+  show(0, true);
+
+  /* swipe left/right cycles the section (ignores the carousel + player + controls) */
+  var x0=null, y0=null, t0=0;
+  document.addEventListener('touchstart', function(e){
+    var t = e.target;
+    if(t && t.closest && t.closest('#radMSecs,#kil-radio,input,textarea,select,button,a,.grid')){ x0=null; return; }
+    var tt = e.touches[0]; x0=tt.clientX; y0=tt.clientY; t0=Date.now();
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(x0==null) return;
+    var tt=e.changedTouches[0], dx=tt.clientX-x0, dy=tt.clientY-y0, dt=Date.now()-t0; x0=null;
+    if(dt>700) return;
+    if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.7) return;
+    show(idx + (dx<0 ? 1 : -1));
+  }, {passive:true});
+})();
+</script>
 <script src="/keepitil-shell.js?v=20260801b" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/v31/kil-seasons.js?v=20260726e"></script>
