@@ -89,10 +89,17 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .cul-vrail{display:none}
 @media(min-width:861px){
   .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
-  .cul-vrail .cvr{display:flex;align-items:center;gap:11px;width:46px;height:46px;padding:0 12px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(14,13,22,.82);backdrop-filter:blur(12px);color:#cfc9e6;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
-  .cul-vrail .cvr .ic{font-size:1.15rem;flex:0 0 auto;line-height:1;width:20px;text-align:center}
-  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.82rem;opacity:0;transition:opacity .12s}
-  .cul-vrail:hover .cvr{width:158px}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:13px;width:58px;height:58px;padding:0 15px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(14,13,22,.82);backdrop-filter:blur(12px);color:#cfc9e6;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.55rem;flex:0 0 auto;line-height:1;width:26px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.9rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:180px}
+  /* subpage dropdown (Founder 2026-08-04): one icon for Feed/Radio/VS */
+  .cul-vrail{overflow:visible}
+  .cul-vrail .vr-subdd{position:absolute;right:66px;top:0;display:none;flex-direction:column;gap:2px;background:#15131f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:7px;min-width:150px;z-index:60;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .cul-vrail .vr-subdd.open{display:flex}
+  .cul-vrail .vr-subdd button{display:flex;align-items:center;gap:11px;background:none;border:0;color:#e6e2f2;font-size:.95rem;font-weight:600;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;white-space:nowrap}
+  .cul-vrail .vr-subdd button .ic{font-size:1.2rem}
+  .cul-vrail .vr-subdd button:hover{background:rgba(255,255,255,.09);color:#fff}
   .cul-vrail:hover .cvr .tx{opacity:1}
   .cul-vrail .cvr.on{background:linear-gradient(90deg,#a855f7,#c084fc);border-color:transparent;color:#0a0710}
   .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
@@ -242,9 +249,12 @@ footer a{color:var(--purple)}
   </section>
   <!-- Vertical sidebar (desktop): subpages on top, the selected subpage's subfilters stacked below (Founder 2026-08-04) -->
   <div class="cul-vrail" id="culVRail" aria-label="Subpages and filters">
-    <button class="cvr sp on" data-sp="feed" onclick="vrSP('feed',this)"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
-    <button class="cvr sp" data-sp="radio" onclick="vrSP('radio',this)"><span class="ic" aria-hidden="true">📻</span><span class="tx">Radio</span></button>
-    <button class="cvr sp" data-sp="vs" onclick="vrSP('vs',this)"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+    <button class="cvr sp" id="vrSubBtn" onclick="vrToggleSub(event)" aria-label="Switch subpage"><span class="ic" aria-hidden="true">☰</span><span class="tx" id="vrSubLbl">Feed ▾</span></button>
+    <div class="vr-subdd" id="vrSubDD">
+      <button onclick="vrGoSub('feed')"><span class="ic" aria-hidden="true">📰</span><span>Feed</span></button>
+      <button onclick="vrGoSub('radio')"><span class="ic" aria-hidden="true">📻</span><span>Radio</span></button>
+      <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
+    </div>
     <div class="vr-div"></div>
     <div id="vrFilters" style="display:flex;flex-direction:column;gap:9px;align-items:inherit"></div>
   </div>
@@ -562,7 +572,7 @@ renderTypebar();renderDiscover();renderFeed();
         window.__culAllRows=rows;
         /* render function used by both initial paint and the gear Type/Filter (Founder 2026-07-29) */
         window.__culRenderRows=function(list){ var b=document.getElementById('community-feed'); if(!b)return;
-          if(!list||!list.length){ b.innerHTML='<div class="gate"><p style="color:var(--muted,#9aa0b0);margin:0">The feed is warming up — fresh posts are on the way.</p></div>'; return; }
+          if(!list||!list.length){ b.innerHTML=''; return; }
           b.innerHTML=list.map(card).join('');
           try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){} };
         if(typeof applyCulFilters==='function' && (window.__culSignedIn)){ try{ if(typeof loadCulRelations==='function') loadCulRelations(); }catch(e){} applyCulFilters(); }
@@ -827,25 +837,20 @@ function vrRenderFilters(sp){
     return '<button class="cvr sf'+(i===0?' on':'')+'" data-k="'+f[0]+'" onclick="vrSF(\''+sp+'\',\''+f[0]+'\',this)"><span class="ic" aria-hidden="true">'+f[1]+'</span><span class="tx">'+f[2]+'</span></button>';
   }).join('');
 }
-function vrSP(sp,el){
-  if(sp==='radio'){ location.href='/culture/radio'; return; }  /* subpages are their own clean URLs now (Founder 2026-08-04) */
+function vrToggleSub(e){ if(e){try{e.stopPropagation();}catch(x){}} var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.toggle('open'); }
+function vrGoSub(sp){
+  var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.remove('open');
+  if(sp==='radio'){ location.href='/culture/radio'; return; }  /* subpages have their own clean URLs (Founder 2026-08-04) */
   if(sp==='vs'){ location.href='/culture/vs'; return; }
-  var r=document.getElementById('culVRail'); if(r){ [].forEach.call(r.querySelectorAll('.cvr.sp'),function(b){b.classList.remove('on');}); } if(el)el.classList.add('on');
+  var lbl=document.getElementById('vrSubLbl'); if(lbl)lbl.textContent='Feed ▾';
   if(typeof culSection==='function'){ try{ culSection('feed'); }catch(e){} }
   vrRenderFilters('feed');
 }
+document.addEventListener('click',function(e){ var dd=document.getElementById('vrSubDD'),b=document.getElementById('vrSubBtn'); if(dd&&dd.classList.contains('open')&&!dd.contains(e.target)&&b&&!b.contains(e.target))dd.classList.remove('open'); });
 function vrSF(sp,k,el){
   if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); }
   if(sp==='feed' && typeof setCulContentType==='function'){ try{ setCulContentType(k); }catch(e){} }
 }
-try{
-  var _sub=(new URLSearchParams(location.search)).get('sub');
-  if(_sub==='vs'){
-    var _r=document.getElementById('culVRail');
-    if(_r){ [].forEach.call(_r.querySelectorAll('.cvr.sp'),function(b){b.classList.remove('on');}); var _vb=_r.querySelector('.cvr.sp[data-sp="vs"]'); if(_vb)_vb.classList.add('on'); }
-    if(typeof culSection==='function'){ try{ culSection('vs'); }catch(e){} }
-    vrRenderFilters('vs');
-  } else { vrRenderFilters('feed'); }
-}catch(e){ try{ vrRenderFilters('feed'); }catch(_e){} }
+try{ vrRenderFilters('feed'); }catch(e){}
 </script>
 </body></html>
