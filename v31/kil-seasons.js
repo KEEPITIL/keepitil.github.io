@@ -67,6 +67,21 @@
   }catch(e){}
   var ov=qs; if(!ov){ try{ ov=sessionStorage.getItem('kil_season_preview'); }catch(e){} }
 
+  // per-slug accent (light, readable on the dark bg) — drives the hero-text tint. Mirrors gen_seasons.py.
+  var ACCENT={
+    'winter-ambient':'159,208,255','spring-ambient':'168,230,176','summer-ambient':'255,207,138','autumn-ambient':'240,164,90',
+    'mlk-day':'240,194,74','lunar-new-year':'255,207,90','super-bowl':'207,224,255','valentines':'255,158,194',
+    'presidents-day':'205,214,255','st-patricks':'111,224,143','march-madness':'255,176,96','easter':'255,179,230',
+    'four-twenty':'143,224,143','cinco-de-mayo':'255,210,74','may-the-4th':'159,216,255','mothers-day':'255,158,194',
+    'memorial-day':'205,214,255','fathers-day':'159,208,216','independence-day':'207,224,255','summer-finale':'255,176,122',
+    'labor-day':'207,224,255','patriot-day':'188,208,255','oktoberfest':'255,207,107','halloween':'255,154,77',
+    'down-syndrome-awareness':'255,213,74','cancer-awareness':'255,154,192','veterans-day':'205,214,255',
+    'thanksgiving':'240,164,90','black-friday':'208,160,255','christmas':'127,224,160','new-years-eve':'255,217,122',
+    'default':'127,208,255'};
+  function setTint(slug){ var rgb=ACCENT[slug]||'127,208,255';
+    try{ var r=document.documentElement.style; r.setProperty('--kil-season-tint','rgb('+rgb+')'); r.setProperty('--kil-season-tint-rgb',rgb); }catch(e){} }
+  function clearTint(){ try{ var r=document.documentElement.style; r.removeProperty('--kil-season-tint'); r.removeProperty('--kil-season-tint-rgb'); }catch(e){} }
+
   // paint a given season slug (desktop/mobile variant chosen live) — only if the image exists
   function paintSeason(slug){
     var isMobile=Math.min(window.innerWidth,window.innerHeight)<=640 || window.innerHeight>window.innerWidth;
@@ -81,11 +96,12 @@
       layer.style.backgroundImage='url("'+url+'")';
       document.documentElement.classList.add('has-season');
       document.body.style.background='transparent';
+      setTint(slug);   // recolor hero text to match this background
     };
     img.onerror=function(){};
     img.src=url;
   }
-  function clearSeason(){ var l=document.getElementById('kil-season-bg'); if(l)l.remove(); document.documentElement.classList.remove('has-season'); document.body.style.background=''; }
+  function clearSeason(){ var l=document.getElementById('kil-season-bg'); if(l)l.remove(); document.documentElement.classList.remove('has-season'); document.body.style.background=''; clearTint(); }
 
   // ── public API for the home-page background picker (Founder 2026-08-05) ──
   var _seen={}, _list=[];
@@ -93,6 +109,7 @@
   _list.push({slug:'default',name:'KEEPITIL (default)'});
   window.kilSeason={
     seasons:_list,
+    accent:function(slug){ var v=ACCENT[slug]; return v?('rgb('+v+')'):''; },
     current:function(){ var l=document.getElementById('kil-season-bg'); return l?l.getAttribute('data-season'):null; },
     apply:function(slug){ try{sessionStorage.setItem('kil_season_preview',slug);}catch(e){} paintSeason(slug); },
     auto:function(){ try{sessionStorage.removeItem('kil_season_preview');}catch(e){} var a=pick(new Date())||{slug:'default'}; paintSeason(a.slug); },
