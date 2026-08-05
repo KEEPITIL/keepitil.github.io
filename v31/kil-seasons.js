@@ -43,7 +43,14 @@
     ['thanksgiving','Thanksgiving', win(nth(Y,10,4,4),2), nth(Y,10,4,4), 6],
     ['black-friday','Black Friday', new Date(nth(Y,10,4,4).getTime()+864e5), new Date(nth(Y,10,4,4).getTime()+864e5), 7],
     ['christmas','Christmas', D(12,18), D(12,26), 6],
-    ['new-years-eve','New Year’s Eve', D(12,30), D(12,31), 7]
+    ['new-years-eve','New Year’s Eve', D(12,30), D(12,31), 7],
+    // year-round AMBIENT backdrops (priority 1 — every holiday above overrides them) so the site
+    // always shows a season-appropriate background and rotates on a fixed schedule all year.
+    ['winter-ambient','Winter', D(1,1),  D(3,19),  1],
+    ['spring-ambient','Spring', D(3,20), D(6,20),  1],
+    ['summer-ambient','Summer', D(6,21), D(9,21),  1],
+    ['autumn-ambient','Autumn', D(9,22), D(11,30), 1],
+    ['winter-ambient','Winter', D(12,1), D(12,31), 1]
   ].map(function(a){return {slug:a[0],name:a[1],start:a[2],end:a[3],pri:a[4]};});
 
   function pick(t){
