@@ -11,7 +11,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--panel:rgba(255,255,255,.035);--brd:rgba(255,255,255,.09);--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--purple:var(--purple-2);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fs:'Fraunces',serif}
 html{scroll-behavior:smooth}
-body{background:var(--bg,#0a0a0f);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:80px}
+body{background:var(--bg,#0a0a0f);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:80px;display:flex;flex-direction:column;min-height:100vh}
 a{color:inherit;text-decoration:none}
 /* uniform pillar sub-nav */
 .hubnav{position:relative;z-index:20;background:color-mix(in srgb,var(--bg,#0a0a0f) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
@@ -204,7 +204,7 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .soon .i{font-size:3rem}.soon h2{font-family:var(--fs);font-weight:600;font-size:1.8rem;color:#fff;margin:10px 0 8px}
 .soon p{color:var(--ink2);max-width:440px;margin:0 auto 18px}
 .soon a{display:inline-block;background:var(--brand);color:#04121b;font-weight:800;padding:11px 22px;border-radius:999px}
-footer{border-top:1px solid rgba(255,255,255,.06);padding:30px;text-align:center;color:var(--ink3);font-size:.82rem}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:30px;text-align:center;color:var(--ink3);font-size:.82rem;margin-top:auto} /* locked to the bottom before the radio bar — no gap on short subpages (VS) */
 footer a{color:var(--purple)}
 </style></head><body>
 <nav id="main-nav"></nav>
@@ -824,14 +824,24 @@ function vrRenderFilters(sp){
   }).join('');
 }
 function vrSP(sp,el){
+  if(sp==='radio'){ location.href='/culture/radio'; return; }  /* subpages are their own clean URLs now (Founder 2026-08-04) */
+  if(sp==='vs'){ location.href='/culture/vs'; return; }
   var r=document.getElementById('culVRail'); if(r){ [].forEach.call(r.querySelectorAll('.cvr.sp'),function(b){b.classList.remove('on');}); } if(el)el.classList.add('on');
-  if(typeof culSection==='function'){ try{ culSection(sp); }catch(e){} }
-  vrRenderFilters(sp);
+  if(typeof culSection==='function'){ try{ culSection('feed'); }catch(e){} }
+  vrRenderFilters('feed');
 }
 function vrSF(sp,k,el){
   if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); }
   if(sp==='feed' && typeof setCulContentType==='function'){ try{ setCulContentType(k); }catch(e){} }
 }
-try{ vrRenderFilters('feed'); }catch(e){}
+try{
+  var _sub=(new URLSearchParams(location.search)).get('sub');
+  if(_sub==='vs'){
+    var _r=document.getElementById('culVRail');
+    if(_r){ [].forEach.call(_r.querySelectorAll('.cvr.sp'),function(b){b.classList.remove('on');}); var _vb=_r.querySelector('.cvr.sp[data-sp="vs"]'); if(_vb)_vb.classList.add('on'); }
+    if(typeof culSection==='function'){ try{ culSection('vs'); }catch(e){} }
+    vrRenderFilters('vs');
+  } else { vrRenderFilters('feed'); }
+}catch(e){ try{ vrRenderFilters('feed'); }catch(_e){} }
 </script>
 </body></html>
