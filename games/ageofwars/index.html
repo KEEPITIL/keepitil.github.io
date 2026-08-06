@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Kingdom Wars</title>
+<title>Age of Wars</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kingdom Wars">
-<meta name="application-name" content="Kingdom Wars">
+<meta name="apple-mobile-web-app-title" content="Age of Wars">
+<meta name="application-name" content="Age of Wars">
 <meta name="format-detection" content="telephone=no">
 <meta name="theme-color" content="#22303c">
 <link rel="manifest" href="manifest.webmanifest">
@@ -180,7 +180,7 @@
 
 <div id="hub" class="hidden">
   <div class="hubmenu">
-    <h1>KINGDOM WARS</h1>
+    <h1>AGE OF WARS</h1>
     <button class="menubtn primary" id="continuebtn" hidden>CONTINUE WAR<span class="menusub" id="continuesub"></span></button>
     <button class="menubtn primary" id="newrunbtn">NEW ENDLESS WAR</button>
     <button class="menubtn primary" id="campaignbtn">WORLD CRUSADE</button>
@@ -1359,6 +1359,12 @@ function update(dt){
   // stack on the same spot at the front line. A small capped push apart, run after
   // movement (covers stationary attackers that steerMove no longer separates).
   for(const u of S.units){ if(u.hp<=0) continue;
+    // A soldier calmly holding its formation slot must NOT be shoved apart: the slots
+    // are already spaced, so a push just knocks it off-slot and it re-steers back every
+    // frame — the "fidgeting/stuck" vibration. Only push units that are moving or
+    // actively fighting (front-line attackers), which is what this force is for.
+    const holding = u.anim<=0 && ((u.team===1 && S.stance!=='attack' && !u.charge) || (u.team===-1 && S.enemyPhase!=='assault'));
+    if(holding){ const sx=(u.slotX||u.x)-u.x, sy=(u.slotY||u.y)-u.y; if(sx*sx+sy*sy < 100) continue; }
     let px=0,py=0,cnt=0;
     for(const o of S.units){ if(o===u||o.hp<=0) continue;
       const dx=u.x-o.x; if(dx>16||dx<-16) continue;
@@ -2997,7 +3003,7 @@ function updateDiagnostics(force=false){
   const entityBytes=S.units.length*360+S.projs.length*120+S.fx.length*96+S.corpses.length*80+S.splats.length*40;
   const heap=performance.memory?.usedJSHeapSize;
   document.getElementById('diag').textContent=
-    'KINGDOM WARS DIAGNOSTICS\n'+
+    'AGE OF WARS DIAGNOSTICS\n'+
     'FPS          '+perfStats.fps.toFixed(1)+'  min '+(isFinite(perfStats.minFps)?perfStats.minFps.toFixed(1):'—')+'\n'+
     'Sim steps/s  '+perfStats.sampleSteps+'  speed '+gameSpeed+'×\n'+
     'Units        '+S.units.length+'  P:'+allies+' E:'+enemies+'\n'+
