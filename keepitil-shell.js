@@ -111,9 +111,10 @@
   try{
     var _IK='kil-pwa-hint-2026';
     var _standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
-    /* FOUNDER DIRECTIVE 2026-07-16: install UI is OFF until the real App Store launch.
-       PWA plumbing (manifest, SW, push) stays live — only the prompt/banner is suppressed. */
-    var _INSTALL_UI=false;
+    /* FOUNDER DIRECTIVE 2026-08-07: install UI is ON — ship the free installable PWA now,
+       native Expo app later. (Supersedes the 2026-07-16 "off until App Store launch" hold.)
+       Banner is dismissible and remembers the dismissal via localStorage key _IK. */
+    var _INSTALL_UI=true;
     if(_INSTALL_UI && !_standalone && !localStorage.getItem(_IK)){
       var _dismiss=function(){ try{localStorage.setItem(_IK,'1');}catch(e){} var b=document.getElementById('kil-pwa-banner'); if(b)b.remove(); };
       var _show=function(msg,btnLabel,onBtn){
