@@ -3,14 +3,35 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="robots" content="noindex,nofollow"/>
-<title>KEEPITIL</title>
+<title>KEEPITIL — URL Router (not an error page)</title>
+<!-- ============================================================================
+     THIS IS THE KEEPITIL URL ROUTER.  It is NOT an error page.
+
+     WHY IT IS CALLED 404.html: GitHub Pages only ever serves ONE file for an
+     unmatched path, and that file MUST be named 404.html at the repo root.
+     The name is fixed by the hosting platform — it cannot be renamed without
+     losing every clean URL on the site.
+
+     WHAT IT DOES: translates pretty URLs into real pages, e.g.
+        /culture              -> /culture.html
+        /radio                -> /radio.html
+        /vs                   -> /vs.html
+        /scene                -> /scene.html
+        /profile/<handle>     -> /profile.html?slug=<handle>
+        /event/<slug>         -> /event.html?e=<slug>
+        /venue/<slug>         -> /venue.html?v=<slug>
+
+     DELETE THIS FILE AND EVERY CLEAN URL ABOVE BREAKS AT ONCE.
+     Only if a path matches nothing does it fall through to the "not found"
+     panel below — which is why opening it directly looks blank/dead.
+============================================================================ -->
 <style>html,body{margin:0;height:100%;background:#0a0a0f;color:#eef;font:15px/1.6 'Inter',system-ui,sans-serif}
 .wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
 a{color:#5cc8ff}</style>
 <script>
 /* KEEPITIL clean-URL router (Founder 2026-07-31).
    GitHub Pages serves this 404.html for any unmatched path; we translate pretty URLs
-   to the working /v31/ pages via a client-side redirect. Falls through to a real 404 message. */
+   to the working / pages via a client-side redirect. Falls through to a real 404 message. */
 (function(){
   var p = location.pathname.replace(/\/+$/,''); // strip trailing slash
   var seg = p.split('/').filter(Boolean);       // path segments
@@ -21,23 +42,23 @@ a{color:#5cc8ff}</style>
 
   // /unclaimed/profile/<slug>  → dynamic template (public view); no stale static clones (Founder 2026-08-04)
   if(seg.length===3 && seg[0]==='unclaimed' && seg[1]==='profile'){
-    return go('/v31/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
+    return go('/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
   }
   // /public/profile/<slug>
   if(seg.length===3 && seg[0]==='public' && seg[1]==='profile'){
-    return go('/v31/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
+    return go('/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
   }
   // /profile/<slug>
   if(seg.length===2 && seg[0]==='profile'){
-    return go('/v31/profile.html?slug='+encodeURIComponent(slug));
+    return go('/profile.html?slug='+encodeURIComponent(slug));
   }
   // /venue/<slug>
   if(seg.length===2 && seg[0]==='venue'){
-    return go('/v31/venue.html?v='+encodeURIComponent(slug));
+    return go('/venue.html?v='+encodeURIComponent(slug));
   }
   // /event/<name>
   if(seg.length===2 && seg[0]==='event'){
-    return go('/v31/event.html?e='+encodeURIComponent(slug));
+    return go('/event.html?e='+encodeURIComponent(slug));
   }
   // /article/<slug>  → AI-authored article (agents or the company); file = article-<slug>.html
   if(seg.length===2 && seg[0]==='article'){
@@ -49,17 +70,17 @@ a{color:#5cc8ff}</style>
   }
   // bare /blog  → subscriber-created feed posts live in Culture
   if(seg[0]==='blog'){
-    return go('/v31/culture.html');
+    return go('/culture.html');
   }
   // /culture/<sub> — Radio & VS live as Culture subpages (Founder 2026-08-04)
   if(seg.length===2 && seg[0]==='culture'){
-    if(seg[1]==='radio') return go('/v31/radio.html'+q);
-    if(seg[1]==='vs') return go('/v31/vs.html'+q);
-    if(seg[1]==='feed') return go('/v31/culture.html'+q);
+    if(seg[1]==='radio') return go('/radio.html'+q);
+    if(seg[1]==='vs') return go('/vs.html'+q);
+    if(seg[1]==='feed') return go('/culture.html'+q);
   }
-  // single-segment section aliases + every core page (clean URL, no /v31/ or /v3/ shown)
-  var SECTION={culture:'/v31/culture.html',scene:'/v31/scene.html',radio:'/culture/radio',
-               apps:'/games/',games:'/games/',events:'/v31/',home:'/v31/',shop:'/v3/shop.html',
+  // single-segment section aliases + every core page (clean URL, no / or /v3/ shown)
+  var SECTION={culture:'/culture.html',scene:'/scene.html',radio:'/culture/radio',
+               apps:'/games/',games:'/games/',events:'/',home:'/',shop:'/v3/shop.html',
                songs:'/v3/song-directory.html',lyrics:'/v3/song-directory.html'};
   var V31PAGES=['about','apply','audit','community-guidelines','contact','create-event','dashboard',
                 'event','onboarding','privacy','refund','settings','submit-event','terms',
@@ -67,7 +88,7 @@ a{color:#5cc8ff}</style>
   if(seg.length===1){
     var one=seg[0].toLowerCase();
     if(SECTION[one]) return go(SECTION[one]);
-    if(V31PAGES.indexOf(one)>=0) return go('/v31/'+one+'.html'+q);
+    if(V31PAGES.indexOf(one)>=0) return go('/'+one+'.html'+q);
   }
 
   // No route matched — show a minimal 404 with a way home.
@@ -76,9 +97,20 @@ a{color:#5cc8ff}</style>
 </script>
 </head><body>
 <div class="wrap" id="fourohfour" style="display:none">
-  <h1 style="font-size:2rem;margin:0 0 8px">Page not found</h1>
-  <p style="color:#9aa;margin:0 0 18px">That link doesn't exist (or has moved).</p>
-  <a href="/v31/">← Back to KEEPITIL</a>
+  <h1 style="font-size:2rem;margin:0 0 6px">Page not found</h1>
+  <p style="color:#9aa;margin:0 0 20px;max-width:460px">That link doesn't exist, or it moved. Here's everything on KEEPITIL:</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px">
+    <a href="/" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Home</a>
+    <a href="/culture" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Culture</a>
+    <a href="/radio" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Radio</a>
+    <a href="/vs" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">VS</a>
+    <a href="/scene" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Scene</a>
+    <a href="/tickets.html" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Tickets</a>
+    <a href="/apply.html" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Join</a>
+  </div>
+  <p style="color:#5a6478;font-size:12px;margin-top:26px;max-width:520px">
+    Developer note: this file is the site\u2019s URL router. GitHub Pages requires it to be
+    named <code>404.html</code>. Do not delete it \u2014 every clean URL depends on it.</p>
 </div>
 <script>
 /* only reveal the 404 message if the router didn't redirect */
