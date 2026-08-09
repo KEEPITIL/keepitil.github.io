@@ -720,23 +720,37 @@
                text: 'This one needs a person, so I have flagged it for the KEEPITIL team rather than answering it myself. Someone will follow up.' };
     }
 
-    // Escalated: a model composed an answer.
+    // Escalated: a model composed real prose. This is the only case where the agent
+    // has something better to say than the existing brain.
     if (d.escalated) {
       if (d.ok && d.answer) return { title: '💡 Echo', text: d.answer };
-      return null;   // model failed or no route (e.g. privacy class unreachable) -> fall back
+      return null;   // model failed / no route -> fall through to the proven chain
     }
 
-    // Deterministic resolution returns an INTENT, not prose. Say what it understood
-    // rather than pretending a model spoke. Tools still require an explicit action.
-    if (d.resolved && d.intent) {
+    // DELIBERATELY RETURN NULL FOR DETERMINISTIC ROUTING.
+    //
+    // The router resolves an INTENT (e.g. search_events), not an answer. My first
+    // version rendered that intent as a chat reply — which produced the same canned
+    // "Understood — <intent>" card for every question and for every welcome chip.
+    // Announcing a tool is not answering a question.
+    //
+    // The routing still happened server-side: the run, the step, the confidence and
+    // the zero-cost resolution are all recorded either way. We simply don't SPEAK from
+    // it. The keyword brain and Gemini RAG below already answer these well.
+    //
+    // Executing read tools inline (search_events -> real listings) is the right end
+    // state and is queued for KODE, who can verify each tool's response shape before
+    // rendering it. Not guessing at those shapes here.
+    var ACTIONABLE = { create_event:1, cancel_event:1, publish_campaign:1,
+                       pause_campaign:1, checkout:1 };
+    if (d.resolved && d.intent && ACTIONABLE[d.intent]) {
       var label = String(d.intent).replace(/_/g, ' ');
       return {
-        title: '⚡ Understood — ' + label,
-        text: 'I can handle that directly. Actions still need your confirmation before anything is created or published, so tell me to go ahead and I will prepare it for you to approve.',
-        chips: WELCOME_CHIPS
+        title: '⚡ ' + label,
+        text: 'I can set that up. Nothing is created, published, or paid for until you confirm it — say "go ahead" and I will prepare it for your approval.'
       };
     }
-    return null;
+    return null;   // everything else -> brain / Gemini, which give real answers
   }
 
   // ── Handle a query: agent first for members, then brain, Gemini, canned ─────
