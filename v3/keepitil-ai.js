@@ -672,18 +672,94 @@
     };
   }
 
-  // ── Handle a query: brain first (free/instant), Gemini for open-ended, canned as last resort ─
+  // ── AGENTIC PATH (v3.1) ─────────────────────────────────────────────────────
+  // Signed-in members reach the real agent: agent-tool-invoke op:"ask".
+  // It routes deterministically first (L-1/L0, zero model cost) and only escalates
+  // to a model when nothing rule-based matched. Everything is logged to agent_runs /
+  // agent_steps / agent_cost_ledger, so this path is measurable, not a black box.
+  // Signed-out visitors keep the existing keyword brain — no regression.
+  var KIL_AGENT_FN = KIL_SUPA_URL + '/functions/v1/agent-tool-invoke';
+  var kilThreadId = null;   // conversation continuity within a page session
+
+  function kilSession() {
+    // The shell exposes the authenticated client. Try every known handle.
+    var c = window.__kilShellSB || window.__culSB || window.SB || null;
+    if (!c || !c.auth) return Promise.resolve(null);
+    try {
+      return c.auth.getSession()
+        .then(function (r) { return (r && r.data && r.data.session) || null; })
+        .catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  function askAgent(text) {
+    return kilSession().then(function (session) {
+      if (!session || !session.access_token) return null;   // not signed in -> legacy path
+      var body = { op: 'ask', text: text, surface: 'web', agent: 'echo', privacy_class: 'low' };
+      if (kilThreadId) body.thread_id = kilThreadId;
+      return fetch(KIL_AGENT_FN, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token
+        },
+        body: JSON.stringify(body)
+      })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    });
+  }
+
+  function agentCard(d) {
+    if (!d) return null;
+    if (d.thread_id) kilThreadId = d.thread_id;   // keep the conversation together
+
+    // Anything the router sent to a human stops here, by design.
+    if (d.human_review) {
+      return { title: '🛡️ Passed to the team',
+               text: 'This one needs a person, so I have flagged it for the KEEPITIL team rather than answering it myself. Someone will follow up.' };
+    }
+
+    // Escalated: a model composed an answer.
+    if (d.escalated) {
+      if (d.ok && d.answer) return { title: '💡 Echo', text: d.answer };
+      return null;   // model failed or no route (e.g. privacy class unreachable) -> fall back
+    }
+
+    // Deterministic resolution returns an INTENT, not prose. Say what it understood
+    // rather than pretending a model spoke. Tools still require an explicit action.
+    if (d.resolved && d.intent) {
+      var label = String(d.intent).replace(/_/g, ' ');
+      return {
+        title: '⚡ Understood — ' + label,
+        text: 'I can handle that directly. Actions still need your confirmation before anything is created or published, so tell me to go ahead and I will prepare it for you to approve.',
+        chips: WELCOME_CHIPS
+      };
+    }
+    return null;
+  }
+
+  // ── Handle a query: agent first for members, then brain, Gemini, canned ─────
   function handleQuery(text) {
     addMessage('user', text);
     showTyping();
-    askBrain(text).then(function(d) {
-      var card = brainCard(d);
-      if (card) { hideTyping(); addMessage('bot', card); return; }
-      // No confident keyword match -> let Gemini compose from the brains (keep typing shown).
-      askEcho(text).then(function(e) {
-        hideTyping();
-        addMessage('bot', echoCard(e) || fallbackCard(text));
+
+    askAgent(text).then(function (a) {
+      var acard = agentCard(a);
+      if (acard) { hideTyping(); addMessage('bot', acard); return; }
+
+      // Not signed in, agent unavailable, or no confident agent result -> legacy chain.
+      return askBrain(text).then(function (d) {
+        var card = brainCard(d);
+        if (card) { hideTyping(); addMessage('bot', card); return; }
+        return askEcho(text).then(function (e) {
+          hideTyping();
+          addMessage('bot', echoCard(e) || fallbackCard(text));
+        });
       });
+    }).catch(function () {
+      hideTyping();
+      addMessage('bot', fallbackCard(text));
     });
   }
 
