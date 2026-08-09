@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="The KEEPITIL Scene — discover creators, artists, brands, venues and organizers across every genre. Southern California first.">
+<title>The Scene — Artists, Brands, Organizers & Venues | KEEPITIL</title>
+<link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
+<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+<link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--panel:rgba(255,255,255,.035);--panel-brd:rgba(255,255,255,.09);--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--artist:var(--purple-2);--brand:#00e0a4;--organizer:#ff8a3d;--venue:var(--brand);--cyan:var(--brand);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg,#0a0a0f);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:72px;}
+body::before{content:"";position:fixed;inset:0;z-index:-3;background:var(--bg,#0a0a0f) url('/v3/scene-hero.jpg') center/cover no-repeat;opacity:1}
+html.has-season body::before{display:none!important} /* seasonal image takes over the hero backdrop on its dates */
+a{color:inherit;text-decoration:none;}
+nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
+.nav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-logo img{height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;}
+.nav-brand{font-family:var(--fh);font-size:1.5rem;letter-spacing:.13em;color:#fff;}
+.nav-links{display:flex;list-style:none;flex:1;justify-content:space-evenly;margin:0;padding:0;}
+.nav-links li{list-style:none;}
+.nav-links a{font-family:var(--fh);font-size:1.05rem;letter-spacing:.14em;color:rgba(255,255,255,.75);transition:color .2s;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{color:#fff;}
+.nav-inner>a.nav-cta{font-family:var(--fh);font-size:1rem;letter-spacing:.14em;color:var(--brand)!important;background:transparent!important;border:2px solid var(--brand);padding:7px 22px;border-radius:4px;flex-shrink:0;transition:background .2s,color .2s;white-space:nowrap;}
+.nav-inner>a.nav-cta:hover{background:var(--brand)!important;color:#000!important;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px;margin-left:14px;}
+.nav-hamburger span{display:block;width:24px;height:2px;background:#fff;border-radius:2px;}
+.mobile-menu{display:none;position:fixed;top:66px;left:0;right:0;background:rgba(10,10,18,.98);z-index:199;flex-direction:column;padding:14px 26px 20px;border-bottom:1px solid rgba(255,255,255,.1);}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-family:var(--fh);font-size:1.3rem;letter-spacing:.12em;color:rgba(255,255,255,.8);padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.mobile-menu a:last-child{border-bottom:none;color:var(--brand)!important;}
+@media(max-width:820px){.nav-links{display:none;}.nav-inner>a.nav-cta{display:none;}.nav-hamburger{display:flex;margin-left:auto;}}
+.hero{position:relative;padding:58px 30px 26px;max-width:1360px;margin:0 auto;overflow:hidden;}
+.hero::before{content:"";position:absolute;top:-160px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,255,.30),transparent 62%);filter:blur(20px);z-index:-1;}
+.hero::after{content:"";position:absolute;top:-90px;right:-120px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(0,224,164,.18),transparent 62%);filter:blur(20px);z-index:-1;}
+.hero-head{width:max-content;max-width:100%;}
+.eyebrow{font-family:var(--fh);font-size:1.1rem;color:var(--cyan);margin-bottom:10px;display:block;text-align:justify;text-align-last:justify;letter-spacing:.42em;}
+.hero h1{font-family:var(--fh);font-size:clamp(3rem,9vw,6rem);line-height:.92;letter-spacing:.02em;background:linear-gradient(120deg,#fff 20%,#c9bcff 55%,var(--purple-2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{max-width:640px;color:var(--ink2);margin-top:12px;font-size:1.02rem;}
+.stats{display:flex;gap:24px;margin-top:20px;flex-wrap:wrap;}
+.stat b{font-family:var(--fh);font-size:1.8rem;letter-spacing:.02em;}
+.stat span{display:block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-top:-2px;}
+.stat.artist b{color:var(--artist);}.stat.brand b{color:var(--brand);}.stat.organizer b{color:var(--organizer);}.stat.venue b{color:var(--venue);}
+.controls{position:sticky;top:66px;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(14px);max-width:1360px;margin:20px auto 0;padding:12px 30px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
+.controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:4px;flex-wrap:wrap;}
+.seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s;}
+.seg button:hover{color:#fff;}
+.seg button[data-k=all].on{background:#fff;color:var(--bg);}
+.seg button[data-k=artist].on{background:var(--artist);color:#fff;}
+.seg button[data-k=brand].on{background:var(--brand);color:#053a2c;}
+.seg button[data-k=organizer].on{background:var(--organizer);color:#3a1e08;}
+.seg button[data-k=venue].on{background:var(--venue);color:#052436;}
+.search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:10px 16px;}
+.search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--fb);font-size:.95rem;outline:none;}
+.search input::placeholder{color:var(--ink3);}
+.count{font-size:.76rem;color:var(--ink3);white-space:nowrap;}
+@media(max-width:768px){#count{display:none!important}}
+.subfilters{display:none;gap:8px 8px;align-items:center;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.05);}
+.subfilters.show{display:flex;}
+.sf-label{font-family:var(--fh);font-size:.82rem;letter-spacing:.14em;color:var(--ink3);margin:0 2px 0 4px;}
+.chip{font-size:.76rem;font-weight:600;color:var(--ink2);background:rgba(255,255,255,.05);border:1px solid var(--panel-brd);border-radius:20px;padding:6px 14px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.chip:hover{color:#fff;border-color:rgba(255,255,255,.3);}
+.chip.on{background:var(--cyan);color:#04222f;border-color:var(--cyan);}
+@media(max-width:768px){
+.controls{padding:10px 14px;max-width:100%;}
+.controls-row{flex-direction:column;align-items:stretch;gap:8px;}
+.seg{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%;}
+.seg::-webkit-scrollbar{display:none;}
+.seg button{flex:0 0 auto;white-space:nowrap;}
+.search{width:100%;min-width:0;}
+.count{text-align:right;}
+.subfilters.show{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.subfilters::-webkit-scrollbar{display:none;}
+.subfilters .chip,.subfilters .sf-label{flex:0 0 auto;}
+}
+.grid{max-width:1360px;margin:24px auto 60px;padding:0 30px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;}
+@media(max-width:680px){
+.grid{grid-template-columns:repeat(3,minmax(0,1fr));padding:0 10px;gap:8px;margin:16px auto 48px;}
+.card{border-radius:12px;}
+.card .nm{font-size:.82rem;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card .desc{display:none;}
+.hero{padding:42px 18px 18px;}
+}
+.card{position:relative;background:var(--panel);border:1px solid var(--panel-brd);border-radius:16px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.2);box-shadow:0 18px 40px rgba(0,0,0,.5);}
+.card .imgw{position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--surface-2);}
+.card .imgw img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.card .imgw .fallback{position:absolute;inset:0;z-index:0;display:flex!important;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:2.2rem;letter-spacing:.06em;color:#fff;}
+.card:hover .imgw img{transform:scale(1.06);}
+.card .fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:2.6rem;color:#fff;}
+.kinds{position:absolute;top:11px;left:11px;display:flex;gap:4px;flex-wrap:wrap;max-width:80%;}
+.kind{font-family:var(--fh);font-size:.7rem;letter-spacing:.13em;padding:4px 10px;border-radius:20px;}
+.kind.artist{background:var(--artist);color:#fff;}.kind.brand{background:var(--brand);color:#053a2c;}.kind.organizer{background:var(--organizer);color:#3a1e08;}.kind.venue{background:var(--venue);color:#052436;}
+.card .body{padding:13px 14px 15px;}
+.card .nm{font-family:var(--fh);font-size:1.32rem;letter-spacing:.02em;line-height:1;margin-bottom:0;}
+/* Scene cards: image + name only (Founder 2026-07-20) */
+.card .desc,.card .loc,.card .ig,.card .kinds{display:none!important}
+.card .body{padding:10px 12px 12px!important}
+.card .desc-orig{font-size:.76rem;color:var(--ink2);line-height:1.4;min-height:2.1em;}
+.card .loc{font-size:.7rem;color:var(--ink3);margin-top:7px;}
+.card .ig{margin-top:8px;font-size:.7rem;color:var(--cyan);}
+.empty{grid-column:1/-1;text-align:center;color:var(--ink3);padding:56px 0;}
+.empty .big{font-family:var(--fh);font-size:1.7rem;letter-spacing:.06em;color:var(--ink2);}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 30px;text-align:center;color:var(--ink3);font-size:.82rem;}
+footer a{color:var(--artist);}
+@media(max-width:860px){.controls{top:0}}  /* mobile: no top bar */
+</style>
+<link rel="canonical" href="https://keepitil.com/scene"/>
+</head>
+<body>
+<nav id="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL"/><span class="nav-brand">KEEPITIL</span></a>
+  <ul class="nav-links"><li><a href="/culture.html">CULTURE</a></li><li><a href="#" class="active">SCENE</a></li></ul>
+  <a href="/apply.html" class="nav-cta">LOGIN</a>
+  <button class="nav-hamburger" onclick="document.getElementById('mm').classList.toggle('open')" aria-label="Menu"><span></span><span></span><span></span></button>
+</div></nav>
+<div class="mobile-menu" id="mm"><a href="/culture.html">CULTURE</a><a href="#" onclick="document.getElementById('mm').classList.remove('open')">SCENE</a><a href="/apply.html" class="nav-cta">LOGIN</a></div>
+<header class="hero">
+  <div class="hero-head">
+    <div class="eyebrow">THE KEEPITIL NETWORK</div>
+    <h1>THE SCENE</h1>
+  </div>
+  <div class="stats">
+    <div class="stat artist"><b id="cA">0</b><span>Artists</span></div>
+    <div class="stat brand"><b id="cB">0</b><span>Brands</span></div>
+    <div class="stat organizer"><b id="cO">0</b><span>Organizers</span></div>
+    <div class="stat venue"><b id="cV">0</b><span>Venues</span></div>
+  </div>
+</header>
+<div class="controls">
+  <div class="controls-row">
+    <div class="seg" id="seg">
+      <button data-k="all" class="on">All</button>
+      <button data-k="artist">Artists</button>
+      <button data-k="brand">Brands</button>
+      <button data-k="organizer">Organizers</button>
+      <button data-k="venue">Venues</button>
+    </div>
+    <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="q" type="text" placeholder="Search by name, city, or genre…"/></label>
+    <div class="count" id="count"></div>
+  </div>
+  <div class="subfilters" id="subs"></div>
+</div>
+<main class="grid" id="grid"></main>
+<footer>KEEPITIL <a href="/">keepitil.com</a></footer>
+<script>
+// roster reset 2026-07-21 — rebuild from Google Sheet + web research. Seeded with the 2 gold standards.
+const ART=[
+  {name:'Groove Trooper',city:'Garden Grove',county:'Orange County',genre:'Latin House / Tech House',ig:'Groove_Trooper',img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg',color:'var(--brand)',blog:'/profile.html?slug=groove-trooper',keepitil:true,type:'DJ'}
+],BRND=[],ORG=[],VEN=[
+  {name:'BLEU',city:'Santa Ana',county:'Orange County',genre:'Nightclub / Live Music',ig:'',img:'https://bleuxo.net/wp-content/uploads/2023/10/BleuDailyMeals.jpg',color:'var(--brand)',blog:'/venue.html?v=bleu',keepitil:true,type:'Nightclub'}
+];
+// Each item carries kinds=[...]; multi-category profiles (once claimed) can list several.
+let DATA=[].concat(
+  ART.map(x=>Object.assign({},x,{kinds:['artist']})),
+  BRND.map(x=>Object.assign({},x,{kinds:['brand']})),
+  ORG.map(x=>Object.assign({},x,{kinds:['organizer']})),
+  VEN.map(x=>Object.assign({},x,{kinds:['venue']}))
+);
+const KL={artist:'Artist',brand:'Brand',organizer:'Organizer',venue:'Venue'};
+const cnt=k=>DATA.filter(x=>x.kinds.includes(k)).length;
+cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue');
+// ---- genre buckets (tightened) ----
+const BUCKETS=[['House',['house','tech house','deep house','bass house','latin house','jackin house','soulful house','organic house','disco tech','afro house','afro','disco']],
+['Techno',['techno','hard techno','minimal techno','deep techno','dark techno','acid techno','ambient techno','melodic techno','peak-time','hypnotic','industrial','minimal','deep tech','psychedelic industrial techno','acid']],
+['Bass',['bass','bass music','dubstep','riddim','tearout','hybrid trap','heavy bass']],
+['Drum & Bass',['dnb','drum and bass','jungle','breaks']],
+['Trance',['trance','tech trance','progressive']],
+['Hard',['hardcore','hardstyle','hard']],
+['UKG / Garage',['ukg','uk garage','garage','speed garage','uk bass','bassline','club','bounce','ghetto-tech']],
+['Experimental',['experimental','leftfield','electronica','electro','future bass','ambient']]];
+function splitv(s){return (s||'').split('/').map(t=>t.trim()).filter(Boolean);}
+function bucketOf(g){g=g.toLowerCase();for(const[b,l]of BUCKETS){if(l.includes(g))return b;}return 'Other';}
+function artistBuckets(){const items=DATA.filter(x=>x.kinds.includes('artist'));const present=new Set();items.forEach(x=>splitv(x.genre).forEach(g=>present.add(bucketOf(g))));return BUCKETS.map(b=>b[0]).concat(['Other']).filter(b=>present.has(b));}
+function typeValues(kind){const items=DATA.filter(x=>x.kinds.includes(kind));return [...new Set(items.flatMap(x=>splitv(x.category||x.type)))].sort();}
+let kind='all',q='',sub=null; // sub={facet:'genre'|'type',val}
+function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function desc(x){return x.genre||x.category||x.type||'';}
+function card(x){
+  const d=desc(x);const ig=x.ig?('@'+x.ig):'';
+  /* No dead links (Atlas 2026-07-16): internal profile if it exists, else the org's Instagram (new tab), else a non-clickable card. Never href="#". */
+  const igurl=x.ig?('https://instagram.com/'+String(x.ig).replace(/^@/,'').trim()):'';
+  /* blog already starts with "/"; only add a leading slash if it's missing. A double slash ("//path") is a protocol-relative URL and sends every card to a dead domain. */
+  const href=x.blog?(String(x.blog).charAt(0)==='/'?x.blog:'/'+x.blog):(igurl||'');
+  const ext=!x.blog && !!igurl;
+  const img=x.img?('<img loading="lazy" referrerpolicy="no-referrer" src="'+x.img+'" alt="" onerror="this.style.display=\'none\'"/>'):'';
+  const fb='<div class="fallback" style="background:linear-gradient(135deg,'+(x.color||'#6d28d9')+',#111)">'+initials(x.name)+'</div>';
+  const chips=x.kinds.map(k=>'<span class="kind '+k+'">'+KL[k]+'</span>').join('');
+  const inner='<div class="imgw"><div class="kinds">'+chips+'</div>'+img+fb+'</div>'
+    +'<div class="body"><div class="nm">'+(x.name||'')+'</div><div class="desc">'+d+'</div>'
+    +(x.city?'<div class="loc">◍ '+x.city+(x.county?' · '+x.county.replace(' County',' Co.'):'')+'</div>':'')
+    +(ig?'<div class="ig">'+ig+(ext?' ↗':'')+'</div>':'')+'</div>';
+  if(href) return '<a class="card" href="'+href+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+inner+'</a>';
+  return '<div class="card nolink" style="cursor:default">'+inner+'</div>';
+}
+function renderSubs(){
+  const box=document.getElementById('subs');
+  if(kind==='all'){box.classList.remove('show');box.innerHTML='';return;}
+  const parts=[];
+  if(kind==='artist'){
+    const gb=artistBuckets();
+    if(gb.length>1){parts.push('<span class="sf-label">Genre</span>');gb.forEach(v=>parts.push('<button class="chip'+(sub&&sub.facet==='genre'&&sub.val===v?' on':'')+'" data-f="genre" data-v="'+v+'">'+v+'</button>'));}
+  } else {
+    const tv=typeValues(kind);
+    if(tv.length>1){parts.push('<span class="sf-label">Type</span>');tv.forEach(v=>parts.push('<button class="chip'+(sub&&sub.facet==='type'&&sub.val===v?' on':'')+'" data-f="type" data-v="'+v.replace(/"/g,'')+'">'+v+'</button>'));}
+  }
+  box.innerHTML=parts.join('');box.classList.toggle('show',parts.length>0);
+}
+function matchSub(x){
+  if(!sub)return true;
+  if(sub.facet==='genre'){return splitv(x.genre).some(g=>bucketOf(g)===sub.val);}
+  return ((x.type||'')+' '+(x.category||'')).toLowerCase().includes(sub.val.toLowerCase());
+}
+function render(){
+  const ql=q.trim().toLowerCase();
+  const list=DATA.filter(x=>{
+    if(kind!=='all'&&!x.kinds.includes(kind))return false;
+    if(!matchSub(x))return false;
+    if(ql){const h=((x.name||'')+' '+(x.city||'')+' '+desc(x)).toLowerCase();if(!h.includes(ql))return false;}
+    return true;
+  });
+  const g=document.getElementById('grid');
+  g.innerHTML=list.length?list.map(card).join(''):'<div class="empty"><div class="big">No matches</div><div>Try another search or filter.</div></div>';
+  document.getElementById('count').textContent=list.length+' of '+DATA.length;
+}
+document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;kind=b.dataset.k;sub=null;[...e.currentTarget.children].forEach(c=>c.classList.toggle('on',c===b));renderSubs();render();});
+document.getElementById('subs').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const f=c.dataset.f,v=c.dataset.v;sub=(sub&&sub.facet===f&&sub.val===v)?null:{facet:f,val:v};renderSubs();render();});
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value;render();});
+renderSubs();render();
+/* ---- LIVE DIRECTORY: pull from Google Sheet master (1UU2). Founder edits sheet -> site reflects on refresh. Falls back to built-in roster if sheet unreachable. ---- */
+(function(){
+  var SHEET='1UU2rPPwsIRCFnZBgk6Uzb9IRcckcBmvYVORNVMFtIoo';
+  var TQ='https://docs.google.com/spreadsheets/d/'+SHEET+'/gviz/tq?sheet=Untitled&headers=1&tqx=out:json';
+  function cell(c,i){return (c&&c[i]&&c[i].v!=null)?String(c[i].v):'';}
+  fetch(TQ).then(function(r){return r.text();}).then(function(t){
+    var m=t.match(/setResponse\(([\s\S]*?)\);?\s*$/); if(!m) throw 0;
+    var j=JSON.parse(m[1]); var rows=(j.table&&j.table.rows)||[]; var live=[];
+    rows.forEach(function(row){
+      var c=row.c||[]; var kind=cell(c,1).toLowerCase().trim(); var name=cell(c,2).trim();
+      var lv=cell(c,9).toLowerCase().trim();
+      if(!name||!kind) return;
+      if(lv && lv!=='yes' && lv!=='true' && lv!=='1') return;              // live=no hides it
+      live.push({_order:parseFloat(cell(c,0))||9999, name:name, city:cell(c,3), county:cell(c,4),
+        genre:cell(c,5), ig:cell(c,6), img:cell(c,7), blog:cell(c,8),
+        type:(kind==='artist'?'DJ':''), kinds:[kind]});
+    });
+    if(!live.length) throw 0;
+    live.sort(function(a,b){return a._order-b._order;});
+    DATA=live;
+    cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue');
+    renderSubs();render();
+  }).catch(function(){/* sheet not shared/unreachable -> keep built-in roster */});
+})();
+/* ---- LIVE DB PROFILES: auto-created venues + claimed profiles from Supabase profile_meta, merged into the Scene grid + counts. This is what makes a venue created via an event show up on the Scene. ---- */
+(function(){
+  var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
+  function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue'); renderSubs();render(); }
+  // claimed artist/brand/organizer profiles from profile_meta
+  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(artist,brand,organizer)&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(!Array.isArray(rows)||!rows.length) return;
+      var have=_dedupe();
+      rows.forEach(function(p){
+        var blog='/profile.html?slug='+p.slug;
+        if(have[blog.toLowerCase()]||have[String(p.display_name||'').toLowerCase()]) return;
+        DATA.push({name:p.display_name||p.slug, city:p.location||'', county:'', genre:'', ig:'', img:p.cover_url||p.avatar_url||'', blog:blog, type:(p.account_type==='artist'?'DJ':''), kinds:[p.account_type], keepitil:true});
+      });
+      _refresh();
+    }).catch(function(){});
+  // venues (incl. auto-created from events) from the venues table -> venue.html
+  fetch(U+'/rest/v1/venues?select=slug,name,city,cover_url,logo_url&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(!Array.isArray(rows)||!rows.length) return;
+      var have=_dedupe();
+      rows.forEach(function(p){
+        var blog='/venue.html?v='+p.slug;
+        if(have[blog.toLowerCase()]||have[String(p.name||'').toLowerCase()]) return;
+        DATA.push({name:p.name||p.slug, city:p.city||'', county:'', genre:'', ig:'', img:p.cover_url||p.logo_url||'', blog:blog, type:'Venue', kinds:['venue'], keepitil:true});
+      });
+      _refresh();
+    }).catch(function(){});
+})();
+</script>
+<script src="/kil-seasons.js?v=20260809a"></script>
+<script src="/v3/keepitil-radio.js?v=20260726" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260808c" defer></script>
+<script src="/keepitil-shell.js?v=20260807a" defer></script>
+</body>
+</html>
