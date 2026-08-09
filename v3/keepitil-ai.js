@@ -653,7 +653,7 @@
 
   // ── Gemini RAG fallback (natural answers composed over all agents' brains) ──
   function askEcho(text) {
-    // Personalization: onboarding (/v31/onboarding.html) caches role + genres locally;
+    // Personalization: onboarding (/onboarding.html) caches role + genres locally;
     // ask-echo already accepts userRole/userGenre in the body (Atlas, 2026-07-20).
     var body = { question: text };
     try {
