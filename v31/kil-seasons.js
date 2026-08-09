@@ -116,9 +116,22 @@
     off:function(){ try{sessionStorage.setItem('kil_season_preview','off');}catch(e){} clearSeason(); }
   };
 
-  // initial paint from override (?season / saved preview) or today's date; API stays available even when 'off'
-  if(ov!=='off'){
-    var active = ov ? (S.filter(function(s){return s.slug===ov;})[0]||{slug:ov}) : (pick(new Date())||{slug:'default'});
+  /* FOUNDER DIRECTIVE 2026-08-09: DEFAULT BACKGROUND = NONE, desktop AND mobile.
+     The date-driven auto-paint is switched off pending better artwork. Nothing is
+     removed — the whole seasonal system stays intact and reversible:
+
+       • a background paints ONLY on an explicit override now
+           ?season=<slug>            URL override still works
+           kilSeason.apply('<slug>') the home-page logo picker still works
+           kilSeason.auto()          re-paints today's season on demand
+       • sessionStorage preview still persists a pick across pages in a session
+       • TO RESTORE the automatic year-round rotation, revert this block to:
+             if (ov !== 'off') { ...pick(new Date())... }
+
+     Deliberately NOT deleting the season table, the images, or the picker — the
+     Founder is replacing the artwork, not the feature. */
+  if(ov && ov!=='off'){
+    var active = S.filter(function(s){return s.slug===ov;})[0] || {slug:ov};
     paintSeason(active.slug);
   }
 })();
