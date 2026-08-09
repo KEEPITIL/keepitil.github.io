@@ -631,7 +631,17 @@
     if (d.escalate) return { title: '🛡️ Flagged for the team', text: d.answer };
     if (!d.matched || !d.answer) return null;
     var txt = d.answer;
-    if (d.upsell) txt += '\n\n' + d.upsell;
+    // Never upsell a signed-in member. Telling the owner of the platform to
+    // "join the KEEPITIL Community to unlock it" is the bug the Founder hit.
+    var signedIn = false;
+    try {
+      var cc = window.__kilShellSB || window.__culSB || window.SB;
+      signedIn = !!(cc && cc.auth && (cc.auth._currentSession || window.KIL_HANDLE));
+    } catch (e) {}
+    if (d.upsell && !signedIn) txt += '\n\n' + d.upsell;
+    // Drop the hedge — "I'm moderately sure, confirm with the team" reads as broken,
+    // not humble. Low confidence should fall through to a better source instead.
+    txt = txt.replace(/\(?I'?m moderately sure[^)]*\)?\s*/gi, '').trim();
     var title = '💡 Echo';
     if (d.from_agent && String(d.from_agent).toLowerCase() !== 'echo') {
       title = '💡 ' + kilCap(d.from_agent) + (d.genre_lane ? ' · ' + d.genre_lane : '');
@@ -727,30 +737,90 @@
       return null;   // model failed / no route -> fall through to the proven chain
     }
 
-    // DELIBERATELY RETURN NULL FOR DETERMINISTIC ROUTING.
-    //
-    // The router resolves an INTENT (e.g. search_events), not an answer. My first
-    // version rendered that intent as a chat reply — which produced the same canned
-    // "Understood — <intent>" card for every question and for every welcome chip.
-    // Announcing a tool is not answering a question.
-    //
-    // The routing still happened server-side: the run, the step, the confidence and
-    // the zero-cost resolution are all recorded either way. We simply don't SPEAK from
-    // it. The keyword brain and Gemini RAG below already answer these well.
-    //
-    // Executing read tools inline (search_events -> real listings) is the right end
-    // state and is queued for KODE, who can verify each tool's response shape before
-    // rendering it. Not guessing at those shapes here.
+    // Write actions: confirm, never auto-execute.
     var ACTIONABLE = { create_event:1, cancel_event:1, publish_campaign:1,
                        pause_campaign:1, checkout:1 };
     if (d.resolved && d.intent && ACTIONABLE[d.intent]) {
-      var label = String(d.intent).replace(/_/g, ' ');
       return {
-        title: '⚡ ' + label,
+        title: '⚡ ' + String(d.intent).replace(/_/g, ' '),
         text: 'I can set that up. Nothing is created, published, or paid for until you confirm it — say "go ahead" and I will prepare it for your approval.'
       };
     }
-    return null;   // everything else -> brain / Gemini, which give real answers
+    return null;   // read intents are handled by runReadTool(); everything else falls through
+  }
+
+  // ── Execute a READ tool and answer with real data ───────────────────────────
+  // The router resolves 'find events near me' to search_events. Announcing that is
+  // useless; RUNNING it is the point. Read-only tools are risk class A, so they
+  // execute without confirmation and cost no credits.
+  var READ_INTENT_TOOL = { search_events: 'search_events', search_profiles: 'search_profiles' };
+
+  function stripQuery(text) {
+    return String(text || '')
+      .replace(/\b(find|search|look for|show me|who is|whos|who's|near me|any|the|a|an|for|me)\b/gi, '')
+      .replace(/[?!.]/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  function runReadTool(intent, text) {
+    var tool = READ_INTENT_TOOL[intent];
+    if (!tool) return Promise.resolve(null);
+    var args = { limit: 5 };
+    var q = stripQuery(text);
+    if (tool === 'search_profiles') { if (!q) return Promise.resolve(null); args.query = q; }
+    else if (q && q.length > 2 && !/^events?$/i.test(q)) { args.query = q; }
+
+    return kilSession().then(function (session) {
+      if (!session) return null;
+      return fetch(KIL_AGENT_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ op: 'invoke', tool: tool, args: args, surface: 'web' })
+      }).then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (b) {
+          if (!b || !b.ok || !b.data) return null;
+          if (tool === 'search_events') return eventsCard(b.data);
+          return profilesCard(b.data);
+        }).catch(function () { return null; });
+    });
+  }
+
+  function fmtWhen(iso) {
+    if (!iso) return '';
+    try {
+      return new Date(iso).toLocaleDateString('en-US',
+        { weekday: 'short', month: 'short', day: 'numeric' });
+    } catch (e) { return ''; }
+  }
+
+  function eventsCard(d) {
+    var ev = (d && d.events) || [];
+    if (!ev.length) return null;                       // nothing found -> let the brain answer
+    var lines = ev.map(function (e) {
+      var when = fmtWhen(e.starts_at);
+      var where = [e.venue, e.city].filter(Boolean).join(', ');
+      return '• ' + (e.title || 'Untitled') + (when ? ' — ' + when : '') + (where ? ' · ' + where : '');
+    });
+    return {
+      title: '🎉 ' + ev.length + ' upcoming event' + (ev.length === 1 ? '' : 's'),
+      text: lines.join('\n'),
+      links: ev.slice(0, 5).filter(function (e) { return e.slug; }).map(function (e) {
+        return { label: e.title || e.slug, url: 'https://keepitil.com/event?e=' + encodeURIComponent(e.slug) };
+      })
+    };
+  }
+
+  function profilesCard(d) {
+    var ps = (d && d.profiles) || [];
+    if (!ps.length) return null;
+    return {
+      title: '👤 ' + ps.length + ' profile' + (ps.length === 1 ? '' : 's'),
+      text: ps.map(function (p) {
+        return '• ' + (p.display_name || p.name || p.slug) + (p.city ? ' · ' + p.city : '');
+      }).join('\n'),
+      links: ps.slice(0, 5).filter(function (p) { return p.slug; }).map(function (p) {
+        return { label: p.display_name || p.slug, url: 'https://keepitil.com/public/profile/' + p.slug };
+      })
+    };
   }
 
   // ── Handle a query: agent first for members, then brain, Gemini, canned ─────
@@ -762,13 +832,19 @@
       var acard = agentCard(a);
       if (acard) { hideTyping(); addMessage('bot', acard); return; }
 
-      // Not signed in, agent unavailable, or no confident agent result -> legacy chain.
-      return askBrain(text).then(function (d) {
-        var card = brainCard(d);
-        if (card) { hideTyping(); addMessage('bot', card); return; }
-        return askEcho(text).then(function (e) {
-          hideTyping();
-          addMessage('bot', echoCard(e) || fallbackCard(text));
+      // Router resolved a READ intent -> actually run the tool and answer with data.
+      var readIntent = (a && a.resolved && a.intent) ? a.intent : null;
+      return runReadTool(readIntent, text).then(function (tcard) {
+        if (tcard) { hideTyping(); addMessage('bot', tcard); return; }
+
+        // Not signed in, no tool match, or the tool found nothing -> legacy chain.
+        return askBrain(text).then(function (d) {
+          var card = brainCard(d);
+          if (card) { hideTyping(); addMessage('bot', card); return; }
+          return askEcho(text).then(function (e) {
+            hideTyping();
+            addMessage('bot', echoCard(e) || fallbackCard(text));
+          });
         });
       });
     }).catch(function () {
