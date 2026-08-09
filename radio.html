@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="KEEPITIL Radio — curated stations across every genre, creator playlists, live programming, games, the mobile app, and ways to create, compete and earn.">
+<title>Radio — Stations, Playlists, Games & Creator Opportunities | KEEPITIL</title>
+<link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#00e0a4;--neon:#00e0a4;--ink:#f4f2fb;--ink2:#aab2c5;--panel:rgba(16,16,24,.72);--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif}
+html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
+/* image-forward backdrop (same model as home): default KEEPITIL image, seasonal image takes over on its dates */
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1}
+html.has-season body::before{display:none!important}
+body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* clear fixed shell nav + radio bar */
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+/* hero */
+.hero{padding:34px 0 26px;text-align:center}
+.hero h1{font-family:var(--fh);font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.03em;line-height:.95;text-shadow:0 3px 22px rgba(0,0,0,.6)}
+.hero p{color:#e7e9f2;max-width:640px;margin:12px auto 0;font-size:1.02rem;line-height:1.55;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+.hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
+.hero .live .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px var(--brand);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.35}}
+/* section */
+section{padding:30px 0;border-top:1px solid var(--brd)}
+.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.sh .sub{color:#d5d9e6;font-size:.88rem;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+/* grids */
+.grid{display:grid;gap:12px}
+.g-stations{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.g-cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s;backdrop-filter:blur(10px);overflow:hidden}
+.card:hover{border-color:var(--brand);transform:translateY(-2px)}
+/* image band on every widget */
+.card-img{height:92px;margin:-16px -16px 12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;position:relative}
+.card-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.35))}
+.station{cursor:pointer;display:flex;flex-direction:column}
+.station .g{font-family:var(--fh);font-size:1.35rem;letter-spacing:.03em;line-height:1}
+.station .s{font-size:.68rem;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.chip{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#06120a;background:var(--brand);padding:3px 8px;border-radius:6px}
+.chip.soon{background:rgba(255,255,255,.14);color:var(--ink2)}
+.card h3{font-family:var(--fh);font-size:1.25rem;letter-spacing:.02em;margin-bottom:6px}
+.card p{color:var(--ink2);font-size:.84rem;line-height:1.5}
+.card .meta{margin-top:10px;font-size:.72rem;color:var(--ink2);display:flex;flex-wrap:wrap;gap:6px 12px}
+.btn{display:inline-block;background:var(--brand);color:#06120a;font-weight:800;letter-spacing:.05em;padding:11px 18px;border-radius:10px;border:0;cursor:pointer;font-size:.82rem}
+.btn.ghost{background:transparent;border:1px solid var(--brand);color:var(--brand)}
+.disc{font-size:.72rem;color:#cfd4e2;margin-top:8px;line-height:1.5;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.pl-form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(10px);border-radius:14px;padding:14px}
+.pl-form input{flex:1 1 220px;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--brd);border-radius:9px;color:var(--ink);padding:11px 12px;font-size:.9rem;font-family:inherit}
+.pl-list{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+.pl-item{background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(10px);border-radius:14px;padding:14px}
+.pl-item .top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pl-item .top b{font-family:var(--fh);font-size:1.2rem;letter-spacing:.02em;flex:1}
+.pl-item .rm{background:none;border:0;color:#ff6b6b;font-weight:700;cursor:pointer;font-size:.82rem}
+.pl-item iframe{width:100%;height:120px;border:0;border-radius:8px}
+/* Sections as single-row carousels that expand into the full grid via a down-arrow (Founder 2026-08-04) */
+.sec-toggle{margin-left:auto;flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--brd);background:var(--panel);color:var(--ink);font-size:.95rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .22s,border-color .15s;backdrop-filter:blur(8px)}
+.sec-toggle:hover{border-color:var(--brand);color:var(--brand)}
+section.open .sec-toggle{transform:rotate(180deg)}
+.grid.rad-carou{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+.grid.rad-carou::-webkit-scrollbar{height:6px}
+.grid.rad-carou::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+.grid.rad-carou>*{flex:0 0 230px;scroll-snap-align:start}
+.grid.g-stations.rad-carou>*{flex:0 0 168px}
+section.open .grid.rad-carou{display:grid;overflow:visible}
+/* Vertical sidebar (desktop): subpages on top + this page's sections below (Founder 2026-08-04) */
+.cul-vrail{display:none}
+@media(min-width:861px){
+  .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
+  .cul-vrail{overflow:visible}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:13px;width:58px;height:58px;padding:0 15px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(12,20,18,.85);backdrop-filter:blur(12px);color:#cfe6df;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.55rem;flex:0 0 auto;line-height:1;width:26px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.9rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:180px}
+  .cul-vrail .vr-subdd{position:absolute;right:66px;top:0;display:none;flex-direction:column;gap:2px;background:#0d1613;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:7px;min-width:150px;z-index:60;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .cul-vrail .vr-subdd.open{display:flex}
+  .cul-vrail .vr-subdd button{display:flex;align-items:center;gap:11px;background:none;border:0;color:#dff0ea;font-size:.95rem;font-weight:600;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;white-space:nowrap}
+  .cul-vrail .vr-subdd button .ic{font-size:1.2rem}
+  .cul-vrail .vr-subdd button:hover{background:rgba(255,255,255,.09);color:#fff}
+  .cul-vrail:hover .cvr .tx{opacity:1}
+  .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
+  .cul-vrail .cvr.sp.on,.cul-vrail .cvr.sf.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+}
+/* universal locked footer — sits at the bottom before the radio bar */
+body{display:flex;flex-direction:column;min-height:100vh}
+footer{margin-top:auto}
+</style>
+<link rel="canonical" href="https://keepitil.com/culture/radio"/>
+</head>
+<body>
+
+<header class="hero wrap">
+  <h1>KEEPITIL RADIO</h1>
+  <p>Curated stations across every genre, creator-built playlists, live programming, games and a mobile app — plus real ways to create, compete and earn.</p>
+  <div class="live"><span class="dot"></span> LIVE NOW · the player runs at the bottom of every page</div>
+</header>
+
+<main class="wrap">
+
+<!-- STATIONS -->
+<section id="stations">
+  <div class="sh"><h2>KEEPITIL Stations</h2><span class="sub">Official curated stations — one per genre. Powered by approved public SoundCloud sets.</span></div>
+  <div class="grid g-stations" id="stationGrid"></div>
+  <p class="disc">Stations light up as approved public SoundCloud playlist URLs are added. No scraping, no invented links.</p>
+</section>
+
+<!-- YOUR PLAYLISTS -->
+<section id="playlists">
+  <div class="sh"><h2>Your Playlists</h2><span class="sub">Build a KEEPITIL playlist from any public SoundCloud track, set, or profile URL.</span></div>
+  <div class="pl-form">
+    <input id="plName" type="text" placeholder="Playlist name (e.g. Late Night Drive)" maxlength="60"/>
+    <input id="plUrl" type="url" placeholder="Public SoundCloud URL (soundcloud.com/…)"/>
+    <button class="btn" onclick="addPlaylist()">＋ Save playlist</button>
+  </div>
+  <p class="disc">v1 uses public SoundCloud URLs (the compliant first implementation). Deeper library sync would require SoundCloud OAuth you authorize yourself. Saved locally on this device until accounts sync ships.</p>
+  <div class="pl-list" id="plList"></div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="schedule">
+  <div class="sh"><h2>Programming Schedule</h2><span class="sub">Scheduled blocks — architecture ready for live DJ broadcasts.</span></div>
+  <div class="grid g-cards" id="scheduleGrid"></div>
+</section>
+
+<!-- CREATE COMPETE EARN -->
+<section id="earn">
+  <div class="sh"><h2>Create, Compete &amp; Earn</h2><span class="sub">Opportunities for creators to get rotation, features and rewards.</span></div>
+  <div class="grid g-cards" id="earnGrid"></div>
+  <p class="disc">Entries are reviewed. Votes are never for sale. Placement is subject to editorial review — nothing is guaranteed. Any cash-entry or cash-prize competition launches only after legal &amp; platform compliance review.</p>
+</section>
+
+<!-- CREATOR SERVICES -->
+<section id="services">
+  <div class="sh"><h2>Creator Services</h2><span class="sub">Submit your music, mixes, and requests. Beta — free while we build.</span></div>
+  <div class="grid g-cards" id="servicesGrid"></div>
+  <p class="disc">Each request shows eligibility, review process and expected timeline. Free/beta unless marked. You confirm you hold the rights to anything you submit. No guaranteed placement where review applies.</p>
+</section>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="sh"><h2>Games</h2><span class="sub">Play free on desktop &amp; mobile — all KEEPITIL games live at keepitil.com/games.</span></div>
+  <div class="grid g-cards" id="gamesGrid"></div>
+  <p class="disc"><a class="btn ghost" href="/games/">Open the Games hub →</a></p>
+</section>
+
+<!-- MOBILE APP -->
+<section id="mobile">
+  <div class="sh"><h2>Mobile App</h2><span class="sub">Take KEEPITIL with you — radio, culture, scene, tickets and games in your pocket.</span></div>
+  <div class="grid g-cards" id="mobileGrid"></div>
+  <p class="disc">Install the free web app now (Add to Home Screen); native iOS/Android apps are on the roadmap.</p>
+</section>
+
+</main>
+
+<!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, this page's sections below (Founder 2026-08-04) -->
+<div class="cul-vrail" id="radVRail" aria-label="Subpages and sections">
+  <button class="cvr sp" id="vrSubBtn" onclick="vrToggleSub(event)" aria-label="Switch subpage"><span class="ic" aria-hidden="true">☰</span><span class="tx" id="vrSubLbl">Radio ▾</span></button>
+  <div class="vr-subdd" id="vrSubDD">
+    <button onclick="vrGoSub('feed')"><span class="ic" aria-hidden="true">📰</span><span>Feed</span></button>
+    <button onclick="vrGoSub('radio')"><span class="ic" aria-hidden="true">📻</span><span>Radio</span></button>
+    <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
+  </div>
+  <div class="vr-div"></div>
+  <button class="cvr sf on" onclick="radScroll('stations',this)"><span class="ic" aria-hidden="true">📡</span><span class="tx">Channel</span></button>
+  <button class="cvr sf" onclick="radScroll('playlists',this)"><span class="ic" aria-hidden="true">🎧</span><span class="tx">Playlist</span></button>
+  <button class="cvr sf" onclick="radScroll('schedule',this)"><span class="ic" aria-hidden="true">🗓️</span><span class="tx">Schedule</span></button>
+  <button class="cvr sf" onclick="radScroll('earn',this)"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
+  <button class="cvr sf" onclick="radScroll('mobile',this)"><span class="ic" aria-hidden="true">📱</span><span class="tx">Apps</span></button>
+  <button class="cvr sf" onclick="radScroll('games',this)"><span class="ic" aria-hidden="true">🎮</span><span class="tx">Games</span></button>
+</div>
+<script>
+function radScroll(id,el){ var s=document.getElementById(id); if(s){ try{ s.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ location.hash=id; } } if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); } }
+function vrToggleSub(e){ if(e){try{e.stopPropagation();}catch(x){}} var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.toggle('open'); }
+function vrGoSub(sp){ var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.remove('open'); location.href=(sp==='feed'?'/culture':(sp==='radio'?'/culture/radio':'/culture/vs')); }
+document.addEventListener('click',function(e){ var dd=document.getElementById('vrSubDD'),b=document.getElementById('vrSubBtn'); if(dd&&dd.classList.contains('open')&&!dd.contains(e.target)&&b&&!b.contains(e.target))dd.classList.remove('open'); });
+</script>
+
+<!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio rules (same on every page) -->
+
+<!-- ══════════════════════════════════════════════════════════════════════════════════════
+     MOBILE RADIO (Founder 2026-08-04, handoff #58) — same reusable pattern as Culture.
+     STRICTLY ≤860px; desktop (per-section carousels + accordions) is untouched.
+     Locked values, 302x600 frame: navBar 6,6 290x30 · sectionCarousel 6,36 290x28 ·
+     mini-player 44px above the 56px bottom nav.
+     RENAMES per spec: Stations→Channel, Create/Compete/Earn→VS.
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
+<style>
+@media(max-width:860px){
+  /* subpage tabs — Radio active, teal accent */
+  /* the shell reserves top-nav space even though it hides the bar ≤860px — reclaim it here only */
+  body.rad-m{padding-top:0!important;margin-top:0!important}
+  #radMTabs{position:sticky;top:0;z-index:70;display:flex;gap:6px;height:38px;align-items:center;
+    padding:0 2%;background:#0a0a0f;margin:0 0 4px}
+  #radMTabs button{flex:1 1 0;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);color:#cfe6df;font:800 .74rem/1 var(--fh,Inter),sans-serif;
+    letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+  #radMTabs button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+  /* section carousel — transparent, horizontally scrollable */
+  #radMSecs{position:sticky;top:38px;z-index:65;display:flex;gap:7px;height:36px;align-items:center;
+    padding:0 2%;overflow-x:auto;scrollbar-width:none;background:transparent;margin:0 0 8px}
+  #radMSecs::-webkit-scrollbar{display:none}
+  #radMSecs button{flex:0 0 auto;height:28px;padding:0 13px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#cfe6df;
+    font:800 .7rem/1 var(--fh,Inter),sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  #radMSecs button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+  /* one section at a time on mobile; swipe cycles them */
+  body.rad-m main.wrap>section{display:none;border-top:0;padding:6px 0 20px}
+  body.rad-m main.wrap>section.rad-on{display:block}
+  body.rad-m .hero{display:none}
+  /* the desktop accordion collapses grids until .open — on mobile always show them */
+  body.rad-m section .grid.rad-carou{display:grid!important;overflow:visible!important}
+  body.rad-m .sec-toggle{display:none}
+  /* persistent mini-player docked above the bottom nav (the shared shell hides it on mobile;
+     this page is the one place it must stay visible) */
+  body.rad-m #kil-radio{transform:none!important;pointer-events:auto!important;
+    position:fixed!important;left:8px;right:8px;bottom:calc(56px + 8px + env(safe-area-inset-bottom,0px))!important;
+    z-index:60;border-radius:12px}
+  body.rad-m{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}
+  /* section-name pop that fades, same affordance as Culture */
+  #radSwToast{position:fixed;left:50%;top:calc(38px + 36px + 10px);transform:translateX(-50%);z-index:90;
+    background:rgba(10,16,14,.88);border:1px solid rgba(0,224,164,.35);border-radius:999px;
+    padding:7px 18px;color:#d9fff2;font:800 .76rem/1 var(--fh,Inter),sans-serif;letter-spacing:.12em;
+    text-transform:uppercase;opacity:0;transition:opacity .9s ease;pointer-events:none}
+  #radSwToast.on{opacity:1;transition:opacity .12s ease}
+}
+</style>
+<script>
+/* MOBILE RADIO enhancer — additive, ≤860px only; returns early above that. */
+(function(){
+  function isMob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
+  function sync(){ document.body.classList.toggle('rad-m', isMob()); }
+  sync(); window.addEventListener('resize', sync);
+  if(!isMob()) return;
+
+  /* section id -> label, using the Founder's renames */
+  var SECS = [
+    ['stations','Channel'], ['playlists','Playlist'], ['schedule','Schedule'],
+    ['earn','VS'], ['services','Apps'], ['games','Games']
+  ].filter(function(s){ return document.getElementById(s[0]); });
+  if(!SECS.length) return;
+  var idx = 0;
+
+  var main = document.querySelector('main.wrap'); if(!main) return;
+  var tabs = document.createElement('div'); tabs.id = 'radMTabs';
+  tabs.innerHTML = '<button data-go="/culture">Feed</button>'
+                 + '<button class="on">Radio</button>'
+                 + '<button data-go="/culture/vs">VS</button>';
+  var secbar = document.createElement('div'); secbar.id = 'radMSecs';
+  secbar.innerHTML = SECS.map(function(s,i){
+    return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'">'+s[1]+'</button>';
+  }).join('');
+  main.parentNode.insertBefore(tabs, main);
+  main.parentNode.insertBefore(secbar, main);
+
+  tabs.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(b && b.dataset.go) location.href = b.dataset.go;
+  });
+  secbar.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(b) show(Number(b.dataset.i));
+  });
+
+  function toast(t){
+    var el = document.getElementById('radSwToast');
+    if(!el){ el = document.createElement('div'); el.id='radSwToast'; document.body.appendChild(el); }
+    el.textContent = t; el.classList.add('on');
+    clearTimeout(el._t); el._t = setTimeout(function(){ el.classList.remove('on'); }, 850);
+  }
+  function show(i, quiet){
+    idx = (i + SECS.length) % SECS.length;
+    SECS.forEach(function(s, n){
+      var el = document.getElementById(s[0]);
+      if(el) el.classList.toggle('rad-on', n === idx);
+    });
+    [].forEach.call(secbar.children, function(b, n){ b.classList.toggle('on', n === idx); });
+    var active = secbar.children[idx];
+    if(active && active.scrollIntoView) active.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+    if(!quiet) toast(SECS[idx][1]);
+  }
+  show(0, true);
+
+  /* swipe left/right cycles the section (ignores the carousel + player + controls) */
+  var x0=null, y0=null, t0=0;
+  document.addEventListener('touchstart', function(e){
+    var t = e.target;
+    if(t && t.closest && t.closest('#radMSecs,#kil-radio,input,textarea,select,button,a,.grid')){ x0=null; return; }
+    var tt = e.touches[0]; x0=tt.clientX; y0=tt.clientY; t0=Date.now();
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(x0==null) return;
+    var tt=e.changedTouches[0], dx=tt.clientX-x0, dy=tt.clientY-y0, dt=Date.now()-t0; x0=null;
+    if(dt>700) return;
+    if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.7) return;
+    show(idx + (dx<0 ? 1 : -1));
+  }, {passive:true});
+})();
+</script>
+<script src="/keepitil-shell.js?v=20260807a" defer></script>
+<!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
+<script src="/kil-seasons.js?v=20260809a"></script>
+<!-- persistent synchronized radio bar -->
+<script src="/v3/keepitil-radio.js?v=20260726" defer></script>
+<!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
+<script src="/v3/keepitil-ai.js?v=20260808c" defer></script>
+<script>
+/* genre → emoji + hue for the card image band */
+var GENRES=[
+ ['Hip-Hop','🎤',280],['House','🏠',200],['Techno','🤖',190],['Bass','🔊',260],['R&B & Soul','💜',300],['Pop','⭐',330],
+ ['Rock','🎸',12],['Metal','🤘',0],['Country & Americana','🤠',35],['Latin','💃',20],['Afrobeats & African','🥁',45],
+ ['Reggae & Dancehall','🌴',140],['Jazz','🎷',270],['Classical','🎻',220],['Indie & Alternative','🎶',170],['Mixed Discovery','🔀',160]
+];
+function band(hue,glyph){return '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',70%,42%),hsl('+((hue+40)%360)+',65%,20%))">'+glyph+'</div>';}
+function renderStations(){
+  document.getElementById('stationGrid').innerHTML=GENRES.map(function(g){
+    return '<div class="station card">'+band(g[2],g[1])
+      +'<div class="g">'+g[0]+'</div><div class="s">Station</div>'
+      +'<span class="chip soon">Add URL</span></div>';
+  }).join('');
+}
+
+/* ---- User playlists from public SoundCloud URLs (localStorage v1) ---- */
+function scValid(u){ return /^https?:\/\/(m\.|www\.)?soundcloud\.com\//i.test(u||''); }
+function loadPls(){ try{ return JSON.parse(localStorage.getItem('kil_radio_playlists')||'[]'); }catch(e){ return []; } }
+function savePls(a){ try{ localStorage.setItem('kil_radio_playlists',JSON.stringify(a)); }catch(e){} }
+function addPlaylist(){
+  var n=document.getElementById('plName').value.trim(), u=document.getElementById('plUrl').value.trim();
+  if(!n){ alert('Give your playlist a name.'); return; }
+  if(!scValid(u)){ alert('Paste a public SoundCloud URL (starts with soundcloud.com/).'); return; }
+  var a=loadPls(); a.unshift({name:n,url:u,ts:Date.now()}); savePls(a);
+  document.getElementById('plName').value=''; document.getElementById('plUrl').value=''; renderPls();
+}
+function rmPlaylist(ts){ savePls(loadPls().filter(function(p){return p.ts!==ts;})); renderPls(); }
+function renderPls(){
+  var a=loadPls(), el=document.getElementById('plList');
+  if(!a.length){ el.innerHTML='<p class="disc">No playlists yet — paste a public SoundCloud URL above to start one.</p>'; return; }
+  el.innerHTML=a.map(function(p){
+    var embed='https://w.soundcloud.com/player/?url='+encodeURIComponent(p.url)+'&color=%2300e0a4&auto_play=false&show_artwork=true&show_comments=false&hide_related=true';
+    return '<div class="pl-item"><div class="top"><b>'+esc(p.name)+'</b><button class="rm" onclick="rmPlaylist('+p.ts+')">Remove</button></div>'
+      +'<iframe loading="lazy" scrolling="no" allow="autoplay" src="'+embed+'"></iframe></div>';
+  }).join('');
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function iconCard(glyph,hue,chip,title,desc,extra){
+  return '<div class="card">'+band(hue,glyph)+'<span class="chip'+(/soon|scheduled/i.test(chip)?' soon':'')+'">'+chip+'</span>'
+    +'<h3 style="margin-top:8px">'+title+'</h3><p>'+desc+'</p>'+(extra||'')+'</div>';
+}
+
+/* ---- Schedule blocks ---- */
+var BLOCKS=[['Morning Discovery','🌅',35,'Fresh finds to start the day'],['Local Artist Spotlight','📍',200,'Your city, on rotation'],
+ ['Genre Hour','🎚️',260,'A deep dive, one genre at a time'],['Creator Education','🎓',150,'Learn the craft & the business'],
+ ['Venue Talk','🏛️',20,'Rooms, sound & the people behind them'],['Festival Preview','🎪',300,'What to catch this season'],
+ ['Community Picks','🫶',330,'Chosen by listeners'],['New Release Hour','🆕',180,'Just dropped'],
+ ['AI Crew Show','🤖',190,'KEEPITIL agents curate'],['Weekend Mix','🎧',270,'Long-play DJ sets']];
+document.getElementById('scheduleGrid').innerHTML=BLOCKS.map(function(b){return iconCard(b[1],b[2],'Scheduled',b[0],b[3]);}).join('');
+
+/* ---- Create, Compete & Earn ---- */
+var COMPS=[['Song of the Month','🏆',45,'Top track wins rotation + a feature'],['DJ Mix Challenge','🎛️',260,'Submit a mix, get judged & aired'],
+ ['Remix Competition','🔁',200,'Flip the official stems'],['Beat Battle','🥊',0,'Producers, head to head'],
+ ['Playlist Curator Challenge','📻',160,'Best-curated KEEPITIL playlist wins a feature'],['Listener Choice Award','⭐',330,'Voted by the community'],
+ ['Radio Host Competition','🎙️',280,'Earn a recurring show'],['Podcast Pitch','🎧',190,'Pitch a show, get produced']];
+document.getElementById('earnGrid').innerHTML=COMPS.map(function(c){return iconCard(c[1],c[2],'Open soon',c[0],c[3],'<div class="meta">Rewards: rotation · feature · badge · commission</div>');}).join('');
+
+/* ---- Creator Services ---- */
+var SERVICES=[['Add my song','🎵',160,'Get your track considered for a station','Free · reviewed'],
+ ['Submit a mix','🎚️',260,'DJ mixes for shows & rotation','Free · reviewed'],
+ ['Submit a playlist','📃',200,'Pitch a curated playlist','Free · reviewed'],
+ ['Request an interview','🎤',300,'Be featured on a show','Free · reviewed'],
+ ['Request a spotlight','🌟',45,'Editorial feature','Free · reviewed'],
+ ['Promote an event','📣',20,'Get your event on-air','Beta'],
+ ['Advertise on Radio','📈',190,'Reach listeners','Paid · rate card'],
+ ['Sponsor a show','🤝',140,'Brand a station block','Paid · reviewed'],
+ ['Referral partner','🔗',270,'Earn on referrals','Application'],
+ ['Ticket-sales commission','🎟️',330,'Earn on tickets you drive','Application']];
+document.getElementById('servicesGrid').innerHTML=SERVICES.map(function(s){
+  var subj=encodeURIComponent('KEEPITIL Radio — '+s[0]);
+  var body=encodeURIComponent('Request: '+s[0]+'\n\nName:\nProfile / link:\nDetails:\n\nI confirm I hold the rights to anything I submit.');
+  return iconCard(s[1],s[2],s[4],s[0],s[3],'<div class="meta">Timeline: ~5 business days</div><a class="btn ghost" style="margin-top:12px" href="mailto:info@keepitil.com?subject='+subj+'&body='+body+'">Request</a>');
+}).join('');
+
+/* ---- Games (all live at /games/) ---- */
+/* Games: only real, playable titles (Founder 2026-08-04) — the Games hub link lives in the section footer */
+var GAMES=[['Age of Wars','⚔️',12,'Strategy war game — build, battle, conquer.','/games/ageofwars/'],
+ ['Kingdom Wars','🏰',270,'Defend your kingdom and rise to the top.','/games/kingdom-wars/']];
+document.getElementById('gamesGrid').innerHTML=GAMES.map(function(g){
+  return '<a class="card" href="'+g[4]+'" style="display:block;color:inherit">'+band(g[2],g[1])
+    +'<span class="chip">Play free</span><h3 style="margin-top:8px">'+g[0]+'</h3><p>'+g[3]+'</p></a>';
+}).join('');
+
+/* ---- Mobile App ---- */
+/* Mobile: only what's actually usable today — the installable web app (Founder 2026-08-04) */
+var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen — works offline, no store needed.'],
+ ['Radio in your pocket','🎧',260,'Keep the stream going anywhere on your phone.']];
+document.getElementById('mobileGrid').innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
+
+renderStations(); renderPls();
+/* Decorate each section: single-row carousel by default + a down-arrow to expand into the full grid (Founder 2026-08-04) */
+(function(){
+  [].forEach.call(document.querySelectorAll('main > section'), function(sec){
+    var grid=sec.querySelector('.grid'); var sh=sec.querySelector('.sh'); if(!grid||!sh) return;
+    grid.classList.add('rad-carou');
+    var btn=document.createElement('button'); btn.type='button'; btn.className='sec-toggle'; btn.setAttribute('aria-label','Expand section'); btn.innerHTML='&#9662;';
+    btn.addEventListener('click',function(){ var open=sec.classList.toggle('open'); btn.setAttribute('aria-label', open?'Collapse section':'Expand section'); });
+    sh.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
