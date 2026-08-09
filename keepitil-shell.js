@@ -1,6 +1,6 @@
 /* KEEPITIL V3.1 — TRIMMED public shell (fork of v3-shell.js, Founder 2026-07-17).
    V3.1 = the simplified live face: nav is ONLY Home / Scene / Login (My Tickets when
-   signed in). All shell links stay inside /v31/; V3 keeps its own shell untouched. */
+   signed in). All shell links stay inside /; V3 keeps its own shell untouched. */
 (function(){
   try{var _st=localStorage.getItem('kil-v3theme'); if(_st) document.documentElement.setAttribute('data-theme',_st);}catch(e){}
   /* ══ P1 STANDARDS REGULATOR (2026-07-16) — the shell OBEYS public.page_standards.
@@ -186,7 +186,7 @@
     };
   }catch(e){}
   /* IMMUTABLE V3.1 TEMPLATE (Founder 2026-07-17): LOGO=Home · Culture(feed) · SCENE · LOGIN/PROFILE — never change this nav when adding/removing features. */
-var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
+var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
     try{
@@ -204,9 +204,9 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
         settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/></svg>'
       };
       var iconRow='<div class="v3s-icons">'
-        +'<a href="/v31/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
-        +'<a href="/v31/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
-        +'<a href="/v31/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
+        +'<a href="/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
+        +'<a href="/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
+        +'<a href="/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
         +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
       if(RULES.gear==='hamburger') hdr.classList.add('on-profile');
@@ -214,16 +214,16 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
         '<div class="v3s-inner">'
         +'<div class="v3s-brand">'
           +'<button class="v3s-logobtn" id="v3s-logobtn" title="Change style" aria-label="Home / change site style"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL"></button>'
-          +'<a href="/v31/" class="v3s-brandtext">KEEPITIL</a>'
+          +'<a href="/" class="v3s-brandtext">KEEPITIL</a>'
           +'<div class="v3t-pop" id="v3t-pop">'+swatches+'</div>'
         +'</div>'
         +'<div class="v3s-links">'+links+'</div>'
         +iconRow
         /* P0c (Founder 2026-07-16): NO settings gear in the shell nav — Settings is reachable ONLY via the profile-page hamburger. */
-        +'<a href="/v31/apply.html" class="v3s-cta">LOGIN</a>'
+        +'<a href="/apply.html" class="v3s-cta">LOGIN</a>'
         +'<button class="v3s-burger" aria-label="menu"><span></span><span></span><span></span></button>'
         +'</div>'
-        +'<div class="v3s-menu">'+links+'<a href="/v31/apply.html" id="v3s-mlogin">Login</a></div>';
+        +'<div class="v3s-menu">'+links+'<a href="/apply.html" id="v3s-mlogin">Login</a></div>';
       /* checkout/system pages are chromeless (page_standards.loads_shell_nav=false): no top nav.
          Mobile: the top bar is REMOVED entirely (bottom-nav only) — desktop keeps it as-is. */
       if(RULES.nav!==false){
@@ -234,12 +234,12 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
       var f = document.createElement('footer'); f.id='v3-footer';
       f.innerHTML =
         '<div class="v3-foot-inner">'
-        +'<div class="v3-foot-about"><a href="/v31/" class="v3-foot-brand">KEEPITIL</a>'
+        +'<div class="v3-foot-about"><a href="/" class="v3-foot-brand">KEEPITIL</a>'
           +'<p class="v3-foot-addr">9252 Garden Grove Blvd, Ste 19 PMB 1066, Garden Grove, CA 92844 · <a href="mailto:info@keepitil.com">info@keepitil.com</a></p></div>'
-        +'<nav class="v3-foot-links"><a href="/v31/">Home</a>'
-        +'<a href="/v31/culture.html">Culture</a>'
-        +'<a href="/v31/scene.html">Scene</a>'
-        +'<a href="/v31/apply.html">Login</a></nav>'
+        +'<nav class="v3-foot-links"><a href="/">Home</a>'
+        +'<a href="/culture.html">Culture</a>'
+        +'<a href="/scene.html">Scene</a>'
+        +'<a href="/apply.html">Login</a></nav>'
         +'<div class="v3-foot-social">'
           +'<a href="https://instagram.com/keepitil" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>'
           +'<a href="https://soundcloud.com/keepitil" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M1.5 13.6c-.1 0-.15.07-.16.17l-.19 1.63.19 1.6c.01.1.06.17.16.17s.15-.07.16-.17l.22-1.6-.22-1.63c-.01-.1-.06-.17-.16-.17zm2.02.62c-.11 0-.18.08-.19.19l-.16 1 .16.97c.01.11.08.19.19.19s.18-.08.19-.19l.19-.97-.19-1c-.01-.11-.08-.19-.19-.19zm13.24-4.72c-.5 0-.98.1-1.41.29-.29-3.24-3.02-5.79-6.35-5.79-.82 0-1.62.16-2.32.44-.27.11-.34.22-.34.43v10.06c0 .22.17.4.38.42h10.04a2.94 2.94 0 002.94-2.94 2.94 2.94 0 00-2.94-2.91z"/></svg></a>'
@@ -251,13 +251,13 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           +'<a href="mailto:info@keepitil.com" aria-label="Email KEEPITIL"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>'
         +'</div></div>'
         +'<div class="v3-foot-legal" style="max-width:var(--maxw,1400px);margin:14px auto 0;font-size:.78rem;opacity:.7;display:flex;gap:14px;flex-wrap:wrap;align-items:center">'
-        +'<a href="/v31/terms.html">Terms</a><a href="/v31/privacy.html">Privacy</a><a href="/v31/refund.html">Refunds</a>'
-        +'<a href="/v31/ticket-terms.html">Ticket Terms</a><a href="/v31/community-guidelines.html">Community Guidelines</a>'
+        +'<a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a><a href="/refund.html">Refunds</a>'
+        +'<a href="/ticket-terms.html">Ticket Terms</a><a href="/community-guidelines.html">Community Guidelines</a>'
         +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
       if(RULES.nav!==false) document.body.appendChild(f);
 
       // active state on the mobile top-bar icon nav
-      try{ var p=location.pathname; var amap={'/v31/culture.html':/culture/,'/v31/scene.html':/scene/,'/v31/apply.html':/(profile\.html|my-tickets\.html|apply\.html)/};
+      try{ var p=location.pathname; var amap={'/culture.html':/culture/,'/scene.html':/scene/,'/apply.html':/(profile\.html|my-tickets\.html|apply\.html)/};
         hdr.querySelectorAll('.v3s-icons a').forEach(function(a){ var h=a.getAttribute('href'); var rx=amap[h]; if(rx&&rx.test(p)) a.classList.add('on'); }); }catch(e){}
 
       // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
@@ -266,7 +266,7 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
       if(lb&&pop){
         lb.addEventListener('click',function(e){ e.stopPropagation();
           /* on mobile the logo is HOME (no theme filter); on desktop it opens the style switcher */
-          if(window.matchMedia('(max-width:860px)').matches){ location.href='/v31/'; return; }
+          if(window.matchMedia('(max-width:860px)').matches){ location.href='/'; return; }
           pop.classList.toggle('open'); });
         pop.querySelectorAll('.v3t-sw').forEach(function(sw){ sw.addEventListener('click',function(e){
           e.stopPropagation();
@@ -291,10 +291,10 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
         var item=function(label,href){return '<a href="'+href+'" style="display:block;color:#e8e8f0;padding:15px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-decoration:none;font-weight:700;font-size:1.02rem">'+label+'</a>';};
         ov.innerHTML='<div style="background:#15151f;border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:14px 18px 26px">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:#fff;font-size:1.08rem">Create</b><button id="kilCX" style="background:none;border:0;color:#888;font-size:1.6rem;line-height:1;cursor:pointer">&times;</button></div>'
-          +item('Feed post','/v31/profile.html?create=feed')
-          +item('Event','/v31/create-event.html')
-          +item('Collection','/v31/profile.html?tab=saved&create=collection')
-          +'<a href="/v31/profile.html?tab=chat&create=chat" style="display:block;color:#e8e8f0;padding:15px 8px;text-decoration:none;font-weight:700;font-size:1.02rem">Chat</a>'
+          +item('Feed post','/profile.html?create=feed')
+          +item('Event','/create-event.html')
+          +item('Collection','/profile.html?tab=saved&create=collection')
+          +'<a href="/profile.html?tab=chat&create=chat" style="display:block;color:#e8e8f0;padding:15px 8px;text-decoration:none;font-weight:700;font-size:1.02rem">Chat</a>'
           +'</div>';
         document.body.appendChild(ov);
         ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
@@ -306,18 +306,18 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
           if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           bn.innerHTML=
-            '<a href="/v31/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/keepitil-x-blue.png" alt="Home"></a>'
-            +'<a href="/v31/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
+            '<a href="/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/keepitil-x-blue.png" alt="Home"></a>'
+            +'<a href="/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
             +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
-            +'<a href="/v31/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
-            +'<a href="/v31/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
+            +'<a href="/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
+            +'<a href="/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
           document.body.appendChild(bn);
           var _bp=location.pathname;
           var _bmap=[/^\/v31\/(index\.html)?$/, /culture/, /scene/, /(profile\.html|my-tickets\.html|apply\.html)/];
           bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
           if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
-            var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/v31/settings.html'; mh.setAttribute('aria-label','Settings');
+            var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/settings.html'; mh.setAttribute('aria-label','Settings');
             mh.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
             document.body.appendChild(mh);
           }
@@ -350,16 +350,16 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
     var btn=(ev&&(ev.currentTarget||ev.target.closest&&ev.target.closest('a,button')))||null;
     if(btn&&btn.getBoundingClientRect){ var r=btn.getBoundingClientRect(); m.style.top=(r.bottom+window.scrollY+8)+'px'; m.style.left=Math.max(8,(r.right+window.scrollX-m.offsetWidth))+'px'; }
     m.querySelectorAll('button').forEach(function(b){ b.onmouseover=function(){b.style.background='rgba(255,255,255,.07)';}; b.onmouseout=function(){b.style.background='none';}; });
-    m.querySelector('[data-a=edit]').onclick=function(){ m.remove(); if(typeof window.openEditProfile==='function'){ window.openEditProfile(); } else { location.href='/v31/profile.html?edit=1'; } };
-    m.querySelector('[data-a=settings]').onclick=function(){ m.remove(); location.href='/v31/settings.html'; };
-    m.querySelector('[data-a=signout]').onclick=function(){ m.remove(); try{ if(window.supabase&&window.supabase.createClient){ window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ').auth.signOut(); } }catch(e){} try{ Object.keys(localStorage).forEach(function(k){ if(/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); }catch(e){} location.href='/v31/'; };
+    m.querySelector('[data-a=edit]').onclick=function(){ m.remove(); if(typeof window.openEditProfile==='function'){ window.openEditProfile(); } else { location.href='/profile.html?edit=1'; } };
+    m.querySelector('[data-a=settings]').onclick=function(){ m.remove(); location.href='/settings.html'; };
+    m.querySelector('[data-a=signout]').onclick=function(){ m.remove(); try{ if(window.supabase&&window.supabase.createClient){ window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ').auth.signOut(); } }catch(e){} try{ Object.keys(localStorage).forEach(function(k){ if(/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); }catch(e){} location.href='/'; };
     setTimeout(function(){ document.addEventListener('click',function h(e){ var mm=document.getElementById('kil-profmenu'); if(mm&&!mm.contains(e.target)){ mm.remove(); } document.removeEventListener('click',h); }); },0);
   }
   window.kilProfMenu=kilProfMenu;
   function applyAuthState(hdr, s){
     /* mobile floating hamburger: profile pages, signed-in, mobile viewport only */
     try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
-    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); return; }
+    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/profile.html':'/apply.html'); return; }
     /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
        Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
     var onProfile=(RULES.gear==='hamburger');   /* standards-driven: page_standards.gear_rule */
@@ -369,15 +369,15 @@ var NAV=[['/v31/culture.html','Culture'],['/v31/scene.html','Scene']];
       if(s && onProfile){ cta.innerHTML=HAMB; cta.setAttribute('href','#'); cta.setAttribute('title','Menu'); cta.setAttribute('aria-label','Profile menu'); cta.classList.add('v3s-hamb'); cta.style.cssText='color:var(--text,#fff);display:inline-flex;align-items:center;justify-content:center;padding:8px 12px';
         var _sv=cta.querySelector('svg'); if(_sv){ _sv.style.width='22px'; _sv.style.height='22px'; }
         try{ cta.onclick=kilProfMenu; }catch(e){} }
-      else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); cta.classList.remove('v3s-hamb'); }
+      else { cta.textContent = s?'PROFILE':'LOGIN'; cta.setAttribute('href', s?'/profile.html':'/apply.html'); cta.classList.remove('v3s-hamb'); }
     }
-    if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html'); }
+    if(mlog){ mlog.textContent = s?'Profile':'Login'; mlog.setAttribute('href', s?'/profile.html':'/apply.html'); }
     var iprof=document.getElementById('v3s-iconprof');
     if(iprof){
-      if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/v31/settings.html'); iprof.setAttribute('aria-label','Settings'); }
-      else iprof.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
+      if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/settings.html'); iprof.setAttribute('aria-label','Settings'); }
+      else iprof.setAttribute('href', s?'/profile.html':'/apply.html');
     }
-    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/v31/profile.html':'/v31/apply.html');
+    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/profile.html':'/apply.html');
   }
   function authNav(hdr){
     ensureSB(function(){
