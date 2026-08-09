@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="description" content="KEEPITIL VS — creator competitions & community voting. Create. Compete. Get Seen."/>
+<title>VS — Create. Compete. Get Seen. | KEEPITIL</title>
+<link rel="canonical" href="https://keepitil.com/culture/vs"/>
+<link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--brand:#a855f7;--brand-2:#c084fc;--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fs:'Fraunces',serif}
+html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
+body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/culture-hero.jpg') center/cover no-repeat;opacity:.55}
+html.has-season body::before{display:none!important}/* seasonal image takes over on its dates */
+body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,15,.7),rgba(10,10,15,.92))}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px;width:100%}
+.hero{padding:34px 0 18px;text-align:center}
+.hero h1{font-family:var(--fh);font-size:clamp(3rem,11vw,6rem);letter-spacing:.04em;line-height:.9;background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#e7e5f2;font-family:var(--fh);letter-spacing:.14em;font-size:1.1rem;margin-top:6px}
+.soon{background:rgba(255,255,255,.035);border:1px solid var(--brd);border-radius:18px;padding:52px 26px;text-align:center;margin:22px 0}
+.soon .i{font-size:3rem}
+.soon h2{font-family:var(--fs);font-weight:600;font-size:1.6rem;color:#fff;margin:12px 0 8px}
+.soon p{color:var(--ink2);max-width:460px;margin:0 auto}
+footer{border-top:1px solid rgba(255,255,255,.06);padding:30px;text-align:center;color:var(--ink3);font-size:.82rem;margin-top:auto}
+footer a{color:var(--brand-2)}
+/* Vertical sidebar (desktop): subpages on top + VS filters below — same pattern as Culture/Radio (Founder 2026-08-04) */
+.cul-vrail{display:none}
+@media(min-width:861px){
+  .cul-vrail{display:flex;flex-direction:column;gap:9px;position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40}
+  .cul-vrail{overflow:visible}
+  .cul-vrail .cvr{display:flex;align-items:center;gap:13px;width:58px;height:58px;padding:0 15px;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(20,18,30,.9);backdrop-filter:blur(12px);color:#cfc9e6;cursor:pointer;transition:width .18s ease;box-sizing:border-box}
+  .cul-vrail .cvr .ic{font-size:1.55rem;flex:0 0 auto;line-height:1;width:26px;text-align:center}
+  .cul-vrail .cvr .tx{font-family:var(--fh);font-weight:800;letter-spacing:.08em;font-size:.9rem;opacity:0;transition:opacity .12s}
+  .cul-vrail:hover .cvr{width:180px}
+  .cul-vrail .vr-subdd{position:absolute;right:66px;top:0;display:none;flex-direction:column;gap:2px;background:#15131f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:7px;min-width:150px;z-index:60;box-shadow:0 12px 30px rgba(0,0,0,.5)}
+  .cul-vrail .vr-subdd.open{display:flex}
+  .cul-vrail .vr-subdd button{display:flex;align-items:center;gap:11px;background:none;border:0;color:#e6e2f2;font-size:.95rem;font-weight:600;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;white-space:nowrap}
+  .cul-vrail .vr-subdd button .ic{font-size:1.2rem}
+  .cul-vrail .vr-subdd button:hover{background:rgba(255,255,255,.09);color:#fff}
+  .cul-vrail:hover .cvr .tx{opacity:1}
+  .cul-vrail .vr-div{width:34px;height:1px;background:rgba(255,255,255,.2);align-self:flex-end;margin:4px 6px 4px 0}
+  .cul-vrail .cvr.sp.on{background:linear-gradient(90deg,#7c3aed,#a855f7);border-color:transparent;color:#fff}
+  .cul-vrail .cvr.sf.on{background:linear-gradient(90deg,#3aa5ff,#5cc8ff);border-color:transparent;color:#04121b}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header class="hero">
+    <h1>VS</h1>
+    <p>Create. Compete. Get Seen.</p>
+  </header>
+  <!-- KODE renders the VS competition platform (feed, competition pages, admin manager, submission flow) into #vs-app -->
+  <div id="vs-app">
+    <div class="soon"><div class="i">⚔️</div><h2>Competitions are on the way</h2><p>The VS creator-competition platform is being built. Enter, vote, and win — soon.</p></div>
+  </div>
+</main>
+
+<!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, VS filters below -->
+<div class="cul-vrail" id="vsVRail" aria-label="Subpages and filters">
+  <button class="cvr sp" id="vrSubBtn" onclick="vrToggleSub(event)" aria-label="Switch subpage"><span class="ic" aria-hidden="true">☰</span><span class="tx" id="vrSubLbl">VS ▾</span></button>
+  <div class="vr-subdd" id="vrSubDD">
+    <button onclick="vrGoSub('feed')"><span class="ic" aria-hidden="true">📰</span><span>Feed</span></button>
+    <button onclick="vrGoSub('radio')"><span class="ic" aria-hidden="true">📻</span><span>Radio</span></button>
+    <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
+  </div>
+  <div class="vr-div"></div>
+  <!-- VS subpage views (Founder 2026-08-05). Drive vs-app.js via window.vsGo(view); KODE builds vote/join/winners. -->
+  <button class="cvr sf on" data-v="feed"    onclick="vrNav('feed',this)"    aria-label="Feed — all submissions"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
+  <button class="cvr sf"    data-v="vote"    onclick="vrNav('vote',this)"    aria-label="Vote — pick a competition"><span class="ic" aria-hidden="true">🗳️</span><span class="tx">Vote</span></button>
+  <button class="cvr sf"    data-v="join"    onclick="vrNav('join',this)"    aria-label="Join — enter a competition"><span class="ic" aria-hidden="true">➕</span><span class="tx">Join</span></button>
+  <button class="cvr sf"    data-v="winners" onclick="vrNav('winners',this)" aria-label="Winners"><span class="ic" aria-hidden="true">👑</span><span class="tx">Winners</span></button>
+  <button class="cvr sf"    data-v="votes"   onclick="vrNav('votes',this)"   aria-label="My Votes"><span class="ic" aria-hidden="true">✅</span><span class="tx">My Votes</span></button>
+  <button class="cvr sf"    data-v="mine"    onclick="vrNav('mine',this)"    aria-label="My Entry"><span class="ic" aria-hidden="true">🎫</span><span class="tx">My Entry</span></button>
+  <!-- Manage removed from VS 2026-08-05 (Founder): admin competition management moves to the profile dashboard → Events → Battles. -->
+</div>
+
+<!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio bar (same on every page) -->
+<script src="/keepitil-shell.js?v=20260807a" defer></script>
+<script src="/kil-seasons.js?v=20260809a"></script>
+<script src="/v3/keepitil-radio.js?v=20260726" defer></script>
+<!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
+<script src="/v3/keepitil-ai.js?v=20260808c" defer></script>
+<!-- VS platform (KODE): Supabase client + the app that renders into #vs-app.
+     vs-app.js defines the real window.vsFilter, replacing the placeholder hook. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/vs-app.js?v=20260805d"></script>
+<script>
+/* VS subpage view switch (Founder 2026-08-05): rail drives vs-app.js via window.vsGo(view).
+   FEED/My Votes/My Entry/Manage map to existing app views; Vote/Join/Winners are new (KODE). */
+function vrNav(view, el){
+  try{ var rail=document.getElementById('vsVRail');
+       if(rail&&el){ [].forEach.call(rail.querySelectorAll('.cvr.sf'),function(b){ b.classList.toggle('on', b===el); }); } }catch(x){}
+  if(typeof window.vsGo==='function'){ try{ window.vsGo(view); return; }catch(e){} }
+  /* fallback until vs-app.js exposes vsGo: FEED still works via the legacy filter hook */
+  if(view==='feed' && typeof window.vsFilter==='function'){ try{ window.vsFilter('all'); }catch(e){} }
+}
+/* subpage dropdown (uniform with Culture/Radio) — Founder 2026-08-04 */
+function vrToggleSub(e){ if(e){try{e.stopPropagation();}catch(x){}} var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.toggle('open'); }
+function vrGoSub(sp){ var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.remove('open'); location.href=(sp==='feed'?'/culture':(sp==='radio'?'/culture/radio':'/culture/vs')); }
+document.addEventListener('click',function(e){ var dd=document.getElementById('vrSubDD'),b=document.getElementById('vrSubBtn'); if(dd&&dd.classList.contains('open')&&!dd.contains(e.target)&&b&&!b.contains(e.target))dd.classList.remove('open'); });
+</script>
+</body>
+</html>
