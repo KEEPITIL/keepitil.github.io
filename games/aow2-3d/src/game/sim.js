@@ -1513,7 +1513,7 @@
 
     u.mass = def.mass;
     u.radius = def.radius;
-    u.speed = def.speed;
+    u.speed = def.speed * MOVE_SCALE;
     u.maxAttackers = def.maxAttackers;
 
     u.x = (opts && typeof opts.x === 'number') ? opts.x : SPAWN_X[team];
@@ -2051,7 +2051,26 @@
    *  they close. The 352m battlefield stops being 40 seconds of watching backs
    *  of heads, and contact happens on a schedule the director can guarantee.
    * ====================================================================== */
-  var TEMPO_FAR = 55, TEMPO_NEAR = 20, TEMPO_MAX = 4.4;
+  // Player feedback: "way too fast, I can't see them marching or attacking".
+  // TEMPO_MAX was 4.4 and stacked multiplicatively with a 2.6x watchdog boost —
+  // up to ~11x base speed, i.e. an assault unit crossing the field at 22 m/s.
+  // Killing dead time is right; teleporting is not. 1.9x is a brisk double-time
+  // across open ground that still reads as marching.
+  // Global movement scale. Real infantry march ~1.3 m/s and charge ~4 m/s;
+  // the raw table was tuned high (assault at 5.1 m/s = sprinting) which made
+  // formations impossible to read. Scaling here preserves every relative
+  // speed — and therefore the whole counter/kiting balance — while making the
+  // battle legible.
+  // 0.72 is the balance point found by testing against the sim's own
+  // dead-time invariant: slow enough that a melee at contact reads clearly
+  // (tempo is 1.0 there, so this IS the combat speed), fast enough that the
+  // approach still lands inside the 16s no-dead-air budget.
+  var MOVE_SCALE = 0.72;
+
+  var TEMPO_FAR = 55, TEMPO_NEAR = 20, TEMPO_MAX = 3.1;
+  // NOTE: tempo only applies at range and eases to 1.0 as units close, so the
+  // fighting the player actually watches always runs at MOVE_SCALE, never the
+  // approach multiplier. Speeding the walk-up is free; speeding combat is not.
 
   function tempoMul(u, nearestGap) {
     var m = 1;
@@ -2147,7 +2166,7 @@
       }
     }
 
-    var tx, tz, spd = def.speed * u.buffSpd * army.speedMul;
+    var tx, tz, spd = def.speed * MOVE_SCALE * u.buffSpd * army.speedMul;
 
     if (mode === 'formation' && u.slotOk) {
       tx = u.slotX; tz = u.slotZ;
@@ -2206,7 +2225,7 @@
     var mr = def.minRange > 0 ? def.minRange : 5;
     if (d2 > mr * mr) { return; }
     var d = Math.sqrt(d2) || 1;
-    var s = def.speed * def.kite;
+    var s = def.speed * MOVE_SCALE * def.kite;
     u.mvx = -dx / d * s;
     u.mvz = -dz / d * s;
     u.state = 'walk';
@@ -2234,7 +2253,7 @@
     var s = spd * clamp01(d / 1.6);
     u.mvx = dx / d * s;
     u.mvz = dz / d * s;
-    u.state = (s > u.def.speed * 1.25) ? 'run' : 'walk';
+    u.state = (s > u.def.speed * MOVE_SCALE * 1.25) ? 'run' : 'walk';
   }
 
   /* ---- integration: movement + knockback + gravity ------------------------ */
@@ -2763,7 +2782,7 @@
       director.contactT += dt;
       if (director.contactT > 6) {
         /* nobody is fighting: wind the whole field forward, harder over time */
-        director.tempoBoost = clamp(1 + (director.contactT - 6) * 0.35, 1, 2.6);
+        director.tempoBoost = clamp(1 + (director.contactT - 11) * 0.14, 1, 1.35);
         if (director.contactT > 10 && armies[-1].stance !== 'attack') {
           setStance(-1, 'attack');
           toast('The enemy charges!', 'warn');
@@ -2906,7 +2925,7 @@
     army.anchorTarget = want;
 
     var f = FORMATIONS[army.formation] || FORMATIONS.line;
-    var anchorSpeed = 3.0 * f.speed * army.speedMul;
+    var anchorSpeed = 3.0 * MOVE_SCALE * f.speed * army.speedMul;
     if (adv <= -2) { anchorSpeed *= 1.6; }
     var gapToWant = Math.abs(want - army.anchorX);
     if (gapToWant > 40) { anchorSpeed *= 2.6; }        // no dead time for the line either
