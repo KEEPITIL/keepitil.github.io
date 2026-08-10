@@ -395,7 +395,7 @@
     pitch: 0.235, pitchTarget: 0.235,    // radians above horizon (~13.5°)
     pitchMin: 0.06, pitchMax: 0.62,
     dist: 96, distTarget: 96,
-    distMin: 38, distMax: 210,
+    distMin: 26, distMax: 132,
 
     focusLambda: 3.6,         // how eagerly the look-at chases the front line
     orbitLambda: 5.0,
@@ -403,8 +403,13 @@
 
     autoFollow: true,
     deadZone: 7.0,            // world units of slop before the camera bothers to move
-    spanMin: 46,              // never zoom tighter than this much battlefield
-    spanMax: 165,
+    spanMin: 34,              // never zoom tighter than this much battlefield
+    // Player feedback: "can't see the battlefield". At the old 165m span a
+    // 1.8m soldier was ~1% of the frame — technically visible, actually a
+    // speck. Capping the span keeps troops readable; when the two armies are
+    // further apart than this the camera frames the FRONT LINE (where the
+    // fight will happen) instead of pulling back to show empty ground.
+    spanMax: 92,
     spanMargin: 14,
     zoomDeadZone: 0.05,       // 5% — stops zoom hunting when a unit dies
 
@@ -412,10 +417,16 @@
     idleAmp: 1.0,             // 0 disables the idle drift entirely
 
     trauma: 0,
-    traumaDecay: 1.45,        // per second; ~0.7s to fully settle from a full hit
+    traumaDecay: 2.6,         // per second; settles fast so hits punctuate, not blur
     shakeT: 0,
-    shakePos: 1.35,           // metres at trauma = 1
-    shakeRot: 0.055,          // radians at trauma = 1
+    // Player feedback: shake was overwhelming. A soldier is 1.8m tall, so a
+    // 1.35m camera throw was nearly a body-length per hit — and because every
+    // hit in a busy melee adds trauma, it pegged at max and never settled.
+    // These give a firm punch you feel without losing the battlefield.
+    shakePos: 0.26,           // metres at trauma = 1
+    shakeRot: 0.014,          // radians at trauma = 1
+    traumaBudget: 0,          // rate-limiter: how much trauma was added recently
+    shakeScale: 1,            // user setting (0 = off)
 
     // cached derived values
     hFovHalfTan: 0.3,
@@ -1354,6 +1365,7 @@
       camera.rotateX(noise1(st * 1.07, 5) * s * rig.shakeRot * 0.55);
       camera.rotateY(noise1(st * 0.91, 6) * s * rig.shakeRot * 0.55);
       rig.trauma = Math.max(0, rig.trauma - rig.traumaDecay * dt);
+      rig.traumaBudget = Math.max(0, rig.traumaBudget - dt * 1.9);
     } else if (rig.trauma !== 0) {
       rig.trauma = 0;
     }
@@ -1808,7 +1820,15 @@
     var a = (typeof amount === 'number' && isFinite(amount)) ? amount : 0.25;
     // Callers sometimes pass "pixels" or big numbers; normalise generously.
     if (a > 1) { a = clamp(a / 20, 0, 1); }
-    rig.trauma = clamp(rig.trauma + a, 0, 1);
+    a *= rig.shakeScale;
+    if (a <= 0) { return; }
+    // Rate-limit: a 200-unit melee fires dozens of shake events per second and
+    // used to hold trauma at 1.0 permanently. Each event now contributes less
+    // as the recent budget fills, so a single big impact still reads clearly
+    // while sustained combat stays watchable.
+    var damp = 1 / (1 + rig.traumaBudget * 3.2);
+    rig.traumaBudget = Math.min(3, rig.traumaBudget + a);
+    rig.trauma = clamp(rig.trauma + a * damp, 0, 0.85);
   }
 
   /* ==========================================================================
