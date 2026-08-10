@@ -1,0 +1,3517 @@
+/* =============================================================================
+ * AOW.Units3D — character rigs, procedural animation, LOD, equipment
+ * -----------------------------------------------------------------------------
+ * The characters. Stick-figure DNA (dark, lean silhouettes) executed with a real
+ * jointed rig, IK-planted feet, four-phase attacks, verlet cloth and a three-step
+ * LOD ladder so 300+ bodies can share a screen at 60fps.
+ *
+ * Owns: src/render/units3d.js  →  global AOW.Units3D
+ * Reads: AOW.Core.state.units (never writes), AOW.Core.perf.tier
+ * Talks: AOW.Core.on/emit only.  Assets: 100% procedural (canvas textures).
+ * three.js r128 UMD, global THREE, no modules, no build step.
+ * ========================================================================== */
+(function (global) {
+  'use strict';
+
+  var AOW = global.AOW = (global.AOW || {});
+
+  /* ---------------------------------------------------------------------------
+   * 0. Hard dependency guard — degrade to a no-op API rather than crash.
+   * ------------------------------------------------------------------------ */
+  if (typeof THREE === 'undefined' || !THREE || !THREE.Object3D) {
+    console.warn('[AOW.Units3D] THREE not found — units will not render.');
+    AOW.Units3D = {
+      version: '1.0.0', ready: false, failed: true,
+      init: function () { return false; },
+      update: function () {},
+      dispose: function () {},
+      getView: function () { return null; },
+      stats: { lod0: 0, lod1: 0, lod2: 0, views: 0, dying: 0 },
+      setLodBias: function () {}, setQuality: function () {},
+      setBlobShadows: function () {}, setCapes: function () {}
+    };
+    return;
+  }
+
+  var U = {};                              // the module object (published at the end)
+  var Core = null;                         // resolved at init
+  var Rndr = null;                         // AOW.Render
+
+  /* ---------------------------------------------------------------------------
+   * 1. Tiny math + module-level scratch (nothing here is ever allocated in a loop)
+   * ------------------------------------------------------------------------ */
+  var PI = Math.PI, PI2 = PI * 2, HALF_PI = PI * 0.5;
+  var _abs = Math.abs, _sin = Math.sin, _cos = Math.cos, _sqrt = Math.sqrt;
+  var _min = Math.min, _max = Math.max, _atan2 = Math.atan2, _acos = Math.acos;
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function clamp01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function smooth(t) { t = clamp01(t); return t * t * (3 - 2 * t); }
+  function smoother(t) { t = clamp01(t); return t * t * t * (t * (t * 6 - 15) + 10); }
+  function easeOutCubic(t) { t = 1 - clamp01(t); return 1 - t * t * t; }
+  function easeInCubic(t) { t = clamp01(t); return t * t * t; }
+  function easeInQuad(t) { t = clamp01(t); return t * t; }
+  function easeOutQuad(t) { t = clamp01(t); return 1 - (1 - t) * (1 - t); }
+  function easeOutBack(t) {
+    t = clamp01(t); var c = 1.9, u = t - 1;
+    return 1 + (c + 1) * u * u * u + c * u * u;
+  }
+  function damp(cur, target, lambda, dt) {
+    return cur + (target - cur) * (1 - Math.exp(-lambda * dt));
+  }
+  function wrapPi(a) {
+    a = (a + PI) % PI2;
+    if (a < 0) a += PI2;
+    return a - PI;
+  }
+  function frac(x) { return x - Math.floor(x); }
+
+  /* Deterministic per-unit hash — gives every soldier a stable personality
+     (phase offsets, height, kit hue) without storing an RNG per unit. */
+  function hashId(id, salt) {
+    var n;
+    if (typeof id === 'number') n = id | 0;
+    else {
+      n = 0;
+      var s2 = String(id);
+      for (var ci = 0; ci < s2.length; ci++) n = (Math.imul(n, 31) + s2.charCodeAt(ci)) | 0;
+    }
+    var h = Math.imul(n ^ 0x9E3779B9, 0x85EBCA6B);
+    h = Math.imul(h ^ (h >>> 13) ^ ((salt | 0) * 0x27D4EB2F), 0xC2B2AE35);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  }
+
+  var _v3a = new THREE.Vector3(), _v3b = new THREE.Vector3(), _v3c = new THREE.Vector3();
+  var _m4a = new THREE.Matrix4();
+  var _quat = new THREE.Quaternion();
+  var _col = new THREE.Color(), _col2 = new THREE.Color();
+
+  function color(hex) {
+    if (Rndr && typeof Rndr.color === 'function') {
+      var c = Rndr.color(hex);
+      if (c) return c;
+    }
+    var t = new THREE.Color(hex);
+    if (typeof t.convertSRGBToLinear === 'function') t.convertSRGBToLinear();
+    return t;
+  }
+
+  /* Bus helpers — safe before Core exists. */
+  function busOn(name, fn) {
+    try {
+      if (AOW.Core && typeof AOW.Core.on === 'function') return AOW.Core.on(name, fn);
+    } catch (e) { /* ignore */ }
+    return function () {};
+  }
+  function busEmit(name, payload) {
+    try {
+      if (AOW.Core && typeof AOW.Core.emit === 'function') AOW.Core.emit(name, payload);
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 2. Rig metrics — ONE skeleton, every class and era. 1.8m nominal soldier.
+   * ------------------------------------------------------------------------ */
+  var M = {
+    hipY: 0.95,          // hip joint height above the feet
+    pelvisH: 0.17, pelvisR: 0.115,
+    spineOff: 0.10,      // hips -> spine pivot
+    chestOff: 0.20,      // spine -> chest pivot   (chest pivot @ 1.25)
+    chestH: 0.30, chestR: 0.145,
+    neckOff: 0.20,       // chest -> neck pivot    (@ 1.45)
+    neckH: 0.10, neckR: 0.048,
+    headOff: 0.10,       // neck -> head pivot     (@ 1.55)
+    headR: 0.125,
+    shoulderY: 0.19, shoulderZ: 0.165,
+    upperArm: 0.30, upperArmR: 0.055,
+    foreArm: 0.28, foreArmR: 0.047,
+    handLen: 0.09, handR: 0.05,
+    hipZ: 0.092,
+    thigh: 0.44, thighR: 0.078,
+    shin: 0.42, shinR: 0.062,
+    ankleH: 0.085,
+    footLen: 0.24, footW: 0.10, footH: 0.075
+  };
+  var LEG_REACH = M.thigh + M.shin;
+  var ARM_REACH = M.upperArm + M.foreArm;
+
+  /* ---------------------------------------------------------------------------
+   * 3. Era kits + class kits
+   * --------------------------------------------------------------------------
+   * Era swaps MATERIALS AND ATTACHMENTS ONLY. The skeleton is identical for a
+   * stone-age brawler and a plasma trooper — that is what makes 300 of them
+   * affordable and what keeps the animation code single-source.
+   * ------------------------------------------------------------------------ */
+  var ERA_ALIAS = {
+    tribal: 'Stone', stone: 'Stone', prehistoric: 'Stone',
+    bronze: 'Bronze', greek: 'Bronze', hellenic: 'Bronze',
+    iron: 'Iron', rome: 'Iron', roman: 'Iron', legion: 'Iron',
+    medieval: 'Medieval', viking: 'Medieval', knight: 'Medieval', norse: 'Medieval',
+    gunpowder: 'Gunpowder', japan: 'Gunpowder', samurai: 'Gunpowder', sengoku: 'Gunpowder',
+    industrial: 'Industrial', steam: 'Industrial',
+    modern: 'Modern', ww2: 'Modern',
+    future: 'Future', plasma: 'Future', scifi: 'Future'
+  };
+
+  var KITS = {
+    Stone: {
+      skin: 0x2b2b30, cloth: 0x7a6a52, leather: 0x6d5334, metal: 0x8d8a83, wood: 0x6b4f31,
+      accent: 0xb8a179, glow: 0x000000, metalness: 0.05, roughness: 0.92,
+      helmet: 'none', shoulders: 'fur', cape: false, shield: 'hide', hasQuiver: true,
+      weapons: { defender: 'spear', assault: 'club', ranged: 'shortbow', specialist: 'staff', champion: 'club', boss: 'club' }
+    },
+    Bronze: {
+      skin: 0x2c2b2e, cloth: 0xa8462f, leather: 0x7a5a38, metal: 0xb98b3f, wood: 0x7a5836,
+      accent: 0xd8b25a, glow: 0x000000, metalness: 0.55, roughness: 0.44,
+      helmet: 'crested', shoulders: 'pad', cape: true, capeColor: 0xa8462f, shield: 'round', hasQuiver: true,
+      weapons: { defender: 'spear', assault: 'sword', ranged: 'shortbow', specialist: 'staff', champion: 'spear', boss: 'greatsword' }
+    },
+    Iron: {
+      skin: 0x2a2a2d, cloth: 0x8f3226, leather: 0x6a4a2c, metal: 0x9aa0a6, wood: 0x6f5232,
+      accent: 0xc9412e, glow: 0x000000, metalness: 0.62, roughness: 0.40,
+      helmet: 'nasal', shoulders: 'plate', cape: true, capeColor: 0x8f3226, shield: 'tower', hasQuiver: true,
+      weapons: { defender: 'shortsword', assault: 'sword', ranged: 'bow', specialist: 'dagger', champion: 'sword', boss: 'greatsword' }
+    },
+    Medieval: {
+      skin: 0x27272b, cloth: 0x3f5f8a, leather: 0x54402a, metal: 0xb9bfc6, wood: 0x5e462b,
+      accent: 0x5c86c0, glow: 0x000000, metalness: 0.78, roughness: 0.31,
+      helmet: 'horned', shoulders: 'plate', cape: true, capeColor: 0x3f5f8a, shield: 'kite', hasQuiver: true,
+      weapons: { defender: 'halberd', assault: 'axe', ranged: 'crossbow', specialist: 'dagger', champion: 'greatsword', boss: 'hammer' }
+    },
+    Gunpowder: {
+      skin: 0x26262a, cloth: 0x5b2c3a, leather: 0x4a3524, metal: 0x9fa6ad, wood: 0x4d3a24,
+      accent: 0xc2543f, glow: 0x000000, metalness: 0.70, roughness: 0.36,
+      helmet: 'kabuto', shoulders: 'plate', cape: true, capeColor: 0x5b2c3a, shield: 'round', hasQuiver: true,
+      weapons: { defender: 'naginata', assault: 'katana', ranged: 'musket', specialist: 'katana', champion: 'katana', boss: 'naginata' }
+    },
+    Industrial: {
+      skin: 0x232327, cloth: 0x4a5340, leather: 0x3f3226, metal: 0x8b9298, wood: 0x4a3826,
+      accent: 0xa4763a, glow: 0x000000, metalness: 0.72, roughness: 0.42,
+      helmet: 'kettle', shoulders: 'pad', cape: false, shield: 'buckler', hasQuiver: false,
+      weapons: { defender: 'bayonet', assault: 'axe', ranged: 'rifle', specialist: 'dagger', champion: 'hammer', boss: 'hammer' }
+    },
+    Modern: {
+      skin: 0x202024, cloth: 0x3d4436, leather: 0x33301f, metal: 0x77808a, wood: 0x3a2c1e,
+      accent: 0x6f7f4a, glow: 0x000000, metalness: 0.45, roughness: 0.55,
+      helmet: 'visor', shoulders: 'pad', cape: false, shield: 'riot', hasQuiver: false,
+      weapons: { defender: 'bayonet', assault: 'rifle', ranged: 'rifle', specialist: 'dagger', champion: 'rifle', boss: 'hammer' }
+    },
+    Future: {
+      skin: 0x1c1d22, cloth: 0x2a3140, leather: 0x272c36, metal: 0xc2ccd6, wood: 0x3a3f47,
+      accent: 0x38d6ff, glow: 0x2fd0ff, metalness: 0.88, roughness: 0.22,
+      helmet: 'visor', shoulders: 'spike', cape: true, capeColor: 0x1e2836, shield: 'energy', hasQuiver: false,
+      weapons: { defender: 'plasmaspear', assault: 'plasma', ranged: 'plasma', specialist: 'plasmablade', champion: 'plasmablade', boss: 'plasmaspear' }
+    }
+  };
+
+  function kitFor(era) {
+    if (typeof era === 'number') {
+      var list = AOW.ERAS || ['Stone', 'Bronze', 'Iron', 'Medieval', 'Gunpowder', 'Industrial', 'Modern', 'Future'];
+      era = list[clamp(era | 0, 0, list.length - 1)];
+    }
+    if (typeof era !== 'string') return KITS.Iron;
+    if (KITS[era]) return KITS[era];
+    var a = ERA_ALIAS[era.toLowerCase()];
+    return (a && KITS[a]) ? KITS[a] : KITS.Iron;
+  }
+  function eraKey(era) {
+    if (typeof era === 'number') {
+      var list = AOW.ERAS || [];
+      era = list[clamp(era | 0, 0, _max(0, list.length - 1))] || 'Iron';
+    }
+    if (typeof era !== 'string') return 'Iron';
+    if (KITS[era]) return era;
+    return ERA_ALIAS[era.toLowerCase()] || 'Iron';
+  }
+
+  /* Class profiles: silhouette mass, gait, guard, weapon preference override. */
+  var CLASSES = {
+    defender:   { scale: 1.00, bulk: 1.14, shield: true,  guard: 'high', speedMul: 0.92, atk: 'thrust',   hp: 1 },
+    assault:    { scale: 1.02, bulk: 1.02, shield: false, guard: 'mid',  speedMul: 1.05, atk: 'swing',    hp: 1 },
+    ranged:     { scale: 0.97, bulk: 0.90, shield: false, guard: 'low',  speedMul: 1.00, atk: 'shoot',    hp: 1 },
+    specialist: { scale: 0.99, bulk: 0.94, shield: false, guard: 'mid',  speedMul: 1.12, atk: 'stab',     hp: 1 },
+    champion:   { scale: 1.16, bulk: 1.22, shield: false, guard: 'mid',  speedMul: 0.96, atk: 'overhead', hp: 1 },
+    boss:       { scale: 1.62, bulk: 1.45, shield: false, guard: 'mid',  speedMul: 0.78, atk: 'overhead', hp: 1 }
+  };
+  function classFor(cls) { return CLASSES[cls] || CLASSES.assault; }
+
+  /* Weapon archetype → 4-phase timing (seconds) + reach + inertia mass. */
+  var WEAPONS = {
+    club:        { arch: 'swing',    t: [0.20, 0.10, 0.07, 0.26], reach: 1.4, mass: 1.5, hand: 'R' },
+    spear:       { arch: 'thrust',   t: [0.16, 0.07, 0.06, 0.24], reach: 2.6, mass: 0.9, hand: 'R' },
+    shortsword:  { arch: 'swing',    t: [0.13, 0.07, 0.05, 0.19], reach: 1.3, mass: 0.7, hand: 'R' },
+    sword:       { arch: 'swing',    t: [0.15, 0.08, 0.06, 0.21], reach: 1.5, mass: 0.9, hand: 'R' },
+    katana:      { arch: 'swing',    t: [0.14, 0.06, 0.05, 0.20], reach: 1.6, mass: 0.8, hand: 'R' },
+    greatsword:  { arch: 'overhead', t: [0.26, 0.11, 0.09, 0.34], reach: 2.0, mass: 1.9, hand: 'R' },
+    axe:         { arch: 'overhead', t: [0.22, 0.10, 0.08, 0.29], reach: 1.6, mass: 1.6, hand: 'R' },
+    hammer:      { arch: 'overhead', t: [0.30, 0.12, 0.11, 0.38], reach: 1.9, mass: 2.3, hand: 'R' },
+    halberd:     { arch: 'overhead', t: [0.24, 0.11, 0.08, 0.31], reach: 2.6, mass: 1.7, hand: 'R' },
+    naginata:    { arch: 'swing',    t: [0.20, 0.09, 0.07, 0.27], reach: 2.5, mass: 1.4, hand: 'R' },
+    dagger:      { arch: 'stab',     t: [0.10, 0.05, 0.04, 0.15], reach: 0.9, mass: 0.4, hand: 'R' },
+    staff:       { arch: 'cast',     t: [0.30, 0.10, 0.12, 0.34], reach: 2.2, mass: 0.9, hand: 'R' },
+    shortbow:    { arch: 'shoot',    t: [0.34, 0.06, 0.08, 0.26], reach: 0.0, mass: 0.5, hand: 'L' },
+    bow:         { arch: 'shoot',    t: [0.40, 0.06, 0.09, 0.28], reach: 0.0, mass: 0.6, hand: 'L' },
+    crossbow:    { arch: 'shoot',    t: [0.22, 0.05, 0.10, 0.40], reach: 0.0, mass: 1.0, hand: 'L' },
+    musket:      { arch: 'shoot',    t: [0.26, 0.04, 0.12, 0.46], reach: 0.0, mass: 1.3, hand: 'L' },
+    rifle:       { arch: 'shoot',    t: [0.16, 0.03, 0.09, 0.24], reach: 0.0, mass: 1.1, hand: 'L' },
+    bayonet:     { arch: 'thrust',   t: [0.17, 0.07, 0.06, 0.25], reach: 1.9, mass: 1.2, hand: 'R' },
+    plasma:      { arch: 'shoot',    t: [0.12, 0.03, 0.08, 0.20], reach: 0.0, mass: 0.9, hand: 'L' },
+    plasmablade: { arch: 'swing',    t: [0.12, 0.06, 0.05, 0.18], reach: 1.6, mass: 0.5, hand: 'R' },
+    plasmaspear: { arch: 'thrust',   t: [0.14, 0.06, 0.05, 0.22], reach: 2.7, mass: 0.7, hand: 'R' },
+    fist:        { arch: 'stab',     t: [0.10, 0.05, 0.04, 0.16], reach: 0.7, mass: 0.3, hand: 'R' }
+  };
+  function weaponDef(name) { return WEAPONS[name] || WEAPONS.sword; }
+
+  function weaponFor(kit, cls) {
+    var w = kit.weapons && kit.weapons[cls];
+    return w || 'sword';
+  }
+
+  /* Locomotion tuning.
+   *
+   * `step` is the ANKLE's excursion during one stance, and the phase advances by
+   * distance travelled — so cycleDist = step / duty and the planted foot slides
+   * backward at exactly body speed. Zero sliding, by construction.
+   *
+   * The catch: a target the IK cannot reach gets clamped, and a clamped target
+   * IS a sliding foot. With a 0.86m leg under a 0.93m hip the leg is nearly
+   * straight at rest, so `step` is bounded by how much the hip drops (crouch +
+   * bob) plus how far `rise` lifts the ankle at the ends of stance. Every step
+   * value below is chosen to stay inside that envelope at its worst bob phase;
+   * retune one and re-run the foot-plant check.
+   */
+  var LOCO = {
+    walk:   { step: 0.70, duty: 0.63, lift: 0.11, rise: 0.075, crouch: 0.020, bob: 0.026, lean: 0.030,
+              armGain: 1.15, elbow: 0.34, hipYaw: 0.070, hipRoll: 0.048, width: 0.010,
+              heel: 0.24, toe: 0.34, chestYaw: 0.075 },
+    run:    { step: 0.90, duty: 0.44, lift: 0.24, rise: 0.130, crouch: 0.055, bob: 0.052, lean: 0.135,
+              armGain: 1.55, elbow: 0.86, hipYaw: 0.105, hipRoll: 0.060, width: 0.000,
+              heel: 0.18, toe: 0.46, chestYaw: 0.115 },
+    sprint: { step: 1.04, duty: 0.38, lift: 0.31, rise: 0.160, crouch: 0.075, bob: 0.062, lean: 0.215,
+              armGain: 1.75, elbow: 1.05, hipYaw: 0.125, hipRoll: 0.062, width: -0.006,
+              heel: 0.14, toe: 0.52, chestYaw: 0.140 },
+    charge: { step: 0.96, duty: 0.42, lift: 0.27, rise: 0.140, crouch: 0.062, bob: 0.058, lean: 0.195,
+              armGain: 0.75, elbow: 0.70, hipYaw: 0.090, hipRoll: 0.055, width: 0.012,
+              heel: 0.16, toe: 0.48, chestYaw: 0.090 }
+  };
+
+  /* ---------------------------------------------------------------------------
+   * 4. Procedural texture library
+   * --------------------------------------------------------------------------
+   * All maps are GREYSCALE so a single texture serves every era/team — the
+   * material's .color does the tinting. Damage buckets get their own maps
+   * (dents, grime, blood) rather than per-unit materials, so the whole army
+   * still batches.
+   * ------------------------------------------------------------------------ */
+  var TEX = {};
+  var _texRng = null;
+  function trnd() {
+    if (!_texRng) {
+      if (Core && typeof Core.makeRng === 'function') _texRng = Core.makeRng('units3d-tex');
+      else { var s = 0x2F6E2B1; _texRng = function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+    }
+    return _texRng();
+  }
+  function trange(a, b) { return a + (b - a) * trnd(); }
+
+  function mkTex(key, w, h, draw, opts) {
+    if (TEX[key]) return TEX[key];
+    var t = null;
+    try {
+      if (Rndr && typeof Rndr.makeCanvasTexture === 'function') {
+        t = Rndr.makeCanvasTexture(w, h, draw, opts || { key: 'u3d_' + key });
+      }
+    } catch (e) { t = null; }
+    if (!t) {
+      // Renderer unavailable (or failed) — build it ourselves so materials still work.
+      try {
+        var cv = global.document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        var ctx = cv.getContext('2d');
+        if (ctx) { draw(ctx, w, h, cv); t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; }
+      } catch (e2) { t = null; }
+    }
+    if (t) TEX[key] = t;
+    return t;
+  }
+
+  function fillNoise(ctx, w, h, base, amp, scale) {
+    var img = ctx.getImageData(0, 0, w, h), d = img.data, x, y, i, n;
+    for (y = 0; y < h; y++) {
+      for (x = 0; x < w; x++) {
+        i = (y * w + x) * 4;
+        n = 0;
+        var a = 1, f = scale;
+        for (var o = 0; o < 2; o++) {
+          n += a * valNoise(x * f, y * f, w * f);
+          a *= 0.5; f *= 2.03;
+        }
+        n = n * 0.667;
+        var v = clamp(base + n * amp, 0, 255) | 0;
+        d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  /* seamless-ish value noise (tiles on the x period we hand it) */
+  function vhash(x, y) {
+    var hv = Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263);
+    hv = Math.imul(hv ^ (hv >>> 13), 1274126177);
+    return ((hv ^ (hv >>> 16)) >>> 0) / 4294967296 * 2 - 1;
+  }
+  function valNoise(x, y, period) {
+    var ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy;
+    var p = period > 1 ? Math.round(period) : 0;
+    function wx(v) { return p ? ((v % p) + p) % p : v; }
+    var ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+    var a = vhash(wx(ix), iy), b = vhash(wx(ix + 1), iy);
+    var c = vhash(wx(ix), iy + 1), d2 = vhash(wx(ix + 1), iy + 1);
+    return lerp(lerp(a, b, ux), lerp(c, d2, ux), uy);
+  }
+
+  function scratches(ctx, w, h, n, alpha, len, bright) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    for (var i = 0; i < n; i++) {
+      var x = trnd() * w, y = trnd() * h;
+      var a = trange(-0.5, 0.5) + (trnd() < 0.5 ? 0 : PI * 0.5);
+      var l = len * trange(0.35, 1);
+      ctx.globalAlpha = alpha * trange(0.35, 1);
+      ctx.strokeStyle = bright ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,1)';
+      ctx.lineWidth = trange(0.6, 1.8);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function blotches(ctx, w, h, n, rad, style, alpha) {
+    ctx.save();
+    for (var i = 0; i < n; i++) {
+      var x = trnd() * w, y = trnd() * h, r = rad * trange(0.4, 1);
+      var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, style);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = alpha * trange(0.5, 1);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, PI2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /* --- individual map painters ------------------------------------------- */
+  function paintMetal(dmg) {
+    return function (ctx, w, h) {
+      ctx.fillStyle = '#9c9c9c'; ctx.fillRect(0, 0, w, h);
+      fillNoise(ctx, w, h, 156, 26, 0.055);
+      // brushed streaks
+      ctx.save(); ctx.globalAlpha = 0.20;
+      for (var i = 0; i < 90; i++) {
+        ctx.strokeStyle = trnd() < 0.5 ? '#ffffff' : '#5a5a5a';
+        ctx.lineWidth = trange(0.5, 2.2);
+        var y = trnd() * h;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y + trange(-3, 3)); ctx.stroke();
+      }
+      ctx.restore();
+      scratches(ctx, w, h, 40 + dmg * 70, 0.30, w * 0.22, true);
+      scratches(ctx, w, h, 26 + dmg * 60, 0.28, w * 0.18, false);
+      if (dmg >= 1) {
+        blotches(ctx, w, h, 22, w * 0.075, 'rgba(40,34,28,0.85)', 0.55);  // dents / grime
+        blotches(ctx, w, h, 12, w * 0.05, 'rgba(255,255,255,0.5)', 0.25); // polished highs
+      }
+      if (dmg >= 2) {
+        blotches(ctx, w, h, 30, w * 0.10, 'rgba(26,20,18,0.95)', 0.7);
+        blotches(ctx, w, h, 16, w * 0.055, 'rgba(58,20,16,0.95)', 0.85);  // dried blood, value-only
+        ctx.save(); ctx.globalAlpha = 0.22; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); ctx.restore();
+      }
+    };
+  }
+
+  function paintLeather(dmg) {
+    return function (ctx, w, h) {
+      ctx.fillStyle = '#8a8a8a'; ctx.fillRect(0, 0, w, h);
+      fillNoise(ctx, w, h, 148, 44, 0.10);
+      blotches(ctx, w, h, 46, w * 0.055, 'rgba(70,64,58,0.7)', 0.5);
+      blotches(ctx, w, h, 30, w * 0.04, 'rgba(230,225,215,0.55)', 0.35);
+      // grain cracks
+      ctx.save(); ctx.globalAlpha = 0.35; ctx.strokeStyle = '#3d3833';
+      for (var i = 0; i < 70; i++) {
+        var x = trnd() * w, y = trnd() * h, a = trnd() * PI2;
+        ctx.lineWidth = trange(0.5, 1.3);
+        ctx.beginPath(); ctx.moveTo(x, y);
+        for (var s = 0; s < 4; s++) {
+          a += trange(-0.7, 0.7);
+          x += Math.cos(a) * 5; y += Math.sin(a) * 5;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+      if (dmg >= 1) { scratches(ctx, w, h, 40, 0.3, w * 0.2, false); }
+      if (dmg >= 2) {
+        blotches(ctx, w, h, 20, w * 0.09, 'rgba(30,18,16,0.9)', 0.75);
+        ctx.save(); ctx.globalAlpha = 0.25; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); ctx.restore();
+      }
+    };
+  }
+
+  function paintCloth(dmg) {
+    return function (ctx, w, h) {
+      ctx.fillStyle = '#a2a2a2'; ctx.fillRect(0, 0, w, h);
+      fillNoise(ctx, w, h, 162, 22, 0.22);
+      ctx.save();
+      ctx.globalAlpha = 0.18;
+      for (var x = 0; x < w; x += 3) {
+        ctx.fillStyle = (x % 6 === 0) ? '#ffffff' : '#4a4a4a';
+        ctx.fillRect(x, 0, 1.4, h);
+      }
+      for (var y = 0; y < h; y += 3) {
+        ctx.fillStyle = (y % 6 === 0) ? '#e6e6e6' : '#555555';
+        ctx.fillRect(0, y, w, 1.4);
+      }
+      ctx.restore();
+      blotches(ctx, w, h, 24, w * 0.07, 'rgba(80,76,70,0.6)', 0.4);
+      if (dmg >= 1) {
+        blotches(ctx, w, h, 26, w * 0.07, 'rgba(48,42,36,0.85)', 0.55);
+        scratches(ctx, w, h, 24, 0.25, w * 0.15, false);
+      }
+      if (dmg >= 2) {
+        blotches(ctx, w, h, 26, w * 0.10, 'rgba(46,18,16,0.95)', 0.8);
+        // torn threads
+        ctx.save(); ctx.globalAlpha = 0.5; ctx.strokeStyle = '#1c1a18'; ctx.lineWidth = 1;
+        for (var i = 0; i < 26; i++) {
+          var px = trnd() * w, py = trnd() * h;
+          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + trange(-9, 9), py + trange(-9, 9)); ctx.stroke();
+        }
+        ctx.restore();
+        ctx.save(); ctx.globalAlpha = 0.28; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); ctx.restore();
+      }
+    };
+  }
+
+  function paintWood() {
+    return function (ctx, w, h) {
+      ctx.fillStyle = '#8e8e8e'; ctx.fillRect(0, 0, w, h);
+      fillNoise(ctx, w, h, 150, 18, 0.30);
+      ctx.save();
+      for (var i = 0; i < 46; i++) {
+        var x = trnd() * w;
+        ctx.globalAlpha = trange(0.10, 0.34);
+        ctx.strokeStyle = trnd() < 0.6 ? '#4e463a' : '#d8cdb8';
+        ctx.lineWidth = trange(0.7, 2.6);
+        ctx.beginPath(); ctx.moveTo(x, 0);
+        for (var y = 0; y <= h; y += 8) {
+          ctx.lineTo(x + valNoise(x * 0.05, y * 0.05, 0) * 4, y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+      blotches(ctx, w, h, 6, w * 0.05, 'rgba(50,42,32,0.9)', 0.7); // knots
+    };
+  }
+
+  function paintSkin() {
+    return function (ctx, w, h) {
+      ctx.fillStyle = '#b4b4b4'; ctx.fillRect(0, 0, w, h);
+      fillNoise(ctx, w, h, 178, 16, 0.14);
+      blotches(ctx, w, h, 26, w * 0.10, 'rgba(120,116,112,0.55)', 0.35);
+      blotches(ctx, w, h, 14, w * 0.06, 'rgba(255,255,255,0.35)', 0.3);
+    };
+  }
+
+  function paintRough(base, amp, scale) {
+    return function (ctx, w, h) {
+      ctx.fillStyle = '#808080'; ctx.fillRect(0, 0, w, h);
+      fillNoise(ctx, w, h, base, amp, scale);
+    };
+  }
+
+  function paintShield(dmg) {
+    return function (ctx, w, h) {
+      var cx = w * 0.5, cy = h * 0.5;
+      var g = ctx.createRadialGradient(cx, cy * 0.75, w * 0.05, cx, cy, w * 0.6);
+      g.addColorStop(0, '#e8e8e8'); g.addColorStop(0.62, '#b0b0b0'); g.addColorStop(1, '#6e6e6e');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      // planks
+      ctx.save(); ctx.globalAlpha = 0.20; ctx.strokeStyle = '#3a3a3a'; ctx.lineWidth = 2;
+      for (var i = 1; i < 6; i++) {
+        ctx.beginPath(); ctx.moveTo(i * w / 6, 0); ctx.lineTo(i * w / 6, h); ctx.stroke();
+      }
+      ctx.restore();
+      // heraldic band + boss
+      ctx.save();
+      ctx.globalAlpha = 0.55; ctx.fillStyle = '#f2f2f2';
+      ctx.fillRect(0, h * 0.44, w, h * 0.12);
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath(); ctx.arc(cx, cy, w * 0.115, 0, PI2); ctx.fill();
+      ctx.globalAlpha = 0.5; ctx.strokeStyle = '#2e2e2e'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(cx, cy, w * 0.115, 0, PI2); ctx.stroke();
+      ctx.globalAlpha = 0.45;
+      ctx.lineWidth = w * 0.045; ctx.strokeStyle = '#dcdcdc';
+      ctx.beginPath(); ctx.arc(cx, cy, w * 0.455, 0, PI2); ctx.stroke();
+      ctx.restore();
+      fillNoiseOverlay(ctx, w, h, 0.10);
+      if (dmg >= 1) {
+        scratches(ctx, w, h, 60, 0.35, w * 0.28, false);
+        blotches(ctx, w, h, 12, w * 0.07, 'rgba(45,38,32,0.85)', 0.5);
+      }
+      if (dmg >= 2) {
+        // splits radiating from the boss — a cracked shield reads instantly
+        ctx.save(); ctx.strokeStyle = 'rgba(18,14,12,0.9)'; ctx.lineCap = 'round';
+        for (var k = 0; k < 7; k++) {
+          var a = trnd() * PI2, r0 = w * 0.12, r1 = w * trange(0.28, 0.48);
+          ctx.lineWidth = trange(1.6, 4);
+          ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r0, cy + Math.sin(a) * r0);
+          var rr = r0;
+          while (rr < r1) {
+            rr += w * 0.05; a += trange(-0.22, 0.22);
+            ctx.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr);
+          }
+          ctx.stroke();
+        }
+        ctx.restore();
+        blotches(ctx, w, h, 16, w * 0.09, 'rgba(44,18,16,0.95)', 0.8);
+        ctx.save(); ctx.globalAlpha = 0.2; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); ctx.restore();
+      }
+    };
+  }
+
+  function fillNoiseOverlay(ctx, w, h, alpha) {
+    var img = ctx.getImageData(0, 0, w, h), d = img.data, i;
+    for (i = 0; i < d.length; i += 4) {
+      var n = (vhash(i, 7) * 0.5 + 0.5) * 255;
+      d[i] = clamp(d[i] * (1 - alpha) + n * alpha, 0, 255) | 0;
+      d[i + 1] = clamp(d[i + 1] * (1 - alpha) + n * alpha, 0, 255) | 0;
+      d[i + 2] = clamp(d[i + 2] * (1 - alpha) + n * alpha, 0, 255) | 0;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  /**
+   * Lazy by name. Damage variants only get painted the first time somebody
+   * actually takes a beating, so start-up pays for the clean set and no more.
+   */
+  function texByName(name) {
+    if (!name) return null;
+    if (TEX[name]) return TEX[name];
+    var m = /^(metal|leather|cloth|shield)([012])$/.exec(name);
+    if (m) {
+      var role = m[1], d = m[2] | 0;
+      switch (role) {
+        case 'metal':   return mkTex(name, 256, 256, paintMetal(d), { key: 'u3d_' + name });
+        case 'leather': return mkTex(name, 128, 128, paintLeather(d), { key: 'u3d_' + name });
+        case 'cloth':   return mkTex(name, 128, 128, paintCloth(d), { key: 'u3d_' + name });
+        case 'shield':  return mkTex(name, 256, 256, paintShield(d), { key: 'u3d_' + name, wrap: THREE.ClampToEdgeWrapping });
+      }
+    }
+    switch (name) {
+      case 'wood': return mkTex('wood', 128, 128, paintWood(), { key: 'u3d_wood' });
+      case 'skin': return mkTex('skin', 128, 128, paintSkin(), { key: 'u3d_skin' });
+      case 'rMetal':   return mkTex(name, 128, 128, paintRough(96, 60, 0.09), { key: 'u3d_rMetal', linear: true });
+      case 'rCloth':   return mkTex(name, 128, 128, paintRough(210, 40, 0.20), { key: 'u3d_rCloth', linear: true });
+      case 'rLeather': return mkTex(name, 128, 128, paintRough(178, 52, 0.13), { key: 'u3d_rLeather', linear: true });
+      case 'rWood':    return mkTex(name, 128, 128, paintRough(190, 42, 0.24), { key: 'u3d_rWood', linear: true });
+    }
+    return null;
+  }
+
+  /** Paint the undamaged set up front — those are needed on the very first frame. */
+  function buildTextures() {
+    texByName('metal0'); texByName('leather0'); texByName('cloth0'); texByName('shield0');
+    texByName('wood'); texByName('skin');
+    texByName('rMetal'); texByName('rCloth'); texByName('rLeather'); texByName('rWood');
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 5. Material library
+   * --------------------------------------------------------------------------
+   * Materials are SHARED. A unit never owns one. Variety comes from three hue
+   * buckets and three damage buckets, plus per-unit scale/phase variance — so a
+   * rank of forty men reads as forty men, at zero per-unit material cost.
+   * ------------------------------------------------------------------------ */
+  var MATS = {};                 // key -> material
+  var matEpoch = 0;              // bumped when the cache is flushed (tier change)
+  var cheapMats = false;         // low tier → Lambert instead of Standard
+
+  var TEAM_TINT = {
+    '1':  { primary: 0x6f9edb, cloth: 0x4a6ea8, metal: 0xc4cdd6, accent: 0x7fb6f0, skin: 0x2a2c33 },
+    '-1': { primary: 0xd06052, cloth: 0x8f342c, metal: 0xcbbcb4, accent: 0xef7355, skin: 0x33272a },
+    '0':  { primary: 0xa0a0a0, cloth: 0x757575, metal: 0xc0c0c0, accent: 0xbdbdbd, skin: 0x2c2c30 }
+  };
+  function teamTint(team) { return TEAM_TINT[String(team)] || TEAM_TINT['0']; }
+
+  /* Per-role config: which variance dimensions actually apply. */
+  var ROLE_CFG = {
+    skin:    { tex: 'skin', rough: null, hue: 0, dmg: 0, r: 0.80, m: 0.02 },
+    cloth:   { tex: 'cloth', rough: 'rCloth', hue: 1, dmg: 1, r: 0.92, m: 0.00 },
+    leather: { tex: 'leather', rough: 'rLeather', hue: 1, dmg: 1, r: 0.72, m: 0.03 },
+    metal:   { tex: 'metal', rough: 'rMetal', hue: 0, dmg: 1, r: 0.38, m: 0.70 },
+    dark:    { tex: 'metal', rough: 'rMetal', hue: 0, dmg: 1, r: 0.52, m: 0.45 },
+    wood:    { tex: 'wood', rough: 'rWood', hue: 0, dmg: 0, r: 0.78, m: 0.00 },
+    accent:  { tex: 'cloth', rough: 'rCloth', hue: 1, dmg: 1, r: 0.66, m: 0.10 },
+    shield:  { tex: 'shield', rough: 'rWood', hue: 1, dmg: 1, r: 0.62, m: 0.12 },
+    glow:    { tex: null, rough: null, hue: 0, dmg: 0, r: 0.30, m: 0.00, emissive: true }
+  };
+
+  var HUE_SHIFT = [0, 1, 2];     // three subtle variants per hue-enabled role
+
+  function tintedColor(baseHex, tintHex, mix, hueVar, dark) {
+    _col.set(baseHex);
+    if (typeof tintHex === 'number' && mix > 0) {
+      _col2.set(tintHex);
+      _col.lerp(_col2, mix);
+    }
+    if (hueVar) {
+      // ±4% value / small hue nudge; enough to break clone-rows, never gaudy.
+      var f = (hueVar === 1) ? 1.07 : 0.93;
+      _col.r = clamp01(_col.r * f);
+      _col.g = clamp01(_col.g * (hueVar === 1 ? 1.03 : 0.97));
+      _col.b = clamp01(_col.b * (hueVar === 1 ? 0.95 : 1.05));
+    }
+    if (dark > 0) {
+      var k = 1 - dark * 0.30;
+      _col.r *= k; _col.g *= k; _col.b *= k;
+    }
+    var out = new THREE.Color(_col.r, _col.g, _col.b);
+    if (typeof out.convertSRGBToLinear === 'function') out.convertSRGBToLinear();
+    return out;
+  }
+
+  function getMat(role, eraK, team, hue, dmg) {
+    var cfg = ROLE_CFG[role] || ROLE_CFG.metal;
+    if (!cfg.hue) hue = 0;
+    if (!cfg.dmg) dmg = 0;
+    dmg = clamp(dmg | 0, 0, 2);
+    hue = clamp(hue | 0, 0, 2);
+    var key = role + '|' + eraK + '|' + team + '|' + hue + '|' + dmg + '|' + (cheapMats ? 'c' : 's');
+    var m = MATS[key];
+    if (m) return m;
+
+    var kit = KITS[eraK] || KITS.Iron;
+    var tt = teamTint(team);
+    var baseHex, tintHex, mix = 0;
+    switch (role) {
+      case 'skin':    baseHex = kit.skin;    tintHex = tt.skin;    mix = 0.35; break;
+      case 'cloth':   baseHex = kit.cloth;   tintHex = tt.cloth;   mix = 0.58; break;
+      case 'leather': baseHex = kit.leather; tintHex = tt.cloth;   mix = 0.18; break;
+      case 'metal':   baseHex = kit.metal;   tintHex = tt.metal;   mix = 0.22; break;
+      case 'dark':    baseHex = kit.metal;   tintHex = 0x2a2c31;   mix = 0.62; break;
+      case 'wood':    baseHex = kit.wood;    tintHex = null;       mix = 0;    break;
+      case 'accent':  baseHex = kit.accent;  tintHex = tt.accent;  mix = 0.70; break;
+      case 'shield':  baseHex = kit.metal;   tintHex = tt.primary; mix = 0.62; break;
+      case 'glow':    baseHex = kit.glow || tt.accent; tintHex = tt.accent; mix = 0.55; break;
+      default:        baseHex = kit.metal;   tintHex = tt.metal;   mix = 0.2;
+    }
+
+    var col = tintedColor(baseHex, tintHex, mix, hue, dmg * 0.5);
+    var mapKey = cfg.tex ? (cfg.dmg ? cfg.tex + dmg : (cfg.tex === 'wood' || cfg.tex === 'skin' ? cfg.tex : cfg.tex + '0')) : null;
+    var map = texByName(mapKey);
+
+    try {
+      if (role === 'glow') {
+        m = new THREE.MeshBasicMaterial({ color: col, fog: true, toneMapped: true });
+      } else if (cheapMats) {
+        m = new THREE.MeshLambertMaterial({ color: col, map: map, fog: true });
+      } else {
+        m = new THREE.MeshStandardMaterial({
+          color: col, map: map,
+          roughness: clamp(cfg.r + dmg * 0.12, 0.05, 1),
+          metalness: clamp((role === 'metal' || role === 'dark') ? (kit.metalness !== undefined ? kit.metalness : cfg.m) : cfg.m, 0, 1) * (1 - dmg * 0.18),
+          roughnessMap: texByName(cfg.rough),
+          fog: true
+        });
+        if (kit.glow && role === 'accent' && eraK === 'Future') {
+          m.emissive = color(kit.glow);
+          m.emissiveIntensity = 0.55;
+        }
+      }
+      m.name = 'u3d:' + key;
+      m.shadowSide = THREE.FrontSide;
+    } catch (e) {
+      console.warn('[AOW.Units3D] material build failed for ' + key, e);
+      m = new THREE.MeshBasicMaterial({ color: 0x808080 });
+    }
+    MATS[key] = m;
+    return m;
+  }
+
+  var flashMat = null, flashMatCrit = null, deadMat = null;
+  function getFlashMat(crit) {
+    if (crit) {
+      if (!flashMatCrit) {
+        flashMatCrit = new THREE.MeshBasicMaterial({ color: color(0xfff0d8), fog: true });
+        flashMatCrit.name = 'u3d:flashCrit';
+      }
+      return flashMatCrit;
+    }
+    if (!flashMat) {
+      flashMat = new THREE.MeshBasicMaterial({ color: color(0xffd0c0), fog: true });
+      flashMat.name = 'u3d:flash';
+    }
+    return flashMat;
+  }
+
+  function flushMaterials() {
+    var k;
+    for (k in MATS) {
+      if (!Object.prototype.hasOwnProperty.call(MATS, k)) continue;
+      try { if (MATS[k] && MATS[k].dispose) MATS[k].dispose(); } catch (e) { /* ignore */ }
+    }
+    MATS = {};
+    matEpoch++;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 6. Geometry library — built once, shared by every body on the field.
+   * ------------------------------------------------------------------------ */
+  var GEO = {};
+
+  /** Capsule via lathe. anchor: 'top' hangs from y=0, 'center' centres it. */
+  function capsule(r, totalLen, radial, capSeg, anchor) {
+    var half = _max(0.0005, (totalLen - 2 * r) * 0.5);
+    var pts = [], i, a;
+    for (i = 0; i <= capSeg; i++) {
+      a = -HALF_PI + (i / capSeg) * HALF_PI;
+      pts.push(new THREE.Vector2(_max(0.0001, _cos(a) * r), -half + _sin(a) * r));
+    }
+    for (i = 0; i <= capSeg; i++) {
+      a = (i / capSeg) * HALF_PI;
+      pts.push(new THREE.Vector2(_max(0.0001, _cos(a) * r), half + _sin(a) * r));
+    }
+    var g = new THREE.LatheGeometry(pts, radial);
+    if (anchor === 'top') g.translate(0, -(half + r), 0);
+    else if (anchor === 'bottom') g.translate(0, (half + r), 0);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  /** Rounded slab — the workhorse for armour plates, blades, shields. */
+  function slab(w, h, d, seg) {
+    var g = new THREE.BoxGeometry(w, h, d, seg || 1, seg || 1, 1);
+    return g;
+  }
+
+  function tetraCone(r, h, seg) { return new THREE.ConeGeometry(r, h, seg || 8, 1, false); }
+
+  function buildGeometries(detail) {
+    var rad = detail >= 2 ? 10 : (detail >= 1 ? 8 : 6);
+    var cap = detail >= 2 ? 3 : 2;
+
+    GEO.pelvis  = capsule(M.pelvisR, M.pelvisH + M.pelvisR * 2, rad, cap, 'center');
+    GEO.chest   = capsule(M.chestR, M.chestH + M.chestR * 1.4, rad, cap, 'center');
+    GEO.neck    = capsule(M.neckR, M.neckH + M.neckR, 6, 2, 'center');
+    GEO.head    = new THREE.SphereGeometry(M.headR, detail >= 2 ? 14 : 10, detail >= 2 ? 12 : 8);
+    GEO.head.scale(0.92, 1.10, 0.94);
+
+    GEO.upperArm = capsule(M.upperArmR, M.upperArm + M.upperArmR * 1.2, rad, cap, 'top');
+    // forearm with the hand merged in — two fewer draw calls per soldier
+    GEO.foreArm  = mergeGeoms([
+      { geo: capsule(M.foreArmR, M.foreArm + M.foreArmR, rad, cap, 'top'), mtx: null },
+      { geo: new THREE.SphereGeometry(M.handR, 8, 6), mtx: _m4a.identity().makeTranslation(0.012, -(M.foreArm + M.handR * 0.55), 0).clone() }
+    ]) || capsule(M.foreArmR, M.foreArm, rad, cap, 'top');
+
+    GEO.thigh = capsule(M.thighR, M.thigh + M.thighR * 1.1, rad, cap, 'top');
+    GEO.shin  = capsule(M.shinR, M.shin + M.shinR, rad, cap, 'top');
+
+    var foot = slab(M.footLen, M.footH, M.footW);
+    foot.translate(M.footLen * 0.20, -M.footH * 0.5, 0);
+    GEO.foot = foot;
+
+    // Simplified LOD1 parts
+    GEO.simpleBody = buildSimpleBody(rad);
+    GEO.simpleLeg  = capsule(M.thighR * 0.94, M.thigh + M.shin + 0.05, 6, 2, 'top');
+    GEO.simpleArm  = capsule(M.upperArmR * 0.98, M.upperArm + M.foreArm, 6, 2, 'top');
+    GEO.simpleWeapon = slab(0.06, 1.05, 0.05);
+    GEO.simpleWeapon.translate(0, -0.35, 0);
+
+    // shared primitives for equipment
+    GEO.plate    = slab(0.16, 0.14, 0.05, 1);
+    GEO.pad      = new THREE.SphereGeometry(0.10, 8, 6);
+    GEO.pad.scale(1.0, 0.72, 1.15);
+    GEO.spike    = tetraCone(0.055, 0.20, 6);
+    GEO.helmDome = domeGeom(M.headR * 1.10, detail);
+    GEO.shaft    = new THREE.CylinderGeometry(0.024, 0.028, 1, 6, 1, false);
+    GEO.shaftThin = new THREE.CylinderGeometry(0.016, 0.018, 1, 5, 1, false);
+    GEO.discRound = new THREE.CylinderGeometry(0.34, 0.34, 0.045, detail >= 2 ? 18 : 12, 1, false);
+    GEO.discRound.rotateX(HALF_PI);
+    GEO.blade    = bladeGeom(0.075, 0.62, 0.022);
+    GEO.bladeBig = bladeGeom(0.105, 1.05, 0.030);
+    GEO.bladeCurve = curvedBladeGeom(0.062, 0.86, 0.020, 0.16);
+    GEO.spearTip = tetraCone(0.045, 0.26, 6);
+    GEO.axeHead  = axeHeadGeom();
+    GEO.quiver   = new THREE.CylinderGeometry(0.055, 0.048, 0.34, 8, 1, true);
+    GEO.arrowShaft = new THREE.CylinderGeometry(0.006, 0.006, 0.42, 4, 1, false);
+    GEO.blob     = blobShadowGeom();
+    GEO.impostorQuad = impostorQuadGeom();
+    GEO.capeQuad = null;   // per-unit, built on demand
+  }
+
+  function domeGeom(r, detail) {
+    var g = new THREE.SphereGeometry(r, detail >= 2 ? 14 : 10, detail >= 2 ? 9 : 7, 0, PI2, 0, PI * 0.56);
+    g.scale(1.0, 1.06, 1.0);
+    return g;
+  }
+
+  /** Double-edged blade: a tapered, lens-section slab. */
+  function bladeGeom(w, len, thick) {
+    var g = new THREE.BoxGeometry(thick, len, w, 1, 3, 1);
+    var pos = g.attributes.position, i, y, t;
+    for (i = 0; i < pos.count; i++) {
+      y = pos.getY(i);
+      t = clamp01((y / len) + 0.5);
+      var taper = 1 - Math.pow(t, 2.4) * 0.86;
+      pos.setX(i, pos.getX(i) * taper);
+      pos.setZ(i, pos.getZ(i) * (1 - Math.pow(t, 3.0) * 0.92));
+    }
+    pos.needsUpdate = true;
+    g.translate(0, len * 0.5, 0);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  function curvedBladeGeom(w, len, thick, curve) {
+    var g = new THREE.BoxGeometry(thick, len, w, 1, 6, 1);
+    var pos = g.attributes.position, i, y, t;
+    for (i = 0; i < pos.count; i++) {
+      y = pos.getY(i);
+      t = clamp01((y / len) + 0.5);
+      var taper = 1 - Math.pow(t, 2.6) * 0.80;
+      pos.setX(i, pos.getX(i) * taper + curve * t * t);
+      pos.setZ(i, pos.getZ(i) * (1 - Math.pow(t, 2.6) * 0.55));
+    }
+    pos.needsUpdate = true;
+    g.translate(0, len * 0.5, 0);
+    g.computeVertexNormals();
+    return g;
+  }
+
+  function axeHeadGeom() {
+    var g = new THREE.BoxGeometry(0.05, 0.30, 0.20, 1, 2, 2);
+    var pos = g.attributes.position, i;
+    for (i = 0; i < pos.count; i++) {
+      var z = pos.getZ(i), y = pos.getY(i);
+      var t = clamp01(z / 0.20 + 0.5);
+      pos.setX(i, pos.getX(i) * (1 - t * 0.80));
+      pos.setY(i, y * (1 + t * 0.55));
+    }
+    pos.needsUpdate = true;
+    g.computeVertexNormals();
+    return g;
+  }
+
+  function blobShadowGeom() {
+    var g = new THREE.PlaneGeometry(1, 1, 1, 1);
+    g.rotateX(-HALF_PI);
+    return g;
+  }
+
+  function impostorQuadGeom() {
+    var g = new THREE.PlaneGeometry(1, 1, 1, 1);
+    g.translate(0, 0.5, 0);
+    // instanceColor needs USE_COLOR to reach the fragment stage in r128, and
+    // USE_COLOR needs a real `color` attribute or the driver hands us black.
+    var n = g.attributes.position.count, arr = new Float32Array(n * 3), i;
+    for (i = 0; i < n * 3; i++) arr[i] = 1;
+    g.setAttribute('color', new THREE.BufferAttribute(arr, 3));
+    return g;
+  }
+
+  /** Merge geometries (position/normal/uv only). BufferGeometryUtils isn't vendored. */
+  function mergeGeoms(entries) {
+    try {
+      var i, e, g, total = 0, idxTotal = 0, list = [];
+      for (i = 0; i < entries.length; i++) {
+        e = entries[i]; g = e && e.geo;
+        if (!g || !g.attributes || !g.attributes.position) continue;
+        if (!g.attributes.normal) g.computeVertexNormals();
+        var cnt = g.attributes.position.count;
+        var idx = g.index ? g.index.array : null;
+        total += cnt;
+        idxTotal += idx ? idx.length : cnt;
+        list.push({ g: g, mtx: e.mtx || null, cnt: cnt, idx: idx });
+      }
+      if (!list.length) return null;
+      var pos = new Float32Array(total * 3);
+      var nor = new Float32Array(total * 3);
+      var uv  = new Float32Array(total * 2);
+      var ind = total > 65535 ? new Uint32Array(idxTotal) : new Uint16Array(idxTotal);
+      var vo = 0, io = 0, nm = new THREE.Matrix3();
+      for (i = 0; i < list.length; i++) {
+        var L = list[i], G = L.g;
+        var p = G.attributes.position, nA = G.attributes.normal, uA = G.attributes.uv;
+        if (L.mtx) nm.getNormalMatrix(L.mtx);
+        for (var v = 0; v < L.cnt; v++) {
+          _v3a.set(p.getX(v), p.getY(v), p.getZ(v));
+          if (L.mtx) _v3a.applyMatrix4(L.mtx);
+          pos[(vo + v) * 3] = _v3a.x; pos[(vo + v) * 3 + 1] = _v3a.y; pos[(vo + v) * 3 + 2] = _v3a.z;
+          _v3b.set(nA.getX(v), nA.getY(v), nA.getZ(v));
+          if (L.mtx) _v3b.applyMatrix3(nm).normalize();
+          nor[(vo + v) * 3] = _v3b.x; nor[(vo + v) * 3 + 1] = _v3b.y; nor[(vo + v) * 3 + 2] = _v3b.z;
+          uv[(vo + v) * 2] = uA ? uA.getX(v) : 0;
+          uv[(vo + v) * 2 + 1] = uA ? uA.getY(v) : 0;
+        }
+        if (L.idx) {
+          for (var k = 0; k < L.idx.length; k++) ind[io + k] = L.idx[k] + vo;
+          io += L.idx.length;
+        } else {
+          for (var k2 = 0; k2 < L.cnt; k2++) ind[io + k2] = k2 + vo;
+          io += L.cnt;
+        }
+        vo += L.cnt;
+      }
+      var out = new THREE.BufferGeometry();
+      out.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+      out.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      out.setIndex(new THREE.BufferAttribute(ind, 1));
+      out.computeBoundingSphere();
+      return out;
+    } catch (err) {
+      console.warn('[AOW.Units3D] mergeGeoms failed', err);
+      return null;
+    }
+  }
+
+  /** LOD1 body: head + torso + both arms baked into ONE mesh. */
+  function buildSimpleBody(rad) {
+    var parts = [];
+    var torso = capsule(M.chestR * 1.02, 0.62, rad, 2, 'center');
+    parts.push({ geo: torso, mtx: new THREE.Matrix4().makeTranslation(0, 1.10, 0) });
+    var head = new THREE.SphereGeometry(M.headR * 1.02, 8, 6);
+    parts.push({ geo: head, mtx: new THREE.Matrix4().makeTranslation(0, 1.62, 0) });
+    var neck = capsule(M.neckR * 1.2, 0.14, 6, 2, 'center');
+    parts.push({ geo: neck, mtx: new THREE.Matrix4().makeTranslation(0, 1.47, 0) });
+    var g = mergeGeoms(parts);
+    return g || torso;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 7. The universal rig template
+   * --------------------------------------------------------------------------
+   * Built ONCE. Every soldier is `template.clone(true)` — which shares geometry
+   * and material references, so 40 full rigs cost 40 transform hierarchies and
+   * nothing else. Forward is local +X, up is +Y, the unit's left is +Z.
+   * ------------------------------------------------------------------------ */
+  var rigTemplate = null, simpleTemplate = null;
+
+  function node(name, x, y, z) {
+    var o = new THREE.Object3D();
+    o.position.set(x || 0, y || 0, z || 0);
+    o.rotation.order = 'YXZ';
+    o.userData.bone = name;
+    o.name = 'b_' + name;
+    return o;
+  }
+  function part(geo, role, x, y, z) {
+    var m = new THREE.Mesh(geo, placeholderMat());
+    m.position.set(x || 0, y || 0, z || 0);
+    m.userData.role = role;
+    m.castShadow = false; m.receiveShadow = false;
+    m.matrixAutoUpdate = false;   // static within its parent — update once at build
+    m.updateMatrix();
+    return m;
+  }
+  var _placeholder = null;
+  function placeholderMat() {
+    if (!_placeholder) _placeholder = new THREE.MeshBasicMaterial({ color: 0x808080 });
+    return _placeholder;
+  }
+
+  function buildRigTemplate() {
+    var root = node('root', 0, 0, 0);
+    root.name = 'aowUnit';
+
+    var hips = node('hips', 0, M.hipY, 0);
+    root.add(hips);
+    hips.add(part(GEO.pelvis, 'leather', 0, 0.02, 0));
+
+    var spine = node('spine', 0, M.spineOff, 0);
+    hips.add(spine);
+    var chest = node('chest', 0, M.chestOff, 0);
+    spine.add(chest);
+    chest.add(part(GEO.chest, 'cloth', 0, M.chestH * 0.42, 0));
+
+    var neck = node('neck', 0, M.neckOff, 0);
+    chest.add(neck);
+    neck.add(part(GEO.neck, 'skin', 0, M.neckH * 0.4, 0));
+
+    var head = node('head', 0, M.headOff, 0);
+    neck.add(head);
+    head.add(part(GEO.head, 'skin', 0.012, M.headR * 0.85, 0));
+    var socketHelmet = node('socketHelmet', 0, M.headR * 0.95, 0);
+    head.add(socketHelmet);
+
+    // --- arms ---------------------------------------------------------------
+    var sides = [{ s: 'L', z: M.shoulderZ }, { s: 'R', z: -M.shoulderZ }];
+    for (var i = 0; i < 2; i++) {
+      var S = sides[i];
+      var sh = node('sh' + S.s, 0, M.shoulderY, S.z);
+      chest.add(sh);
+      var socketSh = node('socketShoulder' + S.s, 0, 0.02, S.z > 0 ? 0.03 : -0.03);
+      sh.add(socketSh);
+
+      var arm = node('arm' + S.s, 0, 0, 0);
+      sh.add(arm);
+      arm.add(part(GEO.upperArm, 'skin', 0, 0, 0));
+
+      var elb = node('elb' + S.s, 0, -M.upperArm, 0);
+      arm.add(elb);
+      elb.add(part(GEO.foreArm, 'skin', 0, 0, 0));
+
+      var hand = node('hand' + S.s, 0, -(M.foreArm + M.handR * 0.35), 0);
+      elb.add(hand);
+      var grip = node('grip' + S.s, 0.03, -0.02, 0);
+      grip.rotation.z = -0.30;          // natural forward cant of the wrist
+      hand.add(grip);
+    }
+
+    // --- legs ---------------------------------------------------------------
+    var lsides = [{ s: 'L', z: M.hipZ }, { s: 'R', z: -M.hipZ }];
+    for (var j = 0; j < 2; j++) {
+      var L = lsides[j];
+      var th = node('thigh' + L.s, 0, -0.02, L.z);
+      hips.add(th);
+      th.add(part(GEO.thigh, 'skin', 0, 0, 0));
+      var sn = node('shin' + L.s, 0, -M.thigh, 0);
+      th.add(sn);
+      sn.add(part(GEO.shin, 'skin', 0, 0, 0));
+      var ft = node('foot' + L.s, 0, -M.shin, 0);
+      sn.add(ft);
+      ft.add(part(GEO.foot, 'leather', 0, 0, 0));
+    }
+
+    // --- torso sockets ------------------------------------------------------
+    chest.add(node('socketChest', M.chestR * 0.72, M.chestH * 0.40, 0));
+    chest.add(node('socketBack', -M.chestR * 0.80, M.chestH * 0.28, 0));
+    var capeRoot = node('socketCape', -M.chestR * 0.52, M.chestH * 0.70, 0);
+    chest.add(capeRoot);
+
+    root.matrixAutoUpdate = true;
+    return root;
+  }
+
+  function buildSimpleTemplate() {
+    var root = node('root', 0, 0, 0);
+    root.name = 'aowUnitLod1';
+    var body = node('body', 0, 0, 0);
+    root.add(body);
+    body.add(part(GEO.simpleBody, 'cloth', 0, 0, 0));
+
+    var hipY = M.hipY;
+    var lg = node('legL', 0, hipY, M.hipZ); root.add(lg); lg.add(part(GEO.simpleLeg, 'skin', 0, 0, 0));
+    var rg = node('legR', 0, hipY, -M.hipZ); root.add(rg); rg.add(part(GEO.simpleLeg, 'skin', 0, 0, 0));
+
+    var shY = M.hipY + 0.49;
+    var al = node('armL', 0, shY, M.shoulderZ); body.add(al); al.add(part(GEO.simpleArm, 'skin', 0, 0, 0));
+    var ar = node('armR', 0, shY, -M.shoulderZ); body.add(ar); ar.add(part(GEO.simpleArm, 'skin', 0, 0, 0));
+
+    var gr = node('gripR', 0, -(M.upperArm + M.foreArm) * 0.92, 0);
+    gr.rotation.z = -0.30;
+    ar.add(gr);
+    var gl = node('gripL', 0, -(M.upperArm + M.foreArm) * 0.92, 0);
+    gl.rotation.z = -0.30;
+    al.add(gl);
+    return root;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 8. Equipment prototypes (helmets, shoulders, shields, weapons, quivers)
+   * --------------------------------------------------------------------------
+   * Built once per (kind, variant, era, team) and cloned onto sockets. Era kits
+   * swap these and the materials — never the skeleton.
+   * ------------------------------------------------------------------------ */
+  var PROTO = {};
+
+  function mesh(geo, role) {
+    var m = new THREE.Mesh(geo, placeholderMat());
+    m.userData.role = role;
+    m.castShadow = false; m.receiveShadow = false;
+    return m;
+  }
+  function place(m, x, y, z, rx, ry, rz, sx, sy, sz) {
+    m.position.set(x || 0, y || 0, z || 0);
+    m.rotation.set(rx || 0, ry || 0, rz || 0);
+    if (sx !== undefined) m.scale.set(sx, sy === undefined ? sx : sy, sz === undefined ? sx : sz);
+    m.matrixAutoUpdate = false;
+    m.updateMatrix();
+    return m;
+  }
+
+  function protoKey(kind, variant, eraK, team) { return kind + ':' + variant + ':' + eraK + ':' + team; }
+
+  function getProto(kind, variant, eraK, team) {
+    var key = protoKey(kind, variant, eraK, team);
+    var p = PROTO[key];
+    if (p !== undefined) return p;
+    var built = null;
+    try {
+      switch (kind) {
+        case 'helmet':    built = buildHelmet(variant); break;
+        case 'shoulders': built = buildShoulders(variant); break;
+        case 'shield':    built = buildShield(variant); break;
+        case 'weapon':    built = buildWeapon(variant, eraK); break;
+        case 'quiver':    built = buildQuiver(); break;
+        default: built = null;
+      }
+    } catch (e) {
+      console.warn('[AOW.Units3D] equipment build failed: ' + key, e);
+      built = null;
+    }
+    PROTO[key] = built;
+    return built;
+  }
+
+  function buildHelmet(variant) {
+    if (!variant || variant === 'none') return null;
+    var g = new THREE.Object3D();
+    var dome = place(mesh(GEO.helmDome, 'metal'), 0, -M.headR * 0.30, 0);
+    switch (variant) {
+      case 'cap':
+        dome.scale.set(1.02, 0.80, 1.02); dome.updateMatrix();
+        g.add(dome);
+        break;
+      case 'crested':
+        g.add(dome);
+        for (var i = 0; i < 7; i++) {
+          var c = place(mesh(GEO.spike, 'accent'), (i - 3) * 0.030, M.headR * 0.42 + 0.04, 0,
+            0, 0, -0.25 + i * 0.02, 0.55, 0.9 - _abs(i - 3) * 0.10, 1.9);
+          g.add(c);
+        }
+        break;
+      case 'corinthian':
+        g.add(dome);
+        g.add(place(mesh(GEO.plate, 'metal'), M.headR * 0.72, -M.headR * 0.35, 0, 0, 0, 0.25, 0.55, 1.2, 1.9));
+        for (var q = 0; q < 6; q++) {
+          g.add(place(mesh(GEO.spike, 'accent'), (q - 2.5) * 0.032, M.headR * 0.44, 0, 0, 0, 0, 0.5, 1.0, 1.7));
+        }
+        break;
+      case 'nasal':
+        g.add(dome);
+        g.add(place(mesh(GEO.plate, 'metal'), M.headR * 0.86, -M.headR * 0.42, 0, 0, 0, 0.05, 0.28, 0.95, 0.30));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, -M.headR * 0.30, 0, 0, 0, 0, 1.55, 0.22, 1.62));
+        break;
+      case 'horned':
+        g.add(dome);
+        g.add(place(mesh(GEO.plate, 'metal'), 0, -M.headR * 0.28, 0, 0, 0, 0, 1.60, 0.24, 1.66));
+        g.add(place(mesh(GEO.spike, 'wood'), 0, M.headR * 0.18, M.headR * 0.92, 0.95, 0, 0, 1.0, 1.5, 1.0));
+        g.add(place(mesh(GEO.spike, 'wood'), 0, M.headR * 0.18, -M.headR * 0.92, -0.95, 0, 0, 1.0, 1.5, 1.0));
+        break;
+      case 'kabuto':
+        dome.scale.set(1.05, 0.92, 1.05); dome.updateMatrix();
+        g.add(dome);
+        g.add(place(mesh(GEO.plate, 'dark'), -M.headR * 0.30, -M.headR * 0.55, 0, 0, 0, -0.42, 1.35, 0.30, 1.85));
+        g.add(place(mesh(GEO.plate, 'accent'), M.headR * 0.28, M.headR * 0.30, 0, 0, 0, 0.55, 0.22, 1.55, 0.22));
+        g.add(place(mesh(GEO.spike, 'accent'), M.headR * 0.12, M.headR * 0.55, M.headR * 0.34, 0.5, 0, 0.35, 0.6, 1.5, 0.6));
+        g.add(place(mesh(GEO.spike, 'accent'), M.headR * 0.12, M.headR * 0.55, -M.headR * 0.34, -0.5, 0, 0.35, 0.6, 1.5, 0.6));
+        break;
+      case 'kettle':
+        dome.scale.set(0.96, 0.70, 0.96); dome.updateMatrix();
+        g.add(dome);
+        g.add(place(mesh(GEO.discRound, 'metal'), 0, -M.headR * 0.10, 0, HALF_PI, 0, 0, 0.62, 0.62, 0.30));
+        break;
+      case 'visor':
+        dome.scale.set(1.02, 0.88, 1.04); dome.updateMatrix();
+        g.add(dome);
+        g.add(place(mesh(GEO.plate, 'dark'), M.headR * 0.62, -M.headR * 0.45, 0, 0, 0, 0.12, 0.62, 0.70, 1.55));
+        g.add(place(mesh(GEO.plate, 'glow'), M.headR * 0.92, -M.headR * 0.38, 0, 0, 0, 0.12, 0.10, 0.34, 1.30));
+        break;
+      default:
+        g.add(dome);
+    }
+    return g;
+  }
+
+  function buildShoulders(variant) {
+    if (!variant || variant === 'none') return null;
+    var g = new THREE.Object3D();
+    switch (variant) {
+      case 'fur':
+        g.add(place(mesh(GEO.pad, 'leather'), 0, 0.015, 0, 0, 0, 0, 1.15, 0.95, 1.05));
+        break;
+      case 'pad':
+        g.add(place(mesh(GEO.pad, 'leather'), 0, 0.02, 0, 0, 0, 0, 1.0, 0.85, 1.0));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.05, 0, 0, 0, 0, 0.85, 0.35, 1.30));
+        break;
+      case 'plate':
+        g.add(place(mesh(GEO.pad, 'metal'), 0, 0.025, 0, 0, 0, 0, 1.12, 0.92, 1.12));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, -0.045, 0, 0, 0, 0, 1.05, 0.30, 1.45));
+        g.add(place(mesh(GEO.plate, 'accent'), 0, 0.075, 0, 0, 0, 0, 0.55, 0.20, 0.90));
+        break;
+      case 'spike':
+        g.add(place(mesh(GEO.pad, 'metal'), 0, 0.02, 0, 0, 0, 0, 1.02, 0.86, 1.02));
+        g.add(place(mesh(GEO.spike, 'accent'), 0, 0.10, 0, 0, 0, 0, 0.75, 1.10, 0.75));
+        break;
+      default:
+        g.add(place(mesh(GEO.pad, 'leather'), 0, 0.02, 0));
+    }
+    return g;
+  }
+
+  function buildShield(variant) {
+    if (!variant || variant === 'none') return null;
+    var g = new THREE.Object3D();
+    switch (variant) {
+      case 'hide':
+        g.add(place(mesh(GEO.discRound, 'leather'), 0, 0, 0, 0, 0, 0, 0.92, 0.92, 1.0));
+        g.add(place(mesh(GEO.shaftThin, 'wood'), 0, 0, -0.03, 0, 0, 0.3, 1, 0.62, 1));
+        break;
+      case 'buckler':
+        g.add(place(mesh(GEO.discRound, 'shield'), 0, 0, 0, 0, 0, 0, 0.58, 0.58, 1.1));
+        break;
+      case 'round':
+        g.add(place(mesh(GEO.discRound, 'shield'), 0, 0, 0, 0, 0, 0, 1.0, 1.0, 1.0));
+        g.add(place(mesh(GEO.pad, 'metal'), 0, 0, 0.045, HALF_PI, 0, 0, 0.55, 0.55, 0.42));
+        break;
+      case 'kite':
+        g.add(place(mesh(GEO.discRound, 'shield'), 0, 0.06, 0, 0, 0, 0, 0.92, 1.28, 1.0));
+        g.add(place(mesh(GEO.spike, 'shield'), 0, -0.44, 0, PI, 0, 0, 4.6, 1.4, 0.9));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.06, 0.05, 0, 0, 0, 0.30, 3.0, 0.55));
+        break;
+      case 'tower':
+        g.add(place(mesh(GEO.plate, 'shield'), 0, 0.05, 0, 0, 0, 0, 0.34, 6.6, 4.6));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.05, 0, 0, 0, 0, 0.42, 0.55, 4.9));
+        g.add(place(mesh(GEO.pad, 'accent'), 0, 0.05, 0.04, HALF_PI, 0, 0, 0.6, 0.6, 0.5));
+        break;
+      case 'riot':
+        g.add(place(mesh(GEO.plate, 'dark'), 0, 0.05, 0, 0, 0, 0, 0.30, 5.6, 4.0));
+        g.add(place(mesh(GEO.plate, 'accent'), 0, 0.30, 0.03, 0, 0, 0, 0.18, 0.60, 3.4));
+        break;
+      case 'energy':
+        g.add(place(mesh(GEO.discRound, 'glow'), 0, 0, 0, 0, 0, 0, 1.06, 1.30, 0.28));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0, -0.02, 0, 0, 0, 0.35, 0.9, 1.6));
+        break;
+      default:
+        g.add(place(mesh(GEO.discRound, 'shield'), 0, 0, 0));
+    }
+    // Shields hang off the forearm: face outward (+X is the unit's forward).
+    g.rotation.set(0, 0, 0);
+    return g;
+  }
+
+  function buildQuiver() {
+    var g = new THREE.Object3D();
+    g.add(place(mesh(GEO.quiver, 'leather'), 0, 0, 0, 0, 0, 0.34));
+    for (var i = 0; i < 4; i++) {
+      g.add(place(mesh(GEO.arrowShaft, 'wood'), (i - 1.5) * 0.014, 0.22, (i % 2) * 0.02 - 0.01, 0, 0, 0.34 + (i - 1.5) * 0.03));
+    }
+    return g;
+  }
+
+  /* Weapons: grip at the origin, blade/head along +Y. */
+  function buildWeapon(name, eraK) {
+    var g = new THREE.Object3D();
+    var kit = KITS[eraK] || KITS.Iron;
+    var glow = (eraK === 'Future');
+    function shaft(len, role, off, thick) {
+      var m = mesh(GEO.shaft, role || 'wood');
+      return place(m, 0, (off === undefined ? len * 0.5 - 0.14 : off), 0, 0, 0, 0, thick || 1, len, thick || 1);
+    }
+    switch (name) {
+      case 'club':
+        g.add(shaft(0.55, 'wood', 0.18));
+        g.add(place(mesh(GEO.pad, 'wood'), 0, 0.50, 0, 0, 0, 0, 1.05, 1.55, 1.05));
+        for (var s = 0; s < 4; s++) {
+          g.add(place(mesh(GEO.spike, 'dark'), _cos(s * 1.57) * 0.075, 0.48 + (s % 2) * 0.07, _sin(s * 1.57) * 0.075,
+            s % 2 ? 1.3 : -1.3, s * 1.57, 0, 0.55, 0.75, 0.55));
+        }
+        break;
+      case 'spear':
+      case 'plasmaspear':
+        g.add(shaft(2.10, name === 'plasmaspear' ? 'metal' : 'wood', 0.62, 0.85));
+        g.add(place(mesh(GEO.spearTip, glow ? 'glow' : 'metal'), 0, 1.74, 0, 0, 0, 0, 1.0, 1.35, 1.0));
+        g.add(place(mesh(GEO.discRound, 'metal'), 0, 1.55, 0, HALF_PI, 0, 0, 0.16, 0.16, 0.55));
+        break;
+      case 'naginata':
+        g.add(shaft(1.95, 'wood', 0.52, 0.85));
+        g.add(place(mesh(GEO.bladeCurve, 'metal'), 0, 1.48, 0, 0, 0, 0, 1.0, 0.72, 1.0));
+        g.add(place(mesh(GEO.discRound, 'accent'), 0, 1.44, 0, HALF_PI, 0, 0, 0.15, 0.15, 0.6));
+        break;
+      case 'halberd':
+        g.add(shaft(2.05, 'wood', 0.58, 0.9));
+        g.add(place(mesh(GEO.spearTip, 'metal'), 0, 1.70, 0, 0, 0, 0, 0.9, 1.2, 0.9));
+        g.add(place(mesh(GEO.axeHead, 'metal'), 0, 1.42, 0.10, 0, 0, 0, 1.15, 1.05, 1.15));
+        g.add(place(mesh(GEO.spike, 'metal'), 0, 1.42, -0.12, -HALF_PI, 0, 0, 0.7, 1.0, 0.7));
+        break;
+      case 'shortsword':
+        g.add(place(mesh(GEO.shaftThin, 'leather'), 0, 0.02, 0, 0, 0, 0, 1.2, 0.20, 1.2));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.13, 0, 0, 0, 0, 0.55, 0.22, 1.55));
+        g.add(place(mesh(GEO.blade, 'metal'), 0, 0.15, 0, 0, 0, 0, 1.0, 0.82, 1.0));
+        g.add(place(mesh(GEO.pad, 'accent'), 0, -0.10, 0, 0, 0, 0, 0.30, 0.30, 0.30));
+        break;
+      case 'sword':
+        g.add(place(mesh(GEO.shaftThin, 'leather'), 0, 0.03, 0, 0, 0, 0, 1.2, 0.24, 1.2));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.16, 0, 0, 0, 0, 0.55, 0.24, 2.1));
+        g.add(place(mesh(GEO.blade, 'metal'), 0, 0.18, 0));
+        g.add(place(mesh(GEO.pad, 'accent'), 0, -0.11, 0, 0, 0, 0, 0.34, 0.30, 0.34));
+        break;
+      case 'katana':
+        g.add(place(mesh(GEO.shaftThin, 'dark'), 0, 0.06, 0, 0, 0, 0, 1.15, 0.34, 1.15));
+        g.add(place(mesh(GEO.discRound, 'accent'), 0, 0.24, 0, HALF_PI, 0, 0, 0.13, 0.13, 0.60));
+        g.add(place(mesh(GEO.bladeCurve, 'metal'), 0, 0.26, 0, 0, 0, 0, 1.0, 0.86, 1.0));
+        break;
+      case 'plasmablade':
+        g.add(place(mesh(GEO.shaftThin, 'dark'), 0, 0.04, 0, 0, 0, 0, 1.3, 0.30, 1.3));
+        g.add(place(mesh(GEO.blade, 'glow'), 0, 0.20, 0, 0, 0, 0, 1.15, 0.95, 1.15));
+        break;
+      case 'greatsword':
+        g.add(place(mesh(GEO.shaftThin, 'leather'), 0, 0.08, 0, 0, 0, 0, 1.35, 0.44, 1.35));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.32, 0, 0, 0, 0, 0.62, 0.26, 3.0));
+        g.add(place(mesh(GEO.bladeBig, 'metal'), 0, 0.34, 0));
+        g.add(place(mesh(GEO.pad, 'accent'), 0, -0.16, 0, 0, 0, 0, 0.38, 0.34, 0.38));
+        break;
+      case 'axe':
+        g.add(shaft(0.95, 'wood', 0.32, 0.95));
+        g.add(place(mesh(GEO.axeHead, 'metal'), 0, 0.70, 0.11, 0, 0, 0, 1.35, 1.25, 1.35));
+        g.add(place(mesh(GEO.spike, 'metal'), 0, 0.70, -0.10, -HALF_PI, 0, 0, 0.65, 0.85, 0.65));
+        break;
+      case 'hammer':
+        g.add(shaft(1.05, 'wood', 0.36, 1.05));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.82, 0, 0, 0, 0, 1.55, 1.55, 3.1));
+        g.add(place(mesh(GEO.spike, 'metal'), 0, 0.82, -0.16, -HALF_PI, 0, 0, 0.85, 1.0, 0.85));
+        break;
+      case 'dagger':
+        g.add(place(mesh(GEO.shaftThin, 'leather'), 0, 0.01, 0, 0, 0, 0, 1.05, 0.14, 1.05));
+        g.add(place(mesh(GEO.blade, 'metal'), 0, 0.09, 0, 0, 0, 0, 0.75, 0.46, 0.75));
+        break;
+      case 'staff':
+        g.add(shaft(1.85, 'wood', 0.60, 0.82));
+        g.add(place(mesh(GEO.pad, glow ? 'glow' : 'accent'), 0, 1.52, 0, 0, 0, 0, 0.72, 0.72, 0.72));
+        g.add(place(mesh(GEO.discRound, 'metal'), 0, 1.40, 0, HALF_PI, 0, 0, 0.20, 0.20, 0.55));
+        break;
+      case 'shortbow':
+      case 'bow':
+        var len = (name === 'bow') ? 1.30 : 1.05;
+        buildBowLimbs(g, len);
+        break;
+      case 'crossbow':
+        g.add(place(mesh(GEO.shaft, 'wood'), 0, 0.16, 0, 0, 0, 0, 1.4, 0.62, 1.4));
+        g.add(place(mesh(GEO.plate, 'wood'), 0, 0.36, 0, 0, 0, 0, 0.45, 0.55, 1.1));
+        g.add(place(mesh(GEO.shaftThin, 'metal'), 0, 0.36, 0, HALF_PI, 0, 0, 1.0, 0.72, 1.0));
+        break;
+      case 'musket':
+        g.add(place(mesh(GEO.shaft, 'wood'), 0, 0.30, 0, 0, 0, 0, 1.1, 1.15, 1.1));
+        g.add(place(mesh(GEO.shaftThin, 'dark'), 0, 0.72, 0, 0, 0, 0, 1.0, 0.62, 1.0));
+        g.add(place(mesh(GEO.plate, 'wood'), 0, -0.08, 0, 0, 0, -0.22, 0.6, 1.5, 0.6));
+        break;
+      case 'rifle':
+        g.add(place(mesh(GEO.plate, 'dark'), 0, 0.16, 0, 0, 0, 0, 0.55, 2.6, 0.62));
+        g.add(place(mesh(GEO.shaftThin, 'dark'), 0, 0.56, 0, 0, 0, 0, 1.0, 0.52, 1.0));
+        g.add(place(mesh(GEO.plate, 'dark'), 0, -0.14, 0, 0, 0, -0.30, 0.55, 1.4, 0.62));
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.02, 0, 0, 0, 0, 0.40, 0.55, 0.42));
+        break;
+      case 'plasma':
+        g.add(place(mesh(GEO.plate, 'metal'), 0, 0.16, 0, 0, 0, 0, 0.62, 2.4, 0.72));
+        g.add(place(mesh(GEO.shaftThin, 'dark'), 0, 0.54, 0, 0, 0, 0, 1.2, 0.46, 1.2));
+        g.add(place(mesh(GEO.pad, 'glow'), 0, 0.72, 0, 0, 0, 0, 0.32, 0.32, 0.32));
+        g.add(place(mesh(GEO.plate, 'glow'), 0, 0.06, 0.045, 0, 0, 0, 0.12, 0.9, 0.20));
+        break;
+      case 'bayonet':
+        g.add(place(mesh(GEO.plate, 'dark'), 0, 0.20, 0, 0, 0, 0, 0.55, 3.0, 0.62));
+        g.add(place(mesh(GEO.shaftThin, 'dark'), 0, 0.62, 0, 0, 0, 0, 1.0, 0.52, 1.0));
+        g.add(place(mesh(GEO.blade, 'metal'), 0, 0.78, 0, 0, 0, 0, 0.55, 0.40, 0.55));
+        g.add(place(mesh(GEO.plate, 'wood'), 0, -0.12, 0, 0, 0, -0.28, 0.55, 1.3, 0.60));
+        break;
+      case 'fist':
+        return null;
+      default:
+        g.add(place(mesh(GEO.blade, 'metal'), 0, 0.14, 0));
+    }
+    if (kit.glow && glow) { /* future-era pieces already use the glow role */ }
+    return g;
+  }
+
+  function buildBowLimbs(g, len) {
+    var seg = 5, i;
+    for (i = 0; i < seg; i++) {
+      var t = (i / (seg - 1)) - 0.5;                 // -0.5..0.5
+      var y = t * len;
+      var x = -0.055 * (1 - 4 * t * t) - 0.02;
+      var m = place(mesh(GEO.shaftThin, 'wood'), x, y, 0, 0, 0, t * 0.55, 1.0, len / seg * 1.25, 1.0);
+      g.add(m);
+    }
+    // string
+    g.add(place(mesh(GEO.shaftThin, 'cloth'), 0.02, 0, 0, 0, 0, 0, 0.22, len * 0.98, 0.22));
+    g.add(place(mesh(GEO.pad, 'leather'), -0.055, 0, 0, 0, 0, 0, 0.32, 0.42, 0.34));
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 9. Pose representation
+   * --------------------------------------------------------------------------
+   * A pose is a flat Float32Array. Blending is a loop, not 40 named lerps, and
+   * every pose buffer in the module is preallocated — the animation system
+   * allocates exactly zero bytes per frame.
+   *
+   * Conventions (all radians, all "semantic", the apply step owns the signs):
+   *   *_SW    swing about Z. Positive = forward (toward the unit's facing).
+   *   *_ROLL  about X.       Positive = leans toward the unit's LEFT (+Z).
+   *   *_YAW   about Y.       Positive = turns toward the unit's RIGHT (-Z).
+   *   F?X/Y/Z foot target in root space (metres). Y is above the local ground.
+   * ------------------------------------------------------------------------ */
+  var _slot = 0;
+  function S() { return _slot++; }
+  var P_ROOT_Y = S(), P_ROOT_PITCH = S(), P_ROOT_ROLL = S(), P_ROOT_YAW = S(),
+      P_HIP_Y = S(), P_HIP_SW = S(), P_HIP_ROLL = S(), P_HIP_YAW = S(),
+      P_SPINE_SW = S(), P_SPINE_ROLL = S(), P_SPINE_YAW = S(),
+      P_CHEST_SW = S(), P_CHEST_ROLL = S(), P_CHEST_YAW = S(),
+      P_NECK_SW = S(), P_NECK_ROLL = S(), P_NECK_YAW = S(),
+      P_ALSW = S(), P_ALSP = S(), P_ALTW = S(), P_ELL = S(), P_WLSW = S(), P_WLSP = S(),
+      P_ARSW = S(), P_ARSP = S(), P_ARTW = S(), P_ELR = S(), P_WRSW = S(), P_WRSP = S(),
+      P_FLX = S(), P_FLY = S(), P_FLZ = S(), P_ANKL = S(), P_SPLL = S(),
+      P_FRX = S(), P_FRY = S(), P_FRZ = S(), P_ANKR = S(), P_SPLR = S(),
+      P_COUNT = _slot;
+
+  var REST = new Float32Array(P_COUNT);
+  REST[P_FLZ] = M.hipZ; REST[P_FRZ] = -M.hipZ;
+  REST[P_FLX] = 0.02;   REST[P_FRX] = -0.02;
+  REST[P_ELL] = 0.18;   REST[P_ELR] = 0.18;
+  REST[P_ALSP] = -0.09; REST[P_ARSP] = 0.09;
+
+  var _poseA = new Float32Array(P_COUNT);
+  var _poseB = new Float32Array(P_COUNT);
+  var _poseC = new Float32Array(P_COUNT);   // additive scratch (hurt / block shove)
+
+  function resetPose(o) { o.set(REST); }
+  function blendPose(a, b, t, out) {
+    var i;
+    if (t <= 0) { out.set(a); return; }
+    if (t >= 1) { out.set(b); return; }
+    for (i = 0; i < P_COUNT; i++) out[i] = a[i] + (b[i] - a[i]) * t;
+  }
+
+  /* --- state poses -------------------------------------------------------- */
+
+  function poseIdle(v, o) {
+    resetPose(o);
+    var t = v.clock, ph = v.phase;
+    var br = _sin(t * 1.42 + ph * 6.28) * 0.5 + 0.5;      // breath
+    var ws = _sin(t * 0.37 + ph * 4.10);                  // slow weight shift
+    var wobble = _sin(t * 0.83 + ph * 2.2) * 0.5 + _sin(t * 1.61 + ph * 5.5) * 0.5;
+
+    o[P_HIP_Y]      += -0.018 + _abs(ws) * 0.010 + br * 0.007;
+    o[P_HIP_ROLL]   += ws * 0.055;
+    o[P_HIP_YAW]    += ws * 0.030;
+    o[P_SPINE_SW]   += -0.020 - br * 0.020;
+    o[P_SPINE_ROLL] += -ws * 0.038;
+    o[P_CHEST_SW]   += 0.032 + br * 0.024;
+    o[P_CHEST_YAW]  += -ws * 0.028;
+    o[P_NECK_SW]    += -0.016 - br * 0.014;
+    o[P_NECK_YAW]   += wobble * 0.018;
+
+    o[P_FLX] += 0.055 + ws * 0.012;
+    o[P_FRX] += -0.065 - ws * 0.012;
+    o[P_FLZ] += 0.030; o[P_FRZ] -= 0.030;
+    o[P_ANKL] += ws * 0.02; o[P_ANKR] += -ws * 0.02;
+
+    var gd = v.guard;
+    o[P_ALSW] += 0.05 + ws * 0.030 + br * 0.012;
+    o[P_ALSP] += -0.06;
+    o[P_ELL]  += (gd === 'high' ? 0.85 : gd === 'mid' ? 0.42 : 0.24) + br * 0.05;
+    o[P_ARSW] += 0.05 - ws * 0.030 + br * 0.012;
+    o[P_ARSP] += 0.06;
+    o[P_ELR]  += (gd === 'high' ? 0.62 : gd === 'mid' ? 0.50 : 0.30) + br * 0.05;
+    o[P_WRSW] += 0.08;
+
+    // periodic weapon adjust — the small human tic that sells a crowd
+    if (v.adjT > 0) {
+      var e = _sin(PI * clamp01(1 - v.adjT / v.adjDur));
+      o[P_ARSW]     += -0.40 * e;
+      o[P_ELR]      += 0.62 * e;
+      o[P_WRSW]     += -0.35 * e;
+      o[P_CHEST_YAW] += 0.070 * e;
+      o[P_NECK_YAW] += -0.10 * e;
+      o[P_ALSW]     += 0.12 * e;
+    }
+    return o;
+  }
+
+  function legPhase(o, p, K, ix, iy, iz, ia, isp, sideZ) {
+    p = frac(p);
+    var half = K.step * 0.5, x, y, ank, s;
+    if (p < K.duty) {
+      s = p / K.duty;
+      x = half - K.step * s;                     // planted: slides back exactly as fast as the body moves
+      // The ankle rides highest at both ends of stance — toe-up at heel strike,
+      // up on the ball of the foot at toe-off. Anatomically right, and it is
+      // also what buys the leg the reach to hit `x` without the IK clamping.
+      var uu = s * 2 - 1;
+      y = K.rise * uu * uu * (uu < 0 ? 0.55 : 1);
+      if (s < 0.18) ank = lerp(K.heel, 0, s / 0.18);
+      else if (s > 0.70) ank = lerp(0, -K.toe, (s - 0.70) / 0.30);
+      else ank = 0;
+    } else {
+      s = (p - K.duty) / (1 - K.duty);
+      var e = s * s * (3 - 2 * s);
+      x = -half + K.step * e;
+      // The swing starts where toe-off left the ankle and lands where heel
+      // strike wants it — without this baseline the ankle teleports down by
+      // `rise` at the stance/swing seam, which pops the leg AND blows past the
+      // IK's reach at the exact moment the leg is most extended.
+      y = lerp(K.rise, K.rise * 0.55, e) + _sin(PI * Math.pow(s, 0.82)) * K.lift;
+      ank = lerp(-K.toe, K.heel, s * s);
+    }
+    o[ix] = x;
+    o[iy] = y;
+    o[iz] = sideZ * (M.hipZ + K.width);
+    o[ia] = ank;
+    o[isp] = sideZ * 0.02;
+  }
+
+  function poseLoco(v, o, kind) {
+    resetPose(o);
+    var K = LOCO[kind] || LOCO.walk;
+    var ph = v.stridePh;
+    legPhase(o, ph, K, P_FRX, P_FRY, P_FRZ, P_ANKR, P_SPLR, -1);
+    legPhase(o, ph + 0.5, K, P_FLX, P_FLY, P_FLZ, P_ANKL, P_SPLL, 1);
+
+    var c1 = _cos(PI2 * ph), s1 = _sin(PI2 * ph);
+    var c2 = _cos(PI2 * 2 * ph);
+    // Hip is LOWEST at heel strike / double support and highest at mid-stance:
+    // get this backwards and the leg has to reach furthest exactly when it is
+    // shortest, which is precisely when the IK gives up and the foot skates.
+    o[P_HIP_Y]      += -K.crouch - c2 * K.bob;
+    o[P_HIP_YAW]    += s1 * K.hipYaw;
+    o[P_HIP_ROLL]   += c1 * K.hipRoll;
+    o[P_HIP_SW]     += K.lean * 0.25;
+    o[P_SPINE_SW]   += K.lean * 0.35;
+    o[P_SPINE_YAW]  += -s1 * K.hipYaw * 0.35;
+    o[P_CHEST_SW]   += K.lean * 0.40;
+    o[P_CHEST_YAW]  += -s1 * K.chestYaw;
+    o[P_CHEST_ROLL] += -c1 * K.hipRoll * 0.55;
+    o[P_NECK_SW]    += -K.lean * 0.55;
+    o[P_NECK_YAW]   += s1 * 0.030;
+    o[P_ROOT_PITCH] += K.lean * 0.55;
+    // NOTE: no P_ROOT_Y term here on purpose. The foot targets are expressed in
+    // root space, so lifting the root lifts the planted foot with it. All the
+    // vertical travel of a gait belongs on the hips, where the IK absorbs it.
+
+    // Arms swing with the OPPOSITE leg — derived from the foot targets so the
+    // two can never drift out of sync no matter how the gait is retuned.
+    var ag = K.armGain;
+    o[P_ALSW] += o[P_FRX] * ag;
+    o[P_ARSW] += o[P_FLX] * ag;
+    o[P_ELL]  += K.elbow + _max(0, o[P_ALSW]) * 0.55;
+    o[P_ELR]  += K.elbow + _max(0, o[P_ARSW]) * 0.55;
+    o[P_ALSP] += -0.05 - K.elbow * 0.06;
+    o[P_ARSP] += 0.05 + K.elbow * 0.06;
+
+    if (kind === 'charge') {
+      // Weapon up, head up, roaring — a charge must read differently from a run.
+      o[P_ARSW] = 0.15 - _abs(s1) * 0.10;
+      o[P_ELR]  = 1.45;
+      o[P_ARSP] = 0.42;
+      o[P_WRSW] = -0.55;
+      o[P_NECK_SW] += -0.22;
+      o[P_CHEST_YAW] *= 0.6;
+    }
+    return o;
+  }
+
+  /* --- attack: 15 controlled channels, four key poses ---------------------- */
+  var ATK_SLOTS = [
+    P_ARSW, P_ARSP, P_ARTW, P_ELR, P_WRSW,
+    P_ALSW, P_ALSP, P_ELL,
+    P_CHEST_YAW, P_CHEST_SW, P_HIP_YAW,
+    P_ROOT_PITCH, P_FLX, P_FRX, P_HIP_Y
+  ];
+  var NA = ATK_SLOTS.length;
+
+  var ATK = {
+    swing: [
+      [ 0.15, -0.10,  0.10, 0.70,  0.10,  0.05, -0.18, 0.55,  0.14,  0.02,  0.06,  0.02,  0.05, -0.06, -0.015],
+      [-0.95,  0.62,  0.55, 1.15,  0.45, -0.30, -0.30, 0.85,  0.52, -0.06,  0.26, -0.08, -0.02, -0.16, -0.030],
+      [ 0.95, -0.28, -0.45, 0.28, -0.30,  0.55, -0.10, 1.10, -0.50,  0.16, -0.24,  0.16,  0.26,  0.02, -0.050],
+      [ 1.12, -0.34, -0.58, 0.20, -0.42,  0.66, -0.06, 1.22, -0.62,  0.22, -0.30,  0.22,  0.30,  0.05, -0.070]
+    ],
+    thrust: [
+      [ 0.20, -0.20,  0.00, 0.95,  0.00,  0.55, -0.28, 0.80,  0.22,  0.02,  0.10,  0.03,  0.06, -0.06, -0.020],
+      [-0.35,  0.10,  0.10, 1.45,  0.05,  0.35, -0.20, 1.15,  0.42, -0.05,  0.22, -0.06, -0.04, -0.18, -0.040],
+      [ 0.62, -0.24, -0.05, 0.35,  0.00,  0.95, -0.16, 0.40, -0.28,  0.10, -0.16,  0.14,  0.30,  0.02, -0.060],
+      [ 0.70, -0.26, -0.06, 0.28,  0.00,  1.05, -0.14, 0.32, -0.34,  0.14, -0.20,  0.18,  0.34,  0.05, -0.080]
+    ],
+    overhead: [
+      [ 0.18, -0.12,  0.05, 0.85,  0.15,  0.16, -0.22, 0.70,  0.12,  0.02,  0.05,  0.02,  0.05, -0.06, -0.020],
+      [-1.55,  0.20,  0.20, 1.55,  0.60, -1.35,  0.18, 1.45,  0.20, -0.30,  0.10, -0.16, -0.06, -0.20, -0.050],
+      [ 1.15, -0.10, -0.10, 0.15, -0.35,  1.05, -0.08, 0.30, -0.16,  0.34, -0.08,  0.26,  0.34,  0.06, -0.100],
+      [ 1.32, -0.08, -0.12, 0.10, -0.48,  1.22, -0.06, 0.22, -0.20,  0.44, -0.10,  0.34,  0.38,  0.08, -0.140]
+    ],
+    stab: [
+      [ 0.10, -0.15,  0.00, 1.05,  0.05,  0.12, -0.20, 0.95,  0.16,  0.03,  0.06,  0.02,  0.04, -0.05, -0.020],
+      [-0.45,  0.30,  0.15, 1.55,  0.20, -0.10, -0.24, 1.15,  0.40, -0.04,  0.18, -0.05, -0.02, -0.12, -0.030],
+      [ 0.72, -0.22, -0.10, 0.32, -0.10,  0.30, -0.16, 0.85, -0.34,  0.12, -0.18,  0.14,  0.22,  0.02, -0.050],
+      [ 0.82, -0.24, -0.12, 0.26, -0.16,  0.36, -0.14, 0.80, -0.40,  0.16, -0.22,  0.18,  0.26,  0.04, -0.070]
+    ],
+    shoot: [
+      [ 0.10, -0.10,  0.00, 0.95,  0.00,  0.30, -0.20, 0.75,  0.35,  0.02,  0.10,  0.02,  0.04, -0.05, -0.020],
+      [ 0.05,  0.25,  0.00, 1.75,  0.00,  1.35, -0.30, 0.18,  0.62, -0.02,  0.20,  0.02,  0.06, -0.10, -0.030],
+      [-0.15,  0.35,  0.00, 1.35,  0.00,  1.32, -0.30, 0.14,  0.60,  0.00,  0.18,  0.02,  0.06, -0.10, -0.030],
+      [-0.34,  0.44,  0.00, 1.10,  0.00,  1.26, -0.28, 0.18,  0.54,  0.06,  0.16,  0.05,  0.06, -0.10, -0.030]
+    ],
+    cast: [
+      [ 0.15, -0.15,  0.00, 0.85,  0.10,  0.10, -0.20, 0.60,  0.16,  0.02,  0.06,  0.02,  0.05, -0.06, -0.020],
+      [-0.70,  0.35,  0.20, 1.35,  0.35, -0.20, -0.25, 0.95,  0.30, -0.22,  0.12, -0.12, -0.04, -0.16, -0.040],
+      [ 0.85, -0.20, -0.20, 0.45, -0.25,  0.45, -0.12, 0.70, -0.30,  0.16, -0.14,  0.14,  0.24,  0.02, -0.050],
+      [ 0.92, -0.22, -0.24, 0.40, -0.32,  0.50, -0.10, 0.66, -0.34,  0.20, -0.16,  0.18,  0.26,  0.04, -0.070]
+    ]
+  };
+
+  function poseAttack(v, o) {
+    resetPose(o);
+    var K = ATK[v.atkArch] || ATK.swing;
+    var T = v.atkT, tm = v.atkTime;
+    var a = tm[0], b = tm[1], c = tm[2], d = tm[3];
+    var kA, kB, u;
+
+    if (T < a) {                       // 1. anticipation — coil, weight back
+      kA = K[0]; kB = K[1]; u = easeOutCubic(a > 0 ? T / a : 1);
+      v.atkPhase = 0;
+    } else if (T < a + b) {            // 2. strike — the fast bit
+      kA = K[1]; kB = K[2]; u = smooth(b > 0 ? (T - a) / b : 1);
+      v.atkPhase = 1;
+    } else if (T < a + b + c) {        // 3. impact — overshoot + follow-through
+      kA = K[2]; kB = K[3]; u = easeOutBack(c > 0 ? (T - a - b) / c : 1);
+      v.atkPhase = 2;
+    } else {                           // 4. recovery — settle back to guard
+      kA = K[3]; kB = K[0]; u = smoother(d > 0 ? (T - a - b - c) / d : 1);
+      v.atkPhase = 3;
+    }
+
+    var i;
+    for (i = 0; i < NA; i++) o[ATK_SLOTS[i]] += kA[i] + (kB[i] - kA[i]) * u;
+
+    // Impact judder — a couple of frames of high-frequency ring on the arm.
+    if (v.atkPhase === 2) {
+      var jd = 1 - (T - a - b) / _max(0.0001, c);
+      var jit = _sin((T) * 220) * 0.045 * jd * jd;
+      o[P_ARSW] += jit; o[P_ELR] -= jit * 0.6; o[P_CHEST_SW] += jit * 0.4;
+    }
+    // The rear foot pivots as the hips rotate — otherwise the stance looks nailed down.
+    o[P_ANKR] += o[P_HIP_YAW] * 0.30;
+    o[P_ANKL] += -o[P_HIP_YAW] * 0.20;
+    o[P_FLZ] += 0.020; o[P_FRZ] -= 0.020;
+    return o;
+  }
+
+  function poseBlock(v, o) {
+    resetPose(o);
+    var t = v.clock;
+    var br = _sin(t * 2.1 + v.phase * 6.0) * 0.5 + 0.5;
+    var sh = v.shove;                                  // decaying shove impulse
+
+    o[P_HIP_Y]      += -0.115 - sh * 0.06;
+    o[P_ROOT_PITCH] += 0.14 - sh * 0.55;
+    o[P_HIP_SW]     += 0.10;
+    o[P_SPINE_SW]   += 0.10 - sh * 0.18;
+    o[P_CHEST_SW]   += 0.06 - sh * 0.22;
+    o[P_CHEST_YAW]  += 0.40;
+    o[P_HIP_YAW]    += 0.26;
+    o[P_NECK_SW]    += -0.14;
+    o[P_NECK_YAW]   += -0.22;
+
+    // shield arm up and across
+    o[P_ALSW] += 0.92 - sh * 0.30;
+    o[P_ALSP] += -0.48;
+    o[P_ELL]  += 1.62 + br * 0.03 + sh * 0.35;
+    o[P_WLSW] += -0.30;
+    // weapon arm tucked, ready to counter
+    o[P_ARSW] += -0.28;
+    o[P_ARSP] += 0.30;
+    o[P_ELR]  += 1.30 + br * 0.03;
+    o[P_WRSW] += 0.35;
+
+    // braced stance: front foot forward, rear foot planted wide
+    o[P_FLX] += 0.30 - sh * 0.08;
+    o[P_FRX] += -0.34 - sh * 0.16;
+    o[P_FLZ] += 0.045; o[P_FRZ] -= 0.055;
+    o[P_ANKR] += -0.22;
+    o[P_ROOT_Y] += -sh * 0.02;
+    return o;
+  }
+
+  function poseHurt(v, o) {
+    resetPose(o);
+    var d = v.hurtDur > 0 ? clamp01(v.hurtT / v.hurtDur) : 1;
+    var e = _sin(PI * Math.pow(d, 0.62));
+    var dir = v.hurtDir;                   // +1 struck from the front
+    var shud = (d < 0.30) ? _sin(d * 150) * (1 - d / 0.30) * 0.06 : 0;
+
+    o[P_ROOT_PITCH] += -0.42 * e * dir + shud;
+    o[P_ROOT_ROLL]  += v.hurtSide * 0.20 * e;
+    o[P_HIP_Y]      += -0.075 * e;
+    o[P_SPINE_SW]   += -0.30 * e * dir;
+    o[P_CHEST_SW]   += -0.34 * e * dir - shud;
+    o[P_CHEST_ROLL] += v.hurtSide * 0.22 * e;
+    o[P_CHEST_YAW]  += v.hurtSide * 0.26 * e;
+    o[P_NECK_SW]    += -0.36 * e * dir;
+    o[P_NECK_YAW]   += v.hurtSide * 0.24 * e;
+
+    o[P_ALSW] += -0.52 * e; o[P_ALSP] += -0.42 * e; o[P_ELL] += 0.55 * e;
+    o[P_ARSW] += -0.44 * e; o[P_ARSP] += 0.40 * e;  o[P_ELR] += 0.62 * e;
+
+    o[P_FLX] += (-0.24 * dir + 0.06) * e;
+    o[P_FRX] += (-0.30 * dir - 0.04) * e;
+    o[P_FLZ] += 0.04 * e; o[P_FRZ] -= 0.04 * e;
+    o[P_ANKL] += 0.16 * e; o[P_ANKR] += -0.12 * e;
+    return o;
+  }
+
+  function poseCheer(v, o) {
+    resetPose(o);
+    var t = v.clock * 2.6 + v.phase * 6.28;
+    var hop = _max(0, _sin(t));
+    var hop2 = hop * hop;
+
+    o[P_ROOT_Y]     += hop2 * 0.16;
+    o[P_HIP_Y]      += -0.05 + hop2 * 0.03 - (1 - hop) * 0.04;
+    o[P_ROOT_PITCH] += -0.09;
+    o[P_SPINE_SW]   += -0.11;
+    o[P_CHEST_SW]   += -0.16;
+    o[P_NECK_SW]    += -0.30;
+    o[P_CHEST_YAW]  += _sin(t * 0.5) * 0.10;
+
+    o[P_ARSW] += -1.55 - hop * 0.30;
+    o[P_ARSP] += 0.30;
+    o[P_ELR]  += 0.30 + hop * 0.35;
+    o[P_WRSW] += 0.20;
+    o[P_ALSW] += -1.35 - hop * 0.25;
+    o[P_ALSP] += -0.34;
+    o[P_ELL]  += 0.34 + hop * 0.30;
+
+    o[P_FLX] += 0.06; o[P_FRX] += -0.06;
+    o[P_FLY] += hop2 * 0.10; o[P_FRY] += hop2 * 0.10;
+    o[P_FLZ] += 0.02; o[P_FRZ] -= 0.02;
+    o[P_ANKL] += -hop * 0.35; o[P_ANKR] += -hop * 0.35;
+    return o;
+  }
+
+  /* Death: a pseudo-physics collapse. The fall angle is integrated (gravity +
+     bounce), the limbs are a damped follow toward a limp target. Four variants
+     so a wiped-out rank never dies in unison. */
+  function poseDie(v, o) {
+    resetPose(o);
+    var fa = v.fallAng;                     // 0 .. ~PI/2, integrated in update()
+    var limp = v.limp;                      // 0..1 follow toward dead-weight
+    var vr = v.dieVar;
+    var side = v.dieSide;
+    var drop = (1 - _cos(clamp(fa, 0, HALF_PI))) ;
+
+    if (vr === 2) {                         // knees first, then topple
+      var kn = clamp01(v.dieT / 0.42);
+      o[P_HIP_Y] += -0.52 * smooth(kn);
+      o[P_FLX] += -0.02; o[P_FRX] += -0.24 * smooth(kn);
+      o[P_ANKL] += -0.85 * smooth(kn); o[P_ANKR] += -0.90 * smooth(kn);
+      o[P_FLY] += 0.02 * smooth(kn);
+    } else {
+      o[P_HIP_Y] += -0.28 * drop - 0.10 * limp;
+    }
+
+    o[P_ROOT_PITCH] += (vr === 1 ? fa : -fa) * (vr === 3 ? 0.55 : 1);
+    o[P_ROOT_ROLL]  += (vr === 3 ? side * fa * 0.85 : side * fa * 0.18);
+    o[P_ROOT_YAW]   += (vr === 3 ? side * fa * 0.55 : side * fa * 0.10);
+    o[P_ROOT_Y]     += -drop * 0.30;
+
+    var fold = limp * (vr === 1 ? 0.55 : -0.62);
+    o[P_SPINE_SW] += fold * 0.55;
+    o[P_CHEST_SW] += fold * 0.75;
+    o[P_NECK_SW]  += fold * 1.25 + limp * 0.10;
+    o[P_CHEST_ROLL] += side * limp * 0.28;
+    o[P_NECK_YAW]   += side * limp * 0.45;
+    o[P_HIP_YAW]    += side * limp * 0.18;
+
+    // limbs go dead-weight: splayed, elbows loose, no muscle tone
+    o[P_ALSW] += limp * (vr === 1 ? -0.95 : 0.55);
+    o[P_ALSP] += limp * -0.72;
+    o[P_ELL]  = lerp(o[P_ELL], 0.12, limp);
+    o[P_ARSW] += limp * (vr === 1 ? -1.15 : 0.75);
+    o[P_ARSP] += limp * 0.78;
+    o[P_ELR]  = lerp(o[P_ELR], 0.10, limp);
+    o[P_WLSW] += limp * 0.4; o[P_WRSW] += limp * 0.4;
+
+    if (vr !== 2) {
+      o[P_FLX] += limp * (vr === 1 ? 0.26 : -0.34);
+      o[P_FRX] += limp * (vr === 1 ? 0.14 : -0.20);
+      o[P_FLZ] += limp * 0.075;
+      o[P_FRZ] -= limp * 0.055;
+      o[P_FLY] += limp * 0.05 * (1 - drop);
+      o[P_ANKL] += limp * -0.45; o[P_ANKR] += limp * -0.30;
+    }
+    o[P_SPLL] += side * limp * 0.16;
+    o[P_SPLR] += side * limp * 0.12;
+    return o;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 10. Two-bone analytic IK — the reason feet stop sliding.
+   * ------------------------------------------------------------------------ */
+  var _ikSwing = 0, _ikBend = 0;
+  /**
+   * Solve a 2-bone chain hanging from the origin down -Y toward (tx, ty).
+   * bendSign: -1 knees (bend backward), +1 elbows (bend forward).
+   * Results land in _ikSwing (root rotation about Z) and _ikBend (mid joint).
+   */
+  function solve2Bone(tx, ty, a, b, bendSign) {
+    var d = _sqrt(tx * tx + ty * ty);
+    var lo = _abs(a - b) + 1e-4, hi = a + b - 1e-4;
+    if (d < lo) d = lo;
+    if (d > hi) d = hi;
+    if (d < 1e-5) { _ikSwing = 0; _ikBend = 0; return; }
+    var inv = 1 / _sqrt(tx * tx + ty * ty || 1);
+    var ux = tx * inv, uy = ty * inv;
+    var base = _atan2(ux, -uy);
+    var ca = (a * a + d * d - b * b) / (2 * a * d);
+    var cb = (a * a + b * b - d * d) / (2 * a * b);
+    var alpha = _acos(clamp(ca, -1, 1));
+    var beta = _acos(clamp(cb, -1, 1));
+    _ikSwing = base - bendSign * alpha;
+    _ikBend = bendSign * (PI - beta);
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 11. Applying a pose to a rig
+   * ------------------------------------------------------------------------ */
+  var _eul = new THREE.Euler(0, 0, 0, 'YXZ');
+  var _qHip = new THREE.Quaternion(), _qHipI = new THREE.Quaternion();
+
+  function applyLeg(v, o, ix, iy, iz, ia, isp, thigh, shin, foot, groundOff, sideZ) {
+    // Hip joint position in root space (the hips themselves rotate, so we can't
+    // treat it as a constant — that error is exactly what makes feet skate).
+    _v3a.set(0, -0.02, sideZ * M.hipZ).applyQuaternion(_qHip);
+    var hx = _v3a.x, hy = M.hipY + o[P_HIP_Y] + _v3a.y, hz = _v3a.z;
+
+    var tx = o[ix], ty = groundOff + o[iy] + M.ankleH, tz = o[iz];
+    _v3b.set(tx - hx, ty - hy, tz - hz).applyQuaternion(_qHipI);
+
+    var dx = _v3b.x, dy = _v3b.y, dz = _v3b.z;
+    var splay = _atan2(-dz, -dy);
+    if (!isFinite(splay)) splay = 0;
+    splay = clamp(splay, -0.55, 0.55) + o[isp];
+    var down = -_sqrt(dy * dy + dz * dz);
+
+    solve2Bone(dx, down, M.thigh, M.shin, -1);
+    var sw = _ikSwing, bd = _ikBend;
+
+    thigh.rotation.set(splay, 0, sw);
+    shin.rotation.set(0, 0, bd);
+    foot.rotation.set(-splay * 0.55, 0, -(sw + bd) + o[ia]);
+  }
+
+  function applyPose(v, o, dt) {
+    var b = v.bones;
+    if (!b || !b.root) return;
+    var r = b.root;
+
+    r.position.y = v.groundY + o[P_ROOT_Y] + v.sink;
+    r.rotation.y = v.yaw + o[P_ROOT_YAW];
+    r.rotation.x = o[P_ROOT_ROLL];
+    r.rotation.z = -o[P_ROOT_PITCH];
+
+    b.hips.position.y = M.hipY + o[P_HIP_Y];
+    b.hips.rotation.set(o[P_HIP_ROLL], o[P_HIP_YAW], -o[P_HIP_SW]);
+    b.spine.rotation.set(o[P_SPINE_ROLL], o[P_SPINE_YAW], -o[P_SPINE_SW]);
+    b.chest.rotation.set(o[P_CHEST_ROLL], o[P_CHEST_YAW], -o[P_CHEST_SW]);
+    b.neck.rotation.set(o[P_NECK_ROLL], o[P_NECK_YAW] + v.lookYaw * 0.55, -o[P_NECK_SW] + v.lookPitch * 0.45);
+    b.head.rotation.set(0, v.lookYaw * 0.45, v.lookPitch * 0.55);
+
+    b.armL.rotation.set(o[P_ALSP], o[P_ALTW], o[P_ALSW]);
+    b.elbL.rotation.set(0, 0, o[P_ELL]);
+    b.gripL.rotation.set(o[P_WLSP], 0, -0.30 + o[P_WLSW] - v.wLagL);
+    b.armR.rotation.set(o[P_ARSP], o[P_ARTW], o[P_ARSW]);
+    b.elbR.rotation.set(0, 0, o[P_ELR]);
+    b.gripR.rotation.set(o[P_WRSP], 0, -0.30 + o[P_WRSW] - v.wLagR);
+
+    _eul.set(o[P_HIP_ROLL], o[P_HIP_YAW], -o[P_HIP_SW], 'YXZ');
+    _qHip.setFromEuler(_eul);
+    _qHipI.copy(_qHip).conjugate();
+
+    applyLeg(v, o, P_FLX, P_FLY, P_FLZ, P_ANKL, P_SPLL, b.thighL, b.shinL, b.footL, v.groundL, 1);
+    applyLeg(v, o, P_FRX, P_FRY, P_FRZ, P_ANKR, P_SPLR, b.thighR, b.shinR, b.footR, v.groundR, -1);
+
+    // --- secondary motion: armour lag on the plates, weapon inertia ---------
+    if (b.socketShoulderL) {
+      b.socketShoulderL.rotation.z = v.armorLag;
+      b.socketShoulderL.position.x = v.armorLagX;
+    }
+    if (b.socketShoulderR) {
+      b.socketShoulderR.rotation.z = v.armorLag;
+      b.socketShoulderR.position.x = v.armorLagX;
+    }
+    if (b.socketChest) b.socketChest.position.x = M.chestR * 0.72 + v.armorLagX * 1.4;
+  }
+
+  function applyPoseSimple(v, o) {
+    var b = v.bones;
+    if (!b || !b.root) return;
+    var r = b.root;
+    r.position.y = v.groundY + o[P_ROOT_Y] + v.sink;
+    r.rotation.y = v.yaw + o[P_ROOT_YAW];
+    r.rotation.x = o[P_ROOT_ROLL];
+    r.rotation.z = -o[P_ROOT_PITCH];
+
+    var hy = M.hipY + o[P_HIP_Y];
+    b.body.position.y = o[P_HIP_Y] * 0.85;
+    b.body.rotation.set(o[P_CHEST_ROLL] + o[P_SPINE_ROLL], o[P_CHEST_YAW] + o[P_SPINE_YAW],
+                        -(o[P_CHEST_SW] + o[P_SPINE_SW] + o[P_HIP_SW]));
+
+    b.legL.position.y = hy;
+    b.legR.position.y = hy;
+    var lyL = _max(0.08, hy - (v.groundL + o[P_FLY]));
+    var lyR = _max(0.08, hy - (v.groundR + o[P_FRY]));
+    b.legL.rotation.set(_atan2(-(o[P_FLZ] - M.hipZ), lyL), 0, _atan2(o[P_FLX], lyL));
+    b.legR.rotation.set(_atan2(-(o[P_FRZ] + M.hipZ), lyR), 0, _atan2(o[P_FRX], lyR));
+
+    b.armL.rotation.set(o[P_ALSP], 0, o[P_ALSW] + o[P_ELL] * 0.45);
+    b.armR.rotation.set(o[P_ARSP], 0, o[P_ARSW] + o[P_ELR] * 0.45);
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 12. Cape — a 4-point verlet chain, solved in world space.
+   * ------------------------------------------------------------------------ */
+  var CAPE_SEG = 4;
+  var capeGroup = null;
+
+  function makeCape() {
+    var g = new THREE.BufferGeometry();
+    var n = CAPE_SEG * 2;
+    var pos = new Float32Array(n * 3);
+    var nor = new Float32Array(n * 3);
+    var uv = new Float32Array(n * 2);
+    var tri = [], i;
+    for (i = 0; i < CAPE_SEG - 1; i++) {
+      var a = i * 2, b2 = a + 1, c = a + 2, d = a + 3;
+      tri.push(a, c, b2, b2, c, d);
+    }
+    for (i = 0; i < CAPE_SEG; i++) {
+      uv[i * 4] = 0; uv[i * 4 + 1] = i / (CAPE_SEG - 1);
+      uv[i * 4 + 2] = 1; uv[i * 4 + 3] = i / (CAPE_SEG - 1);
+      nor[i * 6 + 0] = -1; nor[i * 6 + 3] = -1;
+    }
+    var pa = new THREE.BufferAttribute(pos, 3);
+    if (typeof pa.setUsage === 'function' && THREE.DynamicDrawUsage !== undefined) pa.setUsage(THREE.DynamicDrawUsage);
+    var na = new THREE.BufferAttribute(nor, 3);
+    if (typeof na.setUsage === 'function' && THREE.DynamicDrawUsage !== undefined) na.setUsage(THREE.DynamicDrawUsage);
+    g.setAttribute('position', pa);
+    g.setAttribute('normal', na);
+    g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    g.setIndex(tri);
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e6);
+
+    var m = new THREE.Mesh(g, placeholderMat());
+    m.userData.role = 'accent';
+    m.frustumCulled = false;
+    m.matrixAutoUpdate = false;
+    m.castShadow = false;
+    return {
+      mesh: m, geo: g, pos: pos, nor: nor,
+      p: new Float32Array(CAPE_SEG * 3),
+      q: new Float32Array(CAPE_SEG * 3),
+      seeded: false, len: 0.20, width: 0.30
+    };
+  }
+
+  function seedCape(c, ax, ay, az) {
+    var i;
+    for (i = 0; i < CAPE_SEG; i++) {
+      c.p[i * 3] = ax; c.p[i * 3 + 1] = ay - i * c.len; c.p[i * 3 + 2] = az;
+      c.q[i * 3] = ax; c.q[i * 3 + 1] = ay - i * c.len; c.q[i * 3 + 2] = az;
+    }
+    c.seeded = true;
+  }
+
+  function stepCape(c, ax, ay, az, sx, sz, wind, dt) {
+    if (!c.seeded) seedCape(c, ax, ay, az);
+    var i, k, it, dtc = clamp(dt, 0.001, 0.04);
+    var damping = 0.965;
+    var g = -9.4 * dtc * dtc;
+    var p = c.p, q = c.q;
+
+    // integrate
+    for (i = 1; i < CAPE_SEG; i++) {
+      k = i * 3;
+      var vx = (p[k] - q[k]) * damping, vy = (p[k + 1] - q[k + 1]) * damping, vz = (p[k + 2] - q[k + 2]) * damping;
+      q[k] = p[k]; q[k + 1] = p[k + 1]; q[k + 2] = p[k + 2];
+      p[k] += vx + wind * dtc * dtc * (0.6 + i * 0.25);
+      p[k + 1] += vy + g;
+      p[k + 2] += vz + _sin(i * 2.1 + c.len * 40) * wind * dtc * dtc * 0.35;
+    }
+    // pin root
+    p[0] = ax; p[1] = ay; p[2] = az;
+    q[0] = ax; q[1] = ay; q[2] = az;
+
+    // distance constraints
+    for (it = 0; it < 2; it++) {
+      for (i = 1; i < CAPE_SEG; i++) {
+        var a = (i - 1) * 3, b = i * 3;
+        var dx = p[b] - p[a], dy = p[b + 1] - p[a + 1], dz = p[b + 2] - p[a + 2];
+        var d = _sqrt(dx * dx + dy * dy + dz * dz);
+        if (d < 1e-5) { p[b + 1] = p[a + 1] - c.len; continue; }
+        var diff = (d - c.len) / d;
+        if (i === 1) {
+          p[b] -= dx * diff; p[b + 1] -= dy * diff; p[b + 2] -= dz * diff;
+        } else {
+          var h = diff * 0.5;
+          p[a] += dx * h; p[a + 1] += dy * h; p[a + 2] += dz * h;
+          p[b] -= dx * h; p[b + 1] -= dy * h; p[b + 2] -= dz * h;
+        }
+      }
+      p[0] = ax; p[1] = ay; p[2] = az;
+    }
+
+    // write the ribbon: two verts per node, offset along the body's side vector
+    var pos = c.pos, nor = c.nor;
+    for (i = 0; i < CAPE_SEG; i++) {
+      k = i * 3;
+      var w = c.width * (0.72 + i * 0.14);
+      var o1 = i * 6, o2 = o1 + 3;
+      pos[o1] = p[k] + sx * w; pos[o1 + 1] = p[k + 1]; pos[o1 + 2] = p[k + 2] + sz * w;
+      pos[o2] = p[k] - sx * w; pos[o2 + 1] = p[k + 1]; pos[o2 + 2] = p[k + 2] - sz * w;
+      // normal ≈ side × down-the-chain, cheap and good enough for a cloth ribbon
+      var nx, ny, nz;
+      var j = _min(i + 1, CAPE_SEG - 1) * 3;
+      var ux = p[j] - p[k], uy = p[j + 1] - p[k + 1], uz = p[j + 2] - p[k + 2];
+      if (i === CAPE_SEG - 1) { ux = p[k] - p[k - 3]; uy = p[k + 1] - p[k - 2]; uz = p[k + 2] - p[k - 1]; }
+      nx = uy * sz - uz * 0; ny = uz * sx - ux * sz; nz = ux * 0 - uy * sx;
+      var nl = _sqrt(nx * nx + ny * ny + nz * nz) || 1;
+      nx /= nl; ny /= nl; nz /= nl;
+      nor[o1] = nx; nor[o1 + 1] = ny; nor[o1 + 2] = nz;
+      nor[o2] = nx; nor[o2 + 1] = ny; nor[o2 + 2] = nz;
+    }
+    c.geo.attributes.position.needsUpdate = true;
+    c.geo.attributes.normal.needsUpdate = true;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 13. Impostors — one instanced draw call for the whole far field.
+   * ------------------------------------------------------------------------ */
+  var IMP_COLS = 8, IMP_ROWS = 4, IMP_CAP = 640;
+  var impMesh = null, impFrames = null, impOk = false;
+  var impW = 1.35, impH = 2.05;
+
+  var IMP_BILLBOARD = [
+    'vec4 aowC = vec4(0.0, 0.0, 0.0, 1.0);',
+    '#ifdef USE_INSTANCING',
+    '  aowC = instanceMatrix * aowC;',
+    '#endif',
+    'vec4 mvPosition = modelViewMatrix * aowC;',
+    'float aowSx = 1.0; float aowSy = 1.0;',
+    '#ifdef USE_INSTANCING',
+    '  aowSx = length(instanceMatrix[0].xyz);',
+    '  aowSy = length(instanceMatrix[1].xyz);',
+    '#endif',
+    'mvPosition.x += transformed.x * aowSx;',
+    'mvPosition.y += transformed.y * aowSy;',
+    'gl_Position = projectionMatrix * mvPosition;'
+  ].join('\n');
+
+  function drawImpostorAtlas(ctx, W, H) {
+    var CW = W / IMP_COLS, CH = H / IMP_ROWS, r, c;
+    ctx.clearRect(0, 0, W, H);
+    for (r = 0; r < IMP_ROWS; r++) {
+      for (c = 0; c < IMP_COLS; c++) {
+        // Row 0 must land at the BOTTOM of the canvas: CanvasTexture flips Y.
+        drawImpFigure(ctx, c * CW, (IMP_ROWS - 1 - r) * CH, CW, CH, r, c);
+      }
+    }
+  }
+
+  var IMP_LEG = [
+    [0.10, -0.10], [0.42, -0.40], [0.05, -0.05], [-0.40, 0.42], [-0.05, 0.05],
+    [0.28, -0.26], [-0.18, 0.20], [0.85, 0.20]
+  ];
+  var IMP_ARM = [
+    [-0.12, 0.12], [-0.40, 0.44], [-0.05, 0.05], [0.44, -0.40], [0.05, -0.05],
+    [-1.30, 0.60], [1.15, -0.30], [-1.10, 1.20]
+  ];
+
+  function drawImpFigure(ctx, ox, oy, cw, ch, row, col) {
+    var s = ch * 0.80;                 // figure height in px
+    var fx = ox + cw * 0.5;
+    var fy = oy + ch * 0.94;           // feet
+    var bulk = row === 3 ? 1.22 : (row === 1 ? 1.08 : 1.0);
+    var die = (col === 7);
+
+    ctx.save();
+    ctx.translate(fx, fy);
+    // Clip to this cell: the light-bake pass below uses 'source-atop', which
+    // would otherwise re-shade every figure already drawn on the atlas.
+    ctx.beginPath();
+    ctx.rect(ox - fx + 1, oy - fy + 1, cw - 2, ch - 2);
+    ctx.clip();
+    if (die) { ctx.translate(0, -s * 0.20); ctx.rotate(-1.15); ctx.translate(0, s * 0.20); }
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    var hipY = -s * 0.50, shY = -s * 0.80, headY = -s * 0.905;
+    var legA = IMP_LEG[col], armA = IMP_ARM[col];
+    var legLen = s * 0.50, armLen = s * 0.34;
+
+    // legs
+    ctx.strokeStyle = 'rgba(74,74,84,1)';
+    ctx.lineWidth = s * 0.075 * bulk;
+    for (var i = 0; i < 2; i++) {
+      var a = legA[i];
+      ctx.beginPath();
+      ctx.moveTo(0, hipY);
+      ctx.lineTo(_sin(a) * legLen * 0.55, hipY + _cos(a) * legLen * 0.55);
+      ctx.lineTo(_sin(a * 0.5) * legLen, hipY + legLen * 0.98);
+      ctx.stroke();
+    }
+    // torso
+    ctx.strokeStyle = 'rgba(96,96,106,1)';
+    ctx.lineWidth = s * 0.135 * bulk;
+    ctx.beginPath(); ctx.moveTo(0, hipY + s * 0.02); ctx.lineTo(0, shY); ctx.stroke();
+    // chest armour — this is the part the team tint lands on
+    ctx.fillStyle = 'rgba(238,238,244,1)';
+    ctx.beginPath();
+    roundRect(ctx, -s * 0.115 * bulk, shY - s * 0.01, s * 0.23 * bulk, s * 0.235, s * 0.05);
+    ctx.fill();
+    // shoulders
+    ctx.fillStyle = 'rgba(212,212,220,1)';
+    ctx.beginPath(); ctx.arc(-s * 0.115 * bulk, shY + s * 0.02, s * 0.056 * bulk, 0, PI2); ctx.fill();
+    ctx.beginPath(); ctx.arc(s * 0.115 * bulk, shY + s * 0.02, s * 0.056 * bulk, 0, PI2); ctx.fill();
+    // arms
+    ctx.strokeStyle = 'rgba(84,84,94,1)';
+    ctx.lineWidth = s * 0.058 * bulk;
+    for (var j = 0; j < 2; j++) {
+      var b = armA[j];
+      ctx.beginPath();
+      ctx.moveTo(0, shY + s * 0.02);
+      ctx.lineTo(_sin(b) * armLen * 0.55, shY + s * 0.02 + _cos(b) * armLen * 0.55);
+      ctx.lineTo(_sin(b * 1.25) * armLen, shY + s * 0.02 + _cos(b * 1.25) * armLen);
+      ctx.stroke();
+    }
+    // head + helmet
+    ctx.fillStyle = 'rgba(70,70,80,1)';
+    ctx.beginPath(); ctx.arc(0, headY, s * 0.072, 0, PI2); ctx.fill();
+    ctx.fillStyle = 'rgba(246,246,250,1)';
+    ctx.beginPath();
+    ctx.arc(0, headY - s * 0.008, s * 0.076, PI, PI2);
+    ctx.lineTo(s * 0.076, headY + s * 0.012);
+    ctx.lineTo(-s * 0.076, headY + s * 0.012);
+    ctx.closePath(); ctx.fill();
+
+    // equipment per archetype row
+    ctx.strokeStyle = 'rgba(170,170,178,1)';
+    ctx.lineWidth = s * 0.030;
+    if (row === 2) {                                     // ranged — bow
+      ctx.beginPath();
+      ctx.arc(_sin(armA[1]) * armLen * 1.05, shY + s * 0.02 + _cos(armA[1]) * armLen * 1.05, s * 0.16, -1.1, 1.1);
+      ctx.stroke();
+    } else if (row === 1) {                              // shielded
+      ctx.fillStyle = 'rgba(224,224,232,1)';
+      ctx.beginPath();
+      ctx.ellipse ? ctx.ellipse(-s * 0.16, shY + s * 0.16, s * 0.10, s * 0.17, 0, 0, PI2)
+                  : ctx.arc(-s * 0.16, shY + s * 0.16, s * 0.13, 0, PI2);
+      ctx.fill();
+      drawImpWeapon(ctx, s, shY, armA[0], armLen, 0.44);
+    } else {
+      drawImpWeapon(ctx, s, shY, armA[0], armLen, row === 3 ? 0.62 : 0.50);
+    }
+
+    // baked top-light so impostors sit in the same lighting as the real rigs
+    ctx.globalCompositeOperation = 'source-atop';
+    var grd = ctx.createLinearGradient(0, -s, 0, 0);
+    grd.addColorStop(0, 'rgba(255,255,255,0.16)');
+    grd.addColorStop(0.55, 'rgba(255,255,255,0)');
+    grd.addColorStop(1, 'rgba(0,0,0,0.30)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(-cw, -ch, cw * 2, ch * 2);
+    ctx.restore();
+  }
+
+  function drawImpWeapon(ctx, s, shY, ang, armLen, len) {
+    var hx = _sin(ang * 1.25) * armLen, hy = shY + s * 0.02 + _cos(ang * 1.25) * armLen;
+    var wa = ang - 1.35;
+    ctx.strokeStyle = 'rgba(186,186,194,1)';
+    ctx.lineWidth = s * 0.034;
+    ctx.beginPath();
+    ctx.moveTo(hx, hy);
+    ctx.lineTo(hx + _sin(wa) * s * len, hy + _cos(wa) * s * len);
+    ctx.stroke();
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  }
+
+  function buildImpostors(parent) {
+    try {
+      var tex = mkTex('atlas', 1024, 512, drawImpostorAtlas,
+        { key: 'u3d_atlas', wrap: THREE.ClampToEdgeWrapping, anisotropy: 4 });
+      if (!tex) return false;
+      var geo = GEO.impostorQuad;
+      var mat = new THREE.MeshBasicMaterial({
+        map: tex, alphaTest: 0.42, transparent: false, side: THREE.DoubleSide,
+        vertexColors: true, fog: true
+      });
+      mat.name = 'u3d:impostor';
+      mat.onBeforeCompile = function (shader) {
+        shader.uniforms.uAtlas = { value: new THREE.Vector2(IMP_COLS, IMP_ROWS) };
+        shader.vertexShader = 'attribute float aFrame;\nuniform vec2 uAtlas;\n' + shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace('#include <uv_vertex>',
+          'vUv = (uv + vec2(mod(aFrame, uAtlas.x), floor(aFrame / uAtlas.x))) / uAtlas;');
+        shader.vertexShader = shader.vertexShader.replace('#include <project_vertex>', IMP_BILLBOARD);
+      };
+      mat.customProgramCacheKey = function () { return 'aow-u3d-impostor'; };
+
+      impFrames = new THREE.InstancedBufferAttribute(new Float32Array(IMP_CAP), 1);
+      if (typeof impFrames.setUsage === 'function' && THREE.DynamicDrawUsage !== undefined) {
+        impFrames.setUsage(THREE.DynamicDrawUsage);
+      }
+      geo.setAttribute('aFrame', impFrames);
+
+      impMesh = new THREE.InstancedMesh(geo, mat, IMP_CAP);
+      impMesh.name = 'aowImpostors';
+      impMesh.frustumCulled = false;
+      impMesh.castShadow = false;
+      impMesh.receiveShadow = false;
+      impMesh.count = 0;
+      if (typeof impMesh.instanceMatrix.setUsage === 'function' && THREE.DynamicDrawUsage !== undefined) {
+        impMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      }
+      // Prime instanceColor so USE_INSTANCING_COLOR is defined from the first compile.
+      _col.setRGB(1, 1, 1);
+      for (var i = 0; i < IMP_CAP; i++) impMesh.setColorAt(i, _col);
+      if (impMesh.instanceColor) impMesh.instanceColor.needsUpdate = true;
+
+      parent.add(impMesh);
+      impOk = true;
+      return true;
+    } catch (e) {
+      console.warn('[AOW.Units3D] impostor system unavailable — far units fall back to simple rigs.', e);
+      impOk = false;
+      return false;
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 14. Blob shadows — one more instanced call, and worth every byte.
+   * ------------------------------------------------------------------------ */
+  var BLOB_CAP = 640;
+  var blobMesh = null, blobOk = false, blobsEnabled = true;
+
+  function buildBlobs(parent) {
+    try {
+      var tex = mkTex('blob', 128, 128, function (ctx, w, h) {
+        var g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+        g.addColorStop(0, 'rgba(0,0,0,0.95)');
+        g.addColorStop(0.45, 'rgba(0,0,0,0.62)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+      }, { key: 'u3d_blob', wrap: THREE.ClampToEdgeWrapping });
+      if (!tex) return false;
+      var mat = new THREE.MeshBasicMaterial({
+        map: tex, color: 0x000000, transparent: true, opacity: 0.40,
+        depthWrite: false, fog: true
+      });
+      mat.name = 'u3d:blob';
+      blobMesh = new THREE.InstancedMesh(GEO.blob, mat, BLOB_CAP);
+      blobMesh.name = 'aowUnitShadows';
+      blobMesh.frustumCulled = false;
+      blobMesh.renderOrder = -2;
+      blobMesh.count = 0;
+      if (typeof blobMesh.instanceMatrix.setUsage === 'function' && THREE.DynamicDrawUsage !== undefined) {
+        blobMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+      }
+      parent.add(blobMesh);
+      blobOk = true;
+      return true;
+    } catch (e) {
+      console.warn('[AOW.Units3D] blob shadows unavailable', e);
+      blobOk = false;
+      return false;
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 15. Rig instances + equipment pooling
+   * ------------------------------------------------------------------------ */
+  var fullPool = [], simplePool = [], equipPool = {}, capePool = [];
+  var unitsGroup = null;
+
+  function newRigInstance(template) {
+    var root = template.clone(true);
+    var bones = {}, meshes = [];
+    root.traverse(function (o) {
+      if (o.userData && o.userData.bone) bones[o.userData.bone] = o;
+      else if (o.isMesh && o.userData && o.userData.role) meshes.push(o);
+    });
+    return { root: root, bones: bones, meshes: meshes, base: meshes.slice(), attach: {}, cape: null };
+  }
+
+  function getFullRig() {
+    var r = fullPool.length ? fullPool.pop() : newRigInstance(rigTemplate);
+    return r;
+  }
+  function getSimpleRig() {
+    var r = simplePool.length ? simplePool.pop() : newRigInstance(simpleTemplate);
+    return r;
+  }
+
+  function takeEquip(kind, variant, eraK, team) {
+    var key = protoKey(kind, variant, eraK, team);
+    var arr = equipPool[key];
+    if (arr && arr.length) return arr.pop();
+    var proto = getProto(kind, variant, eraK, team);
+    if (!proto) return null;
+    var c = proto.clone(true);
+    c.userData.pkey = key;
+    return c;
+  }
+  function giveEquip(obj) {
+    if (!obj) return;
+    if (obj.parent) obj.parent.remove(obj);
+    var key = obj.userData && obj.userData.pkey;
+    if (!key) return;
+    var arr = equipPool[key] || (equipPool[key] = []);
+    if (arr.length < 64) arr.push(obj);
+  }
+
+  function detachAll(rig) {
+    var k;
+    for (k in rig.attach) {
+      if (!Object.prototype.hasOwnProperty.call(rig.attach, k)) continue;
+      giveEquip(rig.attach[k]);
+      rig.attach[k] = null;
+    }
+    rig.attach = {};
+    rig.meshes.length = 0;
+    for (var i = 0; i < rig.base.length; i++) rig.meshes.push(rig.base[i]);
+  }
+
+  function attachTo(rig, socketName, slot, kind, variant, eraK, team) {
+    var socket = rig.bones[socketName];
+    if (!socket) return null;
+    var obj = takeEquip(kind, variant, eraK, team);
+    if (!obj) return null;
+    socket.add(obj);
+    rig.attach[slot] = obj;
+    obj.traverse(function (o) {
+      if (o.isMesh && o.userData && o.userData.role) rig.meshes.push(o);
+    });
+    return obj;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 16. The unit view
+   * ------------------------------------------------------------------------ */
+  /* A Map for id lookup and a dense array for iteration. Deliberately NOT a
+     plain object: `for (id in obj)` materialises a key array every frame, which
+     at 300 units is the single largest source of garbage in this module. */
+  var views = new Map();     // unit id -> view
+  var viewArr = [];          // dense, swap-removed; the only thing we iterate
+  var dying = [];            // views playing out their death after the sim dropped them
+  var viewPool = [];
+  var frameStamp = 0;
+
+  function newView() {
+    return {
+      id: 0, unit: null, team: 1, cls: 'assault', eraK: 'Iron', kitKey: '',
+      lod: -1, lodWant: -1, rig: null, bones: null, dist: 999, stamp: 0, visible: true,
+
+      x: 0, z: 0, y: 0, px: 0, pz: 0, py: 0,
+      yaw: 0, targetYaw: 0, speed: 0, accelX: 0, prevSpeed: 0,
+      groundY: 0, groundL: 0, groundR: 0,
+
+      state: 'idle', prevState: 'idle', blend: 1, blendDur: 0.2,
+      clock: 0, prevClock: 0, phase: 0, stridePh: 0, prevStridePh: 0,
+      scale: 1, hue: 0, dmg: 0, dmgAcc: 0,
+
+      guard: 'mid', weapon: 'sword', atkArch: 'swing', atkTime: null,
+      atkT: 0, atkPhase: -1, atkActive: false,
+      hitStop: 0, flash: 0, flashCrit: false,
+      hurtT: 0, hurtDur: 0.34, hurtDir: 1, hurtSide: 0,
+      shove: 0, adjT: 0, adjDur: 0.8, adjNext: 4,
+
+      dyingFlag: false, dieT: 0, dieVar: 0, dieSide: 1,
+      fallAng: 0, fallVel: 0, limp: 0, sink: 0, sunk: false,
+
+      lookYaw: 0, lookPitch: 0, wLagL: 0, wLagR: 0,
+      prevARSW: 0, prevALSW: 0, armorLag: 0, armorLagX: 0,
+      cape: null, wantCape: false,
+      impFrame: 0, blobR: 0.42,
+      atkDur: 0.5, matEpoch: -1,
+      // Frozen snapshot used once the sim drops the unit: the sim may recycle
+      // that object for a fresh soldier, and a corpse must not follow it.
+      stub: { id: -1, x: 0, y: 0, z: 0, vx: 0, vz: 0, face: 1, team: 1,
+              cls: 'assault', dead: true, state: 'die', target: null },
+      pose: new Float32Array(P_COUNT),
+      poseA: new Float32Array(P_COUNT),
+      poseB: new Float32Array(P_COUNT)
+    };
+  }
+
+  function resetView(v, unit) {
+    v.id = unit.id;
+    v.unit = unit;
+    v.team = (unit.team === -1) ? -1 : 1;
+    v.cls = unit.cls || 'assault';
+    v.eraK = eraKey(unit.era !== undefined ? unit.era : (Core && Core.state ? Core.state.era : 'Iron'));
+    v.kitKey = '';
+    v.lod = -1; v.rig = null; v.bones = null;
+    v.stamp = frameStamp; v.visible = true;
+
+    var C = classFor(v.cls);
+    var h1 = hashId(unit.id, 1), h2 = hashId(unit.id, 2), h3 = hashId(unit.id, 3);
+    v.phase = h1;
+    v.scale = C.scale * (0.955 + h2 * 0.09);
+    v.hue = (h3 * 3) | 0;
+    v.guard = C.guard;
+    v.dmg = 0; v.dmgAcc = 0;
+
+    v.x = v.px = num(unit.x, 0);
+    v.z = v.pz = num(unit.z, 0);
+    v.y = v.py = num(unit.y, 0);
+    v.groundY = 0; v.groundL = 0; v.groundR = 0;
+    v.yaw = v.targetYaw = (unit.face === -1) ? PI : 0;
+    v.speed = 0; v.accelX = 0; v.prevSpeed = 0;
+
+    v.state = v.prevState = 'idle';
+    v.blend = 1; v.blendDur = 0.2;
+    v.clock = h1 * 40; v.prevClock = v.clock;
+    v.stridePh = h2; v.prevStridePh = v.stridePh;
+
+    v.weapon = weaponFor(kitFor(v.eraK), v.cls);
+    setWeapon(v, v.weapon);
+    v.atkT = 0; v.atkPhase = -1; v.atkActive = false;
+    v.hitStop = 0; v.flash = 0; v.flashCrit = false;
+    v.hurtT = 0; v.shove = 0;
+    v.adjT = 0; v.adjNext = 2 + h3 * 6;
+    v.dyingFlag = false; v.dieT = 0; v.fallAng = 0; v.fallVel = 0; v.limp = 0;
+    v.sink = 0; v.sunk = false;
+    v.lookYaw = 0; v.lookPitch = 0; v.wLagL = 0; v.wLagR = 0;
+    v.prevARSW = 0; v.prevALSW = 0; v.armorLag = 0; v.armorLagX = 0;
+    v.cape = null;
+    v.blobR = 0.40 * C.bulk * v.scale;
+    resetPose(v.pose);
+    return v;
+  }
+
+  function num(v, d) { return (typeof v === 'number' && isFinite(v)) ? v : d; }
+
+  function setWeapon(v, name) {
+    var W = weaponDef(name);
+    v.weapon = name;
+    v.atkArch = W.arch;
+    v.atkTime = W.t;
+    v.atkDur = W.t[0] + W.t[1] + W.t[2] + W.t[3];
+  }
+
+  /* --- LOD switching ------------------------------------------------------ */
+  function releaseRig(v) {
+    if (!v.rig) return;
+    var r = v.rig;
+    if (r.root.parent) r.root.parent.remove(r.root);
+    detachAll(r);
+    if (v.cape) {
+      if (v.cape.mesh.parent) v.cape.mesh.parent.remove(v.cape.mesh);
+      v.cape.seeded = false;
+      if (capePool.length < 48) capePool.push(v.cape);
+      v.cape = null;
+      capeLive = _max(0, capeLive - 1);
+    }
+    if (v.lod === 0) { if (fullPool.length < 96) fullPool.push(r); }
+    else if (v.lod === 1) { if (simplePool.length < 192) simplePool.push(r); }
+    v.rig = null; v.bones = null;
+    v.kitKey = '';
+  }
+
+  function setLod(v, lod) {
+    if (v.lod === lod) return;
+    releaseRig(v);
+    v.lod = lod;
+    if (lod === 0 || lod === 1) {
+      var r = (lod === 0) ? getFullRig() : getSimpleRig();
+      v.rig = r; v.bones = r.bones;
+      r.root.scale.setScalar(v.scale);
+      buildKit(v);
+      unitsGroup.add(r.root);
+    }
+  }
+
+  function buildKit(v) {
+    var r = v.rig;
+    if (!r) return;
+    var kit = kitFor(v.eraK);
+    var C = classFor(v.cls);
+    var key = v.eraK + '|' + v.team + '|' + v.cls + '|' + v.lod + '|' + v.weapon;
+    if (v.kitKey === key) { resolveMaterials(v); return; }
+    detachAll(r);
+    v.kitKey = key;
+
+    var W = weaponDef(v.weapon);
+    var handSocket = (W.hand === 'L') ? 'gripL' : 'gripR';
+    var offSocket = (W.hand === 'L') ? 'gripR' : 'gripL';
+
+    if (v.lod === 0) {
+      if (kit.helmet && kit.helmet !== 'none') attachTo(r, 'socketHelmet', 'helmet', 'helmet', kit.helmet, v.eraK, v.team);
+      if (kit.shoulders && kit.shoulders !== 'none') {
+        attachTo(r, 'socketShoulderL', 'shL', 'shoulders', kit.shoulders, v.eraK, v.team);
+        attachTo(r, 'socketShoulderR', 'shR', 'shoulders', kit.shoulders, v.eraK, v.team);
+      }
+      if (v.weapon !== 'fist') attachTo(r, handSocket, 'weapon', 'weapon', v.weapon, v.eraK, v.team);
+      if (C.shield && kit.shield && kit.shield !== 'none') {
+        var sh = attachTo(r, offSocket, 'shield', 'shield', kit.shield, v.eraK, v.team);
+        if (sh) { sh.position.set(0.06, -0.10, 0); sh.rotation.set(0, 0, 0.30); }
+      }
+      if (v.cls === 'ranged' && kit.hasQuiver) {
+        var qv = attachTo(r, 'socketBack', 'quiver', 'quiver', 'std', v.eraK, v.team);
+        if (qv) { qv.position.set(-0.02, 0.02, -0.08); qv.rotation.set(0.30, 0, 0.55); }
+      }
+      v.wantCape = !!kit.cape && (v.cls === 'champion' || v.cls === 'boss' || v.cls === 'defender' || v.cls === 'specialist');
+    } else {
+      if (v.weapon !== 'fist') attachTo(r, (W.hand === 'L') ? 'gripL' : 'gripR', 'weapon', 'weapon', v.weapon, v.eraK, v.team);
+      v.wantCape = false;
+    }
+    resolveMaterials(v);
+  }
+
+  function resolveMaterials(v) {
+    var r = v.rig;
+    if (!r) return;
+    var ms = r.meshes, i, m, role;
+    for (i = 0; i < ms.length; i++) {
+      m = ms[i];
+      role = m.userData.role;
+      m.material = getMat(role, v.eraK, v.team, v.hue, v.dmg);
+    }
+    if (v.cape) v.cape.mesh.material = getMat('accent', v.eraK, v.team, v.hue, v.dmg);
+    v.matEpoch = matEpoch;
+    v.flash = 0;
+  }
+
+  function flashMaterials(v, crit) {
+    var r = v.rig;
+    if (!r) return;
+    var fm = getFlashMat(crit), ms = r.meshes, i;
+    for (i = 0; i < ms.length; i++) ms[i].material = fm;
+  }
+
+  function ensureCape(v) {
+    if (!v.wantCape || v.lod !== 0) {
+      if (v.cape) {
+        if (v.cape.mesh.parent) v.cape.mesh.parent.remove(v.cape.mesh);
+        v.cape.seeded = false;
+        if (capePool.length < 48) capePool.push(v.cape);
+        v.cape = null;
+        capeLive = _max(0, capeLive - 1);
+      }
+      return;
+    }
+    if (v.cape) return;
+    if (capeLive >= capeBudget) return;
+    var c = capePool.length ? capePool.pop() : makeCape();
+    capeLive++;
+    c.len = 0.20 * v.scale;
+    c.width = (v.cls === 'boss' ? 0.42 : 0.30) * v.scale;
+    c.mesh.material = getMat('accent', v.eraK, v.team, v.hue, v.dmg);
+    c.seeded = false;
+    capeGroup.add(c.mesh);
+    v.cape = c;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 17. Ground sampling (Env owns the terrain; we ask politely, and cope)
+   * ------------------------------------------------------------------------ */
+  var _groundFn = null, _groundTry = 0;
+  function refreshGroundFn() {
+    var E = AOW.Env;
+    _groundFn = null;
+    if (!E) return;
+    var names = ['groundHeight', 'heightAt', 'getHeight', 'sampleHeight', 'terrainHeight'];
+    for (var i = 0; i < names.length; i++) {
+      if (typeof E[names[i]] === 'function') {
+        (function (fn) { _groundFn = function (x, z) { return fn.call(E, x, z); }; })(E[names[i]]);
+        return;
+      }
+    }
+  }
+  function groundAt(x, z) {
+    if (!_groundFn) {
+      if ((_groundTry++ % 90) !== 0) return 0;
+      refreshGroundFn();
+      if (!_groundFn) return 0;
+    }
+    try {
+      var h = _groundFn(x, z);
+      return (typeof h === 'number' && isFinite(h)) ? h : 0;
+    } catch (e) { _groundFn = null; return 0; }
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 18. Animation state selection + per-view step
+   * ------------------------------------------------------------------------ */
+  var BLEND_IN = {
+    idle: 0.22, walk: 0.20, run: 0.17, sprint: 0.16, charge: 0.18,
+    attack: 0.075, block: 0.13, hurt: 0.05, die: 0.07, cheer: 0.20
+  };
+
+  function pickState(v, u) {
+    if (v.dyingFlag || u.dead || u.state === 'die') return 'die';
+    // A shove from a landed block outranks the flinch: you braced, so you brace.
+    if (v.shove > 0.45) return 'block';
+    if (v.hurtT > 0) return 'hurt';
+    if (v.atkActive) return 'attack';
+    var us = u.state;
+    if (us === 'block') return 'block';
+    if (us === 'cheer') return 'cheer';
+    if (us === 'attack') { startAttack(v, null); return 'attack'; }
+    var sp = v.speed;
+    if (sp < 0.16) return (us === 'idle' || !us) ? 'idle' : 'idle';
+    if (u.charge || u.charging) return 'charge';
+    if (sp < 1.95) return 'walk';
+    if (sp < 3.70) return 'run';
+    return 'sprint';
+  }
+
+  function setState(v, s) {
+    if (v.state === s) return;
+    v.prevState = v.state;
+    v.prevClock = v.clock;
+    v.prevStridePh = v.stridePh;
+    v.blendDur = BLEND_IN[s] || 0.18;
+    v.blend = 0;
+    v.state = s;
+  }
+
+  function startAttack(v, weaponName) {
+    if (weaponName && WEAPONS[weaponName] && weaponName !== v.weapon) setWeapon(v, weaponName);
+    v.atkActive = true;
+    v.atkT = 0;
+    v.atkPhase = -1;
+    setState(v, 'attack');
+  }
+
+  function buildPose(v, stateName, out) {
+    switch (stateName) {
+      case 'idle':   return poseIdle(v, out);
+      case 'walk':   return poseLoco(v, out, 'walk');
+      case 'run':    return poseLoco(v, out, 'run');
+      case 'sprint': return poseLoco(v, out, 'sprint');
+      case 'charge': return poseLoco(v, out, 'charge');
+      case 'attack': return poseAttack(v, out);
+      case 'block':  return poseBlock(v, out);
+      case 'hurt':   return poseHurt(v, out);
+      case 'die':    return poseDie(v, out);
+      case 'cheer':  return poseCheer(v, out);
+      default:       return poseIdle(v, out);
+    }
+  }
+
+  /* The blended pose. During a cross-fade the OUTGOING state keeps ticking, so
+     a man interrupted mid-stride finishes that stride into his new state. */
+  function computePose(v, dt) {
+    var out = v.pose;
+    if (v.blend >= 1) {
+      buildPose(v, v.state, out);
+      return out;
+    }
+    var saveClock = v.clock, saveStride = v.stridePh;
+    v.clock = v.prevClock; v.stridePh = v.prevStridePh;
+    buildPose(v, v.prevState, v.poseA);
+    v.clock = saveClock; v.stridePh = saveStride;
+    buildPose(v, v.state, v.poseB);
+    blendPose(v.poseA, v.poseB, smooth(v.blend), out);
+    return out;
+  }
+
+  function stepView(v, u, dt, camX, camY, camZ) {
+    var C = classFor(v.cls);
+
+    /* --- position: extrapolate the sim step, then damp out the jitter ------ */
+    var ux = num(u.x, v.x), uz = num(u.z, v.z), uy = num(u.y, 0);
+    v.px = v.x; v.pz = v.z;
+    v.x = damp(v.x, ux, 26, dt);
+    v.z = damp(v.z, uz, 26, dt);
+    v.y = damp(v.y, uy, 22, dt);
+
+    var mvx = v.x - v.px, mvz = v.z - v.pz;
+    var travelled = _sqrt(mvx * mvx + mvz * mvz);
+    var sp = dt > 0 ? travelled / dt : 0;
+    // sim velocity wins when it exists — it's cleaner than differencing positions
+    var svx = num(u.vx, NaN), svz = num(u.vz, NaN);
+    if (svx === svx && svz === svz) {
+      var ss = _sqrt(svx * svx + svz * svz);
+      sp = ss > 0.02 ? ss : sp;
+    }
+    v.accelX = dt > 0 ? (sp - v.prevSpeed) / dt : 0;
+    v.prevSpeed = sp;
+    v.speed = damp(v.speed, sp, 14, dt);
+
+    var gy = groundAt(v.x, v.z);
+    v.groundY = gy + v.y;
+
+    /* --- facing ----------------------------------------------------------- */
+    var face = (u.face === -1) ? -1 : 1;
+    v.targetYaw = (face === -1) ? PI : 0;
+    var dy2 = wrapPi(v.targetYaw - v.yaw);
+    v.yaw += dy2 * clamp(dt * 11, 0, 1);
+
+    /* --- timers ----------------------------------------------------------- */
+    if (v.hitStop > 0) { v.hitStop -= dt; }
+    var adt = v.hitStop > 0 ? dt * 0.12 : dt;
+
+    v.clock += adt;
+    v.prevClock += adt;
+    if (v.flash > 0) {
+      v.flash -= dt;
+      if (v.flash <= 0) resolveMaterials(v);
+    }
+    if (v.shove > 0) v.shove = _max(0, v.shove - dt * 3.4);
+    if (v.hurtT > 0) {
+      v.hurtT -= adt;
+      if (v.hurtT <= 0) v.hurtT = 0;
+    }
+    if (v.adjT > 0) { v.adjT -= adt; if (v.adjT < 0) v.adjT = 0; }
+    else if (v.state === 'idle') {
+      v.adjNext -= adt;
+      if (v.adjNext <= 0) { v.adjT = v.adjDur; v.adjNext = 3.5 + hashId(v.id, (v.clock | 0) + 7) * 7; }
+    }
+
+    /* --- stride phase from DISTANCE, never from time ---------------------- */
+    var kindK = LOCO[v.state] || LOCO[v.prevState] || LOCO.walk;
+    var cycleDist = kindK.step / kindK.duty;
+    if (cycleDist > 0.01) {
+      var adv = (travelled > 1e-6 ? travelled : v.speed * adt) / cycleDist;
+      v.stridePh = frac(v.stridePh + adv);
+      var pk = LOCO[v.prevState] || kindK;
+      v.prevStridePh = frac(v.prevStridePh + ((travelled > 1e-6 ? travelled : v.speed * adt) / (pk.step / pk.duty)));
+    }
+
+    /* --- attack clock ----------------------------------------------------- */
+    if (v.atkActive) {
+      v.atkT += adt;
+      if (v.atkT >= v.atkDur) { v.atkActive = false; v.atkT = 0; v.atkPhase = -1; }
+    }
+
+    /* --- death integration ------------------------------------------------ */
+    if (v.dyingFlag) {
+      v.dieT += dt;
+      var delay = (v.dieVar === 2) ? 0.34 : 0.06;
+      if (v.dieT > delay) {
+        v.fallVel += 7.2 * dt * (0.7 + v.dieVar * 0.12);
+        v.fallAng += v.fallVel * dt;
+        if (v.fallAng >= HALF_PI) {
+          v.fallAng = HALF_PI;
+          if (v.fallVel > 0.6) v.fallVel = -v.fallVel * 0.20;   // one small bounce, then still
+          else v.fallVel = 0;
+        }
+      }
+      v.limp = damp(v.limp, 1, 4.2, dt);
+      if (v.dieT > DEATH_HOLD) {
+        v.sink -= dt * 0.34;
+        if (v.rig) v.rig.root.scale.setScalar(v.scale * _max(0.62, 1 - (v.dieT - DEATH_HOLD) * 0.22));
+        if (v.dieT > DEATH_HOLD + DEATH_SINK) v.sunk = true;
+      }
+    }
+
+    /* --- state machine ---------------------------------------------------- */
+    // A unit can die without anyone emitting unit:death (sim reload, cleanup);
+    // pick that up here so a corpse never freezes mid-stride.
+    if (!v.dyingFlag && (u.dead === true || u.state === 'die')) beginDeath(v, null);
+    setState(v, pickState(v, u));
+    if (v.blend < 1) v.blend = _min(1, v.blend + dt / _max(0.02, v.blendDur));
+
+    /* --- head look-at ----------------------------------------------------- */
+    var lookX = 0, lookZ = 0, lookY = 0, hasLook = false;
+    var tg = u.target;
+    if (tg && typeof tg === 'object' && typeof tg.x === 'number') {
+      lookX = tg.x; lookZ = num(tg.z, 0); lookY = num(tg.y, 0) + 1.4; hasLook = true;
+    } else if (typeof tg === 'number' && views.get(tg)) {
+      var tv = views.get(tg);
+      lookX = tv.x; lookZ = tv.z; lookY = tv.groundY + 1.4; hasLook = true;
+    }
+    var wantYaw = 0, wantPitch = 0;
+    if (hasLook && !v.dyingFlag) {
+      var ddx = lookX - v.x, ddz = lookZ - v.z;
+      var dl = _sqrt(ddx * ddx + ddz * ddz);
+      if (dl > 0.3) {
+        wantYaw = clamp(wrapPi(_atan2(-ddz, ddx) - v.yaw), -0.85, 0.85);
+        wantPitch = clamp(_atan2(lookY - (v.groundY + 1.55), dl), -0.30, 0.42);
+      }
+    }
+    v.lookYaw = damp(v.lookYaw, wantYaw, 8, dt);
+    v.lookPitch = damp(v.lookPitch, wantPitch, 7, dt);
+
+    /* --- pose ------------------------------------------------------------- */
+    var o = computePose(v, dt);
+
+    /* --- secondary motion: weapon inertia + armour lag -------------------- */
+    var dR = dt > 0 ? (o[P_ARSW] - v.prevARSW) / dt : 0;
+    var dL = dt > 0 ? (o[P_ALSW] - v.prevALSW) / dt : 0;
+    v.prevARSW = o[P_ARSW]; v.prevALSW = o[P_ALSW];
+    var wm = weaponDef(v.weapon).mass;
+    v.wLagR = damp(v.wLagR, clamp(-dR * 0.014 * wm, -0.55, 0.55), 17, dt);
+    v.wLagL = damp(v.wLagL, clamp(-dL * 0.012 * wm, -0.45, 0.45), 17, dt);
+    v.armorLag = damp(v.armorLag, clamp(-v.accelX * 0.010, -0.16, 0.16), 12, dt);
+    v.armorLagX = damp(v.armorLagX, clamp(-v.accelX * 0.0035, -0.05, 0.05), 12, dt);
+
+    /* --- ground under each foot ------------------------------------------ */
+    if (v.lod === 0) {
+      var fwdX = _cos(v.yaw), fwdZ = -_sin(v.yaw);
+      var sidX = _sin(v.yaw), sidZ = _cos(v.yaw);
+      var lx = v.x + fwdX * o[P_FLX] + sidX * o[P_FLZ];
+      var lz = v.z + fwdZ * o[P_FLX] + sidZ * o[P_FLZ];
+      var rx = v.x + fwdX * o[P_FRX] + sidX * o[P_FRZ];
+      var rz = v.z + fwdZ * o[P_FRX] + sidZ * o[P_FRZ];
+      v.groundL = groundAt(lx, lz) - gy;
+      v.groundR = groundAt(rx, rz) - gy;
+    } else { v.groundL = 0; v.groundR = 0; }
+
+    /* --- push to the rig -------------------------------------------------- */
+    if (v.lod === 0) {
+      v.rig.root.position.x = v.x;
+      v.rig.root.position.z = v.z;
+      applyPose(v, o, dt);
+      if (v.wantCape) {
+        ensureCape(v);
+        if (v.cape) {
+          v.rig.root.updateMatrixWorld(true);
+          var sock = v.bones.socketCape;
+          sock.getWorldPosition(_v3c);
+          var windX = _sin(v.clock * 0.9 + v.phase * 5) * 0.9 - v.speed * (u.face === -1 ? -1 : 1) * 1.7;
+          stepCape(v.cape, _v3c.x, _v3c.y, _v3c.z, _sin(v.yaw), _cos(v.yaw), windX, dt);
+        }
+      }
+    } else if (v.lod === 1) {
+      v.rig.root.position.x = v.x;
+      v.rig.root.position.z = v.z;
+      applyPoseSimple(v, o);
+    }
+
+    /* --- impostor frame --------------------------------------------------- */
+    if (v.lod === 2) {
+      var row = (v.cls === 'boss' || v.cls === 'champion') ? 3
+              : (v.cls === 'ranged') ? 2
+              : (C.shield ? 1 : 0);
+      var colf;
+      if (v.dyingFlag) colf = 7;
+      else if (v.atkActive) colf = 5 + (v.atkPhase >= 1 ? 1 : 0);
+      else if (v.speed < 0.16) colf = 0;
+      else colf = 1 + ((v.stridePh * 4) | 0) % 4;
+      v.impFrame = row * IMP_COLS + colf;
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 19. Frame update
+   * ------------------------------------------------------------------------ */
+  var DEATH_HOLD = 2.1, DEATH_SINK = 1.6;
+  var capeLive = 0, capeBudget = 14, capesEnabled = true;
+  var lodBias = 1;
+
+  var BUDGET = {
+    high: { l0: 34, l1: 96, d0: 32, d1: 76, cape: 14, shadow: 380 },
+    med:  { l0: 20, l1: 60, d0: 25, d1: 62, cape: 8,  shadow: 260 },
+    low:  { l0: 10, l1: 30, d0: 18, d1: 46, cape: 3,  shadow: 150 }
+  };
+
+  var stats = { lod0: 0, lod1: 0, lod2: 0, views: 0, dying: 0, capes: 0, shadows: 0 };
+
+  /* Picking "the nearest N" without a sort.
+   *
+   * Array#sort would do it, but V8 allocates a scratch buffer every call and at
+   * 300 units that is the module's second-largest per-frame allocation. A
+   * distance histogram gives the same answer in one linear pass with a fixed
+   * Int32Array, so the LOD ladder costs nothing but arithmetic. */
+  var LOD_HIST = 64;
+  var _hist = new Int32Array(LOD_HIST);
+
+  function lodCutoff(arr, n, maxD, budget) {
+    var i, b, cnt = 0;
+    for (i = 0; i < LOD_HIST; i++) _hist[i] = 0;
+    for (i = 0; i < n; i++) {
+      var v = arr[i];
+      if (v.lodWant >= 0 || v.dist >= maxD) continue;
+      b = (v.dist / maxD * LOD_HIST) | 0;
+      if (b < 0) b = 0; else if (b >= LOD_HIST) b = LOD_HIST - 1;
+      _hist[b]++; cnt++;
+    }
+    if (cnt <= budget) return maxD;
+    var acc = 0;
+    for (i = 0; i < LOD_HIST; i++) {
+      acc += _hist[i];
+      if (acc >= budget) return (i + 1) / LOD_HIST * maxD;
+    }
+    return maxD;
+  }
+
+  function update(dtReal, alpha, state) {
+    if (!U.ready) return;
+    var dt = clamp(num(dtReal, 0.016), 0.0001, 0.05);
+    state = state || (Core && Core.state);
+    if (!state || !state.units) return;
+
+    var cam = Rndr && Rndr.camera;
+    var camX = cam ? cam.position.x : 0, camY = cam ? cam.position.y : 24, camZ = cam ? cam.position.z : -90;
+
+    var tier = (Core && Core.perf && Core.perf.tier) || 'high';
+    var B = BUDGET[tier] || BUDGET.high;
+    capeBudget = capesEnabled ? B.cape : 0;
+
+    frameStamp++;
+    var units = state.units, n = units.length, i, u, v;
+
+    /* --- 1. sync views ---------------------------------------------------- */
+    for (i = 0; i < n; i++) {
+      u = units[i];
+      if (!u || u.id === undefined || u.id === null) continue;
+      v = views.get(u.id);
+      if (!v) {
+        v = viewPool.length ? viewPool.pop() : newView();
+        resetView(v, u);
+        views.set(u.id, v);
+        viewArr.push(v);
+      } else {
+        v.unit = u;
+        // era / class can change under us (evolution, promotion) — re-kit lazily
+        var ek = eraKey(u.era !== undefined ? u.era : state.era);
+        if (ek !== v.eraK || (u.cls || 'assault') !== v.cls) {
+          v.eraK = ek; v.cls = u.cls || 'assault';
+          var C2 = classFor(v.cls);
+          v.guard = C2.guard;
+          v.scale = C2.scale * (0.955 + hashId(v.id, 2) * 0.09);
+          v.blobR = 0.40 * C2.bulk * v.scale;
+          setWeapon(v, weaponFor(kitFor(v.eraK), v.cls));
+          if (v.rig) { v.rig.root.scale.setScalar(v.scale); buildKit(v); }
+        }
+      }
+      v.stamp = frameStamp;
+      var dx = v.x - camX, dy = (v.groundY + 0.9) - camY, dz = v.z - camZ;
+      v.dist = _sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    /* --- 2. sweep views the sim dropped (swap-remove, no key iteration) --- */
+    for (i = viewArr.length - 1; i >= 0; i--) {
+      v = viewArr[i];
+      if (v.stamp === frameStamp) continue;
+      views.delete(v.id);
+      viewArr[i] = viewArr[viewArr.length - 1];
+      viewArr.pop();
+      if (v.dyingFlag && !v.sunk) { freezeToStub(v); dying.push(v); }
+      else { releaseView(v); }
+    }
+
+    /* --- 3. LOD assignment ------------------------------------------------ */
+    var live = viewArr.length;
+    var n0 = 0, n1 = 0;
+    // LOD by APPARENT SIZE, not raw world distance. The old absolute-distance
+    // thresholds were calibrated for a close camera: at the game's real framing
+    // distance (60-190 world units) every soldier fell past d1 and the whole
+    // army silently rendered as flat impostors. Converting the budget's
+    // distances into a screen-height test makes the thresholds self-tune to the
+    // current fov, zoom and viewport, so a unit swaps LOD when it actually gets
+    // small on screen — which is the only thing the player can perceive.
+    var d0 = B.d0 * lodBias, d1 = B.d1 * lodBias;
+    var _cam = Rndr && Rndr.camera;
+    if (_cam && _cam.isPerspectiveCamera) {
+      // px per world unit at distance D = (viewportH / (2*tan(fov/2))) / D.
+      // Solve for the distance at which a UNIT_H-tall soldier hits the pixel
+      // height the budget's reference distance implied at fov 34 / 900px.
+      var vh = (Rndr.renderer && Rndr.renderer.domElement) ? Rndr.renderer.domElement.clientHeight : 900;
+      var kNow = (vh || 900) / (2 * Math.tan(_cam.fov * Math.PI / 360));
+      var kRef = 900 / (2 * Math.tan(34 * Math.PI / 360));
+      var s = kNow / kRef;                       // >1 = things look bigger now
+      if (isFinite(s) && s > 0.05) { d0 *= s; d1 *= s; }
+      // Never let the front rank drop to impostors while the camera is close
+      // enough that the player is clearly watching individual soldiers.
+      if ((Rndr.rig && Rndr.rig.dist || 999) < 90) { if (d0 < 55) d0 = 55; if (d1 < 120) d1 = 120; }
+    }
+    var max0 = B.l0, max1 = B.l1;
+    if (!impOk) { max1 = 1e9; d1 = 1e9; }     // no impostors → everyone gets a rig
+
+    for (i = 0; i < live; i++) viewArr[i].lodWant = -1;
+    var cut0 = lodCutoff(viewArr, live, d0, max0);
+    for (i = 0; i < live; i++) {
+      v = viewArr[i];
+      if (v.dist <= cut0 && n0 < max0 + 8) { v.lodWant = 0; n0++; }
+    }
+    var cut1 = lodCutoff(viewArr, live, d1, max1);
+    for (i = 0; i < live; i++) {
+      v = viewArr[i];
+      if (v.lodWant < 0) {
+        if (v.dist <= cut1 && n1 < max1 + 12) { v.lodWant = 1; n1++; }
+        else v.lodWant = 2;
+      }
+      // The boss is the shot everyone is looking at — he never degrades.
+      if (v.cls === 'boss' && v.dist < d1 * 1.6) v.lodWant = 0;
+      setLod(v, v.lodWant);
+      if (v.matEpoch !== matEpoch && v.rig) resolveMaterials(v);
+    }
+
+    /* --- 4. animate ------------------------------------------------------- */
+    for (i = 0; i < live; i++) {
+      v = viewArr[i];
+      stepView(v, v.unit, dt, camX, camY, camZ);
+    }
+
+    /* --- 5. corpses the sim already forgot ------------------------------- */
+    for (i = dying.length - 1; i >= 0; i--) {
+      v = dying[i];
+      var dx2 = v.x - camX, dy3 = (v.groundY + 0.5) - camY, dz2 = v.z - camZ;
+      v.dist = _sqrt(dx2 * dx2 + dy3 * dy3 + dz2 * dz2);
+      var wantD = v.dist < d0 ? 0 : (v.dist < d1 ? 1 : 2);
+      if (wantD < v.lod) wantD = v.lod;             // never upgrade a corpse
+      setLod(v, wantD);
+      stepView(v, v.unit || v.stub, dt, camX, camY, camZ);
+      if (v.sunk) {
+        dying[i] = dying[dying.length - 1];
+        dying.pop();
+        releaseView(v);
+      }
+    }
+
+    /* --- 6. flush the instanced passes ----------------------------------- */
+    flushInstanced(viewArr, dying, B);
+
+    stats.lod0 = n0; stats.lod1 = n1; stats.lod2 = _max(0, live - n0 - n1);
+    stats.views = live; stats.dying = dying.length; stats.capes = capeLive;
+  }
+
+  function freezeToStub(v) {
+    var s = v.stub;
+    s.id = v.id; s.x = v.x; s.y = v.y; s.z = v.z;
+    s.vx = 0; s.vz = 0;
+    s.face = (v.yaw > HALF_PI || v.yaw < -HALF_PI) ? -1 : 1;
+    s.team = v.team; s.cls = v.cls;
+    s.dead = true; s.state = 'die'; s.target = null;
+    v.unit = s;
+  }
+
+  var _ni = 0, _nb = 0, _shadowMax = 0;
+
+  function flushInstanced(live, corpses, B) {
+    _ni = 0; _nb = 0;
+    _shadowMax = (blobsEnabled && blobOk) ? _min(BLOB_CAP, B.shadow) : 0;
+    fillInstanced(live);
+    fillInstanced(corpses);
+
+    if (impOk) {
+      impMesh.count = _ni;
+      impMesh.visible = _ni > 0;
+      if (_ni > 0) {
+        impMesh.instanceMatrix.needsUpdate = true;
+        impFrames.needsUpdate = true;
+        if (impMesh.instanceColor) impMesh.instanceColor.needsUpdate = true;
+      }
+    }
+    if (blobOk) {
+      blobMesh.count = _nb;
+      blobMesh.visible = blobsEnabled && _nb > 0;
+      if (_nb > 0) blobMesh.instanceMatrix.needsUpdate = true;
+    }
+    stats.shadows = _nb;
+  }
+
+  function fillInstanced(list) {
+    var i, v, n = list.length;
+    var ni = _ni, nb = _nb;
+    var impArr = impOk ? impFrames.array : null;
+    var shadowMax = _shadowMax;
+
+    for (i = 0; i < n; i++) {
+      v = list[i];
+      if (v.lod === 2 && impOk && ni < IMP_CAP) {
+        _v3a.set(v.x, v.groundY, v.z);
+        _quat.set(0, 0, 0, 1);
+        _v3b.set(impW * v.scale, impH * v.scale, 1);
+        _m4a.compose(_v3a, _quat, _v3b);
+        impMesh.setMatrixAt(ni, _m4a);
+        impArr[ni] = v.impFrame;
+        tintFor(v);
+        impMesh.setColorAt(ni, _col);
+        ni++;
+      }
+      if (nb < shadowMax && !v.sunk) {
+        var fade = v.dyingFlag ? clamp01(1 - _max(0, v.dieT - DEATH_HOLD) / DEATH_SINK) : 1;
+        var r = v.blobR * (1 + v.dist * 0.0012) * fade;
+        if (r > 0.02) {
+          _v3a.set(v.x, v.groundY + 0.022, v.z);
+          _quat.set(0, 0, 0, 1);
+          _v3b.set(r * 2.6, 1, r * 1.9);
+          _m4a.compose(_v3a, _quat, _v3b);
+          blobMesh.setMatrixAt(nb, _m4a);
+          nb++;
+        }
+      }
+    }
+    _ni = ni; _nb = nb;
+  }
+
+  /* Impostor tint: team + era colour with the far-field lighting baked in. */
+  function tintFor(v) {
+    var kit = kitFor(v.eraK), tt = teamTint(v.team);
+    _col.set(tt.primary);
+    _col2.set(kit.metal);
+    _col.lerp(_col2, 0.32);
+    var lum = 0.86 - v.dmg * 0.10;
+    var hv = (v.hue === 1) ? 1.05 : (v.hue === 2 ? 0.95 : 1);
+    _col.r = clamp01(_col.r * lum * hv);
+    _col.g = clamp01(_col.g * lum);
+    _col.b = clamp01(_col.b * lum * (2 - hv));
+    if (v.flash > 0) { _col.r = 1; _col.g = 0.9; _col.b = 0.85; }
+    if (typeof _col.convertSRGBToLinear === 'function') _col.convertSRGBToLinear();
+    return _col;
+  }
+
+  function releaseView(v) {
+    releaseRig(v);
+    v.unit = null;
+    v.id = 0;
+    if (viewPool.length < 512) viewPool.push(v);
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 20. Event wiring — the whole cross-module contract lives here.
+   * ------------------------------------------------------------------------ */
+  function viewOf(p) {
+    if (!p) return null;
+    var u = p.unit || p;
+    if (u && u.id !== undefined && views.has(u.id)) return views.get(u.id);
+    if (typeof p.id === 'number' && views.has(p.id)) return views.get(p.id);
+    return null;
+  }
+
+  function wireEvents() {
+    busOn('unit:spawn', function (p) {
+      var u = p && (p.unit || p);
+      if (!u || u.id === undefined) return;
+      if (views.has(u.id)) return;
+      var v = viewPool.length ? viewPool.pop() : newView();
+      resetView(v, u);
+      views.set(u.id, v);
+      viewArr.push(v);
+    });
+
+    busOn('unit:attack', function (p) {
+      var v = viewOf(p);
+      if (!v || v.dyingFlag) return;
+      startAttack(v, p && p.weapon);
+    });
+
+    busOn('unit:hit', function (p) {
+      var v = viewOf(p);
+      if (!v) return;
+      var u = p && (p.unit || p);
+      var dmg = num(p && p.dmg, 6);
+      var crit = !!(p && p.crit);
+
+      // 1) flash — swap to the shared flash material, no per-unit allocation
+      v.flash = crit ? 0.11 : 0.075;
+      v.flashCrit = crit;
+      if (v.rig) flashMaterials(v, crit);
+
+      // 2) hit-stop — freeze the animation clock for a couple of frames
+      v.hitStop = _max(v.hitStop, crit ? 0.085 : 0.05);
+
+      // 3) stagger, unless he's blocking or already dying
+      if (!v.dyingFlag && v.state !== 'block') {
+        var from = p && p.from;
+        var fx = (from && typeof from.x === 'number') ? from.x : (v.x + (u && u.face === -1 ? -1 : 1));
+        var fz = (from && typeof from.z === 'number') ? from.z : v.z;
+        var fwdX = _cos(v.yaw), fwdZ = -_sin(v.yaw);
+        var dxh = fx - v.x, dzh = fz - v.z;
+        var dl = _sqrt(dxh * dxh + dzh * dzh) || 1;
+        v.hurtDir = ((dxh / dl) * fwdX + (dzh / dl) * fwdZ) >= 0 ? 1 : -1;
+        var sidX = _sin(v.yaw), sidZ = _cos(v.yaw);
+        v.hurtSide = clamp(((dxh / dl) * sidX + (dzh / dl) * sidZ) * 1.4, -1, 1);
+        var mag = clamp01(dmg / _max(12, num(u && u.maxHp, 60) * 0.30));
+        v.hurtDur = 0.22 + mag * 0.24;
+        v.hurtT = _max(v.hurtT, v.hurtDur * (crit ? 1.15 : 1));
+      }
+
+      // 4) damage state — armour darkens, dents and grime accumulate
+      var maxHp = num(u && u.maxHp, 0);
+      var hp = num(u && u.hp, NaN);
+      var frac2;
+      if (maxHp > 0 && hp === hp) frac2 = 1 - clamp01(hp / maxHp);
+      else { v.dmgAcc += dmg; frac2 = clamp01(v.dmgAcc / 60); }
+      var bucket = frac2 > 0.66 ? 2 : (frac2 > 0.30 ? 1 : 0);
+      if (bucket !== v.dmg) {
+        v.dmg = bucket;
+        if (v.rig && v.flash <= 0) resolveMaterials(v);
+      }
+    });
+
+    busOn('unit:block', function (p) {
+      var v = viewOf(p);
+      if (!v || v.dyingFlag) return;
+      v.shove = 1;
+      v.hitStop = _max(v.hitStop, 0.045);
+      setState(v, 'block');
+      // Sparks belong to VFX — we ask, we don't draw particles ourselves.
+      busEmit('vfx:spark', {
+        x: v.x + _cos(v.yaw) * 0.55, y: v.groundY + 1.15, z: v.z - _sin(v.yaw) * 0.55,
+        team: v.team, kind: 'block', power: 1
+      });
+    });
+
+    busOn('unit:death', function (p) {
+      var v = viewOf(p);
+      if (!v || v.dyingFlag) return;
+      beginDeath(v, p);
+    });
+
+    busOn('perf:tier', function (t) {
+      var cheap = (t === 'low');
+      if (cheap !== cheapMats) { cheapMats = cheap; flushMaterials(); }
+      trimForTier(t);
+    });
+
+    busOn('era:evolve', function () { /* views re-kit themselves lazily next frame */ });
+
+    busOn('game:restart', clearAll);
+    busOn('run:reset', clearAll);
+    busOn('wave:start', function () { /* nothing to do — spawns drive us */ });
+  }
+
+  function beginDeath(v, p) {
+    v.dyingFlag = true;
+    v.dieT = 0;
+    v.limp = 0;
+    v.fallAng = 0;
+    v.fallVel = 0.4 + hashId(v.id, 11) * 0.6;
+    var h = hashId(v.id, 12);
+    v.dieVar = (h * 4) | 0;
+    v.dieSide = hashId(v.id, 13) < 0.5 ? -1 : 1;
+    // a killing blow from the front topples you backward
+    if (p && p.killer && typeof p.killer.x === 'number') {
+      var fwdX = _cos(v.yaw), fwdZ = -_sin(v.yaw);
+      var dxk = p.killer.x - v.x, dzk = num(p.killer.z, v.z) - v.z;
+      var dl = _sqrt(dxk * dxk + dzk * dzk) || 1;
+      v.dieVar = (((dxk / dl) * fwdX + (dzk / dl) * fwdZ) >= 0) ? ((h < 0.65) ? 0 : 2) : ((h < 0.7) ? 1 : 3);
+    }
+    v.atkActive = false;
+    v.hurtT = 0;
+    v.shove = 0;
+    v.dmg = 2;
+    if (v.rig && v.flash <= 0) resolveMaterials(v);
+    setState(v, 'die');
+    v.blend = 0; v.blendDur = 0.09;
+  }
+
+  function trimForTier(t) {
+    var B = BUDGET[t] || BUDGET.high;
+    capeBudget = capesEnabled ? B.cape : 0;
+    var i, v, live = 0;
+    for (i = 0; i < viewArr.length; i++) {
+      v = viewArr[i];
+      if (v.cape) { live++; if (live > capeBudget) { v.wantCape = false; ensureCape(v); } }
+    }
+  }
+
+  function clearAll() {
+    var i;
+    for (i = 0; i < viewArr.length; i++) releaseView(viewArr[i]);
+    viewArr.length = 0;
+    views.clear();
+    for (i = 0; i < dying.length; i++) releaseView(dying[i]);
+    dying.length = 0;
+    if (impOk) { impMesh.count = 0; impMesh.visible = false; }
+    if (blobOk) { blobMesh.count = 0; blobMesh.visible = false; }
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 21. Init / dispose
+   * ------------------------------------------------------------------------ */
+  var inited = false, initFailed = false, unregister = null, waiting = false;
+
+  function init(opts) {
+    if (inited) return true;
+    if (initFailed) return false;
+    opts = opts || {};
+    Core = AOW.Core || null;
+    Rndr = AOW.Render || null;
+
+    if (!Rndr || !Rndr.ready || !Rndr.scene) {
+      if (!waiting) {
+        waiting = true;
+        busOn('render:ready', function () { waiting = false; init(opts); });
+        console.info('[AOW.Units3D] waiting for AOW.Render…');
+      }
+      return false;
+    }
+
+    try {
+      var t0 = (global.performance && performance.now) ? performance.now() : Date.now();
+      var tier = (Core && Core.perf && Core.perf.tier) || 'high';
+      cheapMats = (tier === 'low');
+      var detail = tier === 'high' ? 2 : (tier === 'med' ? 1 : 0);
+
+      buildTextures();
+      buildGeometries(detail);
+      rigTemplate = buildRigTemplate();
+      simpleTemplate = buildSimpleTemplate();
+
+      unitsGroup = new THREE.Group();
+      unitsGroup.name = 'aowUnits3D';
+      Rndr.addObject(unitsGroup, 'units');
+
+      capeGroup = new THREE.Group();
+      capeGroup.name = 'aowCapes';
+      capeGroup.matrixAutoUpdate = false;     // cape verts are already world-space
+      unitsGroup.add(capeGroup);
+
+      buildImpostors(unitsGroup);
+      buildBlobs(unitsGroup);
+
+      if (opts.blobShadows === false) setBlobShadows(false);
+      if (opts.capes === false) setCapes(false);
+      if (typeof opts.lodBias === 'number') lodBias = clamp(opts.lodBias, 0.25, 4);
+
+      wireEvents();
+
+      if (Core && typeof Core.registerRender === 'function') {
+        // -20: pose before AOW.Render's own hook (order 0) draws the frame.
+        unregister = Core.registerRender(update, -20);
+      } else {
+        console.warn('[AOW.Units3D] no Core.registerRender — call AOW.Units3D.update(dt) yourself.');
+      }
+
+      inited = true;
+      U.ready = true;
+      U.failed = false;
+      var t1 = (global.performance && performance.now) ? performance.now() : Date.now();
+      console.info('[AOW.Units3D] ready — tier=' + tier + ' detail=' + detail +
+        ' impostors=' + impOk + ' blobs=' + blobOk + ' (' + (t1 - t0).toFixed(1) + 'ms)');
+      busEmit('units3d:ready', { impostors: impOk, blobs: blobOk });
+      return true;
+    } catch (err) {
+      initFailed = true;
+      U.failed = true;
+      U.ready = false;
+      console.warn('[AOW.Units3D] init failed — units will not render.', err);
+      return false;
+    }
+  }
+
+  function dispose() {
+    try {
+      if (unregister) { unregister(); unregister = null; }
+      clearAll();
+      var i;
+      for (i = 0; i < fullPool.length; i++) if (Rndr) Rndr.disposeObject(fullPool[i].root, true);
+      for (i = 0; i < simplePool.length; i++) if (Rndr) Rndr.disposeObject(simplePool[i].root, true);
+      fullPool.length = 0; simplePool.length = 0;
+      for (i = 0; i < capePool.length; i++) { try { capePool[i].geo.dispose(); } catch (e) { /* ignore */ } }
+      capePool.length = 0;
+      equipPool = {};
+      PROTO = {};
+      if (unitsGroup && unitsGroup.parent) unitsGroup.parent.remove(unitsGroup);
+      var k;
+      for (k in GEO) {
+        if (!Object.prototype.hasOwnProperty.call(GEO, k)) continue;
+        try { if (GEO[k] && GEO[k].dispose) GEO[k].dispose(); } catch (e2) { /* ignore */ }
+      }
+      GEO = {};
+      flushMaterials();
+    } catch (err) { console.warn('[AOW.Units3D] dispose issue', err); }
+    inited = false;
+    U.ready = false;
+  }
+
+  /* ---------------------------------------------------------------------------
+   * 22. Public API
+   * ------------------------------------------------------------------------ */
+  function setBlobShadows(on) {
+    blobsEnabled = !!on;
+    if (blobMesh) blobMesh.visible = blobsEnabled && blobMesh.count > 0;
+  }
+  function setCapes(on) {
+    capesEnabled = !!on;
+    if (!capesEnabled) {
+      for (var i = 0; i < viewArr.length; i++) {
+        viewArr[i].wantCape = false;
+        ensureCape(viewArr[i]);
+      }
+    }
+  }
+  function setLodBias(b) {
+    if (typeof b === 'number' && isFinite(b)) lodBias = clamp(b, 0.25, 4);
+  }
+  function setQuality(t) {
+    var cheap = (t === 'low');
+    if (cheap !== cheapMats) { cheapMats = cheap; flushMaterials(); }
+    trimForTier(t);
+  }
+
+  U.version = '1.0.0';
+  U.ready = false;
+  U.failed = false;
+  U.init = init;
+  U.dispose = dispose;
+  U.update = update;
+  U.stats = stats;
+
+  U.getView = function (id) { return views.get(id) || null; };
+  U.getGroup = function () { return unitsGroup; };
+  U.getRoot = function (id) { var v = views.get(id); return (v && v.rig) ? v.rig.root : null; };
+  /** World position of a unit's weapon tip — handy for VFX trails. */
+  U.getWeaponTip = function (id, out) {
+    var v = views.get(id);
+    out = out || new THREE.Vector3();
+    if (!v || !v.rig || v.lod !== 0) {
+      if (v) out.set(v.x, v.groundY + 1.2, v.z);
+      return out;
+    }
+    var w = v.rig.attach.weapon;
+    if (!w) { out.set(v.x, v.groundY + 1.2, v.z); return out; }
+    v.rig.root.updateMatrixWorld(true);
+    out.set(0, weaponDef(v.weapon).reach * 0.55, 0).applyMatrix4(w.matrixWorld);
+    return out;
+  };
+  U.getHeadPosition = function (id, out) {
+    var v = views.get(id);
+    out = out || new THREE.Vector3();
+    if (!v) { out.set(0, 0, 0); return out; }
+    out.set(v.x, v.groundY + 1.62 * v.scale, v.z);
+    return out;
+  };
+
+  U.setBlobShadows = setBlobShadows;
+  U.setCapes = setCapes;
+  U.setLodBias = setLodBias;
+  U.setQuality = setQuality;
+  U.setEraKit = function (era) {
+    var ek = eraKey(era);
+    var i, v;
+    for (i = 0; i < viewArr.length; i++) {
+      v = viewArr[i];
+      v.eraK = ek;
+      setWeapon(v, weaponFor(kitFor(ek), v.cls));
+      if (v.rig) buildKit(v);
+    }
+  };
+  U.kits = KITS;
+  U.classes = CLASSES;
+  U.weapons = WEAPONS;
+  U.gaits = LOCO;
+  U.metrics = M;
+
+  AOW.Units3D = U;
+
+  /* ---------------------------------------------------------------------------
+   * 23. Auto-init safety net — the integrator normally calls init(); if nothing
+   * does, we bring ourselves up once the renderer exists. init() is idempotent.
+   * ------------------------------------------------------------------------ */
+  function autoInit() {
+    if (inited || initFailed) return;
+    setTimeout(function () {
+      if (inited || initFailed) return;
+      init({});
+    }, 0);
+  }
+  try {
+    if (global.document && global.document.readyState === 'complete') autoInit();
+    else if (global.addEventListener) global.addEventListener('load', autoInit, { once: true });
+    else autoInit();
+  } catch (e) { autoInit(); }
+
+})(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
