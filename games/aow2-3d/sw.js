@@ -3,7 +3,7 @@
  * three.js, game modules and icons are cache-first (they are versioned by the
  * cache name). Cleanup is scoped to the 'aow2-3d-' prefix so this never
  * deletes another game's offline data on the same origin. */
-const CACHE = 'aow2-3d-v3';
+const CACHE = 'aow2-3d-v4';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './icon.svg',
   './vendor/three.min.js', './vendor/CopyShader.js', './vendor/LuminosityHighPassShader.js',

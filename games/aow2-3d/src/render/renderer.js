@@ -395,7 +395,12 @@
     pitch: 0.235, pitchTarget: 0.235,    // radians above horizon (~13.5°)
     pitchMin: 0.06, pitchMax: 0.62,
     dist: 96, distTarget: 96,
-    distMin: 26, distMax: 132,
+    // distMax is the readability guarantee, not a framing preference. In a
+    // portrait window the horizontal fov is narrow, so "fit the battle span"
+    // pushed the camera to 130m — at which range every soldier degrades to an
+    // impostor speck and the player sees an empty field. Showing less ground
+    // but actual troops is strictly better: the minimap covers the overview.
+    distMin: 24, distMax: 74,
 
     focusLambda: 3.6,         // how eagerly the look-at chases the front line
     orbitLambda: 5.0,

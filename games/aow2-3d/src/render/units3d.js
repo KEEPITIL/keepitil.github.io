@@ -3022,7 +3022,9 @@
       if (isFinite(s) && s > 0.05) { d0 *= s; d1 *= s; }
       // Never let the front rank drop to impostors while the camera is close
       // enough that the player is clearly watching individual soldiers.
-      if ((Rndr.rig && Rndr.rig.dist || 999) < 90) { if (d0 < 55) d0 = 55; if (d1 < 120) d1 = 120; }
+      // The camera is capped at 74m, so this floor must cover the whole legal
+      // range — otherwise the far half of the army silently becomes impostors.
+      if ((Rndr.rig && Rndr.rig.dist || 999) < 120) { if (d0 < 105) d0 = 105; if (d1 < 190) d1 = 190; }
     }
     var max0 = B.l0, max1 = B.l1;
     if (!impOk) { max1 = 1e9; d1 = 1e9; }     // no impostors → everyone gets a rig
