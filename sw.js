@@ -7,14 +7,14 @@
    - Only images/fonts/icons keep stale-while-revalidate (stale pixels can't break logic).
    - VERSION bump evicts every v1/v2 cache on activate + clients.claim().
    To retire this SW: bump VERSION and ship, or restore the self-destruct worker. */
-var VERSION = 'kil-pwa-v40-20260723c';
-var PAGES = 'kil-pages-v38';
+var VERSION = 'kil-pwa-v41-20260809a';
+var PAGES = 'kil-pages-v39';
 var ASSETS = 'kil-assets-v38';
-var CODE = 'kil-code-v38';
+var CODE = 'kil-code-v39';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [
-  '/v3/offline.html',
+  '/offline.html',
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png',
@@ -58,7 +58,7 @@ self.addEventListener('fetch', function (e) {
         }
         return res;
       }).catch(function () {
-        return caches.match(req).then(function (hit) { return hit || caches.match('/v3/offline.html'); });
+        return caches.match(req).then(function (hit) { return hit || caches.match('/offline.html'); });
       })
     );
     return;
@@ -105,7 +105,7 @@ self.addEventListener('push', function (e) {
     body: d.body || '',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
-    data: { url: d.url || '/v3/', category: d.category || '' },
+    data: { url: d.url || '/', category: d.category || '' },
     tag: d.tag || undefined
   };
   e.waitUntil(self.registration.showNotification(title, opts));
@@ -113,7 +113,7 @@ self.addEventListener('push', function (e) {
 
 self.addEventListener('notificationclick', function (e) {
   e.notification.close();
-  var url = (e.notification.data && e.notification.data.url) || '/v3/';
+  var url = (e.notification.data && e.notification.data.url) || '/';
   e.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
       for (var i = 0; i < list.length; i++) {
