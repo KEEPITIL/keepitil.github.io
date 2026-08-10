@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!-- V3.1 ORGANIZER DASHBOARD — in-family clone of /v3/dashboard.html (KODE 2026-07-20).
-     Kills the /v3/dashboard.html leak from /profile.html. Child tools (create-event gold
+<!-- V3.1 ORGANIZER DASHBOARD — in-family clone of /dashboard.html (KODE 2026-07-20).
+     Kills the /dashboard.html leak from /profile.html. Child tools (create-event gold
      standard, scanner, campaigns, staging/QA admin tabs) are audit-exempt logged-in tools. -->
 <html lang="en" data-theme="default" data-page-type="standard">
 <head>
@@ -143,7 +143,7 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
 <div class="wrap">
   <div class="head">
     <h1>Organizer <b>Dashboard</b></h1>
-    <a class="btn prim" href="/v3/create-event.html">+ Create Event</a>
+    <a class="btn prim" href="/create-event.html">+ Create Event</a>
   </div>
   <div id="gate" class="gate" style="display:none">
     <h2>Log in to manage your events</h2>
@@ -185,12 +185,12 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px">
         <span style="color:var(--muted,#9aa0b0);font-size:.85rem">STAGING = an <b>exact duplicate</b> of a live page you edit directly, full screen. <b style="color:#ffb43c">The live site never changes</b> until Publish is enabled (Founder go).</span>
         <span style="flex:1"></span>
-        <a class="btn" style="font-size:.78rem;padding:8px 14px" href="/v3/staging.html" target="_blank" rel="noopener" title="Full-screen duplicate-page editor">⛶ Open STAGING full screen ↗</a>
+        <a class="btn" style="font-size:.78rem;padding:8px 14px" href="/dashboard.html" target="_blank" rel="noopener" title="Full-screen duplicate-page editor">⛶ Open STAGING full screen ↗</a>
       </div>
-      <iframe src="/v3/staging.html" title="STAGING — duplicate-page editor" loading="lazy" style="width:100%;height:calc(100vh - 210px);min-height:620px;border:1px solid var(--line,#242433);border-radius:14px;background:#0a0a0f"></iframe>
+      <iframe src="/dashboard.html" title="STAGING — duplicate-page editor" loading="lazy" style="width:100%;height:calc(100vh - 210px);min-height:620px;border:1px solid var(--line,#242433);border-radius:14px;background:#0a0a0f"></iframe>
     </div>
     <div class="panel" id="tab-qa">
-      <div class="head2">QA Runs <span class="ct" id="qaCt"></span><a class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" href="/v3/qa-audit.html" target="_blank" rel="noopener">Open QA audit ↗</a></div>
+      <div class="head2">QA Runs <span class="ct" id="qaCt"></span><a class="btn" style="margin-left:auto;font-size:.78rem;padding:8px 14px" href="/dashboard.html" target="_blank" rel="noopener">Open QA audit ↗</a></div>
       <div id="qaList"></div>
       <div class="head2" style="margin-top:22px">🛠 Self-repairs (7 days) <span class="ct" id="repCt"></span></div>
       <div style="color:var(--muted,#9aa0b0);font-size:.8rem;margin-bottom:8px">The nightly heal job (09:30 UTC): what it auto-fixed vs what needs a human. Auto-fix never touches money, auth, publishing, or the V3.1 nav.</div>
@@ -248,10 +248,10 @@ function card(d){
         '<div class="s"><div class="n">'+money(d.revenue_cents)+'</div><div class="l">Revenue</div></div>'+
       '</div>'+
       '<div class="ev-acts">'+
-        '<a href="/v3/create-event.html?e='+encodeURIComponent(d.slug)+'">Edit</a>'+
-        '<a class="scan" href="/v3/scan.html">Door scanner</a>'+
+        '<a href="/create-event.html?e='+encodeURIComponent(d.slug)+'">Edit</a>'+
+        '<a class="scan" href="/dashboard.html">Door scanner</a>'+
         (st==='published'?'<a href="/event.html?e='+encodeURIComponent(d.slug)+'">View</a>':'')+
-        '<a href="/v3/campaigns.html?e='+encodeURIComponent(d.slug)+'">Promote</a>'+
+        '<a href="/dashboard.html?e='+encodeURIComponent(d.slug)+'">Promote</a>'+
         '<button onclick="dup('+d.event_id+',this)">Duplicate</button>'+
       '</div>'+
     '</div>'+
@@ -277,7 +277,7 @@ async function load(){
       '<div class="sum"><div class="n">'+chk+'</div><div class="l">Checked in</div></div>'+
       '<div class="sum"><div class="n">'+money(rev)+'</div><div class="l">Revenue</div></div>';
     $('list').innerHTML = evs.length ? evs.map(card).join('')
-      : '<div class="empty"><h2>No events yet</h2><p>Create your first event and start selling tickets.</p><a class="btn prim" href="/v3/create-event.html">+ Create Event</a></div>';
+      : '<div class="empty"><h2>No events yet</h2><p>Create your first event and start selling tickets.</p><a class="btn prim" href="/create-event.html">+ Create Event</a></div>';
   }catch(e){ $('list').innerHTML='<div class="empty"><h2>Couldn’t load</h2><p>Please refresh.</p></div>'; }
 }
 
