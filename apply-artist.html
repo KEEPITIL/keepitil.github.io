@@ -81,7 +81,16 @@
     .form-success p{color:var(--grey);font-size:15px;max-width:480px;margin:0 auto 24px;}
     .form-error{background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.3);border-radius:4px;padding:12px 16px;color:#ff6b6b;font-size:13px;margin-top:16px;display:none;}
     @media(max-width:700px){.form-wrap{padding:28px 20px;}.form-row{grid-template-columns:1fr;}}
-  </style>
+  
+    /* type switcher (Founder 2026-08-09) */
+    #type-switch{gap:10px;flex-wrap:wrap}
+    .type-btn{flex:1;min-width:150px;padding:13px 16px;border-radius:10px;cursor:pointer;
+      background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.16);color:#cfc9e6;
+      font:600 14px Inter,sans-serif;transition:all .15s}
+    .type-btn:hover{border-color:rgba(0,180,255,.45);color:#fff}
+    .type-btn.on{background:linear-gradient(90deg,#00b4ff,#00ff88);border-color:transparent;color:#04121b;font-weight:800}
+    [data-for]{display:none}
+</style>
 </head>
 <body>
   <nav id="main-nav">
@@ -110,12 +119,25 @@
 
         <form id="artist-form" novalidate>
 
+
+          <!-- SECTION: TYPE (Founder 2026-08-09) — one form, three paths -->
+          <div class="form-section">
+            <h2 class="form-legend">WHO ARE YOU?</h2>
+            <p class="form-hint" style="margin:-6px 0 14px">Pick one. The questions below change to suit — we only ask what we need to write your article.</p>
+            <div class="form-row" id="type-switch">
+              <button type="button" class="type-btn on" data-type="artist">🎧 Artist / DJ</button>
+              <button type="button" class="type-btn" data-type="brand">🏷️ Brand</button>
+              <button type="button" class="type-btn" data-type="organizer">🎪 Organizer / Venue</button>
+            </div>
+            <input type="hidden" name="Type" id="f-type" value="artist"/>
+          </div>
+
           <!-- SECTION: IDENTITY -->
           <div class="form-section">
             <div class="form-section-title">IDENTITY</div>
             <div class="form-row">
               <div class="form-group">
-                <label>Stage Name <span class="req">*</span></label>
+                <label><span class="lbl-name">Stage Name</span> <span class="req">*</span></label>
                 <input type="text" name="Name" placeholder="Your artist name" required/>
               </div>
               <div class="form-group">
@@ -153,13 +175,13 @@
                 <label>Instagram <span class="req">*</span></label>
                 <input type="text" name="Instagram" placeholder="@yourtag" required/>
               </div>
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>SoundCloud</label>
                 <input type="url" name="SoundCloud" placeholder="https://soundcloud.com/..."/>
               </div>
             </div>
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Spotify</label>
                 <input type="url" name="Spotify" placeholder="https://open.spotify.com/..."/>
               </div>
@@ -189,13 +211,13 @@
                 <label>Primary Genre(s) <span class="req">*</span></label>
                 <input type="text" name="Primary Genre" placeholder="e.g. Hard Techno, Melodic House, Dubstep" required/>
               </div>
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Secondary Influences</label>
                 <input type="text" name="Secondary Influences" placeholder="e.g. Industrial, UKG, Ambient"/>
               </div>
             </div>
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Performance Style</label>
                 <select name="Performance Style">
                   <option value="">Select...</option>
@@ -205,7 +227,7 @@
                   <option>B2B</option>
                 </select>
               </div>
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Typical Set Length</label>
                 <select name="Set Length">
                   <option value="">Select...</option>
@@ -236,7 +258,7 @@
           <div class="form-section">
             <div class="form-section-title">PERFORMANCE &amp; CREDITS</div>
             <div class="form-row full">
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Notable Past Performances</label>
                 <textarea name="Notable Performances" placeholder="Events, venues, festivals — include approximate dates and crowd sizes if you have them." rows="3"></textarea>
               </div>
@@ -248,18 +270,61 @@
               </div>
             </div>
             <div class="form-row full">
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Current or Upcoming Releases</label>
                 <textarea name="Current Releases" placeholder="Track/EP/album titles, labels, release dates (if known)." rows="2"></textarea>
               </div>
             </div>
           </div>
 
+
+          <!-- SECTION: BRAND (Founder 2026-08-09) -->
+          <div class="form-section" data-for="brand">
+            <h2 class="form-legend">ABOUT THE BRAND</h2>
+            <div class="form-row">
+              <div class="form-group"><label>What kind of brand? <span class="req">*</span></label>
+                <input type="text" name="Org Type" placeholder="Label · clothing · gear · media · agency"/></div>
+              <div class="form-group"><label>Founded</label>
+                <input type="text" name="Founded Year" placeholder="e.g. 2019"/></div>
+            </div>
+            <div class="form-group"><label>What do you make or sell? <span class="req">*</span></label>
+              <textarea name="Mission" rows="3" placeholder="One or two sentences — what you do and who it's for."></textarea></div>
+            <div class="form-group"><label>Origin story</label>
+              <textarea name="Origin Story" rows="4" placeholder="Why did this start? The moment or problem behind it — this is usually the best part of the article."></textarea></div>
+          </div>
+
+          <!-- SECTION: ORGANIZER -->
+          <div class="form-section" data-for="organizer">
+            <h2 class="form-legend">ABOUT YOUR EVENTS</h2>
+            <div class="form-row">
+              <div class="form-group"><label>Type of events <span class="req">*</span></label>
+                <input type="text" name="Event Types" placeholder="Warehouse · club night · festival · pop-up"/></div>
+              <div class="form-group"><label>Typical capacity</label>
+                <input type="text" name="Typical Capacity" placeholder="e.g. 150–400"/></div>
+            </div>
+            <div class="form-group"><label>Venues you've worked with</label>
+              <input type="text" name="Venues Worked" placeholder="Comma separated"/></div>
+            <div class="form-group"><label>What makes your events different? <span class="req">*</span></label>
+              <textarea name="Mission" rows="3" placeholder="The thing people remember afterwards."></textarea></div>
+          </div>
+
+          <!-- SECTION: STORY — the article material, all types -->
+          <div class="form-section">
+            <h2 class="form-legend">YOUR STORY</h2>
+            <p class="form-hint" style="margin:-6px 0 14px">This is what we build the article from. The more you give us, the less we have to chase you for.</p>
+            <div class="form-group"><label>How did you get started?</label>
+              <textarea name="Background Story" rows="4" placeholder="Where you're from, how you got into this, what changed things for you."></textarea></div>
+            <div class="form-group"><label>A line you'd want quoted</label>
+              <input type="text" name="Quote" placeholder="Something you actually believe — we'll pull-quote it."/></div>
+            <div class="form-group"><label>One thing people don't know</label>
+              <input type="text" name="Fun Fact" placeholder="Optional, but it usually makes the piece."/></div>
+          </div>
+
           <!-- SECTION: BOOKING -->
           <div class="form-section">
             <div class="form-section-title">BOOKING DETAILS</div>
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Fee Range</label>
                 <select name="Fee Range">
                   <option value="">Select...</option>
@@ -273,7 +338,7 @@
               </div>
             </div>
             <div class="form-row full">
-              <div class="form-group">
+              <div class="form-group" data-for="artist">
                 <label>Technical Rider Notes</label>
                 <input type="text" name="Technical Rider" placeholder="e.g. Pioneer CDJ-3000s, DJM-A9, PFL headphone out required"/>
               </div>
@@ -386,21 +451,62 @@
       let slug = makeSlug(data['Name'] || '');
 
       // Build Supabase record
+      /* FIX 2026-08-09: the form asked 26 questions and the insert saved 14 —
+         influences, years active, notable shows, releases, gear, rider, fee, phone,
+         pronouns and state were collected and silently discarded. Every field now maps
+         to a real column, and anything unmapped lands in `extra` rather than vanishing. */
+      const T = data['Type'] || 'artist';
+      const MAPPED = new Set(['Type','Password','Confirm Password','Consent','Name','Email','Phone',
+        'Pronouns','City','State','Instagram','SoundCloud','Spotify','YouTube','Website','Image URL',
+        'Primary Genre','Secondary Influences','Years Active','Bio','Notable Performances',
+        'Current Releases','Fee Range','Technical Rider','Notes','Performance Style','Set Length',
+        'Org Type','Founded Year','Mission','Origin Story','Event Types','Typical Capacity',
+        'Venues Worked','Background Story','Quote','Fun Fact']);
+      const extra = {};
+      Object.keys(data).forEach(k => { if (!MAPPED.has(k) && data[k]) extra[k] = data[k]; });
+
       const record = {
         slug,
         status: 'approved',
-        type: 'artist',
+        type: T,
+        article_status: 'not_started',
         name: data['Name'] || '',
         email,
-        city: [data['City'], data['State']].filter(Boolean).join(', '),
+        phone: data['Phone'] || null,
+        pronouns: data['Pronouns'] || null,
+        city: data['City'] || '',
+        state: data['State'] || null,
         genre: data['Primary Genre'] || '',
         bio: data['Bio'] || '',
         music: data['SoundCloud'] || '',
+        soundcloud: data['SoundCloud'] || null,
         instagram: data['Instagram'] || '',
         image_url: data['Image URL'] || '',
         website: data['Website'] || '',
         spotify: data['Spotify'] || '',
         youtube: data['YouTube'] || '',
+        // ── article source material (previously dropped) ──
+        years_active:     data['Years Active'] || null,
+        influences:       data['Secondary Influences'] || null,
+        notable_shows:    data['Notable Performances'] || null,
+        discography:      data['Current Releases'] || null,
+        gear:             data['Technical Rider'] || null,
+        background_story: data['Background Story'] || null,
+        origin_story:     data['Origin Story'] || null,
+        mission:          data['Mission'] || null,
+        quote:            data['Quote'] || null,
+        fun_fact:         data['Fun Fact'] || null,
+        // ── brand / organizer ──
+        org_type:         data['Org Type'] || null,
+        founded_year:     data['Founded Year'] || null,
+        event_types:      data['Event Types'] || null,
+        typical_capacity: data['Typical Capacity'] || null,
+        venues_worked:    data['Venues Worked'] || null,
+        // ── consent + catch-all ──
+        consent_publish:  !!data['Consent'],
+        consent_contact:  !!data['Consent'],
+        internal_notes:   data['Notes'] || null,
+        extra,
       };
 
       try {
@@ -425,7 +531,7 @@
         fetch(APPS_SCRIPT_URL, {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Role: 'Artist', ...data })
+          body: JSON.stringify({ Role: (data['Type']||'artist'), ...data })
         }).catch(() => {});
 
         if (signInErr) {
@@ -451,5 +557,29 @@
       }
     });
   </script>
+<script>
+  /* Type switcher (Founder 2026-08-09): one form, three paths.
+     Fields carry data-for="<type>"; anything unmarked shows for everyone. */
+  (function(){
+    var LBL={artist:'Stage Name',brand:'Brand Name',organizer:'Organizer / Venue Name'};
+    var PH ={artist:'Your artist name',brand:'Your brand name',organizer:'Your org or venue name'};
+    function apply(t){
+      document.getElementById('f-type').value=t;
+      [].forEach.call(document.querySelectorAll('.type-btn'),function(b){b.classList.toggle('on',b.dataset.type===t)});
+      [].forEach.call(document.querySelectorAll('[data-for]'),function(el){
+        var show = el.getAttribute('data-for')===t;
+        el.style.display = show ? '' : 'none';
+        /* never submit a hidden required field */
+        [].forEach.call(el.querySelectorAll('input,textarea,select'),function(i){ i.disabled=!show; });
+      });
+      var n=document.querySelector('.lbl-name'); if(n) n.textContent=LBL[t];
+      var ni=document.querySelector('[name="Name"]'); if(ni) ni.placeholder=PH[t];
+    }
+    document.addEventListener('click',function(e){
+      var b=e.target.closest('.type-btn'); if(!b) return; apply(b.dataset.type);
+    });
+    document.addEventListener('DOMContentLoaded',function(){ apply('artist'); });
+  })();
+</script>
 </body>
 </html>
