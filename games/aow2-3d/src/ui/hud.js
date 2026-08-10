@@ -437,13 +437,17 @@
 #aow-ui .fort.crit .bar { box-shadow: inset 0 2px 6px rgba(0,0,0,.7), 0 0 14px rgba(255,70,70,.65); }
 
 /* ============================ MINIMAP / ARMY ============================= */
+/* The minimap used to sit at left:50% — dead centre, directly over the combat
+   the player is trying to watch. Competitors keep the centre 60% of frame
+   clear for fighting. Moved to the top-left gutter and dimmed until touched. */
 #aow-ui .mini {
-  position: absolute; left: 50%; transform: translateX(-50%);
-  bottom: calc(var(--safe-b) + 128px);
+  position: absolute; left: calc(var(--safe-l) + 10px); transform: none;
+  top: calc(var(--safe-t) + 96px); bottom: auto; opacity: .62;
   padding: 5px; border-radius: var(--r-2); pointer-events: auto;
   transition: opacity var(--t-mid);
 }
-#aow-ui .mini canvas { display: block; width: 208px; height: 40px; border-radius: 4px; }
+#aow-ui .mini:hover, #aow-ui .mini:active { opacity: 1; }
+#aow-ui .mini canvas { display: block; width: 176px; height: 34px; border-radius: 4px; }
 #aow-ui .mini.off { display: none; }
 #aow-ui .army {
   position: absolute; bottom: calc(var(--safe-b) + 128px); left: calc(var(--safe-l) + var(--sp-2));
@@ -878,7 +882,7 @@
 }
 @media (orientation: landscape) and (max-height: 480px) {
   #aow-ui .forts { top: calc(var(--safe-t) + 54px); }
-  #aow-ui .mini { bottom: calc(var(--safe-b) + 104px); }
+  #aow-ui .mini { top: calc(var(--safe-t) + 84px); bottom: auto; }
   #aow-ui .army { bottom: calc(var(--safe-b) + 104px); }
   #aow-ui .toasts { top: calc(var(--safe-t) + 96px); }
   #aow-ui .card { width: 62px; padding: 4px; }

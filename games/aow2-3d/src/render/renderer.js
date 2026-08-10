@@ -400,7 +400,11 @@
     // pushed the camera to 130m — at which range every soldier degrades to an
     // impostor speck and the player sees an empty field. Showing less ground
     // but actual troops is strictly better: the minimap covers the overview.
-    distMin: 24, distMax: 74,
+    // Critics measured our soldiers at 5.6% of screen height against Stick
+    // War: Saga at 20-36% and Stick Battle at ~24% — we were 4x too small,
+    // which is exactly the "I can't see them fighting" complaint. Distance is
+    // the only lever that changes apparent size, so it is capped hard here.
+    distMin: 16, distMax: 34,
 
     focusLambda: 3.6,         // how eagerly the look-at chases the front line
     orbitLambda: 5.0,
@@ -408,13 +412,13 @@
 
     autoFollow: true,
     deadZone: 7.0,            // world units of slop before the camera bothers to move
-    spanMin: 34,              // never zoom tighter than this much battlefield
+    spanMin: 20,              // never zoom tighter than this much battlefield
     // Player feedback: "can't see the battlefield". At the old 165m span a
     // 1.8m soldier was ~1% of the frame — technically visible, actually a
     // speck. Capping the span keeps troops readable; when the two armies are
     // further apart than this the camera frames the FRONT LINE (where the
     // fight will happen) instead of pulling back to show empty ground.
-    spanMax: 92,
+    spanMax: 46,
     spanMargin: 14,
     zoomDeadZone: 0.05,       // 5% — stops zoom hunting when a unit dies
 
