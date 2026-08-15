@@ -409,7 +409,7 @@ renderStations(); renderPls();
 })();
 </script>
 
-<script src="/keepitil-pager.js?v=20260815b" defer></script>
+<script src="/keepitil-pager.js?v=20260815c" defer></script>
 <script>
 /* ── §D.3 — Radio on the shared pager ──────────────────────────────────────────────────────
    CHANNEL · PLAYLIST · APP. The old `Feed | Radio | VS` switcher (#radMTabs) and the six-button
@@ -420,17 +420,22 @@ renderStations(); renderPls();
    markup that renders a station today renders a station slide tonight. Sections are looked up
    by the ids the page already uses.
 
-   NOTE FOR THE OWNER: this filter set drops three sections that exist on the page today —
-   Schedule (#schedule), VS (#earn) and Games (#games). They keep their desktop layout but lose
-   their mobile entry point, because the directive names three filters. Flagged, not silently
-   dropped. */
+   Schedule now has its own slot and Games folds into APP, so the only section without a
+   mobile entry point is VS (#earn, 8 items) — intentionally, since VS is a global destination
+   and a Radio filter for it would duplicate that. It keeps its desktop layout. */
 (function(){
   if(!window.matchMedia('(max-width:860px)').matches) return;
 
+  /* CHANNEL · PLAYLIST · SCHEDULE · APP.
+     Schedule earns a slot on its own: 10 items and no other home on mobile.
+     Games (2 items) folds into APP rather than taking a slot for itself — a filter has to be
+     worth a full swipe. VS (#earn, 8 items) is deliberately dropped: VS is a global destination
+     since K1, so a Radio filter for it would be a second path to one product. */
   var FILTERS = [
-    { id:'stations',  label:'Channel'  },
-    { id:'playlists', label:'Playlist' },
-    { id:'services',  label:'App'      }
+    { ids:['stations'],           label:'Channel'  },
+    { ids:['playlists'],          label:'Playlist' },
+    { ids:['schedule'],           label:'Schedule' },
+    { ids:['services','games'],   label:'App'      }
   ];
 
   /* SNAPSHOT, once per section.
@@ -438,29 +443,33 @@ renderStations(); renderPls();
      query would return a shrinking list every time the pager asked, and the pager asks on every
      scroll settle. First run reported 16 items for a 14-card grid before this was cached. */
   var SNAP = {};
-  function cardsIn(sectionId){
-    if(SNAP[sectionId]) return SNAP[sectionId];
-    var sec = document.getElementById(sectionId);
-    if(!sec) return [];
-    var nodes = sec.querySelectorAll('.grid > *, .pl-list > *');
-    var list = [].slice.call(nodes).filter(function(n){
-      return (n.textContent||'').trim() || n.querySelector('img');
+  function cardsIn(sectionIds){
+    var key = sectionIds.join('+');
+    if(SNAP[key]) return SNAP[key];
+    var list = [];
+    sectionIds.forEach(function(id){
+      var sec = document.getElementById(id);
+      if(!sec) return;
+      var nodes = sec.querySelectorAll('.grid > *, .pl-list > *');
+      [].slice.call(nodes).forEach(function(n){
+        if((n.textContent||'').trim() || n.querySelector('img')) list.push(n);
+      });
     });
-    if(list.length) SNAP[sectionId] = list;   /* only freeze once there is something to freeze */
+    if(list.length) SNAP[key] = list;   /* only freeze once there is something to freeze */
     return list;
   }
 
   function start(attempt){
     attempt = attempt || 0;
-    var ready = FILTERS.some(function(f){ return cardsIn(f.id).length; });
+    var ready = FILTERS.some(function(f){ return cardsIn(f.ids).length; });
     /* Cards render from Supabase, so the first pass is usually empty. Retry, then say which. */
     if(!ready && attempt < 30){ setTimeout(function(){ start(attempt+1); }, 350); return; }
 
     var filters = FILTERS.map(function(f){
       return {
-        id: f.id,
+        id: f.ids.join('+'),
         label: f.label,
-        items: function(){ return cardsIn(f.id); },
+        items: function(){ return cardsIn(f.ids); },
         /* The card node itself is moved into the slide — no clone, no second copy to diverge. */
         render: function(node, el){ if(node) el.appendChild(node); }
       };

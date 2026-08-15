@@ -340,20 +340,38 @@
     if (down) down.disabled = !n || this.i >= n - 1;
   };
 
+  /**
+   * Programmatic moves are INSTANT, not smooth.
+   *
+   * Smooth scrolling let the state and the scroll position diverge: gotoFilter would set the
+   * header to "Schedule" while the rail stayed parked on Playlist, because a queued smooth
+   * animation can be dropped and there is no scroll event to correct it. A header naming a
+   * column the user is not looking at is worse than an unanimated jump.
+   *
+   * Swiping — the primary interaction — is native and keeps its own momentum regardless; this
+   * only affects the stepper buttons and arrow keys, where an instant move is arguably better.
+   * The position is asserted, then verified and re-asserted once on the next frame.
+   */
+  Pager.prototype.scrollTo_ = function (el, prop, value) {
+    el[prop] = value;
+    var check = function () { if (Math.abs(el[prop] - value) > 1) el[prop] = value; };
+    if (window.requestAnimationFrame) requestAnimationFrame(check); else setTimeout(check, 16);
+  };
+
   Pager.prototype.gotoFilter = function (fi) {
     if (fi < 0 || fi >= this.filters.length) return;
-    this.rail.scrollTo({ left: fi * this.rail.clientWidth, behavior: "smooth" });
     this.setFilter(fi);
+    this.scrollTo_(this.rail, "scrollLeft", fi * this.rail.clientWidth);
   };
 
   Pager.prototype.gotoItem = function (ii) {
     var col = this.cols[this.f];
     var n = parseInt(col.dataset.n || "0", 10);
     if (ii < 0 || ii >= n) return;
-    col.scrollTo({ top: ii * col.clientHeight, behavior: "smooth" });
     this.i = ii;
     this.updateCount();
     this.virtualize();
+    this.scrollTo_(col, "scrollTop", ii * col.clientHeight);
   };
 
   /** Read the settled scroll position back — the scroll is the source of truth, not our index. */
