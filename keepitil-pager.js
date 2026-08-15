@@ -53,7 +53,7 @@
       "body.kilp-on{overflow:hidden;overscroll-behavior:contain}",
 
       /* Locked header: current filter name only. */
-      "#kilp .kilp-head{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;gap:10px;",
+      "#kilp .kilp-head{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:10px;",
       "padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;pointer-events:none;",
       "background:linear-gradient(180deg,rgba(10,10,15,.92),rgba(10,10,15,0))}",
       "#kilp .kilp-title{margin:0;font:800 1.05rem/1 'Bebas Neue',Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#fff}",
@@ -67,7 +67,7 @@
       "#kilp button[disabled]{opacity:.35;cursor:default}",
 
       /* Item stepper, bottom-LEFT: the chat icon owns bottom-right on every page (§C). */
-      "#kilp .kilp-vnav{position:absolute;left:12px;bottom:12px;z-index:3;display:flex;flex-direction:column;gap:8px;pointer-events:auto}",
+      "#kilp .kilp-vnav{position:absolute;left:12px;bottom:12px;z-index:10;display:flex;flex-direction:column;gap:8px;pointer-events:auto}",
 
       "#kilp .kilp-rail{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;",
       "scroll-snap-type:x mandatory;overscroll-behavior:contain;scrollbar-width:none}",
@@ -86,7 +86,12 @@
       /* The slide IS the screen, so its content is centred in it. Radio's cards were drawn for
          a grid and are far shorter than a phone; left top-aligned they read as a broken page
          rather than a deliberate full-screen item. */
+      /* isolation:isolate gives the slide content its own stacking context, so a card's
+         internal z-indexes cannot paint over the pager's own chrome. Culture's feed cards
+         carry a full-bleed header and a right-hand action rail, and without this they drew
+         straight over the locked filter name and the item steppers. */
       "#kilp .kilp-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;",
+      "position:relative;z-index:0;isolation:isolate;",
       "overflow:auto;-webkit-overflow-scrolling:touch}",
       "#kilp .kilp-inner > *{width:100%;max-width:560px;margin:0 auto}",
 

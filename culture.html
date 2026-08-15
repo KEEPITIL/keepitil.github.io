@@ -542,6 +542,7 @@ renderTypebar();renderDiscover();renderFeed();
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
+<script src="/keepitil-pager.js?v=20260815b" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260815a" defer></script>
 <script>
 /* COMMUNITY FEED (Founder doc step 4 + daily auto-post): profile_content posts — agents AND
@@ -596,6 +597,9 @@ renderTypebar();renderDiscover();renderFeed();
         rows=rows.filter(function(x){ return !(x.kind==='event' && /^venue-/.test(x.profile_slug||'')); }); /* event shows once (owner copy); venue copy lives on the venue page */
         window.__culAllRows=rows;
         /* render function used by both initial paint and the gear Type/Filter (Founder 2026-07-29) */
+        /* §D.2: the pager renders ONE row per slide, so it needs the same card builder the feed
+           uses. Exposed rather than duplicated — a second card renderer would drift. */
+        window.__culCard=card;
         window.__culRenderRows=function(list){ var b=document.getElementById('community-feed'); if(!b)return;
           if(!list||!list.length){ b.innerHTML=''; return; }
           b.innerHTML=list.map(card).join('');
@@ -708,18 +712,22 @@ renderTypebar();renderDiscover();renderFeed();
 /* MOBILE CULTURE enhancer — additive, ≤860px only. Above 860px every branch below no-ops. */
 (function(){
 
-/* ── S3: the §D4 visibility gate ───────────────────────────────────────────────────────────
-   20 items / 5 creators / 3 categories, read from platform_config so the owner can move the
-   bar without a deploy. One gate for BOTH tabs — hiding an empty VID while an 11-item PIX
-   ships would be inconsistent (ATLAS D4).
+/* ── §D.2 / §D4 — which Culture filters exist today ───────────────────────────────────────
+   FEED and ARTICLE always mount: FEED is the surface itself, ARTICLE is in-house content with
+   294 live rows. VIDEO and PIXLE are gated on live inventory, so an empty filter is never
+   mounted at all rather than mounted-and-hidden.
 
-   BROKEN != EMPTY: if the config or the count query FAILS, the tab is not emitted and the
-   reason is logged. A failed lookup and a genuinely empty shelf must not both silently
-   produce "no tab" with no way to tell them apart. */
+   §E.2 changed the maths. The source is KEEPITIL's OWN @keepitil accounts — self-syndication,
+   one known account per platform — so a 5-creator gate is unreachable by construction and is
+   dropped for these two. Item count and category count stand, read from platform_config so the
+   owner moves the bar without a deploy.
+
+   BROKEN != EMPTY: if the config cannot be read, the gated filters do not mount and the reason
+   is recorded. "No VIDEO tab because there are no videos" and "no VIDEO tab because the config
+   read failed" are different facts. */
 window.CULTURE_TAB_GATE_NOTE = 'not-evaluated';
 
 function culTabThresholds(){
-  /* The page's client is window.__culSB, created by its own boot loop; there is no window.SB. */
   var sb = window.__culSB;
   if(!sb) return Promise.resolve(null);
   return sb.from('platform_config').select('key,value')
@@ -728,63 +736,48 @@ function culTabThresholds(){
       if(r.error || !r.data) return null;
       var c={}; r.data.forEach(function(row){ c[row.key]=parseInt(row.value,10); });
       if(!isFinite(c.culture_tab_min_items)) return null;
-      return { items:c.culture_tab_min_items, creators:c.culture_tab_min_creators, categories:c.culture_tab_min_categories };
+      return { items:c.culture_tab_min_items, categories:c.culture_tab_min_categories };
     }).catch(function(){ return null; });
 }
 
-/* Live inventory for one tab. Archived rows never count — they are removed content. */
-function culInventory(kindPredicate){
-  var rows=(window.__culAllRows||[]).filter(function(x){ return !x.archived && kindPredicate(x); });
-  var creators={}, categories={};
-  rows.forEach(function(x){
-    if(x.profile_slug) creators[String(x.profile_slug).toLowerCase()]=1;
-    var d=x.data||{}; var c=d.category||d.genre||x.kind;
-    if(c) categories[String(c).toLowerCase()]=1;
-  });
-  return { items:rows.length, creators:Object.keys(creators).length, categories:Object.keys(categories).length };
+function culLiveRows(){
+  return (window.__culAllRows||[]).filter(function(x){ return !x.archived; });
 }
 
-function culApplyTabGate(tabs, attempt){
-  attempt = attempt || 0;
-  /* The tab row mounts before the Supabase client boots and before the feed rows land, so a
-     single evaluation would always read an empty shelf and hold every tab forever. Retry until
-     both exist, then stop — and say which it was if they never do. */
-  if((!window.__culSB || !Array.isArray(window.__culAllRows)) && attempt < 40){
-    setTimeout(function(){ culApplyTabGate(tabs, attempt+1); }, 350);
-    return;
-  }
-  if(!window.__culSB || !Array.isArray(window.__culAllRows)){
-    window.CULTURE_TAB_GATE_NOTE = 'not-evaluated: '
-      + (!window.__culSB ? 'supabase client never booted' : 'feed rows never loaded');
-    try{ console.warn('[culture] '+window.CULTURE_TAB_GATE_NOTE); }catch(e){}
-    return;
-  }
-  var CANDIDATES=[
-    { key:'pix', label:'Pix', test:function(x){ var d=x.data||{}; return typeof d.img==='string' && d.img.trim()!==''; } },
-    { key:'vid', label:'Vid', test:function(x){ return x.kind==='video'; } }
-  ];
-  culTabThresholds().then(function(t){
-    if(!t){
-      window.CULTURE_TAB_GATE_NOTE='threshold-unavailable: platform_config could not be read; gated tabs withheld';
-      try{ console.warn('[culture] '+window.CULTURE_TAB_GATE_NOTE); }catch(e){}
-      return;
-    }
-    var emitted=[], held=[];
-    CANDIDATES.forEach(function(c){
-      var inv=culInventory(c.test);
-      var pass = inv.items>=t.items && inv.creators>=t.creators && inv.categories>=t.categories;
-      if(pass){
-        if(!tabs.querySelector('[data-s="'+c.key+'"]')){
-          var b=document.createElement('button'); b.dataset.s=c.key; b.textContent=c.label;
-          tabs.insertBefore(b, tabs.querySelector('[data-s="vs"]'));
-        }
-        emitted.push(c.key+'('+inv.items+')');
-      } else {
-        held.push(c.key+': '+inv.items+'/'+t.items+' items, '+inv.creators+'/'+t.creators+' creators, '+inv.categories+'/'+t.categories+' categories');
-      }
+function culInventory(test){
+  var rows = culLiveRows().filter(test);
+  var cats = {};
+  rows.forEach(function(x){
+    var d=x.data||{}; var c=d.category||d.genre||x.kind;
+    if(c) cats[String(c).toLowerCase()]=1;
+  });
+  return { items:rows.length, categories:Object.keys(cats).length };
+}
+
+/* Owner's labels and spelling: FEED · ARTICLE · VIDEO · PIXLE. */
+var CUL_FILTERS = [
+  { id:'feed',    label:'Feed',    gated:false, test:function(){ return true; } },
+  { id:'article', label:'Article', gated:false, test:function(x){ return x.kind==='article'; } },
+  { id:'video',   label:'Video',   gated:true,  test:function(x){ return x.kind==='video'; } },
+  { id:'pixle',   label:'Pixle',   gated:true,  test:function(x){ var d=x.data||{};
+      return typeof d.img==='string' && d.img.trim()!==''; } }
+];
+
+/* Resolves to the filters that should exist right now. */
+function culResolveFilters(){
+  return culTabThresholds().then(function(t){
+    var open=[], held=[];
+    CUL_FILTERS.forEach(function(f){
+      if(!f.gated){ open.push(f); return; }
+      if(!t){ held.push(f.id+': threshold-unavailable'); return; }
+      var inv=culInventory(f.test);
+      if(inv.items>=t.items && inv.categories>=t.categories){ open.push(f); }
+      else held.push(f.id+': '+inv.items+'/'+t.items+' items, '+inv.categories+'/'+t.categories+' categories');
     });
-    window.CULTURE_TAB_GATE_NOTE = (emitted.length? 'emitted: '+emitted.join(', ')+'. ':'')
-      + (held.length? 'below threshold: '+held.join(' | ') : 'none held');
+    window.CULTURE_TAB_GATE_NOTE =
+      'mounted: ' + open.map(function(f){return f.id;}).join(' · ') +
+      (held.length ? '. held: ' + held.join(' | ') : '. none held');
+    return open;
   });
 }
 
@@ -793,39 +786,56 @@ function culApplyTabGate(tabs, attempt){
   sync(); window.addEventListener('resize', sync);
   if(!isMob()) return;
 
-  /* 1 — subpage tabs (Feed · Radio · VS). Radio/VS reuse the existing culSection router. */
-  var host=document.getElementById('culTypeBar');
-  if(host && !document.getElementById('culMTabs')){
-    var tabs=document.createElement('div'); tabs.id='culMTabs';
-    /* S3 — tabs are EMITTED, not hidden.
-       Feed and VS always ship: Feed is the surface itself and VS reads vs_competitions (36
-       published), not this table. PIX and VID are gated on live inventory against the §D4
-       threshold in platform_config, evaluated at render — so a tab appears the moment content
-       arrives, with no deploy, and an empty one is never emitted at all.
-       Radio is deliberately absent: K1 made it a global destination, so a Culture entry is a
-       second path to one product. */
-    tabs.innerHTML='<button data-s="feed" class="on">Feed</button>'
-                  +'<button data-s="vs">VS</button>';
-    host.parentNode.insertBefore(tabs, host);
-    culApplyTabGate(tabs);
-    tabs.addEventListener('click',function(e){
-      var b=e.target.closest('button'); if(!b) return;
-      [].forEach.call(tabs.children,function(x){ x.classList.toggle('on', x===b); });
-      var sec=b.dataset.s;
-      /* Pix is a content-type filter over the feed, not a separate section — so it returns to
-         the feed view first, then applies the filter, and the type bar stays in sync. */
-      /* Retained deliberately though no button emits 'pix' today: S3 re-emits the tab from
-         platform_config once live inventory crosses the threshold, and this is the wiring
-         it needs. Same for the 'image' branch in _culTypeMatch. */
-      if(sec==='pix'){
-        if(typeof culSection==='function') culSection('feed');
-        if(typeof setCulContentType==='function') setCulContentType('image');
-        return;
-      }
-      if(sec==='feed' && typeof setCulContentType==='function') setCulContentType('all');
-      if(typeof culSection==='function') culSection(sec);
+  /* 1 — §D.2: Culture becomes a full-screen pager. The mobile tab row and the type bar are
+     both replaced by the pager's locked single-filter header, so neither is built here any
+     more. Radio is not a Culture filter — it is a global destination since K1. */
+  (function mountCulturePager(attempt){
+    attempt = attempt || 0;
+    if(!window.KIL_PAGER){ if(attempt<40) setTimeout(function(){ mountCulturePager(attempt+1); }, 250); return; }
+    /* Rows arrive from Supabase, so the first pass is usually empty. */
+    if(!Array.isArray(window.__culAllRows) || !window.__culAllRows.length || !window.__culCard){
+      if(attempt<40){ setTimeout(function(){ mountCulturePager(attempt+1); }, 300); return; }
+      window.CULTURE_TAB_GATE_NOTE = 'not-evaluated: feed rows never loaded';
+      try{ console.warn('[culture] '+window.CULTURE_TAB_GATE_NOTE); }catch(e){}
+      return;
+    }
+
+    culResolveFilters().then(function(open){
+      /* SNAPSHOT per filter: the pager asks for items() on every settle, and a live query over
+         a mutating list would give it a different answer each time. Radio hit exactly this. */
+      var snap = {};
+      var filters = open.map(function(f){
+        return {
+          id: f.id,
+          label: f.label,
+          items: function(){
+            if(!snap[f.id]) snap[f.id] = culLiveRows().filter(f.test);
+            return snap[f.id];
+          },
+          render: function(row, el){
+            if(!row) return;
+            el.innerHTML = window.__culCard(row);
+            try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){}
+          }
+        };
+      });
+
+      window.KIL_PAGER.mount({
+        filters: filters,
+        emptyFor: function(f){
+          return { title:'Nothing in ' + f.label + ' yet',
+                   body:'New posts appear here as they publish.' };
+        }
+      });
+
+      /* The surfaces the pager replaces. */
+      ['culMTabs','culTypeBar','culSwToast'].forEach(function(id){
+        var el=document.getElementById(id); if(el) el.remove();
+      });
+      var fd=document.getElementById('feed'); if(fd) fd.style.display='none';
+      var cf=document.getElementById('community-feed'); if(cf) cf.style.display='none';
     });
-  }
+  })(0);
 
   /* 2 — caption "…more": expand upward, collapse again. Never hijacks a link tap. */
   document.addEventListener('click',function(e){
@@ -873,7 +883,7 @@ function culApplyTabGate(tabs, attempt){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815o" defer></script>
+<script src="/keepitil-shell.js?v=20260815p" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
