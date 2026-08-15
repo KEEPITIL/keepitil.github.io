@@ -33,6 +33,33 @@ a{color:#5cc8ff}</style>
    GitHub Pages serves this 404.html for any unmatched path; we translate pretty URLs
    to the working / pages via a client-side redirect. Falls through to a real 404 message. */
 (function(){
+  /* ── §H1 — COLD START INSIDE THE APP ────────────────────────────────────────────────────
+     On GitHub Pages a real server hands this file every unmatched path, so location.pathname
+     is a site path and the map below is meaningful. The app bundle has NO server: the WebView
+     opens capacitor:// (iOS) or file://, where pathname is a filesystem path that means
+     nothing here. The router would still "resolve" a clean URL, replace into a file the bundle
+     does not contain, land back here, and resolve again — so the first thing a user sees is an
+     error page it cannot leave. Invisible on the web, which is why it survived.
+
+     Any non-http(s) scheme therefore skips clean-URL mapping entirely and goes to the real
+     entry file. RELATIVE, not '/index.html': under capacitor:// and file:// a leading slash is
+     not the bundle root. */
+  var httpish = /^https?:$/i.test(location.protocol);
+  if(!httpish){
+    var onEntry = /(^|\/)index\.html$/i.test(location.pathname);
+    /* Two guards, because a bounce loop here is a brick: don't replace if we are already on
+       the entry file, and never replace twice in one session even if that check is fooled by
+       an odd scheme. */
+    var tried = false;
+    try{ tried = sessionStorage.getItem('kil404_entry') === '1'; }catch(e){}
+    if(!onEntry && !tried){
+      try{ sessionStorage.setItem('kil404_entry','1'); }catch(e){}
+      location.replace('index.html');
+    }
+    return;
+  }
+  try{ sessionStorage.removeItem('kil404_entry'); }catch(e){}
+
   var p = location.pathname.replace(/\/+$/,''); // strip trailing slash
   var seg = p.split('/').filter(Boolean);       // path segments
   var q = location.search || '';
@@ -109,8 +136,8 @@ a{color:#5cc8ff}</style>
     <a href="/apply.html" style="padding:9px 15px;border:1px solid #2a3550;border-radius:9px;text-decoration:none">Join</a>
   </div>
   <p style="color:#5a6478;font-size:12px;margin-top:26px;max-width:520px">
-    Developer note: this file is the site\u2019s URL router. GitHub Pages requires it to be
-    named <code>404.html</code>. Do not delete it \u2014 every clean URL depends on it.</p>
+    Developer note: this file is the site’s URL router. GitHub Pages requires it to be
+    named <code>404.html</code>. Do not delete it — every clean URL depends on it.</p>
 </div>
 <script>
 /* only reveal the 404 message if the router didn't redirect */
