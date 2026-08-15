@@ -213,6 +213,13 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
     try{
+      /* K2: styles BEFORE DOM. The shell used to mount the bottom nav and then inject
+         its stylesheet on the next line, so every element existed for a moment with no
+         rules — a flash of unstyled nav on every page load, and the reason the active
+         state could not be verified: the anchors kept their pre-stylesheet computed
+         values. Removing the inline colour from one changed nothing, while re-inserting
+         the same node immediately resolved to the correct rule. style() is idempotent. */
+      style();
       // remove existing header nav(s) + footer(s) + any injected mobile nav
       document.querySelectorAll('#main-nav, nav#main-nav, nav.main-nav, #v3shell-nav, footer, #kil-mnav, .kil-mnav').forEach(function(el){ el.remove(); });
       var links = namedDestinations().map(function(d){ return '<a href="'+d.href+'">'+d.label+'</a>'; }).join('');
@@ -342,13 +349,56 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
              a floating button above the bar, calling the same __kilCreateMenu as before.
              Profile leaves the bar for the contextual slot: it is account state, not a
              destination, and it was the fifth thing competing for five slots. */
+          /* K2 active state — the tint stays INLINE, and the muting is what carries
+             !important.
+             The bug: `#kil-bnav a.on{color:var(--brand)}` never applied, because an inline
+             color beats any stylesheet rule. Measured on /scene.html: the active anchor
+             computed rgb(34,224,122) — its own tint — identical to its inactive self, so
+             there was no visible active state on any coloured slot.
+             The first fix moved the tint into a custom property and let `.on` read it. That
+             is the tidier cascade, and it did not work: the mounted anchor kept computing
+             the inherited colour while a CLONE of the same element in the same parent, with
+             the same attributes and the same variables, computed the tint correctly — a
+             style-invalidation quirk around adding the class right after mount. An active
+             state is not worth betting on that.
+             So: inline stays the ACTIVE appearance, and `:not(.on)` mutes with !important,
+             which beats a non-important inline declaration. No var() substitution, nothing
+             that depends on when the class lands. */
+          /* The active slot is known BEFORE the markup exists — it is a path match — so it is
+             emitted as class="on", not added afterwards. Adding it post-hoc meant the anchor
+             was born matching `:not(.on)` and had to be re-resolved; born with the class, it
+             is correct from its first style resolution and nothing depends on invalidation. */
+          var _bp=location.pathname;
           bn.innerHTML=DESTINATIONS.map(function(d){
-            if(d.home) return '<a href="'+d.href+'" id="kb-home" aria-label="'+d.label+'">'
+            var on=d.match.test(_bp);
+            var mark=(on?' class="on" aria-current="page"':'');
+            if(d.home) return '<a href="'+d.href+'" id="kb-home" aria-label="'+d.label+'"'+mark+'>'
               +'<img class="kb-logo" src="/keepitil-x-blue.png" alt="'+d.label+'"></a>';
-            return '<a href="'+d.href+'" aria-label="'+d.label+'" style="color:'+d.tint
+            return '<a href="'+d.href+'" aria-label="'+d.label+'"'+mark+' style="color:'+d.tint
               +';filter:drop-shadow(0 0 5px '+d.glow+')">'+ICON[d.icon]+'</a>';
           }).join('');
           document.body.appendChild(bn);
+          /* Publish the bar's real height. Everything that has to sit clear of it — the
+             page's bottom padding, the Create button, the account button — reads this one
+             number instead of each carrying its own guess. */
+          /* MEASURED 1639px on the first attempt. The bar is appended before the shell's own
+             stylesheet is injected, so at that instant it is an unstyled block with five
+             stacked anchors — and that absurd number went straight into the page's bottom
+             padding. The CSS caps the bar at max-height:96px, so anything above that is
+             a measurement taken too early and must be discarded, not published. */
+          var BNAV_MAX_H=96;
+          var publishBarHeight=function(){
+            var h=Math.round(bn.getBoundingClientRect().height);
+            if(h>0 && h<=BNAV_MAX_H) document.documentElement.style.setProperty('--kil-bnav-h', h+'px');
+          };
+          /* Re-measure once styles have actually landed, and keep the same late cadence the
+             Create button uses for its own after-the-fact positioning. */
+          if(window.requestAnimationFrame) requestAnimationFrame(publishBarHeight);
+          [0,200,800,2000].forEach(function(ms){ setTimeout(publishBarHeight, ms); });
+          window.addEventListener('resize', publishBarHeight);
+          window.addEventListener('orientationchange', publishBarHeight);
+          window.addEventListener('load', publishBarHeight);
+          try{ if(window.ResizeObserver) new ResizeObserver(publishBarHeight).observe(bn); }catch(e){}
           /* Create, as a floating action rather than a nav slot. Same handler as before —
              this is a move, not a rebuild. Sits above the bar and clear of the home
              indicator so it never covers the last row of content. */
@@ -395,12 +445,6 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
             ac.innerHTML=ICON.profile;
             document.body.appendChild(ac);
           }
-          var _bp=location.pathname;
-          /* Active state from the same matchers the header uses. The previous array was
-             maintained by hand and had four entries for five anchors, so the last slot
-             could never highlight. */
-          var _bmap=DESTINATIONS.map(function(d){ return d.match; });
-          bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
           if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
             var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/settings.html'; mh.setAttribute('aria-label','Settings');
@@ -410,7 +454,6 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         }catch(e){}
       };
       window.__kilMountBnav();
-      style();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
       if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
       authNav(hdr);   // signed in -> LOGIN becomes PROFILE (+ the notification bell shows)
@@ -531,7 +574,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-mhamb svg{width:20px;height:20px;display:block}'
     /* Mobile account control. Sits left of the Settings hamburger when that is also up, so
        the two never stack on the same pixels. */
-    +'#kil-macct{display:flex;position:fixed;left:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:1002;width:44px;height:44px;border-radius:50%;background:rgba(10,10,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
+    +'#kil-macct{display:flex;position:fixed;left:16px;bottom:calc(var(--kil-bnav-h, 72px) + 12px);z-index:1002;width:44px;height:44px;border-radius:50%;background:rgba(10,10,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
     +'#kil-macct svg{width:21px;height:21px;display:block}'
     +'#kil-macct:focus-visible{outline:2px solid #fff;outline-offset:3px}'
     +'@media(min-width:861px){#kil-macct{display:none}}'
@@ -543,18 +586,32 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-bnav a svg{width:26px;height:26px;display:block}'
     +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
     +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
-    +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
+    /* K2 active state. Inactive is muted; active is the destination's own tint plus its
+       glow. Colour alone is not the only signal — aria-current is set too, so the state
+       is available to a screen reader and not just to sighted users. */
+    /* !important is load-bearing here: it is the only thing that beats the inline tint,
+       and inverting it this way means the ACTIVE state needs no override at all. */
+    +'#kil-bnav a:not(.on){color:rgba(255,255,255,.55)!important;filter:none!important}'
+    +'#kil-bnav a{transition:color .15s,filter .15s,opacity .15s}'
+    +'#kil-bnav a#kb-home img.kb-logo{opacity:1}'
+    +'#kil-bnav a#kb-home:not(.on) img.kb-logo{opacity:.55}'
+    +'#kil-bnav a:focus-visible{outline:2px solid #fff;outline-offset:-3px;border-radius:8px}'
     +'#kil-bnav a:active{transform:scale(.9)}'
     /* K1: Create is a floating action. env(safe-area-inset-bottom) keeps it above the home
        indicator, and it clears the 5-slot bar rather than sitting inside it. */
-    +'#kil-create-fab{position:fixed;right:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:1002;width:52px;height:52px;border-radius:50%;border:0;background:#00b4ff;color:#04121f;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,180,255,.45)}'
+    +'#kil-create-fab{position:fixed;right:16px;bottom:calc(var(--kil-bnav-h, 72px) + 12px);z-index:1002;width:52px;height:52px;border-radius:50%;border:0;background:#00b4ff;color:#04121f;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,180,255,.45)}'
     +'#kil-create-fab:focus-visible{outline:2px solid #fff;outline-offset:3px}'
     +'@media(min-width:861px){#kil-create-fab{display:none}}'
     /* Profile is contextual, not a destination — it sits with the account controls. */
     +'.v3s-icons a.v3s-contextual{margin-left:14px;padding-left:14px;border-left:1px solid rgba(255,255,255,.12)}'
     +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2.3rem;font-weight:800;line-height:1;background:transparent;border:0;border-radius:0;box-shadow:none;width:auto;height:auto;padding:0;margin:0 4px;text-shadow:0 0 10px rgba(0,180,255,.85)}'
     +'#kil-createmenu a:active{background:rgba(255,255,255,.06)}'
-    +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}}'
+    /* K2: 72px was a guess at the bar's height. The bar is `height:auto` with its own
+       safe-area padding, so the real figure moves with the inset and with the icon size.
+       --kil-bnav-h is measured from the mounted element (see placeBar) and this is the
+       fallback for the first paint. The inset is NOT added again here: the bar already
+       includes it in its own padding, and adding it twice left a visible dead band. */
+    +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(var(--kil-bnav-h, 72px) + 8px)!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem;text-align:left}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
