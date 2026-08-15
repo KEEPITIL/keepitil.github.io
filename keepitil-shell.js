@@ -196,6 +196,86 @@
    URL, because this array was the whole map and it had two entries.
    `home:true` marks the slot the bottom bar renders as the logo and the desktop header
    omits — the brand mark already links to '/', and listing it twice is noise. */
+/* ── K3: THE ICON COMPONENTS ───────────────────────────────────────────────────────────────
+   Each icon contributes GEOMETRY ONLY. The wrapper supplies the viewBox, stroke weight, caps
+   and currentColor, so the set cannot drift: it is structurally impossible to ship an icon
+   with a different stroke weight from its neighbours. That had already happened — `settings`
+   was drawn at 1.7 against everything else's 1.8, and radio, scene and profile were missing
+   stroke-linejoin, so their corners rendered differently at the same size.
+
+   Swappable, which is the point of the ticket. To replace one without touching this file:
+
+       KIL_ICONS.set('radio', '<path d="..."/>');   // geometry only, re-renders in place
+
+   Geometry is validated rather than trusted: a full <svg>, a <script>, an on* handler or a
+   foreignObject is refused. These strings go through innerHTML, so an icon is an injection
+   point, and "it is only an icon" is exactly how that gets missed. */
+var ICON_GEOMETRY = {
+  home: '<path d="M4 11.4 12 4.6l8 6.8"/><path d="M6.4 10v9.4h11.2V10"/><path d="M9.9 19.4v-5.2h4.2v5.2"/>',
+  culture: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>',
+  radio: '<circle cx="12" cy="12" r="1.6"/><path d="M7.8 7.8a5.9 5.9 0 0 0 0 8.4M16.2 7.8a5.9 5.9 0 0 1 0 8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>',
+  scene: '<path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/>',
+  vs: '<path d="M4 6l3.4 12L10.8 6"/><path d="M13.6 18h5l-4.6-6h5"/>',
+  profile: '<circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/>',
+  shop: '<path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>'
+};
+
+/* One wrapper, one set of attributes, applied to every icon in the set. */
+var ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+
+/* Geometry may only be drawing instructions. Anything that could execute, load, or bring its
+   own attributes is refused — and refused LOUDLY, because a silently dropped icon looks like
+   a styling bug and gets chased for hours. */
+function validIconGeometry(g){
+  if(typeof g!=='string' || !g.trim()) return false;
+  if(/<\s*(script|foreignObject|image|use|iframe|style)\b/i.test(g)) return false;
+  if(/\bon[a-z]+\s*=/i.test(g)) return false;
+  if(/<\s*svg\b/i.test(g)) return false;          /* geometry only — the wrapper owns the svg */
+  if(/(javascript:|data:text\/html)/i.test(g)) return false;
+  return true;
+}
+
+/* Render one icon. An unknown name returns '' rather than throwing: a missing icon must not
+   take the nav down with it, and the console line names what was asked for. */
+function icon(name){
+  var g = ICON_GEOMETRY[name];
+  if(!g){ try{ console.warn('[keepitil-shell] no icon named "'+name+'"'); }catch(e){} return ''; }
+  return '<svg '+ICON_ATTRS+' aria-hidden="true" focusable="false" data-icon="'+name+'">'+g+'</svg>';
+}
+
+/* Explore renders the brand mark by default rather than a line icon, but through the same
+   component path — so registering a `home` geometry swaps it like any other icon.
+   mix-blend-mode:screen on the nav logo remains a binding V3.1 rule; see the stylesheet. */
+var HOME_USES_LOGO = true;
+function destinationIcon(d){
+  if(d.home && HOME_USES_LOGO) return '<img class="kb-logo" src="/keepitil-x-blue.png" alt="">';
+  return icon(d.icon);
+}
+
+/* The public swap API. Re-renders any mounted nav immediately rather than on the next load. */
+window.KIL_ICONS = {
+  set: function(name, geometry){
+    if(!validIconGeometry(geometry)) throw new Error('KIL_ICONS.set("'+name+'"): geometry rejected — drawing elements only; no <svg>, script, use, image or on* handlers');
+    ICON_GEOMETRY[name] = geometry;
+    if(name==='home') HOME_USES_LOGO = false;   /* an explicit home icon replaces the logo */
+    this.refresh();
+    return true;
+  },
+  get: function(name){ return ICON_GEOMETRY[name] || null; },
+  list: function(){ return Object.keys(ICON_GEOMETRY); },
+  render: function(name){ return icon(name); },
+  /* Re-render every mounted icon in place, keeping each anchor's classes and active state. */
+  refresh: function(){
+    try{
+      document.querySelectorAll('svg[data-icon]').forEach(function(svg){
+        var name = svg.getAttribute('data-icon');
+        if(ICON_GEOMETRY[name]) svg.innerHTML = ICON_GEOMETRY[name];
+      });
+    }catch(e){}
+  }
+};
+
 var DESTINATIONS=[
   {href:'/',             label:'Explore', icon:'home',    home:true,
    match:/^\/((index|v31)(\.html)?)?$/},
@@ -225,24 +305,14 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
       var links = namedDestinations().map(function(d){ return '<a href="'+d.href+'">'+d.label+'</a>'; }).join('');
       var cur=document.documentElement.getAttribute('data-theme')||'default';
       var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
-      // KEEPITIL custom icon set (used in the mobile top-bar icon nav — icons only, no words)
-      var ICON={
-        culture:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/></svg>',
-        scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
-        shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
-        profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>',
-        radio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="1.6"/><path d="M7.8 7.8a5.9 5.9 0 0 0 0 8.4M16.2 7.8a5.9 5.9 0 0 1 0 8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>',
-        vs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l3.4 12L10.8 6"/><path d="M13.6 18h5l-4.6-6h5"/></svg>',
-        settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/></svg>'
-      };
       /* NOTE: `.v3s-icons` is `display:none` at every width today — the desktop header shows
          `.v3s-links` and the header itself is hidden below 861px. It is still built from the
          same list so it cannot drift out of sync if it is ever turned back on. */
       var iconRow='<div class="v3s-icons">'
         +namedDestinations().map(function(d){
-          return '<a href="'+d.href+'" aria-label="'+d.label+'">'+ICON[d.icon]+'</a>';
+          return '<a href="'+d.href+'" aria-label="'+d.label+'">'+destinationIcon(d)+'</a>';
         }).join('')
-        +'<a href="/apply.html" id="v3s-iconprof" class="v3s-contextual" aria-label="Profile">'+ICON.profile+'</a>'
+        +'<a href="/apply.html" id="v3s-iconprof" class="v3s-contextual" aria-label="Profile">'+icon('profile')+'</a>'
         +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
       if(RULES.gear==='hamburger') hdr.classList.add('on-profile');
@@ -372,10 +442,14 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           bn.innerHTML=DESTINATIONS.map(function(d){
             var on=d.match.test(_bp);
             var mark=(on?' class="on" aria-current="page"':'');
+            /* K3: every slot renders through destinationIcon(), including Explore — the home
+               slot used to hardcode the logo, which is why it was the one destination whose
+               mark could not be swapped. The anchor carries the accessible name; the icon
+               inside is aria-hidden, so a screen reader announces the destination once. */
             if(d.home) return '<a href="'+d.href+'" id="kb-home" aria-label="'+d.label+'"'+mark+'>'
-              +'<img class="kb-logo" src="/keepitil-x-blue.png" alt="'+d.label+'"></a>';
+              +destinationIcon(d)+'</a>';
             return '<a href="'+d.href+'" aria-label="'+d.label+'"'+mark+' style="color:'+d.tint
-              +';filter:drop-shadow(0 0 5px '+d.glow+')">'+ICON[d.icon]+'</a>';
+              +';filter:drop-shadow(0 0 5px '+d.glow+')">'+destinationIcon(d)+'</a>';
           }).join('');
           document.body.appendChild(bn);
           /* Publish the bar's real height. Everything that has to sit clear of it — the
@@ -442,7 +516,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           if(!document.getElementById('kil-macct')){
             var ac=document.createElement('a'); ac.id='kil-macct';
             ac.href='/apply.html'; ac.setAttribute('aria-label','Login');
-            ac.innerHTML=ICON.profile;
+            ac.innerHTML=icon('profile');
             document.body.appendChild(ac);
           }
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
