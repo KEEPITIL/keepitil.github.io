@@ -36,10 +36,9 @@
     '.kil-submit{font-size:.62rem;font-weight:700;color:#00ff88;border:1px solid rgba(0,255,136,.3);border-radius:20px;padding:3px 10px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background .2s;}'+
     '.kil-submit:hover{background:rgba(0,255,136,.08);}'+
     '#kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}'+
-    // Echo (kilo) — reposition above radio bar
-    '#kilo-btn{bottom:66px!important;}'+
+    /* The #kilo-btn overrides that lived here are GONE — the shell owns the chat
+       button's position now. The PANEL still needs to clear the radio bar. */
     '#kilo-panel{bottom:134px!important;}'+
-    '.radio-mini #kilo-btn{bottom:88px!important;right:24px!important;}'+
     '.radio-mini #kilo-panel{bottom:156px!important;right:24px!important;}'+
     // Body padding so content clears the fixed bar
     'body{padding-bottom:56px;}'+
@@ -59,7 +58,7 @@
       '#kr-vol{width:74px;height:20px;}'+
       '#kil-radio{gap:8px;padding:0 12px;}'+
     '}'+
-    '@media(max-width:480px){#kilo-btn{bottom:66px!important;right:16px!important;}.radio-mini #kilo-btn{bottom:88px!important;right:16px!important;}.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}';
+    '@media(max-width:480px){.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}';
   document.head.appendChild(css);
 
   // ── Inject HTML (skip if already in DOM — e.g. inline on index.html) ─────

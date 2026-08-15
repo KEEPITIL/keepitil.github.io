@@ -22,6 +22,16 @@
   else{swapNavLogos();}
 })();
 (function () {
+  /* §C — chat is on every page EXCEPT a user's profile page.
+     The shell also hides it with CSS, but hidden is not absent: returning here means no button,
+     no panel and nothing in the accessibility tree. Belt and braces on purpose — the CSS still
+     covers a copy of this file cached from before.
+     Placed in the WIDGET's IIFE, not the first one in the file: that one auto-loads the radio
+     bar, and bailing out there would have silently removed the radio bar from profile pages. */
+  try {
+    if (/(^|\/)profile\.html$/i.test(location.pathname)) return;
+  } catch (e) {}
+
   'use strict';
 
   // ── Already loaded guard ────────────────────────────────────────────────────
@@ -347,14 +357,38 @@
   ];
 
   // ── Quick chip suggestions shown at welcome ──────────────────────────────────
-  var WELCOME_CHIPS = [
-    'Find events near me',
-    'Book an artist',
-    'Organize an event',
-    'Brand partnerships',
-    'DJ career tips',
-    'About KEEPITIL',
-  ];
+  /* ── §C — CHAT IS THE PRIMARY ACTION SURFACE ─────────────────────────────────────────
+     With the + FAB deleted, this is how anything gets created, and it is now the only route
+     to your own profile. The directive is exact: EXACTLY TWO options on open, not "including"
+     these two. Signed out that is Log in · Create; signed in the first slot becomes Profile,
+     because offering a signed-in user a login they don't need while still stranding them from
+     their profile is the failure this replaces.
+
+     These are ACTIONS, not prompts — they navigate. A chip that merely asks the bot to talk
+     about creating an event is not a create path. */
+  function kilSignedIn(){
+    /* Supabase stores its session under sb-<project-ref>-auth-token. Reading the key is enough;
+       we never touch the token itself. */
+    try{
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && /^sb-.*-auth-token$/.test(k) && localStorage.getItem(k)) return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  /* The public create path. NOT /create-event.html — that is admin-only and bounces everyone
+     else, dropping query params on the way. */
+  var KIL_CREATE_URL = '/submit-event.html';
+
+  function welcomeActions(){
+    return kilSignedIn()
+      ? [{ label:'Profile', href:'/profile.html' }, { label:'Create', href:KIL_CREATE_URL }]
+      : [{ label:'Log in',  href:'/apply.html'   }, { label:'Create', href:KIL_CREATE_URL }];
+  }
+
+  var WELCOME_CHIPS = [];   /* kept for the renderer; the two actions are rendered separately */
 
   // ── Match intent from user text ──────────────────────────────────────────────
   function matchIntent(text) {
@@ -445,6 +479,12 @@
       '.kilo-link::after{content:"→";margin-left:auto;opacity:.6;}',
 
       '.kilo-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}',
+      '.kilo-actions{display:flex;gap:10px;margin:4px 0 2px;}',
+      '.kilo-action{flex:1 1 0;text-align:center;padding:13px 10px;border-radius:12px;text-decoration:none;',
+      'font:800 .82rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;min-height:44px;',
+      'display:flex;align-items:center;justify-content:center;',
+      'background:linear-gradient(135deg,#00b4ff,#00ff88);color:#0f0f1a;}',
+      '.kilo-action:focus-visible{outline:2px solid #fff;outline-offset:2px;}',
       '.kilo-chip{padding:5px 10px;border-radius:20px;font-size:.72rem;font-weight:700;',
       'letter-spacing:.05em;cursor:pointer;border:1px solid rgba(0,255,136,.2);',
       'color:#00ff88;background:rgba(0,255,136,.06);transition:all .15s;',
@@ -900,6 +940,36 @@
           text: 'Your KEEPITIL guide to the SoCal music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
           chips: WELCOME_CHIPS,
         });
+        renderWelcomeActions();
+      }
+    }
+
+    /* §C — the two options, rendered as real links.
+       BROKEN != EMPTY: chat is now a critical path, so if the agent cannot answer these still
+       work. They are plain anchors to real pages, not messages sent to a model — nothing about
+       them depends on the agent being up. If the panel itself fails to build, the button falls
+       back to the same destinations (see the catch below). */
+    function renderWelcomeActions() {
+      try {
+        var wrap = document.createElement('div');
+        wrap.className = 'kilo-actions';
+        wrap.setAttribute('role', 'group');
+        wrap.setAttribute('aria-label', 'What would you like to do?');
+        wrap.innerHTML = welcomeActions().map(function (a) {
+          return '<a class="kilo-action" href="' + a.href + '">' + a.label + '</a>';
+        }).join('');
+        msgs.appendChild(wrap);
+        msgs.scrollTop = msgs.scrollHeight;
+      } catch (e) {
+        /* If even this fails, say so and give the direct link rather than showing nothing. */
+        try {
+          var f = document.createElement('div');
+          f.className = 'kilo-actions';
+          f.innerHTML = '<span style="color:#9aa;font-size:.8rem">The assistant is unavailable. ' +
+                        '<a class="kilo-action" href="' + KIL_CREATE_URL + '">Create an event</a> ' +
+                        '<a class="kilo-action" href="/apply.html">Log in</a></span>';
+          msgs.appendChild(f);
+        } catch (e2) {}
       }
     }
 

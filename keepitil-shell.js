@@ -526,9 +526,9 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           var PINNED_MAX_H=260;
           /* The page's own bottom padding, read once before the shell touches it. */
           var KIL_BASE_PAD=null;
-          /* kil-create-fab deleted in §B. kil-macct is still here only because the
-             profile-route decision is outstanding — see the note above its markup. */
-          var PINNED_IDS=['kil-bnav','kil-macct','kilo-btn'];
+          /* Both floating controls are gone (§B). What is left to clear is the nav and
+             the chat button, which §C keeps. */
+          var PINNED_IDS=['kil-bnav','kilo-btn'];
           var publishBarHeight=function(){
             var h=Math.round(bn.getBoundingClientRect().height);
             if(h>0 && h<=BNAV_MAX_H) document.documentElement.style.setProperty('--kil-bnav-h', h+'px');
@@ -585,27 +585,13 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
              window.__kilCreateMenu stays defined and callable so §C can route to it rather
              than rebuild the sheet. */
 
-          /* ⚠️ §B says DELETE this control. It is deliberately still here.
-             Removing it leaves no route to your own profile on mobile: the bottom bar is
-             Explore · Culture · Radio · Scene · VS, and the desktop header is hidden below
-             861px. The directive itself flags this as RAISE BEFORE SHIPPING and lists three
-             candidate replacements for the owner to choose between. Shipping the deletion
-             first would ship the gap, so the deletion waits on that decision.
-
-          /* Profile is contextual, not a destination — but the desktop header that used to
-             carry it is hidden below 861px, so on mobile it needs its own control or the
-             account becomes unreachable.
-             Bottom-LEFT, not top-right: culture.html and radio.html both pin a sticky tab
-             row (#culMTabs / #radMTabs) across the top, and a top-right control lands on
-             top of it — on radio it covered a button outright. Measured on all five
-             destinations; bottom-left is the only corner with no pinned control under it,
-             and it mirrors Create on the right. */
-          if(!document.getElementById('kil-macct')){
-            var ac=document.createElement('a'); ac.id='kil-macct';
-            ac.href='/apply.html'; ac.setAttribute('aria-label','Login');
-            ac.innerHTML=icon('profile');
-            document.body.appendChild(ac);
-          }
+          /* §B: the floating profile icon is DELETED.
+             It was held while the profile route was undecided — removing it left no way to
+             reach your own account on mobile, since the bottom bar is Explore · Culture ·
+             Radio · Scene · VS and the desktop header is hidden below 861px. That is now
+             answered: the route lives in chat (§C), whose first slot becomes Profile once
+             signed in. The deletion ships in the SAME change as those two options, so the
+             gap never exists on main. */
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
           if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
             var mh=document.createElement('a'); mh.id='kil-mhamb'; mh.href='/settings.html'; mh.setAttribute('aria-label','Settings');
@@ -614,6 +600,8 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           }
         }catch(e){}
       };
+      /* §C: the profile page is the one place chat must not appear. */
+      try{ document.body.classList.toggle('kil-profile', /(^|\/)profile\.html$/i.test(location.pathname)); }catch(e){}
       window.__kilMountBnav();
       mountDestinationRails();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
@@ -652,13 +640,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
     /* The bottom bar no longer carries Profile (K1), so the mobile account control is the
        thing that has to track auth state. Runs whether or not the header exists. */
-    try{
-      var ac=document.getElementById('kil-macct');
-      if(ac){
-        ac.setAttribute('href', s?'/profile.html':'/apply.html');
-        ac.setAttribute('aria-label', s?'Profile':'Login');
-      }
-    }catch(e){}
+    /* The floating account control is gone (§B); chat carries the profile route now. */
     if(!hdr) return;
     /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
        Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
@@ -736,11 +718,27 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-mhamb svg{width:20px;height:20px;display:block}'
     /* Mobile account control. Sits left of the Settings hamburger when that is also up, so
        the two never stack on the same pixels. */
-    +'#kil-macct{display:flex;position:fixed;left:16px;bottom:calc(var(--kil-bnav-h, 72px) + 12px);z-index:1002;width:44px;height:44px;border-radius:50%;background:rgba(10,10,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
-    +'#kil-macct svg{width:21px;height:21px;display:block}'
     /* M2: every pinned control steps aside while a sheet is open. KILO's button is included
        deliberately — it is not ours, but it was sitting on top of the Create sheet too. */
-    +'body.kil-sheet-open #kil-macct,body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
+    /* ── §C: ONE OWNER FOR THE CHAT BUTTON ────────────────────────────────────────────────
+       #kilo-btn is injected by keepitil-ai.js on 46 pages, and five different places were
+       overriding where it sat: index.html set `bottom` TWICE with !important and the two
+       disagreed (68px vs calc(62px + inset)); culture.html moved it right AND down AND scaled
+       it to .85; keepitil-radio.js — loaded on culture, radio and index — added four more. The
+       ticket found four pages; it was really three positions and two sizes across five sources.
+
+       All of those are deleted. This is the only rule now, and it is anchored to the MEASURED
+       nav height rather than a pixel guess, so it survives the nav changing size.
+
+       Deliberately --kil-bnav-h and not --kil-pinned-h: the pinned measurement INCLUDES this
+       button, so positioning from it would be circular — the button's position feeding the
+       measurement that sets the button's position. The nav height is independent, and content
+       clearance still uses the full --kil-pinned-h (M3). */
+    +'#kilo-btn{right:16px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 12px)!important}'
+    /* §C exception: never on a user's profile page. keepitil-ai.js loads there and does not
+       self-suppress, so the button WAS rendering on profile.html. */
+    +'body.kil-profile #kilo-btn,body.kil-profile #kilo-panel{display:none!important}'
+    +'body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
     /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
        never pushes the page's own content down a phone screen. */
     +'.kil-drail{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:22px auto 0;max-width:760px;padding:0 12px}'
@@ -752,8 +750,6 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     /* Narrow: cap the rail so four items break 2+2 rather than 3+1, which reads as an
        accident. Each pill is also stretched to an even width so the two columns line up. */
     +'@media(max-width:520px){.kil-drail{gap:8px;max-width:300px}.kil-drail-item{flex:1 1 128px;justify-content:center;padding:9px 10px;font-size:.92rem}.kil-drail-ico svg{width:17px;height:17px}}'
-    +'#kil-macct:focus-visible{outline:2px solid #fff;outline-offset:3px}'
-    +'@media(min-width:861px){#kil-macct{display:none}}'
     +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
     +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
     /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
