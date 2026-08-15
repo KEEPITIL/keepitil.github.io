@@ -243,7 +243,7 @@ footer a{color:var(--purple)}
            here, so it matched 0 of 628. VS is reached as a destination (/vs.html) instead. -->
       <button data-tp="all" class="on" onclick="setCulContentType('all')">Feed</button>
       <button data-tp="article" onclick="setCulContentType('article')">Articles</button>
-      <button data-tp="image" onclick="setCulContentType('image')">Pix</button>
+
     </div>
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
     <div class="feed" id="feed"></div>
@@ -446,6 +446,10 @@ function applyCulFilters(){
   var cf=document.getElementById('community-feed'); if(cf)cf.style.display='';
   var rows=(window.__culAllRows||[]).slice();
   /* Filter A — content type */
+  /* Archived rows are removed content and must never render. The feed never filtered
+     them: 280 of 628 rows — 45% of what Culture showed — were archived. Live totals are
+     article 294, event 43, post 11. */
+  rows=rows.filter(function(x){ return !x.archived; });
   rows=rows.filter(function(x){ return _culTypeMatch(x); });
   /* Filter (gear) */
   if(culFilter==='articles'){ rows=rows.filter(function(x){ return x.kind==='article' && CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
@@ -714,8 +718,12 @@ renderTypebar();renderDiscover();renderFeed();
     /* K5: FEED / PIX / VS. Radio left this row because K1 made it a top-level destination in
        the bottom bar — keeping it here duplicated the slot and re-created the confusion K1
        removed. PIX takes its place: 201 rows, and it was not reachable on mobile at all. */
+    /* Pix removed. I put it here on a count of 201 rows with data.img — that count included
+       ARCHIVED rows. Live it is 11, from 14 profiles that are all AI agents and 0 human
+       creators, which is below the inventory threshold in the decisions doc. It was the same
+       mistake I removed Blog and Vid for: a tab that teaches the product is hollow. It comes
+       back automatically once S3 gates tabs on live inventory. */
     tabs.innerHTML='<button data-s="feed" class="on">Feed</button>'
-                  +'<button data-s="pix">Pix</button>'
                   +'<button data-s="vs">VS</button>';
     host.parentNode.insertBefore(tabs, host);
     tabs.addEventListener('click',function(e){
@@ -724,6 +732,9 @@ renderTypebar();renderDiscover();renderFeed();
       var sec=b.dataset.s;
       /* Pix is a content-type filter over the feed, not a separate section — so it returns to
          the feed view first, then applies the filter, and the type bar stays in sync. */
+      /* Retained deliberately though no button emits 'pix' today: S3 re-emits the tab from
+         platform_config once live inventory crosses the threshold, and this is the wiring
+         it needs. Same for the 'image' branch in _culTypeMatch. */
       if(sec==='pix'){
         if(typeof culSection==='function') culSection('feed');
         if(typeof setCulContentType==='function') setCulContentType('image');
@@ -780,7 +791,7 @@ renderTypebar();renderDiscover();renderFeed();
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815j" defer></script>
+<script src="/keepitil-shell.js?v=20260815k" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
