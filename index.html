@@ -381,9 +381,7 @@
 #evx .evx-daymo{font-size:1.05rem;font-weight:800;letter-spacing:.2em;text-indent:.2em;color:#9aa0b0;text-transform:uppercase;margin-top:1px;text-align:center;}
 @media(max-width:680px){#evx .evx-datecol{display:flex;align-items:baseline;gap:10px;} #evx .evx-daynum{font-size:2rem;}}
 /* Mobile create entry point (Founder 2026-07-16): "+" on each date row -> create-event prefilled with that date */
-#evx .evx-add{display:none;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--green);color:var(--green);font-size:1.25rem;font-weight:800;line-height:1;text-decoration:none;flex:0 0 auto;align-self:center;margin-left:auto}
-#evx .evx-add:active{transform:scale(.9)}
-@media(max-width:860px){#evx .evx-add{display:inline-flex}#evx .evx-nav{top:0;z-index:120}}  /* mobile: no top bar */
+@media(max-width:860px){#evx .evx-nav{top:0;z-index:120}}  /* mobile: no top bar */
 #evx .evx-daycol{border-left:1px solid rgba(0,255,136,.12);padding-left:22px;min-width:0;}
 @media(max-width:680px){#evx .evx-daycol{border-left:none;padding-left:0;border-top:1px solid rgba(0,255,136,.12);padding-top:14px;}}
 #evx .evx-daycount{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3a4550;margin-bottom:12px;}
@@ -1543,13 +1541,10 @@
         </h1>
         <p class="hero-sub-static" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.18em;color:var(--white);margin-bottom:28px;opacity:.5;">CREATE LOUD. LIVE LOUDER. KEEPITIL.</p>
         <div class="hero-anim" id="hero-anim" aria-hidden="true"></div>
-        <!-- K4: the five destinations, surfaced on Explore itself.
-             This page's own body linked Culture once, Scene once, and Radio and VS not at all —
-             93 of its 97 links went to individual events. K1 put all five in the nav; this puts
-             them in the landing page, rendered from the SAME DESTINATIONS array in
-             keepitil-shell.js so the rail cannot drift from the nav. The current page is
-             omitted automatically. -->
-        <nav data-kil-destinations aria-label="Explore KEEPITIL"></nav>
+        <!-- §D1: the mid-page Culture · Radio · Scene · VS rail is REMOVED. I added it in K4
+             because Explore's own body reached neither Radio nor VS; the bottom nav carries
+             all five now, so the rail was a second path to the same places. The shell's
+             renderer stays available for any page that opts in with data-kil-destinations. -->
         <!-- hero actions removed per Founder -->
         <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
       </div>
@@ -2138,7 +2133,11 @@ function dayRow(day,mk,i){
   var cards=day.events.map(function(ev){var sp=ev.pick&&!used;if(sp)used=true;return flyer(ev,sp);}).join('');
   return '<section class="evx-day" id="evx-day-'+mk+'-'+i+'">'
     +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div>'
-    +'<a class="evx-add" href="/create-event.html?date='+mk+'-'+(p.day<10?'0'+p.day:p.day)+'" aria-label="Start an event on this date" title="Start an event this night">+</a></div>'
+    /* §D1: the per-date '+' is REMOVED. It pointed at /create-event.html, which is
+       admin-only: create-event runs rpc('is_admin') and redirects everyone else to
+       /submit-event.html, DROPPING the ?date= prefill on the way. So the control
+       promised a dated create and delivered an undated bounce. Creation moves to the
+       chat surface (§C). */
     +'<div class="evx-daycol"><div class="evx-daycount">'+day.events.length+' event'+(day.events.length>1?'s':'')+'</div>'
     +'<div class="evx-carousel"><button class="evx-arrow prev" aria-label="Scroll to previous events">‹</button><div class="evx-row">'+cards+'</div><button class="evx-arrow next" aria-label="Scroll to next events">›</button></div></div></section>';
 }
@@ -2691,7 +2690,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815m" defer></script>
+<script src="/keepitil-shell.js?v=20260815n" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->

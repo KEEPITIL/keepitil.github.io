@@ -523,7 +523,9 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           var PINNED_MAX_H=260;
           /* The page's own bottom padding, read once before the shell touches it. */
           var KIL_BASE_PAD=null;
-          var PINNED_IDS=['kil-bnav','kil-create-fab','kil-macct','kilo-btn'];
+          /* kil-create-fab deleted in §B. kil-macct is still here only because the
+             profile-route decision is outstanding — see the note above its markup. */
+          var PINNED_IDS=['kil-bnav','kil-macct','kilo-btn'];
           var publishBarHeight=function(){
             var h=Math.round(bn.getBoundingClientRect().height);
             if(h>0 && h<=BNAV_MAX_H) document.documentElement.style.setProperty('--kil-bnav-h', h+'px');
@@ -573,37 +575,19 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           window.addEventListener('orientationchange', publishBarHeight);
           window.addEventListener('load', publishBarHeight);
           try{ if(window.ResizeObserver) new ResizeObserver(publishBarHeight).observe(bn); }catch(e){}
-          /* Create, as a floating action rather than a nav slot. Same handler as before —
-             this is a move, not a rebuild. Sits above the bar and clear of the home
-             indicator so it never covers the last row of content. */
-          if(!document.getElementById('kil-create-fab')){
-            var fab=document.createElement('button');
-            fab.id='kil-create-fab'; fab.type='button';
-            fab.setAttribute('aria-label','Create');
-            fab.textContent='+';
-            fab.onclick=function(){ if(window.__kilCreateMenu) window.__kilCreateMenu(); };
-            document.body.appendChild(fab);
-            /* The KILO assistant button already owns this corner at z-index 99998, and its
-               own bottom offset is overridden per page — radio.html raises it again when the
-               mini player is up. A fixed offset here would put Create underneath it on some
-               pages and leave a gap on others, so the position is measured from KILO itself
-               and re-measured when the page moves it. */
-            var placeFab=function(){
-              var kilo=document.getElementById('kilo-btn');
-              if(!kilo||getComputedStyle(kilo).display==='none'){ fab.style.bottom=''; return; }
-              var r=kilo.getBoundingClientRect();
-              if(!r.height) { fab.style.bottom=''; return; }
-              fab.style.bottom=Math.round(window.innerHeight-r.top+12)+'px';
-            };
-            placeFab();
-            /* KILO is injected by keepitil-ai.js, which may land after the shell. */
-            [200,800,2000].forEach(function(ms){ setTimeout(placeFab, ms); });
-            window.addEventListener('resize', placeFab);
-            try{
-              new MutationObserver(placeFab).observe(document.documentElement,
-                {attributes:true, attributeFilter:['class','style'], subtree:true});
-            }catch(e){}
-          }
+          /* §B: the + Create FAB is DELETED, not restacked.
+             It and the account button were the controls colliding with content in the
+             owner's screenshots; deleting them resolves that class at source, which is why
+             M2/M3 are superseded. Creation moves to the chat surface (§C).
+             window.__kilCreateMenu stays defined and callable so §C can route to it rather
+             than rebuild the sheet. */
+
+          /* ⚠️ §B says DELETE this control. It is deliberately still here.
+             Removing it leaves no route to your own profile on mobile: the bottom bar is
+             Explore · Culture · Radio · Scene · VS, and the desktop header is hidden below
+             861px. The directive itself flags this as RAISE BEFORE SHIPPING and lists three
+             candidate replacements for the owner to choose between. Shipping the deletion
+             first would ship the gap, so the deletion waits on that decision.
 
           /* Profile is contextual, not a destination — but the desktop header that used to
              carry it is hidden below 861px, so on mobile it needs its own control or the
@@ -753,7 +737,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-macct svg{width:21px;height:21px;display:block}'
     /* M2: every pinned control steps aside while a sheet is open. KILO's button is included
        deliberately — it is not ours, but it was sitting on top of the Create sheet too. */
-    +'body.kil-sheet-open #kil-create-fab,body.kil-sheet-open #kil-macct,body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
+    +'body.kil-sheet-open #kil-macct,body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
     /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
        never pushes the page's own content down a phone screen. */
     +'.kil-drail{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:22px auto 0;max-width:760px;padding:0 12px}'
@@ -788,9 +772,6 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-bnav a:active{transform:scale(.9)}'
     /* K1: Create is a floating action. env(safe-area-inset-bottom) keeps it above the home
        indicator, and it clears the 5-slot bar rather than sitting inside it. */
-    +'#kil-create-fab{position:fixed;right:16px;bottom:calc(var(--kil-bnav-h, 72px) + 12px);z-index:1002;width:52px;height:52px;border-radius:50%;border:0;background:#00b4ff;color:#04121f;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,180,255,.45)}'
-    +'#kil-create-fab:focus-visible{outline:2px solid #fff;outline-offset:3px}'
-    +'@media(min-width:861px){#kil-create-fab{display:none}}'
     /* Profile is contextual, not a destination — it sits with the account controls. */
     +'.v3s-icons a.v3s-contextual{margin-left:14px;padding-left:14px;border-left:1px solid rgba(255,255,255,.12)}'
     +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2.3rem;font-weight:800;line-height:1;background:transparent;border:0;border-radius:0;box-shadow:none;width:auto;height:auto;padding:0;margin:0 4px;text-shadow:0 0 10px rgba(0,180,255,.85)}'
