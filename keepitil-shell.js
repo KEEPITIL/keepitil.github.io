@@ -117,10 +117,23 @@
     var _INSTALL_UI=true;
     if(_INSTALL_UI && !_standalone && !localStorage.getItem(_IK)){
       var _dismiss=function(){ try{localStorage.setItem(_IK,'1');}catch(e){} var b=document.getElementById('kil-pwa-banner'); if(b)b.remove(); };
+      /* Already inside the installed app (standalone PWA or the native WKWebView wrapper)?
+         Then there is nothing to install — offering it is nonsense and it covers content. */
+      var _standalone=function(){
+        try{
+          return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+              || navigator.standalone === true
+              || /capacitor|ionic/i.test(location.protocol);
+        }catch(e){ return false; }
+      };
       var _show=function(msg,btnLabel,onBtn){
+        if(_standalone())return;
         if(document.getElementById('kil-pwa-banner'))return;
         var b=document.createElement('div'); b.id='kil-pwa-banner';
-        b.style.cssText='position:fixed;left:12px;right:12px;bottom:104px;z-index:900;background:#12121c;border:1px solid #2a2a3a;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.5);font-family:Inter,system-ui,sans-serif;font-size:.85rem;color:#f0f0f0;max-width:520px;margin:0 auto';
+        /* Centred, not bottom-docked (Founder 2026-08-15): at bottom:104px with z-index:900 it sat
+           underneath the chat button, which is on a far higher layer. Centring removes the overlap
+           by geometry rather than by an escalating z-index war. */
+        b.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));z-index:1150;background:#12121c;border:1px solid #2a2a3a;border-radius:14px;padding:14px;display:flex;align-items:center;gap:10px;box-shadow:0 18px 48px rgba(0,0,0,.6);font-family:Inter,system-ui,sans-serif;font-size:.85rem;color:#f0f0f0';
         b.innerHTML='<img src="/icon-192.png" alt="" style="width:34px;height:34px;border-radius:8px;flex:0 0 34px">'+
           '<span style="flex:1;line-height:1.35">'+msg+'</span>'+
           (btnLabel?'<button id="kil-pwa-go" style="background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:9px;padding:8px 14px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">'+btnLabel+'</button>':'')+

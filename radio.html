@@ -91,6 +91,15 @@ body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
 footer{margin-top:auto}
 </style>
 <link rel="canonical" href="https://keepitil.com/culture/radio"/>
+  <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
+       keepitil-shell.js has injected this link from JS since forever (see its head-tags block),
+       and the installed PWA still had no start_url: iOS reads the manifest when the user taps
+       Add to Home Screen, and does not reliably pick up a link added by script afterwards. A
+       page can be installed from ANY page, so the link has to be in the served HTML. -->
+  <link rel="manifest" href="/manifest.webmanifest"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="KEEPITIL"/>
 </head>
 <body>
 
@@ -299,7 +308,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815r" defer></script>
+<script src="/keepitil-shell.js?v=20260815s" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->

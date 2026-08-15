@@ -40,6 +40,13 @@
   <link rel="preconnect" href="https://images.posh.vip"/>
   <link rel="dns-prefetch" href="https://images.posh.vip"/>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <!-- PWA manifest (Founder 2026-08-15). It existed at /manifest.webmanifest but NO page linked it,
+       so "Add to Home Screen" had no start_url to obey and iOS baked whatever URL happened to be open.
+       That is why the installed icon launches onto the 404 router page. -->
+  <link rel="manifest" href="/manifest.webmanifest"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="KEEPITIL"/>
 
   <style>nav#main-nav{position:sticky;top:0;z-index:100;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;height:60px;}
@@ -381,7 +388,7 @@
 #evx .evx-daymo{font-size:1.05rem;font-weight:800;letter-spacing:.2em;text-indent:.2em;color:#9aa0b0;text-transform:uppercase;margin-top:1px;text-align:center;}
 @media(max-width:680px){#evx .evx-datecol{display:flex;align-items:baseline;gap:10px;} #evx .evx-daynum{font-size:2rem;}}
 /* Mobile create entry point (Founder 2026-07-16): "+" on each date row -> create-event prefilled with that date */
-@media(max-width:860px){#evx .evx-nav{top:0;z-index:120}}  /* mobile: no top bar */
+@media(max-width:860px){#evx .evx-nav{top:0;z-index:120;padding-top:calc(9px + env(safe-area-inset-top,0px))}}  /* mobile: no top bar. Grow into the status-bar band rather than offsetting below it — an offset leaves a transparent strip that content scrolls through. Matches the shell's #radMTabs/#culMTabs treatment. */
 #evx .evx-daycol{border-left:1px solid rgba(0,255,136,.12);padding-left:22px;min-width:0;}
 @media(max-width:680px){#evx .evx-daycol{border-left:none;padding-left:0;border-top:1px solid rgba(0,255,136,.12);padding-top:14px;}}
 #evx .evx-daycount{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3a4550;margin-bottom:12px;}
@@ -1493,7 +1500,7 @@
     .nav-emoji{display:block;font-size:1.15rem;line-height:1;}
     .nav-only-mobile{display:block;}
     body{padding-top:56px !important;}
-    #evx .evx-nav{top:0;}
+    #evx .evx-nav{top:0;padding-top:calc(9px + env(safe-area-inset-top,0px));}
     nav#main-nav{position:static !important;}
     /* Mobile hero: animated typed tagline replaces the two static lines */
     .hero-sub-static{display:none !important;}
@@ -2690,7 +2697,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815r" defer></script>
+<script src="/keepitil-shell.js?v=20260815s" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->

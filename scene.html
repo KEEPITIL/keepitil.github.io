@@ -113,6 +113,15 @@ footer a{color:var(--artist);}
 @media(max-width:860px){.controls{top:0}}  /* mobile: no top bar */
 </style>
 <link rel="canonical" href="https://keepitil.com/scene"/>
+  <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
+       keepitil-shell.js has injected this link from JS since forever (see its head-tags block),
+       and the installed PWA still had no start_url: iOS reads the manifest when the user taps
+       Add to Home Screen, and does not reliably pick up a link added by script afterwards. A
+       page can be installed from ANY page, so the link has to be in the served HTML. -->
+  <link rel="manifest" href="/manifest.webmanifest"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="KEEPITIL"/>
 </head>
 <body>
 <nav id="main-nav"><div class="nav-inner">
@@ -293,6 +302,6 @@ renderSubs();render();
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
-<script src="/keepitil-shell.js?v=20260815r" defer></script>
+<script src="/keepitil-shell.js?v=20260815s" defer></script>
 </body>
 </html>
