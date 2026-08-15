@@ -22,15 +22,11 @@
   else{swapNavLogos();}
 })();
 (function () {
-  /* §C — chat is on every page EXCEPT a user's profile page.
-     The shell also hides it with CSS, but hidden is not absent: returning here means no button,
-     no panel and nothing in the accessibility tree. Belt and braces on purpose — the CSS still
-     covers a copy of this file cached from before.
-     Placed in the WIDGET's IIFE, not the first one in the file: that one auto-loads the radio
-     bar, and bailing out there would have silently removed the radio bar from profile pages. */
-  try {
-    if (/(^|\/)profile\.html$/i.test(location.pathname)) return;
-  } catch (e) {}
+  /* The §C hard-coded bail-out on profile.html is GONE.
+     The owner turned chat back on there, and KIL_FLOATING in keepitil-shell.js is now the one
+     place that decides which pages get the chat button and the arrow. A return here would have
+     overridden that table silently: config would say chat:true for profile and the button
+     still would not exist, with nothing in the config to explain why. One owner, not two. */
 
   'use strict';
 

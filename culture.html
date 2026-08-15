@@ -55,7 +55,7 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .toggle button{font-family:var(--fh);letter-spacing:.1em;font-size:.82rem;color:var(--ink2);background:none;border:0;padding:8px 16px;border-radius:8px;cursor:pointer;transition:all .18s}
 .toggle button:hover{color:#fff}
 .toggle button.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;box-shadow:0 2px 12px color-mix(in srgb,var(--brand,#00b4ff) 42%,transparent)}
-.feed{display:flex;flex-direction:column;gap:12px}
+.feed{display:flex;flex-direction:column;gap:5px}
 .feed::-webkit-scrollbar{display:none;width:0;height:0}
 @media(max-width:940px){.feed{max-height:none;overflow:visible}}
 /* Mobile = FEEDs only (Founder directive 2026-07-16): hide intro + discovery column; "+" add-post and ♥ notifications appear in the feed header */
@@ -148,13 +148,20 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .cul-pillars{display:none;align-items:center;justify-content:space-around;gap:4px;margin:0 0 14px;padding:10px 6px;background:rgba(14,13,22,.72);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:14px}
 .cul-pillars a{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1 1 0;min-width:0;color:#cfd3e0;text-decoration:none;font-size:1.25rem;line-height:1}
 .cul-pillars a small{font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
-.fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.93);border:1px solid var(--brd);border-radius:16px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
+.fcard{display:block;flex:0 0 auto;background:rgba(12,12,20,.93);border:1px solid var(--brd);border-radius:5px;overflow:hidden;cursor:pointer;transition:border-color .2s,transform .2s}
+/* Founder-tuned 2026-08-15: card height = 160% of width, radius 5, feed gap 5, title 15px.
+   Scoped to :not(.cul-fs) — full-screen mode sets its own min-height per slide, and a fixed
+   aspect-ratio would fight it. The thumbnail flexes to fill whatever the body doesn't use,
+   so the card hits the ratio exactly instead of being the sum of two independent boxes. */
+body:not(.cul-fs) .fcard{aspect-ratio:100/160;display:flex;flex-direction:column}
+body:not(.cul-fs) .fcard .th{flex:1 1 auto;aspect-ratio:auto;min-height:0}
+body:not(.cul-fs) .fcard .bd{flex:0 0 auto}
 .fcard:hover{border-color:rgba(255,255,255,.22);transform:translateY(-2px)}
 .fcard .th{width:100%;aspect-ratio:16/9;background:#0a0a0f url('/v3/blog-default.jpg') center/cover;background-size:cover;background-position:center;transition:aspect-ratio .25s}
 .fcard.exp .th{aspect-ratio:16/7}
 .fcard .bd{padding:15px 17px 17px}
 .fcard .cc{font-family:var(--fh);font-size:.7rem;letter-spacing:.13em;color:#07070c;background:var(--ac);border-radius:20px;padding:3px 11px;display:inline-block}
-.fcard h3{font-family:var(--fs);font-weight:600;font-size:1.2rem;line-height:1.18;color:#fff;margin-top:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fcard h3{font-family:var(--fs);font-weight:600;font-size:15px;line-height:1.18;color:#fff;margin-top:11px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .fcard.exp h3{-webkit-line-clamp:unset}
 .fcard .hint{font-family:var(--fh);letter-spacing:.08em;font-size:.66rem;color:var(--ink3);margin-top:9px}
 /* FB-parity card chrome (Founder 2026-07-18) */
@@ -890,7 +897,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815s" defer></script>
+<script src="/keepitil-shell.js?v=20260815t" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}

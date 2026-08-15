@@ -110,24 +110,19 @@
   /* Install banner: Android/desktop via beforeinstallprompt; iOS gets a one-time Share hint. */
   try{
     var _IK='kil-pwa-hint-2026';
-    var _standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
+    /* The capacitor:// arm is why the banner was appearing INSIDE the native app: the WKWebView
+       wrapper reports neither display-mode:standalone nor navigator.standalone, so both original
+       tests passed and it offered to install an app the user was already standing in. */
+    var _standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)
+      ||window.navigator.standalone===true
+      ||/capacitor|ionic/i.test(location.protocol);
     /* FOUNDER DIRECTIVE 2026-08-07: install UI is ON — ship the free installable PWA now,
        native Expo app later. (Supersedes the 2026-07-16 "off until App Store launch" hold.)
        Banner is dismissible and remembers the dismissal via localStorage key _IK. */
     var _INSTALL_UI=true;
     if(_INSTALL_UI && !_standalone && !localStorage.getItem(_IK)){
       var _dismiss=function(){ try{localStorage.setItem(_IK,'1');}catch(e){} var b=document.getElementById('kil-pwa-banner'); if(b)b.remove(); };
-      /* Already inside the installed app (standalone PWA or the native WKWebView wrapper)?
-         Then there is nothing to install — offering it is nonsense and it covers content. */
-      var _standalone=function(){
-        try{
-          return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-              || navigator.standalone === true
-              || /capacitor|ionic/i.test(location.protocol);
-        }catch(e){ return false; }
-      };
       var _show=function(msg,btnLabel,onBtn){
-        if(_standalone())return;
         if(document.getElementById('kil-pwa-banner'))return;
         var b=document.createElement('div'); b.id='kil-pwa-banner';
         /* Centred, not bottom-docked (Founder 2026-08-15): at bottom:104px with z-index:900 it sat
@@ -289,16 +284,20 @@ window.KIL_ICONS = {
   }
 };
 
+/* `pill` is the VISIBLE bottom-nav word (Founder 2026-08-15 — the Five Pillars).
+   `label` stays the destination's real name and is kept in the accessible name:
+   a screen-reader user hearing only "EARN" has no idea it goes to VS, and WCAG 2.5.3
+   wants the visible text to be part of the accessible name — so it reads "EARN — VS". */
 var DESTINATIONS=[
-  {href:'/',             label:'Explore', icon:'home',    home:true,
+  {href:'/',             label:'Explore', pill:'DISCOVER', icon:'home',    home:true,
    match:/^\/((index|v31)(\.html)?)?$/},
-  {href:'/culture.html', label:'Culture', icon:'culture', match:/culture/,
+  {href:'/culture.html', label:'Culture', pill:'CONNECT',  icon:'culture', match:/culture/,
    tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
-  {href:'/radio.html',   label:'Radio',   icon:'radio',   match:/radio/,
+  {href:'/radio.html',   label:'Radio',   pill:'CREATE',   icon:'radio',   match:/radio/,
    tint:'#ff9f43', glow:'rgba(255,159,67,.75)'},
-  {href:'/scene.html',   label:'Scene',   icon:'scene',   match:/scene/,
+  {href:'/scene.html',   label:'Scene',   pill:'GROW',     icon:'scene',   match:/scene/,
    tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
-  {href:'/vs.html',      label:'VS',      icon:'vs',      match:/(^|\/)vs(\.html)?$/,
+  {href:'/vs.html',      label:'VS',      pill:'EARN',     icon:'vs',      match:/(^|\/)vs(\.html)?$/,
    tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'}
 ];
 /* ── K4: the destination rail, for pages that want to surface the map in their own body ────
@@ -309,6 +308,28 @@ var DESTINATIONS=[
 
    Opt-in: a page mounts it by including <div data-kil-destinations></div>. Nothing renders
    anywhere it is not asked for. */
+/* ── FLOATING CONTROLS — one config, not a rule buried in each page (Founder 2026-08-15) ──
+   The chat button reached five different positions because five files each owned a copy.
+   The scroll-to-top arrow was worse: it existed ONLY in index.html, so "show it on Culture"
+   would have meant a sixth copy. Both are declared here and mounted by the shell, so adding
+   a page is a line in this table rather than a new stylesheet rule.
+   `test` is matched against location.pathname; first match wins, DEFAULT catches the rest. */
+var KIL_FLOATING=[
+  {name:'profile',  test:/profile|\/u\//,     chat:true,  arrow:true },
+  {name:'culture',  test:/culture/,           chat:false, arrow:true },
+  {name:'vs',       test:/(^|\/)vs(\.html)?$/,chat:false, arrow:true },
+  {name:'radio',    test:/radio/,             chat:true,  arrow:true },
+  {name:'scene',    test:/scene/,             chat:true,  arrow:true },
+  {name:'event',    test:/event/,             chat:true,  arrow:true },
+  {name:'home',     test:/^\/((index|v31)(\.html)?)?$/, chat:true, arrow:true },
+  {name:'DEFAULT',  test:/./,                 chat:true,  arrow:true }
+];
+window.KIL_FLOATING_FOR = function(path){
+  var p=path||location.pathname;
+  for(var i=0;i<KIL_FLOATING.length;i++){ if(KIL_FLOATING[i].test.test(p)) return KIL_FLOATING[i]; }
+  return {name:'DEFAULT',chat:true,arrow:true};
+};
+
 window.KIL_DESTINATIONS = function(){
   return DESTINATIONS.map(function(d){
     return { href:d.href, label:d.label, icon:d.icon, home:!!d.home, tint:d.tint||null };
@@ -475,6 +496,27 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           if(e.key==='Escape'){ closeSheet(); document.removeEventListener('keydown',esc); }
         });
       };
+      /* Mount the shared scroll-to-top and apply the KIL_FLOATING rules for this page. */
+      window.__kilMountFloating=function(){
+        try{
+          if(IN_IFRAME) return;
+          var cfg=window.KIL_FLOATING_FOR();
+          var r=document.documentElement;
+          if(!cfg.chat)  r.classList.add('kil-nochat');
+          if(!cfg.arrow) r.classList.add('kil-noarrow');
+          if(!cfg.arrow || document.getElementById('kil-top')) return;
+          var b=document.createElement('button');
+          b.id='kil-top'; b.type='button'; b.setAttribute('aria-label','Back to top');
+          b.innerHTML='<span aria-hidden="true">&#8593;</span>';
+          b.addEventListener('click',function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+          document.body.appendChild(b);
+          /* Passive listener — this fires on every scroll frame and must never block it. */
+          var tick=function(){ b.classList.toggle('on', (window.scrollY||document.documentElement.scrollTop||0) > 400); };
+          window.addEventListener('scroll',tick,{passive:true});
+          tick();
+        }catch(e){}
+      };
+
       window.__kilMountBnav=function(){
         try{
           if(IN_IFRAME) return;   /* NEVER inside embedded frames — this leaked into the desktop chat card */
@@ -512,10 +554,12 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
                slot used to hardcode the logo, which is why it was the one destination whose
                mark could not be swapped. The anchor carries the accessible name; the icon
                inside is aria-hidden, so a screen reader announces the destination once. */
-            if(d.home) return '<a href="'+d.href+'" id="kb-home" aria-label="'+d.label+'"'+mark+'>'
-              +destinationIcon(d)+'</a>';
-            return '<a href="'+d.href+'" aria-label="'+d.label+'"'+mark+' style="color:'+d.tint
-              +';filter:drop-shadow(0 0 5px '+d.glow+')">'+destinationIcon(d)+'</a>';
+            var pill='<span class="kb-l">'+(d.pill||d.label)+'</span>';
+            var an=(d.pill&&d.pill!==d.label)?(d.pill+' — '+d.label):d.label;
+            if(d.home) return '<a href="'+d.href+'" id="kb-home" aria-label="'+an+'"'+mark+'>'
+              +destinationIcon(d)+pill+'</a>';
+            return '<a href="'+d.href+'" aria-label="'+an+'"'+mark+' style="color:'+d.tint
+              +';filter:drop-shadow(0 0 5px '+d.glow+')">'+destinationIcon(d)+pill+'</a>';
           }).join('');
           document.body.appendChild(bn);
           /* Publish the bar's real height. Everything that has to sit clear of it — the
@@ -616,6 +660,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
       /* §C: the profile page is the one place chat must not appear. */
       try{ document.body.classList.toggle('kil-profile', /(^|\/)profile\.html$/i.test(location.pathname)); }catch(e){}
       window.__kilMountBnav();
+      window.__kilMountFloating();
       mountDestinationRails();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
       if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
@@ -747,10 +792,23 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        button, so positioning from it would be circular — the button's position feeding the
        measurement that sets the button's position. The nav height is independent, and content
        clearance still uses the full --kil-pinned-h (M3). */
-    +'#kilo-btn{right:16px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 12px)!important}'
-    /* §C exception: never on a user's profile page. keepitil-ai.js loads there and does not
-       self-suppress, so the button WAS rendering on profile.html. */
-    +'body.kil-profile #kilo-btn,body.kil-profile #kilo-panel{display:none!important}'
+    /* Founder-tuned 2026-08-15: 40px button, 30px glyph, 5px from the right edge, 5px above the nav.
+       A 30px glyph in a 40px circle leaves 5px of padding — deliberate, but it means the icon
+       must not carry its own box: width/height are forced to the glyph size so a 26px default
+       can't quietly re-inflate the button. */
+    +'#kilo-btn{right:5px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:40px!important;height:40px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;display:flex!important;align-items:center;justify-content:center;overflow:hidden}'
+    +'#kilo-btn svg,#kilo-btn img,#kilo-btn i{width:30px!important;height:30px!important;font-size:30px!important;line-height:1!important;display:block}'
+    /* Chat visibility is now driven by KIL_FLOATING, not a single hardcoded page rule.
+       The class is applied to <html> at mount. NOTE: the owner turned chat ON for profile
+       (reversing §C) and OFF for Culture and VS on 2026-08-15. */
+    +'html.kil-nochat #kilo-btn,html.kil-nochat #kilo-panel{display:none!important}'
+    /* Scroll-to-top. Founder-tuned: 30px button, 36px glyph, left, 5px from edge, 5px above
+       the nav. The glyph is INTENTIONALLY larger than the button per the tuner values, so the
+       chip is a backing disc behind an oversized arrow rather than a container for it —
+       overflow stays visible or the arrow would be clipped to a 30px box. */
+    +'#kil-top{position:fixed;left:5px;right:auto;bottom:calc(var(--kil-bnav-h,56px) + 5px);width:30px;height:30px;border-radius:50%;background:#0aa2e8;color:#fff;border:0;cursor:pointer;z-index:940;display:flex;align-items:center;justify-content:center;font-size:36px;line-height:0;padding:0;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .28s,transform .28s;overflow:visible}'
+    +'#kil-top.on{opacity:1;transform:none;pointer-events:auto}'
+    +'html.kil-noarrow #kil-top{display:none!important}'
     +'body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
     /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
        never pushes the page's own content down a phone screen. */
@@ -767,10 +825,19 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
     /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
     +'#kil-bnav{display:none;position:fixed;top:auto!important;height:auto!important;min-height:0!important;max-height:96px;left:0;right:0;bottom:0;z-index:950;background:rgba(10,10,16,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:space-around}'
-    +'#kil-bnav a{display:flex;align-items:center;justify-content:center;padding:8px 14px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
-    +'#kil-bnav a svg{width:26px;height:26px;display:block}'
-    +'#kil-bnav a img{height:30px;width:auto;mix-blend-mode:screen;display:block}'
-    +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
+    /* Equal spacing (Founder 2026-08-15): flex:1 1 0 gives every slot an identical share of the
+       bar, so the five icon+label columns are evenly distributed regardless of how long the
+       words are. justify-content alone could not do this — space-around distributes the LEFTOVER
+       space around items of differing intrinsic width, so "DISCOVER" and "EARN" pushed their
+       neighbours off-centre. min-width:0 stops a long word from widening its own slot. */
+    +'#kil-bnav a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
+    +'#kil-bnav a svg{width:23px;height:23px;display:block}'
+    +'#kil-bnav .kb-l{font-size:8px;line-height:1;letter-spacing:.06em;font-weight:700;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+    +'#kil-bnav a img{height:23px;width:auto;mix-blend-mode:screen;display:block}'
+    +'#kil-bnav a#kb-home img.kb-logo{display:block;height:23px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
+    /* No visible scrollbars on any horizontal rail (Founder 2026-08-15). */
+    +'.kil-drail,.evx-nav-row,#evx .evx-row,.rad-scroll,.cul-scroll,.sc-scroll,#kil-bnav{scrollbar-width:none;-ms-overflow-style:none}'
+    +'.kil-drail::-webkit-scrollbar,.evx-nav-row::-webkit-scrollbar,#evx .evx-row::-webkit-scrollbar,.rad-scroll::-webkit-scrollbar,.cul-scroll::-webkit-scrollbar,.sc-scroll::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}'
     /* K2 active state. Inactive is muted; active is the destination's own tint plus its
        glow. Colour alone is not the only signal — aria-current is set too, so the state
        is available to a screen reader and not just to sighted users. */
@@ -863,6 +930,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         if(IN_IFRAME) return;
         if(RULES.nav!==false && !document.getElementById('v3shell-nav')) build();
         if(window.__kilMountBnav) window.__kilMountBnav();
+        if(window.__kilMountFloating) window.__kilMountFloating();
         mountDestinationRails();
         if(window.__kilRadioKill) window.__kilRadioKill();
       }catch(e){}
