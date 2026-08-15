@@ -812,7 +812,15 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#radSwToast{top:calc(38px + 36px + 10px + env(safe-area-inset-top,0px))!important}'
     /* profile.html — the back control and its tab stack */
     +'#pfBack{top:env(safe-area-inset-top,0px)!important}'
-    +'.pf-tabs{top:calc(66px + env(safe-area-inset-top,0px))!important}'
+    /* §D.6 — the profile filter bar locks to the TOP on mobile.
+       My M1 pass wrote calc(66px + inset) here unconditionally, and that was wrong: the
+       66px is the height of the desktop header, which is display:none below 861px. The
+       page already had `@media(max-width:768px){.pf-tabs{top:0!important}}` and my rule
+       beat it, so on a phone the bar stuck 66px down the screen with content sliding
+       through the gap above it. Measured: computed top 66px at 390px wide.
+       Scoped now — the inset alone on mobile, header + inset on desktop. */
+    +'@media(max-width:860px){.pf-tabs{top:env(safe-area-inset-top,0px)!important}}'
+    +'@media(min-width:861px){.pf-tabs{top:calc(66px + env(safe-area-inset-top,0px))!important}}'
     +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem;text-align:left}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
