@@ -185,14 +185,37 @@
       }catch(e){ return String(iso).slice(0,10); }
     };
   }catch(e){}
-  /* IMMUTABLE V3.1 TEMPLATE (Founder 2026-07-17): LOGO=Home · Culture(feed) · SCENE · LOGIN/PROFILE — never change this nav when adding/removing features. */
-var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
+  /* The V3.1 template (Founder 2026-07-17: LOGO=Home · Culture · SCENE · LOGIN/PROFILE) was
+     marked immutable so features could not each bolt a link onto the nav. SUPERSEDED by the
+     Founder's K1 directive (2026-08-14): add Radio and VS, relabel the five bottom slots, move
+     Create off the bar and Profile to contextual. The rule it was protecting still holds —
+     adding a feature does not entitle it to a slot. Changing this list is a Founder decision. */
+/* K1 — ONE destination list. Every navigation surface in this shell reads it: the desktop
+   header links, the desktop burger menu, the mobile bottom bar, the footer, and the active
+   state for all of them. Radio and VS were finished products reachable only by typing the
+   URL, because this array was the whole map and it had two entries.
+   `home:true` marks the slot the bottom bar renders as the logo and the desktop header
+   omits — the brand mark already links to '/', and listing it twice is noise. */
+var DESTINATIONS=[
+  {href:'/',             label:'Explore', icon:'home',    home:true,
+   match:/^\/((index|v31)(\.html)?)?$/},
+  {href:'/culture.html', label:'Culture', icon:'culture', match:/culture/,
+   tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
+  {href:'/radio.html',   label:'Radio',   icon:'radio',   match:/radio/,
+   tint:'#ff9f43', glow:'rgba(255,159,67,.75)'},
+  {href:'/scene.html',   label:'Scene',   icon:'scene',   match:/scene/,
+   tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
+  {href:'/vs.html',      label:'VS',      icon:'vs',      match:/(^|\/)vs(\.html)?$/,
+   tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'}
+];
+/* Everything except the home slot — what the header and footer list as words. */
+function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.home; }); }
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
   function build(){
     try{
       // remove existing header nav(s) + footer(s) + any injected mobile nav
       document.querySelectorAll('#main-nav, nav#main-nav, nav.main-nav, #v3shell-nav, footer, #kil-mnav, .kil-mnav').forEach(function(el){ el.remove(); });
-      var links = NAV.map(function(n){ return '<a href="'+n[0]+'">'+n[1]+'</a>'; }).join('');
+      var links = namedDestinations().map(function(d){ return '<a href="'+d.href+'">'+d.label+'</a>'; }).join('');
       var cur=document.documentElement.getAttribute('data-theme')||'default';
       var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
       // KEEPITIL custom icon set (used in the mobile top-bar icon nav — icons only, no words)
@@ -201,12 +224,18 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
         scene:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/></svg>',
         shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.2 8h13.6l-1.1 12.2H6.3L5.2 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
         profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.2-5.6 7-5.6s7 2 7 5.6"/></svg>',
+        radio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="1.6"/><path d="M7.8 7.8a5.9 5.9 0 0 0 0 8.4M16.2 7.8a5.9 5.9 0 0 1 0 8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>',
+        vs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l3.4 12L10.8 6"/><path d="M13.6 18h5l-4.6-6h5"/></svg>',
         settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l1.7-1.3-1.7-3-2 .8a7.6 7.6 0 0 0-2.6-1.5L14.2 3H9.8l-.3 2a7.6 7.6 0 0 0-2.6 1.5l-2-.8-1.7 3L4.6 10.5a7.6 7.6 0 0 0 0 3l-1.7 1.3 1.7 3 2-.8a7.6 7.6 0 0 0 2.6 1.5l.3 2h4.4l.3-2a7.6 7.6 0 0 0 2.6-1.5l2 .8 1.7-3-1.7-1.3z"/></svg>'
       };
+      /* NOTE: `.v3s-icons` is `display:none` at every width today — the desktop header shows
+         `.v3s-links` and the header itself is hidden below 861px. It is still built from the
+         same list so it cannot drift out of sync if it is ever turned back on. */
       var iconRow='<div class="v3s-icons">'
-        +'<a href="/culture.html" aria-label="Culture">'+ICON.culture+'</a>'
-        +'<a href="/scene.html" aria-label="Scene">'+ICON.scene+'</a>'
-        +'<a href="/apply.html" id="v3s-iconprof" aria-label="Profile">'+ICON.profile+'</a>'
+        +namedDestinations().map(function(d){
+          return '<a href="'+d.href+'" aria-label="'+d.label+'">'+ICON[d.icon]+'</a>';
+        }).join('')
+        +'<a href="/apply.html" id="v3s-iconprof" class="v3s-contextual" aria-label="Profile">'+ICON.profile+'</a>'
         +'</div>';
       var hdr = document.createElement('nav'); hdr.id='v3shell-nav';
       if(RULES.gear==='hamburger') hdr.classList.add('on-profile');
@@ -236,9 +265,8 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
         '<div class="v3-foot-inner">'
         +'<div class="v3-foot-about"><a href="/" class="v3-foot-brand">KEEPITIL</a>'
           +'<p class="v3-foot-addr">9252 Garden Grove Blvd, Ste 19 PMB 1066, Garden Grove, CA 92844 · <a href="mailto:info@keepitil.com">info@keepitil.com</a></p></div>'
-        +'<nav class="v3-foot-links"><a href="/">Home</a>'
-        +'<a href="/culture.html">Culture</a>'
-        +'<a href="/scene.html">Scene</a>'
+        +'<nav class="v3-foot-links">'
+        +DESTINATIONS.map(function(d){ return '<a href="'+d.href+'">'+(d.home?'Home':d.label)+'</a>'; }).join('')
         +'<a href="/apply.html">Login</a></nav>'
         +'<div class="v3-foot-social">'
           +'<a href="https://instagram.com/keepitil" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>'
@@ -257,7 +285,11 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
       if(RULES.nav!==false) document.body.appendChild(f);
 
       // active state on the mobile top-bar icon nav
-      try{ var p=location.pathname; var amap={'/culture.html':/culture/,'/scene.html':/scene/,'/apply.html':/(profile\.html|my-tickets\.html|apply\.html)/};
+      /* Matchers come from DESTINATIONS so the header and the bottom bar can never disagree
+         about which page you are on. Profile keeps its own, since it is contextual. */
+      try{ var p=location.pathname;
+        var amap={'/apply.html':/(profile\.html|my-tickets\.html|apply\.html)/};
+        DESTINATIONS.forEach(function(d){ amap[d.href]=d.match; });
         hdr.querySelectorAll('.v3s-icons a').forEach(function(a){ var h=a.getAttribute('href'); var rx=amap[h]; if(rx&&rx.test(p)) a.classList.add('on'); }); }catch(e){}
 
       // Theme-style switcher now lives on the top-left LOGO. Click the logo image -> popup of swatches.
@@ -305,15 +337,69 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
           if(IN_IFRAME) return;   /* NEVER inside embedded frames — this leaked into the desktop chat card */
           if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
-          bn.innerHTML=
-            '<a href="/" id="kb-home" aria-label="Home"><img class="kb-logo" src="/keepitil-x-blue.png" alt="Home"></a>'
-            +'<a href="/culture.html" aria-label="Culture" style="color:#a06bff;filter:drop-shadow(0 0 5px rgba(160,107,255,.75))">'+ICON.culture+'</a>'
-            +'<a href="#" id="kb-create" class="kb-plus" aria-label="Create" onclick="window.__kilCreateMenu&&window.__kilCreateMenu();return false;">+</a>'
-            +'<a href="/scene.html" aria-label="Scene" style="color:#22e07a;filter:drop-shadow(0 0 5px rgba(34,224,122,.75))">'+ICON.scene+'</a>'
-            +'<a href="/apply.html" id="kb-prof" aria-label="Profile">'+ICON.profile+'</a>';
+          /* K1: five slots, five destinations. Create WAS the centre slot — it is an action,
+             not a place, and mixing it in is what left no room for Radio and VS. It moves to
+             a floating button above the bar, calling the same __kilCreateMenu as before.
+             Profile leaves the bar for the contextual slot: it is account state, not a
+             destination, and it was the fifth thing competing for five slots. */
+          bn.innerHTML=DESTINATIONS.map(function(d){
+            if(d.home) return '<a href="'+d.href+'" id="kb-home" aria-label="'+d.label+'">'
+              +'<img class="kb-logo" src="/keepitil-x-blue.png" alt="'+d.label+'"></a>';
+            return '<a href="'+d.href+'" aria-label="'+d.label+'" style="color:'+d.tint
+              +';filter:drop-shadow(0 0 5px '+d.glow+')">'+ICON[d.icon]+'</a>';
+          }).join('');
           document.body.appendChild(bn);
+          /* Create, as a floating action rather than a nav slot. Same handler as before —
+             this is a move, not a rebuild. Sits above the bar and clear of the home
+             indicator so it never covers the last row of content. */
+          if(!document.getElementById('kil-create-fab')){
+            var fab=document.createElement('button');
+            fab.id='kil-create-fab'; fab.type='button';
+            fab.setAttribute('aria-label','Create');
+            fab.textContent='+';
+            fab.onclick=function(){ if(window.__kilCreateMenu) window.__kilCreateMenu(); };
+            document.body.appendChild(fab);
+            /* The KILO assistant button already owns this corner at z-index 99998, and its
+               own bottom offset is overridden per page — radio.html raises it again when the
+               mini player is up. A fixed offset here would put Create underneath it on some
+               pages and leave a gap on others, so the position is measured from KILO itself
+               and re-measured when the page moves it. */
+            var placeFab=function(){
+              var kilo=document.getElementById('kilo-btn');
+              if(!kilo||getComputedStyle(kilo).display==='none'){ fab.style.bottom=''; return; }
+              var r=kilo.getBoundingClientRect();
+              if(!r.height) { fab.style.bottom=''; return; }
+              fab.style.bottom=Math.round(window.innerHeight-r.top+12)+'px';
+            };
+            placeFab();
+            /* KILO is injected by keepitil-ai.js, which may land after the shell. */
+            [200,800,2000].forEach(function(ms){ setTimeout(placeFab, ms); });
+            window.addEventListener('resize', placeFab);
+            try{
+              new MutationObserver(placeFab).observe(document.documentElement,
+                {attributes:true, attributeFilter:['class','style'], subtree:true});
+            }catch(e){}
+          }
+
+          /* Profile is contextual, not a destination — but the desktop header that used to
+             carry it is hidden below 861px, so on mobile it needs its own control or the
+             account becomes unreachable.
+             Bottom-LEFT, not top-right: culture.html and radio.html both pin a sticky tab
+             row (#culMTabs / #radMTabs) across the top, and a top-right control lands on
+             top of it — on radio it covered a button outright. Measured on all five
+             destinations; bottom-left is the only corner with no pinned control under it,
+             and it mirrors Create on the right. */
+          if(!document.getElementById('kil-macct')){
+            var ac=document.createElement('a'); ac.id='kil-macct';
+            ac.href='/apply.html'; ac.setAttribute('aria-label','Login');
+            ac.innerHTML=ICON.profile;
+            document.body.appendChild(ac);
+          }
           var _bp=location.pathname;
-          var _bmap=[/^\/v31\/(index\.html)?$/, /culture/, /scene/, /(profile\.html|my-tickets\.html|apply\.html)/];
+          /* Active state from the same matchers the header uses. The previous array was
+             maintained by hand and had four entries for five anchors, so the last slot
+             could never highlight. */
+          var _bmap=DESTINATIONS.map(function(d){ return d.match; });
           bn.querySelectorAll('a').forEach(function(a,i){ if(_bmap[i]&&_bmap[i].test(_bp)) a.classList.add('on'); });
           /* mobile-only floating Settings hamburger on profile pages (top bar is gone on mobile) */
           if(RULES.gear==='hamburger' && !document.getElementById('kil-mhamb')){
@@ -359,7 +445,16 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
   function applyAuthState(hdr, s){
     /* mobile floating hamburger: profile pages, signed-in, mobile viewport only */
     try{ var mh=document.getElementById('kil-mhamb'); if(mh) mh.style.display=(s&&IS_MOBILE)?'flex':'none'; }catch(e){}
-    if(!hdr){ var kb0=document.getElementById('kb-prof'); if(kb0) kb0.setAttribute('href', s?'/profile.html':'/apply.html'); return; }
+    /* The bottom bar no longer carries Profile (K1), so the mobile account control is the
+       thing that has to track auth state. Runs whether or not the header exists. */
+    try{
+      var ac=document.getElementById('kil-macct');
+      if(ac){
+        ac.setAttribute('href', s?'/profile.html':'/apply.html');
+        ac.setAttribute('aria-label', s?'Profile':'Login');
+      }
+    }catch(e){}
+    if(!hdr) return;
     /* On the profile page (and only there), the top-right control becomes a hamburger -> Settings.
        Applies to BOTH desktop (.v3s-cta) and mobile (top icon row). Founder directive 2026-07-16. */
     var onProfile=(RULES.gear==='hamburger');   /* standards-driven: page_standards.gear_rule */
@@ -377,7 +472,7 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
       if(s && onProfile){ iprof.innerHTML=HAMB; iprof.setAttribute('href','/settings.html'); iprof.setAttribute('aria-label','Settings'); }
       else iprof.setAttribute('href', s?'/profile.html':'/apply.html');
     }
-    var kb=document.getElementById('kb-prof'); if(kb) kb.setAttribute('href', s?'/profile.html':'/apply.html');
+
   }
   function authNav(hdr){
     ensureSB(function(){
@@ -434,6 +529,12 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
     +'@media(max-width:860px){#v3shell-nav{display:none!important}}'
     +'#kil-mhamb{display:none;position:fixed;top:12px;right:12px;z-index:960;width:40px;height:40px;border-radius:12px;background:rgba(10,10,16,.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.16);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
     +'#kil-mhamb svg{width:20px;height:20px;display:block}'
+    /* Mobile account control. Sits left of the Settings hamburger when that is also up, so
+       the two never stack on the same pixels. */
+    +'#kil-macct{display:flex;position:fixed;left:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:1002;width:44px;height:44px;border-radius:50%;background:rgba(10,10,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
+    +'#kil-macct svg{width:21px;height:21px;display:block}'
+    +'#kil-macct:focus-visible{outline:2px solid #fff;outline-offset:3px}'
+    +'@media(min-width:861px){#kil-macct{display:none}}'
     +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
     +'#v3shell-nav .v3s-cta.v3s-hamb svg{width:22px;height:22px;display:block}'
     /* mobile bottom nav (Instagram model) — replaces the radio bar UI on ≤860px; radio audio keeps playing off-screen */
@@ -444,6 +545,13 @@ var NAV=[['/culture.html','Culture'],['/scene.html','Scene']];
     +'#kil-bnav a#kb-home img.kb-logo{display:block;height:26px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
     +'#kil-bnav a.on{color:var(--brand,#00b4ff)}'
     +'#kil-bnav a:active{transform:scale(.9)}'
+    /* K1: Create is a floating action. env(safe-area-inset-bottom) keeps it above the home
+       indicator, and it clears the 5-slot bar rather than sitting inside it. */
+    +'#kil-create-fab{position:fixed;right:16px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:1002;width:52px;height:52px;border-radius:50%;border:0;background:#00b4ff;color:#04121f;font-size:2rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(0,180,255,.45)}'
+    +'#kil-create-fab:focus-visible{outline:2px solid #fff;outline-offset:3px}'
+    +'@media(min-width:861px){#kil-create-fab{display:none}}'
+    /* Profile is contextual, not a destination — it sits with the account controls. */
+    +'.v3s-icons a.v3s-contextual{margin-left:14px;padding-left:14px;border-left:1px solid rgba(255,255,255,.12)}'
     +'#kil-bnav a.kb-plus{color:#00b4ff;font-size:2.3rem;font-weight:800;line-height:1;background:transparent;border:0;border-radius:0;box-shadow:none;width:auto;height:auto;padding:0;margin:0 4px;text-shadow:0 0 10px rgba(0,180,255,.85)}'
     +'#kil-createmenu a:active{background:rgba(255,255,255,.06)}'
     +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}}'
