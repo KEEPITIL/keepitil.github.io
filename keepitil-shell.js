@@ -425,10 +425,21 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
       /* Re-callable mount: the self-heal loop re-asserts the bottom nav if a page script
          (or an earlier silent exception) leaves it missing — the "nav disappears on pillar
          pages" class of bug. Isolated try so nothing upstream can starve it. */
+      /* M2 — one switch for "a full-surface sheet is open". Any sheet should call it, not just
+         Create: the rule is that a pinned control never covers the surface it summoned. */
+      function kilSheetOpen(open){
+        try{ document.body.classList.toggle('kil-sheet-open', !!open); }catch(e){}
+      }
+      window.__kilSheetOpen = kilSheetOpen;
       window.__kilCreateMenu=function(){
         if(document.getElementById('kil-createmenu'))return;
         var ov=document.createElement('div'); ov.id='kil-createmenu';
-        ov.style.cssText='position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;font-family:Inter,system-ui,sans-serif';
+        /* M2: z-index 1000 put this sheet UNDER every pinned control — the Create button
+           (1002), the account button (1002) and KILO's chat button (99998) all drew on
+           top of it, including the `+` covering the menu it had just opened. Above all
+           of them now, and the controls are hidden as well, so this does not silently
+           break again if some future control claims a higher layer. */
+        ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;font-family:Inter,system-ui,sans-serif';
         var item=function(label,href){return '<a href="'+href+'" style="display:block;color:#e8e8f0;padding:15px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-decoration:none;font-weight:700;font-size:1.02rem">'+label+'</a>';};
         ov.innerHTML='<div style="background:#15151f;border-radius:18px 18px 0 0;width:100%;max-width:520px;padding:14px 18px 26px">'
           +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:#fff;font-size:1.08rem">Create</b><button id="kilCX" style="background:none;border:0;color:#888;font-size:1.6rem;line-height:1;cursor:pointer">&times;</button></div>'
@@ -438,8 +449,15 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           +'<a href="/profile.html?tab=chat&create=chat" style="display:block;color:#e8e8f0;padding:15px 8px;text-decoration:none;font-weight:700;font-size:1.02rem">Chat</a>'
           +'</div>';
         document.body.appendChild(ov);
-        ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
-        var x=document.getElementById('kilCX'); if(x) x.onclick=function(){ ov.remove(); };
+        kilSheetOpen(true);
+        var closeSheet=function(){ ov.remove(); kilSheetOpen(false); };
+        ov.addEventListener('click',function(e){ if(e.target===ov) closeSheet(); });
+        var x=document.getElementById('kilCX'); if(x) x.onclick=closeSheet;
+        /* Escape closes it too — a sheet you can only dismiss by hitting the right pixel
+           is a trap on a phone, and the controls stay hidden until it is gone. */
+        document.addEventListener('keydown',function esc(e){
+          if(e.key==='Escape'){ closeSheet(); document.removeEventListener('keydown',esc); }
+        });
       };
       window.__kilMountBnav=function(){
         try{
@@ -493,9 +511,59 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
              padding. The CSS caps the bar at max-height:96px, so anything above that is
              a measurement taken too early and must be discarded, not published. */
           var BNAV_MAX_H=96;
+          /* M3 — content must clear the WHOLE pinned stack, not just the bar.
+             The bar is only the bottom of it: the Create button, the account button and KILO's
+             chat button all float above it, and they were sitting over the footer address on VS,
+             a card on Radio, a profile card on Scene. So the padding is measured from the
+             topmost pinned control, not from the bar alone.
+             This extends the K2 measurement rather than adding a second one — the earlier
+             re-derivation published 1639px of padding because it measured before the stylesheet
+             landed, so the same clamp applies here: anything past PINNED_MAX_H is a measurement
+             taken too early and is discarded, not published. */
+          var PINNED_MAX_H=260;
+          /* The page's own bottom padding, read once before the shell touches it. */
+          var KIL_BASE_PAD=null;
+          var PINNED_IDS=['kil-bnav','kil-create-fab','kil-macct','kilo-btn'];
           var publishBarHeight=function(){
             var h=Math.round(bn.getBoundingClientRect().height);
             if(h>0 && h<=BNAV_MAX_H) document.documentElement.style.setProperty('--kil-bnav-h', h+'px');
+
+            /* Distance from the bottom of the viewport to the highest pinned control. */
+            var vh=window.innerHeight, top=vh;
+            PINNED_IDS.forEach(function(id){
+              var el=document.getElementById(id);
+              if(!el) return;
+              var cs=getComputedStyle(el);
+              if(cs.display==='none' || cs.visibility==='hidden') return;
+              var r=el.getBoundingClientRect();
+              if(r.height<=0) return;
+              if(r.top<top) top=r.top;
+            });
+            var stack=Math.round(vh-top);
+            if(!(stack>0 && stack<=PINNED_MAX_H)) return;
+            document.documentElement.style.setProperty('--kil-pinned-h', stack+'px');
+
+            /* Applied inline rather than from the stylesheet. radio.html carries
+               `body.rad-m{padding-bottom:...!important}` at (0,1,1) — more specific than any
+               `body` rule the shell can write — so a shell rule simply lost there, and matching
+               each page's specificity would be an arms race. An inline !important wins outright.
+
+               MAX, not replace: 120px on radio is the page reserving room for its mini player.
+               Overwriting that would fix one collision by causing another, so the page's own
+               intent is captured once, before anything is applied, and honoured as a floor. */
+            try{
+              if(window.matchMedia('(max-width:860px)').matches){
+                if(KIL_BASE_PAD===null){
+                  var cur=parseFloat(getComputedStyle(document.body).paddingBottom);
+                  KIL_BASE_PAD=isFinite(cur)?cur:0;
+                }
+                var want=Math.max(KIL_BASE_PAD, stack+12);
+                document.body.style.setProperty('padding-bottom', Math.round(want)+'px', 'important');
+              } else if(KIL_BASE_PAD!==null){
+                document.body.style.removeProperty('padding-bottom');
+                KIL_BASE_PAD=null;   /* re-measure if we come back to mobile */
+              }
+            }catch(e){}
           };
           /* Re-measure once styles have actually landed, and keep the same late cadence the
              Create button uses for its own after-the-fact positioning. */
@@ -683,6 +751,9 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        the two never stack on the same pixels. */
     +'#kil-macct{display:flex;position:fixed;left:16px;bottom:calc(var(--kil-bnav-h, 72px) + 12px);z-index:1002;width:44px;height:44px;border-radius:50%;background:rgba(10,10,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
     +'#kil-macct svg{width:21px;height:21px;display:block}'
+    /* M2: every pinned control steps aside while a sheet is open. KILO's button is included
+       deliberately — it is not ours, but it was sitting on top of the Create sheet too. */
+    +'body.kil-sheet-open #kil-create-fab,body.kil-sheet-open #kil-macct,body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
     /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
        never pushes the page's own content down a phone screen. */
     +'.kil-drail{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:22px auto 0;max-width:760px;padding:0 12px}'
@@ -729,7 +800,40 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        --kil-bnav-h is measured from the mounted element (see placeBar) and this is the
        fallback for the first paint. The inset is NOT added again here: the bar already
        includes it in its own padding, and adding it twice left a visible dead band. */
-    +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}body{padding-bottom:calc(var(--kil-bnav-h, 72px) + 8px)!important}}'
+    /* ── M1: TOP SAFE AREA ─────────────────────────────────────────────────────────────────
+       K2 added viewport-fit=cover so the BOTTOM insets would stop evaluating to zero. The same
+       flag also moves the viewport origin up under the status bar, and nothing compensated for
+       that — grep for safe-area-inset-top across this file before this change: zero matches.
+       Result on the owner's device: the ECHO header sat on the clock, and Radio's sticky tab
+       row rendered over it.
+
+       Compensated from HERE rather than in each page, because the cause is global: one flag
+       moved the origin for every page at once, so one block should move it back. env() is 0 on
+       every device without a notch, so this is inert everywhere else.
+
+       The pattern for a sticky row is grow-and-pad, not offset: pushing it down with `top`
+       would leave a transparent strip with content scrolling through the status bar. It grows
+       upward to fill that strip with its own background, and pads its content clear of the
+       clock. Anything sticking BELOW it then shifts by the same amount, or it overlaps. */
+    /* !important is required, not decorative: the shell's stylesheet is NOT last in the
+       document. radio.html injects its own <style> after the shell mounts, so a shell
+       rule for #radMTabs lost on source order even though it was correct — measured:
+       the substituted rule was present in v3shell-style and computed height stayed 38px.
+       Specificity/order cannot be relied on across pages that add styles at runtime. */
+    +'#v3shell-nav{padding-top:env(safe-area-inset-top,0px)!important}'
+    +'#kil-mhamb{top:max(12px,env(safe-area-inset-top,0px))!important}'
+    /* culture.html — #culMTabs(46) -> .cul-typebar(46) -> #culSwToast(96) */
+    +'#culMTabs{box-sizing:border-box!important;height:calc(46px + env(safe-area-inset-top,0px))!important;padding-top:env(safe-area-inset-top,0px)!important}'
+    +'body.cul-m .cul-typebar{top:calc(46px + env(safe-area-inset-top,0px))!important}'
+    +'#culSwToast{top:calc(96px + env(safe-area-inset-top,0px))!important}'
+    /* radio.html — #radMTabs(38) -> #radMSecs(38) -> #radSwToast(38+36+10) */
+    +'#radMTabs{box-sizing:border-box!important;height:calc(38px + env(safe-area-inset-top,0px))!important;padding-top:env(safe-area-inset-top,0px)!important}'
+    +'#radMSecs{top:calc(38px + env(safe-area-inset-top,0px))!important}'
+    +'#radSwToast{top:calc(38px + 36px + 10px + env(safe-area-inset-top,0px))!important}'
+    /* profile.html — the back control and its tab stack */
+    +'#pfBack{top:env(safe-area-inset-top,0px)!important}'
+    +'.pf-tabs{top:calc(66px + env(safe-area-inset-top,0px))!important}'
+    +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem;text-align:left}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'

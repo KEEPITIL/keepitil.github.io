@@ -470,7 +470,14 @@
       'flex-shrink:0;transition:opacity .18s,transform .15s;}',
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
+      /* M1 — the ECHO panel goes full-screen here (inset:0), and viewport-fit=cover means
+         the viewport now starts UNDER the status bar. Without a top inset the header sits
+         on the clock: on the owner's iPhone "ECHO" overlapped 11:52 and the greeting ran
+         under the status icons. Scoped to this block so the floating desktop panel, which
+         is nowhere near the status bar, is unchanged. */
       '@media(max-width:768px){#kilo-panel{inset:0;left:0;right:0;top:0;bottom:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;}',
+      '#kilo-header{padding-top:max(14px,env(safe-area-inset-top,0px));}',
+      '#kilo-msgs{scroll-padding-top:env(safe-area-inset-top,0px);}',
       '#kilo-panel.open{transform:none;}',
       '#kilo-msgs{flex:1 1 auto;min-height:0;}',
       '#kilo-btn{bottom:132px;right:16px;}body.kilo-open{overflow:hidden;}}',
