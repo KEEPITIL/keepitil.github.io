@@ -479,6 +479,7 @@ try{ if(window.matchMedia('(max-width:860px)').matches) document.body.classList.
 /* ── MOBILE swipe (Founder 2026-08-02): horizontal swipe cycles the subfilter (type) pages of the
    current section; if the current section has no subfilter bar, it cycles the EXPLORE pages. ── */
 (function(){
+
   function isMob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
   var SECS=['feed','radio','vs','givebacks'], NOWMAP={'Feed':'feed','VS':'vs','Givebacks':'givebacks'};
   function culToast(t){ var el=document.getElementById('culSwToast'); if(!el){ el=document.createElement('div'); el.id='culSwToast'; el.className='cul-sw-toast'; document.body.appendChild(el); } el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(function(){ el.classList.remove('on'); },850); }
@@ -706,6 +707,87 @@ renderTypebar();renderDiscover();renderFeed();
 <script>
 /* MOBILE CULTURE enhancer — additive, ≤860px only. Above 860px every branch below no-ops. */
 (function(){
+
+/* ── S3: the §D4 visibility gate ───────────────────────────────────────────────────────────
+   20 items / 5 creators / 3 categories, read from platform_config so the owner can move the
+   bar without a deploy. One gate for BOTH tabs — hiding an empty VID while an 11-item PIX
+   ships would be inconsistent (ATLAS D4).
+
+   BROKEN != EMPTY: if the config or the count query FAILS, the tab is not emitted and the
+   reason is logged. A failed lookup and a genuinely empty shelf must not both silently
+   produce "no tab" with no way to tell them apart. */
+window.CULTURE_TAB_GATE_NOTE = 'not-evaluated';
+
+function culTabThresholds(){
+  /* The page's client is window.__culSB, created by its own boot loop; there is no window.SB. */
+  var sb = window.__culSB;
+  if(!sb) return Promise.resolve(null);
+  return sb.from('platform_config').select('key,value')
+    .in('key',['culture_tab_min_items','culture_tab_min_creators','culture_tab_min_categories'])
+    .then(function(r){
+      if(r.error || !r.data) return null;
+      var c={}; r.data.forEach(function(row){ c[row.key]=parseInt(row.value,10); });
+      if(!isFinite(c.culture_tab_min_items)) return null;
+      return { items:c.culture_tab_min_items, creators:c.culture_tab_min_creators, categories:c.culture_tab_min_categories };
+    }).catch(function(){ return null; });
+}
+
+/* Live inventory for one tab. Archived rows never count — they are removed content. */
+function culInventory(kindPredicate){
+  var rows=(window.__culAllRows||[]).filter(function(x){ return !x.archived && kindPredicate(x); });
+  var creators={}, categories={};
+  rows.forEach(function(x){
+    if(x.profile_slug) creators[String(x.profile_slug).toLowerCase()]=1;
+    var d=x.data||{}; var c=d.category||d.genre||x.kind;
+    if(c) categories[String(c).toLowerCase()]=1;
+  });
+  return { items:rows.length, creators:Object.keys(creators).length, categories:Object.keys(categories).length };
+}
+
+function culApplyTabGate(tabs, attempt){
+  attempt = attempt || 0;
+  /* The tab row mounts before the Supabase client boots and before the feed rows land, so a
+     single evaluation would always read an empty shelf and hold every tab forever. Retry until
+     both exist, then stop — and say which it was if they never do. */
+  if((!window.__culSB || !Array.isArray(window.__culAllRows)) && attempt < 40){
+    setTimeout(function(){ culApplyTabGate(tabs, attempt+1); }, 350);
+    return;
+  }
+  if(!window.__culSB || !Array.isArray(window.__culAllRows)){
+    window.CULTURE_TAB_GATE_NOTE = 'not-evaluated: '
+      + (!window.__culSB ? 'supabase client never booted' : 'feed rows never loaded');
+    try{ console.warn('[culture] '+window.CULTURE_TAB_GATE_NOTE); }catch(e){}
+    return;
+  }
+  var CANDIDATES=[
+    { key:'pix', label:'Pix', test:function(x){ var d=x.data||{}; return typeof d.img==='string' && d.img.trim()!==''; } },
+    { key:'vid', label:'Vid', test:function(x){ return x.kind==='video'; } }
+  ];
+  culTabThresholds().then(function(t){
+    if(!t){
+      window.CULTURE_TAB_GATE_NOTE='threshold-unavailable: platform_config could not be read; gated tabs withheld';
+      try{ console.warn('[culture] '+window.CULTURE_TAB_GATE_NOTE); }catch(e){}
+      return;
+    }
+    var emitted=[], held=[];
+    CANDIDATES.forEach(function(c){
+      var inv=culInventory(c.test);
+      var pass = inv.items>=t.items && inv.creators>=t.creators && inv.categories>=t.categories;
+      if(pass){
+        if(!tabs.querySelector('[data-s="'+c.key+'"]')){
+          var b=document.createElement('button'); b.dataset.s=c.key; b.textContent=c.label;
+          tabs.insertBefore(b, tabs.querySelector('[data-s="vs"]'));
+        }
+        emitted.push(c.key+'('+inv.items+')');
+      } else {
+        held.push(c.key+': '+inv.items+'/'+t.items+' items, '+inv.creators+'/'+t.creators+' creators, '+inv.categories+'/'+t.categories+' categories');
+      }
+    });
+    window.CULTURE_TAB_GATE_NOTE = (emitted.length? 'emitted: '+emitted.join(', ')+'. ':'')
+      + (held.length? 'below threshold: '+held.join(' | ') : 'none held');
+  });
+}
+
   function isMob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
   function sync(){ document.body.classList.toggle('cul-m', isMob()); }
   sync(); window.addEventListener('resize', sync);
@@ -715,17 +797,17 @@ renderTypebar();renderDiscover();renderFeed();
   var host=document.getElementById('culTypeBar');
   if(host && !document.getElementById('culMTabs')){
     var tabs=document.createElement('div'); tabs.id='culMTabs';
-    /* K5: FEED / PIX / VS. Radio left this row because K1 made it a top-level destination in
-       the bottom bar — keeping it here duplicated the slot and re-created the confusion K1
-       removed. PIX takes its place: 201 rows, and it was not reachable on mobile at all. */
-    /* Pix removed. I put it here on a count of 201 rows with data.img — that count included
-       ARCHIVED rows. Live it is 11, from 14 profiles that are all AI agents and 0 human
-       creators, which is below the inventory threshold in the decisions doc. It was the same
-       mistake I removed Blog and Vid for: a tab that teaches the product is hollow. It comes
-       back automatically once S3 gates tabs on live inventory. */
+    /* S3 — tabs are EMITTED, not hidden.
+       Feed and VS always ship: Feed is the surface itself and VS reads vs_competitions (36
+       published), not this table. PIX and VID are gated on live inventory against the §D4
+       threshold in platform_config, evaluated at render — so a tab appears the moment content
+       arrives, with no deploy, and an empty one is never emitted at all.
+       Radio is deliberately absent: K1 made it a global destination, so a Culture entry is a
+       second path to one product. */
     tabs.innerHTML='<button data-s="feed" class="on">Feed</button>'
                   +'<button data-s="vs">VS</button>';
     host.parentNode.insertBefore(tabs, host);
+    culApplyTabGate(tabs);
     tabs.addEventListener('click',function(e){
       var b=e.target.closest('button'); if(!b) return;
       [].forEach.call(tabs.children,function(x){ x.classList.toggle('on', x===b); });
@@ -791,7 +873,7 @@ renderTypebar();renderDiscover();renderFeed();
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815k" defer></script>
+<script src="/keepitil-shell.js?v=20260815m" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}

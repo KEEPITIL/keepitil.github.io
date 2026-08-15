@@ -528,7 +528,47 @@ footer a{color:var(--accent2);}
   .fba-cmt,.fba-share,.fb-save{color:#fff!important}.fba-cmt svg,.fba-share svg,.fb-save svg{stroke:#fff!important}
   .fba.fba-like.on,.fba.fba-like.on svg{stroke:#ff4d8d!important;color:#ff4d8d!important}
   .fba.fba-resh.on,.fba.fba-resh.on svg{stroke:#22c55e!important;color:#22c55e!important}
-}</style></head>
+}</style><script>
+/* ── S2 — EDITORIAL LABELLING (ATLAS §D1 "Public labels") ─────────────────────────────────
+   A truthfulness constraint, not a copy preference: a venue that never signed up must not
+   appear to have endorsed KEEPITIL.
+
+   The defect this replaces: badges fell back to a hardcoded membership badge whenever a
+   profile had none, so
+   every KEEPITIL-authored profile — Dirtybird, Discotech, FNGRS CRSSD, Framework — rendered a
+   "Member" badge. And the type line printed account_type raw, which after the taxonomy
+   migration would read "editorial_brand" to the public.
+
+   Ownership comes from profile_owners, never from account_type. KIL_IS_CLAIMED is set by the
+   ownership lookup; until it resolves the answer is "not claimed", because the safe default is
+   the one that cannot overclaim. */
+window.KIL_MEMBERSHIP_WORDS = ['member','subscriber','verified','creator','founder','vip'];
+window.KIL_IS_CLAIMED = false;
+
+window.KIL_PROFILE_LABEL = function(accountType){
+  var t = String(accountType||'').toLowerCase().trim();
+  var EDITORIAL = {
+    editorial_artist:    'Artist Profile',
+    editorial_venue:     'Venue Profile',
+    editorial_organizer: 'Organizer Profile',
+    editorial_brand:     'Brand Profile'
+  };
+  if (EDITORIAL[t]) return EDITORIAL[t];
+  if (t === 'subscriber_profile') return window.KIL_IS_CLAIMED ? 'Member' : 'Profile';
+  /* Unclassified, or a legacy value: say nothing rather than guess a status. */
+  return '';
+};
+
+/* Strip any membership word from a badge list unless the profile is genuinely claimed. */
+window.KIL_FILTER_BADGES = function(badges){
+  var list = Array.isArray(badges) ? badges.slice() : [];
+  if (window.KIL_IS_CLAIMED) return list;
+  return list.filter(function(b){
+    return window.KIL_MEMBERSHIP_WORDS.indexOf(String(b).toLowerCase().trim()) === -1;
+  });
+};
+</script>
+</head>
 <body>
 
 <nav id="main-nav">
@@ -750,6 +790,20 @@ function openInsights(){
 var SESSION=null, DB_OK=false, OWNS=false;
 /* Edit controls show only in the owner variant AND when the signed-in user actually owns this profile. */
 function CAN_EDIT(){ return IS_OWNER && OWNS; }
+/* S2 — "is this profile claimed by ANYONE", which is a different question from "can I edit it".
+   profile_owners is world-readable, so this resolves for signed-out visitors too. Until it
+   resolves KIL_IS_CLAIMED stays false, because the safe default is the one that cannot
+   overclaim: an editorial profile briefly labelled correctly is fine, a real member's profile
+   briefly labelled "Profile" is not a truthfulness failure. */
+window.KIL_CLAIMED_READY = Promise.resolve(false);
+function checkClaimed(){
+  if(!SB) return Promise.resolve(false);
+  window.KIL_CLAIMED_READY = SB.from('profile_owners').select('profile_slug')
+    .eq('profile_slug',PROFILE_SLUG).maybeSingle()
+    .then(function(r){ window.KIL_IS_CLAIMED = !!(r&&r.data); return window.KIL_IS_CLAIMED; })
+    .catch(function(){ window.KIL_IS_CLAIMED = false; return false; });
+  return window.KIL_CLAIMED_READY;
+}
 function checkOwnership(){
   OWNS=false;
   if(!SB||!SESSION) return Promise.resolve(false);
@@ -2254,7 +2308,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   /* Make the passport | category | badges row visible (badges from genre + Member) */
   try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
     var bg=document.getElementById('pfBadges'); var P=window.PROFILE||{};
-    if(bg && !bg.children.length){ var _ac=String(P.account_type||'').toLowerCase().trim(); var _sn={}; var arr=(Array.isArray(P.badges)?P.badges.slice():['Member']).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_ac||_sn[k])return false; _sn[k]=1; return true;}); bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
+    if(bg && !bg.children.length){ var _ac=String(P.account_type||'').toLowerCase().trim(); var _sn={}; var arr=window.KIL_FILTER_BADGES(Array.isArray(P.badges)?P.badges.slice():[]).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_ac||_sn[k])return false; _sn[k]=1; return true;}); bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
     if(pollB>20 || (bg&&bg.children.length)) clearInterval(ivB); },600); }catch(e){}
   function esc(u){return String(u).replace(/"/g,'');}
   function build(){
@@ -2393,13 +2447,25 @@ function toggleArchived(id,val){
       });
       SB.from('profile_meta').select('about,links,account_type,links_label,badges').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
         var m=(r&&r.data)||{};
-        if(m.account_type){ var a=document.getElementById('pfAcctType'); a.textContent=m.account_type; a.style.display='block'; }
+        /* S2: never print the raw enum — post-migration that reads "editorial_brand". */
+        checkClaimed().then(function(){
+          var _lbl=window.KIL_PROFILE_LABEL(m.account_type);
+          var a=document.getElementById('pfAcctType');
+          if(a){ if(_lbl){ a.textContent=_lbl; a.style.display='block'; } else { a.style.display='none'; } }
+          /* Re-filter badges once ownership is known, so a claimed profile keeps its Member badge
+             and an unclaimed one never gains one. */
+          try{ var _b=document.getElementById('pfBadges');
+            if(_b){ var _seen2={}, _ac2=String(m.account_type||'').toLowerCase().trim();
+              var _l=window.KIL_FILTER_BADGES(Array.isArray(m.badges)?m.badges:[]).filter(function(x){
+                var k=String(x).toLowerCase().trim(); if(!k||k===_ac2||_seen2[k])return false; _seen2[k]=1; return true; });
+              _b.innerHTML=_l.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
+        });
         PROFILE.about=m.about||''; PROFILE.links=Array.isArray(m.links)?m.links:[];
         PROFILE.links_label=m.links_label||''; PROFILE.badges=Array.isArray(m.badges)?m.badges:null;
         /* editable Links dropdown title */
         try{ var _lb=(m.links_label&&String(m.links_label).trim())||'Links'; var _btn=document.querySelector('#pfLinksDrop button'); if(_btn) _btn.textContent='🔗 '+_lb+' ▾'; }catch(e){}
         /* render preset badges chosen in Edit Profile (fallback: Member) */
-        try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _acct=String(m.account_type||'').toLowerCase().trim(); var _seen={}; var _arr=(Array.isArray(m.badges)?m.badges:['Member']).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_acct||_seen[k])return false; _seen[k]=1; return true;}); _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
+        try{ var _bg=document.getElementById('pfBadges'); if(_bg){ var _acct=String(m.account_type||'').toLowerCase().trim(); var _seen={}; var _arr=window.KIL_FILTER_BADGES(Array.isArray(m.badges)?m.badges:[]).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_acct||_seen[k])return false; _seen[k]=1; return true;}); _bg.innerHTML=_arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); } }catch(e){}
         /* description renders UNDER the avatar in .pf-meta (pfAbout), matching the Groove Trooper gold standard — not beside the avatar (Founder 2026-07-27) */
         if(m.about){ var _at=document.getElementById('pfAboutTop'); if(_at)_at.style.display='none'; var ab=document.getElementById('pfAbout'); if(ab){ ab.textContent=m.about; ab.style.display='block'; } }
         /* socials + links → the About "Links" dropdown (icons live here, not in the footer) */
@@ -2539,6 +2605,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/keepitil-shell.js?v=20260815k" defer></script>
+<script src="/keepitil-shell.js?v=20260815m" defer></script>
 </body>
 </html>
