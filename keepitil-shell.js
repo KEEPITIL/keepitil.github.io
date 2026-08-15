@@ -288,6 +288,38 @@ var DESTINATIONS=[
   {href:'/vs.html',      label:'VS',      icon:'vs',      match:/(^|\/)vs(\.html)?$/,
    tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'}
 ];
+/* ── K4: the destination rail, for pages that want to surface the map in their own body ────
+   Explore's own content was 93 event links, 1 to Culture, 1 to Scene, and ZERO to Radio or VS.
+   K1 put all five in the nav; the landing page itself still did not mention two of them. This
+   renders the same DESTINATIONS list into any element, so a page-level rail cannot drift from
+   the nav — adding a destination stays a one-line change in one array.
+
+   Opt-in: a page mounts it by including <div data-kil-destinations></div>. Nothing renders
+   anywhere it is not asked for. */
+window.KIL_DESTINATIONS = function(){
+  return DESTINATIONS.map(function(d){
+    return { href:d.href, label:d.label, icon:d.icon, home:!!d.home, tint:d.tint||null };
+  });
+};
+
+function renderDestinationRail(el){
+  if(!el || el.getAttribute('data-kil-mounted')==='1') return;
+  var here = location.pathname;
+  el.setAttribute('data-kil-mounted','1');
+  el.className = (el.className ? el.className+' ' : '') + 'kil-drail';
+  /* The page you are already on is not a useful link out of itself. */
+  el.innerHTML = namedDestinations().map(function(d){
+    if(d.match.test(here)) return '';
+    return '<a class="kil-drail-item" href="'+d.href+'" style="--d-tint:'+d.tint+'">'
+      + '<span class="kil-drail-ico">'+icon(d.icon)+'</span>'
+      + '<span class="kil-drail-label">'+d.label+'</span></a>';
+  }).join('');
+}
+
+function mountDestinationRails(){
+  try{ document.querySelectorAll('[data-kil-destinations]').forEach(renderDestinationRail); }catch(e){}
+}
+
 /* Everything except the home slot — what the header and footer list as words. */
 function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.home; }); }
   var THEMES=[['default','Default','#00b4ff'],['spring','Spring','#22e39b'],['summer','Summer','#ff7a1a'],['fall','Fall','#ff3b4e'],['winter','Winter','#00b4ff'],['halloween','Halloween','#ff7a1a'],['holidays','Holidays','#e63946']];
@@ -528,6 +560,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         }catch(e){}
       };
       window.__kilMountBnav();
+      mountDestinationRails();
       var b=hdr.querySelector('.v3s-burger'), m=hdr.querySelector('.v3s-menu');
       if(b&&m) b.addEventListener('click',function(){ m.classList.toggle('open'); });
       authNav(hdr);   // signed in -> LOGIN becomes PROFILE (+ the notification bell shows)
@@ -650,6 +683,17 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        the two never stack on the same pixels. */
     +'#kil-macct{display:flex;position:fixed;left:16px;bottom:calc(var(--kil-bnav-h, 72px) + 12px);z-index:1002;width:44px;height:44px;border-radius:50%;background:rgba(10,10,16,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);color:#fff;align-items:center;justify-content:center;text-decoration:none}'
     +'#kil-macct svg{width:21px;height:21px;display:block}'
+    /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
+       never pushes the page's own content down a phone screen. */
+    +'.kil-drail{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:22px auto 0;max-width:760px;padding:0 12px}'
+    +'.kil-drail-item{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;min-height:44px;box-sizing:border-box;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(10,10,16,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;text-decoration:none;font-family:"Bebas Neue",sans-serif;letter-spacing:.13em;font-size:1rem;line-height:1;transition:border-color .15s,color .15s,transform .1s}'
+    +'.kil-drail-item:hover{border-color:var(--d-tint,#00b4ff);color:var(--d-tint,#00b4ff)}'
+    +'.kil-drail-item:active{transform:scale(.96)}'
+    +'.kil-drail-item:focus-visible{outline:2px solid var(--d-tint,#fff);outline-offset:2px}'
+    +'.kil-drail-ico svg{width:19px;height:19px;display:block;color:var(--d-tint,#fff)}'
+    /* Narrow: cap the rail so four items break 2+2 rather than 3+1, which reads as an
+       accident. Each pill is also stretched to an even width so the two columns line up. */
+    +'@media(max-width:520px){.kil-drail{gap:8px;max-width:300px}.kil-drail-item{flex:1 1 128px;justify-content:center;padding:9px 10px;font-size:.92rem}.kil-drail-ico svg{width:17px;height:17px}}'
     +'#kil-macct:focus-visible{outline:2px solid #fff;outline-offset:3px}'
     +'@media(min-width:861px){#kil-macct{display:none}}'
     +'#v3shell-nav .v3s-cta.v3s-hamb{display:inline-flex;align-items:center;padding:7px 12px}'
@@ -714,6 +758,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         if(IN_IFRAME) return;
         if(RULES.nav!==false && !document.getElementById('v3shell-nav')) build();
         if(window.__kilMountBnav) window.__kilMountBnav();
+        mountDestinationRails();
         if(window.__kilRadioKill) window.__kilRadioKill();
       }catch(e){}
     };

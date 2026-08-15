@@ -235,12 +235,15 @@ footer a{color:var(--purple)}
     </div>
     <!-- Filter A: content type — scroll L/R (Founder 2026-07-31) -->
     <div class="cul-typebar" id="culTypeBar">
+      <!-- K5: Blog and Vid removed. Counted against live profile_content (628 rows): the only
+           kind values that exist are post 211, event 53, article 364. kind='blog' and
+           kind='video' match ZERO rows, so both tabs were guaranteed-empty — the exact thing
+           the directive calls out, an empty tab teaching people the product is hollow.
+           The VS *filter* went for the same reason: VS content lives in vs_competitions, not
+           here, so it matched 0 of 628. VS is reached as a destination (/vs.html) instead. -->
       <button data-tp="all" class="on" onclick="setCulContentType('all')">Feed</button>
-      <button data-tp="blog" onclick="setCulContentType('blog')">Blog</button>
       <button data-tp="article" onclick="setCulContentType('article')">Articles</button>
-      <button data-tp="video" onclick="setCulContentType('video')">Vid</button>
       <button data-tp="image" onclick="setCulContentType('image')">Pix</button>
-      <button data-tp="vs" onclick="setCulContentType('vs')">VS</button>
     </div>
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
     <div class="feed" id="feed"></div>
@@ -373,6 +376,11 @@ function culSection(sec){
   var panel=document.getElementById('cul-section-panel');
   var now=document.getElementById('feedNow');
   if(sec==='radio'){ location.href='/radio.html'; return; }
+  /* K5: VS is a destination now (K1), and /vs.html is the real product with 36 published
+     competitions. The panel below is static promo copy that predates it and never showed
+     a single competition, so Culture routed people to a worse copy of a page that exists.
+     Same treatment Radio already had. Nothing new is built here. */
+  if(sec==='vs'){ location.href='/vs.html'; return; }
   if(sec==='feed'){
     feedEls.forEach(function(e){ if(e)e.style.display=''; });
     if(panel){ panel.style.display='none'; panel.innerHTML=''; }
@@ -411,14 +419,26 @@ function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearM
 function setCulType(t){ culType=t; _culMark('data-ct',t); applyCulFilters(); }
 function setCulFilter(f){ culFilter=f; _culMark('data-cf',f); applyCulFilters(); }
 function setCulContentType(t){ culContentType=t; [].forEach.call(document.querySelectorAll('#culTypeBar button'),function(b){b.classList.toggle('on',b.getAttribute('data-tp')===t);}); applyCulFilters(); }
-function _culKindMatch(kind){
-  var k=String(kind||'').toLowerCase();
+/* K5 — PIX matched nothing.
+   It tested kind==='photo'||'image', and profile_content has no such kind: the values are
+   post, event and article. So the Pix tab was live in the nav and returned an empty feed,
+   while 201 rows DO carry an image — at data.img, not as a kind. That is why the directive
+   lists PIX at 201 while the tab showed zero.
+   Takes the whole row now, because "has a picture" is a property of the row, not of its kind. */
+function _culTypeMatch(row){
   if(culContentType==='all') return true;
-  if(culContentType==='blog') return k==='blog';
+  var k=String((row&&row.kind)||'').toLowerCase();
   if(culContentType==='article') return k==='article';
-  if(culContentType==='video') return k==='video';
-  if(culContentType==='image') return k==='photo'||k==='image';
-  if(culContentType==='vs') return k==='vs'||k==='battle';
+  if(culContentType==='image'){
+    /* data.img ONLY, deliberately. Falling back to data.cover as well matched 252 rows — the
+       201 posts plus 51 events whose cover art happens to be an image. That turns Pix from
+       "pictures people posted" into "anything with a picture attached", which fills a photo
+       feed with event promos. Measured against all 628 live rows: img alone = 201, exactly
+       the figure in the directive. */
+    var d=(row&&row.data)||{};
+    var img=d.img;
+    return typeof img==='string' && img.trim()!=='';
+  }
   return true;
 }
 function applyCulFilters(){
@@ -426,7 +446,7 @@ function applyCulFilters(){
   var cf=document.getElementById('community-feed'); if(cf)cf.style.display='';
   var rows=(window.__culAllRows||[]).slice();
   /* Filter A — content type */
-  rows=rows.filter(function(x){ return _culKindMatch(x.kind); });
+  rows=rows.filter(function(x){ return _culTypeMatch(x); });
   /* Filter (gear) */
   if(culFilter==='articles'){ rows=rows.filter(function(x){ return x.kind==='article' && CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
   else if(culFilter==='user'){ rows=rows.filter(function(x){ return !CUL_AGENTS[String(x.profile_slug||'').toLowerCase()]; }); }
@@ -691,14 +711,26 @@ renderTypebar();renderDiscover();renderFeed();
   var host=document.getElementById('culTypeBar');
   if(host && !document.getElementById('culMTabs')){
     var tabs=document.createElement('div'); tabs.id='culMTabs';
+    /* K5: FEED / PIX / VS. Radio left this row because K1 made it a top-level destination in
+       the bottom bar — keeping it here duplicated the slot and re-created the confusion K1
+       removed. PIX takes its place: 201 rows, and it was not reachable on mobile at all. */
     tabs.innerHTML='<button data-s="feed" class="on">Feed</button>'
-                  +'<button data-s="radio">Radio</button>'
+                  +'<button data-s="pix">Pix</button>'
                   +'<button data-s="vs">VS</button>';
     host.parentNode.insertBefore(tabs, host);
     tabs.addEventListener('click',function(e){
       var b=e.target.closest('button'); if(!b) return;
       [].forEach.call(tabs.children,function(x){ x.classList.toggle('on', x===b); });
-      if(typeof culSection==='function') culSection(b.dataset.s);
+      var sec=b.dataset.s;
+      /* Pix is a content-type filter over the feed, not a separate section — so it returns to
+         the feed view first, then applies the filter, and the type bar stays in sync. */
+      if(sec==='pix'){
+        if(typeof culSection==='function') culSection('feed');
+        if(typeof setCulContentType==='function') setCulContentType('image');
+        return;
+      }
+      if(sec==='feed' && typeof setCulContentType==='function') setCulContentType('all');
+      if(typeof culSection==='function') culSection(sec);
     });
   }
 
@@ -748,7 +780,7 @@ renderTypebar();renderDiscover();renderFeed();
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815e" defer></script>
+<script src="/keepitil-shell.js?v=20260815h" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
