@@ -1,0 +1,163 @@
+# KODE DIRECTIVE — Mobile Full-Screen Redesign (owner spec, 2026-08-15)
+
+**Scope: mobile primarily; desktop where it applies. Owner-specified.**
+This supersedes the tab-row work in S3/S6/S7 for **Culture, Radio and VS**. Scene is unchanged. Homepage is removals only.
+
+**This is a different app model, not a restyle.** Culture, Radio and VS stop being "a page with tabs" and become **full-screen vertical feeds with horizontal filter switching** — TikTok / YouTube Shorts. Read §A before writing any page code.
+
+---
+
+## A. ONE COMPONENT, THREE PAGES — BUILD IT ONCE
+
+Culture, Radio and VS all get the identical interaction:
+
+- **one column**, each item filling and locking the full mobile viewport
+- **swipe up / down** = next / previous item, snapped — no free scroll
+- **swipe left / right** = change filter
+- **header shows only the current filter name**, locked to the top, changing only on filter change
+- **chat icon fixed bottom-right, above the bottom nav, on every page**
+
+**Do not implement this three times.** One pager component, a filter set per page. Three copies will diverge within a sprint — Culture's tab row and Radio's tab row were the same widget once, and they are two different widgets today.
+
+### Non-negotiable engineering constraints
+
+**Virtualize.** Mount only the current item ±1. A full-screen pager over third-party embeds mounts a video player per slide; ten live embeds will stall a phone. Never more than one playing.
+
+**Scroll-snap, not JS scroll hijacking.** Use CSS `scroll-snap-type: y mandatory` with `overscroll-behavior: contain`. Do not intercept touch events to fake paging — that breaks momentum, accessibility and the back gesture.
+
+**`100dvh`, never `vh`.** And **do not put `overflow:hidden` on `html`** — that trap already blanked the mobile homepage once. Note `overflow-x:hidden` on `html`/`body` is what currently breaks `position:sticky` on radio.html; a locked pager may be affected by the same rule. Check it early.
+
+**Accessibility.** Swipe-only navigation with no alternative fails keyboard and screen-reader users outright. Provide focusable prev/next affordances and arrow-key support, keep filter names as real headings, and never signal the active filter by colour alone. No autoplay with sound.
+
+---
+
+## B. GLOBAL REMOVALS — every page
+
+**Remove the floating profile icon** (bottom-left account button).
+**Remove the `+` Create FAB.**
+
+Both are the controls that collided with content in the owner's screenshots. Removing them resolves M2 and M3 at the source rather than restacking them — **M2/M3 as written are superseded; do not spend time on z-index fixes for controls that are being deleted.**
+
+### RESOLVED — account access lives in the chat icon
+
+Owner decision: **profile and create both live inside chat.** Opening chat shows exactly **two options: Log in · Create.** Nothing else.
+
+**Assumption flagged for correction:** signed out, slot one is **Log in**; signed in, the same slot becomes **Profile**. Otherwise a signed-in user is offered a login they don't need and still can't reach their profile. If the owner means something else, this is the line to change.
+
+**Consequence to keep straight:** chat is the only route to the profile page, and chat is hidden *on* the profile page (§C). So you enter through chat and leave through the bottom nav. That is navigable, but it means **the bottom nav must remain visible on the profile page** — verify it does.
+
+---
+
+## C. THE CHAT ICON BECOMES THE PRIMARY ACTION SURFACE
+
+This is the load-bearing change. With `+` deleted, **chat is how anything gets created.**
+
+- fixed bottom-right, above the bottom nav, **identical position on every main page and subpage**
+- **never on a user's profile page** — the one exception
+- agentic: it routes the user to what they need and performs the action
+- **exactly two options on open: `Log in` · `Create`.** Not "including" — these two and nothing else. Signed in, `Log in` becomes `Profile` (see §B).
+
+**Chat is now a critical path, not a helper.** If it fails, users cannot create events at all. It needs an explicit failure state — the BROKEN ≠ EMPTY rule. "The agent is unavailable, here is the direct link to create an event" beats a spinner.
+
+---
+
+## D. PER PAGE
+
+### 1. Homepage
+
+- remove the mid-page `Culture · Radio · Scene · VS` links — the bottom nav already carries them
+- remove the profile icon
+- remove the `+` FAB
+- **remove the `+` on every date/event row** — it routes to the wrong create-event page. Confirm where it currently points and report it; a wrong destination may exist elsewhere too.
+
+### 2. Culture — `FEED · ARTICLE · VIDEO · PIXLE`
+
+Owner's labels and spelling. Full-screen pager per §A.
+
+- remove profile icon, remove `+`
+- locked header showing the current filter only; swipe left/right to change
+- **ARTICLE is in-house only** — no third-party ingestion into articles
+- **VIDEO and PIXLE ingest from KEEPITIL's own `@keepitil` accounts** on TikTok, YouTube and Instagram
+
+Because KEEPITIL owns the source accounts, this is self-syndication, not third-party curation: no outside-creator rights question, no attribution obligation, no discovery crawl. **Ingest one known account per platform.** See §E-3 for the Instagram constraint.
+
+### 3. Radio — `CHANNEL · PLAYLIST · APP`
+
+- remove profile icon, remove `+`
+- **remove the `Feed | Radio | VS` switcher** (this is S7, still correct)
+- locked single-filter header; swipe to change
+- full-screen pager per §A
+
+Supersedes S6: the tab *row* is gone entirely, replaced by the single locked header.
+
+### 4. Scene — UNCHANGED
+
+Do not touch. The grid, filters and search stay as they are.
+
+### 5. VS — `MIX · VOTE`
+
+- remove profile icon, remove `+`
+- remove the existing `MIX / VS / VOTE` row; the locked header replaces it
+- full-screen pager per §A, **two filters**
+- **submitted-content template: voting button, comment and share icons stacked above the chat icon**
+
+Also still open from S7: **VS's empty state tells mobile users to "tap Join on the rail" and there is no rail on mobile.** 36 published competitions, 0 entries. Resolve the entry path as part of this work — a full-screen pager over zero entries is still zero entries.
+
+### 6. Profile page
+
+- remove profile icon, remove `+`
+- **no chat icon** (the §C exception)
+- filter nav bar **locks to the top on scroll**
+
+Note this page keeps normal scrolling — it is not a full-screen pager.
+
+---
+
+## E. RESOLVED — owner answers, 2026-08-15
+
+**1. VS filters are `MIX · VOTE`.** Two, not three. The pager must not assume a fixed filter count — Radio has three, VS has two, Culture has four.
+
+**2. Third-party source = KEEPITIL's own social accounts.** VIDEO and PIXLE ingest from the `@keepitil` accounts on TikTok, YouTube and Instagram. This is a significant simplification: **KEEPITIL is the creator**, so there is no third-party rights question, no attribution obligation to outside creators, and no arbitrary-feed scraping. Ingest one known account per platform, not a discovery crawl.
+
+It also changes the §D4 threshold maths — 20 items across 5 creators cannot be met by a single-owner account. **For VIDEO and PIXLE the creator-count gate is dropped; the item-count gate stands.**
+
+**3. Instagram: ship TikTok + YouTube now. Instagram is blocked on an action only the owner can take — see §E-3 below.**
+
+**4. VIDEO and PIXLE are empty today** — 0 and 11 items. The config gate holds them hidden until ingestion lands, so **Culture ships as `FEED · ARTICLE`** on day one. Expected, not a bug.
+
+### E-3 — Instagram, precisely
+
+TikTok and YouTube oEmbed are public: no key, no account, no review. Build both now.
+
+Instagram's oEmbed requires a **Meta developer account, an App, accepted Meta Platform Terms, and Business Verification.** Creating accounts, accepting platform terms and granting OAuth are actions the owner must perform personally — they are not delegable, regardless of credential access. **This is not a capability gap that more access solves.**
+
+**Split:**
+- **Owner:** create the Meta app, accept the terms, complete verification, generate the token.
+- **KODE:** everything else — store the token as a Supabase secret (never in source, prompts, memory, logs or any browser bundle), build the adapter behind the same provider-neutral record, and ship it dark until a token exists.
+
+Build the Instagram adapter so it activates on a token appearing. Nothing else waits on it.
+
+---
+
+## F. ORDER
+
+1. **§B removals** — deletes the collision class outright, and is the fastest visible improvement
+2. **§A pager component**, proven on **Radio** first — smallest, self-contained content, no third-party embeds to confuse a perf problem with a paging problem
+3. **Culture** onto the pager (`FEED · ARTICLE`)
+4. **§C chat as action surface** — blocks nothing above it, blocks everything after
+5. **VS** — after §E.1 and the rail finding
+6. **Profile** sticky filter bar
+7. **Third-party ingestion** — after §E.2 and §E.3
+
+**Homepage removals can ship immediately and independently.**
+
+---
+
+## G. SUPERSEDED
+
+- **M2, M3** — the colliding controls are deleted, not restacked
+- **S6** — Radio's tab row is replaced by the locked single-filter header, not trimmed to three
+- **S3** — the gate logic stands; the tab labels become `VIDEO` / `PIXLE` and the presentation becomes the pager
+- **S7** — the `Feed | Radio | VS` switcher removal still stands and is now part of this
+
+**M1 (top safe area) is NOT superseded and still needs device verification.** A full-screen pager makes it worse, not better: locked full-viewport content with no top inset runs straight under the status bar.

@@ -299,7 +299,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815n" defer></script>
+<script src="/keepitil-shell.js?v=20260815o" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
@@ -406,6 +406,85 @@ renderStations(); renderPls();
     btn.addEventListener('click',function(){ var open=sec.classList.toggle('open'); btn.setAttribute('aria-label', open?'Collapse section':'Expand section'); });
     sh.appendChild(btn);
   });
+})();
+</script>
+
+<script src="/keepitil-pager.js?v=20260815a" defer></script>
+<script>
+/* ── §D.3 — Radio on the shared pager ──────────────────────────────────────────────────────
+   CHANNEL · PLAYLIST · APP. The old `Feed | Radio | VS` switcher (#radMTabs) and the six-button
+   section row (#radMSecs) are both replaced by the locked single-filter header — S7 removal,
+   still correct, now part of this directive.
+
+   The pager pages over the CARDS already inside each section, so nothing is re-authored: the
+   markup that renders a station today renders a station slide tonight. Sections are looked up
+   by the ids the page already uses.
+
+   NOTE FOR THE OWNER: this filter set drops three sections that exist on the page today —
+   Schedule (#schedule), VS (#earn) and Games (#games). They keep their desktop layout but lose
+   their mobile entry point, because the directive names three filters. Flagged, not silently
+   dropped. */
+(function(){
+  if(!window.matchMedia('(max-width:860px)').matches) return;
+
+  var FILTERS = [
+    { id:'stations',  label:'Channel'  },
+    { id:'playlists', label:'Playlist' },
+    { id:'services',  label:'App'      }
+  ];
+
+  /* SNAPSHOT, once per section.
+     render() MOVES the card node into its slide, which removes it from the grid — so a live
+     query would return a shrinking list every time the pager asked, and the pager asks on every
+     scroll settle. First run reported 16 items for a 14-card grid before this was cached. */
+  var SNAP = {};
+  function cardsIn(sectionId){
+    if(SNAP[sectionId]) return SNAP[sectionId];
+    var sec = document.getElementById(sectionId);
+    if(!sec) return [];
+    var nodes = sec.querySelectorAll('.grid > *, .pl-list > *');
+    var list = [].slice.call(nodes).filter(function(n){
+      return (n.textContent||'').trim() || n.querySelector('img');
+    });
+    if(list.length) SNAP[sectionId] = list;   /* only freeze once there is something to freeze */
+    return list;
+  }
+
+  function start(attempt){
+    attempt = attempt || 0;
+    var ready = FILTERS.some(function(f){ return cardsIn(f.id).length; });
+    /* Cards render from Supabase, so the first pass is usually empty. Retry, then say which. */
+    if(!ready && attempt < 30){ setTimeout(function(){ start(attempt+1); }, 350); return; }
+
+    var filters = FILTERS.map(function(f){
+      return {
+        id: f.id,
+        label: f.label,
+        items: function(){ return cardsIn(f.id); },
+        /* The card node itself is moved into the slide — no clone, no second copy to diverge. */
+        render: function(node, el){ if(node) el.appendChild(node); }
+      };
+    });
+
+    window.KIL_PAGER.mount({
+      filters: filters,
+      emptyFor: function(f){
+        /* BROKEN != EMPTY: "nothing published" and "the page never loaded" are different, and
+           the reason says which. */
+        return ready
+          ? { title:'Nothing in ' + f.label + ' yet', body:'New drops appear here as they publish.' }
+          : { title:'Radio could not load', body:'The station list did not come back. <a href="/radio.html">Try again</a>.' };
+      }
+    });
+
+    /* The old switchers are gone once the pager owns the screen. */
+    ['radMTabs','radMSecs','radSwToast'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.remove();
+    });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ start(0); });
+  else start(0);
 })();
 </script>
 </body>
