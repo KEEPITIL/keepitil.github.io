@@ -164,7 +164,7 @@ test("renamed art moved with the slug", () => {
   assert.deepEqual(cho.gallery, [["cho-1.png", "Strategy war-room"]], "gallery points at the moved file");
 });
 
-test("the roster data carries database identity and repo prose", () => {
+test("the roster data takes identity from the database and nothing else", () => {
   const { KEEPITIL_AGENTS } = evalBrowser("v3/agents-data.js");
   assert.equal(KEEPITIL_AGENTS.length, 14);
 
@@ -173,17 +173,44 @@ test("the roster data carries database identity and repo prose", () => {
     const a = KEEPITIL_AGENTS.find((x) => x.slug === p.slug);
     assert.ok(a, `${p.slug} present`);
     assert.equal(a.name, p.display_name.toUpperCase(), `${p.slug} name from the database`);
-    assert.equal(a.role, p.department, `${p.slug} role from department`);
-    assert.deepEqual(a.genres, [p.genre_lane], `${p.slug} genre lane from the database`);
-    // agent_profiles has no colour column, so this one has to survive regeneration.
+    // agent_profiles has no column for these, so they have to survive regeneration.
     assert.match(a.color, /^#[0-9a-f]{6}$/i, `${p.slug} keeps its repo-owned colour`);
     assert.ok(a.bio && a.bio.length > 40, `${p.slug} keeps its repo-owned prose`);
+    assert.ok(a.role, `${p.slug} keeps its repo-owned role`);
+    assert.ok(Array.isArray(a.genres) && a.genres.length, `${p.slug} keeps its repo-owned genres`);
   }
 
   const xus = KEEPITIL_AGENTS.find((a) => a.slug === "xus");
   assert.ok(/\bXus\b/.test(xus.bio) && !/\bNexus\b/.test(xus.bio), "live copy speaks as Xus");
   const cho = KEEPITIL_AGENTS.find((a) => a.slug === "cho");
   assert.ok(/\bCho\b/.test(cho.bio) && !/\bEcho\b/.test(cho.bio), "live copy speaks as Cho");
+});
+
+test("the rename changed identity only — role and genres are untouched", () => {
+  /* The database's department and genre_lane columns all carry a single 2026-07-16 seed write,
+     so they are not evidence of a later decision than the values authored in the repo. The
+     rename is therefore scoped to slug and name, and this test fails if a future regeneration
+     quietly widens it — which is exactly what the first pass at this change did. */
+  const { KEEPITIL_AGENTS } = evalBrowser("v3/agents-data.js");
+  const authored = {
+    cho: { role: "CEO · Chief Strategist", genres: ["Melodic techno", "Progressive house"] },
+    xus: { role: "Partnerships · Connector", genres: ["House", "Techno"] },
+    atlas: { role: "CTO · Engineer", genres: ["Techno", "Drum & bass"] },
+    beacon: { role: "Distribution Director", genres: ["Festival mainstage", "Big room"] },
+    pulse: { role: "CRO · Revenue", genres: ["Bass house", "Tech house"] }
+  };
+  for (const [slug, want] of Object.entries(authored)) {
+    const a = KEEPITIL_AGENTS.find((x) => x.slug === slug);
+    assert.equal(a.role, want.role, `${slug} keeps its authored role`);
+    assert.deepEqual(a.genres, want.genres, `${slug} keeps its authored genres`);
+  }
+
+  /* And no entry carries a department string, which is how the over-wide version looked. */
+  const snap = JSON.parse(read("_scripts/agents-snapshot.json"));
+  const departments = new Set(snap.profiles.map((p) => p.department));
+  for (const a of KEEPITIL_AGENTS) {
+    assert.ok(!departments.has(a.role), `${a.slug}.role is authored, not a copy of department`);
+  }
 });
 
 test("the rename left non-agent Echo/Nexus references alone", () => {

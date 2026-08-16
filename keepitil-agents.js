@@ -1,6 +1,7 @@
 /* KEEPITIL canonical agent roster — GENERATED. Do not hand-edit.
-   Regenerate with:  node _scripts/gen-agents.mjs        (needs SUPABASE_SERVICE_ROLE_KEY)
-   Verify in CI with: node _scripts/gen-agents.mjs --check
+   Regenerate:  node _scripts/gen-agents.mjs                 (offline, from the snapshot)
+   Refresh:     node _scripts/gen-agents.mjs --pull          (needs SUPABASE_SERVICE_ROLE_KEY)
+   Verify:      node _scripts/gen-agents.mjs --check         (offline; runs in roster-ci)
 
    Source of truth is public.agent_profiles + public.agent_aliases in keepitil-prod
    (ovmqtzjfpzrbzrlkxwgw). This file is the browser-side mirror of that table, so the

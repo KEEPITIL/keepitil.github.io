@@ -32,10 +32,20 @@ const PROJECT_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 const PULL = process.argv.includes('--pull');
 const CHECK = process.argv.includes('--check');
 
-/* Repo-owned keys, in emitted order, so regeneration is byte-stable. Everything not listed
-   here is taken from the database on every run. */
-const REPO_OWNED = ['color', 'charge', 'bio', 'owns', 'skills', 'thisWeek', 'initiatives',
-  'goals', 'achievements', 'upcoming', 'gallery'];
+/* What the database actually settled, and therefore all this file overwrites: identity.
+   The rename wrote slug and display_name; the uuid was assigned just before it.
+
+   role and genres are NOT on this list, deliberately. Every non-renamed agent_profiles row
+   carries updated_at 2026-07-16 — one seed write, no curation since — so for department and
+   genre_lane the database is demonstrably older-or-equal to the values authored here, not
+   newer. Cho and Xus read 2026-08-16 only because the rename touched the row, which does not
+   make their department or lane any more curated than the other twelve. Until someone diffs
+   those two columns and writes a decision back to agent_profiles, this file keeps them. */
+const DB_OWNED = ['slug', 'name'];
+
+/* Repo-owned keys, in emitted order, so regeneration is byte-stable. */
+const REPO_OWNED = ['role', 'color', 'charge', 'bio', 'owns', 'skills', 'thisWeek',
+  'initiatives', 'goals', 'genres', 'achievements', 'upcoming', 'gallery'];
 
 async function fetchTable(table, select) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -98,7 +108,6 @@ function renderAgentsData(agents, header) {
       `initiatives:${arr(a.initiatives)}`,
       `goals:${arr(a.goals)}`,
       `genres:${arr(a.genres)}`,
-      `subgenres:${arr(a.subgenres)}`,
       `achievements:${arr(a.achievements)}`,
       `upcoming:${arr(a.upcoming)}`
     ];
@@ -145,11 +154,15 @@ if (orphans.length) console.warn(`repo entries with no agent_profiles row: ${orp
 const merged = profiles.map((p) => {
   const repo = repoBySlug.get(p.slug) || {};
   /* name is upper-cased for display: the file has always rendered ATLAS, not Atlas. */
-  const out = { slug: p.slug, name: p.display_name.toUpperCase(), role: p.department,
-    genres: [p.genre_lane], subgenres: p.subgenres || [] };
+  const out = { slug: p.slug, name: p.display_name.toUpperCase() };
+  /* A row with no entry here is a genuinely new agent, so seed role and genres from the
+     database rather than emitting undefined. Existing entries keep what they carry. */
+  out.role = repo.role !== undefined ? repo.role : p.department;
+  out.genres = repo.genres !== undefined ? repo.genres : [p.genre_lane];
   for (const k of REPO_OWNED) if (repo[k] !== undefined) out[k] = repo[k];
   return out;
 });
+if (DB_OWNED.some((k) => !(k in merged[0]))) throw new Error('a database-owned field went missing');
 
 const header = readFileSync(join(ROOT, 'v3/agents-data.js'), 'utf8').split('window.KEEPITIL_AGENTS')[0];
 const targets = [
