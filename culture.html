@@ -756,8 +756,61 @@ function culTabThresholds(){
     }).catch(function(){ return null; });
 }
 
+/* §J — VIDEO and PIXLE do not live in profile_content.
+   The feed RPC returns kinds post / event / article, so the old `x.kind==='video'` test could
+   never match anything: the tab was gated on an inventory that was structurally always zero.
+   Media records live in their own `videos` table, so they are loaded separately and mapped into
+   the same row shape the rest of this page already understands.
+
+   media_kind is what separates the two tabs — VIDEO reads 'video', PIXLE reads 'photo' — and it
+   is OUR column, not the provider's, because TikTok's oEmbed could not be verified to
+   distinguish a Photo Mode post from a video one. */
+window.__culMediaRows = window.__culMediaRows || [];
+
+function culMediaToRow(v){
+  return {
+    id: 'media-' + v.id,
+    kind: v.media_kind === 'photo' ? 'pixle' : 'video',
+    media_kind: v.media_kind,
+    title: v.title,
+    created_at: v.published_at,
+    archived: false,
+    profile_slug: null,
+    author_name: v.creator_name,
+    data: {
+      /* Thumbnail-first: the card shows an image and only the ACTIVE pager slide mounts a
+         player, so a column of fifteen shorts does not start fifteen iframes. */
+      img: v.thumbnail_url || '',
+      cover: v.thumbnail_url || '',
+      embed_url: v.embed_url || '',
+      source_url: v.source_url || '',
+      provider: v.provider,
+      category: v.provider
+    }
+  };
+}
+
+function culLoadMedia(){
+  var sb = window.__culSB;
+  if(!sb || window.__culMediaLoaded) return Promise.resolve(window.__culMediaRows);
+  window.__culMediaLoaded = true;
+  /* RLS already restricts anon reads to approved + active, so this is defence in depth rather
+     than the only gate — but an unapproved or dead embed must never reach a surface even if a
+     policy is later loosened. */
+  return sb.from('videos')
+    .select('id,provider,media_kind,title,creator_name,source_url,embed_url,thumbnail_url,published_at')
+    .eq('review_status','approved').eq('embed_status','active')
+    .order('published_at',{ascending:false}).limit(100)
+    .then(function(r){
+      if(r.error || !r.data) return window.__culMediaRows;
+      window.__culMediaRows = r.data.map(culMediaToRow);
+      return window.__culMediaRows;
+    }).catch(function(){ return window.__culMediaRows; });
+}
+
 function culLiveRows(){
-  return (window.__culAllRows||[]).filter(function(x){ return !x.archived; });
+  var feed = (window.__culAllRows||[]).filter(function(x){ return !x.archived; });
+  return feed.concat(window.__culMediaRows||[]);
 }
 
 function culInventory(test){
@@ -774,14 +827,19 @@ function culInventory(test){
 var CUL_FILTERS = [
   { id:'feed',    label:'Feed',    gated:false, test:function(){ return true; } },
   { id:'article', label:'Article', gated:false, test:function(x){ return x.kind==='article'; } },
-  { id:'video',   label:'Video',   gated:true,  test:function(x){ return x.kind==='video'; } },
-  { id:'pixle',   label:'Pixle',   gated:true,  test:function(x){ var d=x.data||{};
-      return typeof d.img==='string' && d.img.trim()!==''; } }
+  /* These two read media_kind, not kind — the distinction the ingester carries so that PIXLE and
+     VIDEO can never show each other's content. Testing kind alone would let a photo record whose
+     kind happens to read 'video' cross the boundary. */
+  { id:'video',   label:'Video',   gated:true,  test:function(x){ return x.media_kind==='video'; } },
+  { id:'pixle',   label:'Pixle',   gated:true,  test:function(x){ return x.media_kind==='photo'; } }
 ];
 
 /* Resolves to the filters that should exist right now. */
 function culResolveFilters(){
-  return culTabThresholds().then(function(t){
+  /* Media MUST be loaded before the gate is evaluated. Resolving filters against an empty
+     __culMediaRows counts zero items for VIDEO and PIXLE and holds both tabs — which is exactly
+     the bug this wiring fixes, reintroduced one tick earlier. */
+  return culLoadMedia().then(culTabThresholds).then(function(t){
     var open=[], held=[];
     CUL_FILTERS.forEach(function(f){
       if(!f.gated){ open.push(f); return; }
