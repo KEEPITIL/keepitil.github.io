@@ -1,0 +1,57 @@
+name: Daily Sitemap Regeneration
+
+# Regenerates sitemap-events.xml from the live calendar.
+#
+# DELIBERATELY SEPARATE from daily-content.yml. That workflow is disabled: it belongs to the
+# retired agent content-generation programme, calls ANTHROPIC_API_KEY, and auto-commits what it
+# produces. Adding a sitemap step there would mean re-enabling a schedule that spends money
+# generating content nobody wants. Different job, different trigger, no shared switch.
+#
+# pg_cron cannot do this — these are static files served by GitHub Pages, so regenerating them
+# means committing them, which needs a runner.
+#
+# Uses the ANON key. Published events are public rows; a file generator has no business holding
+# a service key.
+
+on:
+  schedule:
+    # 09:15 UTC daily, offset from the top of the hour to avoid the GitHub-wide cron pile-up
+    # that delays jobs scheduled at :00.
+    - cron: '15 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # A slow run must never race a later one into the same commit.
+  group: daily-sitemaps
+  cancel-in-progress: false
+
+jobs:
+  sitemaps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Regenerate the events sitemap
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/build-sitemaps.mjs
+
+      - name: Commit only if it actually changed
+        run: |
+          if git diff --quiet -- sitemap-events.xml; then
+            echo "No change — expired events already absent, nothing to commit."
+            exit 0
+          fi
+          git config --local user.email "action@github.com"
+          git config --local user.name "KEEPITIL Sitemap Bot"
+          git add sitemap-events.xml
+          git commit -m "Auto: regenerate events sitemap [skip ci]"
+          git push
