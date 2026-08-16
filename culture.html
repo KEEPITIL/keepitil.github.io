@@ -683,6 +683,16 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m .fcard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;
     background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));pointer-events:none;z-index:2}
 
+  /* ── ONE RAIL, NEVER TWO (§I3, 2026-08-15) ────────────────────────────────────────────────
+     When the pager owns the screen it draws the action rail itself, from KIL_RAIL. The card's
+     rail then becomes a second right-edge column of the same like/comment/reshare controls —
+     two sources of truth for one set of actions, and visibly stacked on top of each other.
+
+     Gated on body.kilp-on, NOT on mobile width, so the rule is "hide the card's rail wherever
+     the pager supplies one". If the pager ever fails to mount, the card keeps its own rail and
+     the actions are still reachable — exactly one rail in every state, never zero. */
+  body.kilp-on .fcard .fb-actions{display:none!important}
+
   /* ── vertical action rail: right edge, 6 icons, spread from ~40% height to just above nav ── */
   /* locked values (302x600 frame): rail 44 wide, right ~13px, icons 30px, gap 4px,
      starting ~40% of SCREEN height — 34% of the CARD, since the card starts below the nav. */

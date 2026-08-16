@@ -197,3 +197,27 @@ test("a client that never arrives does not latch the empty result in", async () 
   await api.culAwaitSB(39);            // one poll from the cap, so this resolves fast
   assert.notEqual(win.__culMediaLoaded, true, "the empty result was latched in permanently");
 });
+
+// ── §I3: exactly one action rail, in every state ───────────────────────────────────────────
+
+test("the card's own rail is hidden when the pager supplies one", () => {
+  // Two right-edge rails is two sources of truth for the same like/comment/reshare, and they
+  // rendered stacked on top of each other on device.
+  assert.match(src, /body\.kilp-on\s+\.fcard\s+\.fb-actions\{display:none/,
+    "the card still draws its own rail underneath the pager's");
+});
+
+test("hiding is gated on the PAGER being mounted, not on screen width", () => {
+  // If it were gated on width (or on .cul-m), a mobile view where the pager failed to mount
+  // would show NO actions at all — zero rails is a worse bug than two, because nothing on
+  // screen tells you anything is missing.
+  const rule = src.match(/[^{}]*\.fcard\s+\.fb-actions\{display:none[^}]*\}/)[0];
+  assert.ok(/body\.kilp-on/.test(rule), "the hide is not conditional on the pager owning the screen");
+  assert.ok(!/cul-m/.test(rule), "gated on the mobile class — the actions vanish if the pager is absent");
+});
+
+test("the card rail still EXISTS in the markup — it is hidden, not deleted", () => {
+  // Desktop has no pager and needs these controls.
+  assert.match(src, /class="fb-actions"/);
+  assert.match(src, /fba fba-like/);
+});
