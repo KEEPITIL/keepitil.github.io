@@ -230,6 +230,65 @@ Already set in `KIL_FLOATING`: `culture` and `vs` are `chat:false`.
 
 ---
 
+## J. VIDEO + PIXLE INGESTION — verified sources, 2026-08-15
+
+### J1 — the accounts, confirmed
+
+From `keepitil-shell.js:422-426`, and the YouTube channel verified live:
+
+```
+YouTube    @keepitil   channel UC-gWqozXipPMT2VjcwJOLbw   ← EXISTS, verified
+TikTok     @keepitil
+Instagram  keepitil
+```
+
+### J2 — use the RSS feed for discovery, not oEmbed alone
+
+**This improves on my earlier spec.** Every YouTube channel publishes a keyless feed:
+
+```
+https://www.youtube.com/feeds/videos.xml?channel_id=UC-gWqozXipPMT2VjcwJOLbw
+```
+
+No API key, no OAuth, no quota. It returns `yt:videoId`, `media:title`, `published` and thumbnail for recent uploads.
+
+**Two-stage, not one:** RSS gives you *which* videos exist (discovery). oEmbed gives you the embed payload per video. My original "oEmbed only" spec had no discovery mechanism at all — it assumed someone was pasting URLs by hand.
+
+**Verify the feed returns entries before building on it.** I could not: this sandbox is blocked from youtube.com and I will not route around that. If it comes back empty, discovery needs a different path and the whole plan changes — check first.
+
+### J3 — PIXLE: TikTok Photo Mode is the source
+
+**Correction, owner 2026-08-15.** I wrote that TikTok is video-only. It is not — **TikTok Photo Mode posts are image carousels**, and @keepitil can publish them. PIXLE has a source and does not need the Meta app.
+
+**But discovery is the constraint, and it is different from YouTube's:**
+
+| | discovery | embed |
+|---|---|---|
+| YouTube | **RSS feed, keyless** | oEmbed, keyless |
+| TikTok | **none that is keyless** — listing an account's posts needs the TikTok Display API (app + OAuth) | oEmbed, keyless, works on any public post URL |
+
+So TikTok can be **embedded** freely but not **enumerated** freely. That maps onto directive §20's own preference order, where option 3 is *"user-submitted public URL"*.
+
+**Build PIXLE as curated-URL ingestion:**
+1. Owner (or an agent) supplies TikTok post URLs — a paste box in the review queue, not a crawler
+2. `https://www.tiktok.com/oembed?url=…` resolves title, author, thumbnail, embed HTML — **no key, no account**
+3. Same `videos` table, `provider='tiktok'`, `review_status='review'` — one record shape for both tabs
+4. Same S5 health loop: a deleted or privated post flips `embed_status` and drops off public surfaces
+
+**Verify the oEmbed response distinguishes a photo post from a video post** before assuming the record maps cleanly. If it does not, carry the distinction on our side — `media_kind: photo|video` — because PIXLE and VIDEO must not show each other's content.
+
+**This also unblocks Instagram later without rework:** the same curated-URL path works for any provider with a public oEmbed, so the Meta app becomes an upgrade to automatic discovery rather than a prerequisite for the tab existing.
+
+**Still an owner decision, but a smaller one:** event flyer artwork (~64 published events already carry images) remains an option if TikTok Photo Mode posts are thin on the ground. Don't pick — ask once PIXLE has real TikTok URLs to count.
+
+### J4 — flag on content character
+
+The @keepitil YouTube channel describes itself as *"All love in AI music (Suno) and entertainment (Sora2)"*, with keywords entirely about AI-generated content. **So VIDEO will fill with AI-generated shorts, not event footage or artist sets.**
+
+That may be exactly right. But the owner retired agent-generated *articles* three weeks ago on the grounds that agents shouldn't be producing the content, and Culture's 294 articles are still that retired programme. Filling the next tab with AI-generated video is the same question in a new place. **Raise it; don't decide it.**
+
+---
+
 ## G. SUPERSEDED
 
 - **M2, M3** — the colliding controls are deleted, not restacked

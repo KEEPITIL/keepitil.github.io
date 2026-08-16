@@ -38,6 +38,68 @@
 
   var STYLE_ID = "kilp-style";
 
+  /* ── §I3 — the side rail is CONTENT, not chrome ────────────────────────────────────────────
+     Which actions appear is a per-item-kind decision the owner can change without a code edit,
+     the same principle as KIL_FLOATING. A VIDEO wants reshare; an ARTICLE does not want a
+     comment button that opens an empty thread.
+
+     Edit this table, not the pager. `kind` comes from the item (item.kind) or from the filter's
+     own `kind`. Anything unmatched falls through to DEFAULT, so a new kind is never actionless.
+     The pager only renders; the adapter decides what an action DOES via config.onAction. */
+  var KIL_RAIL = {
+    video:   [{ id: "like", label: "Like", icon: "♥" },
+              { id: "comment", label: "Comment", icon: "💬" },
+              { id: "reshare", label: "Reshare", icon: "↻" },
+              { id: "save", label: "Save", icon: "⌘" }],
+    article: [{ id: "like", label: "Like", icon: "♥" },
+              { id: "save", label: "Save", icon: "⌘" }],
+    pixle:   [{ id: "like", label: "Like", icon: "♥" },
+              { id: "reshare", label: "Reshare", icon: "↻" },
+              { id: "save", label: "Save", icon: "⌘" }],
+    feed:    [{ id: "like", label: "Like", icon: "♥" },
+              { id: "comment", label: "Comment", icon: "💬" },
+              { id: "save", label: "Save", icon: "⌘" }],
+    DEFAULT: [{ id: "like", label: "Like", icon: "♥" },
+              { id: "save", label: "Save", icon: "⌘" }]
+  };
+  window.KIL_RAIL = window.KIL_RAIL || KIL_RAIL;
+  window.KIL_RAIL_FOR = function (kind) {
+    var t = window.KIL_RAIL || KIL_RAIL;
+    var k = String(kind || "").toLowerCase();
+    return (k && t[k]) || t.DEFAULT || [];
+  };
+
+  /* ── §I1 — the directional header, as a pure function ──────────────────────────────────────
+     THIS TRACKS GESTURE DIRECTION, NOT SCROLL POSITION, and the distinction is the whole point.
+     A position threshold ("show when scrollTop is near 0") re-shows the header at the top of
+     every item, which is every time you land anywhere — the header would be permanently visible
+     and the feature would do nothing while appearing to work.
+
+     Kept pure and exported so this can be exercised directly: the browser is not needed to know
+     whether swiping up twice in a row leaves the header hidden.
+
+       up    swiping content up = moving to the NEXT item   -> hide, screen becomes pure content
+       down  -> show
+       left  -> show   (filter change)
+       right -> show   (filter change)
+
+     Anything else leaves the state alone; an ambiguous smudge must not toggle chrome. */
+  function nextHeaderVisible(visible, dir) {
+    if (dir === "up") return false;
+    if (dir === "down" || dir === "left" || dir === "right") return true;
+    return visible;
+  }
+
+  /* Dominant axis of a gesture, or null when it is too small to be an intentional swipe.
+     MIN guards against a tap's jitter flickering the header. */
+  var GESTURE_MIN = 24;
+  function gestureDir(dx, dy) {
+    var ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ax < GESTURE_MIN && ay < GESTURE_MIN) return null;
+    if (ax > ay) return dx < 0 ? "left" : "right";
+    return dy < 0 ? "up" : "down";
+  }
+
   function injectStyle() {
     if (document.getElementById(STYLE_ID)) return;
     var s = document.createElement("style");
@@ -52,12 +114,23 @@
          html — locking html breaks position:fixed on iOS Safari. */
       "body.kilp-on{overflow:hidden;overscroll-behavior:contain}",
 
-      /* Locked header: current filter name only. */
+      /* §I1 — the header is ONE WORD: the current filter. No page title, no wordmark.
+         It FLOATS over the content (§I2), it does not displace it, so the item is full-bleed
+         underneath. It still carries env(safe-area-inset-top) because it is the thing that
+         would otherwise sit under the status bar — M1 is not superseded (§G). */
       "#kilp .kilp-head{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:10px;",
       "padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;pointer-events:none;",
-      "background:linear-gradient(180deg,rgba(10,10,15,.92),rgba(10,10,15,0))}",
+      "background:linear-gradient(180deg,rgba(10,10,15,.92),rgba(10,10,15,0));",
+      "transform:translateY(0);opacity:1;transition:transform .22s ease,opacity .22s ease}",
+      /* Hidden state. translateY(-120%) clears the gradient too, not just the text. */
+      "#kilp.kilp-head-hidden .kilp-head{transform:translateY(-120%);opacity:0}",
+      /* Reduced motion: it still hides and shows, it just cuts (§I1). */
+      "@media(prefers-reduced-motion:reduce){#kilp .kilp-head{transition:none}}",
       "#kilp .kilp-title{margin:0;font:800 1.05rem/1 'Bebas Neue',Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#fff}",
-      "#kilp .kilp-count{font:700 .72rem/1 Inter,sans-serif;color:rgba(255,255,255,.6);letter-spacing:.08em}",
+      /* The count is orientation, not a title — it stays in the accessibility tree but off the
+         screen, so the visible header really is one word. */
+      "#kilp .kilp-count{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;",
+      "clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}",
 
       /* Filter stepper — the keyboard/AT route, and a visible affordance. */
       "#kilp .kilp-fnav{margin-left:auto;display:flex;gap:6px;pointer-events:auto}",
@@ -80,9 +153,15 @@
       "scroll-snap-align:start;scroll-snap-type:y mandatory;overscroll-behavior:contain;scrollbar-width:none}",
       "#kilp .kilp-col::-webkit-scrollbar{display:none}",
 
-      /* 100dvh, never vh — vh breaks when the iOS keyboard opens. */
+      /* 100dvh, never vh — vh breaks when the iOS keyboard opens.
+         §I2: FULL-BLEED. The old 64px top padding existed to clear the header; the header now
+         floats over the item instead of displacing it, so that padding is gone. Adapters that
+         need to keep text clear of the status bar read --kilp-safe-top rather than re-adding
+         padding here, which would put the letterbox back. */
       "#kilp .kilp-slide{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;",
-      "display:flex;align-items:center;justify-content:center;padding:64px 14px calc(20px + env(safe-area-inset-bottom,0px));box-sizing:border-box}",
+      "display:flex;align-items:center;justify-content:center;padding:0;box-sizing:border-box;",
+      "--kilp-safe-top:calc(52px + env(safe-area-inset-top,0px));",
+      "--kilp-safe-bottom:calc(16px + env(safe-area-inset-bottom,0px))}",
       /* The slide IS the screen, so its content is centred in it. Radio's cards were drawn for
          a grid and are far shorter than a phone; left top-aligned they read as a broken page
          rather than a deliberate full-screen item. */
@@ -94,6 +173,19 @@
       "position:relative;z-index:0;isolation:isolate;",
       "overflow:auto;-webkit-overflow-scrolling:touch}",
       "#kilp .kilp-inner > *{width:100%;max-width:560px;margin:0 auto}",
+
+      /* §I3 — per-kind action rail. Vertical, right edge, clear of the bottom nav. It sits
+         ABOVE the content in z-order but is generated from KIL_RAIL, so what appears is a
+         config decision, not a pager decision. */
+      "#kilp .kilp-rail-actions{position:absolute;right:10px;bottom:calc(18px + env(safe-area-inset-bottom,0px));",
+      "z-index:12;display:flex;flex-direction:column;gap:14px;pointer-events:auto}",
+      "#kilp .kilp-act{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.2);",
+      "background:rgba(10,10,16,.55);color:#fff;font:600 1.05rem/1 Inter,sans-serif;cursor:pointer;",
+      "display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}",
+      "#kilp .kilp-act[aria-pressed=\"true\"]{background:rgba(255,92,138,.9);border-color:transparent}",
+      /* The chat icon owns bottom-right on every page (§C/§A). When a page has chat, the rail
+         lifts above it rather than stacking on top of it. */
+      "body.kilp-chat #kilp .kilp-rail-actions{bottom:calc(78px + env(safe-area-inset-bottom,0px))}",
 
       "#kilp .kilp-empty{color:rgba(255,255,255,.72);text-align:center;font:600 .95rem/1.5 Inter,sans-serif;max-width:32ch}",
       "#kilp .kilp-empty b{display:block;font-size:1.1rem;margin-bottom:6px;color:#fff}",
@@ -146,6 +238,8 @@
     this.emptyFor = config.emptyFor || function () { return null; };
     this.onActivate = config.onActivate || function () {};
     this.onDeactivate = config.onDeactivate || function () {};
+    /* §I3 — the pager renders the rail; the page decides what an action does. */
+    this.onAction = config.onAction || function () {};
     this.f = 0;      /* active filter index */
     this.i = 0;      /* active item index within that filter */
     this.cols = [];
@@ -232,8 +326,48 @@
     };
     document.addEventListener("keydown", this._key);
 
+    /* ── §I1 gesture tracking ────────────────────────────────────────────────────────────────
+       Passive listeners that only READ the gesture. Nothing is preventDefault'ed: the scroll
+       itself stays native (§A forbids JS hijacking), and this rides alongside it.
+
+       Deliberately NOT wired to the stepper buttons or the arrow keys. A pointer or keyboard
+       user cannot "swipe down" to bring the header back, so hiding it on their navigation would
+       strand them with no way to see which filter they are on. Touch hides it; touch restores
+       it. Anyone else keeps the header. */
+    var gx = null, gy = null;
+    this._ts = function (e) {
+      var t = e.touches && e.touches[0];
+      if (!t) { gx = null; return; }
+      gx = t.clientX; gy = t.clientY;
+    };
+    this._te = function (e) {
+      if (gx == null) return;
+      var t = e.changedTouches && e.changedTouches[0];
+      if (!t) { gx = null; return; }
+      var dir = gestureDir(t.clientX - gx, t.clientY - gy);
+      gx = null;
+      if (dir) self.setHeaderVisible(nextHeaderVisible(self.headerVisible, dir));
+    };
+    root.addEventListener("touchstart", this._ts, { passive: true });
+    root.addEventListener("touchend", this._te, { passive: true });
+
+    this.headerVisible = true;
+
     this.renderColumn(0);
     this.setFilter(0, true);
+  };
+
+  /** Show or hide the locked filter word. Idempotent — called on every settled gesture. */
+  Pager.prototype.setHeaderVisible = function (v) {
+    v = !!v;
+    this.headerVisible = v;
+    if (!this.root) return;
+    this.root.classList.toggle("kilp-head-hidden", !v);
+    /* Hidden chrome must leave the tab order and the a11y tree, not just the screen. */
+    var head = this.root.querySelector(".kilp-head");
+    if (head) head.setAttribute("aria-hidden", v ? "false" : "true");
+    var fnav = this.root.querySelectorAll(".kilp-fnav button");
+    [].forEach.call(fnav, function (b) { b.tabIndex = v ? 0 : -1; });
   };
 
   /** Build the slide boxes for one filter. Boxes always exist; content is mounted lazily. */
@@ -297,6 +431,54 @@
       if (ii === self.i) self.onActivate(items[ii], inner, ii);
       else self.onDeactivate(items[ii], inner, ii);
     });
+
+    this.renderRail(items[this.i]);
+  };
+
+  /**
+   * §I3 — draw the action rail for the ACTIVE item's kind.
+   *
+   * The kind comes from the item first, then the filter — an adapter can mark individual items
+   * (a Culture feed carries videos and articles side by side) or declare a whole column's kind
+   * where every item is the same. The pager never decides which actions exist; it reads
+   * KIL_RAIL_FOR and renders whatever is there.
+   */
+  Pager.prototype.renderRail = function (item) {
+    if (!this.root) return;
+    var host = this.root.querySelector(".kilp-rail-actions");
+    var kind = (item && item.kind) || (this.filters[this.f] && this.filters[this.f].kind) || "";
+    var actions = window.KIL_RAIL_FOR(kind) || [];
+
+    if (!actions.length) { if (host) host.remove(); return; }
+    if (!host) {
+      host = document.createElement("div");
+      host.className = "kilp-rail-actions";
+      host.setAttribute("role", "group");
+      host.setAttribute("aria-label", "Actions for this item");
+      this.root.appendChild(host);
+    }
+
+    /* Rebuild only when the action SET changes, so a like stays pressed while scrolling within
+       one kind and the buttons do not flicker on every item. */
+    var sig = kind + ":" + actions.map(function (a) { return a.id; }).join(",");
+    if (host.dataset.sig === sig) return;
+    host.dataset.sig = sig;
+    host.innerHTML = "";
+
+    var self = this;
+    actions.forEach(function (a) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "kilp-act";
+      b.dataset.act = a.id;
+      b.setAttribute("aria-label", a.label || a.id);
+      b.textContent = a.icon || "•";
+      b.onclick = function () {
+        var it = (self.filters[self.f].items() || [])[self.i];
+        try { self.onAction(a.id, it, self.i, b); } catch (e) {}
+      };
+      host.appendChild(b);
+    });
   };
 
   Pager.prototype.setFilter = function (fi, force) {
@@ -311,6 +493,11 @@
     this.renderColumn(fi - 1);
     this.renderColumn(fi + 1);
     this.titleEl.textContent = this.filters[fi].label;
+    /* §I1 — a filter change always brings the header back, whatever caused it: a left/right
+       swipe, the stepper, or an arrow key. Every route lands here, so this is the one place it
+       has to be said. Naming the new filter is the entire reason the header exists; changing
+       filter while it is hidden would leave the reader on an unlabelled screen. */
+    this.setHeaderVisible(true);
     this.updateCount();
     this.virtualize();
     this.root.querySelector("#kilp-fprev").disabled = fi <= 0;
@@ -391,6 +578,10 @@
 
   Pager.prototype.destroy = function () {
     document.removeEventListener("keydown", this._key);
+    if (this.root && this._ts) {
+      this.root.removeEventListener("touchstart", this._ts);
+      this.root.removeEventListener("touchend", this._te);
+    }
     this.unmountColumn(this.f);
     document.body.classList.remove("kilp-on");
     if (this.root) this.root.remove();
@@ -408,6 +599,14 @@
       window.__kilPager = p;
       return p;
     },
-    isMobile: function () { return window.matchMedia("(max-width:860px)").matches; }
+    isMobile: function () { return window.matchMedia("(max-width:860px)").matches; },
+
+    /* Exported so the §I1 rules can be tested as logic rather than as pixels. A test that
+       drives a real gesture through a real WebView can only ever assert "the class is there";
+       these let a test assert the RULE — that two up-swipes in a row leave the header hidden,
+       which is exactly what a scroll-position implementation gets wrong. */
+    _nextHeaderVisible: nextHeaderVisible,
+    _gestureDir: gestureDir,
+    _railFor: function (kind) { return window.KIL_RAIL_FOR(kind); }
   };
 })();
