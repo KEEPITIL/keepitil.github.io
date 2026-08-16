@@ -102,9 +102,23 @@ The directive proposes 20 videos / 5 creators / 3 categories. **Adopted unchange
 
 ---
 
-## D5 — CULTURE TABS, V1
+## D5 — CULTURE TABS, V1 (owner decision, 2026-08-15)
 
-`FEED · BLOG · VS` now → `FEED · BLOG · PIX · VID · VS` as thresholds pass.
+**Target set: `FEED · ARTICLE · VID · PIX · VS`.** VS stays — it is a content filter over Culture, not a link to the VS product. Label is `ARTICLE`, singular, matching `profile_content.kind`.
+
+**What renders today is three of those five**, because the §D4 threshold gates VID and PIX:
+
+| Tab | Live items | Renders |
+|---|---|---|
+| FEED | 348 | ✅ |
+| ARTICLE | 294 | ✅ |
+| VID | **0** | ❌ below threshold |
+| PIX | **11** | ❌ below threshold (needs 20) |
+| VS | 36 comps | ✅ |
+
+So Culture is **`FEED · ARTICLE · VS`** until inventory arrives, then VID and PIX appear on their own with no deploy. This is not a reduction of the owner's set — it is the same set, gated. Directive §15 forbids exposing an empty VID tab, and an 11-item PIX fails the same test.
+
+**"Blog" is retired as a label.** `blog_articles` is empty (0 rows) and `kind='blog'` matches nothing; the 294 live rows are `kind='article'`.
 
 **Note the live top row is `FEED | RADIO | VS`** — Radio appears both as a Culture tab and as a global destination. Two paths to one product, one of them now redundant since Radio is in the global nav. **Remove Radio from the Culture tab row.**
 
@@ -122,9 +136,15 @@ Scout proposes · Lyric drafts descriptions · Luna checks imagery · Sentinel v
 
 ---
 
-## D7 — WHAT I AM NOT DECIDING
+## D7 — RADIO TAB ROW (owner decision, 2026-08-15)
 
-**Radio's secondary nav is `CHANNEL · PLAYLIST · SCHEDULE · VS · APPS · GAMES`** — six tabs, where the nav map says three. I do not know whether the extra three are intended or accumulated. **Nobody should "fix" this to three without the owner confirming**, and no ticket below touches it.
+**`CHANNEL · PLAYLIST · APPS`.** Live today is `CHANNEL · PLAYLIST · SCHEDULE · VS · APPS · GAMES`. Three come out.
+
+**VS** is the clean one — it is now a global destination, so the Radio tab is a redundant second path. Same reasoning that removes Radio from the Culture tab row.
+
+**SCHEDULE and GAMES are not.** Both are real surfaces with real content behind them. Removing a tab hides the entrance; it does not delete the room. Either their content re-homes under one of the three remaining tabs, or those pages become unreachable — which is exactly the failure mode that hid Radio and VS from navigation in the first place, and cost this project 36 published competitions with zero entries.
+
+**Rule for KODE: remove the tabs, do not delete the surfaces, and report what is left orphaned.** GAMES most likely belongs under APPS — the live page title is *"Radio — Stations, Playlists, Games & Creator Opportunities"*, so APPS already covers that ground. SCHEDULE has no obvious home; name it rather than bury it.
 
 ---
 
