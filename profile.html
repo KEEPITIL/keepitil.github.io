@@ -1149,6 +1149,15 @@ function renderLinksMenu(){
 function loadProfileMeta(){
   if(!SB) return Promise.resolve();
   return SB.from('profile_meta').select('*').eq('slug',PROFILE_SLUG).maybeSingle().then(function(r){
+    /* SOFT-404: an explicit ?slug= that matches no profile. Guarded on PROFILE_SLUG being
+       present so the owner's own view — which arrives here without a slug and is redirected
+       elsewhere — is never mistaken for a missing profile. */
+    if(PROFILE_SLUG && !(r&&r.data) && window.KIL_NOT_FOUND){
+      window.KIL_NOT_FOUND({ what:'profile', heading:'That profile isn’t here',
+        body:'It may have been removed, renamed, or the link may be wrong.',
+        links:[['/scene.html','Browse the Scene'],['/','Explore'],['/apply.html','Claim your profile']] });
+      return;
+    }
     if(r&&r.data){var d=r.data;
       PROFILE.name=d.display_name||PROFILE.name; PROFILE.handle=d.handle||PROFILE.handle; PROFILE.location=d.location||PROFILE.location;
       PROFILE.bio=(d.bio!=null?d.bio:PROFILE.bio); PROFILE.tagline=(d.tagline!=null?d.tagline:PROFILE.tagline); PROFILE.pronouns=d.pronouns||PROFILE.pronouns;

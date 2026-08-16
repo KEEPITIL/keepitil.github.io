@@ -329,6 +329,53 @@ var KIL_FLOATING=[
   {name:'home',     test:/^\/((index|v31)(\.html)?)?$/, chat:true, arrow:true },
   {name:'DEFAULT',  test:/./,                 chat:true,  arrow:true }
 ];
+/* ── SOFT-404s ──────────────────────────────────────────────────────────────────────────────
+   event.html?e=anything and profile.html?slug=anything both return HTTP 200 with a
+   byte-identical shell — verified: 47423 bytes either way, generic <title>, zero noindex. To a
+   crawler that is one page duplicated once per query string, which is the definition of a soft
+   404 and why they read as thin duplicates.
+
+   A real 404 STATUS is impossible here: GitHub Pages serves a static file and always answers
+   200. (Unknown PATHS do 404 correctly — it is only the query-string pages.) So the supported
+   route on a static host is the one Google documents for JS-rendered pages: render a genuine
+   not-found state and inject `noindex`, which is honoured after the page renders.
+
+   One implementation in the shell, called by the pages, rather than a copy per page. */
+window.KIL_NOT_FOUND = function(opts){
+  opts = opts || {};
+  var what = opts.what || 'page';
+
+  /* noindex,follow — the page should drop out of the index while its links stay crawlable, so
+     a wrong URL still passes authority to the real destinations below. */
+  if(!document.querySelector('meta[name="robots"][data-kil-404]')){
+    var m = document.createElement('meta');
+    m.name = 'robots';
+    m.content = 'noindex,follow';
+    m.setAttribute('data-kil-404','1');
+    document.head.appendChild(m);
+  }
+  /* A distinct title, so it is not one more copy of "Event — KEEPITIL" in search results. */
+  document.title = (opts.title || ('Not found — ' + what)) + ' | KEEPITIL';
+  var can = document.querySelector('link[rel="canonical"]');
+  if(can) can.remove();   /* never point a dead URL at itself as canonical */
+
+  var host = opts.into && document.querySelector(opts.into);
+  if(!host) host = document.querySelector('main') || document.body;
+  host.innerHTML =
+    '<div class="kil-404" role="status" style="max-width:560px;margin:12vh auto;padding:0 20px;text-align:center">'
+    + '<div style="font-size:2.6rem;margin-bottom:10px" aria-hidden="true">🔍</div>'
+    + '<h1 style="font-family:\'Bebas Neue\',Inter,sans-serif;font-size:2rem;letter-spacing:.04em;margin:0 0 10px;color:#fff">'
+    + (opts.heading || ('That ' + what + ' isn’t here')) + '</h1>'
+    + '<p style="color:rgba(255,255,255,.7);line-height:1.6;margin:0 0 22px">'
+    + (opts.body || ('It may have been removed, or the link may be wrong.')) + '</p>'
+    + (opts.links || [['/', 'Explore'], ['/culture.html','Culture'], ['/scene.html','Scene']])
+        .map(function(l){ return '<a href="'+l[0]+'" style="display:inline-block;margin:0 7px 10px;padding:12px 20px;'
+          + 'border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#fff;min-height:44px;line-height:20px">'+l[1]+'</a>'; })
+        .join('')
+    + '</div>';
+  return true;
+};
+
 window.KIL_FLOATING_FOR = function(path){
   var p=path||location.pathname;
   for(var i=0;i<KIL_FLOATING.length;i++){ if(KIL_FLOATING[i].test.test(p)) return KIL_FLOATING[i]; }
