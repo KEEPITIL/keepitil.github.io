@@ -790,9 +790,32 @@ function culMediaToRow(v){
   };
 }
 
+/* The supabase client is created by a boot loop that polls for window.supabase for up to ~14s,
+   so it very often does NOT exist when the pager first resolves its filters. Returning early in
+   that window loaded no media, counted zero items and held VIDEO shut — which is the exact bug
+   this wiring was written to fix, and it shipped anyway because the test asserted the call
+   ORDER (culLoadMedia before the gate) and not that the data actually arrives. Wait for the
+   client on the same budget the page gives itself. */
+function culAwaitSB(tries){
+  tries = tries || 0;
+  if(window.__culSB) return Promise.resolve(window.__culSB);
+  if(tries >= 40) return Promise.resolve(null);
+  return new Promise(function(res){
+    setTimeout(function(){ res(culAwaitSB(tries + 1)); }, 350);
+  });
+}
+
 function culLoadMedia(){
-  var sb = window.__culSB;
-  if(!sb || window.__culMediaLoaded) return Promise.resolve(window.__culMediaRows);
+  if(window.__culMediaLoaded) return Promise.resolve(window.__culMediaRows);
+  return culAwaitSB().then(function(sb){
+    /* Deliberately does NOT set __culMediaLoaded when the client never arrived — that would
+       latch the empty result in and a later, healthier call could never fix it. */
+    if(!sb) return window.__culMediaRows;
+    return culFetchMedia(sb);
+  });
+}
+
+function culFetchMedia(sb){
   window.__culMediaLoaded = true;
   /* RLS already restricts anon reads to approved + active, so this is defence in depth rather
      than the only gate — but an unapproved or dead embed must never reach a surface even if a

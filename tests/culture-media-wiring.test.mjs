@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 const src = readFileSync(new URL("../culture.html", import.meta.url), "utf8");
 
 /** Pull the media/gate functions out of the page and run them against stubs. */
-function harness({ media = [], feed = [], thresholds = { items: 12, categories: 0 } } = {}) {
+function harness({ media = [], feed = [], thresholds = { items: 12, categories: 0 }, win = null } = {}) {
   const start = src.indexOf("window.__culMediaRows = window.__culMediaRows || []");
   const end = src.indexOf("/* Owner's labels and spelling");
   assert.ok(start > 0 && end > start, "the media wiring is missing from culture.html");
@@ -25,20 +25,22 @@ function harness({ media = [], feed = [], thresholds = { items: 12, categories: 
 
   const body = src.slice(start, end) + "\n" + src.slice(filtersStart, filtersEnd);
 
-  const win = {
+  win = win || {
     __culAllRows: feed,
     __culMediaRows: media,
     __culMediaLoaded: true,          /* the fetch is stubbed out; we test the gate, not the network */
     __culSB: null
   };
-  const fn = new Function("window", body + `
+  const fn = new Function("window", "setTimeout", body + `
     return {
       culLiveRows: culLiveRows,
       culInventory: culInventory,
       culMediaToRow: culMediaToRow,
+      culLoadMedia: culLoadMedia,
+      culAwaitSB: culAwaitSB,
       CUL_FILTERS: CUL_FILTERS
     };`);
-  const api = fn(win);
+  const api = fn(win, (cb, ms) => globalThis.setTimeout(cb, Math.min(ms, 5)));
   api._thresholds = thresholds;
   return api;
 }
@@ -161,4 +163,37 @@ test("kind is mapped per record, not fixed to video", () => {
   assert.equal(api.culMediaToRow(VIDEO_ROW(1)).kind, "video");
   assert.equal(api.culMediaToRow(PHOTO_ROW(1)).kind, "pixle",
     "every media record is labelled a video regardless of what it is");
+});
+
+// ── the readiness precondition (found on device, missed by every test above) ────────────────
+
+test("media still loads when the supabase client arrives LATE", async () => {
+  // The device failure: __culSB is created by a boot loop that polls for up to ~14s, so it very
+  // often does not exist when the pager first resolves filters. The old loader returned an empty
+  // array in that window, VIDEO counted zero and the gate held — while the ordering test above
+  // passed, because culLoadMedia WAS called before the gate. It just answered with nothing.
+  const win = { __culAllRows: [], __culMediaRows: [], __culSB: null };
+  const api = harness({ win });
+
+  // client shows up after a couple of poll intervals, as it does in the app
+  globalThis.setTimeout(() => {
+    const ROW = { id: "1", provider: "youtube", media_kind: "video", title: "t",
+                  thumbnail_url: "x.jpg", embed_url: "e", published_at: "2026-01-01" };
+    const q = {
+      select: () => q, eq: () => q, order: () => q,
+      limit: () => Promise.resolve({ data: [ROW] })
+    };
+    win.__culSB = { from: () => q };
+  }, 12);
+
+  const rows = await api.culLoadMedia();
+  assert.equal(rows.length, 1, "the loader gave up before the client existed — VIDEO stays gated");
+});
+
+test("a client that never arrives does not latch the empty result in", async () => {
+  // If __culMediaLoaded were set on the give-up path, a later healthy call could never recover.
+  const win = { __culAllRows: [], __culMediaRows: [], __culSB: null };
+  const api = harness({ win });
+  await api.culAwaitSB(39);            // one poll from the cap, so this resolves fast
+  assert.notEqual(win.__culMediaLoaded, true, "the empty result was latched in permanently");
 });
