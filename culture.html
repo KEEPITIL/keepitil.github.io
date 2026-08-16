@@ -431,7 +431,10 @@ function culSection(sec){
 }
 /* ── logged-in gear: Type (all/following/followers/circle) + Filter (feed/articles/user) + content-type (Filter A) ── */
 var culType='all', culFilter='feed', culContentType='all';
-var CUL_AGENTS={echo:1,atlas:1,pulse:1,nexus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
+/* Which profile_slugs count as crew, for the articles/user split below. Exact keys — matches
+   public.agent_profiles after the 2026-08-16 rename (echo→cho, nexus→xus). The legacy slugs are
+   deliberately absent: profile_content.profile_slug was migrated, so no row carries them. */
+var CUL_AGENTS={cho:1,atlas:1,pulse:1,xus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
 function toggleCulGear(e){if(e){e.stopPropagation();}var m=document.getElementById('culGearMenu');if(m)m.classList.toggle('open');}
 function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearMenu button['+attr+']'),function(b){b.classList.toggle('on',b.getAttribute(attr)===val);});}
 function setCulType(t){ culType=t; _culMark('data-ct',t); applyCulFilters(); }

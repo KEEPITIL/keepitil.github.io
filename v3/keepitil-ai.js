@@ -1,5 +1,5 @@
 /*!
- * Echo — KEEPITIL AI Assistant  v2.0
+ * Cho — KEEPITIL AI Assistant  v2.0
  * Floating chat widget | keepitil.com
  * Self-contained, zero dependencies.
  */
@@ -543,14 +543,14 @@
     var panel = document.createElement('div');
     panel.id = 'kilo-panel';
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'Echo — KEEPITIL AI Assistant');
+    panel.setAttribute('aria-label', 'Cho — KEEPITIL AI Assistant');
     panel.innerHTML = [
       '<div id="kilo-header">',
         '<div id="kilo-avatar">',
           '<svg viewBox="0 0 24 24"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.49 1.36 4.73 3.5 6.25V21l3.5-2.25c.96.26 1.97.4 3 .4 5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/></svg>',
         '</div>',
         '<div id="kilo-hinfo">',
-          '<div id="kilo-hname">ECHO</div>',
+          '<div id="kilo-hname">CHO</div>',
           '<div id="kilo-hsub" style="display:none"></div>',
         '</div>',
         '<button id="kilo-fb" aria-label="Send feedback" title="Send feedback">',
@@ -685,8 +685,8 @@
     // Drop the hedge — "I'm moderately sure, confirm with the team" reads as broken,
     // not humble. Low confidence should fall through to a better source instead.
     txt = txt.replace(/\(?I'?m moderately sure[^)]*\)?\s*/gi, '').trim();
-    var title = '💡 Echo';
-    if (d.from_agent && String(d.from_agent).toLowerCase() !== 'echo') {
+    var title = '💡 Cho';
+    if (d.from_agent && String(d.from_agent).toLowerCase() !== 'cho') {
       title = '💡 ' + kilCap(d.from_agent) + (d.genre_lane ? ' · ' + d.genre_lane : '');
     }
     var card = { title: title, text: txt };
@@ -713,7 +713,7 @@
   }
   function echoCard(d) {
     if (!d || !d.ok || !d.answer) return null;
-    var card = { title: '💡 Echo', text: d.answer };
+    var card = { title: '💡 Cho', text: d.answer };
     if (d.sources && d.sources.length) card.links = d.sources;
     return card;
   }
@@ -748,7 +748,10 @@
   function askAgent(text) {
     return kilSession().then(function (session) {
       if (!session || !session.access_token) return null;   // not signed in -> legacy path
-      var body = { op: 'ask', text: text, surface: 'web', agent: 'echo', privacy_class: 'low' };
+      // 'cho' — renamed from 'echo' on 2026-08-16. This slug is not a label: the function
+      // looks it up with eq() against agent_personality and search_brain, both of which were
+      // migrated, so sending the legacy slug returns an agent with no persona and no notes.
+      var body = { op: 'ask', text: text, surface: 'web', agent: 'cho', privacy_class: 'low' };
       if (kilThreadId) body.thread_id = kilThreadId;
       return fetch(KIL_AGENT_FN, {
         method: 'POST',
@@ -776,7 +779,7 @@
     // Escalated: a model composed real prose. This is the only case where the agent
     // has something better to say than the existing brain.
     if (d.escalated) {
-      if (d.ok && d.answer) return { title: '💡 Echo', text: d.answer };
+      if (d.ok && d.answer) return { title: '💡 Cho', text: d.answer };
       return null;   // model failed / no route -> fall through to the proven chain
     }
 
@@ -932,7 +935,7 @@
       // Welcome message on first open
       if (!msgs.hasChildNodes()) {
         addMessage('bot', {
-          title: 'Hey 👋 I\'m Echo',
+          title: 'Hey 👋 I\'m Cho',
           text: 'Your KEEPITIL guide to the SoCal music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
           chips: WELCOME_CHIPS,
         });
