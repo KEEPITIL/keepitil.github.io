@@ -81,7 +81,19 @@ Owner's labels and spelling. Full-screen pager per §A.
 
 Because KEEPITIL owns the source accounts, this is self-syndication, not third-party curation: no outside-creator rights question, no attribution obligation, no discovery crawl. **Ingest one known account per platform.** See §E-3 for the Instagram constraint.
 
-### 3. Radio — `CHANNEL · PLAYLIST · APP`
+### 3. Radio — `CHANNEL · PLAYLIST · SCHEDULE · APP`
+
+**ATLAS decision 2026-08-15, revising the earlier three.** KODE's audit found the dropped sections carry real content: Schedule **10 items**, VS/earn **8**, Games **2**.
+
+- **Games (2) → folds into APP.** The live page title is already *"Stations, Playlists, Games & Creator Opportunities"*.
+- **VS/earn (8) → dropped.** VS is a global destination now; this was a second path to it.
+- **Schedule (10) → returns as a fourth filter.** It has the most content of the three and no other home. Hiding its entrance while keeping the page is how Radio and VS became unreachable in the first place.
+
+Reversible in one array entry if the owner disagrees.
+
+---
+
+### 3a. Radio — original three-filter spec (superseded above)
 
 - remove profile icon, remove `+`
 - **remove the `Feed | Radio | VS` switcher** (this is S7, still correct)
@@ -150,6 +162,71 @@ Build the Instagram adapter so it activates on a token appearing. Nothing else w
 7. **Third-party ingestion** — after §E.2 and §E.3
 
 **Homepage removals can ship immediately and independently.**
+
+---
+
+## H. 🔴 APP COLD-STARTS ON THE 404 PAGE — ship before the pager
+
+The installed app opens on **"Page not found"** instead of the homepage. Measured on production `404.html`:
+
+```
+capacitorAware   : false
+redirect logic   : location.pathname.replace(/\/+$/,'') → location.replace(url + hash)
+literal escapes  : ["’", "—"]   ← rendering as text on screen
+```
+
+### H1 — the router assumes web path semantics
+
+`404.html` is the clean-URL router and it works on GitHub Pages, where a real server hands unmatched paths to it. **The native bundle has no server.** There is nothing to route: the app opens a path the bundle has no file for, lands on `404.html`, and the router then tries to resolve a clean URL from `location.pathname` — which under `capacitor://` or `file://` is not a site path at all. So it can't recover, and the user sits on an error page as their first impression of the product.
+
+**Two things to fix, and check both:**
+
+1. **The app's start URL must be a real file** — `index.html`, not `/`. A bundle can't serve a directory index.
+2. **`404.html` must detect a non-`http(s)` scheme and go straight to `index.html`**, skipping clean-URL mapping entirely. Guard the redirect so it cannot loop — `location.replace` on a path the bundle lacks will bounce straight back here.
+
+**Verify by launching the built app cold**, not by loading `404.html` in a browser. This bug is invisible on the web, which is why it survived: it is exactly the local≠live drift already documented for this bundle.
+
+### H2 — literal `’` and `—` on screen
+
+The developer note renders **"site’s"** and **"—"** as visible text. This is live on `keepitil.com/404.html`, not a bundle artifact — a JSON-encoded string written into HTML without decoding. Fix the source; then check whether the same generator produced other pages, because one escaped string usually means a batch.
+
+**Both are user-visible on first launch. This section outranks §A.**
+
+---
+
+## I. PAGER BEHAVIOUR — owner spec, 2026-08-15 (supersedes §A's header rules)
+
+Applies to **CONNECT (culture.html)** and **CREATE (radio.html)**. Scene is explicitly excluded — it stays exactly as it is, apart from the 1:1 card resize already shipped.
+
+### I1 — the header is a single filter word, and it auto-hides
+
+- **No page title. Ever.** No "Culture", no "Radio", no wordmark. The header is **one word: the current filter** — `FEED` / `ARTICLE` / `VIDEO` / `PIXLE`, or `CHANNEL` / `PLAYLIST` / `SCHEDULE` / `APP`.
+- **Swiping content UP (to the next item) hides it.** The screen becomes pure content.
+- **It reappears on two gestures only:** swiping **left/right** (filter change) and swiping **down**.
+
+That is a directional-scroll header, not a sticky one. Track gesture direction, not scroll position — a position threshold will show the header at the top of every item and defeat the point.
+
+**Respect `prefers-reduced-motion`**: no slide animation for users who ask for less. The header still hides and shows; it just cuts.
+
+### I2 — content fills the entire screen
+
+TikTok / YouTube Shorts. One item per viewport, snapped, no partial second item. The header floats over the content rather than displacing it — the item is full-bleed underneath.
+
+Everything in §A still binds: CSS scroll-snap not JS hijacking, virtualize to current ±1, `100dvh`, no `overflow:hidden` on `html`.
+
+### I3 — the side rail is content, not chrome
+
+The vertical action rail (like / comment / reshare / save) must be **configurable per item type**, not hardcoded into the pager. A VIDEO item and an ARTICLE item do not want the same actions.
+
+Drive it from a per-kind list so the owner can change what appears without a code change — same principle as `KIL_FLOATING`.
+
+### I4 — no chat button on the content feeds
+
+Already set in `KIL_FLOATING`: `culture` and `vs` are `chat:false`.
+
+**Open, flag rather than assume:** the owner named "connect and earn" as the examples. **Radio (CREATE) is currently `chat:true`** and becomes a full-screen feed under this spec. Do not change it without the owner's word — but expect the question.
+
+**Known consequence, recorded not argued:** §C makes chat the only route to Create and to the user's own profile. On CONNECT and EARN there is now neither. The owner has seen this stated and chose it; revisit only after he has used it on device.
 
 ---
 
