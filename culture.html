@@ -787,6 +787,12 @@ function culMediaToRow(v){
     archived: false,
     profile_slug: null,
     author_name: v.creator_name,
+    /* §L (§19) — third-party media carries creator, platform, source URL and an
+       open-on-platform action. own_content is false unless the source says otherwise, so a row
+       that forgot the flag over-attributes rather than stripping someone's credit. */
+    own_content: v.own_content === true,
+    creator_profile_url: v.creator_profile_url || '',
+    source_platform: ({youtube:'YouTube',tiktok:'TikTok',instagram:'Instagram'})[v.provider] || v.provider,
     data: {
       /* Thumbnail-first: the card shows an image and only the ACTIVE pager slide mounts a
          player, so a column of fifteen shorts does not start fifteen iframes. */
@@ -831,7 +837,7 @@ function culFetchMedia(sb){
      than the only gate — but an unapproved or dead embed must never reach a surface even if a
      policy is later loosened. */
   return sb.from('videos')
-    .select('id,provider,media_kind,title,creator_name,source_url,embed_url,thumbnail_url,published_at')
+    .select('id,provider,media_kind,title,creator_name,creator_profile_url,source_url,embed_url,thumbnail_url,published_at,own_content')
     .eq('review_status','approved').eq('embed_status','active')
     .order('published_at',{ascending:false}).limit(100)
     .then(function(r){

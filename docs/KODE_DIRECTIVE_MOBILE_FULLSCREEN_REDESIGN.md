@@ -79,7 +79,12 @@ Owner's labels and spelling. Full-screen pager per §A.
 - **ARTICLE is in-house only** — no third-party ingestion into articles
 - **VIDEO and PIXLE ingest from KEEPITIL's own `@keepitil` accounts** on TikTok, YouTube and Instagram
 
-Because KEEPITIL owns the source accounts, this is self-syndication, not third-party curation: no outside-creator rights question, no attribution obligation, no discovery crawl. **Ingest one known account per platform.** See §E-3 for the Instagram constraint.
+> **⚠️ SUPERSEDED 2026-08-15 — do not act on the paragraph below. See §L.**
+> Sources are no longer `@keepitil`-only. Seven third-party music channels are now in `media_sources`
+> with `own_content=false`, and **§19 attribution is mandatory on every one of their items.** This
+> paragraph said the opposite and was true only while the source list was a single owned account.
+
+~~Because KEEPITIL owns the source accounts, this is self-syndication, not third-party curation: no outside-creator rights question, no attribution obligation, no discovery crawl.~~ **Ingest one known account per platform.** See §E-3 for the Instagram constraint.
 
 ### 3. Radio — `CHANNEL · PLAYLIST · SCHEDULE · APP`
 
@@ -146,7 +151,8 @@ Note this page keeps normal scrolling — it is not a full-screen pager.
 
 **1. VS filters are `MIX · VOTE`.** Two, not three. The pager must not assume a fixed filter count — Radio has three, VS has two, Culture has four.
 
-**2. Third-party source = KEEPITIL's own social accounts.** VIDEO and PIXLE ingest from the `@keepitil` accounts on TikTok, YouTube and Instagram. This is a significant simplification: **KEEPITIL is the creator**, so there is no third-party rights question, no attribution obligation to outside creators, and no arbitrary-feed scraping. Ingest one known account per platform, not a discovery crawl.
+**2. ~~Third-party source = KEEPITIL's own social accounts.~~ SUPERSEDED — see §L.**
+This said there was "no attribution obligation to outside creators." **That is now false.** It was written when the source list was `@keepitil` only; on 2026-08-15 the owner added third-party music channels, and seven rows in `media_sources` carry `own_content=false`. **§19 attribution applies to every item from those.** No arbitrary-feed scraping still stands.
 
 It also changes the §D4 threshold maths — 20 items across 5 creators cannot be met by a single-owner account. **For VIDEO and PIXLE the creator-count gate is dropped; the item-count gate stands.**
 
@@ -334,6 +340,36 @@ Add **Eventbrite, Posh, Partyful** alongside RA and Ticketmaster. Genres beyond 
 - **Ticketmaster images** — the 8 in review are there because the TM adapter never pulled artwork. TM's Discovery API returns an `images[]` array. Fix the adapter and those 8 republish themselves.
 
 **Genre spread comes from which accounts and cities are polled, not from the importer.** Report what genre mix the current sources actually yield before anyone assumes it's broad — 42 of 42 today are RA and TM, which skews one way.
+
+---
+
+## L. §19 — SOURCE AND RIGHTS. Written down 2026-08-15.
+
+**§19 existed only in the owner's chat message and was never in any doc** — the same error as §9, found the same way: KODE went looking for a section I had cited and there was nothing there. Reproduced verbatim so it can be implemented from a source rather than from a paraphrase.
+
+### §19 — verbatim
+
+> KEEPITIL is curating and embedding public content. **Do not imply ownership.**
+>
+> Maintain:
+> - creator attribution
+> - source platform
+> - source URL
+> - open-on-platform action where appropriate
+>
+> If KEEPITIL creates a derivative article around a public video, the article remains KEEPITIL editorial content while **the embedded video remains attributed to its source creator.**
+
+### What binds now
+
+`own_content=false` on a `videos` row means **all four are required on that item**, not optional garnish. Seven of the eleven `media_sources` are third-party.
+
+**`own_content` defaults to `false`** — KODE's call and the right one. An unlabelled row is treated as someone else's work and gets full attribution; the opposite default would silently strip credit whenever an ingest path forgot to set it. Fail toward giving credit.
+
+### Two doc corrections this forced
+
+Both **§D.2** and **§E.1** stated there was *"no attribution obligation"*. Both are now struck through and point here. They were true while the source list was one owned account and became false the moment third-party channels were added — and nothing flagged it, because a paragraph that was correct when written doesn't announce when the world moves under it.
+
+**That is the third stale claim today**, after the events fallback comment describing an array emptied in July, and the `.evx-flyer` desktop rule I shipped as mobile-only. Same failure every time: a true statement left in place after its premise changed.
 
 ---
 

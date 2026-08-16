@@ -210,3 +210,20 @@ test("the visible header is one word — the count is for assistive tech only", 
   const count = css.match(/#kilp \.kilp-count\{[^}]*\}/)[0];
   assert.match(count, /clip-path:inset\(50%\)/, "the count is visible — the header is not one word");
 });
+
+// ── §L (§19) — the open-on-platform action is a rights obligation ───────────────────────────
+
+test("kinds that carry third-party media offer an open-on-platform action", () => {
+  // §L: creator attribution, source platform, source URL, open-on-platform action. The first
+  // three are columns; this is the one that lives in the UI, so it is the one that can be
+  // removed by a layout tidy-up without anyone noticing it was load-bearing.
+  const video = P._railFor("video").map((a) => a.id);
+  assert.ok(video.includes("open"),
+    "no way to reach the original — KEEPITIL is embedding public content and must not imply ownership");
+});
+
+test("the open action names the platform rather than saying 'link'", () => {
+  const open = P._railFor("video").find((a) => a.id === "open");
+  assert.ok(/watch on|source|platform/i.test(open.label),
+    `unhelpful label: ${open.label}`);
+});

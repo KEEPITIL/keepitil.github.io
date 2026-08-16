@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   parseYouTubeFeed, tiktokKindFromUrl, reconcileKind, tiktokRecord,
-  mergeForUpsert, REFRESHABLE, YOUTUBE_FEED, EMBED_STATUS
+  mergeForUpsert, REFRESHABLE, YOUTUBE_FEED, EMBED_STATUS,
+  attributionComplete, ATTRIBUTION_REQUIRED, openOnPlatform, platformLabel, sourceRecord
 } from "../scripts/ingest-media.mjs";
 import { readFileSync } from "node:fs";
 
@@ -157,4 +158,104 @@ test("the documented status list matches the database's constraint", () => {
   //   CHECK (embed_status = ANY (ARRAY['active','blocked','deleted','unavailable','needs_review']))
   assert.deepEqual([...EMBED_STATUS].sort(),
     ["active", "blocked", "deleted", "needs_review", "unavailable"]);
+});
+
+// ── §L (§19) — SOURCE AND RIGHTS ───────────────────────────────────────────────────────────
+//
+// "KEEPITIL is curating and embedding public content. Do not imply ownership."
+// Maintain creator attribution, source platform, source URL, open-on-platform action.
+// For own_content=false these are required, not garnish.
+
+test("a third-party row without creator, platform or source URL is incomplete", () => {
+  const r = attributionComplete({ own_content: false, creator_name: "", provider: "", source_url: "" });
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.missing.sort(), ["creator_name", "provider", "source_url"]);
+});
+
+test("a complete third-party row passes", () => {
+  assert.equal(attributionComplete({
+    own_content: false, creator_name: "Boiler Room", provider: "youtube",
+    source_url: "https://www.youtube.com/watch?v=x"
+  }).ok, true);
+});
+
+test("MISSING own_content is treated as third-party — fail toward giving credit", () => {
+  // The whole point of the false default. A row that forgot the flag must be held to the full
+  // attribution rule, never waved through as if KEEPITIL made it.
+  const r = attributionComplete({ creator_name: "", provider: "youtube", source_url: "https://x" });
+  assert.equal(r.ok, false, "an unflagged row skipped attribution — that is stripped credit");
+  assert.ok(r.missing.includes("creator_name"));
+});
+
+test("only an explicit own_content===true is exempt", () => {
+  assert.equal(attributionComplete({ own_content: true }).ok, true);
+  for (const truthy of ["true", 1, "yes"]) {
+    assert.equal(attributionComplete({ own_content: truthy }).ok, false,
+      `own_content=${JSON.stringify(truthy)} was accepted as ours — only real true may exempt`);
+  }
+});
+
+test("the open-on-platform action points at the source, named by platform", () => {
+  const a = openOnPlatform({ provider: "youtube", source_url: "https://www.youtube.com/watch?v=x" });
+  assert.equal(a.href, "https://www.youtube.com/watch?v=x");
+  assert.match(a.label, /YouTube/);
+  assert.equal(openOnPlatform({ provider: "youtube" }), null, "no source URL, no fake link");
+});
+
+test("platform names are human, not slugs", () => {
+  assert.equal(platformLabel("youtube"), "YouTube");
+  assert.equal(platformLabel("tiktok"), "TikTok");
+  assert.equal(platformLabel("something_new"), "something_new");
+});
+
+// ── the media_sources loop ─────────────────────────────────────────────────────────────────
+
+const SOURCE = {
+  provider: "youtube", handle: "@boilerroom", label: "Boiler Room",
+  channel_id: "UCGBpxWJr9FNOcFYA5GkKrMg", own_content: false, genre: "multi-genre"
+};
+
+test("a row is credited to the SOURCE, not to KEEPITIL", () => {
+  const rec = sourceRecord(SOURCE, { title: "t", external_id: "x", creator_name: null });
+  assert.equal(rec.creator_name, "Boiler Room", "someone else's upload was credited to us");
+  assert.equal(rec.own_content, false);
+  assert.match(rec.creator_profile_url, /channel\/UCGBpxWJr9FNOcFYA5GkKrMg/);
+  assert.match(rec.source_attribution, /YouTube @boilerroom/);
+});
+
+test("our own channel is marked own_content", () => {
+  const rec = sourceRecord({ ...SOURCE, own_content: true, label: "KEEPITIL" }, { title: "t" });
+  assert.equal(rec.own_content, true);
+});
+
+test("own_content and genre follow the source on a re-run", () => {
+  // If the owner corrects a source's own_content, rows already ingested must move with it —
+  // stale attribution is a rights problem, not a cosmetic one.
+  assert.ok(REFRESHABLE.includes("own_content"));
+  assert.ok(REFRESHABLE.includes("genre"));
+  assert.ok(!REFRESHABLE.includes("review_status"), "a human decision must not be overwritten");
+});
+
+test("the loop reads media_sources, not one hardcoded channel", () => {
+  const src = readFileSync(new URL("../scripts/ingest-media.mjs", import.meta.url), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(code, /from\("media_sources"\)/);
+  assert.match(code, /eq\("enabled",\s*true\)/, "disabled sources would still be polled");
+});
+
+test("a source with no channel_id is skipped, not guessed at", () => {
+  // No channel_id means it was never identity-verified. @RA and @drumcode both resolved 200 to
+  // real but unrelated channels; polling an unverified handle publishes the wrong org's work.
+  const src = readFileSync(new URL("../scripts/ingest-media.mjs", import.meta.url), "utf8");
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(code, /if \(!s\.channel_id\)/);
+});
+
+test("every source records last_fetched, last_status and items_seen", () => {
+  // A dead feed must be visible. Without these a channel that stopped returning entries looks
+  // exactly like a channel with nothing new.
+  const src = readFileSync(new URL("../scripts/ingest-media.mjs", import.meta.url), "utf8");
+  for (const f of ["last_fetched", "last_status", "items_seen"]) {
+    assert.match(src, new RegExp(f), `${f} is never written — a dead feed stays silent`);
+  }
 });

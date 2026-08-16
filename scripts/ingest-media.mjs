@@ -130,6 +130,38 @@ export function tiktokRecord(url, oembed) {
   };
 }
 
+/* ── §L (§19) — SOURCE AND RIGHTS ───────────────────────────────────────────────────────────
+   "KEEPITIL is curating and embedding public content. Do not imply ownership."
+   Maintain: creator attribution, source platform, source URL, open-on-platform action.
+
+   For an own_content=false row these are REQUIRED, not garnish. Enforced here rather than in the
+   UI because a UI-only check is bypassed by the next ingest path — the same reasoning that put
+   the events media rule in a database trigger instead of a form validation.
+
+   own_content itself defaults to FALSE everywhere: an unlabelled row is treated as someone
+   else's work and gets full attribution. The opposite default would silently strip credit
+   whenever a path forgot to set the flag. Fail toward giving credit. */
+export const ATTRIBUTION_REQUIRED = ["creator_name", "provider", "source_url"];
+
+export function attributionComplete(row) {
+  if (row && row.own_content === true) return { ok: true, missing: [] };
+  const missing = ATTRIBUTION_REQUIRED.filter((f) => {
+    const v = row ? row[f] : null;
+    return v == null || String(v).trim() === "";
+  });
+  return { ok: missing.length === 0, missing };
+}
+
+/** Where "open on platform" points. The source URL is the canonical public post. */
+export function openOnPlatform(row) {
+  if (!row || !row.source_url) return null;
+  return { label: `Watch on ${platformLabel(row.provider)}`, href: row.source_url };
+}
+
+export function platformLabel(provider) {
+  return ({ youtube: "YouTube", tiktok: "TikTok", instagram: "Instagram" })[provider] || provider || "source";
+}
+
 /**
  * Fields a re-run is allowed to overwrite.
  *
@@ -145,8 +177,36 @@ export const EMBED_STATUS = ["active", "blocked", "deleted", "unavailable", "nee
 
 export const REFRESHABLE = [
   "title", "creator_name", "creator_profile_url", "thumbnail_url",
-  "embed_url", "published_at", "source_attribution", "media_kind", "embed_status", "last_checked_at"
+  "embed_url", "published_at", "source_attribution", "media_kind", "embed_status", "last_checked_at",
+  /* own_content and genre are SOURCE-owned facts, not human decisions, so they must follow the
+     media_sources row. If the owner corrects a source's own_content, every row already ingested
+     from it has to move with it — otherwise old rows keep the wrong attribution forever, which
+     under §L is a rights problem rather than a cosmetic one. review_status stays out: that IS a
+     human decision. */
+  "own_content", "genre"
 ];
+
+/**
+ * Map one feed entry against the media_source it came from.
+ *
+ * creator_name comes from the SOURCE, not from our own branding — a Boiler Room upload is
+ * credited to Boiler Room. That is the whole point of §L.
+ */
+export function sourceRecord(source, entry) {
+  return {
+    ...entry,
+    provider: source.provider,
+    own_content: source.own_content === true,
+    creator_name: entry.creator_name || source.label,
+    creator_profile_url: source.channel_id
+      ? `https://www.youtube.com/channel/${source.channel_id}`
+      : entry.creator_profile_url || null,
+    source_attribution: source.handle
+      ? `${platformLabel(source.provider)} ${source.handle}`
+      : platformLabel(source.provider),
+    genre: source.genre || null
+  };
+}
 
 export function mergeForUpsert(existing, incoming) {
   if (!existing) return { ...incoming, review_status: "review" };
@@ -210,6 +270,22 @@ async function writeAll(rows, dryRun) {
   return { inserted, refreshed };
 }
 
+/**
+ * Record the outcome on the source row.
+ *
+ * last_fetched / last_status / items_seen exist so a dead feed is VISIBLE. Without them a
+ * channel that stopped returning entries looks identical to a channel with nothing new, and
+ * nobody finds out until someone wonders why a genre went quiet.
+ */
+async function noteSource(sb, id, status, itemsSeen, dryRun) {
+  if (dryRun) return;
+  await sb.from("media_sources").update({
+    last_fetched: new Date().toISOString(),
+    last_status: status,
+    items_seen: itemsSeen
+  }).eq("id", id);
+}
+
 /* ── entry point ────────────────────────────────────────────────────────────────────────────── */
 
 async function main() {
@@ -219,12 +295,54 @@ async function main() {
   const args = argv.slice(1).filter((a) => a !== "--dry-run");
 
   if (provider === "youtube") {
-    const xml = await fetchText(YOUTUBE_FEED());
-    const rows = parseYouTubeFeed(xml);
-    console.log(`youtube: feed returned ${rows.length} entr${rows.length === 1 ? "y" : "ies"} (feed caps at 15)`);
-    rows.forEach((r) => { r.embed_status = "active"; });
-    const res = await writeAll(rows, dryRun);
-    if (!res.dryRun) console.log(`youtube: ${res.inserted} new, ${res.refreshed} refreshed`);
+    /* Every ENABLED source with a resolved channel_id, not one hardcoded channel. A source with
+       no channel_id has not been identity-verified — a 200 on youtube.com/@handle proves a
+       channel exists, not that it is the right organisation. @RA and @drumcode both resolved to
+       real but unrelated channels. Unverified sources are skipped, loudly. */
+    const sb = await db();
+    const { data: sources, error } = await sb
+      .from("media_sources").select("*").eq("provider", "youtube").eq("enabled", true).order("id");
+    if (error) { console.error(error.message); process.exit(1); }
+
+    let totalNew = 0, totalRef = 0;
+    for (const s of sources) {
+      if (!s.channel_id) {
+        console.error(`  SKIP ${s.handle}: no channel_id — not identity-verified`);
+        await noteSource(sb, s.id, "skipped: no channel_id (unverified)", 0, dryRun);
+        continue;
+      }
+      let rows = [];
+      let status = "";
+      try {
+        const xml = await fetchText(YOUTUBE_FEED(s.channel_id));
+        rows = parseYouTubeFeed(xml).map((e) => sourceRecord(s, e));
+        status = `ok: ${rows.length} entries`;
+      } catch (e) {
+        /* A dead feed is VISIBLE, not silent — recorded on the source row so it shows up as a
+           stale last_fetched with a reason instead of a channel that quietly stopped. */
+        console.error(`  FAIL ${s.handle}: ${e.message}`);
+        await noteSource(sb, s.id, `error: ${e.message}`.slice(0, 300), 0, dryRun);
+        continue;
+      }
+
+      /* §L: a third-party row without full attribution is not written at all. */
+      const complete = [], incomplete = [];
+      for (const r of rows) {
+        r.embed_status = "active";
+        (attributionComplete(r).ok ? complete : incomplete).push(r);
+      }
+      if (incomplete.length) {
+        console.error(`  ${s.handle}: ${incomplete.length} row(s) missing attribution ` +
+          `(${attributionComplete(incomplete[0]).missing.join(", ")}) — not written`);
+        status += `, ${incomplete.length} rejected for attribution`;
+      }
+
+      const res = await writeAll(complete, dryRun);
+      if (!res.dryRun) { totalNew += res.inserted; totalRef += res.refreshed; }
+      await noteSource(sb, s.id, status, complete.length, dryRun);
+      console.log(`  ${s.handle.padEnd(18)} ${String(rows.length).padStart(3)} entries  ${status}`);
+    }
+    if (!dryRun) console.log(`youtube: ${totalNew} new, ${totalRef} refreshed across ${sources.length} source(s)`);
     return;
   }
 

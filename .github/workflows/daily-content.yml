@@ -1,9 +1,20 @@
 name: Daily Content Pipeline
 
+# DISABLED 2026-08-15 (Founder). The agent content-generation programme was retired 2026-07-21;
+# this workflow kept firing daily and failing ever since, into an inbox nobody was reading. It also
+# calls ANTHROPIC_API_KEY, so a run that got further than the current failure point would spend
+# money generating content that is no longer wanted — and would auto-commit and push it.
+#
+# The 251 corrupted and 43 orphaned articles archived on 2026-08-15 came from this pipeline.
+#
+# The schedule is commented out rather than the file deleted, so the history and the script stay
+# reviewable. workflow_dispatch is kept: it can still be run deliberately by a human, never on a timer.
 on:
-  schedule:
-    # 6AM PST = 14:00 UTC
-    - cron: '0 14 * * *'
+  # schedule:
+  #   # 6AM PST = 14:00 UTC — DO NOT re-enable without an explicit Founder decision to restart
+  #   # agent content generation. See platform_config.events_source_policy and the archived
+  #   # _bak_profile_content_* tables for what this produced.
+  #   - cron: '0 14 * * *'
   workflow_dispatch:
 
 jobs:

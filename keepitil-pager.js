@@ -47,9 +47,14 @@
      own `kind`. Anything unmatched falls through to DEFAULT, so a new kind is never actionless.
      The pager only renders; the adapter decides what an action DOES via config.onAction. */
   var KIL_RAIL = {
+    /* `open` is the §L open-on-platform action. It is REQUIRED on third-party items — KEEPITIL
+       is embedding public content and must not imply ownership — and harmless on our own, so it
+       is in the table rather than conditional. Removing it from a kind that carries third-party
+       media is a rights regression, not a layout tweak. */
     video:   [{ id: "like", label: "Like", icon: "♥" },
               { id: "comment", label: "Comment", icon: "💬" },
               { id: "reshare", label: "Reshare", icon: "↻" },
+              { id: "open", label: "Watch on source platform", icon: "↗" },
               { id: "save", label: "Save", icon: "⌘" }],
     article: [{ id: "like", label: "Like", icon: "♥" },
               { id: "save", label: "Save", icon: "⌘" }],
