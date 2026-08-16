@@ -415,7 +415,14 @@
 #evx .evx-carousel.scrollable .evx-arrow{display:flex;}
 @media(max-width:680px){#evx .evx-carousel.scrollable .evx-arrow{display:none;}}
 #evx .evx-empty{padding:26px 6px;color:#44505a;font-size:.8rem;letter-spacing:.05em;}
-#evx .evx-flyer-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;}
+/* Founder 2026-08-15: a landscape flyer must fit ENTIRELY inside the card.
+   Was object-fit:cover, which centre-crops — on a 9:16 card a wide flyer lost most of its width,
+   usually the lineup text. Now `contain` shows the whole image, and .evx-flyer-bg is the same
+   image blown up, blurred and dimmed behind it so the card still fills edge to edge instead of
+   letterboxing onto flat colour. Both sit at z-index 0; DOM order puts the sharp copy on top,
+   and .evx-shade (z-index 1) still covers both. */
+#evx .evx-flyer-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;filter:blur(16px) brightness(.45) saturate(1.2);transform:scale(1.25);pointer-events:none;}
+#evx .evx-flyer-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:0;border:0;}
 #evx .evx-flyer{cursor:pointer;}
 #evx .evx-save{position:absolute;left:10px;bottom:10px;z-index:6;width:auto;height:auto;background:none;border:none;border-radius:0;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;}
 #evx .evx-save img{width:46px;height:31px;object-fit:contain;pointer-events:none;display:block;opacity:.92;filter:drop-shadow(0 1px 3px rgba(0,0,0,.85));transition:transform .2s,filter .2s,opacity .2s;}
@@ -2064,7 +2071,11 @@ function slugify(e){return (e.title+'-'+e.date).toLowerCase().replace(/[^a-z0-9]
 function flyer(e,showPick){
   var pk=(showPick===undefined)?e.pick:showPick;
   var alt=h(e.title+' — '+e.venue+(e.city?', '+e.city:'')+' | '+e.genre+' event');
-  var im=e.img?('<img class="evx-flyer-img" src="'+h(e.img)+'" alt="'+alt+'" loading="lazy" decoding="async"/>'):'';
+  /* Two copies: a blurred backdrop that fills the card, and the real flyer contained on top.
+     The backdrop is decorative — aria-hidden and empty alt, so a screen reader announces the
+     flyer once, not twice. */
+  var im=e.img?('<img class="evx-flyer-bg" src="'+h(e.img)+'" alt="" aria-hidden="true" loading="lazy" decoding="async"/>'
+               +'<img class="evx-flyer-img" src="'+h(e.img)+'" alt="'+alt+'" loading="lazy" decoding="async"/>'):'';
   var fb=e.img?'':' style="background:linear-gradient(155deg,#12121c,#241033,#0c0c14)"';
   var ribbon=pk?'<div class="evx-ribbon"><span class="kp">⚡ KEEPITIL PICK</span></div>':'';
   var pr=(e.price&&e.price!=='Tickets')?h(e.price):'';

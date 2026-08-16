@@ -108,7 +108,7 @@
       if(FILTER==='open')   rows = rows.filter(function(x){ return !x.voting_open; });
       if(!rows.length){
         APP.innerHTML = '<div class="soon"><div class="i">⚔️</div><h2>Be the first to enter</h2>'
-          + '<p>Ten annual competitions are open for submissions right now. Tap <b>Join</b> on the rail to enter one — approved entries appear here for voting.</p></div>';
+          + '<p>Competitions are open for submissions right now. <button type="button" class="vsp-join" onclick="window.__vsGoJoin&amp;&amp;window.__vsGoJoin()">Enter a competition &rarr;</button></p></div>';
         return;
       }
       APP.innerHTML = navBar('feed') + '<div class="vs-grid">' + rows.map(function(x){

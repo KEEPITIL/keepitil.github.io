@@ -106,7 +106,24 @@ Supersedes S6: the tab *row* is gone entirely, replaced by the single locked hea
 
 Do not touch. The grid, filters and search stay as they are.
 
-### 5. VS — `MIX · VOTE`
+### 5. VS — `FEED · VOTE · JOIN · WINNERS · MY VOTES · MY ENTRY`
+
+**Owner decision 2026-08-15, supersedes `MIX · VOTE`.** All six rail views become pager filters.
+
+**Why this was urgent:** `.cul-vrail` is `display:none` with a `@media (min-width:861px)` override, so the rail — and every one of those six views — has been **desktop-only**. On a phone there was no way to enter a competition, vote, or see winners, while the empty state read *"Tap Join on the rail."* That is why VS has 36 published competitions and **0 entries**. It was never a demand problem.
+
+**Two things to get right:**
+
+- **JOIN is the money action and it sits fourth in a six-item swipe.** Don't let it be equally weighted with the rest — give the JOIN filter a distinct treatment in the header, or land users on it from the empty state directly. A user who has to swipe three times to find the entry form is barely better off than one who couldn't find it at all.
+- **Rewrite the empty state.** *"Tap Join on the rail"* names a control that will no longer exist on either breakpoint. It should name the gesture, or link straight to the JOIN filter.
+
+**Chat is `chat:false` on VS**, so the entry path cannot fall back to chat the way it does elsewhere. The pager is the only route — it has to work.
+
+Six filters is more than any other page. Verify the header still reads as one word and the swipe doesn't feel like a maze; if it does, that's worth reporting back rather than shipping around.
+
+---
+
+### 5a. VS — original two-filter spec (superseded above)
 
 - remove profile icon, remove `+`
 - remove the existing `MIX / VS / VOTE` row; the locked header replaces it
@@ -286,6 +303,37 @@ So TikTok can be **embedded** freely but not **enumerated** freely. That maps on
 The @keepitil YouTube channel describes itself as *"All love in AI music (Suno) and entertainment (Sora2)"*, with keywords entirely about AI-generated content. **So VIDEO will fill with AI-generated shorts, not event footage or artist sets.**
 
 That may be exactly right. But the owner retired agent-generated *articles* three weeks ago on the grounds that agents shouldn't be producing the content, and Culture's 294 articles are still that retired programme. Filling the next tab with AI-generated video is the same question in a new place. **Raise it; don't decide it.**
+
+---
+
+## K. EVENT IMPORTERS — media requirement + new sources (owner 2026-08-15)
+
+### K1 — the rule is already enforced in the database. Don't re-implement it in the importer.
+
+```sql
+trg_events_require_media  →  BEFORE INSERT OR UPDATE ON events
+  blocks status='published' when cover_url AND youtube_url are both empty
+```
+
+**An event may not be published without a flyer image or a video. No exceptions.** Applied because the Ticketmaster path shipped 10 rows with no artwork — a UI-only check would have been bypassed by the importer that caused it.
+
+**What this means for you:** an importer that publishes without artwork now **fails loudly** instead of quietly producing blank cards. Handle the rejection — write the row as `status='review'` with a `review_reason`, don't swallow the error and don't retry into it. 8 existing rows are already sitting in review that way.
+
+### K2 — cards now show the whole flyer
+
+`.evx-flyer-img` is `object-fit: contain`, with `.evx-flyer-bg` — the same image, blurred and dimmed — filling the card behind it. **Landscape flyers must fit entirely inside the card**; `cover` was cropping the lineup off wide artwork. Two `<img>` tags per card, backdrop first, `aria-hidden` on the backdrop.
+
+### K3 — new sources
+
+Add **Eventbrite, Posh, Partyful** alongside RA and Ticketmaster. Genres beyond EDM.
+
+**Do the cheap one first and report before building the others:**
+
+- **Eventbrite is already connected** — 417 events linked, poller batched 60/run after a `WORKER_RESOURCE_LIMIT`. That plumbing exists; point it at discovery rather than writing a new adapter.
+- **Posh and Partyful** — I know of no public API for either. **Check before building.** If there is none, they take the curated-URL path (submitted link → metadata fetch → review queue), the same shape as PIXLE. Don't scrape; §20's order still binds.
+- **Ticketmaster images** — the 8 in review are there because the TM adapter never pulled artwork. TM's Discovery API returns an `images[]` array. Fix the adapter and those 8 republish themselves.
+
+**Genre spread comes from which accounts and cities are polled, not from the importer.** Report what genre mix the current sources actually yield before anyone assumes it's broad — 42 of 42 today are RA and TM, which skews one way.
 
 ---
 

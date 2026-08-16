@@ -127,6 +127,11 @@
       /* Reduced motion: it still hides and shows, it just cuts (§I1). */
       "@media(prefers-reduced-motion:reduce){#kilp .kilp-head{transition:none}}",
       "#kilp .kilp-title{margin:0;font:800 1.05rem/1 'Bebas Neue',Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#fff}",
+      /* A primary filter reads differently at a glance — colour plus a dot, not size, so the
+         header stays one word and the layout does not shift as you swipe onto it. */
+      "#kilp.kilp-primary .kilp-title{color:var(--brand,#00b4ff)}",
+      "#kilp.kilp-primary .kilp-title::after{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;",
+      "background:var(--brand,#00b4ff);margin-left:7px;vertical-align:middle}",
       /* The count is orientation, not a title — it stays in the accessibility tree but off the
          screen, so the visible header really is one word. */
       "#kilp .kilp-count{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;",
@@ -493,6 +498,11 @@
     this.renderColumn(fi - 1);
     this.renderColumn(fi + 1);
     this.titleEl.textContent = this.filters[fi].label;
+    /* §D5 — a filter may be marked `primary`, and the header says so. VS's JOIN is the money
+       action sitting fourth in a six-item swipe; rendering it identically to MY VOTES is how a
+       conversion path disappears in plain sight. This is presentation only — the pager still
+       treats every filter the same for navigation. */
+    this.root.classList.toggle("kilp-primary", !!this.filters[fi].primary);
     /* §I1 — a filter change always brings the header back, whatever caused it: a left/right
        swipe, the stepper, or an arrow key. Every route lands here, so this is the one place it
        has to be said. Naming the new filter is the entire reason the header exists; changing
