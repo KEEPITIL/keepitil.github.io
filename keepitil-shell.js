@@ -288,17 +288,22 @@ window.KIL_ICONS = {
    `label` stays the destination's real name and is kept in the accessible name:
    a screen-reader user hearing only "EARN" has no idea it goes to VS, and WCAG 2.5.3
    wants the visible text to be part of the accessible name — so it reads "EARN — VS". */
+/* ORDER AND NAMES ARE THE OWNER'S, 2026-08-15 — array order IS nav order, on both breakpoints.
+   Reassigned from the earlier mapping: CONNECT moved from Culture to Scene, CREATE from Radio
+   to VS, EARN from VS to Radio, GROW dropped, and Culture keeps its own name.
+   `pill` is what renders in both navs; `label` stays the real page name for the footer sitemap
+   and the accessible name, so "EARN" still announces as "EARN — Radio". */
 var DESTINATIONS=[
   {href:'/',             label:'Explore', pill:'DISCOVER', icon:'home',    home:true,
    match:/^\/((index|v31)(\.html)?)?$/},
-  {href:'/culture.html', label:'Culture', pill:'CONNECT',  icon:'culture', match:/culture/,
-   tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
-  {href:'/radio.html',   label:'Radio',   pill:'CREATE',   icon:'radio',   match:/radio/,
-   tint:'#ff9f43', glow:'rgba(255,159,67,.75)'},
-  {href:'/scene.html',   label:'Scene',   pill:'GROW',     icon:'scene',   match:/scene/,
+  {href:'/scene.html',   label:'Scene',   pill:'CONNECT',  icon:'scene',   match:/scene/,
    tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
-  {href:'/vs.html',      label:'VS',      pill:'EARN',     icon:'vs',      match:/(^|\/)vs(\.html)?$/,
-   tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'}
+  {href:'/vs.html',      label:'VS',      pill:'CREATE',   icon:'vs',      match:/(^|\/)vs(\.html)?$/,
+   tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'},
+  {href:'/culture.html', label:'Culture', pill:'CULTURE',  icon:'culture', match:/culture/,
+   tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
+  {href:'/radio.html',   label:'Radio',   pill:'EARN',     icon:'radio',   match:/radio/,
+   tint:'#ff9f43', glow:'rgba(255,159,67,.75)'}
 ];
 /* ── K4: the destination rail, for pages that want to surface the map in their own body ────
    Explore's own content was 93 event links, 1 to Culture, 1 to Scene, and ZERO to Radio or VS.
@@ -368,7 +373,9 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
       style();
       // remove existing header nav(s) + footer(s) + any injected mobile nav
       document.querySelectorAll('#main-nav, nav#main-nav, nav.main-nav, #v3shell-nav, footer, #kil-mnav, .kil-mnav').forEach(function(el){ el.remove(); });
-      var links = namedDestinations().map(function(d){ return '<a href="'+d.href+'">'+d.label+'</a>'; }).join('');
+      /* Desktop header shows the SAME words as the bottom nav (owner 2026-08-15) — one naming
+         scheme, not one per breakpoint. Home is the wordmark here, so DISCOVER isn't repeated. */
+      var links = namedDestinations().map(function(d){ return '<a href="'+d.href+'" title="'+d.label+'">'+(d.pill||d.label)+'</a>'; }).join('');
       var cur=document.documentElement.getAttribute('data-theme')||'default';
       var swatches = THEMES.map(function(t){return '<button class="v3t-sw'+(t[0]===cur?' on':'')+'" data-t="'+t[0]+'" title="'+t[1]+'" style="background:'+t[2]+'"></button>';}).join('');
       /* NOTE: `.v3s-icons` is `display:none` at every width today — the desktop header shows
@@ -673,7 +680,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
      when signed in, so logged-out visitors see LOGIN only, no bell. ── */
   var SB_URL="https://ovmqtzjfpzrbzrlkxwgw.supabase.co";
   var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ";
-  function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
+  function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="/v3/vendor/supabase-js.min.js"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
   function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
   /* profile hamburger dropdown: Edit profile · Settings */
   function kilProfMenu(ev){ try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}

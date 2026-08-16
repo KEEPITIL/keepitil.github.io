@@ -73,12 +73,8 @@ footer a{color:var(--brand-2)}
 
 <!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, VS filters below -->
 <div class="cul-vrail" id="vsVRail" aria-label="Subpages and filters">
-  <button class="cvr sp" id="vrSubBtn" onclick="vrToggleSub(event)" aria-label="Switch subpage"><span class="ic" aria-hidden="true">☰</span><span class="tx" id="vrSubLbl">VS ▾</span></button>
-  <div class="vr-subdd" id="vrSubDD">
-    <button onclick="vrGoSub('feed')"><span class="ic" aria-hidden="true">📰</span><span>Feed</span></button>
-    <button onclick="vrGoSub('radio')"><span class="ic" aria-hidden="true">📻</span><span>Radio</span></button>
-    <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
-  </div>
+  <!-- Founder 2026-08-15: Feed/Radio/VS subpage switcher REMOVED — all three are shell nav
+       destinations now. It also offered "VS" while you were already on VS. -->
   <div class="vr-div"></div>
   <!-- VS subpage views (Founder 2026-08-05). Drive vs-app.js via window.vsGo(view); KODE builds vote/join/winners. -->
   <button class="cvr sf on" data-v="feed"    onclick="vrNav('feed',this)"    aria-label="Feed — all submissions"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
@@ -91,14 +87,14 @@ footer a{color:var(--brand-2)}
 </div>
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio bar (same on every page) -->
-<script src="/keepitil-shell.js?v=20260815t" defer></script>
+<script src="/keepitil-shell.js?v=20260815u" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
 <script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 <!-- VS platform (KODE): Supabase client + the app that renders into #vs-app.
      vs-app.js defines the real window.vsFilter, replacing the placeholder hook. -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/v3/vendor/supabase-js.min.js"></script>
 <script src="/vs-app.js?v=20260805d"></script>
 <script>
 /* VS subpage view switch (Founder 2026-08-05): rail drives vs-app.js via window.vsGo(view).

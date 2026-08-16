@@ -168,19 +168,13 @@ footer{margin-top:auto}
 
 <!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, this page's sections below (Founder 2026-08-04) -->
 <div class="cul-vrail" id="radVRail" aria-label="Subpages and sections">
-  <button class="cvr sp" id="vrSubBtn" onclick="vrToggleSub(event)" aria-label="Switch subpage"><span class="ic" aria-hidden="true">☰</span><span class="tx" id="vrSubLbl">Radio ▾</span></button>
-  <div class="vr-subdd" id="vrSubDD">
-    <button onclick="vrGoSub('feed')"><span class="ic" aria-hidden="true">📰</span><span>Feed</span></button>
-    <button onclick="vrGoSub('radio')"><span class="ic" aria-hidden="true">📻</span><span>Radio</span></button>
-    <button onclick="vrGoSub('vs')"><span class="ic" aria-hidden="true">⚔️</span><span>VS</span></button>
-  </div>
-  <div class="vr-div"></div>
+  <!-- Founder 2026-08-15: the Feed/Radio/VS subpage switcher is REMOVED. Culture, Radio and VS
+       are all destinations in the shell nav now, so this was a third redundant path to them —
+       and on Radio it offered a button back to Radio. Sections below are this page's own. -->
   <button class="cvr sf on" onclick="radScroll('stations',this)"><span class="ic" aria-hidden="true">📡</span><span class="tx">Channel</span></button>
   <button class="cvr sf" onclick="radScroll('playlists',this)"><span class="ic" aria-hidden="true">🎧</span><span class="tx">Playlist</span></button>
   <button class="cvr sf" onclick="radScroll('schedule',this)"><span class="ic" aria-hidden="true">🗓️</span><span class="tx">Schedule</span></button>
-  <button class="cvr sf" onclick="radScroll('earn',this)"><span class="ic" aria-hidden="true">⚔️</span><span class="tx">VS</span></button>
-  <button class="cvr sf" onclick="radScroll('mobile',this)"><span class="ic" aria-hidden="true">📱</span><span class="tx">Apps</span></button>
-  <button class="cvr sf" onclick="radScroll('games',this)"><span class="ic" aria-hidden="true">🎮</span><span class="tx">Games</span></button>
+  <button class="cvr sf" onclick="radScroll('mobile',this)"><span class="ic" aria-hidden="true">📱</span><span class="tx">App</span></button>
 </div>
 <script>
 function radScroll(id,el){ var s=document.getElementById(id); if(s){ try{ s.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ location.hash=id; } } if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); } }
@@ -255,10 +249,11 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   var idx = 0;
 
   var main = document.querySelector('main.wrap'); if(!main) return;
+  /* Founder 2026-08-15: the mobile Feed/Radio/VS switcher is gone — all three are shell nav
+     destinations now. #radMTabs stays in the DOM because M1's safe-area fix and the section
+     bar's offset both key off it; it just renders nothing. */
   var tabs = document.createElement('div'); tabs.id = 'radMTabs';
-  tabs.innerHTML = '<button data-go="/culture">Feed</button>'
-                 + '<button class="on">Radio</button>'
-                 + '<button data-go="/culture/vs">VS</button>';
+  tabs.innerHTML = '';
   var secbar = document.createElement('div'); secbar.id = 'radMSecs';
   secbar.innerHTML = SECS.map(function(s,i){
     return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'">'+s[1]+'</button>';
@@ -308,7 +303,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815t" defer></script>
+<script src="/keepitil-shell.js?v=20260815u" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->

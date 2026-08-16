@@ -9,7 +9,7 @@
   function ago(iso){ try{ var s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000);
     if(s<60)return 'just now'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago';
     if(s<604800)return Math.floor(s/86400)+'d ago'; return new Date(iso).toLocaleDateString(); }catch(e){return '';} }
-  function ensureSupa(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
+  function ensureSupa(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="/v3/vendor/supabase-js.min.js"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
   function client(){ try{ if(!window.__kilNSB && window.supabase) window.__kilNSB=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){} return window.__kilNSB||null; }
 
   function css(){

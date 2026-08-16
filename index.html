@@ -339,14 +339,29 @@
 #evx .evx-fy-why a:hover{color:var(--brand,#00b4ff);}
 #evx .evx-eyebrow{display:block;font-size:11px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
 #evx .evx-title-lg{font-family:var(--font-head);font-size:clamp(1.7rem,3.2vw,2.4rem);letter-spacing:.04em;color:#fff;margin:0;line-height:1;}
-#evx .evx-row{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding:4px 24px 14px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
+/* Events load state — see #evx-state in the markup. Failed and empty must not look alike. */
+#evx .evx-state{margin:18px 24px;padding:16px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:rgba(255,255,255,.82);font:500 .95rem/1.5 Inter,sans-serif;}
+#evx .evx-state[hidden]{display:none;}
+#evx .evx-state.is-failed{border-color:rgba(255,92,138,.45);background:rgba(255,92,138,.08);}
+#evx .evx-state-t{display:block;font-weight:700;color:#fff;margin-bottom:4px;}
+#evx .evx-state-d{display:block;color:rgba(255,255,255,.6);font-size:.86rem;margin-bottom:10px;}
+#evx .evx-state-retry{appearance:none;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font:700 .85rem/1 Inter,sans-serif;letter-spacing:.04em;padding:10px 16px;border-radius:6px;min-height:44px;}
+#evx .evx-state-retry:disabled{opacity:.5;cursor:default;}
+#evx .evx-row{display:flex;gap:15px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;padding:4px 24px 14px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
 #evx .evx-daycol .evx-row{padding:4px 0 12px;}
 #evx .evx-row::-webkit-scrollbar{display:none;}
-/* Founder-tuned 2026-08-15: 150 x 267 (9:16), radius 5, rail gap 5.
-   Was 240px at 2/3 — a squatter card. 9:16 is the flyer ratio the artwork is actually made in. */
-#evx .evx-flyer{position:relative;flex-shrink:0;width:150px;aspect-ratio:9/16;border-radius:5px;overflow:hidden;
+#evx .evx-flyer{position:relative;flex-shrink:0;width:240px;aspect-ratio:2/3;border-radius:14px;overflow:hidden;
   background:var(--surface-2) center/cover no-repeat;text-decoration:none;
   border:1px solid rgba(255,255,255,.08);transition:transform .25s,border-color .25s,box-shadow .25s;display:block;}
+@media(max-width:520px){#evx .evx-flyer{width:200px;}}
+/* MOBILE ONLY — Founder-tuned 2026-08-15: 150 x 267 (9:16), radius 5, rail gap 5, title 15px.
+   These were briefly applied as base rules and wrecked the desktop layout. The brief was the
+   mobile app; desktop keeps its 240px / 2:3 / 14px card. */
+@media(max-width:860px){
+  #evx .evx-flyer{width:150px;aspect-ratio:9/16;border-radius:5px;}
+  #evx .evx-row{gap:5px;}
+  #evx .evx-title{font-size:15px;line-height:1.05;}
+}
 #evx .evx-flyer:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.45);box-shadow:0 16px 44px rgba(0,0,0,.6);}
 #evx .evx-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(0,0,0,.02) 0%,rgba(0,0,0,.12) 40%,rgba(0,0,0,.8) 76%,rgba(0,0,0,.96) 100%);}
 #evx .evx-ribbon{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;padding:5px 11px;background:linear-gradient(90deg,rgba(0,255,136,.97),rgba(0,200,120,.6));}
@@ -355,7 +370,7 @@
 #evx .evx-flyer.pick .evx-genre{top:33px;}
 #evx .evx-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:13px 13px 14px;}
 #evx .evx-date{font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:4px;}
-#evx .evx-title{font-family:var(--font-head);font-size:15px;line-height:1.05;letter-spacing:.03em;color:#fff;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+#evx .evx-title{font-family:var(--font-head);font-size:1.18rem;line-height:1;letter-spacing:.03em;color:#fff;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 #evx .evx-venue{font-size:.63rem;color:rgba(255,255,255,.72);line-height:1.32;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 #evx .evx-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;}
 #evx .evx-price{font-size:.7rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1583,6 +1598,10 @@
     <div class="evx-nav-row" id="evx-genres"></div>
     <div class="evx-nav-row evx-subrow" id="evx-subgenres"></div>
   </div>
+  <!-- Events load state. Three outcomes must look different (2026-08-15): a real empty
+       calendar, a failed load, and a successful one. Before this, a dead network rendered
+       byte-for-byte identically to "no events" — a blank page with nothing to act on. -->
+  <div class="evx-state" id="evx-state" role="status" aria-live="polite" hidden></div>
   <div class="evx-days" id="evx-days-list"></div>
 </div>
 </div>
@@ -1645,7 +1664,7 @@
   <!-- Scroll-to-top moved into keepitil-shell.js (#kil-top) on 2026-08-15 so it can appear on
        every page from one config instead of being copied per page. Do not re-add it here. -->
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/v3/vendor/supabase-js.min.js"></script>
 <script>
   /* ── SUPABASE ── */
   const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
@@ -2403,41 +2422,108 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
     return '';
   }
   function gcatOf(g){return classify(g,'').gcat;}
-  try{
-    if(window.supabase){
-      var _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ');
-      var _kld=function(iso,tz){ try{ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return String(iso).slice(0,10); return new Intl.DateTimeFormat('en-CA',{timeZone:tz||'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(d); }catch(e){ return String(iso).slice(0,10); } };
-      /* SINGLE SOURCE = SUPABASE (Founder self-repair directive 2026-07-18): the DB carries the
-         imported external events (ra/concertfix/community, 6-month rolling window, nightly-audited)
-         PLUS member events — so a healthy fetch REPLACES the baked list entirely (no stale/dupe
-         merge). The baked EVENTS above is now only the instant-paint + offline fallback: it stays
-         on screen only if the fetch fails or returns a suspiciously thin set (<10). */
-      _sb.from('events').select('*').eq('status','published').order('starts_at',{ascending:true}).then(function(r){
-        if(r&&r.data&&r.data.length){
-          var db=r.data.filter(function(e){return e.starts_at;}).map(function(e){
-            var g=e.genres||e.genre||'';
-            var _cl=classify(g,e.title);
-            /* 3rd-party = has a full external ticket URL → send people straight there (Founder 2026-07-28). Only truly internal KEEPITIL events (no external source_url) get the on-site event page/chat. */
-            var internal=!e.source_url||!/^https?:\/\//i.test(e.source_url);
-            return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
-              genre:g||'KEEPITIL',gcat:_cl.gcat,ecat:_cl.ecat,img:e.cover_url||e.img||'',
-              ticket:(e.source_url&&!internal)?e.source_url:('/event.html?e='+encodeURIComponent(e.slug||'')),
-              price:'Tickets',pick:!!e.featured,keepitil:internal,slug:e.slug,owner:e.owner_handle||''};
-          });
-          if(db.length>=10){ EVENTS=db; }
-          else {
-            var seen={};EVENTS.forEach(function(e){seen[(e.title+'|'+e.date).toLowerCase()]=1;});
-            db.forEach(function(e){var k=(e.title+'|'+e.date).toLowerCase();if(!seen[k]){seen[k]=1;EVENTS.push(e);}});
-          }
-          EVENTS.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
-          MONTHS=(function(){var s={};EVENTS.forEach(function(x){if(x.date)s[x.date.slice(0,7)]=1;});return Object.keys(s).sort();})();
-          if(MONTHS.indexOf(activeMonth)<0)activeMonth=MONTHS[0]||activeMonth;
-        }
-        boot2();
-        try{ fyEnrich(_sb); }catch(e){}
-      }).catch(boot2);
-    }else{boot2();}
-  }catch(e){boot2();}
+  /* SINGLE SOURCE = SUPABASE (Founder self-repair directive 2026-07-18): the DB carries the
+     imported external events (ra/concertfix/community, 6-month rolling window, nightly-audited)
+     PLUS member events, so a healthy fetch supplies the whole calendar.
+
+     THERE IS NO BAKED FALLBACK. `var EVENTS=[]` at the top of this block has been empty since
+     the scraped list was removed on 2026-07-21. An earlier version of this comment described
+     that empty array as a list that painted instantly and survived a failed fetch — it did
+     neither, and the false claim cost a debugging session on 2026-08-15. Every event on this
+     page comes from the network. If you want a real offline fallback, bake one; do not describe
+     one that isn't here.
+
+     Because EVENTS starts empty, the old `db.length>=10 ? replace : merge` branch was dead code
+     (merging into an empty array is assignment), so it is gone. What remains is the part that
+     matters: THREE DISTINGUISHABLE OUTCOMES. A calendar with genuinely no published events and
+     a calendar that failed to load are different facts and must never render the same way. */
+  var _sb=null;
+  var _kld=function(iso,tz){ try{ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return String(iso).slice(0,10); return new Intl.DateTimeFormat('en-CA',{timeZone:tz||'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit'}).format(d); }catch(e){ return String(iso).slice(0,10); } };
+
+  function evxState(state,detail){
+    var el=document.getElementById('evx-state'); if(!el) return;
+    window.KIL_EVENTS_STATE=state;
+    if(state==='ok'){ el.hidden=true; el.className='evx-state'; el.innerHTML=''; return; }
+    if(state==='loading'){
+      /* First load: stay hidden, the page is painting anyway. A RETRY is different — the panel
+         is already on screen, and blanking it leaves the reader looking at an empty page for the
+         length of a network timeout, which is exactly the "broken looks like empty" state this
+         whole block exists to abolish. Keep the panel and say what is happening. */
+      if(el.hidden){ el.className='evx-state'; el.innerHTML=''; return; }
+      el.className='evx-state';
+      el.innerHTML='<span class="evx-state-t">Checking for events…</span>';
+      return;
+    }
+    el.hidden=false;
+    el.className='evx-state'+(state==='failed'?' is-failed':'');
+    if(state==='empty'){
+      el.innerHTML='<span class="evx-state-t">No published events right now.</span>'
+        +'<span class="evx-state-d">Nothing is on the calendar yet — this loaded fine, there is just nothing to show.</span>';
+      return;
+    }
+    el.innerHTML='<span class="evx-state-t">Events couldn’t load.</span>'
+      +'<span class="evx-state-d">'+h(detail||'The request did not complete.')+'</span>'
+      +'<button type="button" class="evx-state-retry" id="evx-state-retry">Try again</button>';
+    var b=document.getElementById('evx-state-retry');
+    if(b) b.onclick=function(){ b.disabled=true; b.textContent='Retrying…'; loadEvents(); };
+  }
+
+  function mapRows(rows){
+    return rows.filter(function(e){return e.starts_at;}).map(function(e){
+      var g=e.genres||e.genre||'';
+      var _cl=classify(g,e.title);
+      /* 3rd-party = has a full external ticket URL → send people straight there (Founder 2026-07-28). Only truly internal KEEPITIL events (no external source_url) get the on-site event page/chat. */
+      var internal=!e.source_url||!/^https?:\/\//i.test(e.source_url);
+      return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
+        genre:g||'KEEPITIL',gcat:_cl.gcat,ecat:_cl.ecat,img:e.cover_url||e.img||'',
+        ticket:(e.source_url&&!internal)?e.source_url:('/event.html?e='+encodeURIComponent(e.slug||'')),
+        price:'Tickets',pick:!!e.featured,keepitil:internal,slug:e.slug,owner:e.owner_handle||''};
+    });
+  }
+
+  /* Browser strings ("TypeError: Failed to fetch") say nothing to a person holding a phone.
+     Translate the one that actually happens — no connection — and pass anything else through,
+     since a specific unexpected message beats a vague catch-all. This has to be applied on BOTH
+     failure paths: postgrest-js resolves network errors into r.error rather than rejecting, so
+     translating only inside .catch() leaks the raw string, which is what it did on first test. */
+  function evxReason(m){
+    m=String(m||'');
+    return /failed to fetch|networkerror|load failed|network request failed/i.test(m)
+      ? 'Your device couldn’t reach the events service. Check your connection.'
+      : (m||'The request did not complete.');
+  }
+  function evxFail(detail){ EVENTS=[]; MONTHS=[]; boot2(); evxState('failed',evxReason(detail)); }
+
+  function loadEvents(){
+    evxState('loading');
+    /* The library is self-hosted (/v3/vendor/supabase-js.min.js), so this is now a local-file
+       problem rather than a CDN one — but it is still reported instead of swallowed. */
+    if(!window.supabase||!window.supabase.createClient){ evxFail('The events library did not load.'); return; }
+    try{ if(!_sb) _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ'); }
+    catch(e){ evxFail('The events client could not start.'); return; }
+    var q;
+    try{ q=_sb.from('events').select('*').eq('status','published').order('starts_at',{ascending:true}); }
+    catch(e){ evxFail('The events query could not be built.'); return; }
+    Promise.resolve(q).then(function(r){
+      /* postgrest-js resolves (it does not reject) on an API error — an unchecked r.error is
+         indistinguishable from an empty table, which is the exact bug this block now prevents. */
+      if(r&&r.error){ evxFail((r.error&&r.error.message)||'The events service returned an error.'); return; }
+      var db=mapRows((r&&r.data)||[]);
+      if(db.length){
+        EVENTS=db;
+        EVENTS.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+        MONTHS=(function(){var s={};EVENTS.forEach(function(x){if(x.date)s[x.date.slice(0,7)]=1;});return Object.keys(s).sort();})();
+        if(MONTHS.indexOf(activeMonth)<0)activeMonth=MONTHS[0]||activeMonth;
+        boot2(); evxState('ok');
+      }else{
+        EVENTS=[]; MONTHS=[];
+        boot2(); evxState('empty');
+      }
+      try{ fyEnrich(_sb); }catch(e){}
+    }).catch(function(err){ evxFail((err&&err.message)||''); });
+  }
+  window.KIL_RELOAD_EVENTS=loadEvents;
+  loadEvents();
 })();
 })();
 </script>
@@ -2697,7 +2783,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815t" defer></script>
+<script src="/keepitil-shell.js?v=20260815u" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->

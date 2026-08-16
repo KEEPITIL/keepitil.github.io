@@ -117,7 +117,7 @@
   function ensureSupa(cb) {
     if (window.supabase) { cb(); return; }
     var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    s.src = "/v3/vendor/supabase-js.min.js";
     s.onload = cb; s.onerror = cb; document.head.appendChild(s);
   }
   function sbClient() { try { if (!KE.__sb && window.supabase) KE.__sb = window.supabase.createClient(SB_URL, SB_KEY); } catch (e) {} return KE.__sb || null; }
