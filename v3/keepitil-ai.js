@@ -732,6 +732,19 @@
   // agent_steps / agent_cost_ledger, so this path is measurable, not a black box.
   // Signed-out visitors keep the existing keyword brain — no regression.
   var KIL_AGENT_FN = KIL_SUPA_URL + '/functions/v1/agent-tool-invoke';
+
+  // The CHAT path goes through nexus-relay, never straight to agent-tool-invoke.
+  //
+  // The relay is the only place the NEXUS client credential exists — this file is public
+  // browser JS, so the credential can never live here. It also owns the cutover switch
+  // (public.platform_config.nexus_cutover): with it `off` the relay calls agent-tool-invoke
+  // and returns its response verbatim, so this change is behaviour-preserving today and the
+  // rollback is one UPDATE rather than a redeploy of the site.
+  //
+  // runReadTool() below deliberately stays on KIL_AGENT_FN. It sends op:'invoke' with a tool
+  // and args; the relay only speaks the ask shape and would reject it as an empty message.
+  // Tool execution is not the AI request path.
+  var KIL_RELAY_FN = KIL_SUPA_URL + '/functions/v1/nexus-relay';
   var kilThreadId = null;   // conversation continuity within a page session
 
   function kilSession() {
@@ -753,7 +766,7 @@
       // migrated, so sending the legacy slug returns an agent with no persona and no notes.
       var body = { op: 'ask', text: text, surface: 'web', agent: 'cho', privacy_class: 'low' };
       if (kilThreadId) body.thread_id = kilThreadId;
-      return fetch(KIL_AGENT_FN, {
+      return fetch(KIL_RELAY_FN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
