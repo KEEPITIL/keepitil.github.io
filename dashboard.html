@@ -284,7 +284,11 @@ async function load(){
 
 /* ===== Admin console: sub-nav tabs ===== */
 var ZAP_HOOK='', IS_ADMIN=false, TAB_LOADED={};
-var AGENTS=[['echo','ECHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['nexus','NEXUS'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
+/* Slugs must match public.agent_profiles exactly — these values are sent to ask-echo and to
+   add_agent_knowledge, which look the agent up with `eq`, not a pattern. Renamed 2026-08-16:
+   echo→cho, nexus→xus. The labels carry the old name because the Brain is an internal console
+   and its operator has years of Echo/Nexus muscle memory; the archive still says Echo too. */
+var AGENTS=[['cho','CHO (was ECHO)'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],['xus','XUS (was NEXUS)'],['sentinel','SENTINEL'],['oracle','ORACLE'],['nova','NOVA'],['luna','LUNA'],['lyric','LYRIC'],['vibe','VIBE'],['scout','SCOUT'],['merch','MERCH'],['beacon','BEACON']];
 var ADMIN_TABS=[['posts','FEED'],['social','Social Command'],['campaigns','Campaigns'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}

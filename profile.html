@@ -737,15 +737,33 @@ var IS_OWNER = document.documentElement.getAttribute('data-view')!=='public' && 
 /* ── Supabase: shared, cross-device persistence for owner-authored content ── */
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+/* Legacy agent slugs from the 2026-08-16 rename (echo→cho, nexus→xus). Mirrors
+   public.agent_aliases; 404.html carries the same two entries for pretty URLs, and
+   keepitil-agents.js is the generated copy. EXACT KEYS ONLY — 'cho' is a substring of
+   'echo' and 'xus' of 'nexus', so a prefix test would capture echo-west and echoplex. */
+var AGENT_ALIASES={echo:'cho',nexus:'xus'};
 var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q)return q.toLowerCase().replace(/[^a-z0-9-]/g,'');}catch(e){}return '';})();
+/* A bookmarked /profile.html?slug=nexus must land on Xus, and must not keep answering on the
+   dead slug: the agent chat sends this value to ask-echo, whose brain and personality rows all
+   moved to the new slugs, so an unresolved legacy slug returns a personality-less agent with an
+   empty knowledge base. Rewrite the address bar too, so the canonical URL below is the new one
+   and the old one stops being shared onward. */
+if(Object.prototype.hasOwnProperty.call(AGENT_ALIASES,PROFILE_SLUG)){
+  var _canon=AGENT_ALIASES[PROFILE_SLUG];
+  try{
+    var _u=new URL(location.href); _u.searchParams.set('slug',_canon);
+    history.replaceState(null,'',_u.pathname+_u.search+_u.hash);
+  }catch(e){}
+  PROFILE_SLUG=_canon;
+}
 var IS_DEMO=false;/* Founder 2026-08-04: unclaimed profiles (incl. groove-trooper) show identity from profile_meta but NO demo posts/events — a fresh unclaimed profile is empty until claimed. */
 /* Canonical public URL = /public/profile/<slug> (Founder 2026-08-04) */
 try{ if(PROFILE_SLUG){ var _pu='https://keepitil.com/public/profile/'+PROFILE_SLUG; var _c=document.querySelector('link[rel="canonical"]'); if(_c)_c.href=_pu; var _ou=document.querySelector('meta[property="og:url"]'); if(_ou)_ou.setAttribute('content',_pu); } }catch(e){}
 /* the 14 KEEPITIL agents answer live via the ask-echo edge fn (agent-scoped brain + personality);
    their CHAT tab becomes a real "ask this agent" chat — normal profiles keep scene-room chats */
 var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department) — fallback identity when profile_meta has no row */
-  echo:['Echo','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
-  nexus:['Nexus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
+  cho:['Cho','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
+  xus:['Xus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
   oracle:['Oracle','Trance','Analytics'],fable:['Fable','Indie / Alternative','Documentation'],
   nova:['Nova','Bass','UX QA'],luna:['Luna','Pop','Visual Design'],lyric:['Lyric','R&B / Soul','Editorial'],
   vibe:['Vibe','African Dance','Community'],scout:['Scout','Country / Americana','Talent & Discovery'],

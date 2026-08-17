@@ -1,0 +1,35 @@
+# Enforces the single-source-of-truth rule for the agent roster.
+# Without this, tests/agent-rename.test.mjs only runs when someone remembers to
+# run it, and v3/agents-data.js can silently drift back into being a second
+# hand-maintained roster.
+#
+# Runs fully offline: gen-agents.mjs --check reads the committed snapshot, so no
+# Supabase service key is needed in CI.
+
+name: roster-ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  roster:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Roster drift check (generated files match canonical snapshot)
+        run: node _scripts/gen-agents.mjs --check
+
+      - name: Rename invariants + regression tests
+        run: node --test tests/*.test.mjs

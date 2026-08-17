@@ -67,17 +67,31 @@ a{color:#5cc8ff}</style>
   function go(url){ location.replace(url + hash); }
   var slug = seg.length ? decodeURIComponent(seg[seg.length-1]).toLowerCase().replace(/[^a-z0-9-]/g,'') : '';
 
+  /* ── Legacy agent slugs (rename of 2026-08-16) ───────────────────────────────────────────
+     Mirrors public.agent_aliases, which is the source of truth; keepitil-agents.js carries the
+     same table for pages that can load a script. This router cannot: it runs before anything
+     else and must redirect with zero dependencies, so the two entries are inlined. Keep them
+     in step — `node _scripts/gen-agents.mjs` regenerates the other copy.
+
+     EXACT KEYS ONLY. 'cho' is a substring of 'echo' and 'xus' of 'nexus', so any prefix or
+     indexOf test here would rewrite unrelated profile slugs. A hasOwnProperty lookup cannot:
+     /profile/echoplex and /profile/echo-west stay untouched, which is the whole point. */
+  var AGENT_ALIASES = { echo: 'cho', nexus: 'xus' };
+  function agentSlug(s){
+    return Object.prototype.hasOwnProperty.call(AGENT_ALIASES, s) ? AGENT_ALIASES[s] : s;
+  }
+
   // /unclaimed/profile/<slug>  → dynamic template (public view); no stale static clones (Founder 2026-08-04)
   if(seg.length===3 && seg[0]==='unclaimed' && seg[1]==='profile'){
-    return go('/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
+    return go('/profile.html?slug='+encodeURIComponent(agentSlug(slug))+'&view=public');
   }
   // /public/profile/<slug>
   if(seg.length===3 && seg[0]==='public' && seg[1]==='profile'){
-    return go('/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
+    return go('/profile.html?slug='+encodeURIComponent(agentSlug(slug))+'&view=public');
   }
   // /profile/<slug>
   if(seg.length===2 && seg[0]==='profile'){
-    return go('/profile.html?slug='+encodeURIComponent(slug));
+    return go('/profile.html?slug='+encodeURIComponent(agentSlug(slug)));
   }
   // /venue/<slug>
   if(seg.length===2 && seg[0]==='venue'){
