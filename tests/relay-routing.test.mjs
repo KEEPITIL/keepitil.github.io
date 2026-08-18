@@ -62,3 +62,108 @@ test("every page loads the widget at the same cache-busted version", () => {
   walk(".");
   assert.equal(stamps.size, 1, `expected one stamp, found: ${[...stamps].join(", ")}`);
 });
+
+/**
+ * A SUCCESSFUL RELAY RESPONSE IS TERMINAL.
+ *
+ * THE DEFECT THIS PINS: agentCard() returned the answer only from inside `if (d.escalated)`.
+ * nexus-relay adapts the NEXUS envelope with `escalated: !!degradation`, so a clean success —
+ * the good case — arrived with escalated:false, fell past that branch and returned null.
+ * handleQuery reads null as "the agent had nothing" and continues into runReadTool -> askBrain
+ * -> askEcho. Live, that showed as: relay `on`, non-null content, path='relay_on',
+ * fallback_used=false, and 146ms later the legacy answer on screen.
+ *
+ * These run the REAL source of both functions in a sandbox with the legacy chain stubbed, so
+ * they assert on which calls happen — not on wording, which would pass against the defect.
+ */
+
+import vm from "node:vm";
+
+/** Slice a function out of the widget by brace matching, so a body edit cannot break the test. */
+function extract(name) {
+  const start = widget.indexOf(`function ${name}(`);
+  assert.ok(start > 0, `${name} not found`);
+  let depth = 0;
+  for (let i = widget.indexOf("{", start); i < widget.length; i++) {
+    if (widget[i] === "{") depth++;
+    else if (widget[i] === "}" && --depth === 0) return widget.slice(start, i + 1);
+  }
+  throw new Error(`unbalanced ${name}`);
+}
+
+/** Run handleQuery against a given relay response; report every downstream call it made. */
+function runTurn(relayResponse) {
+  const calls = [];
+  const sandbox = {
+    relayResponse,
+    calls,
+    kilThreadId: null,
+    showTyping() {}, hideTyping() {},
+    addMessage(who, card) { calls.push(`addMessage:${who}`); if (who === "bot") sandbox.done(card); },
+    askAgent() { calls.push("askAgent"); return Promise.resolve(relayResponse); },
+    runReadTool() { calls.push("runReadTool"); return Promise.resolve(null); },
+    askBrain() { calls.push("askBrain"); return Promise.resolve(null); },
+    brainCard() { return null; },
+    askEcho() { calls.push("askEcho"); return Promise.resolve(null); },
+    echoCard() { return null; },
+    fallbackCard() { calls.push("fallbackCard"); return { title: "canned", text: "canned" }; },
+    done: null
+  };
+  return new Promise((resolve, reject) => {
+    sandbox.done = (card) => resolve({ calls, card });
+    vm.createContext(sandbox);
+    vm.runInContext(`${extract("agentCard")}\n${extract("handleQuery")}\nhandleQuery("when is the next show");`, sandbox);
+    setTimeout(() => reject(new Error(`no bot message; calls=${calls.join(",")}`)), 1000);
+  });
+}
+
+/** What the relay's adapt() actually produces on a clean NEXUS success: escalated is FALSE. */
+const RELAY_SUCCESS = {
+  ok: true, answer: "The next show is Friday at The Warehouse.", thread_id: "t-1",
+  sources: [], from_agent: "cho", escalated: false, human_review: false, resolved: true,
+  _nexus: { contractVersion: 1 }
+};
+
+test("a successful relay answer ends the turn — no legacy fallback is called", async () => {
+  const { calls, card } = await runTurn(RELAY_SUCCESS);
+  assert.equal(card.text, RELAY_SUCCESS.answer, "the NEXUS answer is what the user sees");
+  for (const legacy of ["runReadTool", "askBrain", "askEcho", "fallbackCard"]) {
+    assert.ok(!calls.includes(legacy), `${legacy} must not run after a successful relay answer; calls=${calls.join(",")}`);
+  }
+});
+
+test("escalated:false does not discard the answer", async () => {
+  // The exact regression. Guarded separately so a future refactor cannot reintroduce a
+  // routing-flag gate in front of the answer.
+  const { card } = await runTurn({ ...RELAY_SUCCESS, escalated: false, intent: undefined });
+  assert.ok(card && card.text === RELAY_SUCCESS.answer);
+});
+
+test("an escalated answer is still terminal", async () => {
+  const { calls } = await runTurn({ ...RELAY_SUCCESS, escalated: true });
+  assert.ok(!calls.includes("askBrain"));
+});
+
+test("a relay failure still falls through to the existing chain", async () => {
+  for (const failure of [
+    null,                                                  // transport failure / not signed in
+    { ok: false, answer: null, escalated: true },           // model failed, no route
+    { ok: true, answer: null, escalated: false },           // degraded: succeeded with no content
+    { ok: true, answer: "   ", escalated: false }           // whitespace is not an answer
+  ]) {
+    const { calls } = await runTurn(failure);
+    assert.ok(calls.includes("askBrain"),
+      `${JSON.stringify(failure)} must fall through; calls=${calls.join(",")}`);
+  }
+});
+
+test("human_review still stops the chain", async () => {
+  const { calls } = await runTurn({ ok: false, answer: null, human_review: true });
+  assert.ok(!calls.includes("askBrain"));
+});
+
+test("a read intent with no prose still reaches runReadTool", async () => {
+  // The legacy deterministic shape carries an intent and no answer. Preserved deliberately.
+  const { calls } = await runTurn({ ok: true, resolved: true, intent: "search_events", escalated: false });
+  assert.ok(calls.includes("runReadTool"));
+});
