@@ -789,12 +789,26 @@
                text: 'This one needs a person, so I have flagged it for the KEEPITIL team rather than answering it myself. Someone will follow up.' };
     }
 
-    // Escalated: a model composed real prose. This is the only case where the agent
-    // has something better to say than the existing brain.
-    if (d.escalated) {
-      if (d.ok && d.answer) return { title: '💡 Cho', text: d.answer };
-      return null;   // model failed / no route -> fall through to the proven chain
+    // A REAL ANSWER IS TERMINAL. It does not matter which route produced it.
+    //
+    // This branch used to live inside `if (d.escalated)`, which was correct while the only
+    // source of prose was the legacy escalation path. It is wrong now. nexus-relay adapts the
+    // NEXUS envelope with `escalated: !!degradation`, so a CLEAN success — the good case —
+    // arrives with escalated:false, fell past the only branch that returns the answer, and
+    // returned null. handleQuery read that null as "the agent had nothing" and continued into
+    // runReadTool -> askBrain -> askEcho, so NEXUS answered and the user was shown the legacy
+    // reply ~150ms later. The answer was not lost in transit; it was discarded here.
+    //
+    // Keyed on the answer itself rather than on any routing flag, because the flag is exactly
+    // what differed between the two producers. `d.ok && d.answer` is true only when something
+    // composed real prose for this turn, which is the only condition that should end the chain.
+    if (d.ok && typeof d.answer === 'string' && d.answer.trim()) {
+      return { title: '💡 Cho', text: d.answer };
     }
+
+    // Escalated with nothing to show = the model failed or found no route. That is an explicit
+    // failure, and only an explicit failure may fall through to the proven chain.
+    if (d.escalated) return null;
 
     // Write actions: confirm, never auto-execute.
     var ACTIONABLE = { create_event:1, cancel_event:1, publish_campaign:1,
@@ -807,6 +821,7 @@
     }
     return null;   // read intents are handled by runReadTool(); everything else falls through
   }
+
 
   // ── Execute a READ tool and answer with real data ───────────────────────────
   // The router resolves 'find events near me' to search_events. Announcing that is
