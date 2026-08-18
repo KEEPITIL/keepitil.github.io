@@ -124,11 +124,28 @@ const RELAY_SUCCESS = {
   _nexus: { contractVersion: 1 }
 };
 
-test("a successful relay answer ends the turn — no legacy fallback is called", async () => {
+test("a successful relay answer ends the turn — every legacy counter stays zero", async () => {
   const { calls, card } = await runTurn(RELAY_SUCCESS);
-  assert.equal(card.text, RELAY_SUCCESS.answer, "the NEXUS answer is what the user sees");
+  assert.equal(card.text, RELAY_SUCCESS.answer, "the visible answer is exactly the relay content");
+  const count = (name) => calls.filter((c) => c === name).length;
   for (const legacy of ["runReadTool", "askBrain", "askEcho", "fallbackCard"]) {
-    assert.ok(!calls.includes(legacy), `${legacy} must not run after a successful relay answer; calls=${calls.join(",")}`);
+    assert.equal(count(legacy), 0, `${legacy} must stay at zero; calls=${calls.join(",")}`);
+  }
+  assert.equal(count("addMessage:bot"), 1, "exactly one bot message — a second would be the legacy answer arriving late");
+});
+
+test("zero calls to askBrain/askEcho means zero requests to ask_crew/ask-echo", () => {
+  // Bridges the counters above to the network. The counter test proves the FUNCTIONS are not
+  // called; this proves those functions are the only things that can reach those endpoints, so
+  // a zero counter really is a zero request.
+  for (const [fn, endpoint] of [["askBrain", "/rest/v1/rpc/ask_crew"], ["askEcho", "/functions/v1/ask-echo"]]) {
+    const hits = widget.split("\n")
+      .map((line, i) => [line, i])
+      .filter(([line]) => line.includes(endpoint) && !line.trimStart().startsWith("//"));
+    assert.equal(hits.length, 1, `${endpoint} must have exactly one call site; found ${hits.length}`);
+    const before = widget.slice(0, widget.indexOf(endpoint));
+    assert.ok(before.lastIndexOf(`function ${fn}`) > before.lastIndexOf("function handleQuery"),
+      `${endpoint} must be reached only from ${fn}`);
   }
 });
 
