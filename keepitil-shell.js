@@ -296,13 +296,17 @@ window.KIL_ICONS = {
 var DESTINATIONS=[
   {href:'/',             label:'Explore', pill:'DISCOVER', icon:'home',    home:true,
    match:/^\/((index|v31)(\.html)?)?$/},
-  {href:'/scene.html',   label:'Scene',   pill:'CONNECT',  icon:'scene',   match:/scene/,
+  /* Founder 2026-08-18 — clean URLs. Each `match` accepts BOTH the new path and the retired
+     .html one, because the old files still exist as redirect stubs and an installed app bundle
+     may still request them. A nav that fails to highlight on the legacy path would look broken
+     for exactly the users on the oldest build. */
+  {href:'/connect', label:'Scene',   pill:'CONNECT',  icon:'scene',   match:/(^|\/)(connect|scene)(\.html)?\/?$/,
    tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
-  {href:'/vs.html',      label:'VS',      pill:'CREATE',   icon:'vs',      match:/(^|\/)vs(\.html)?$/,
+  {href:'/create',  label:'VS',      pill:'CREATE',   icon:'vs',      match:/(^|\/)(create|vs)(\.html)?\/?$/,
    tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'},
-  {href:'/culture.html', label:'Culture', pill:'CULTURE',  icon:'culture', match:/culture/,
+  {href:'/culture', label:'Culture', pill:'CULTURE',  icon:'culture', match:/(^|\/)culture(\.html)?\/?$/,
    tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
-  {href:'/radio.html',   label:'Radio',   pill:'EARN',     icon:'radio',   match:/radio/,
+  {href:'/earn',    label:'Radio',   pill:'EARN',     icon:'radio',   match:/(^|\/)(earn|radio)(\.html)?\/?$/,
    tint:'#ff9f43', glow:'rgba(255,159,67,.75)'}
 ];
 /* ── K4: the destination rail, for pages that want to surface the map in their own body ────
@@ -368,7 +372,7 @@ window.KIL_NOT_FOUND = function(opts){
     + (opts.heading || ('That ' + what + ' isn’t here')) + '</h1>'
     + '<p style="color:rgba(255,255,255,.7);line-height:1.6;margin:0 0 22px">'
     + (opts.body || ('It may have been removed, or the link may be wrong.')) + '</p>'
-    + (opts.links || [['/', 'Explore'], ['/culture.html','Culture'], ['/scene.html','Scene']])
+    + (opts.links || [['/', 'Explore'], ['/culture','Culture'], ['/connect','Scene']])
         .map(function(l){ return '<a href="'+l[0]+'" style="display:inline-block;margin:0 7px 10px;padding:12px 20px;'
           + 'border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#fff;min-height:44px;line-height:20px">'+l[1]+'</a>'; })
         .join('')
@@ -584,7 +588,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           /* K2 active state — the tint stays INLINE, and the muting is what carries
              !important.
              The bug: `#kil-bnav a.on{color:var(--brand)}` never applied, because an inline
-             color beats any stylesheet rule. Measured on /scene.html: the active anchor
+             color beats any stylesheet rule. Measured on /connect: the active anchor
              computed rgb(34,224,122) — its own tint — identical to its inactive self, so
              there was no visible active state on any coloured slot.
              The first fix moved the tint into a custom property and let `.on` read it. That
