@@ -81,7 +81,7 @@
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>'+
       '</div>'+
-      (location.pathname.indexOf('/v31/')===0?'':'<a href="/v3/radio.html" class="kil-submit">🎵 Play your song?</a>')+   /* V3.1 containment: no /v3/ nav from the public face */
+      (location.pathname.indexOf('/v31/')===0?'':'<a href="/v3/earn" class="kil-submit">🎵 Play your song?</a>')+   /* V3.1 containment: no /v3/ nav from the public face */
       '<button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>';
     document.body.appendChild(bar);
     // ── rotating referral ad (middle of the bar) ──
@@ -101,13 +101,26 @@
       },5000);
     })();
 
-    var sc=document.createElement('iframe');
-    sc.id='kil-sc';
-    sc.setAttribute('allow','autoplay');
-    sc.setAttribute('scrolling','no');
-    sc.setAttribute('frameborder','no');
-    sc.src='https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false';
-    document.body.appendChild(sc);
+    /* ── IFRAME DEFERRED TO FIRST GESTURE (Founder 2026-08-19) ──────────────────────────────
+       This used to be appended on every page load. A SoundCloud player with auto_play=true
+       and continuous_play=true is a permanently streaming third-party frame: the document
+       never reaches idle, and the tab holds an open connection plus an audio decode for as
+       long as it is open. Measured symptom — every /create page failed to finish loading,
+       and on a device with less headroom it presented as the page hanging or crashing.
+       Nothing about the radio's behaviour changes; it is created the moment the visitor
+       makes any gesture, which is also the earliest point a browser would allow it to make
+       sound. Before that, a page that nobody has touched costs nothing. */
+    window.__kilMountRadio = function(){
+      if(document.getElementById('kil-sc')) return;
+      var sc=document.createElement('iframe');
+      sc.id='kil-sc';
+      sc.setAttribute('allow','autoplay');
+      sc.setAttribute('scrolling','no');
+      sc.setAttribute('frameborder','no');
+      sc.src='https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false';
+      document.body.appendChild(sc);
+      if(window.__kilRadioAttach) window.__kilRadioAttach(sc);
+    };
   }
 
   // ── Radio init ────────────────────────────────────────────────────────────
@@ -156,7 +169,7 @@
       /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
       if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,#kr-toggle,.kil-ad,#kil-ad-link')){return;}
       if(location.pathname.indexOf('/v31/radio')===0)return; /* already on Radio */
-      location.href='/v31/radio.html';
+      location.href='/v31/earn';
     });
   }
 
@@ -299,10 +312,38 @@
     widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
     widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
   }
-  var scApi=document.createElement('script');
-  scApi.src='https://w.soundcloud.com/player/api.js';
-  scApi.onload=initWidget;
-  document.head.appendChild(scApi);
+  /* The SoundCloud API script is deferred alongside the iframe — loading it eagerly would
+     re-introduce a third-party request on every page load for a player that may never exist.
+     __kilRadioAttach is called by __kilMountRadio once the iframe is in the DOM; it rebinds
+     `frame` (captured as null at init, because the iframe no longer exists at that point)
+     and only then fetches the API. */
+  window.__kilRadioAttach = function(el){
+    frame = el || document.getElementById('kil-sc');
+    if(!frame) return;
+    if(window.SC){ initWidget(); return; }
+    if(document.getElementById('kil-sc-api')) return;
+    var scApi=document.createElement('script');
+    scApi.id='kil-sc-api';
+    scApi.src='https://w.soundcloud.com/player/api.js';
+    scApi.onload=initWidget;
+    document.head.appendChild(scApi);
+  };
+  /* Any gesture mounts it. `once` so the listeners remove themselves; capture+passive so a
+     stopPropagation() anywhere in the page cannot swallow the trigger. */
+  (function(){
+    /* Two shapes to cover: pages where this script injects the bar (__kilMountRadio exists),
+       and the handful that inline the bar AND the iframe in their own HTML — there the
+       injection block is skipped, so __kilMountRadio is undefined and we attach directly to
+       the iframe that is already sitting in the DOM. Without this branch the API script would
+       never load on those pages and the radio would be silent. */
+    function boot(){
+      if(window.__kilMountRadio) window.__kilMountRadio();
+      else if(window.__kilRadioAttach) window.__kilRadioAttach(null);
+    }
+    ['pointerdown','touchstart','keydown'].forEach(function(ev){
+      document.addEventListener(ev, boot, { once:true, capture:true, passive:true });
+    });
+  })();
 
   // ── Mute/vol controls ─────────────────────────────────────────────────────
   if(muteBtn){muteBtn.addEventListener('click',function(e){
