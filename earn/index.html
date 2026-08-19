@@ -3,8 +3,8 @@
 <head>
 <link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<meta name="description" content="KEEPITIL Radio — curated stations across every genre, creator playlists, live programming, games, the mobile app, and ways to create, compete and earn.">
-<title>Radio — Stations, Playlists, Games & Creator Opportunities | KEEPITIL</title>
+<meta name="description" content="KEEPITIL EARN — curated stations across every genre, creator playlists, and ways to create, compete and earn.">
+<title>Earn — Stations, Playlists &amp; Creator Opportunities | KEEPITIL</title>
 <link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -131,10 +131,10 @@ footer{margin-top:auto}
 </section>
 
 <!-- SCHEDULE -->
-<section id="schedule">
-  <div class="sh"><h2>Programming Schedule</h2><span class="sub">Scheduled blocks — architecture ready for live DJ broadcasts.</span></div>
-  <div class="grid g-cards" id="scheduleGrid"></div>
-</section>
+<!-- PROGRAMMING SCHEDULE REMOVED 2026-08-18 (Founder). Its own subtitle said "architecture ready
+     for live DJ broadcasts" — i.e. a schedule for programming that does not exist yet. A grid of
+     placeholder slots teaches a visitor the product is hollow, which is the same reason the empty
+     Blog/Vid tabs came off Culture. Bring it back when there are real broadcasts to schedule. -->
 
 <!-- CREATE COMPETE EARN -->
 <section id="earn">
@@ -143,26 +143,11 @@ footer{margin-top:auto}
   <p class="disc">Entries are reviewed. Votes are never for sale. Placement is subject to editorial review — nothing is guaranteed. Any cash-entry or cash-prize competition launches only after legal &amp; platform compliance review.</p>
 </section>
 
-<!-- CREATOR SERVICES -->
-<section id="services">
-  <div class="sh"><h2>Creator Services</h2><span class="sub">Submit your music, mixes, and requests. Beta — free while we build.</span></div>
-  <div class="grid g-cards" id="servicesGrid"></div>
-  <p class="disc">Each request shows eligibility, review process and expected timeline. Free/beta unless marked. You confirm you hold the rights to anything you submit. No guaranteed placement where review applies.</p>
-</section>
-
-<!-- GAMES -->
-<section id="games">
-  <div class="sh"><h2>Games</h2><span class="sub">Play free on desktop &amp; mobile — all KEEPITIL games live at keepitil.com/games.</span></div>
-  <div class="grid g-cards" id="gamesGrid"></div>
-  <p class="disc"><a class="btn ghost" href="/games/ageofwars/">Open the Games hub →</a></p>
-</section>
-
-<!-- MOBILE APP -->
-<section id="mobile">
-  <div class="sh"><h2>Mobile App</h2><span class="sub">Take KEEPITIL with you — radio, culture, scene, tickets and games in your pocket.</span></div>
-  <div class="grid g-cards" id="mobileGrid"></div>
-  <p class="disc">Install the free web app now (Add to Home Screen); native iOS/Android apps are on the roadmap.</p>
-</section>
+<!-- CREATOR SERVICES / GAMES / MOBILE APP sections REMOVED 2026-08-18 (Founder).
+     EARN is now Stations · Playlists · Create-Compete-Earn — the three things that are actually
+     about earning. The rest were a services menu, a games arcade and an app advert sharing one
+     page because Radio used to be the catch-all before EARN became a surface in its own right.
+     Games still live at /games/. The app is still installable. Neither needed a section here. -->
 
 </main>
 
@@ -238,8 +223,8 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 
   /* section id -> label, using the Founder's renames */
   var SECS = [
-    ['stations','Channel'], ['playlists','Playlist'], ['schedule','Schedule'],
-    ['earn','VS'], ['services','Apps'], ['games','Games']
+    /* Founder 2026-08-18: Schedule / Apps / Games sections removed from this page. */
+    ['stations','Channel'], ['playlists','Playlist'], ['earn','VS']
   ].filter(function(s){ return document.getElementById(s[0]); });
   if(!SECS.length) return;
   var idx = 0;
@@ -355,7 +340,7 @@ var BLOCKS=[['Morning Discovery','🌅',35,'Fresh finds to start the day'],['Loc
  ['Venue Talk','🏛️',20,'Rooms, sound & the people behind them'],['Festival Preview','🎪',300,'What to catch this season'],
  ['Community Picks','🫶',330,'Chosen by listeners'],['New Release Hour','🆕',180,'Just dropped'],
  ['AI Crew Show','🤖',190,'KEEPITIL agents curate'],['Weekend Mix','🎧',270,'Long-play DJ sets']];
-document.getElementById('scheduleGrid').innerHTML=BLOCKS.map(function(b){return iconCard(b[1],b[2],'Scheduled',b[0],b[3]);}).join('');
+var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid) _g_scheduleGrid.innerHTML=BLOCKS.map(function(b){return iconCard(b[1],b[2],'Scheduled',b[0],b[3]);}).join('');
 
 /* ---- Create, Compete & Earn ---- */
 var COMPS=[['Song of the Month','🏆',45,'Top track wins rotation + a feature'],['DJ Mix Challenge','🎛️',260,'Submit a mix, get judged & aired'],
@@ -375,7 +360,7 @@ var SERVICES=[['Add my song','🎵',160,'Get your track considered for a station
  ['Sponsor a show','🤝',140,'Brand a station block','Paid · reviewed'],
  ['Referral partner','🔗',270,'Earn on referrals','Application'],
  ['Ticket-sales commission','🎟️',330,'Earn on tickets you drive','Application']];
-document.getElementById('servicesGrid').innerHTML=SERVICES.map(function(s){
+var _g_servicesGrid=document.getElementById('servicesGrid'); if(_g_servicesGrid) _g_servicesGrid.innerHTML=SERVICES.map(function(s){
   var subj=encodeURIComponent('KEEPITIL Radio — '+s[0]);
   var body=encodeURIComponent('Request: '+s[0]+'\n\nName:\nProfile / link:\nDetails:\n\nI confirm I hold the rights to anything I submit.');
   return iconCard(s[1],s[2],s[4],s[0],s[3],'<div class="meta">Timeline: ~5 business days</div><a class="btn ghost" style="margin-top:12px" href="mailto:info@keepitil.com?subject='+subj+'&body='+body+'">Request</a>');
@@ -385,7 +370,7 @@ document.getElementById('servicesGrid').innerHTML=SERVICES.map(function(s){
 /* Games: only real, playable titles (Founder 2026-08-04) — the Games hub link lives in the section footer */
 var GAMES=[['Age of Wars','⚔️',12,'Strategy war game — build, battle, conquer.','/games/ageofwars/'],
  ['Kingdom Wars','🏰',270,'Defend your kingdom and rise to the top.','/games/kingdom-wars/']];
-document.getElementById('gamesGrid').innerHTML=GAMES.map(function(g){
+var _g_gamesGrid=document.getElementById('gamesGrid'); if(_g_gamesGrid) _g_gamesGrid.innerHTML=GAMES.map(function(g){
   return '<a class="card" href="'+g[4]+'" style="display:block;color:inherit">'+band(g[2],g[1])
     +'<span class="chip">Play free</span><h3 style="margin-top:8px">'+g[0]+'</h3><p>'+g[3]+'</p></a>';
 }).join('');
@@ -394,7 +379,7 @@ document.getElementById('gamesGrid').innerHTML=GAMES.map(function(g){
 /* Mobile: only what's actually usable today — the installable web app (Founder 2026-08-04) */
 var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen — works offline, no store needed.'],
  ['Radio in your pocket','🎧',260,'Keep the stream going anywhere on your phone.']];
-document.getElementById('mobileGrid').innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
+var _g_mobileGrid=document.getElementById('mobileGrid'); if(_g_mobileGrid) _g_mobileGrid.innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
 
 renderStations(); renderPls();
 /* Decorate each section: single-row carousel by default + a down-arrow to expand into the full grid (Founder 2026-08-04) */
@@ -434,8 +419,7 @@ renderStations(); renderPls();
   var FILTERS = [
     { ids:['stations'],           label:'Channel'  },
     { ids:['playlists'],          label:'Playlist' },
-    { ids:['schedule'],           label:'Schedule' },
-    { ids:['services','games'],   label:'App'      }
+    /* Schedule + App filters dropped with their sections (Founder 2026-08-18). */
   ];
 
   /* SNAPSHOT, once per section.
