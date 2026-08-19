@@ -151,6 +151,13 @@
 
       /* Item stepper, bottom-LEFT: the chat icon owns bottom-right on every page (§C). */
       "#kilp .kilp-vnav{position:absolute;left:12px;bottom:12px;z-index:10;display:flex;flex-direction:column;gap:8px;pointer-events:auto}",
+      /* CONTROLS REMOVED — Founder 2026-08-19: "remove the arrow icons to show the swipe left,
+         right, down, up ... also remove the icons on the right side. they do nothing."
+         Hidden rather than deleted: gotoItem(), the keyboard handler and the enable/disable
+         logic all querySelector('#kilp-up'/'#kilp-down') and would throw on null. Swiping is
+         unaffected — it was never driven by these buttons. The AI chat bubble is #kilo-btn,
+         a separate element, so "keep the chat icon" needs no exception here. */
+      "#kilp .kilp-vnav,#kilp .kilp-fnav,#kilp .kilp-rail-actions{display:none!important}",
 
       "#kilp .kilp-rail{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;",
       "scroll-snap-type:x mandatory;overscroll-behavior:contain;scrollbar-width:none}",
