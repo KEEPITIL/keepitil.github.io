@@ -1627,15 +1627,11 @@
   <div class="events-hub">
 <!-- EVENTS -->
 <div id="evx">
-  <!-- PERSONALIZED (Founder PRIORITY 4): only rendered for users with onboarding signals.
-       Signed-out / no-signal visitors never see it — the page is byte-identical for them. -->
-  <section class="evx-sec" id="evx-foryou-sec" style="display:none">
-    <div class="evx-hd">
-      <h2 class="evx-title-lg" id="evx-fy-label">FOR YOU</h2>
-      <div class="evx-fy-why" id="evx-fy-why"></div>
-    </div>
-    <div class="evx-row" id="evx-foryou"></div>
-  </section>
+  <!-- FOR YOU section REMOVED 2026-08-18 (Founder). It was personalization gated on onboarding
+       signals, and with 49 users / 1 follow there is not enough signal for it to say anything a
+       visitor could not get from the calendar. The builder (buildForYou) is kept but is now a
+       no-op guarded on the missing container, so no code needs deleting to bring it back —
+       restore this markup and it works again. -->
   <section class="evx-sec">
     <div class="evx-hd"><h2 class="evx-title-lg" id="evx-ms-label">MUST-SEE EVENTS</h2></div>
     <div class="evx-row" id="evx-mustsee"></div>
@@ -2204,12 +2200,39 @@ function daysOf(mk){
   EVENTS.filter(function(e){return e.date.slice(0,7)===mk&&inGenre(e);}).forEach(function(e){(map[e.date]=map[e.date]||[]).push(e);});
   return Object.keys(map).sort().map(function(d){return {date:d,events:map[d]};});
 }
+/* MUST-SEE — always 8 to 12 events (Founder 2026-08-18).
+   It used to draw ONLY from activeMonth, so a thin month produced a near-empty rail: in a month
+   with 3 events the row showed 3. The section is the homepage's shop window and should never
+   look abandoned because of which month happens to be selected.
+   Order of preference, each stage only used if we are still short of MIN:
+     1. picks in the active month     (the curated ones, first)
+     2. everything else that month
+     3. upcoming events in LATER months, soonest first  ← the backfill that guarantees the floor
+   Past events are never eligible. If the whole future catalogue is under MIN we show what exists
+   rather than padding — BROKEN != EMPTY, and a real shortage should look like one. */
 function buildMustSee(){
+  var MIN=8, MAX=12;
   document.getElementById('evx-ms-label').textContent='MUST-SEE EVENTS';
-  var picks=EVENTS.filter(function(e){return e.date.slice(0,7)===activeMonth&&inGenre(e)&&e.pick;});
-  var rest=EVENTS.filter(function(e){return e.date.slice(0,7)===activeMonth&&inGenre(e)&&!e.pick;});
-  var evs=picks.concat(rest).slice(0,12); /* 8–12 carousel: picks first, then fill */
-  document.getElementById('evx-mustsee').innerHTML=evs.length?evs.map(function(e){return flyer(e,e.pick);}).join(''):'<div class="evx-empty">No events this month.</div>';
+  var today=new Date().toISOString().slice(0,10);
+  var upcoming=EVENTS.filter(function(e){ return e.date && e.date>=today && inGenre(e); });
+
+  var inMonth=function(e){ return e.date.slice(0,7)===activeMonth; };
+  var picks=upcoming.filter(function(e){ return inMonth(e)&&e.pick; });
+  var rest =upcoming.filter(function(e){ return inMonth(e)&&!e.pick; });
+  var evs=picks.concat(rest);
+
+  if(evs.length<MIN){
+    var have={}; evs.forEach(function(e){ have[e.id||e.slug||e.date+e.title]=1; });
+    var later=upcoming.filter(function(e){ return !inMonth(e)&&!have[e.id||e.slug||e.date+e.title]; })
+                      .sort(function(a,b){ return (a.date||'').localeCompare(b.date||'')
+                                                  || (b.pick?1:0)-(a.pick?1:0); });
+    evs=evs.concat(later.slice(0,MIN-evs.length));
+  }
+  evs=evs.slice(0,MAX);
+
+  document.getElementById('evx-mustsee').innerHTML = evs.length
+    ? evs.map(function(e){ return flyer(e,e.pick); }).join('')
+    : '<div class="evx-empty">No upcoming events yet.</div>';
 }
 function buildRecent(){
   var picks=EVENTS.filter(function(e){return e.date.slice(0,7)===activeMonth&&e.pick;});
