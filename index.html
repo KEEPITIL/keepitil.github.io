@@ -533,6 +533,26 @@
   /* rows below: horizontal only — no vertical drift, no page pan */
   #evx .evx-row{touch-action:pan-x;overflow-y:hidden;overscroll-behavior-x:contain;}
 }
+/* ── ROW 1: location dropdown + months, one row (Founder 2026-08-18) ───────────────────────
+   #evx-months moved INSIDE #evx-locrow, so it is no longer the row itself — it is the scroller
+   sitting to the right of the dropdown. It keeps its own overflow so months slide horizontally
+   while the dropdown stays pinned. */
+#evx .evx-locrow{overflow:visible;flex-wrap:nowrap;align-items:center;}
+#evx .evx-monthwrap{display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none;flex:1 1 auto;min-width:0;}
+#evx .evx-monthwrap::-webkit-scrollbar{display:none;}
+#evx .evx-locmenu{min-width:250px;max-height:340px;overflow-y:auto;padding:8px;}
+#evx .evx-locsearch{width:100%;box-sizing:border-box;padding:8px 10px;margin-bottom:8px;border-radius:8px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff;font-size:.72rem;outline:none;}
+#evx .evx-locsearch::placeholder{color:#6b7480;}
+#evx .evx-locsearch:focus{border-color:var(--green);}
+#evx .evx-locgrp{font-size:.5rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#4a5560;
+  padding:9px 10px 4px;position:sticky;top:0;background:#0d0d16;}
+#evx .evx-locopt{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;
+  background:transparent;border:0;color:#c8d0d8;font-size:.68rem;font-weight:600;cursor:pointer;}
+#evx .evx-locopt:hover{background:rgba(255,255,255,.06);color:#fff;}
+#evx .evx-locopt.active{color:var(--green);}
+#evx .evx-locopt .n{color:#5a6472;font-size:.6rem;font-weight:700;}
+#evx .evx-locnone{padding:10px;color:#6b7480;font-size:.68rem;}
 #evx #evx-months{gap:8px;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:54px;padding:8px 4px;text-align:center;font-size:.66rem;letter-spacing:.06em;}
 #evx .evx-mhead{display:flex;align-items:baseline;gap:12px;max-width:1180px;margin:52px auto 2px;padding:0 24px;scroll-margin-top:150px;}
@@ -1639,7 +1659,17 @@
   <!-- "Recently Added" section removed per Founder 2026-07-12 -->
 
   <div class="evx-nav">
-    <div class="evx-nav-row" id="evx-months"></div>
+    <!-- ROW 1 (Founder 2026-08-18): location dropdown FIRST, months on the SAME row to its right.
+         Mirrors row 2 exactly — dropdown on the left, its values to the right. -->
+    <div class="evx-nav-row evx-locrow" id="evx-locrow">
+      <div class="evx-catdd" id="evx-locdd">
+        <button type="button" class="evx-catdd-btn" id="evx-locdd-btn" aria-haspopup="true" aria-expanded="false">
+          <span class="evx-catdd-ic">▾</span><span class="evx-catdd-lb" id="evx-locdd-lb">ALL AREAS</span>
+        </button>
+        <div class="evx-catdd-menu evx-locmenu" id="evx-locdd-menu" role="menu"></div>
+      </div>
+      <div class="evx-monthwrap" id="evx-months"></div>
+    </div>
     <div class="evx-nav-row" id="evx-genres"></div>
     <div class="evx-nav-row evx-subrow" id="evx-subgenres"></div>
   </div>
@@ -2097,7 +2127,17 @@ var expanded={};
 var PAGE=12;
 function mLabel(mk){return MON3[(+mk.slice(5,7))-1];}
 function mFull(mk){return MONF[(+mk.slice(5,7))-1]+' '+mk.slice(0,4);}
+/* ── LOCATION FILTER (Founder 2026-08-18) ─────────────────────────────────────────────────
+   activeLoc = {kind:'state'|'county'|'city', val:'…'} or null for ALL AREAS.
+   Every option is derived from EVENTS at render time, so the menu can only ever offer places
+   that actually have events on the calendar — no empty results, and no hardcoded geography list
+   to drift out of date as the ingest reaches new cities. */
+var activeLoc=null;
+function locOf(e,kind){ return (kind==='state'?e.state:kind==='county'?e.county:e.city)||''; }
+function inLoc(e){ return !activeLoc || locOf(e,activeLoc.kind)===activeLoc.val; }
+
 function inGenre(e){
+  if(!inLoc(e)) return false;
   if(activeCat && (e.ecat||'music')!==activeCat) return false;
   if(activeGenre){
     var g=String(e.gcat||'').toLowerCase();
@@ -2194,6 +2234,74 @@ function buildSubGenres(){
   el.innerHTML='<button class="evx-gn'+(activeGenre===''?' active':'')+'" data-g="">ALL '+cat[1]+'</button>'
     +subs.map(function(s){return '<button class="evx-gn'+(s[0]===activeGenre?' active':'')+'" data-g="'+s[0]+'">'+s[1]+'</button>';}).join('');
   el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setGenre(b.dataset.g);};});
+}
+/* Counts are computed IGNORING the current location filter, so the menu always shows the full
+   set of places you could switch to — a filter that hides its own alternatives is a trap. */
+function locCounts(kind){
+  var today=new Date().toISOString().slice(0,10), m={};
+  EVENTS.forEach(function(e){
+    if(!e.date||e.date<today) return;
+    if(activeCat && (e.ecat||'music')!==activeCat) return;
+    var v=locOf(e,kind); if(!v) return;
+    m[v]=(m[v]||0)+1;
+  });
+  return Object.keys(m).sort(function(a,b){ return m[b]-m[a] || a.localeCompare(b); })
+                       .map(function(v){ return {val:v,n:m[v]}; });
+}
+function buildLocMenu(q){
+  var menu=document.getElementById('evx-locdd-menu'); if(!menu) return;
+  q=(q||'').trim().toLowerCase();
+  var html='<input class="evx-locsearch" id="evx-locq" type="search" placeholder="Search state, county or city" value="'+h(q)+'" autocomplete="off">';
+  var any=false;
+  [['state','States'],['county','Counties'],['city','Cities']].forEach(function(g){
+    var opts=locCounts(g[0]).filter(function(o){ return !q || o.val.toLowerCase().indexOf(q)>=0; });
+    if(!opts.length) return;
+    any=true;
+    html+='<div class="evx-locgrp">'+g[1]+'</div>'
+       +  opts.map(function(o){
+            var on=activeLoc&&activeLoc.kind===g[0]&&activeLoc.val===o.val;
+            return '<button type="button" class="evx-locopt'+(on?' active':'')+'" data-k="'+g[0]+'" data-v="'+h(o.val)+'">'
+                 + '<span>'+h(o.val)+'</span><span class="n">'+o.n+'</span></button>';
+          }).join('');
+  });
+  if(!any) html+='<div class="evx-locnone">Nothing on the calendar matches “'+h(q)+'”.</div>';
+  else if(!q) html='<button type="button" class="evx-locopt'+(activeLoc?'':' active')+'" data-k="" data-v="">'
+                 + '<span>All areas</span></button>'+html;
+  menu.innerHTML=html;
+
+  var qi=document.getElementById('evx-locq');
+  if(qi){
+    qi.oninput=function(){ buildLocMenu(qi.value); };
+    qi.onclick=function(ev){ ev.stopPropagation(); };
+    if(q){ qi.focus(); qi.setSelectionRange(q.length,q.length); }
+  }
+  menu.querySelectorAll('.evx-locopt').forEach(function(b){
+    b.onclick=function(ev){
+      ev.stopPropagation();
+      activeLoc = b.dataset.k ? {kind:b.dataset.k, val:b.dataset.v} : null;
+      document.getElementById('evx-locdd-lb').textContent = activeLoc ? activeLoc.val.toUpperCase() : 'ALL AREAS';
+      menu.classList.remove('on');
+      document.getElementById('evx-locdd-btn').setAttribute('aria-expanded','false');
+      /* the month list is rebuilt too: filtering to San Diego can empty months that only had
+         LA events, and leaving a dead month selected shows an empty calendar for no reason. */
+      MONTHS=(function(){var s={};EVENTS.forEach(function(x){ if(x.date&&inGenre(x)) s[x.date.slice(0,7)]=1; });return Object.keys(s).sort();})();
+      if(MONTHS.indexOf(activeMonth)<0) activeMonth=MONTHS[0]||activeMonth;
+      buildMonths(); buildMustSee(); buildRecent(); buildDays();
+    };
+  });
+}
+function initLocDD(){
+  var btn=document.getElementById('evx-locdd-btn'), menu=document.getElementById('evx-locdd-menu');
+  if(!btn||!menu||btn._wired) return; btn._wired=true;
+  btn.onclick=function(ev){
+    ev.stopPropagation();
+    var open=menu.classList.toggle('on');
+    btn.setAttribute('aria-expanded',open?'true':'false');
+    if(open){ buildLocMenu(''); var qi=document.getElementById('evx-locq'); if(qi) qi.focus(); }
+  };
+  document.addEventListener('click',function(e){
+    if(!menu.contains(e.target)&&e.target!==btn){ menu.classList.remove('on'); btn.setAttribute('aria-expanded','false'); }
+  });
 }
 function daysOf(mk){
   var map={};
@@ -2421,7 +2529,7 @@ function fyEnrich(sb){
     }).catch(function(){});
   }).catch(function(){});
 }
-function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee();buildRecent();buildDays();}
+function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();buildMustSee();buildRecent();buildDays();}
 /* Calendar = external/Posh music events (baked EVENTS above) + KEEPITIL member-created events layered on top additively. Only Founder-approved (status='published') KEEPITIL events surface. */
 (function(){
   function boot2(){try{boot();}catch(e){}}
@@ -2544,6 +2652,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
       /* 3rd-party = has a full external ticket URL → send people straight there (Founder 2026-07-28). Only truly internal KEEPITIL events (no external source_url) get the on-site event page/chat. */
       var internal=!e.source_url||!/^https?:\/\//i.test(e.source_url);
       return {title:e.title,date:_kld(e.starts_at,e.tz),venue:e.venue||'',city:e.city||'',
+        state:e.state||'',county:e.county||'',   /* 2026-08-18: drives the location filter */
         genre:g||'KEEPITIL',gcat:_cl.gcat,ecat:_cl.ecat,img:e.cover_url||e.img||'',
         ticket:(e.source_url&&!internal)?e.source_url:('/event.html?e='+encodeURIComponent(e.slug||'')),
         price:'Tickets',pick:!!e.featured,keepitil:internal,slug:e.slug,owner:e.owner_handle||''};
