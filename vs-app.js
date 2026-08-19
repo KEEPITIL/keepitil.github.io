@@ -42,7 +42,7 @@
    + '#vs-app .vs-detail{max-width:760px;margin:0 auto}'
    + '#vs-app .vs-detail .big{width:100%;border-radius:16px;background:#0a0a0f center/cover no-repeat;aspect-ratio:16/10;margin-bottom:14px}'
    + '#vs-app .vs-detail .big.nomedia{aspect-ratio:auto;height:74px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--vsl);color:#66727e;font:700 .75rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase}'
-   + '#vs-app h2.vs-h{font-family:var(--fs,inherit);font-size:1.5rem;color:#fff;margin:0 0 4px}'
+   + '#vs-app h1.vs-h,#vs-app h2.vs-h{font-family:var(--fs,inherit);font-size:1.5rem;color:#fff;margin:0 0 4px;font-weight:inherit}'
    + '#vs-app .vs-meta{color:#9aa0b0;font-size:.85rem;margin-bottom:14px}'
    /* the 5-action vote bar — sticky on mobile per §28 */
    + '#vs-app .vs-votes{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;padding:12px;border:1px solid var(--vsl);border-radius:14px;background:rgba(12,12,20,.9)}'
@@ -138,12 +138,50 @@
    +   'font:500 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase}'
    + '#vs-app .ce-chip i{font-style:normal;opacity:.55;margin-left:5px}'
    + '#vs-app .ce-chip.on{background:rgba(0,180,255,.14);color:var(--vsb);border-color:rgba(0,180,255,.5)}'
-   /* 2:3 — same ratio as the generated covers and the detail-page flyer. Overrides the
-      4/3 of .vs-card .cov, which is the entries feed (screenshots), not competition art. */
-   + '#vs-app .vs-card .cov.ce-cov{aspect-ratio:2/3}'
-   + '#vs-app .ce-cov{display:flex;align-items:center;justify-content:center;'
-   +   'background:linear-gradient(135deg,rgba(0,180,255,.16),rgba(160,107,255,.16))}'
-   + '#vs-app .ce-cov span{font:800 .8rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#cfe0ff;text-align:center;padding:0 10px}'
+   /* ── COMPETITION FLYER — mirrors #evx .evx-flyer in index.html ────────────────────────────
+      Values copied from the homepage rules, not re-invented: 240px wide, 2:3, radius 14,
+      1px white-8% border, lift-on-hover, and the same four-stop bottom shade. Mobile drops
+      to 220px / radius 15 exactly as #evx does at 860px. Kept in sync by hand — see ceCard(). */
+   + '#vs-app .ce-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:15px}'
+   + '@media(max-width:860px){#vs-app .ce-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}}'
+   + '#vs-app .ce-fly{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;cursor:pointer;'
+   +   'background:#15131f center/cover no-repeat;border:1px solid rgba(255,255,255,.08);'
+   +   'transition:transform .25s,border-color .25s,box-shadow .25s}'
+   + '#vs-app .ce-fly:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.45);box-shadow:0 16px 44px rgba(0,0,0,.6)}'
+   + '@media(max-width:860px){#vs-app .ce-fly{border-radius:15px}}'
+   + '#vs-app .ce-fly-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;'
+   +   'filter:blur(16px) brightness(.45) saturate(1.2);transform:scale(1.25);pointer-events:none}'
+   + '#vs-app .ce-fly-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:0;border:0}'
+   + '#vs-app .ce-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,'
+   +   'rgba(0,0,0,.02) 0%,rgba(0,0,0,.12) 40%,rgba(0,0,0,.8) 76%,rgba(0,0,0,.96) 100%)}'
+   + '#vs-app .ce-badge{position:absolute;z-index:3;top:10px;right:10px;font:800 .5rem Inter,sans-serif;'
+   +   'letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:11px;'
+   +   'background:rgba(0,0,0,.62);color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(4px)}'
+   + '#vs-app .ce-mark{position:absolute;left:10px;bottom:10px;z-index:6;width:46px;height:31px;'
+   +   'object-fit:contain;opacity:.92;filter:drop-shadow(0 1px 3px rgba(0,0,0,.85));pointer-events:none}'
+   + '#vs-app .ce-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:13px 13px 14px}'
+   + '#vs-app .ce-date{font:800 .6rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#00ff88;margin-bottom:4px}'
+   + '#vs-app .ce-title{font-family:var(--fs,inherit);font-size:1.18rem;line-height:1;letter-spacing:.03em;color:#fff;'
+   +   'margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}'
+   + '@media(max-width:860px){#vs-app .ce-title{font-size:15px;line-height:1.05}}'
+   + '#vs-app .ce-meta{font-size:.63rem;color:rgba(255,255,255,.72);line-height:1.32;margin-bottom:10px;'
+   +   'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}'
+   + '#vs-app .ce-foot{display:flex;align-items:center;justify-content:space-between;gap:6px}'
+   + '#vs-app .ce-price{font:800 .7rem Inter,sans-serif;color:#fff;white-space:nowrap}'
+   + '#vs-app .ce-cta{font:800 .54rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#06120a;'
+   +   'background:#00ff88;padding:6px 11px;border-radius:5px;white-space:nowrap;flex-shrink:0}'
+   + '#vs-app .ce-actions{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;flex-direction:column;'
+   +   'gap:6px;padding:12px;background:linear-gradient(0deg,rgba(0,0,0,.95),rgba(0,0,0,.78) 72%,transparent);'
+   +   'transform:translateY(101%);transition:transform .25s ease,opacity .2s;opacity:0}'
+   + '#vs-app .ce-fly:hover .ce-actions{transform:translateY(0);opacity:1}'
+   + '#vs-app .ce-act{display:block;text-align:center;font:800 .62rem Inter,sans-serif;letter-spacing:.08em;'
+   +   'text-transform:uppercase;padding:9px;border-radius:7px}'
+   + '#vs-app .ce-act-enter{background:#00ff88;color:#06120a}'
+   + '#vs-app .ce-act-info{background:rgba(0,180,255,.16);color:var(--vsb);border:1px solid rgba(0,180,255,.45)}'
+   /* Touch devices have no hover, so the drawer can never open — hide it rather than leave a
+      permanently invisible layer over the card swallowing taps. The whole card is tappable and
+      the DETAILS chip already reads as the action, same as the homepage on mobile. */
+   + '@media(hover:none){#vs-app .ce-actions{display:none}}'
    + '@media(max-width:860px){#vs-app .vs-votes{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:30}}';
   (function(){ var s=document.createElement('style'); s.textContent=CSS; document.head.appendChild(s); })();
 
@@ -473,22 +511,50 @@
     if(CE_TYPE!=='all'  && (c.category||'')!==CE_TYPE) return false;
     return true;
   }
+  /* ── COMPETITION CARD = HOMEPAGE EVENT CARD ───────────────────────────────────────────────
+     Founder 2026-08-19: "the event cards are not the same setup and design as the homepage."
+     They were a different component entirely — landscape cover, white body panel, pill row.
+     This is now a structural clone of flyer() in index.html: same 240px / 2:3 frame, same
+     blurred-backdrop + contained-image pair, same corner badge, same bottom gradient with
+     date / title / meta / price+CTA, same hover action drawer.
+     Class names are ce-* rather than evx-* on purpose: /create does not load the homepage's
+     #evx stylesheet, so the rules are duplicated below under #vs-app. If the homepage card
+     changes, BOTH have to change — that is the cost of the two pages not sharing a stylesheet. */
   function ceCard(c){
-    var fee = c.entry_fee_cents ? '$' + (c.entry_fee_cents/100).toFixed(2) : 'Free';
+    var fee    = c.entry_fee_cents ? '$' + (c.entry_fee_cents/100).toFixed(2) : 'Free';
     var closes = c.submissions_close_at
-      ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})
-      : 'No deadline';
-    return '<div class="vs-card" data-enter="'+c.id+'">'
-      /* cover_url is generated art (2:3) written by gen-competition-cover. The category
-         label is the fallback ONLY — a card with a cover must never show it, or the text
-         sits on top of the artwork. */
-      + (c.cover_url
-          ? '<div class="cov ce-cov" style="background-image:url('+h(c.cover_url)+');background-size:cover;background-position:center"></div>'
-          : '<div class="cov ce-cov"><span>'+h((c.category||'CREATE').slice(0,18))+'</span></div>')
-      + '<div class="bd"><h3>'+h(c.title)+'</h3>'
-      + '<div class="by">'+h(c.description || '')+'</div>'
-      + '<div style="margin-top:8px"><span class="vs-pill '+(c.entry_fee_cents?'':'ok')+'">'+fee+'</span>'
-      + '<span class="vs-pill">'+h(closes)+'</span></div></div></div>';
+      ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString(undefined,
+          {weekday:'short', month:'short', day:'numeric'}).toUpperCase().replace(',','') + ''
+      : 'Open — no deadline';
+    var n   = Number(c.entry_count || 0);
+    var meta = (c.category ? c.category + ' · ' : '') + (n === 1 ? '1 entry' : n + ' entries');
+    var alt = h(c.title + ' — ' + (c.category || 'KEEPITIL') + ' competition cover');
+
+    /* Same two-copy trick as the homepage: a blurred fill behind, the real art contained on
+       top, so a cover that is not exactly 2:3 is never centre-cropped. */
+    var im = c.cover_url
+      ? '<img class="ce-fly-bg" src="'+h(c.cover_url)+'" alt="" aria-hidden="true" loading="lazy" decoding="async"/>'
+        + '<img class="ce-fly-img" src="'+h(c.cover_url)+'" alt="'+alt+'" loading="lazy" decoding="async"/>'
+      : '';
+
+    return '<div class="ce-fly" data-enter="'+c.id+'" data-title="'+h(c.title)+'">'
+      + im + '<div class="ce-shade"></div>'
+      + '<span class="ce-badge">'+h((c.category || 'KEEPITIL').slice(0,22))+'</span>'
+      /* Brand mark only — the homepage's bottom-left glyph is a working Save button, and
+         competitions have no save endpoint. Rendering a button that does nothing is worse
+         than rendering none, so this is a plain image. */
+      + '<img class="ce-mark" src="https://keepitil.com/keepitil-x-green.png" alt="" aria-hidden="true" loading="lazy"/>'
+      + '<div class="ce-body">'
+      +   '<div class="ce-date">'+h(closes)+'</div>'
+      +   '<div class="ce-title">'+h(c.title)+'</div>'
+      +   '<div class="ce-meta">🏆 '+h(meta)+'</div>'
+      +   '<div class="ce-foot"><span class="ce-price">'+h(fee)+'</span>'
+      +     '<span class="ce-cta">Details</span></div>'
+      + '</div>'
+      + '<div class="ce-actions">'
+      +   '<span class="ce-act ce-act-enter">🎟 Enter Competition</span>'
+      +   '<span class="ce-act ce-act-info">ℹ️ Rules &amp; Prizes</span>'
+      + '</div></div>';
   }
   function ceRender(){
     var rows=CE_ROWS||[];
@@ -518,12 +584,14 @@
       + '</div></div>';
 
     html += shown.length
-      ? '<div class="vs-grid">'+shown.map(ceCard).join('')+'</div>'
+      ? '<div class="ce-grid">'+shown.map(ceCard).join('')+'</div>'
       : '<div class="soon"><div class="i">🔎</div><h2>Nothing matches those filters</h2>'
         + '<p>Try a different month or type — there are '+rows.length+' competitions open.</p></div>';
 
     APP.innerHTML = navBar('enter')
-      + '<h2 class="vs-h">Open for entries</h2>'
+      /* h1, not h2 — the page-level <h1>CREATE</h1> hero was removed 2026-08-19, so the browse
+         view is now the top of the document outline. */
+      + '<h1 class="vs-h">Open for entries</h1>'
       + '<p class="vs-note" style="margin-bottom:12px">'+shown.length+' of '+rows.length
       + ' competition'+(rows.length===1?'':'s')+' — pick one to read its rules and enter.</p>'
       + html;
