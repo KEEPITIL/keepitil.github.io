@@ -157,6 +157,10 @@
    + '#vs-app .ce-badge{position:absolute;z-index:3;top:10px;right:10px;font:800 .5rem Inter,sans-serif;'
    +   'letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:11px;'
    +   'background:rgba(0,0,0,.62);color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(4px)}'
+   + '#vs-app .ce-fee{position:absolute;z-index:3;top:10px;left:10px;font:800 .5rem Inter,sans-serif;'
+   +   'letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:11px;'
+   +   'background:rgba(0,255,136,.92);color:#06120a;border:1px solid rgba(0,255,136,.5)}'
+   + '#vs-app .ce-fee.paid{background:rgba(0,0,0,.62);color:#fff;border-color:rgba(255,255,255,.22);backdrop-filter:blur(4px)}'
    + '#vs-app .ce-mark{position:absolute;left:10px;bottom:10px;z-index:6;width:46px;height:31px;'
    +   'object-fit:contain;opacity:.92;filter:drop-shadow(0 1px 3px rgba(0,0,0,.85));pointer-events:none}'
    + '#vs-app .ce-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:13px 13px 14px}'
@@ -540,6 +544,11 @@
     return '<div class="ce-fly" data-enter="'+c.id+'" data-title="'+h(c.title)+'">'
       + im + '<div class="ce-shade"></div>'
       + '<span class="ce-badge">'+h((c.category || 'KEEPITIL').slice(0,22))+'</span>'
+      /* Fee reads top-LEFT, opposite the category badge. It cannot live in the footer next to
+         the brand mark — the mark is 46px wide at bottom-left and "$10.00" printed straight
+         through it. The homepage only avoids that collision because its price field is
+         usually empty; every competition has a fee, so it needs its own corner. */
+      + '<span class="ce-fee'+(c.entry_fee_cents ? ' paid' : '')+'">'+h(fee)+'</span>'
       /* Brand mark only — the homepage's bottom-left glyph is a working Save button, and
          competitions have no save endpoint. Rendering a button that does nothing is worse
          than rendering none, so this is a plain image. */
@@ -548,7 +557,7 @@
       +   '<div class="ce-date">'+h(closes)+'</div>'
       +   '<div class="ce-title">'+h(c.title)+'</div>'
       +   '<div class="ce-meta">🏆 '+h(meta)+'</div>'
-      +   '<div class="ce-foot"><span class="ce-price">'+h(fee)+'</span>'
+      +   '<div class="ce-foot"><span class="ce-price"></span>'
       +     '<span class="ce-cta">Details</span></div>'
       + '</div>'
       + '<div class="ce-actions">'
@@ -922,6 +931,15 @@
        nothing, and visitors concluded the product was empty. Landing on the competitions makes
        the first thing you see the thing you can act on. /create/?view=feed still works. */
     var v = q('view') || 'join';
+    /* The desktop "Enter a competition →" bar exists so a visitor on the FEED has a route to the
+       competitions. On a single competition page it is noise sitting under a page that already
+       has its own locked "Enter this competition" button — two different-looking entry buttons
+       on one screen make the primary action look uncertain. Hide it there. */
+    try{
+      var jb = document.getElementById('vsJoinBar');
+      if(jb) jb.style.display = (q('c') ? 'none' : '');
+    }catch(e){}
+
     if(v === 'entry' && q('e')) return renderEntry(q('e'));
     if(v === 'mine')  return renderMine();
     if(v === 'votes') return renderVotes();
