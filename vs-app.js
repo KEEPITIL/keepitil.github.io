@@ -70,7 +70,21 @@
    + '#vs-app .cd2{display:grid;grid-template-columns:1fr;gap:22px;align-items:start;max-width:1120px;margin:0 auto}'
    + '@media(min-width:861px){#vs-app .cd2{grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:34px}}'
    + '#vs-app .cd-stick{display:flex;flex-direction:column;gap:12px}'
-   + '@media(min-width:861px){#vs-app .cd-stick{position:sticky;top:86px}}'
+   /* LOCKED, not sticky (Founder 2026-08-18). position:sticky still travels with the page until
+      it reaches its offset — the flyer visibly moved before settling. Posh instead gives the RIGHT
+      column its own scroll container, so the left never moves by even a pixel.
+      The 196px allows for the shell's fixed top nav (70) and the radio bar + safe area at the
+      bottom; without it the inner scroller runs underneath them and the last section is
+      unreachable. Mobile is untouched: one column, normal page scroll. */
+   + '@media(min-width:861px){'
+   +   '#vs-app .cd2{height:calc(100vh - 196px);min-height:520px;overflow:hidden}'
+   +   '#vs-app .cd-left{height:100%;overflow:hidden}'
+   +   '#vs-app .cd-stick{position:static;height:100%;justify-content:flex-start}'
+   +   '#vs-app .cd-flyer{flex:0 1 auto;min-height:0}'
+   +   '#vs-app .cd-right{height:100%;overflow-y:auto;overscroll-behavior:contain;padding-right:12px}'
+   +   '#vs-app .cd-right::-webkit-scrollbar{width:8px}'
+   +   '#vs-app .cd-right::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:4px}'
+   + '}'
    + '#vs-app .cd-flyer{width:100%;aspect-ratio:4/5;border-radius:16px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
    + '#vs-app .cd-flyer-gen{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px;text-align:center;'
    +   'background:linear-gradient(150deg,rgba(0,180,255,.22),rgba(160,107,255,.22))}'
