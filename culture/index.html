@@ -562,7 +562,7 @@ renderTypebar();renderDiscover();renderFeed();
 <script src="/v3/vendor/supabase-js.min.js" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260819a" defer></script>
-<script src="/keepitil-pager.js?v=20260815c" defer></script>
+<script src="/keepitil-pager.js?v=20260819q" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 <script>
 /* COMMUNITY FEED (Founder doc step 4 + daily auto-post): profile_content posts — agents AND
@@ -584,6 +584,33 @@ renderTypebar();renderDiscover();renderFeed();
           +'<button class="fba fba-cmt" onclick="culComments(\''+h(d.slug)+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
           +'<button class="fba fba-resh" onclick="fbReshareL(\'cul:'+h(d.slug)+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
           +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\'cul:'+h(d.slug)+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button></div></div>';
+    }
+    /* ── THIRD-PARTY MEDIA (YouTube today; TikTok/Instagram later) ─────────────────────────
+       Without this branch a media row fell through to the generic post card below, which builds
+       its links from r.profile_slug — null on every media row — producing /profile.html?slug=null
+       and crediting the video to nobody. Media is not a KEEPITIL post and must not borrow a post's
+       chrome: it carries the creator, the platform, and a link out to the source.
+       Thumbnail only, no iframe: a column of these would otherwise start one player per card. */
+    if(r.kind==='video' || r.kind==='pixle'){
+      var vd=r.data||{};
+      var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
+      var vhref=vd.source_url||'#';
+      return '<div class="fcard fbcard" data-pid="'+h(r.id)+'" style="overflow:hidden">'
+        +'<div class="fb-head"><div class="fb-head-l" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
+          +'<div class="fb-who"><b>'+h(r.author_name||'Unknown creator')+'</b>'
+          +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(r.source_platform||'')+(vwhen?' · '+h(vwhen):'')+'</div></div></div></div>'
+        +'<a href="'+h(vhref)+'" target="_blank" rel="noopener" style="text-decoration:none;display:block">'
+          +'<div style="position:relative;aspect-ratio:16/9;background:#0a0a0f">'
+            +'<img src="'+h(vd.img||vd.cover||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(r.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
+            +'<span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+h((r.source_platform||'VIDEO').toUpperCase())+'</span>'
+            /* Play affordance — a still frame with no marker reads as a photo. */
+            +'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
+              +'<span style="width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">'
+              +'<span style="border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px"></span></span></span>'
+          +'</div>'
+          +'<div style="padding:11px 15px 13px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.05rem;color:#fff;line-height:1.2">'+h(r.title||'Untitled')+'</div>'
+          +'<div style="color:var(--ink3,#9aa);font-size:.78rem;margin-top:6px">Watch on '+h(r.source_platform||'the source')+' ↗</div></div></a>'
+        +'</div>';
     }
     /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
     var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
@@ -1016,7 +1043,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260819p" defer></script>
+<script src="/keepitil-shell.js?v=20260819q" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
