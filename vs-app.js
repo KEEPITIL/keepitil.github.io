@@ -64,6 +64,18 @@
    + '#vs-app .vs-pill{display:inline-block;font:800 .66rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--vsl);border-radius:999px;padding:3px 9px;color:#9aa0b0;margin-right:6px}'
    + '#vs-app .vs-pill.ok{color:#22e39b;border-color:rgba(34,227,155,.45)}'
    + '#vs-app .vs-pill.warn{color:#ffb43c;border-color:rgba(255,180,60,.45)}'
+   /* competitions browser — month row + type row + card cover (Founder 2026-08-18) */
+   + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px}'
+   + '#vs-app .ce-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'
+   + '#vs-app .ce-row::-webkit-scrollbar{display:none}'
+   + '#vs-app .ce-chip{flex:0 0 auto;height:30px;padding:0 11px;border-radius:5px;cursor:pointer;white-space:nowrap;'
+   +   'background:transparent;color:#8b95a3;border:1px solid rgba(255,255,255,.14);'
+   +   'font:500 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase}'
+   + '#vs-app .ce-chip i{font-style:normal;opacity:.55;margin-left:5px}'
+   + '#vs-app .ce-chip.on{background:rgba(0,180,255,.14);color:var(--vsb);border-color:rgba(0,180,255,.5)}'
+   + '#vs-app .ce-cov{display:flex;align-items:center;justify-content:center;'
+   +   'background:linear-gradient(135deg,rgba(0,180,255,.16),rgba(160,107,255,.16))}'
+   + '#vs-app .ce-cov span{font:800 .8rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#cfe0ff;text-align:center;padding:0 10px}'
    + '@media(max-width:860px){#vs-app .vs-votes{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:30}}';
   (function(){ var s=document.createElement('style'); s.textContent=CSS; document.head.appendChild(s); })();
 
@@ -372,41 +384,107 @@
      grant the entitlement directly / paid comps go through the vs_entry checkout branch ->
      fill the form + upload media -> submit for review. Every gate is re-checked server-side;
      this screen only collects. */
+  /* ── COMPETITIONS BROWSER (Founder 2026-08-18) ────────────────────────────────────────────
+     Modelled on the homepage events calendar: a month row, a type filter, and a card grid.
+     TWO THINGS DIFFER FROM EVENTS, deliberately:
+       · A competition has no single date — it has a submissions DEADLINE. The month row is
+         therefore keyed on submissions_close_at ("closing in OCT"), not a start date. Anything
+         with no deadline is grouped under ALL and never invents a month.
+       · Type comes from the competition CATEGORY (27 of them across 36 competitions). Both the
+         month list and the type list are built from the rows actually returned, so neither can
+         offer a filter that yields nothing. */
+  var CE_MONTH='all', CE_TYPE='all', CE_ROWS=null;
+
+  function ceMonthKey(c){ return c.submissions_close_at ? String(c.submissions_close_at).slice(0,7) : ''; }
+  function ceMonthLabel(mk){
+    var M=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    return M[parseInt(mk.slice(5,7),10)-1] + ' ' + mk.slice(0,4);
+  }
+  function ceMatch(c){
+    if(CE_MONTH!=='all' && ceMonthKey(c)!==CE_MONTH) return false;
+    if(CE_TYPE!=='all'  && (c.category||'')!==CE_TYPE) return false;
+    return true;
+  }
+  function ceCard(c){
+    var fee = c.entry_fee_cents ? '$' + (c.entry_fee_cents/100).toFixed(2) : 'Free';
+    var closes = c.submissions_close_at
+      ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})
+      : 'No deadline';
+    return '<div class="vs-card" data-enter="'+c.id+'">'
+      + '<div class="cov ce-cov"><span>'+h((c.category||'VS').slice(0,18))+'</span></div>'
+      + '<div class="bd"><h3>'+h(c.title)+'</h3>'
+      + '<div class="by">'+h(c.description || '')+'</div>'
+      + '<div style="margin-top:8px"><span class="vs-pill '+(c.entry_fee_cents?'':'ok')+'">'+fee+'</span>'
+      + '<span class="vs-pill">'+h(closes)+'</span></div></div></div>';
+  }
+  function ceRender(){
+    var rows=CE_ROWS||[];
+    /* Counts ignore the OTHER filter's own value so a filter never hides its alternatives —
+       same rule as the homepage location dropdown. */
+    var months={}, types={};
+    rows.forEach(function(c){
+      var mk=ceMonthKey(c);
+      if(mk && (CE_TYPE==='all' || (c.category||'')===CE_TYPE)) months[mk]=(months[mk]||0)+1;
+      var t=c.category||'';
+      if(t && (CE_MONTH==='all' || ceMonthKey(c)===CE_MONTH)) types[t]=(types[t]||0)+1;
+    });
+    var mKeys=Object.keys(months).sort();
+    var tKeys=Object.keys(types).sort(function(a,b){ return types[b]-types[a] || a.localeCompare(b); });
+    var shown=rows.filter(ceMatch);
+
+    var html='<div class="ce-bar">'
+      + '<div class="ce-row">'
+        + '<button class="ce-chip'+(CE_MONTH==='all'?' on':'')+'" data-m="all">ALL DATES</button>'
+        + mKeys.map(function(mk){ return '<button class="ce-chip'+(CE_MONTH===mk?' on':'')+'" data-m="'+mk+'">'
+            + ceMonthLabel(mk)+' <i>'+months[mk]+'</i></button>'; }).join('')
+      + '</div>'
+      + '<div class="ce-row">'
+        + '<button class="ce-chip'+(CE_TYPE==='all'?' on':'')+'" data-t="all">ALL TYPES</button>'
+        + tKeys.map(function(t){ return '<button class="ce-chip'+(CE_TYPE===t?' on':'')+'" data-t="'+h(t)+'">'
+            + h(t)+' <i>'+types[t]+'</i></button>'; }).join('')
+      + '</div></div>';
+
+    html += shown.length
+      ? '<div class="vs-grid">'+shown.map(ceCard).join('')+'</div>'
+      : '<div class="soon"><div class="i">🔎</div><h2>Nothing matches those filters</h2>'
+        + '<p>Try a different month or type — there are '+rows.length+' competitions open.</p></div>';
+
+    APP.innerHTML = navBar('enter')
+      + '<h2 class="vs-h">Open for entries</h2>'
+      + '<p class="vs-note" style="margin-bottom:12px">'+shown.length+' of '+rows.length
+      + ' competition'+(rows.length===1?'':'s')+' — pick one to read its rules and enter.</p>'
+      + html;
+
+    APP.querySelectorAll('[data-m]').forEach(function(b){
+      b.onclick=function(){ CE_MONTH=b.dataset.m; ceRender(); };
+    });
+    APP.querySelectorAll('[data-t]').forEach(function(b){
+      b.onclick=function(){ CE_TYPE=b.dataset.t; ceRender(); };
+    });
+    APP.querySelectorAll('[data-enter]').forEach(function(el){
+      el.onclick=function(){ go({view:'enter', c: el.dataset.enter}); };
+    });
+  }
+
   function renderEnter(compId){
-    /* Founder 2026-08-18: the sign-in gate used to sit HERE, hiding the whole competition list
-       from anyone logged out. vs_open_competitions() is readable by anon — verified, 36 rows —
-       so the list was public data behind a login wall, and a visitor saw "sign in" where they
-       should have seen 36 things to enter. The gate now sits on renderEntryForm, which is the
-       only step that genuinely needs an account. Browse freely, sign in to submit. */
+    /* The sign-in gate used to sit HERE, hiding the whole list from anyone logged out.
+       vs_open_competitions() is anon-readable — verified, 36 rows — so a public list sat behind
+       a login and a visitor saw "sign in" where they should have seen 36 things to enter. The
+       gate now lives on renderEntryForm. Browse freely, sign in to submit. */
     if(compId) return renderEntryForm(Number(compId));
 
+    if(CE_ROWS){ return ceRender(); }          /* filters re-render without refetching */
     busy('Loading open competitions…');
     SB.rpc('vs_open_competitions').then(function(r){
       if(r.error) throw r.error;
-      var rows = r.data || [];
-      if(!rows.length){
+      CE_ROWS = r.data || [];
+      if(!CE_ROWS.length){
         APP.innerHTML = navBar('enter')
           + '<div class="soon"><div class="i">📥</div><h2>Nothing open right now</h2>'
           + '<p>No competition is accepting entries at the moment. Check back soon.</p></div>';
         return;
       }
-      APP.innerHTML = navBar('enter')
-        + '<h2 class="vs-h">Open for entries</h2>'
-        + '<p class="vs-note" style="margin-bottom:14px">Pick a competition to read its rules and enter.</p>'
-        + '<div class="vs-grid">' + rows.map(function(c){
-            var fee = c.entry_fee_cents ? '$' + (c.entry_fee_cents/100).toFixed(2) : 'Free';
-            var closes = c.submissions_close_at
-              ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString() : 'No deadline set';
-            return '<div class="vs-card" data-enter="'+c.id+'"><div class="bd">'
-              + '<h3>'+h(c.title)+'</h3>'
-              + '<div class="by">'+h(c.description || '')+'</div>'
-              + '<div style="margin-top:8px"><span class="vs-pill '+(c.entry_fee_cents?'':'ok')+'">'+fee+'</span>'
-              + '<span class="vs-pill">'+h(closes)+'</span></div>'
-              + '</div></div>';
-          }).join('') + '</div>';
-      [].forEach.call(APP.querySelectorAll('[data-enter]'), function(el){
-        el.onclick = function(){ go({view:'enter', c: el.dataset.enter}); };
-      });
+      ceRender();
     }).catch(err);
   }
 
