@@ -219,7 +219,7 @@
    foreignObject is refused. These strings go through innerHTML, so an icon is an injection
    point, and "it is only an icon" is exactly how that gets missed. */
 var ICON_GEOMETRY = {
-  home: '<path d="M4 11.4 12 4.6l8 6.8"/><path d="M6.4 10v9.4h11.2V10"/><path d="M9.9 19.4v-5.2h4.2v5.2"/>',
+  home: '<circle cx="10.8" cy="10.8" r="6.2"/><path d="M15.4 15.4L20 20"/><path d="M6.2 12.4c1.6-1.5 3.1-2.2 4.6-2.2s3 .7 4.6 2.2"/>',
   culture: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>',
   radio: '<circle cx="12" cy="12" r="1.6"/><path d="M7.8 7.8a5.9 5.9 0 0 0 0 8.4M16.2 7.8a5.9 5.9 0 0 1 0 8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>',
   scene: '<path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/>',
@@ -255,7 +255,9 @@ function icon(name){
 /* Explore renders the brand mark by default rather than a line icon, but through the same
    component path — so registering a `home` geometry swaps it like any other icon.
    mix-blend-mode:screen on the nav logo remains a binding V3.1 rule; see the stylesheet. */
-var HOME_USES_LOGO = true;
+/* Founder 2026-08-19: Discovery renders its own icon like every other destination.
+   Was true, which swapped in the KEEPITIL X logo and left the slot unlabelled as a place. */
+var HOME_USES_LOGO = false;
 function destinationIcon(d){
   if(d.home && HOME_USES_LOGO) return '<img class="kb-logo" src="/keepitil-x-blue.png" alt="">';
   return icon(d.icon);
