@@ -76,7 +76,13 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .cul-typebar button{flex:0 0 auto;font-family:var(--fh,inherit);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem;color:#cfc9e6;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:8px 16px;cursor:pointer;transition:all .15s}
 .cul-typebar button:hover{color:#fff;border-color:rgba(160,107,255,.5)}
 .cul-typebar button.on{background:linear-gradient(90deg,#00b4ff,#5cc8ff);border-color:transparent;color:#04121b}
-@media(min-width:861px){.cul-typebar{display:none}} /* desktop: content-type filters moved to the vertical rail (Founder 2026-08-04); mobile keeps the horizontal bar */
+/* FILTERS REMOVED FROM CULTURE — Founder 2026-08-19: "the culture page on the desktop does not
+   have the filters and the mobile version should match that as well."
+   Desktop lost them on 2026-08-18; mobile kept #culMTabs and .cul-typebar, so the two
+   breakpoints disagreed. Hidden here rather than deleted because the mount code, the tab-gate
+   thresholds and the swipe handler all still reference these ids — ripping the markup out would
+   mean touching five call sites to remove one bar. One rule, no orphaned references. */
+.cul-typebar,#culMTabs{display:none!important}
 /* Desktop subpage tabs (Feed / Radio / VS) — Founder 2026-08-04 */
 .cul-subpages{display:none}
 @media(min-width:861px){
@@ -456,7 +462,9 @@ function _culTypeMatch(row){
 function applyCulFilters(){
   var box=document.getElementById('community-feed'); if(!box||!window.__culRenderRows) return;
   var cf=document.getElementById('community-feed'); if(cf)cf.style.display='';
-  var rows=(window.__culAllRows||[]).slice();
+  /* Source the MERGED list (feed + approved media). Reading __culAllRows here is what kept
+     videos out of every signed-in render. */
+  var rows=(window.__culMerged || window.__culAllRows || []).slice();
   /* Filter A — content type */
   /* Archived rows are removed content and must never render. The feed never filtered
      them: 280 of 628 rows — 45% of what Culture showed — were archived. Live totals are
@@ -616,8 +624,26 @@ renderTypebar();renderDiscover();renderFeed();
           if(!list||!list.length){ b.innerHTML=''; return; }
           b.innerHTML=list.map(card).join('');
           try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){} };
-        if(typeof applyCulFilters==='function' && (window.__culSignedIn)){ try{ if(typeof loadCulRelations==='function') loadCulRelations(); }catch(e){} applyCulFilters(); }
-        else { window.__culRenderRows(rows); }
+        /* MEDIA WAS NEVER RENDERED (Founder 2026-08-19: "i do not see the youtube videos only
+           the events"). __culMediaRows was fetched only to count inventory for the tab gate and
+           was merged in culLiveRows(), which nothing on the render path called — so approved
+           videos existed, were queried, and were then dropped on the floor. Load media, merge it
+           with the ranked feed and sort by date so a video sits in the timeline rather than in a
+           separate tab nobody opens. */
+        function paint(){
+          var merged = (window.__culAllRows||[]).concat(window.__culMediaRows||[])
+            .filter(function(x){ return !x.archived; })
+            .sort(function(a,b){ return Date.parse(b.created_at||0) - Date.parse(a.created_at||0); });
+          window.__culMerged = merged;
+          if(typeof applyCulFilters==='function' && (window.__culSignedIn)){
+            try{ if(typeof loadCulRelations==='function') loadCulRelations(); }catch(e){}
+            applyCulFilters();
+          } else { window.__culRenderRows(merged); }
+        }
+        /* Paint the feed immediately, then repaint once media arrives — a slow videos query must
+           never delay the text feed, and must never blank it if it fails. */
+        paint();
+        try{ culLoadMedia().then(paint).catch(function(){}); }catch(e){}
       }).catch(function(){});
     }
     try{ sb.rpc('my_profile_slug').then(function(rr){ run(rr&&!rr.error&&rr.data?rr.data:null); }).catch(function(){ run(null); }); }catch(e){ run(null); }
@@ -990,7 +1016,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260815u" defer></script>
+<script src="/keepitil-shell.js?v=20260819n" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
