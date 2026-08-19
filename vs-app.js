@@ -579,7 +579,11 @@
     busy('Loading competition…');
     Promise.all([
       SB.rpc('vs_open_competitions'),
-      SB.rpc('vs_feed',{p_sort:'new',p_limit:24}).catch(function(){ return {data:[]}; })
+      /* Promise.resolve() FIRST: SB.rpc() returns a Postgrest builder, which is thenable but
+         has no .catch — calling .catch on it throws synchronously and the page never leaves
+         "Loading competition…". A failed feed must degrade to an empty list, never take the
+         whole page down with it. */
+      Promise.resolve(SB.rpc('vs_feed',{p_sort:'new',p_limit:24})).catch(function(){ return {data:[]}; })
     ]).then(function(res){
       var r=res[0], feed=(res[1]&&res[1].data)||[];
       if(r.error) throw r.error;
