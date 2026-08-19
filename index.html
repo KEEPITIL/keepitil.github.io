@@ -7,11 +7,11 @@
     if(h.indexOf('type=recovery')>-1||(h.indexOf('access_token=')>-1&&h.indexOf('recovery')>-1)){location.replace('/reset-password.html'+h);}
     else if(h.indexOf('otp_expired')>-1||h.indexOf('error_code=access_denied')>-1||(h.indexOf('error')>-1&&h.indexOf('expired')>-1)){location.replace('/portal.html'+h);}
   }catch(e){}})();</script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
   <title>KEEPITIL — Events, Creators & Culture | The Creator Ecosystem</title>
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-  <meta name="description" content="KEEPITIL is a creator ecosystem — discover events, artists and culture across every genre in OC, LA & San Diego. Browse the calendar by month, genre and day, save your picks and grab tickets."/>
+  <meta name="description" content="KEEPITIL connects the people, events, media and opportunities that make culture move — every genre, every craft. Browse events by month, genre and day, discover the artists, venues and organizers behind them, and grab tickets. Deepest right now in OC, LA & San Diego."/>
   <link rel="canonical" href="https://keepitil.com/"/>
   <meta name="keywords" content="OC events, LA events, Orange County event calendar, Los Angeles live music, San Diego events, creator platform, artist profiles, event tickets, music comedy art film, KEEPITIL"/>
   <meta name="author" content="KEEPITIL"/>
@@ -119,6 +119,7 @@
     .hero h1{font-family:var(--font-head);font-size:clamp(60px,10vw,130px);line-height:.9;letter-spacing:.02em;color:var(--white);margin-bottom:24px;}
     .hero h1 .accent{color:var(--blue);text-shadow:0 0 24px var(--blue),0 0 60px rgba(0,180,255,.4);}
     .hero h1 .typewriter{border-right:3px solid var(--blue);padding-right:4px;animation:blink .7s step-end infinite;}
+    .kil-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
     @keyframes blink{0%,100%{border-color:var(--blue);}50%{border-color:transparent;}}
     /* ── HOLIDAY BACKGROUND ── */
     .hero-holiday-bg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center top;background-repeat:no-repeat;opacity:0;transition:opacity 1.8s ease;pointer-events:none;}
@@ -358,8 +359,8 @@
    These were briefly applied as base rules and wrecked the desktop layout. The brief was the
    mobile app; desktop keeps its 240px / 2:3 / 14px card. */
 @media(max-width:860px){
-  #evx .evx-flyer{width:150px;aspect-ratio:9/16;border-radius:5px;}
-  #evx .evx-row{gap:5px;}
+  #evx .evx-flyer{width:220px;aspect-ratio:9/16;border-radius:15px;}
+  #evx .evx-row{gap:10px;}
   #evx .evx-title{font-size:15px;line-height:1.05;}
 }
 #evx .evx-flyer:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.45);box-shadow:0 16px 44px rgba(0,0,0,.6);}
@@ -467,10 +468,12 @@
 #evx .evx-subrow.on{display:flex;}
 #evx .evx-subrow .evx-gn{flex:0 0 auto;font-size:.58rem;opacity:.9;border-style:dashed;}
 #evx .evx-subrow .evx-gn.active{border-style:solid;opacity:1;}
-/* ── DESKTOP category dropdown (Founder 2026-08-02): collapse ALL·MUSIC·VS·SFTU·FESTIVAL into a
-   single dropdown-icon selector; the active category's subfilters render INLINE on the same row.
-   Mobile is untouched (keeps the scrollable chip rows). ── */
-@media(min-width:861px){
+/* ── Category dropdown, ALL WIDTHS (Founder 2026-08-02, extended to mobile 2026-08-17): collapse
+   ALL·MUSIC·VS·SFTU·FESTIVAL into a single dropdown selector; the active category's subfilters
+   render INLINE to its RIGHT on the SAME row and are always visible.
+   Mobile used to hide this and swipe the page instead — that path is gone, so there is now ONE
+   filter implementation at every width rather than two that drift. ── */
+@media(min-width:1px){
   #evx #evx-genres.evx-catdd-row{overflow:visible;justify-content:flex-start;flex-wrap:nowrap;gap:12px;}
   #evx #evx-subgenres{display:none!important;} /* on desktop the subfilters move inline next to the dropdown */
   #evx .evx-catdd{position:relative;flex:0 0 auto;}
@@ -487,14 +490,48 @@
   #evx .evx-subinline .evx-gn{flex:0 0 auto;font-size:.58rem;opacity:.9;border-style:dashed;}
   #evx .evx-subinline .evx-gn.active{border-style:solid;opacity:1;background:var(--green);border-color:var(--green);color:#06120a;}
 }
-@media(max-width:860px){ #evx .evx-subinline{display:none;} }
-/* ── MOBILE (Founder 2026-08-02): no category chip row — the whole page swipes left/right to
-   change category. Top bar keeps ONLY Months + the active category's subfilter. A brief center
-   toast confirms the category on each swipe. ── */
+/* ── MOBILE filter bar (Founder 2026-08-17) ────────────────────────────────────────────────
+   Two rows, ONE shared button style. Row 1 = months, row 2 = category dropdown + its subfilters
+   inline to the right. Both rows use identical sizing so they cannot drift apart.
+   The swipe-to-change-category gesture and its confirmation toast are REMOVED: the filter bar
+   is the only way to change category, and the rows below scroll horizontally only. ── */
 @media(max-width:860px){
-  #evx #evx-genres{display:none!important;}
-  #evx .evx-cat-toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1200;background:rgba(6,6,12,.9);color:#fff;border:1px solid var(--green);border-radius:14px;padding:13px 26px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.95rem;opacity:0;transition:opacity .18s;pointer-events:none;white-space:nowrap;}
-  #evx .evx-cat-toast.on{opacity:1;}
+  #evx #evx-genres{display:flex!important;}
+  #evx .evx-nav-row{padding-left:10px;padding-right:10px;}
+  #evx #evx-months,#evx #evx-genres{gap:3px;}
+  #evx .evx-subinline{gap:3px;}
+  #evx #evx-months{padding-bottom:3px;}
+  /* z-index 960 beats #kil-top (940). The scroll-to-top arrow is fixed bottom-left and the bar
+     is only sticky, so while the bar is still in flow the two can occupy the same band and the
+     arrow — being higher — swallowed taps meant for the category dropdown (KODE, device pass
+     2026-08-17: three taps on ▾ did nothing). The Founder's arrow placement is deliberate and
+     unchanged; the bar simply now wins the tap. Fixes the collision without moving the arrow.
+     overflow:visible so the dropdown menu can hang below the bar instead of being clipped by it. */
+  #evx .evx-nav{padding:0 0 0;padding-top:calc(0px + env(safe-area-inset-top,0px));z-index:960;overflow:visible;}
+  /* the one shared button: months, category, subfilters */
+  #evx #evx-months .evx-mo,
+  #evx .evx-catdd-btn,
+  #evx .evx-subinline .evx-gn{
+    flex:0 0 auto;height:30px;padding:0 10px;border-radius:5px;
+    font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+    white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;
+    background:transparent;color:#8b95a3;border:1px solid rgba(255,255,255,.14);
+  }
+  #evx #evx-months .evx-mo{min-width:0;flex:0 0 auto;text-align:center;}
+  #evx #evx-months .evx-mo.active,
+  #evx .evx-catdd-btn,
+  #evx .evx-subinline .evx-gn.active{
+    background:rgba(0,255,136,.14);color:var(--green);border-color:rgba(0,255,136,.5);
+  }
+  #evx .evx-subinline .evx-gn{opacity:1;border-style:solid;}
+  /* the row is a horizontal scroller; without this the absolutely-positioned menu is clipped to
+     the row's box and "the menu opened but you cannot see it" is indistinguishable from "the tap
+     never registered". Both were live hypotheses on 2026-08-17 — this removes one of them. */
+  #evx #evx-genres,#evx #evx-genres.evx-catdd-row{overflow:visible;}
+  #evx .evx-catdd{position:relative;}
+  #evx .evx-catdd-menu{z-index:970;min-width:160px;}
+  /* rows below: horizontal only — no vertical drift, no page pan */
+  #evx .evx-row{touch-action:pan-x;overflow-y:hidden;overscroll-behavior-x:contain;}
 }
 #evx #evx-months{gap:8px;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:54px;padding:8px 4px;text-align:center;font-size:.66rem;letter-spacing:.06em;}
@@ -524,7 +561,7 @@
         "@type": "ImageObject",
         "url": "https://keepitil.com/logo-neon-nav.png"
       },
-      "description": "A creator ecosystem for OC, LA & San Diego \u2014 events, creator profiles, brands, organizers, music, and culture in one place. Every genre, every craft.",
+      "description": "A connected culture ecosystem \u2014 events, creator profiles, brands, organizers, music and culture in one place. Every genre, every craft. Rooted in OC, LA & San Diego and built to grow globally.",
       "areaServed": [
         {
           "@type": "Place",
@@ -570,7 +607,7 @@
       "about": {
         "@id": "https://keepitil.com/#organization"
       },
-      "description": "Discover events, creators and culture across OC, LA & San Diego \u2014 every genre. Browse the calendar by month, genre and day, save your picks, and grab tickets.",
+      "description": "Discover events, creators and culture across every genre. Browse the calendar by month, genre and day, save your picks, and grab tickets. Deepest coverage today in OC, LA & San Diego.",
       "inLanguage": "en-US"
     },
     {
@@ -1032,7 +1069,7 @@
       "name": "What is KEEPITIL?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "KEEPITIL is a creator ecosystem for OC, LA and San Diego \u2014 events, artists, brands, organizers, music and culture in one place, across every genre."
+        "text": "KEEPITIL is a connected culture ecosystem \u2014 events, artists, brands, organizers, music and culture in one place, across every genre and every craft. Its roots are in OC, LA and San Diego, and it is built to grow globally."
       }
     },
     {
@@ -1565,7 +1602,12 @@
 <div class="container">
       <div class="hero-content">
         <h1>
-          <span class="accent"><span class="typewriter" id="typewriter">DISCOVER</span></span>
+          <!-- SEO/a11y 2026-08-17: the only <h1> on the homepage was the rotating typewriter word,
+               so crawlers saw a one-word heading that changed on every render ("GROW", "CREATE"…)
+               and screen readers announced a heading that never settles. The animation is kept as
+               decoration (aria-hidden) and a stable heading now carries the actual meaning. -->
+          <span class="kil-sr-only">KEEPITIL — discover events, connect with creators, and share culture</span>
+          <span class="accent" aria-hidden="true"><span class="typewriter" id="typewriter">DISCOVER</span></span>
         </h1>
         <p class="hero-sub-static" style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.18em;color:var(--white);margin-bottom:28px;opacity:.5;">CREATE LOUD. LIVE LOUDER. KEEPITIL.</p>
         <div class="hero-anim" id="hero-anim" aria-hidden="true"></div>
@@ -1936,7 +1978,7 @@
 
   /* ── TYPEWRITER (self-scoped so nothing on the page can freeze it) ── */
   (function(){
-    var twWords = ['DISCOVER','CONNECT','CREATE','GROW','EARN'];
+    var twWords = ['DISCOVER','CONNECT','CREATE','CULTURE','EARN'];
     var twI = 0, twC = 0, twDel = false;
     function twTick(){
       var el = document.getElementById('typewriter');
@@ -2105,7 +2147,11 @@ function buildMonths(){
   el.innerHTML=MONTHS.map(function(mk){return '<button class="evx-mo'+(mk===activeMonth?' active':'')+'" data-m="'+mk+'">'+mLabel(mk)+'</button>';}).join('');
   el.querySelectorAll('.evx-mo').forEach(function(b){b.onclick=function(){gotoMonth(b.dataset.m);};});
 }
-function isDeskFilters(){ try{ return window.matchMedia('(min-width:861px)').matches; }catch(e){ return true; } }
+/* Founder 2026-08-17: the dropdown + inline-subfilter layout is now the filter at EVERY width.
+   This returned false on mobile, which forked the filter into two implementations; the mobile
+   one was then hidden by CSS, so mobile had no category control at all and relied on a swipe.
+   Kept as a function (not inlined) because both builders call it. */
+function isDeskFilters(){ return true; }
 function buildGenres(){
   var el=document.getElementById('evx-genres'); if(!el) return;
   /* Founder 2026-07-31: the 5 top tabs (ALL · MUSIC · VS · SFTU · FESTIVAL) ALWAYS render,
@@ -2169,12 +2215,19 @@ function dayRow(day,mk,i){
   var p=parts(day.date);var dt=new Date(Date.UTC(p.y,p.m-1,p.day));var used=false;
   var cards=day.events.map(function(ev){var sp=ev.pick&&!used;if(sp)used=true;return flyer(ev,sp);}).join('');
   return '<section class="evx-day" id="evx-day-'+mk+'-'+i+'">'
-    +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div>'
+    +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div></div>'
     /* §D1: the per-date '+' is REMOVED. It pointed at /create-event.html, which is
        admin-only: create-event runs rpc('is_admin') and redirects everyone else to
        /submit-event.html, DROPPING the ?date= prefill on the way. So the control
        promised a dated create and delivered an undated bounce. Creation moves to the
-       chat surface (§C). */
+       chat surface (§C).
+
+       ⚠ THE </div> AT THE END OF THE LINE ABOVE CLOSES .evx-datecol. It was deleted along with
+       the '+' button when that control was removed, which left .evx-datecol unclosed — so the
+       browser nested .evx-daycol INSIDE it. .evx-day is a grid of `76px 1fr`; with only one
+       child, every carousel was trapped in the 76px date column and each day's row rendered as a
+       ~53px sliver of a 240px card, with the 1fr column sitting empty. Restored 2026-08-18.
+       If you ever remove another control from this block, count the closers. */
     +'<div class="evx-daycol"><div class="evx-daycount">'+day.events.length+' event'+(day.events.length>1?'s':'')+'</div>'
     +'<div class="evx-carousel"><button class="evx-arrow prev" aria-label="Scroll to previous events">‹</button><div class="evx-row">'+cards+'</div><button class="evx-arrow next" aria-label="Scroll to next events">›</button></div></div></section>';
 }
@@ -2218,35 +2271,11 @@ function setGenre(g){
 document.addEventListener('click',function(e){ var dd=document.getElementById('evx-catdd'); if(dd&&!dd.contains(e.target)){ var m=document.getElementById('evx-catdd-menu'); if(m)m.classList.remove('on'); var b=document.getElementById('evx-catdd-btn'); if(b)b.setAttribute('aria-expanded','false'); } });
 /* re-render the filter bar on desktop<->mobile crossover so the right UI (dropdown vs chips) shows */
 var _fbMed; try{ _fbMed=window.matchMedia('(min-width:861px)'); (_fbMed.addEventListener?_fbMed.addEventListener('change',function(){buildGenres();}):_fbMed.addListener(function(){buildGenres();})); }catch(e){}
-/* ── MOBILE swipe-to-change-category (Founder 2026-08-02) ──────────────────────────────────
-   Horizontal swipe anywhere OUTSIDE a horizontal scroller (the per-day carousels, the nav rows)
-   cycles the top-level category. A center toast confirms the change. Desktop is unaffected. */
-function isMobileNow(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
-var _catToastT;
-function showCatToast(label){
-  var el=document.querySelector('#evx .evx-cat-toast');
-  if(!el){ el=document.createElement('div'); el.className='evx-cat-toast'; (document.getElementById('evx')||document.body).appendChild(el); }
-  el.textContent=label; el.classList.add('on'); clearTimeout(_catToastT); _catToastT=setTimeout(function(){ el.classList.remove('on'); },900);
-}
-(function(){
-  var x0=null,y0=null,t0=0;
-  document.addEventListener('touchstart',function(e){
-    if(!isMobileNow()){ x0=null; return; }
-    var t=e.target;
-    if(t&&t.closest&&t.closest('.evx-carousel,.evx-row,.evx-nav-row,#kil-bnav,#kil-radio,.evx-catdd-menu,input,textarea,select')){ x0=null; return; }
-    var tt=e.touches[0]; x0=tt.clientX; y0=tt.clientY; t0=Date.now();
-  },{passive:true});
-  document.addEventListener('touchend',function(e){
-    if(x0==null) return;
-    var tt=e.changedTouches[0]; var dx=tt.clientX-x0, dy=tt.clientY-y0, dt=Date.now()-t0; x0=null;
-    if(dt>700) return;
-    if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.7) return; /* clearly-horizontal only */
-    var i=0; for(var k=0;k<CATS.length;k++){ if(CATS[k][0]===activeCat){ i=k; break; } }
-    var n=CATS.length, ni=dx<0?(i+1)%n:(i-1+n)%n;
-    setCat(CATS[ni][0]); showCatToast(CATS[ni][1]);
-    try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(_e){ window.scrollTo(0,0); }
-  },{passive:true});
-})();
+/* ── REMOVED 2026-08-17 (Founder): mobile swipe-to-change-category + its confirmation toast.
+   Category is now changed ONLY by the dropdown in the filter bar, at every width. The gesture
+   competed with the horizontal event rows for the same drag and made the category feel like it
+   changed by accident. `isMobileNow` and `showCatToast` went with it — nothing else called them.
+   The CSS for .evx-cat-toast is gone too; do not re-add one without the other. ── */
 var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(markScroll,120);});
 /* ── PERSONALIZED HOMEPAGE (Founder PRIORITY 4, 2026-07-29) ───────────────────────────
    Signals, cheapest first: localStorage (written by /onboarding.html — instant, no
@@ -2573,7 +2602,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
   if(document.readyState!=='loading')run(); document.addEventListener('DOMContentLoaded',run); setTimeout(run,1200);
 })();
 </script>
-<script src="/v3/keepitil-ai.js?v=20260817c" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 
 <style>
 .kil-tabs{display:flex;gap:6px;margin:6px 0 14px;}
@@ -2811,7 +2840,7 @@ function boot(){fyLoad();buildMonths();buildGenres();buildForYou();buildMustSee(
   <script>
   (function(){
     function boot(){ if(window.__twBoot) return; window.__twBoot=1; window.__twStarted=1;
-      var W=['DISCOVER','CONNECT','CREATE','GROW','EARN'], i=0, c=0, del=false;
+      var W=['DISCOVER','CONNECT','CREATE','CULTURE','EARN'], i=0, c=0, del=false;
       function t(){ var el=document.getElementById('typewriter'); if(!el){ return setTimeout(t,300); }
         var w=W[i];
         if(!del){ c++; el.textContent=w.slice(0,c); if(c>=w.length){ del=true; return setTimeout(t,1500);} setTimeout(t,110); }
