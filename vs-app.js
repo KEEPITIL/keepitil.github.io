@@ -138,6 +138,9 @@
    +   'font:500 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase}'
    + '#vs-app .ce-chip i{font-style:normal;opacity:.55;margin-left:5px}'
    + '#vs-app .ce-chip.on{background:rgba(0,180,255,.14);color:var(--vsb);border-color:rgba(0,180,255,.5)}'
+   /* 2:3 — same ratio as the generated covers and the detail-page flyer. Overrides the
+      4/3 of .vs-card .cov, which is the entries feed (screenshots), not competition art. */
+   + '#vs-app .vs-card .cov.ce-cov{aspect-ratio:2/3}'
    + '#vs-app .ce-cov{display:flex;align-items:center;justify-content:center;'
    +   'background:linear-gradient(135deg,rgba(0,180,255,.16),rgba(160,107,255,.16))}'
    + '#vs-app .ce-cov span{font:800 .8rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#cfe0ff;text-align:center;padding:0 10px}'
@@ -476,7 +479,12 @@
       ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})
       : 'No deadline';
     return '<div class="vs-card" data-enter="'+c.id+'">'
-      + '<div class="cov ce-cov"><span>'+h((c.category||'CREATE').slice(0,18))+'</span></div>'
+      /* cover_url is generated art (2:3) written by gen-competition-cover. The category
+         label is the fallback ONLY — a card with a cover must never show it, or the text
+         sits on top of the artwork. */
+      + (c.cover_url
+          ? '<div class="cov ce-cov" style="background-image:url('+h(c.cover_url)+');background-size:cover;background-position:center"></div>'
+          : '<div class="cov ce-cov"><span>'+h((c.category||'CREATE').slice(0,18))+'</span></div>')
       + '<div class="bd"><h3>'+h(c.title)+'</h3>'
       + '<div class="by">'+h(c.description || '')+'</div>'
       + '<div style="margin-top:8px"><span class="vs-pill '+(c.entry_fee_cents?'':'ok')+'">'+fee+'</span>'
