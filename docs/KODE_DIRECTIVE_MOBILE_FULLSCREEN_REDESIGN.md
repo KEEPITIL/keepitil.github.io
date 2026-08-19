@@ -381,3 +381,99 @@ Both **§D.2** and **§E.1** stated there was *"no attribution obligation"*. Bot
 - **S7** — the `Feed | Radio | VS` switcher removal still stands and is now part of this
 
 **M1 (top safe area) is NOT superseded and still needs device verification.** A full-screen pager makes it worse, not better: locked full-viewport content with no top inset runs straight under the status bar.
+
+---
+
+## M. HOMEPAGE MOBILE FILTER BAR + ZOOM LOCK — owner spec, 2026-08-17
+
+**Atlas has already applied all of this to `index.html`. KODE's job is device verification and the app rebuild, not re-implementation.** Do not re-author these rules; if a value looks wrong, change the value, not the structure.
+
+### M1. Pinch zoom — REVERTED to locked
+
+`index.html`'s viewport tag was missing the scale lock, which is why the homepage started pinch-zooming. Now:
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+```
+
+⚠️ **Known limit — do not report this as fixed until checked in BOTH places.** iOS Safari deliberately ignores `user-scalable=no` in a normal browser tab; it *is* honoured inside the installed/Capacitor app. So:
+- In the app → zoom must be dead. This is the case the owner reported.
+- In mobile Safari → pinch will still work. If the owner wants it dead there too, that needs `touch-action:manipulation` on `body` (kills double-tap zoom only — pinch cannot be blocked in Safari without breaking accessibility).
+
+Verify the app case first; report the Safari case honestly rather than claiming a blanket fix.
+
+### M2. ONE filter implementation at every width
+
+`isDeskFilters()` now returns `true` unconditionally. Previously it returned `false` under 861px, which forked the filter into two builders — and the mobile branch was then hidden by `#evx-genres{display:none!important}`, so **mobile had no category control at all** and depended on a swipe gesture. That fork is the bug; do not restore it.
+
+Result on mobile — **two rows, one shared button style**:
+
+| Row | Contents |
+|---|---|
+| 1 | Months (`#evx-months`) |
+| 2 | Category dropdown (`.evx-catdd-btn`) + that category's subfilters **inline to its right** (`.evx-subinline`) |
+
+The subfilters are **always visible** — the dropdown changes the *category*, it does not hide the subfilters. `#evx-subgenres` (the old third row) is now always empty and stays hidden via `.evx-subrow`; leave it in place, it is the desktop/legacy path's target.
+
+### M3. Locked values — owner, 2026-08-17
+
+Shared by months, category button, and subfilters. **They share one CSS rule on purpose so they cannot drift.**
+
+| Token | Value |
+|---|---|
+| Text size | 11px |
+| Height | 30px |
+| Side padding | 10px |
+| Corner radius | 5px |
+| Button gap | 3px |
+| Row gap | 3px |
+| Bar padding | 0px |
+
+Event cards (mobile only — **desktop is untouched, do not scope these to the base rule**):
+
+| Token | Value |
+|---|---|
+| Card width | 220px |
+| Card gap | 10px |
+| Radius | 15px |
+| Shape | 9:16 |
+
+Inactive = transparent bg, `#8b95a3` text, `1px solid rgba(255,255,255,.14)`. Active = `rgba(0,255,136,.14)` bg, `--green` text, `rgba(0,255,136,.5)` border. The category button always renders in the active state since it always shows the current category.
+
+### M4. REMOVED — swipe-to-change-category and its toast
+
+The 2026-08-02 gesture, `isMobileNow()`, `showCatToast()` and the `.evx-cat-toast` CSS are all deleted. It competed with the horizontal event rows for the same drag, so the category changed by accident. **Category changes only via the filter bar now.** Do not re-add the toast without the gesture or vice versa — they were a pair.
+
+Rows below are horizontal-only:
+
+```css
+#evx .evx-row{touch-action:pan-x;overflow-y:hidden;overscroll-behavior-x:contain;}
+```
+
+### M5. What KODE actually owns here
+
+1. **Rebuild the native bundle.** The bundle *is* the app — a site change that isn't rebuilt never reaches the owner's phone. This is the step that has silently swallowed fixes before.
+2. **Device pass at real widths**, not a resized desktop browser. Atlas cannot emulate mobile (`innerWidth` stays 1440 after resize), so Atlas has not seen any of this render. Treat every value above as unverified on glass.
+3. **`xcrun simctl erase` before concluding any layout bug.** A wedged simulator previously cost ~15 build cycles on a scroll bug that did not exist.
+4. Confirm the two rows do not collide with the status bar — §M inherits M1's safe-area concern.
+
+### M6. Dropdown unreachable on device — BOTH causes fixed, 2026-08-17
+
+KODE's device pass: three taps on `▾ ALL` did nothing. Two hypotheses, indistinguishable from outside, and they had opposite fixes:
+
+- **A — `#kil-top` swallowed the taps.** The arrow is `position:fixed;left:5px;width:30px;z-index:940`; the filter bar is only `sticky`, at `z-index:120`. While the bar is still in flow, both can occupy the same band, and the arrow wins.
+- **B — the menu opened but was clipped.** `.evx-catdd-menu` is absolutely positioned inside `#evx-genres`, a `.evx-nav-row` with `overflow-x:auto`. A clipped menu and an unregistered tap look identical.
+
+Atlas initially argued A was impossible on geometry — the arrow spans x=5–35 and KODE tapped x=60/66. **That argument was wrong, or at least unsafe:** simulator screenshots are 2x/3x, so x=60 in screenshot space is ≈x=20 in CSS pixels, which is inside the arrow. Do not repeat that reasoning without first confirming which coordinate space a tap was recorded in.
+
+Both are now closed:
+
+```css
+#evx .evx-nav{z-index:960;overflow:visible;}          /* beats #kil-top (940); lets the menu hang out */
+#evx #evx-genres,#evx #evx-genres.evx-catdd-row{overflow:visible;}
+#evx .evx-catdd-menu{z-index:970;min-width:160px;}
+```
+
+**The arrow was NOT moved.** The Founder's placement (left, 5px from edge, 5px above the nav) is deliberate; the bar now simply wins the tap. `.evx-subinline` keeps its own `overflow-x:auto`, so the subfilters still scroll horizontally even though the parent row no longer clips.
+
+Still unverified on glass: that the menu now opens, and the zoom lock in both the app and mobile Safari. Nobody has pinched it.
