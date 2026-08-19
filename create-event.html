@@ -191,7 +191,7 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 
         <div class="card">
           <h3>🎟 Tickets</h3>
-          <div class="note">Paid tiers check out securely through <b>KEEPITIL</b> — we handle the payment and pay out to your bank (KEEPITIL keeps 5% + $0.99). Free/RSVP tiers are free to attend. <em>Selling tickets requires a Community membership.</em></div>
+          <div class="note">Paid tiers check out securely through <b>KEEPITIL</b> — we handle the payment and pay out to your bank (KEEPITIL keeps 5% + $0.99). Free/RSVP tiers are free to attend. <!-- Founder 2026-08-18: the Community membership is retired, so selling tickets no longer requires one. Anyone with a free account can sell. --></div>
           <label class="tgl"><input type="checkbox" id="waitlist_enabled"/> Enable waitlist <span class="sub">When a tier sells out, guests can join a waitlist instead of bouncing.</span></label>
           <div id="tiers"></div>
           <button type="button" class="addtier" id="addtier">+ Add Ticket</button>
@@ -289,7 +289,7 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
     <p style="color:var(--muted);margin-bottom:20px">Your event is in review. Once approved it appears in the Scene, on your profile, and in the radio-bar "List Your Event" slot — and our crew can whip up a flyer + promo.</p>
     <a class="btn primary" id="mktg-link" href="/dashboard.html" style="margin-bottom:10px">📣 Set up marketing</a>
     <br/>
-    <a class="btn ghost" href="/scene.html">Back to the Scene</a>
+    <a class="btn ghost" href="/connect">Back to the Scene</a>
   </div>
 </div>
 
@@ -532,7 +532,7 @@ async function seriesAction(act, slug, btn){
     var r=await supa.rpc(act==='delete'?'delete_event':'archive_event',{p_slug:slug});
     var d=(r&&r.data)||{}; if(r.error) throw r.error;
     if(d.error){ alert(d.message||d.error); btn.disabled=false; btn.textContent=old; return; }
-    if(act==='delete' && slug===EDIT_SLUG){ location.href='/scene.html'; return; }
+    if(act==='delete' && slug===EDIT_SLUG){ location.href='/connect'; return; }
     SERIES=SERIES.filter(function(s){ return !(act==='delete' && s.slug===slug); }).map(function(s){ if(act==='archive'&&s.slug===slug) s.status='archived'; return s; });
     renderSeries();
   }catch(e){ alert('Could not complete: '+(e.message||e)); btn.disabled=false; btn.textContent=old; }
@@ -639,7 +639,7 @@ $('form').addEventListener('submit',async function(e){
 
 init();
 </script>
-<script src="/v3/keepitil-ai.js?v=20260817c" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 <script src="/keepitil-shell.js?v=20260815u" defer></script>
 </body>
 </html>
