@@ -255,30 +255,24 @@ footer a{color:var(--purple)}
       <div class="feeddd" id="feedDD"><button class="feeddd-btn" id="feedDDBtn" onclick="toggleFeedDD(event)">EXPLORE <span aria-hidden="true">&#9662;</span></button><div class="feeddd-menu" id="feedDDMenu"><button onclick="culSection('feed')">📰 Feed</button><button onclick="culSection('radio')">📻 Radio</button><button onclick="culSection('vs')">⚔️ VS</button><button onclick="culSection('givebacks')">💚 Givebacks</button></div></div>
       <button class="cul-heart" id="cul-heart" style="display:none" aria-label="Notifications" title="Notifications" onclick="var b=document.querySelector('.kiln-bell'); if(b){b.click();}else{location.href='/apply.html';}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg></button>
     </div>
-    <!-- Filter A: content type — scroll L/R (Founder 2026-07-31) -->
-    <div class="cul-typebar" id="culTypeBar">
-      <!-- K5: Blog and Vid removed. Counted against live profile_content (628 rows): the only
-           kind values that exist are post 211, event 53, article 364. kind='blog' and
-           kind='video' match ZERO rows, so both tabs were guaranteed-empty — the exact thing
-           the directive calls out, an empty tab teaching people the product is hollow.
-           The VS *filter* went for the same reason: VS content lives in vs_competitions, not
-           here, so it matched 0 of 628. VS is reached as a destination (/vs.html) instead. -->
-      <button data-tp="all" class="on" onclick="setCulContentType('all')">Feed</button>
-      <button data-tp="article" onclick="setCulContentType('article')">Articles</button>
-
-    </div>
+    <!-- CONTENT-TYPE FILTERS REMOVED 2026-08-18 (Founder).
+         Both surfaces are gone: this mobile bar and the desktop #vrFilters rail were the SAME
+         filter rendered per breakpoint. Successive rounds had already stripped Blog, Vid and VS
+         from it for matching zero rows, leaving "Feed | Articles" — a two-option filter over one
+         feed, which is not a choice worth a control.
+         setCulContentType() is kept and still works; it simply has no buttons calling it, so
+         restoring this markup restores the feature with no JS change. -->
+    <!-- (no filter bar) -->
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
     <div class="feed" id="feed"></div>
     <!-- Culture sections (Radio / VS / Givebacks) render here when selected -->
     <div id="cul-section-panel" style="display:none"></div>
   </section>
-  <!-- Vertical sidebar (desktop): subpages on top, the selected subpage's subfilters stacked below (Founder 2026-08-04) -->
-  <div class="cul-vrail" id="culVRail" aria-label="Subpages and filters">
-    <!-- Founder 2026-08-15: Feed/Radio/VS subpage switcher REMOVED — all three are shell nav
-         destinations now, so this was a third redundant path and offered Feed from Feed. -->
-    <div class="vr-div"></div>
-    <div id="vrFilters" style="display:flex;flex-direction:column;gap:9px;align-items:inherit"></div>
-  </div>
+  <!-- DESKTOP VERTICAL FILTER RAIL REMOVED 2026-08-18 (Founder) — the desktop half of the same
+       content-type filter deleted above. The subpage switcher had already gone on 2026-08-15
+       (shell nav owns those destinations), which left this rail holding nothing but the two
+       filter chips. With those gone the whole rail is empty chrome, so it goes with them. -->
+  <!-- (no filter rail) -->
   <div class="typebar" id="typebar" style="display:none"></div><div id="discover" style="display:none"></div>
 </div></div>
 <footer>KEEPITIL <a href="/">keepitil.com</a> — Culture &amp; Community</footer>
@@ -431,10 +425,7 @@ function culSection(sec){
 }
 /* ── logged-in gear: Type (all/following/followers/circle) + Filter (feed/articles/user) + content-type (Filter A) ── */
 var culType='all', culFilter='feed', culContentType='all';
-/* Which profile_slugs count as crew, for the articles/user split below. Exact keys — matches
-   public.agent_profiles after the 2026-08-16 rename (echo→cho, nexus→xus). The legacy slugs are
-   deliberately absent: profile_content.profile_slug was migrated, so no row carries them. */
-var CUL_AGENTS={cho:1,atlas:1,pulse:1,xus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
+var CUL_AGENTS={echo:1,atlas:1,pulse:1,nexus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
 function toggleCulGear(e){if(e){e.stopPropagation();}var m=document.getElementById('culGearMenu');if(m)m.classList.toggle('open');}
 function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearMenu button['+attr+']'),function(b){b.classList.toggle('on',b.getAttribute(attr)===val);});}
 function setCulType(t){ culType=t; _culMark('data-ct',t); applyCulFilters(); }
@@ -564,7 +555,7 @@ renderTypebar();renderDiscover();renderFeed();
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
 <script src="/keepitil-pager.js?v=20260815c" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260817c" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 <script>
 /* COMMUNITY FEED (Founder doc step 4 + daily auto-post): profile_content posts — agents AND
    users — render at the top of Culture with the same FB card chrome. Zero-token, DB-driven. */
@@ -727,7 +718,7 @@ renderTypebar();renderDiscover();renderFeed();
     background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;
     font:800 .9rem/1 var(--fh,Inter),sans-serif;letter-spacing:.06em}
   /* The floating AI bubble lands exactly on the rail's Save/More icons. The real id is
-     #kilo-btn (keepitil-ai.js?v=20260817c) — my first attempt guessed #kilo-fab and did nothing.
+     #kilo-btn (keepitil-ai.js?v=20260815d) — my first attempt guessed #kilo-fab and did nothing.
      Move it LEFT of the rail rather than up, so it never collides at any rail length. */
     /* section-name pop that fades (~0.9s) */
   #culSwToast{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:90;
