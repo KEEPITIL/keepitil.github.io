@@ -80,19 +80,21 @@ footer a{color:var(--brand-2)}
   </div>
 </main>
 
-<!-- Vertical sidebar (desktop): subpages Feed/Radio/VS on top, VS filters below -->
-<div class="cul-vrail" id="vsVRail" aria-label="Subpages and filters">
-  <!-- Founder 2026-08-15: Feed/Radio/VS subpage switcher REMOVED — all three are shell nav
-       destinations now. It also offered "VS" while you were already on VS. -->
-  <div class="vr-div"></div>
-  <!-- VS subpage views (Founder 2026-08-05). Drive vs-app.js via window.vsGo(view); KODE builds vote/join/winners. -->
-  <button class="cvr sf on" data-v="feed"    onclick="vrNav('feed',this)"    aria-label="Feed — all submissions"><span class="ic" aria-hidden="true">📰</span><span class="tx">Feed</span></button>
-  <button class="cvr sf"    data-v="vote"    onclick="vrNav('vote',this)"    aria-label="Vote — pick a competition"><span class="ic" aria-hidden="true">🗳️</span><span class="tx">Vote</span></button>
-  <button class="cvr sf"    data-v="join"    onclick="vrNav('join',this)"    aria-label="Join — enter a competition"><span class="ic" aria-hidden="true">➕</span><span class="tx">Join</span></button>
-  <button class="cvr sf"    data-v="winners" onclick="vrNav('winners',this)" aria-label="Winners"><span class="ic" aria-hidden="true">👑</span><span class="tx">Winners</span></button>
-  <button class="cvr sf"    data-v="votes"   onclick="vrNav('votes',this)"   aria-label="My Votes"><span class="ic" aria-hidden="true">✅</span><span class="tx">My Votes</span></button>
-  <button class="cvr sf"    data-v="mine"    onclick="vrNav('mine',this)"    aria-label="My Entry"><span class="ic" aria-hidden="true">🎫</span><span class="tx">My Entry</span></button>
-  <!-- Manage removed from VS 2026-08-05 (Founder): admin competition management moves to the profile dashboard → Events → Battles. -->
+<!-- DESKTOP FILTER RAIL REMOVED 2026-08-18 (Founder) — the six-view side rail is gone, matching
+     the same removal on Culture and Radio.
+     ⚠ ONE THING HAD TO SURVIVE IT. vs-app.js's navBar() has been a no-op since 2026-08-05, so
+     this rail was the ONLY navigation on desktop. Deleting it outright would leave a desktop
+     visitor stuck on FEED with no route to Join — and "the entry control was unreachable" is the
+     documented reason this page has 36 published competitions and 0 entries. So the rail goes and
+     a single JOIN button stays: one call to action, not a filter set. Mobile is unaffected — the
+     pager still carries all six views. -->
+<!-- desktop only: on mobile the pager already carries JOIN as its own filter, and two entry
+     buttons on one screen is worse than none — it makes the primary action look uncertain. -->
+<style>@media(max-width:860px){#vsJoinBar{display:none!important}}</style>
+<div id="vsJoinBar" style="max-width:1120px;margin:0 auto 6px;padding:0 16px;text-align:right">
+  <button type="button" onclick="window.vsGo&amp;&amp;window.vsGo('join')"
+    style="background:#ff5c8a;color:#1a0410;border:0;border-radius:10px;padding:11px 18px;font-weight:800;letter-spacing:.05em;font-size:.82rem;cursor:pointer">
+    Enter a competition &rarr;</button>
 </div>
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio bar (same on every page) -->
