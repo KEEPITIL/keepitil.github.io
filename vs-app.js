@@ -64,6 +64,19 @@
    + '#vs-app .vs-pill{display:inline-block;font:800 .66rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--vsl);border-radius:999px;padding:3px 9px;color:#9aa0b0;margin-right:6px}'
    + '#vs-app .vs-pill.ok{color:#22e39b;border-color:rgba(34,227,155,.45)}'
    + '#vs-app .vs-pill.warn{color:#ffb43c;border-color:rgba(255,180,60,.45)}'
+   /* competition landing page (Founder 2026-08-18) */
+   + '#vs-app .cd{max-width:760px;margin:0 auto}'
+   + '#vs-app .cd-hero{margin-bottom:14px}'
+   + '#vs-app .cd-cat{font:800 .68rem Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--vsb);margin-bottom:6px}'
+   + '#vs-app .cd-pills{margin-top:8px}'
+   + '#vs-app .cd-cta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}'
+   + '#vs-app .cd-sec{border-top:1px solid var(--vsl);padding:16px 0}'
+   + '#vs-app .cd-sec h3{font:800 .72rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8b95a3;margin:0 0 8px}'
+   + '#vs-app .cd-sec p{color:#c8cedb;font-size:.93rem;line-height:1.6;margin:0}'
+   + '#vs-app .cd-list{margin:0;padding-left:18px;color:#c8cedb;font-size:.9rem;line-height:1.7}'
+   + '#vs-app .cd-time{display:grid;gap:6px}'
+   + '#vs-app .cd-step{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.88rem;color:#c8cedb}'
+   + '#vs-app .cd-step b{color:#8b95a3;font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}'
    /* competitions browser — month row + type row + card cover (Founder 2026-08-18) */
    + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px}'
    + '#vs-app .ce-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'
@@ -471,7 +484,7 @@
        vs_open_competitions() is anon-readable — verified, 36 rows — so a public list sat behind
        a login and a visitor saw "sign in" where they should have seen 36 things to enter. The
        gate now lives on renderEntryForm. Browse freely, sign in to submit. */
-    if(compId) return renderEntryForm(Number(compId));
+    if(compId) return renderComp(Number(compId));   /* landing page, not the form */
 
     if(CE_ROWS){ return ceRender(); }          /* filters re-render without refetching */
     busy('Loading open competitions…');
@@ -485,6 +498,111 @@
         return;
       }
       ceRender();
+    }).catch(err);
+  }
+
+  /* ── COMPETITION LANDING PAGE (Founder 2026-08-18) ───────────────────────────────────
+     Clicking a competition used to drop you straight into a bare upload form — the entry form
+     WAS the landing page. This is the Eventbrite/Posh order instead: show what it is, what you
+     can win, what the deadlines are and what to upload; ask for the entry last.
+     Every block renders only if the underlying field exists — 10 of 36 competitions carry rules,
+     prizes and upload specs, so a section that would be empty is omitted rather than shown blank. */
+  function fmtD(d){
+    if(!d) return '';
+    try{ return new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
+    catch(e){ return String(d).slice(0,10); }
+  }
+  function daysLeft(d){
+    if(!d) return null;
+    var ms = Date.parse(d) - Date.now();
+    if(isNaN(ms) || ms < 0) return null;
+    return Math.ceil(ms/86400000);
+  }
+  function prizeLines(p){
+    if(!p || typeof p!=='object') return [];
+    var out=[];
+    if(p.monthly_finalists) out.push(p.monthly_finalists+' monthly finalists advance');
+    if(p.quarterly_winners) out.push(p.quarterly_winners+' quarterly winner'+(p.quarterly_winners>1?'s':''));
+    if(p.annual_champion)   out.push('Annual champion title');
+    if(p.badge)             out.push('Winner badge on your profile');
+    if(p.cash_cents)        out.push('$'+(p.cash_cents/100).toFixed(2)+' cash prize');
+    if(p.note)              out.push(p.note);
+    return out;
+  }
+  function uploadLines(u){
+    if(!u || typeof u!=='object') return [];
+    var out=[];
+    if(Array.isArray(u.accept) && u.accept.length) out.push('Accepted formats: '+u.accept.join(', ').toUpperCase());
+    if(u.max_files)     out.push('Up to '+u.max_files+' file'+(u.max_files>1?'s':''));
+    if(u.max_file_mb)   out.push('Max '+u.max_file_mb+'MB per file');
+    if(u.min_audio_sec && u.max_audio_sec)
+      out.push('Length '+Math.round(u.min_audio_sec/60)+'–'+Math.round(u.max_audio_sec/60)+' minutes');
+    if(u.require_thumb) out.push('Cover image required');
+    return out;
+  }
+  function renderComp(compId){
+    busy('Loading competition…');
+    SB.rpc('vs_open_competitions').then(function(r){
+      if(r.error) throw r.error;
+      var c = (r.data||[]).filter(function(x){ return x.id===compId; })[0];
+      if(!c){ empty('Not open for entries','This competition is closed or unavailable.'); return; }
+
+      var paid = c.entry_fee_cents > 0;
+      var dl   = daysLeft(c.submissions_close_at);
+      var blk  = '';
+      function section(title, inner){ if(inner) blk += '<div class="cd-sec"><h3>'+title+'</h3>'+inner+'</div>'; }
+
+      /* hero */
+      var hero = '<div class="cd-hero">'
+        + '<div class="cd-cat">'+h(c.category||'VS')+'</div>'
+        + '<h2 class="vs-h">'+h(c.title)+'</h2>'
+        + '<div class="cd-pills">'
+          + '<span class="vs-pill '+(paid?'':'ok')+'">'+(paid?('$'+(c.entry_fee_cents/100).toFixed(2)+' entry'):'Free to enter')+'</span>'
+          + (c.submissions_close_at ? '<span class="vs-pill">Closes '+h(fmtD(c.submissions_close_at))+'</span>' : '')
+          + (dl!==null ? '<span class="vs-pill warn">'+dl+' day'+(dl===1?'':'s')+' left</span>' : '')
+          + (c.entry_count ? '<span class="vs-pill">'+c.entry_count+' entered</span>' : '')
+        + '</div></div>';
+
+      section('About this competition', c.description ? '<p>'+h(c.description)+'</p>' : '');
+
+      /* timeline — always available: every competition has voting dates */
+      var tl='';
+      function step(lbl,d){ if(d) tl += '<div class="cd-step"><b>'+lbl+'</b><span>'+h(fmtD(d))+'</span></div>'; }
+      step('Submissions open',  c.submissions_open_at);
+      step('Submissions close', c.submissions_close_at);
+      step('Voting opens',      c.voting_opens_at);
+      step('Voting closes',     c.voting_closes_at);
+      section('Key dates', tl ? '<div class="cd-time">'+tl+'</div>' : '');
+
+      var pl = prizeLines(c.prize_structure);
+      section('Prizes', pl.length ? '<ul class="cd-list">'+pl.map(function(x){return '<li>'+h(x)+'</li>';}).join('')+'</ul>' : '');
+
+      var ul = uploadLines(c.upload_settings);
+      section('What to submit',
+        (c.requirements ? '<p>'+h(c.requirements)+'</p>' : '')
+        + (ul.length ? '<ul class="cd-list">'+ul.map(function(x){return '<li>'+h(x)+'</li>';}).join('')+'</ul>' : ''));
+
+      section('Rules', c.rules ? '<p style="white-space:pre-wrap">'+h(c.rules)+'</p>' : '');
+
+      /* how judging works — derived from the stored mode, not guessed */
+      var judge='';
+      if(c.winner_method==='public_vote') judge='Winners are decided by public vote.';
+      else if(c.winner_method) judge='Winner method: '+c.winner_method.replace(/_/g,' ')+'.';
+      if(c.vote_display_mode==='blind') judge += ' Vote totals stay hidden until winners are announced.';
+      else if(c.vote_display_mode==='transparent') judge += ' Vote totals are visible throughout.';
+      section('How judging works', judge ? '<p>'+h(judge)+'</p>' : '');
+
+      var cta = '<div class="cd-cta">'
+        + '<button type="button" class="vs-cta" id="cd-go">'
+        + (paid ? 'Enter — $'+(c.entry_fee_cents/100).toFixed(2) : 'Enter this competition')+'</button>'
+        + '<button type="button" class="vs-pill" data-nav="enter" style="cursor:pointer;background:none">‹ All competitions</button>'
+        + '</div>';
+
+      APP.innerHTML = '<div class="vs-detail cd">'+hero+cta+blk+cta+'</div>';
+      /* NB: do NOT name this `go` — that is the router function in the enclosing scope, and
+         shadowing it here silently breaks navigation from inside this handler. */
+      var goBtn=document.getElementById('cd-go');
+      if(goBtn) goBtn.onclick=function(){ go({view:'submit', c:compId}); };
     }).catch(err);
   }
 
@@ -636,6 +754,7 @@
     if(v === 'entry' && q('e')) return renderEntry(q('e'));
     if(v === 'mine')  return renderMine();
     if(v === 'votes') return renderVotes();
+    if(v === 'submit' && q('c')) return renderEntryForm(Number(q('c')));   /* the form itself */
     if(v === 'enter' || v === 'join') return renderEnter(q('c'));
     if(v === 'vote')  return renderFeed();
     if(v === 'winners') return renderWinnersSoon();
