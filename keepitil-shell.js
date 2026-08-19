@@ -444,7 +444,11 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         '<div class="v3s-inner">'
         +'<div class="v3s-brand">'
           +'<button class="v3s-logobtn" id="v3s-logobtn" title="Change style" aria-label="Home / change site style"><img class="v3s-logo" src="/keepitil-x-blue.png" alt="KEEPITIL"></button>'
-          +'<a href="/" class="v3s-brandtext">KEEPITIL</a>'
+          /* Founder 2026-08-19: the wordmark IS the home slot (see the note above — Discovery is
+             deliberately not repeated in the links row), so renaming the destination means
+             renaming this text. It read KEEPITIL, which is why the footer said Discovery and the
+             header still said KEEPITIL. The logo mark to its left still carries the brand. */
+          +'<a href="/" class="v3s-brandtext'+(/^\/((index|v31)(\.html)?)?$/.test(location.pathname)?' on':'')+'">DISCOVERY</a>'
           +'<div class="v3t-pop" id="v3t-pop">'+swatches+'</div>'
         +'</div>'
         +'<div class="v3s-links">'+links+'</div>'
@@ -806,6 +810,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#v3shell-nav .v3s-logobtn{background:none;border:0;padding:0;margin:0;cursor:pointer;display:flex;align-items:center;line-height:0}'
     +'#v3shell-nav .v3s-logobtn:hover{filter:drop-shadow(0 0 8px var(--brand,#00b4ff))}'
     +'#v3shell-nav .v3s-brandtext{font-family:"Bebas Neue",sans-serif;font-weight:400;letter-spacing:.13em;font-size:1.5rem;text-decoration:none;color:#fff}'
+    +'#v3shell-nav .v3s-brandtext.on{color:var(--brand-2,#5cc8ff)}'
     +'#v3shell-nav .v3s-logo{height:44px;width:auto;mix-blend-mode:screen}'
     +'#v3shell-nav .v3t-pop{display:none;position:absolute;top:52px;left:0;flex-direction:row;gap:9px;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:10px 12px;box-shadow:0 12px 30px rgba(0,0,0,.5);z-index:1001}'
     +'#v3shell-nav .v3t-pop.open{display:flex}'
