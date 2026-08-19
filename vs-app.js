@@ -88,8 +88,7 @@
    /* SAME RATIO AS THE HOMEPAGE EVENT FLYER (Founder 2026-08-18): 2:3 on desktop, 9:16 on
       mobile, radius 14/15 — index.html #evx .evx-flyer. It was 4:5, which matched neither,
       so the same artwork would have cropped differently on the calendar and on this page. */
-   + '#vs-app .cd-flyer{width:100%;aspect-ratio:9/16;border-radius:15px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
-   + '@media(min-width:861px){#vs-app .cd-flyer{aspect-ratio:2/3;border-radius:14px}}'
+   + '#vs-app .cd-flyer{width:100%;aspect-ratio:2/3;border-radius:14px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
    + '#vs-app .cd-flyer-gen{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px;text-align:center;'
    +   'background:linear-gradient(150deg,rgba(0,180,255,.22),rgba(160,107,255,.22))}'
    + '#vs-app .cd-flyer-gen .cat{font:800 .72rem Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#bfe3ff}'
