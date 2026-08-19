@@ -67,8 +67,14 @@
    /* ── Posh-style two-column competition page (Founder 2026-08-18) ──────────────────
       DESKTOP: left 1/3 is the flyer + action button, position:sticky so it never scrolls away;
       right 2/3 scrolls. MOBILE: one column, flyer first, everything else beneath. */
-   + '#vs-app .cd2{display:grid;grid-template-columns:1fr;gap:22px;align-items:start;max-width:1120px;margin:0 auto}'
-   + '@media(min-width:861px){#vs-app .cd2{grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:34px}}'
+   /* Top gap (Founder 2026-08-19): "the top of the flyer and the event is cut off." Removing the
+      CREATE hero took the page's only top spacing with it, so the flyer and the organiser row
+      started flush against the fixed nav. This restores the breathing room the hero used to
+      provide — and the locked-column height below subtracts it, or the column would grow taller
+      than the viewport and push the bottom of the flyer out of sight. */
+   + '#vs-app .cd2{display:grid;grid-template-columns:1fr;gap:22px;align-items:start;max-width:1120px;margin:20px auto 0}'
+   /* Founder-locked 2026-08-19, set in the interactive preview: flyer column 35%, column gap 20. */
+   + '@media(min-width:861px){#vs-app .cd2{grid-template-columns:minmax(0,35%) minmax(0,1fr);gap:20px}}'
    + '#vs-app .cd-stick{display:flex;flex-direction:column;gap:12px}'
    /* LOCKED, not sticky (Founder 2026-08-18). position:sticky still travels with the page until
       it reaches its offset — the flyer visibly moved before settling. Posh instead gives the RIGHT
@@ -77,7 +83,7 @@
       bottom; without it the inner scroller runs underneath them and the last section is
       unreachable. Mobile is untouched: one column, normal page scroll. */
    + '@media(min-width:861px){'
-   +   '#vs-app .cd2{height:calc(100vh - 196px);min-height:520px;overflow:hidden}'
+   +   '#vs-app .cd2{height:calc(100vh - 216px);min-height:520px;overflow:hidden}'
    +   '#vs-app .cd-left{height:100%;overflow:hidden}'
    +   '#vs-app .cd-stick{position:static;height:100%;justify-content:flex-start}'
    +   '#vs-app .cd-flyer{flex:0 1 auto;min-height:0}'
@@ -88,13 +94,15 @@
    /* SAME RATIO AS THE HOMEPAGE EVENT FLYER (Founder 2026-08-18): 2:3 on desktop, 9:16 on
       mobile, radius 14/15 — index.html #evx .evx-flyer. It was 4:5, which matched neither,
       so the same artwork would have cropped differently on the calendar and on this page. */
-   + '#vs-app .cd-flyer{width:100%;aspect-ratio:2/3;border-radius:14px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
+   + '#vs-app .cd-flyer{width:100%;aspect-ratio:2/3;border-radius:10px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
    + '#vs-app .cd-flyer-gen{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px;text-align:center;'
    +   'background:linear-gradient(150deg,rgba(0,180,255,.22),rgba(160,107,255,.22))}'
    + '#vs-app .cd-flyer-gen .cat{font:800 .72rem Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#bfe3ff}'
    + '#vs-app .cd-flyer-gen .ttl{font-family:var(--fs,inherit);font-size:1.5rem;line-height:1.15;color:#fff}'
    + '#vs-app .cd-flyer-gen .dt{font:700 .74rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9fb2c6}'
-   + '#vs-app .cd-buy{width:100%;text-align:center}'
+   + /* Founder-locked 2026-08-19: 40px tall. Padding is overridden because .vs-cta's 13px
+   vertical padding alone makes the button 44px — taller than the locked value. */
+   + '#vs-app .cd-buy{width:100%;text-align:center;height:40px;padding:0 26px;border-radius:20px;display:flex;align-items:center;justify-content:center}'
    + '#vs-app .cd-right{min-width:0}'
    + '#vs-app .cd-org{display:flex;align-items:center;gap:10px;margin-bottom:12px}'
    + '#vs-app .cd-org .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00b4ff,#a06bff);'
@@ -122,7 +130,7 @@
    + '#vs-app .cd-cat{font:800 .68rem Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--vsb);margin-bottom:6px}'
    + '#vs-app .cd-pills{margin-top:8px}'
    + '#vs-app .cd-cta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}'
-   + '#vs-app .cd-sec{border-top:1px solid var(--vsl);padding:16px 0}'
+   + '#vs-app .cd-sec{border-top:1px solid var(--vsl);padding:20px 0}'
    + '#vs-app .cd-sec h3{font:800 .72rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#8b95a3;margin:0 0 8px}'
    + '#vs-app .cd-sec p{color:#c8cedb;font-size:.93rem;line-height:1.6;margin:0}'
    + '#vs-app .cd-list{margin:0;padding-left:18px;color:#c8cedb;font-size:.9rem;line-height:1.7}'
