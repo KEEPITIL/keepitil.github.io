@@ -294,19 +294,19 @@ window.KIL_ICONS = {
    `pill` is what renders in both navs; `label` stays the real page name for the footer sitemap
    and the accessible name, so "EARN" still announces as "EARN — Radio". */
 var DESTINATIONS=[
-  {href:'/',             label:'Explore', pill:'DISCOVER', icon:'home',    home:true,
+  {href:'/',             label:'Discovery', pill:'DISCOVERY', icon:'home',   home:true,
    match:/^\/((index|v31)(\.html)?)?$/},
   /* Founder 2026-08-18 — clean URLs. Each `match` accepts BOTH the new path and the retired
      .html one, because the old files still exist as redirect stubs and an installed app bundle
      may still request them. A nav that fails to highlight on the legacy path would look broken
      for exactly the users on the oldest build. */
-  {href:'/connect', label:'Scene',   pill:'CONNECT',  icon:'scene',   match:/(^|\/)(connect|scene)(\.html)?\/?$/,
+  {href:'/connect', label:'Connect', pill:'CONNECT',  icon:'scene',   match:/(^|\/)(connect|scene)(\.html)?\/?$/,
    tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
   {href:'/create',  label:'Create',  pill:'CREATE',   icon:'vs',      match:/(^|\/)(create|vs)(\.html)?\/?$/,
    tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'},
   {href:'/culture', label:'Culture', pill:'CULTURE',  icon:'culture', match:/(^|\/)culture(\.html)?\/?$/,
    tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
-  {href:'/earn',    label:'Radio',   pill:'EARN',     icon:'radio',   match:/(^|\/)(earn|radio)(\.html)?\/?$/,
+  {href:'/earn',    label:'Earn',    pill:'EARN',     icon:'radio',   match:/(^|\/)(earn|radio)(\.html)?\/?$/,
    tint:'#ff9f43', glow:'rgba(255,159,67,.75)'}
 ];
 /* ── K4: the destination rail, for pages that want to surface the map in their own body ────
@@ -372,7 +372,7 @@ window.KIL_NOT_FOUND = function(opts){
     + (opts.heading || ('That ' + what + ' isn’t here')) + '</h1>'
     + '<p style="color:rgba(255,255,255,.7);line-height:1.6;margin:0 0 22px">'
     + (opts.body || ('It may have been removed, or the link may be wrong.')) + '</p>'
-    + (opts.links || [['/', 'Explore'], ['/culture','Culture'], ['/connect','Scene']])
+    + (opts.links || [['/', 'Discovery'], ['/culture','Culture'], ['/connect','Connect']])
         .map(function(l){ return '<a href="'+l[0]+'" style="display:inline-block;margin:0 7px 10px;padding:12px 20px;'
           + 'border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#fff;min-height:44px;line-height:20px">'+l[1]+'</a>'; })
         .join('')
@@ -467,7 +467,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         +'<div class="v3-foot-about"><a href="/" class="v3-foot-brand">KEEPITIL</a>'
           +'<p class="v3-foot-addr">9252 Garden Grove Blvd, Ste 19 PMB 1066, Garden Grove, CA 92844 · <a href="mailto:info@keepitil.com">info@keepitil.com</a></p></div>'
         +'<nav class="v3-foot-links">'
-        +DESTINATIONS.map(function(d){ return '<a href="'+d.href+'">'+(d.home?'Home':d.label)+'</a>'; }).join('')
+        +DESTINATIONS.map(function(d){ return '<a href="'+d.href+'">'+d.label+'</a>'; }).join('')
         +'<a href="/apply.html">Login</a></nav>'
         +'<div class="v3-foot-social">'
           +'<a href="https://instagram.com/keepitil" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>'
