@@ -370,7 +370,7 @@ footer a{color:var(--accent2);}
 /* EVENTS hub — 9:16 universal flyer cards */
 .ev-group-h{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.1em;color:var(--muted);margin:22px 0 12px;display:flex;align-items:center;gap:8px;}
 .ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-.ev-flyer{position:relative;aspect-ratio:9/16;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;cursor:pointer;transition:transform .18s,border-color .18s;}
+.ev-flyer{position:relative;aspect-ratio:2/3;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;cursor:pointer;transition:transform .18s,border-color .18s;}
 .ev-flyer:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
 .ev-flyer .cov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .ev-flyer::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 34%,rgba(0,0,0,.86));}
@@ -386,7 +386,7 @@ footer a{color:var(--accent2);}
 .ev-flyer .ev-g{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
 .ev-flyer .ev-tix{display:block;text-align:center;font-family:var(--font-head);font-size:.82rem;letter-spacing:.08em;background:var(--accent2);color:#fff;border-radius:7px;padding:7px;}
 .ev-flyer .ev-tix:hover{filter:brightness(1.12);}
-.ev-add{aspect-ratio:9/16;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted);text-align:center;padding:10px;}
+.ev-add{aspect-ratio:2/3;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--muted);text-align:center;padding:10px;}
 .ev-add:hover{border-color:var(--accent);color:var(--accent);}
 .ev-add .plus{font-size:2rem;line-height:1;}
 .ev-add span{font-size:.72rem;font-weight:700;letter-spacing:.06em;}
@@ -574,12 +574,12 @@ window.KIL_FILTER_BADGES = function(badges){
 <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
-    <ul class="nav-links"><li><a href="/culture.html">CULTURE</a></li><li><a href="/scene.html">SCENE</a></li></ul>
+    <ul class="nav-links"><li><a href="/culture">CULTURE</a></li><li><a href="/connect">SCENE</a></li></ul>
     <a href="/apply.html" class="nav-cta">LOGIN</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
 </nav>
-<div class="mobile-menu" id="mobile-menu"><a href="/culture.html">CULTURE</a><a href="/apply.html" class="nav-cta">LOGIN</a></div>
+<div class="mobile-menu" id="mobile-menu"><a href="/culture">CULTURE</a><a href="/apply.html" class="nav-cta">LOGIN</a></div>
 
 <!-- HEADER (social icons now live here) -->
 <!-- P0 fix 2026-07-16: hero ships BLANK (skeleton) — live/demo data is applied by JS only.
@@ -737,33 +737,15 @@ var IS_OWNER = document.documentElement.getAttribute('data-view')!=='public' && 
 /* ── Supabase: shared, cross-device persistence for owner-authored content ── */
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
-/* Legacy agent slugs from the 2026-08-16 rename (echo→cho, nexus→xus). Mirrors
-   public.agent_aliases; 404.html carries the same two entries for pretty URLs, and
-   keepitil-agents.js is the generated copy. EXACT KEYS ONLY — 'cho' is a substring of
-   'echo' and 'xus' of 'nexus', so a prefix test would capture echo-west and echoplex. */
-var AGENT_ALIASES={echo:'cho',nexus:'xus'};
 var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q)return q.toLowerCase().replace(/[^a-z0-9-]/g,'');}catch(e){}return '';})();
-/* A bookmarked /profile.html?slug=nexus must land on Xus, and must not keep answering on the
-   dead slug: the agent chat sends this value to ask-echo, whose brain and personality rows all
-   moved to the new slugs, so an unresolved legacy slug returns a personality-less agent with an
-   empty knowledge base. Rewrite the address bar too, so the canonical URL below is the new one
-   and the old one stops being shared onward. */
-if(Object.prototype.hasOwnProperty.call(AGENT_ALIASES,PROFILE_SLUG)){
-  var _canon=AGENT_ALIASES[PROFILE_SLUG];
-  try{
-    var _u=new URL(location.href); _u.searchParams.set('slug',_canon);
-    history.replaceState(null,'',_u.pathname+_u.search+_u.hash);
-  }catch(e){}
-  PROFILE_SLUG=_canon;
-}
 var IS_DEMO=false;/* Founder 2026-08-04: unclaimed profiles (incl. groove-trooper) show identity from profile_meta but NO demo posts/events — a fresh unclaimed profile is empty until claimed. */
 /* Canonical public URL = /public/profile/<slug> (Founder 2026-08-04) */
 try{ if(PROFILE_SLUG){ var _pu='https://keepitil.com/public/profile/'+PROFILE_SLUG; var _c=document.querySelector('link[rel="canonical"]'); if(_c)_c.href=_pu; var _ou=document.querySelector('meta[property="og:url"]'); if(_ou)_ou.setAttribute('content',_pu); } }catch(e){}
 /* the 14 KEEPITIL agents answer live via the ask-echo edge fn (agent-scoped brain + personality);
    their CHAT tab becomes a real "ask this agent" chat — normal profiles keep scene-room chats */
 var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department) — fallback identity when profile_meta has no row */
-  cho:['Cho','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
-  xus:['Xus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
+  echo:['Echo','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
+  nexus:['Nexus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
   oracle:['Oracle','Trance','Analytics'],fable:['Fable','Indie / Alternative','Documentation'],
   nova:['Nova','Bass','UX QA'],luna:['Luna','Pop','Visual Design'],lyric:['Lyric','R&B / Soul','Editorial'],
   vibe:['Vibe','African Dance','Community'],scout:['Scout','Country / Americana','Talent & Discovery'],
@@ -1173,7 +1155,7 @@ function loadProfileMeta(){
     if(PROFILE_SLUG && !(r&&r.data) && window.KIL_NOT_FOUND){
       window.KIL_NOT_FOUND({ what:'profile', heading:'That profile isn’t here',
         body:'It may have been removed, renamed, or the link may be wrong.',
-        links:[['/scene.html','Browse the Scene'],['/','Explore'],['/apply.html','Claim your profile']] });
+        links:[['/connect','Browse the Scene'],['/','Explore'],['/apply.html','Claim your profile']] });
       return;
     }
     if(r&&r.data){var d=r.data;
@@ -1816,7 +1798,7 @@ var GT_ARTICLES=[
 <p class="intro-text"><a href="#" onclick="showTab('chat');return false;" style="color:var(--accent);font-weight:700;">Join the chat for first listen →</a></p>`},
   {t:'Shared: History of House Music', d:'Shared · KEEPITIL Blog', img:'https://images.ra.co/0eb69717593e6bb32225fec905e93762454a7894.jpg', html:`<div class="kil-tag">★ SHARED</div>
 <p class="intro-text">Groove Trooper shared this from the KEEPITIL culture blog — a deep dive on where house music came from and why the groove still matters.</p>
-<p class="intro-text"><a href="/culture.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
+<p class="intro-text"><a href="/culture" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
 ];
 /* ── Unified post model (blog / article / image / video) shared by FEED + GALLERY ── */
 function postType(a){ if((a.mtype||'')==='video')return 'video'; if(/blog|shared/i.test(a.d||''))return 'blog'; return 'article'; }
@@ -2354,7 +2336,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 })();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260726" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260817c" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 
 <script>
 /* ══ IG-PARITY ENHANCEMENTS (Founder 2026-07-18) ══ */
