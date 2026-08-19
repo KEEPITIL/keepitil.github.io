@@ -107,9 +107,14 @@
       if(FILTER==='voting') rows = rows.filter(function(x){ return x.voting_open; });
       if(FILTER==='open')   rows = rows.filter(function(x){ return !x.voting_open; });
       if(!rows.length){
-        APP.innerHTML = '<div class="soon"><div class="i">⚔️</div><h2>Be the first to enter</h2>'
-          + '<p>Competitions are open for submissions right now. <button type="button" class="vsp-join" onclick="window.__vsGoJoin&amp;&amp;window.__vsGoJoin()">Enter a competition &rarr;</button></p></div>';
-        return;
+        /* Founder 2026-08-18: VS looked empty. It was not — there are 36 published competitions,
+           but the default view is the ENTRIES feed and there are 0 entries, so the landing screen
+           was a "be the first" message with the actual competitions one click away and invisible.
+           A visitor reasonably concludes the product has nothing in it.
+           With no entries to show, show the COMPETITIONS instead. The feed earns the default back
+           the moment a single entry exists. Nothing is hidden — it is the same renderEnter() the
+           JOIN view uses, so there is one implementation, not a second empty-state variant. */
+        return renderEnter();
       }
       APP.innerHTML = navBar('feed') + '<div class="vs-grid">' + rows.map(function(x){
         return '<div class="vs-card" data-entry="'+x.entry_id+'">'
@@ -372,13 +377,11 @@
      fill the form + upload media -> submit for review. Every gate is re-checked server-side;
      this screen only collects. */
   function renderEnter(compId){
-    if(!ME){
-      APP.innerHTML = navBar('enter')
-        + '<div class="soon"><div class="i">🔐</div><h2>Sign in to enter</h2>'
-        + '<p>You need an account to submit an entry.</p>'
-        + '<a class="vs-cta" href="/apply.html">Sign in</a></div>';
-      return;
-    }
+    /* Founder 2026-08-18: the sign-in gate used to sit HERE, hiding the whole competition list
+       from anyone logged out. vs_open_competitions() is readable by anon — verified, 36 rows —
+       so the list was public data behind a login wall, and a visitor saw "sign in" where they
+       should have seen 36 things to enter. The gate now sits on renderEntryForm, which is the
+       only step that genuinely needs an account. Browse freely, sign in to submit. */
     if(compId) return renderEntryForm(Number(compId));
 
     busy('Loading open competitions…');
@@ -412,6 +415,17 @@
   }
 
   function renderEntryForm(compId){
+    /* The gate moved here from renderEnter (2026-08-18) — submitting needs an account, browsing
+       does not. Kept BEFORE the fetch so a signed-out user is not made to wait for a form they
+       cannot use. */
+    if(!ME){
+      APP.innerHTML = navBar('enter')
+        + '<div class="soon"><div class="i">🔐</div><h2>Sign in to enter</h2>'
+        + '<p>You can browse every competition without an account — you just need one to submit an entry.</p>'
+        + '<a class="vs-cta" href="/apply.html">Sign in</a>'
+        + '<p><button type="button" class="vsp-join" data-nav="enter">‹ Back to competitions</button></p></div>';
+      return;
+    }
     busy('Loading competition…');
     SB.rpc('vs_open_competitions').then(function(r){
       var comp = (r.data || []).filter(function(c){ return c.id === compId; })[0];
