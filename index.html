@@ -2076,11 +2076,14 @@ var DOW=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var CATS=[
   ['','ALL',[]],
   ['music','MUSIC',[['afrobeat','Afrobeat'],['bass','Bass'],['edm','EDM'],['house','House'],['techno','Techno'],['country','Country'],['hiphop','HipHop'],['rnb','R&B'],['rock','Rock']]],
-  ['vs','VS',[['dj','DJ'],['photography','Photography'],['videography','Videography'],['song','Song / Paint / etc.']]],
+  /* VS REMOVED from the homepage category filter 2026-08-18 (Founder). VS is a global
+     destination in the shell nav (CREATE) with its own page and its own six filters — a second
+     entry point here duplicated that path and mixed a participation lane into an events
+     calendar. The VS_SIGNUP map below is kept because submit-event.html still honours ?vs=. */
   ['sftu','SFTU',[['raves','Raves'],['warehouse','Warehouse']]],
   ['festival','FESTIVAL',[['edm','EDM'],['country','Country'],['etc','Other']]]
 ];
-var CAT_ALWAYS={ '':1, music:1, vs:1, sftu:1, festival:1 }; /* these top tabs always show */
+var CAT_ALWAYS={ '':1, music:1, sftu:1, festival:1 }; /* these top tabs always show */
 /* VS is a submission/signup lane — each sub links to its challenge signup */
 var VS_SIGNUP={ dj:'/submit-event.html?vs=dj', photography:'/submit-event.html?vs=photography', videography:'/submit-event.html?vs=videography', song:'/submit-event.html?vs=song' };
 var GENRES=CATS; /* back-compat alias */
@@ -2090,7 +2093,10 @@ function fmtLong(d){var p=parts(d);var dt=new Date(Date.UTC(p.y,p.m-1,p.day));re
 var MONTHS=(function(){var s={};EVENTS.forEach(function(e){s[e.date.slice(0,7)]=1;});return Object.keys(s).sort();})();
 var activeMonth=MONTHS[0];
 var activeGenre='';
-var activeCat='';
+/* Default category is MUSIC, not ALL (Founder 2026-08-18). ALL mixes every lane into one
+   calendar and is nobody's actual intent on arrival; music is what the calendar is for and what
+   45/45 published events currently are. ALL remains selectable in the dropdown. */
+var activeCat='music';
 var expanded={};
 var PAGE=12;
 function mLabel(mk){return MON3[(+mk.slice(5,7))-1];}
