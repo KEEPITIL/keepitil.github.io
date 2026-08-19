@@ -727,6 +727,11 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
      when signed in, so logged-out visitors see LOGIN only, no bell. ── */
   var SB_URL="https://ovmqtzjfpzrbzrlkxwgw.supabase.co";
   var SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ";
+  /* Published so the click tracker (assets/js/kt-analytics.js) can log outbound clicks first-party
+     without loading the whole supabase client. Anon key only — same key already shipped in this
+     file and in every page's markup; it grants nothing beyond RLS. Set here rather than duplicated
+     in the tracker so there is ONE copy of the key in the shell. */
+  try{ window.KIL_ANON = SB_KEY; window.KIL_SB_URL = SB_URL; }catch(e){}
   function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="/v3/vendor/supabase-js.min.js"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
   function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
   /* profile hamburger dropdown: Edit profile · Settings */
