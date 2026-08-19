@@ -103,6 +103,10 @@
    + /* Founder-locked 2026-08-19: 40px tall. Padding is overridden because .vs-cta's 13px
    vertical padding alone makes the button 44px — taller than the locked value. */
    + '#vs-app .cd-buy{width:100%;text-align:center;height:40px;padding:0 26px;border-radius:20px;display:flex;align-items:center;justify-content:center}'
+   /* Measured 44px, not the 40 asked for: a global min-height:44px tap-target floor was winning.
+      Released only where there is a mouse — on touch the 44px floor stays, because a 40px target
+      is below the minimum comfortable tap size and this is the button that takes the money. */
+   + '@media(hover:hover){#vs-app .cd-buy{min-height:40px}}'
    + '#vs-app .cd-right{min-width:0}'
    + '#vs-app .cd-org{display:flex;align-items:center;gap:10px;margin-bottom:12px}'
    + '#vs-app .cd-org .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00b4ff,#a06bff);'
