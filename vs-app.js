@@ -107,13 +107,9 @@
       if(FILTER==='voting') rows = rows.filter(function(x){ return x.voting_open; });
       if(FILTER==='open')   rows = rows.filter(function(x){ return !x.voting_open; });
       if(!rows.length){
-        /* Founder 2026-08-18: VS looked empty. It was not — there are 36 published competitions,
-           but the default view is the ENTRIES feed and there are 0 entries, so the landing screen
-           was a "be the first" message with the actual competitions one click away and invisible.
-           A visitor reasonably concludes the product has nothing in it.
-           With no entries to show, show the COMPETITIONS instead. The feed earns the default back
-           the moment a single entry exists. Nothing is hidden — it is the same renderEnter() the
-           JOIN view uses, so there is one implementation, not a second empty-state variant. */
+        /* JOIN is the default view now, so this only fires if someone asks for ?view=feed
+           explicitly. Still routes to the competitions rather than a dead end — an empty feed
+           with 36 live competitions elsewhere is a wrong answer, however you arrived at it. */
         return renderEnter();
       }
       APP.innerHTML = navBar('feed') + '<div class="vs-grid">' + rows.map(function(x){
@@ -554,7 +550,11 @@
   /* ── router ────────────────────────────────────────────────────────────────────── */
   function route(){
     if(!SB){ err('Supabase client unavailable'); return; }
-    var v = q('view') || 'feed';
+    /* DEFAULT VIEW = JOIN (Founder 2026-08-18). It used to be the entries FEED, which is empty
+       until somebody enters — so the landing screen of a page with 36 live competitions showed
+       nothing, and visitors concluded the product was empty. Landing on the competitions makes
+       the first thing you see the thing you can act on. /create/?view=feed still works. */
+    var v = q('view') || 'join';
     if(v === 'entry' && q('e')) return renderEntry(q('e'));
     if(v === 'mine')  return renderMine();
     if(v === 'votes') return renderVotes();
