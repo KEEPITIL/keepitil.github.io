@@ -64,6 +64,41 @@
    + '#vs-app .vs-pill{display:inline-block;font:800 .66rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--vsl);border-radius:999px;padding:3px 9px;color:#9aa0b0;margin-right:6px}'
    + '#vs-app .vs-pill.ok{color:#22e39b;border-color:rgba(34,227,155,.45)}'
    + '#vs-app .vs-pill.warn{color:#ffb43c;border-color:rgba(255,180,60,.45)}'
+   /* ── Posh-style two-column competition page (Founder 2026-08-18) ──────────────────
+      DESKTOP: left 1/3 is the flyer + action button, position:sticky so it never scrolls away;
+      right 2/3 scrolls. MOBILE: one column, flyer first, everything else beneath. */
+   + '#vs-app .cd2{display:grid;grid-template-columns:1fr;gap:22px;align-items:start;max-width:1120px;margin:0 auto}'
+   + '@media(min-width:861px){#vs-app .cd2{grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:34px}}'
+   + '#vs-app .cd-stick{display:flex;flex-direction:column;gap:12px}'
+   + '@media(min-width:861px){#vs-app .cd-stick{position:sticky;top:86px}}'
+   + '#vs-app .cd-flyer{width:100%;aspect-ratio:4/5;border-radius:16px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
+   + '#vs-app .cd-flyer-gen{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px;text-align:center;'
+   +   'background:linear-gradient(150deg,rgba(0,180,255,.22),rgba(160,107,255,.22))}'
+   + '#vs-app .cd-flyer-gen .cat{font:800 .72rem Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#bfe3ff}'
+   + '#vs-app .cd-flyer-gen .ttl{font-family:var(--fs,inherit);font-size:1.5rem;line-height:1.15;color:#fff}'
+   + '#vs-app .cd-flyer-gen .dt{font:700 .74rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9fb2c6}'
+   + '#vs-app .cd-buy{width:100%;text-align:center}'
+   + '#vs-app .cd-right{min-width:0}'
+   + '#vs-app .cd-org{display:flex;align-items:center;gap:10px;margin-bottom:12px}'
+   + '#vs-app .cd-org .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#00b4ff,#a06bff);'
+   +   'display:flex;align-items:center;justify-content:center;font:800 1rem Inter,sans-serif;color:#04121b}'
+   + '#vs-app .cd-org b{color:#fff;font-size:.95rem}'
+   + '#vs-app .cd-org .sub{color:#8b95a3;font-size:.78rem}'
+   + '#vs-app .cd-title{font-family:var(--fs,inherit);font-size:2.1rem;line-height:1.12;color:#fff;margin:0 0 8px}'
+   + '#vs-app .cd-when{color:#c8cedb;font-size:.95rem;margin-bottom:10px}'
+   + '#vs-app .cd-people{margin:14px 0 4px}'
+   + '#vs-app .cd-avs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}'
+   + '#vs-app .cd-avs::-webkit-scrollbar{display:none}'
+   + '#vs-app .cd-av{flex:0 0 auto;width:42px;height:42px;border-radius:50%;background:#22202e center/cover no-repeat;'
+   +   'border:1px solid rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;'
+   +   'font:800 .85rem Inter,sans-serif;color:#9fb2c6}'
+   + '#vs-app .cd-people-n{color:#8b95a3;font-size:.78rem;margin-top:6px}'
+   + '#vs-app .cd-nopeople{color:#8b95a3;font-size:.82rem}'
+   + '#vs-app .cd-feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}'
+   + '#vs-app .cd-work{display:block;text-decoration:none;color:inherit}'
+   + '#vs-app .cd-work .im{width:100%;aspect-ratio:1/1;border-radius:10px;background:#15131f center/cover no-repeat}'
+   + '#vs-app .cd-work .tt{font-size:.84rem;color:#e8e6f2;margin-top:6px;line-height:1.25}'
+   + '#vs-app .cd-work .by{font-size:.74rem;color:#8b95a3}'
    /* competition landing page (Founder 2026-08-18) */
    + '#vs-app .cd{max-width:760px;margin:0 auto}'
    + '#vs-app .cd-hero{margin-bottom:14px}'
@@ -542,65 +577,104 @@
   }
   function renderComp(compId){
     busy('Loading competition…');
-    SB.rpc('vs_open_competitions').then(function(r){
+    Promise.all([
+      SB.rpc('vs_open_competitions'),
+      SB.rpc('vs_feed',{p_sort:'new',p_limit:24}).catch(function(){ return {data:[]}; })
+    ]).then(function(res){
+      var r=res[0], feed=(res[1]&&res[1].data)||[];
       if(r.error) throw r.error;
       var c = (r.data||[]).filter(function(x){ return x.id===compId; })[0];
       if(!c){ empty('Not open for entries','This competition is closed or unavailable.'); return; }
+      var mine = feed.filter(function(f){ return f.competition_title===c.title; });
 
       var paid = c.entry_fee_cents > 0;
       var dl   = daysLeft(c.submissions_close_at);
-      var blk  = '';
-      function section(title, inner){ if(inner) blk += '<div class="cd-sec"><h3>'+title+'</h3>'+inner+'</div>'; }
+      var cta  = '<button type="button" class="vs-cta cd-buy" id="cd-go">'
+               + (paid ? 'Enter — $'+(c.entry_fee_cents/100).toFixed(2) : 'Enter this competition')+'</button>';
 
-      /* hero */
-      var hero = '<div class="cd-hero">'
-        + '<div class="cd-cat">'+h(c.category||'VS')+'</div>'
-        + '<h2 class="vs-h">'+h(c.title)+'</h2>'
-        + '<div class="cd-pills">'
-          + '<span class="vs-pill '+(paid?'':'ok')+'">'+(paid?('$'+(c.entry_fee_cents/100).toFixed(2)+' entry'):'Free to enter')+'</span>'
-          + (c.submissions_close_at ? '<span class="vs-pill">Closes '+h(fmtD(c.submissions_close_at))+'</span>' : '')
-          + (dl!==null ? '<span class="vs-pill warn">'+dl+' day'+(dl===1?'':'s')+' left</span>' : '')
-          + (c.entry_count ? '<span class="vs-pill">'+c.entry_count+' entered</span>' : '')
-        + '</div></div>';
+      /* LEFT — flyer + action button, locked. A real cover_url wins; otherwise a DESIGNED panel
+         built from the category and title, never a stock placeholder. */
+      var flyer = c.cover_url
+        ? '<div class="cd-flyer" style="background-image:url('+h(c.cover_url)+')"></div>'
+        : '<div class="cd-flyer cd-flyer-gen"><span class="cat">'+h(c.category||'VS')+'</span>'
+          + '<span class="ttl">'+h(c.title)+'</span>'
+          + (c.submissions_close_at?'<span class="dt">Closes '+h(fmtD(c.submissions_close_at))+'</span>':'')
+          + '</div>';
+      var left = '<aside class="cd-left"><div class="cd-stick">'+flyer+cta+'</div></aside>';
 
-      section('About this competition', c.description ? '<p>'+h(c.description)+'</p>' : '');
+      /* RIGHT — single scrolling column, in the order specified */
+      var right = '<div class="cd-right">';
 
-      /* timeline — always available: every competition has voting dates */
+      /* 1 organizer */
+      right += '<div class="cd-org"><span class="av">K</span><div><b>KEEPITIL</b>'
+             + '<div class="sub">Competition organizer</div></div></div>';
+      /* 2 title */
+      right += '<h1 class="cd-title">'+h(c.title)+'</h1>';
+      /* 3 start / end */
+      var span = [c.submissions_open_at?('Opens '+fmtD(c.submissions_open_at)):'',
+                  c.submissions_close_at?('Closes '+fmtD(c.submissions_close_at)):'']
+                 .filter(Boolean).join(' — ');
+      right += '<div class="cd-when">'+h(span)+'</div>'
+             + '<div class="cd-pills">'
+             + '<span class="vs-pill '+(paid?'':'ok')+'">'+(paid?('$'+(c.entry_fee_cents/100).toFixed(2)+' entry'):'Free to enter')+'</span>'
+             + (dl!==null?'<span class="vs-pill warn">'+dl+' day'+(dl===1?'':'s')+' left</span>':'')
+             + '</div>';
+      /* 4 voters — profile images, one scrollable row */
+      right += '<div class="cd-people" id="cd-people"></div>';
+      /* 5 about */
+      if(c.description) right += '<div class="cd-sec"><h3>About this competition</h3><p>'+h(c.description)+'</p></div>';
+      /* key dates + rules + prizes + what to submit + judging */
       var tl='';
-      function step(lbl,d){ if(d) tl += '<div class="cd-step"><b>'+lbl+'</b><span>'+h(fmtD(d))+'</span></div>'; }
-      step('Submissions open',  c.submissions_open_at);
-      step('Submissions close', c.submissions_close_at);
-      step('Voting opens',      c.voting_opens_at);
-      step('Voting closes',     c.voting_closes_at);
-      section('Key dates', tl ? '<div class="cd-time">'+tl+'</div>' : '');
-
-      var pl = prizeLines(c.prize_structure);
-      section('Prizes', pl.length ? '<ul class="cd-list">'+pl.map(function(x){return '<li>'+h(x)+'</li>';}).join('')+'</ul>' : '');
-
-      var ul = uploadLines(c.upload_settings);
-      section('What to submit',
-        (c.requirements ? '<p>'+h(c.requirements)+'</p>' : '')
-        + (ul.length ? '<ul class="cd-list">'+ul.map(function(x){return '<li>'+h(x)+'</li>';}).join('')+'</ul>' : ''));
-
-      section('Rules', c.rules ? '<p style="white-space:pre-wrap">'+h(c.rules)+'</p>' : '');
-
-      /* how judging works — derived from the stored mode, not guessed */
+      function step(l,d){ if(d) tl+='<div class="cd-step"><b>'+l+'</b><span>'+h(fmtD(d))+'</span></div>'; }
+      step('Submissions open',c.submissions_open_at); step('Submissions close',c.submissions_close_at);
+      step('Voting opens',c.voting_opens_at);         step('Voting closes',c.voting_closes_at);
+      if(tl) right += '<div class="cd-sec"><h3>Key dates</h3><div class="cd-time">'+tl+'</div></div>';
+      var pl=prizeLines(c.prize_structure);
+      if(pl.length) right += '<div class="cd-sec"><h3>Prizes</h3><ul class="cd-list">'+pl.map(function(x){return '<li>'+h(x)+'</li>';}).join('')+'</ul></div>';
+      var ul=uploadLines(c.upload_settings);
+      if(c.requirements||ul.length) right += '<div class="cd-sec"><h3>What to submit</h3>'
+        + (c.requirements?'<p>'+h(c.requirements)+'</p>':'')
+        + (ul.length?'<ul class="cd-list">'+ul.map(function(x){return '<li>'+h(x)+'</li>';}).join('')+'</ul>':'')+'</div>';
+      if(c.rules) right += '<div class="cd-sec"><h3>Rules</h3><p style="white-space:pre-wrap">'+h(c.rules)+'</p></div>';
       var judge='';
       if(c.winner_method==='public_vote') judge='Winners are decided by public vote.';
       else if(c.winner_method) judge='Winner method: '+c.winner_method.replace(/_/g,' ')+'.';
-      if(c.vote_display_mode==='blind') judge += ' Vote totals stay hidden until winners are announced.';
-      else if(c.vote_display_mode==='transparent') judge += ' Vote totals are visible throughout.';
-      section('How judging works', judge ? '<p>'+h(judge)+'</p>' : '');
+      if(c.vote_display_mode==='blind') judge+=' Vote totals stay hidden until winners are announced.';
+      else if(c.vote_display_mode==='transparent') judge+=' Vote totals are visible throughout.';
+      if(judge) right += '<div class="cd-sec"><h3>How judging works</h3><p>'+h(judge)+'</p></div>';
 
-      var cta = '<div class="cd-cta">'
-        + '<button type="button" class="vs-cta" id="cd-go">'
-        + (paid ? 'Enter — $'+(c.entry_fee_cents/100).toFixed(2) : 'Enter this competition')+'</button>'
-        + '<button type="button" class="vs-pill" data-nav="enter" style="cursor:pointer;background:none">‹ All competitions</button>'
+      /* 6 LOCATION — omitted on purpose. A competition is online; it has no venue column, and an
+         invented address is worse than no map. The block belongs to KEEPITIL-hosted EVENTS. */
+      right += '<div class="cd-sec"><h3>Where</h3><p>Online — enter from anywhere.</p></div>';
+
+      /* 7 FEED — competitor submitted work */
+      right += '<div class="cd-sec"><h3>Submitted work</h3>'
+        + (mine.length
+            ? '<div class="cd-feed">'+mine.map(function(f){
+                return '<a class="cd-work" href="?view=entry&e='+f.entry_id+'">'
+                  + '<div class="im"'+(f.thumb_url?(' style="background-image:url('+h(f.thumb_url)+')"'):'')+'></div>'
+                  + '<div class="tt">'+h(f.title)+'</div>'
+                  + '<div class="by">'+(f.creator_handle?('@'+h(f.creator_handle)):'Creator')+'</div></a>';
+              }).join('')+'</div>'
+            : '<p class="vs-note">No entries yet — be the first. Submitted work appears here as it is approved.</p>')
         + '</div>';
+      right += '</div>';
 
-      APP.innerHTML = '<div class="vs-detail cd">'+hero+cta+blk+cta+'</div>';
-      /* NB: do NOT name this `go` — that is the router function in the enclosing scope, and
-         shadowing it here silently breaks navigation from inside this handler. */
+      APP.innerHTML = '<div class="cd2">'+left+right+'</div>';
+
+      /* voters row: profile images of people who have voted in this competition */
+      SB.rpc('vs_competition_voters',{p_comp:compId}).then(function(vr){
+        var box=document.getElementById('cd-people'); if(!box) return;
+        var people=(vr&&vr.data)||[];
+        if(!people.length){ box.innerHTML='<div class="cd-nopeople">No votes yet — voting opens '
+          + h(fmtD(c.voting_opens_at))+'.</div>'; return; }
+        box.innerHTML='<div class="cd-avs">'+people.map(function(u){
+          var init=(u.handle||'?').slice(0,1).toUpperCase();
+          return '<span class="cd-av"'+(u.avatar_url?(' style="background-image:url('+h(u.avatar_url)+')"'):'')+'>'
+               + (u.avatar_url?'':h(init))+'</span>';
+        }).join('')+'</div><div class="cd-people-n">'+people.length+' voting</div>';
+      }).catch(function(){});
+
       var goBtn=document.getElementById('cd-go');
       if(goBtn) goBtn.onclick=function(){ go({view:'submit', c:compId}); };
     }).catch(err);
