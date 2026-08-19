@@ -547,11 +547,19 @@
 #evx .evx-locsearch:focus{border-color:var(--green);}
 #evx .evx-locgrp{font-size:.5rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#4a5560;
   padding:9px 10px 4px;position:sticky;top:0;background:#0d0d16;}
-#evx .evx-locopt{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;
+#evx .evx-locopt{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;
   background:transparent;border:0;color:#c8d0d8;font-size:.68rem;font-weight:600;cursor:pointer;}
 #evx .evx-locopt:hover{background:rgba(255,255,255,.06);color:#fff;}
 #evx .evx-locopt.active{color:var(--green);}
-#evx .evx-locopt .n{color:#5a6472;font-size:.6rem;font-weight:700;}
+#evx .evx-locopt .lbl{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#evx .evx-locopt .n{color:#5a6472;font-size:.6rem;font-weight:700;flex:0 0 auto;}
+/* the tick box makes multi-select legible — several counties/cities can be on at once, and a
+   colour change alone does not read as "these are all selected" */
+#evx .evx-locopt .bx{flex:0 0 auto;width:15px;height:15px;border-radius:4px;border:1px solid rgba(255,255,255,.24);
+  display:flex;align-items:center;justify-content:center;font-size:.6rem;line-height:1;color:#06120a;}
+#evx .evx-locopt.active .bx{background:var(--green);border-color:var(--green);}
+#evx .evx-locopt.sub{padding-left:22px;}          /* children sit under their state */
+#evx .evx-locgrp.sub{padding-left:22px;position:static;}
 #evx .evx-locnone{padding:10px;color:#6b7480;font-size:.68rem;}
 #evx #evx-months{gap:8px;}
 #evx #evx-months .evx-mo{flex:1 1 0;min-width:54px;padding:8px 4px;text-align:center;font-size:.66rem;letter-spacing:.06em;}
@@ -2128,13 +2136,36 @@ var PAGE=12;
 function mLabel(mk){return MON3[(+mk.slice(5,7))-1];}
 function mFull(mk){return MONF[(+mk.slice(5,7))-1]+' '+mk.slice(0,4);}
 /* ── LOCATION FILTER (Founder 2026-08-18) ─────────────────────────────────────────────────
-   activeLoc = {kind:'state'|'county'|'city', val:'…'} or null for ALL AREAS.
+   Replaced the earlier single-select model (one {kind,val} pair) 2026-08-18.
    Every option is derived from EVENTS at render time, so the menu can only ever offer places
    that actually have events on the calendar — no empty results, and no hardcoded geography list
    to drift out of date as the ingest reaches new cities. */
-var activeLoc=null;
+/* Hierarchical + MULTI-SELECT (Founder 2026-08-18):
+     selState  — one state at a time. Picking one collapses the other states and reveals that
+                 state's counties and cities. Picking it again clears back to All areas.
+     selCounty / selCity — Sets, any number selected at once.
+   MATCH RULE: state must match when set. Beyond that, counties and cities are a UNION, not an
+   intersection — "Orange County + Los Angeles" means events in either, which is what selecting
+   two things visibly means. An intersection would return zero (no event is in both) and look
+   broken. With nothing sub-selected, the whole state passes. */
+var selState=null, selCounty={}, selCity={};
 function locOf(e,kind){ return (kind==='state'?e.state:kind==='county'?e.county:e.city)||''; }
-function inLoc(e){ return !activeLoc || locOf(e,activeLoc.kind)===activeLoc.val; }
+function anySel(o){ for(var k in o){ if(o[k]) return true; } return false; }
+function inLoc(e){
+  if(selState && (e.state||'')!==selState) return false;
+  var hc=anySel(selCounty), hy=anySel(selCity);
+  if(!hc&&!hy) return true;
+  return (hc&&selCounty[e.county||'']) || (hy&&selCity[e.city||'']) ? true : false;
+}
+function locLabel(){
+  var c=Object.keys(selCounty).filter(function(k){return selCounty[k];});
+  var y=Object.keys(selCity).filter(function(k){return selCity[k];});
+  var n=c.length+y.length;
+  if(!selState && !n) return 'ALL AREAS';
+  if(n===1) return (c[0]||y[0]).toUpperCase();
+  if(n>1) return (selState? selState+' · ':'')+n+' AREAS';
+  return selState.toUpperCase();
+}
 
 function inGenre(e){
   if(!inLoc(e)) return false;
@@ -2235,38 +2266,64 @@ function buildSubGenres(){
     +subs.map(function(s){return '<button class="evx-gn'+(s[0]===activeGenre?' active':'')+'" data-g="'+s[0]+'">'+s[1]+'</button>';}).join('');
   el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setGenre(b.dataset.g);};});
 }
-/* Counts are computed IGNORING the current location filter, so the menu always shows the full
-   set of places you could switch to — a filter that hides its own alternatives is a trap. */
-function locCounts(kind){
+/* Counts for one level, optionally restricted to a state. Location selections are ignored so the
+   menu always shows every place you could switch to — a filter that hides its own alternatives
+   is a trap. */
+function locCountsIn(kind, stateOnly){
   var today=new Date().toISOString().slice(0,10), m={};
   EVENTS.forEach(function(e){
     if(!e.date||e.date<today) return;
     if(activeCat && (e.ecat||'music')!==activeCat) return;
+    if(stateOnly && (e.state||'')!==stateOnly) return;
     var v=locOf(e,kind); if(!v) return;
     m[v]=(m[v]||0)+1;
   });
   return Object.keys(m).sort(function(a,b){ return m[b]-m[a] || a.localeCompare(b); })
                        .map(function(v){ return {val:v,n:m[v]}; });
 }
+function locRow(kind,val,n,on,depth){
+  return '<button type="button" class="evx-locopt'+(on?' active':'')+(depth?' sub':'')+'" '
+       + 'data-k="'+kind+'" data-v="'+h(val)+'" role="menuitemcheckbox" aria-checked="'+(on?'true':'false')+'">'
+       + '<span class="bx" aria-hidden="true">'+(on?'✓':'')+'</span>'
+       + '<span class="lbl">'+h(val)+'</span><span class="n">'+n+'</span></button>';
+}
 function buildLocMenu(q){
   var menu=document.getElementById('evx-locdd-menu'); if(!menu) return;
   q=(q||'').trim().toLowerCase();
   var html='<input class="evx-locsearch" id="evx-locq" type="search" placeholder="Search state, county or city" value="'+h(q)+'" autocomplete="off">';
-  var any=false;
-  [['state','States'],['county','Counties'],['city','Cities']].forEach(function(g){
-    var opts=locCounts(g[0]).filter(function(o){ return !q || o.val.toLowerCase().indexOf(q)>=0; });
-    if(!opts.length) return;
-    any=true;
-    html+='<div class="evx-locgrp">'+g[1]+'</div>'
-       +  opts.map(function(o){
-            var on=activeLoc&&activeLoc.kind===g[0]&&activeLoc.val===o.val;
-            return '<button type="button" class="evx-locopt'+(on?' active':'')+'" data-k="'+g[0]+'" data-v="'+h(o.val)+'">'
-                 + '<span>'+h(o.val)+'</span><span class="n">'+o.n+'</span></button>';
-          }).join('');
-  });
-  if(!any) html+='<div class="evx-locnone">Nothing on the calendar matches “'+h(q)+'”.</div>';
-  else if(!q) html='<button type="button" class="evx-locopt'+(activeLoc?'':' active')+'" data-k="" data-v="">'
-                 + '<span>All areas</span></button>'+html;
+
+  if(q){
+    /* While searching, hierarchy is unhelpful — you typed a name, you want to see it wherever it
+       lives. Flat matches across all three levels, each still individually selectable. */
+    var any=false;
+    [['state','States'],['county','Counties'],['city','Cities']].forEach(function(g){
+      var opts=locCountsIn(g[0],null).filter(function(o){ return o.val.toLowerCase().indexOf(q)>=0; });
+      if(!opts.length) return; any=true;
+      html+='<div class="evx-locgrp">'+g[1]+'</div>'+opts.map(function(o){
+        var on = g[0]==='state' ? selState===o.val
+               : g[0]==='county'? !!selCounty[o.val] : !!selCity[o.val];
+        return locRow(g[0],o.val,o.n,on,false);
+      }).join('');
+    });
+    if(!any) html+='<div class="evx-locnone">Nothing on the calendar matches “'+h(q)+'”.</div>';
+  } else {
+    html+=locRow('all','All areas','',!selState&&!anySel(selCounty)&&!anySel(selCity),false)
+         .replace('<span class="n"></span>','');
+    html+='<div class="evx-locgrp">States</div>';
+    var states=locCountsIn('state',null);
+    /* Selecting a state COLLAPSES the other states in this section — the chosen one stays visible
+       (click it again to clear) and its counties and cities open underneath it. */
+    states.filter(function(s){ return !selState || s.val===selState; }).forEach(function(s){
+      html+=locRow('state',s.val,s.n,selState===s.val,false);
+      if(selState===s.val){
+        var cs=locCountsIn('county',s.val), ys=locCountsIn('city',s.val);
+        if(cs.length){ html+='<div class="evx-locgrp sub">Counties</div>'
+          + cs.map(function(o){ return locRow('county',o.val,o.n,!!selCounty[o.val],true); }).join(''); }
+        if(ys.length){ html+='<div class="evx-locgrp sub">Cities</div>'
+          + ys.map(function(o){ return locRow('city',o.val,o.n,!!selCity[o.val],true); }).join(''); }
+      }
+    });
+  }
   menu.innerHTML=html;
 
   var qi=document.getElementById('evx-locq');
@@ -2278,12 +2335,27 @@ function buildLocMenu(q){
   menu.querySelectorAll('.evx-locopt').forEach(function(b){
     b.onclick=function(ev){
       ev.stopPropagation();
-      activeLoc = b.dataset.k ? {kind:b.dataset.k, val:b.dataset.v} : null;
-      document.getElementById('evx-locdd-lb').textContent = activeLoc ? activeLoc.val.toUpperCase() : 'ALL AREAS';
-      menu.classList.remove('on');
-      document.getElementById('evx-locdd-btn').setAttribute('aria-expanded','false');
-      /* the month list is rebuilt too: filtering to San Diego can empty months that only had
-         LA events, and leaving a dead month selected shows an empty calendar for no reason. */
+      var k=b.dataset.k, v=b.dataset.v;
+      if(k==='all'){ selState=null; selCounty={}; selCity={}; }
+      else if(k==='state'){
+        if(selState===v){ selState=null; }         /* click the open state again to back out */
+        else { selState=v; }
+        selCounty={}; selCity={};                  /* sub-picks belong to the old state */
+      }
+      else if(k==='county'){ selCounty[v]=!selCounty[v];
+        if(!selState){ var m=EVENTS.filter(function(e){return e.county===v;})[0]; if(m) selState=m.state||null; } }
+      else if(k==='city'){ selCity[v]=!selCity[v];
+        if(!selState){ var m2=EVENTS.filter(function(e){return e.city===v;})[0]; if(m2) selState=m2.state||null; } }
+
+      document.getElementById('evx-locdd-lb').textContent=locLabel();
+      /* Multi-select must NOT close on each pick — you are usually choosing several. Only the
+         All-areas reset closes, because that selection is complete by definition. */
+      if(k==='all'){ menu.classList.remove('on');
+                     document.getElementById('evx-locdd-btn').setAttribute('aria-expanded','false'); }
+      else buildLocMenu('');
+
+      /* Rebuild months too: narrowing to San Diego can empty a month that only had LA events, and
+         leaving a dead month selected shows an empty calendar for no reason. */
       MONTHS=(function(){var s={};EVENTS.forEach(function(x){ if(x.date&&inGenre(x)) s[x.date.slice(0,7)]=1; });return Object.keys(s).sort();})();
       if(MONTHS.indexOf(activeMonth)<0) activeMonth=MONTHS[0]||activeMonth;
       buildMonths(); buildMustSee(); buildRecent(); buildDays();
