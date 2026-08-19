@@ -13,10 +13,10 @@
      losing every clean URL on the site.
 
      WHAT IT DOES: translates pretty URLs into real pages, e.g.
-        /culture              -> /culture.html
-        /radio                -> /radio.html
-        /vs                   -> /vs.html
-        /scene                -> /scene.html
+        /culture              -> /culture
+        /radio                -> /earn
+        /vs                   -> /create
+        /scene                -> /connect
         /profile/<handle>     -> /profile.html?slug=<handle>
         /event/<slug>         -> /event.html?e=<slug>
         /venue/<slug>         -> /venue.html?v=<slug>
@@ -67,31 +67,30 @@ a{color:#5cc8ff}</style>
   function go(url){ location.replace(url + hash); }
   var slug = seg.length ? decodeURIComponent(seg[seg.length-1]).toLowerCase().replace(/[^a-z0-9-]/g,'') : '';
 
-  /* ── Legacy agent slugs (rename of 2026-08-16) ───────────────────────────────────────────
-     Mirrors public.agent_aliases, which is the source of truth; keepitil-agents.js carries the
-     same table for pages that can load a script. This router cannot: it runs before anything
-     else and must redirect with zero dependencies, so the two entries are inlined. Keep them
-     in step — `node _scripts/gen-agents.mjs` regenerates the other copy.
-
-     EXACT KEYS ONLY. 'cho' is a substring of 'echo' and 'xus' of 'nexus', so any prefix or
-     indexOf test here would rewrite unrelated profile slugs. A hasOwnProperty lookup cannot:
-     /profile/echoplex and /profile/echo-west stay untouched, which is the whole point. */
-  var AGENT_ALIASES = { echo: 'cho', nexus: 'xus' };
-  function agentSlug(s){
-    return Object.prototype.hasOwnProperty.call(AGENT_ALIASES, s) ? AGENT_ALIASES[s] : s;
+  /* RETIRED .html PATHS → clean URLs (Founder 2026-08-18).
+     The four redirect stubs (radio/scene/vs/culture.html) are DELETED, not kept, because a stub
+     at culture.html HIJACKED the extensionless /culture — GitHub Pages resolves /culture to
+     culture.html BEFORE culture/index.html, so the stub redirected /culture to itself and the
+     page hung in a loop.
+     Handling the old paths HERE instead costs nothing: 404.html only runs on a path that matched
+     no file, so a live page never pays for it and there is no redirect in the normal flow. Old
+     links shared or baked into an app bundle still land in the right place. */
+  var RETIRED = { 'radio':'/earn', 'scene':'/connect', 'vs':'/create', 'culture':'/culture' };
+  if(seg.length===1){
+    var bare = seg[0].toLowerCase().replace(/\.html$/,'');
+    if(RETIRED[bare] && ('/'+seg[0].toLowerCase())!==RETIRED[bare]) return go(RETIRED[bare]+q);
   }
-
   // /unclaimed/profile/<slug>  → dynamic template (public view); no stale static clones (Founder 2026-08-04)
   if(seg.length===3 && seg[0]==='unclaimed' && seg[1]==='profile'){
-    return go('/profile.html?slug='+encodeURIComponent(agentSlug(slug))+'&view=public');
+    return go('/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
   }
   // /public/profile/<slug>
   if(seg.length===3 && seg[0]==='public' && seg[1]==='profile'){
-    return go('/profile.html?slug='+encodeURIComponent(agentSlug(slug))+'&view=public');
+    return go('/profile.html?slug='+encodeURIComponent(slug)+'&view=public');
   }
   // /profile/<slug>
   if(seg.length===2 && seg[0]==='profile'){
-    return go('/profile.html?slug='+encodeURIComponent(agentSlug(slug)));
+    return go('/profile.html?slug='+encodeURIComponent(slug));
   }
   // /venue/<slug>
   if(seg.length===2 && seg[0]==='venue'){
@@ -111,16 +110,16 @@ a{color:#5cc8ff}</style>
   }
   // bare /blog  → subscriber-created feed posts live in Culture
   if(seg[0]==='blog'){
-    return go('/culture.html');
+    return go('/culture');
   }
   // /culture/<sub> — Radio & VS live as Culture subpages (Founder 2026-08-04)
   if(seg.length===2 && seg[0]==='culture'){
-    if(seg[1]==='radio') return go('/radio.html'+q);
-    if(seg[1]==='vs') return go('/vs.html'+q);
-    if(seg[1]==='feed') return go('/culture.html'+q);
+    if(seg[1]==='radio') return go('/earn'+q);
+    if(seg[1]==='vs') return go('/create'+q);
+    if(seg[1]==='feed') return go('/culture'+q);
   }
   // single-segment section aliases + every core page (clean URL, no / or /v3/ shown)
-  var SECTION={culture:'/culture.html',scene:'/scene.html',radio:'/culture/radio',
+  var SECTION={culture:'/culture',scene:'/connect',radio:'/culture/radio',
                apps:'/games/',games:'/games/',events:'/',home:'/',shop:'/v3/shop.html',
                songs:'/v3/song-directory.html',lyrics:'/v3/song-directory.html'};
   var V31PAGES=['about','apply','audit','community-guidelines','contact','create-event','dashboard',
