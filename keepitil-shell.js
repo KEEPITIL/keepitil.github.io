@@ -302,7 +302,7 @@ var DESTINATIONS=[
      for exactly the users on the oldest build. */
   {href:'/connect', label:'Scene',   pill:'CONNECT',  icon:'scene',   match:/(^|\/)(connect|scene)(\.html)?\/?$/,
    tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
-  {href:'/create',  label:'VS',      pill:'CREATE',   icon:'vs',      match:/(^|\/)(create|vs)(\.html)?\/?$/,
+  {href:'/create',  label:'Create',  pill:'CREATE',   icon:'vs',      match:/(^|\/)(create|vs)(\.html)?\/?$/,
    tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'},
   {href:'/culture', label:'Culture', pill:'CULTURE',  icon:'culture', match:/(^|\/)culture(\.html)?\/?$/,
    tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
