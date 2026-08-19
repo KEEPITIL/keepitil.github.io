@@ -879,6 +879,24 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-top{position:fixed;left:5px;right:auto;bottom:calc(var(--kil-bnav-h,56px) + 5px);width:30px;height:30px;border-radius:50%;background:#0aa2e8;color:#fff;border:0;cursor:pointer;z-index:940;display:flex;align-items:center;justify-content:center;font-size:36px;line-height:0;padding:0;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .28s,transform .28s;overflow:visible}'
     +'#kil-top.on{opacity:1;transform:none;pointer-events:auto}'
     +'html.kil-noarrow #kil-top{display:none!important}'
+    /* ── BUTTON SIZES, Founder-locked 2026-08-19 via the sizing preview ──────────────────────
+       desktop up 50 · desktop chat 50 · mobile up 30 · mobile chat 30.
+       #kil-top had NO desktop rule at all — its only declaration lived inside the ≤860px block,
+       so on desktop it fell back to intrinsic button sizing and was never actually specified.
+       #kilo-btn is injected by v3/keepitil-ai.js, which loads after this shell, so overriding
+       it needs !important at equal specificity — the same reason the mobile override already
+       carried one. The glyph is scaled with the button; at 30px the stock 26px icon would fill
+       the disc edge to edge. */
+    +'@media(min-width:861px){'
+    +  '#kil-top{width:50px;height:50px;font-size:44px}'
+    +  '#kilo-btn{width:50px!important;height:50px!important}'
+    +  '#kilo-btn svg{width:22px!important;height:22px!important}'
+    +'}'
+    +'@media(max-width:860px){'
+    +  '#kil-top{width:30px;height:30px;font-size:36px}'
+    +  '#kilo-btn{width:30px!important;height:30px!important}'
+    +  '#kilo-btn svg{width:15px!important;height:15px!important}'
+    +'}'
     +'body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
     /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
        never pushes the page's own content down a phone screen. */
