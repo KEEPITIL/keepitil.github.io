@@ -85,7 +85,11 @@
    +   '#vs-app .cd-right::-webkit-scrollbar{width:8px}'
    +   '#vs-app .cd-right::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:4px}'
    + '}'
-   + '#vs-app .cd-flyer{width:100%;aspect-ratio:4/5;border-radius:16px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
+   /* SAME RATIO AS THE HOMEPAGE EVENT FLYER (Founder 2026-08-18): 2:3 on desktop, 9:16 on
+      mobile, radius 14/15 — index.html #evx .evx-flyer. It was 4:5, which matched neither,
+      so the same artwork would have cropped differently on the calendar and on this page. */
+   + '#vs-app .cd-flyer{width:100%;aspect-ratio:9/16;border-radius:15px;background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
+   + '@media(min-width:861px){#vs-app .cd-flyer{aspect-ratio:2/3;border-radius:14px}}'
    + '#vs-app .cd-flyer-gen{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:26px;text-align:center;'
    +   'background:linear-gradient(150deg,rgba(0,180,255,.22),rgba(160,107,255,.22))}'
    + '#vs-app .cd-flyer-gen .cat{font:800 .72rem Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#bfe3ff}'
@@ -473,7 +477,7 @@
       ? 'Closes ' + new Date(c.submissions_close_at).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})
       : 'No deadline';
     return '<div class="vs-card" data-enter="'+c.id+'">'
-      + '<div class="cov ce-cov"><span>'+h((c.category||'VS').slice(0,18))+'</span></div>'
+      + '<div class="cov ce-cov"><span>'+h((c.category||'CREATE').slice(0,18))+'</span></div>'
       + '<div class="bd"><h3>'+h(c.title)+'</h3>'
       + '<div class="by">'+h(c.description || '')+'</div>'
       + '<div style="margin-top:8px"><span class="vs-pill '+(c.entry_fee_cents?'':'ok')+'">'+fee+'</span>'
@@ -614,7 +618,7 @@
          built from the category and title, never a stock placeholder. */
       var flyer = c.cover_url
         ? '<div class="cd-flyer" style="background-image:url('+h(c.cover_url)+')"></div>'
-        : '<div class="cd-flyer cd-flyer-gen"><span class="cat">'+h(c.category||'VS')+'</span>'
+        : '<div class="cd-flyer cd-flyer-gen"><span class="cat">'+h(c.category||'CREATE')+'</span>'
           + '<span class="ttl">'+h(c.title)+'</span>'
           + (c.submissions_close_at?'<span class="dt">Closes '+h(fmtD(c.submissions_close_at))+'</span>':'')
           + '</div>';
