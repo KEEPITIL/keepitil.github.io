@@ -662,20 +662,14 @@ window.KIL_FILTER_BADGES = function(badges){
 </div>
 
 <div class="pf-panel" id="tab-tagged">
-  <!-- Competition entries live on /create, not here — this link is the route between the two.
-       Always visible, because "I paid $1, where did it go" must have an answer even when the
-       ticket list below is empty. -->
-  <a href="/create/?view=mine&amp;paid=1" id="pfMyEntries"
-     style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;
-            padding:13px 15px;border:1px solid rgba(255,255,255,.14);border-radius:12px;
-            background:rgba(255,92,138,.08);color:#fff;text-decoration:none">
-    <span style="display:flex;align-items:center;gap:10px">
-      <span style="font-size:1.1rem">⚔️</span>
-      <span><b style="display:block;font-size:.92rem">My competition entries</b>
-      <span style="font-size:.76rem;color:var(--muted,#9aa)">CREATE — entries you have paid for</span></span>
-    </span>
-    <span style="color:#ff5c8a;font-weight:800">→</span>
-  </a>
+  <!-- COMPETITION ENTRIES render HERE now (Founder 2026-08-19: "/create/?view=mine is not needed
+       since everything will be on the users profile page under events").
+       This section carries the SUBMIT control. /create/?view=mine cannot simply be deleted —
+       it was the only place a paid draft could be submitted, and it is Stripe's success_url.
+       Removing it without this replacement would strand every paid entry at draft again. -->
+  <div id="pfEntries" style="margin:0 0 18px"></div>
+  <div id="pfTicketsHead" style="display:none;font:800 .7rem Inter,sans-serif;letter-spacing:.12em;
+       text-transform:uppercase;color:var(--muted,#9aa);margin:0 0 10px">Tickets</div>
   <div class="pf-grid" id="tagged-grid"></div>
   <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">No tickets yet.</div>
 </div>
@@ -838,7 +832,10 @@ function showTab(name){
   var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
 }
 /* deep-link: /u.html?slug=x&tab=shows opens the Events tab directly (used by the event-page back button) */
-window.addEventListener('load',function(){ try{ var _t=(new URLSearchParams(location.search).get('tab')||'').toLowerCase(); if(['article','gallery','chat'].indexOf(_t)>-1){ setTimeout(function(){ showTab(_t); },300); } }catch(e){} });
+/* ?tab= allowlist extended to the tabs that actually exist (Founder 2026-08-19). It accepted only
+   article/gallery/chat, so a deep link to the EVENTS tab — which is where CREATE now sends people
+   after payment and from the entry back button — silently landed on FEED instead. */
+window.addEventListener('load',function(){ try{ var _t=(new URLSearchParams(location.search).get('tab')||'').toLowerCase(); if(['article','gallery','chat','tagged','saved','shows'].indexOf(_t)>-1){ setTimeout(function(){ showTab(_t); },300); } }catch(e){} });
 function renderHighlights(){
   var r=document.getElementById('hl-row');if(!r)return;
   r.innerHTML=(PROFILE.highlights||[]).map(function(h){return '<div class="hl" onclick="showTab(\'gallery\')"><div class="hl-c"><img src="'+h.img+'" alt="'+esc(h.label)+'" loading="lazy" onerror="this.style.opacity=.12"></div><span>'+esc(h.label)+'</span></div>';}).join('');
@@ -2549,7 +2546,55 @@ function newCollection(){
    the event for title/date/venue. Keyed on buyer_handle.
    A failed query must NOT render as "no tickets" — someone who paid and sees an empty tab will
    reasonably conclude their money vanished. Error and empty are shown differently on purpose. */
+/* COMPETITION ENTRIES — moved here from /create/?view=mine (Founder 2026-08-19).
+   Owner-only: vs_my_entries is scoped to the signed-in user, so it renders nothing on someone
+   else's profile. Carries the Submit control, which is the step that turns a PAID draft into a
+   SUBMITTED entry. That control existing is the difference between an entrant's $1 buying them
+   a place in the competition and buying them nothing. */
+function loadMyEntries(){
+  var box=document.getElementById('pfEntries'); if(!box) return;
+  if(!SB || !SESSION || !OWNS){ box.innerHTML=''; return; }
+  SB.rpc('vs_my_entries').then(function(r){
+    if(r && r.error){
+      box.innerHTML='<div style="color:var(--text-danger,#e24b4a);font-size:.82rem">'
+        +'Could not load your competition entries. This is a loading error, not an empty list.</div>';
+      console.error('[profile] vs_my_entries failed', r.error); return;
+    }
+    var rows=(r&&r.data)||[];
+    if(!rows.length){ box.innerHTML=''; return; }
+    box.innerHTML='<div style="font:800 .7rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;'
+      +'color:var(--muted,#9aa);margin:0 0 10px">Competition entries</div>'
+      + rows.map(function(x){
+        var canSubmit = x.status==='draft' && (x.entitlement===true || x.payment_status==='paid' || x.payment_status==='comped');
+        return '<div style="display:flex;gap:12px;align-items:center;padding:11px;margin-bottom:10px;'
+          + 'border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px">'
+          + '<div style="width:44px;height:66px;flex:0 0 auto;border-radius:8px;background:#0a0a0f center/cover no-repeat'
+          + (x.thumb_url?";background-image:url('"+String(x.thumb_url).replace(/'/g,'')+"')":'')+'"></div>'
+          + '<div style="flex:1;min-width:0">'
+          +   '<a href="/create/?view=entry&e='+x.entry_id+'" style="color:inherit;text-decoration:none">'
+          +   '<b style="display:block;font-size:.92rem">'+String(x.title||'Untitled').replace(/[<>]/g,'')+'</b></a>'
+          +   '<div style="font-size:.76rem;color:var(--muted,#9aa)">'+String(x.competition_title||'').replace(/[<>]/g,'')+'</div>'
+          +   '<div style="font-size:.74rem;margin-top:3px">'+String(x.status).replace(/[<>]/g,'')
+          +     ' · '+String(x.payment_status).replace(/[<>]/g,'')+' · '+(x.total_votes||0)+' votes</div>'
+          +   (canSubmit ? '<button type="button" data-psubmit="'+x.entry_id+'" style="margin-top:8px;'
+              + 'background:#ff5c8a;color:#1a0410;border:0;border-radius:9px;padding:8px 14px;'
+              + 'font-weight:800;font-size:.78rem;cursor:pointer">Submit for review</button>' : '')
+          + '</div></div>';
+      }).join('');
+    [].forEach.call(box.querySelectorAll('[data-psubmit]'), function(b){
+      b.onclick=function(){
+        var id=Number(b.dataset.psubmit); b.disabled=true; b.textContent='Submitting…';
+        SB.rpc('vs_submit_entry',{p_entry:id,p_terms_version:'create-2026-q4-v1'})
+          .then(function(sr){ if(sr&&sr.error) throw sr.error; loadMyEntries(); })
+          .catch(function(e){ b.disabled=false; b.textContent='Submit for review';
+            alert('Could not submit: '+(e&&e.message?e.message:e)); });
+      };
+    });
+  }).catch(function(e){ console.error('[profile] vs_my_entries threw', e); });
+}
+
 function loadTagged(){
+  try{ loadMyEntries(); }catch(e){ console.error('[profile] loadMyEntries threw', e); }
   var g=document.getElementById('tagged-grid'), emp=document.getElementById('tagged-empty');
   if(!g||!emp) return;
   SB.from('event_orders')
