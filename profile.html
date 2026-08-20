@@ -667,10 +667,50 @@ window.KIL_FILTER_BADGES = function(badges){
        This section carries the SUBMIT control. /create/?view=mine cannot simply be deleted —
        it was the only place a paid draft could be submitted, and it is Stripe's success_url.
        Removing it without this replacement would strand every paid entry at draft again. -->
+  <!-- EVENTS TAB CARDS = HOMEPAGE EVENT CARDS (Founder 2026-08-19).
+       Structural clone of #evx .evx-flyer in index.html: 2:3 frame, blurred backdrop + contained
+       image so an off-ratio cover is never centre-cropped, corner badge, bottom gradient with
+       date → title → meta → CTA. Class names are pfe-* because profile.html does not load the
+       homepage's #evx stylesheet — if the homepage card changes, BOTH must change. -->
+  <style>
+  #tab-tagged .pfe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:15px;margin:0 0 18px}
+  @media(max-width:860px){#tab-tagged .pfe-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}}
+  #tab-tagged .pfe-fly{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;cursor:pointer;
+    background:#15131f center/cover no-repeat;border:1px solid rgba(255,255,255,.08);text-decoration:none;
+    display:block;transition:transform .25s,border-color .25s,box-shadow .25s}
+  #tab-tagged .pfe-fly:hover{transform:translateY(-5px);border-color:rgba(0,255,136,.45);box-shadow:0 16px 44px rgba(0,0,0,.6)}
+  @media(max-width:860px){#tab-tagged .pfe-fly{border-radius:15px}}
+  #tab-tagged .pfe-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;border:0;
+    filter:blur(16px) brightness(.45) saturate(1.2);transform:scale(1.25);pointer-events:none}
+  #tab-tagged .pfe-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:0;border:0}
+  #tab-tagged .pfe-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,
+    rgba(0,0,0,.02) 0%,rgba(0,0,0,.12) 40%,rgba(0,0,0,.8) 76%,rgba(0,0,0,.96) 100%)}
+  #tab-tagged .pfe-badge{position:absolute;z-index:3;top:10px;right:10px;font:800 .5rem Inter,sans-serif;
+    letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:11px;background:rgba(0,0,0,.62);
+    color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(4px)}
+  #tab-tagged .pfe-tag{position:absolute;z-index:3;top:10px;left:10px;font:800 .5rem Inter,sans-serif;
+    letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:11px}
+  #tab-tagged .pfe-tag.tix{background:rgba(0,255,136,.92);color:#06120a}
+  #tab-tagged .pfe-tag.ent{background:rgba(255,92,138,.95);color:#1a0410}
+  #tab-tagged .pfe-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:13px 13px 14px}
+  #tab-tagged .pfe-date{font:800 .6rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#00ff88;margin-bottom:4px}
+  #tab-tagged .pfe-title{font-family:var(--fs,inherit);font-size:1.18rem;line-height:1;letter-spacing:.03em;color:#fff;
+    margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  @media(max-width:860px){#tab-tagged .pfe-title{font-size:15px;line-height:1.05}}
+  #tab-tagged .pfe-meta{font-size:.63rem;color:rgba(255,255,255,.72);line-height:1.32;margin-bottom:10px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #tab-tagged .pfe-foot{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  #tab-tagged .pfe-price{font:800 .7rem Inter,sans-serif;color:#fff;white-space:nowrap}
+  #tab-tagged .pfe-cta{font:800 .54rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#06120a;
+    background:#00ff88;padding:6px 11px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+  #tab-tagged .pfe-sub{width:100%;margin-top:8px;background:#ff5c8a;color:#1a0410;border:0;border-radius:9px;
+    padding:9px;font-weight:800;font-size:.78rem;cursor:pointer}
+  #tab-tagged .pfe-head{font:800 .7rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted,#9aa);margin:0 0 10px}
+  </style>
   <div id="pfEntries" style="margin:0 0 18px"></div>
-  <div id="pfTicketsHead" style="display:none;font:800 .7rem Inter,sans-serif;letter-spacing:.12em;
-       text-transform:uppercase;color:var(--muted,#9aa);margin:0 0 10px">Tickets</div>
-  <div class="pf-grid" id="tagged-grid"></div>
+  <div id="pfTicketsHead" style="display:none" class="pfe-head">Tickets</div>
+  <div id="tagged-grid" class="pfe-grid"></div>
   <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">No tickets yet.</div>
 </div>
 
@@ -2562,25 +2602,35 @@ function loadMyEntries(){
     }
     var rows=(r&&r.data)||[];
     if(!rows.length){ box.innerHTML=''; return; }
-    box.innerHTML='<div style="font:800 .7rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;'
-      +'color:var(--muted,#9aa);margin:0 0 10px">Competition entries</div>'
+    var esc=function(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+    box.innerHTML='<div class="pfe-head">Competition entries</div><div class="pfe-grid">'
       + rows.map(function(x){
         var canSubmit = x.status==='draft' && (x.entitlement===true || x.payment_status==='paid' || x.payment_status==='comped');
-        return '<div style="display:flex;gap:12px;align-items:center;padding:11px;margin-bottom:10px;'
-          + 'border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px">'
-          + '<div style="width:44px;height:66px;flex:0 0 auto;border-radius:8px;background:#0a0a0f center/cover no-repeat'
-          + (x.thumb_url?";background-image:url('"+String(x.thumb_url).replace(/'/g,'')+"')":'')+'"></div>'
-          + '<div style="flex:1;min-width:0">'
-          +   '<a href="/create/?view=entry&e='+x.entry_id+'" style="color:inherit;text-decoration:none">'
-          +   '<b style="display:block;font-size:.92rem">'+String(x.title||'Untitled').replace(/[<>]/g,'')+'</b></a>'
-          +   '<div style="font-size:.76rem;color:var(--muted,#9aa)">'+String(x.competition_title||'').replace(/[<>]/g,'')+'</div>'
-          +   '<div style="font-size:.74rem;margin-top:3px">'+String(x.status).replace(/[<>]/g,'')
-          +     ' · '+String(x.payment_status).replace(/[<>]/g,'')+' · '+(x.total_votes||0)+' votes</div>'
-          +   (canSubmit ? '<button type="button" data-psubmit="'+x.entry_id+'" style="margin-top:8px;'
-              + 'background:#ff5c8a;color:#1a0410;border:0;border-radius:9px;padding:8px 14px;'
-              + 'font-weight:800;font-size:.78rem;cursor:pointer">Submit for review</button>' : '')
-          + '</div></div>';
-      }).join('');
+        var img = x.thumb_url || '';
+        /* Same two-copy trick as the homepage: blurred fill behind, real art contained on top,
+           so an entry whose cover is not 2:3 is never centre-cropped. */
+        var media = img
+          ? '<img class="pfe-bg" src="'+esc(img)+'" alt="" aria-hidden="true" loading="lazy">'
+            +'<img class="pfe-img" src="'+esc(img)+'" alt="'+esc(x.title||'')+'" loading="lazy">'
+          : '';
+        return '<div>'
+          + '<a class="pfe-fly" href="/create/?view=entry&e='+x.entry_id+'">'
+          +   media + '<div class="pfe-shade"></div>'
+          +   '<span class="pfe-tag ent">Entry</span>'
+          +   '<span class="pfe-badge">'+esc(x.status)+'</span>'
+          +   '<div class="pfe-body">'
+          +     '<div class="pfe-date">'+esc(x.competition_title||'CREATE')+'</div>'
+          +     '<div class="pfe-title">'+esc(x.title||'Untitled')+'</div>'
+          +     '<div class="pfe-meta">🏆 '+(x.total_votes||0)+' vote'+((x.total_votes||0)===1?'':'s')+'</div>'
+          +     '<div class="pfe-foot"><span class="pfe-price">'+esc(x.payment_status)+'</span>'
+          +       '<span class="pfe-cta">View</span></div>'
+          +   '</div>'
+          + '</a>'
+          /* Submit sits OUTSIDE the anchor — inside it, every tap would navigate instead of
+             submitting, and this is the control that turns a paid entry into a real one. */
+          + (canSubmit ? '<button type="button" class="pfe-sub" data-psubmit="'+x.entry_id+'">Submit for review</button>' : '')
+          + '</div>';
+      }).join('') + '</div>';
     [].forEach.call(box.querySelectorAll('[data-psubmit]'), function(b){
       b.onclick=function(){
         var id=Number(b.dataset.psubmit); b.disabled=true; b.textContent='Submitting…';
@@ -2613,24 +2663,30 @@ function loadTagged(){
       var rows=(r&&r.data)||[];
       if(!rows.length){ g.innerHTML=''; emp.style.display='block'; emp.textContent='No tickets yet.'; return; }
       emp.style.display='none';
-      g.style.display='block';
+      var th=document.getElementById('pfTicketsHead'); if(th) th.style.display='block';
+      var esc=function(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
       g.innerHTML=rows.map(function(o){
         var e=o.events||{};
         var when='';
-        try{ var dt=new Date(e.starts_at); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(x){}
+        try{ var dt=new Date(e.starts_at); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'}).toUpperCase(); }catch(x){}
         var where=[e.venue,e.city].filter(Boolean).join(' · ');
         var amt=o.amount_cents ? '$'+(o.amount_cents/100).toFixed(2) : 'Free';
         var href=e.slug ? '/event.html?e='+encodeURIComponent(e.slug) : '#';
-        return '<a href="'+href+'" style="display:flex;gap:12px;align-items:center;padding:11px;margin-bottom:10px;'
-          + 'border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;text-decoration:none;color:inherit">'
-          + '<div style="width:58px;height:58px;flex:0 0 auto;border-radius:9px;background:#0a0a0f center/cover no-repeat'
-          + (e.cover_url?";background-image:url('"+String(e.cover_url).replace(/'/g,'')+"')":'')+'"></div>'
-          + '<div style="flex:1;min-width:0">'
-          +   '<b style="display:block;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
-          +     (e.title||'Event')+'</b>'
-          +   '<div style="font-size:.76rem;color:var(--muted,#9aa)">'+[when,where].filter(Boolean).join(' · ')+'</div>'
-          +   '<div style="font-size:.74rem;color:var(--muted,#9aa);margin-top:2px">'
-          +     (o.qty||1)+' × ticket · '+amt+'</div>'
+        var img=e.cover_url||'';
+        var media = img
+          ? '<img class="pfe-bg" src="'+esc(img)+'" alt="" aria-hidden="true" loading="lazy">'
+            +'<img class="pfe-img" src="'+esc(img)+'" alt="'+esc(e.title||'')+'" loading="lazy">'
+          : '';
+        return '<a class="pfe-fly" href="'+href+'">'
+          + media + '<div class="pfe-shade"></div>'
+          + '<span class="pfe-tag tix">Ticket</span>'
+          + (o.qty>1 ? '<span class="pfe-badge">×'+o.qty+'</span>' : '')
+          + '<div class="pfe-body">'
+          +   '<div class="pfe-date">'+esc(when||'Date TBC')+'</div>'
+          +   '<div class="pfe-title">'+esc(e.title||'Event')+'</div>'
+          +   '<div class="pfe-meta">📍 '+esc(where||'Venue TBC')+'</div>'
+          +   '<div class="pfe-foot"><span class="pfe-price">'+esc(amt)+'</span>'
+          +     '<span class="pfe-cta">Details</span></div>'
           + '</div></a>';
       }).join('');
     });
