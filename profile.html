@@ -2315,7 +2315,13 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     var _sh=document.querySelector('#pfShare button'); if(_sh && !_sh.querySelector('.pf-share-lbl')){ var _sp=document.createElement('span'); _sp.className='pf-share-lbl'; _sp.textContent='SHARE'; _sp.style.cssText='margin-left:8px;font-weight:700;letter-spacing:.06em'; _sh.appendChild(_sp); }
   }catch(e){}
   /* Make the passport | category | badges row visible (badges from genre + Member) */
-  try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport'); if(pp)pp.style.display='inline-flex';
+  /* PASSPORT IS FOR CLAIMED PROFILES ONLY (Founder 2026-08-19: "groove trooper is suppose to be
+     an unclaimed profile"). This line forced the chip visible unconditionally, so an editorial
+     profile with NO row in profile_owners still displayed "✔ Passport" — which reads as a
+     verified member account. Gated on KIL_IS_CLAIMED, which defaults to false until the
+     ownership lookup resolves; the safe default is the one that cannot overclaim. */
+  try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport');
+    if(pp) pp.style.display = window.KIL_IS_CLAIMED ? 'inline-flex' : 'none';
     var bg=document.getElementById('pfBadges'); var P=window.PROFILE||{};
     if(bg && !bg.children.length){ var _ac=String(P.account_type||'').toLowerCase().trim(); var _sn={}; var arr=window.KIL_FILTER_BADGES(Array.isArray(P.badges)?P.badges.slice():[]).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_ac||_sn[k])return false; _sn[k]=1; return true;}); bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
     if(pollB>20 || (bg&&bg.children.length)) clearInterval(ivB); },600); }catch(e){}
