@@ -75,15 +75,35 @@
       }catch(e){} });
     }
   }catch(e){}
-  /* Google Analytics 4 — site-wide on V3 (property "keepitil", stream "KEEPITIL Web"). Added 2026-07-09. */
-  try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
-    var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
-    window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
-  } }catch(e){}
-  /* Microsoft Clarity — heatmaps + session replay, site-wide on V3 (project "KEEPITIL"). Added 2026-07-10. */
-  try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
-    (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
-  } }catch(e){}
+  /* ── ANALYTICS, DEFERRED PAST THE LOAD EVENT ────────────────────────────────────────────────
+     GA4 and Microsoft Clarity used to be injected during parse. `async` keeps them from blocking
+     DOMContentLoaded, but it does NOT stop them holding the LOAD event — and Clarity is a
+     session recorder that keeps posting for the life of the page. Measured on /create:
+     domInteractive 39ms, every KEEPITIL-owned resource finished by 89ms, domComplete 35762ms,
+     with only these two alive in the gap. /culture and /connect behaved the same way.
+     Everything that waits on document_idle therefore hung — devtools, automated checks, and any
+     tooling that verifies the page — which is why several "fixed" claims could not be confirmed.
+     Now both mount AFTER the window load event (or immediately, if load already fired), so they
+     can no longer gate it. Tracking behaviour is otherwise unchanged: same property, same
+     project, same gtag/clarity globals and queues. Diagnosis: KODE, 2026-08-19. */
+  function __kilMountAnalytics(){
+    /* GA4 */
+    try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
+      var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
+      window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
+    } }catch(e){}
+    /* Microsoft Clarity */
+    try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
+      (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
+    } }catch(e){}
+  }
+  /* gtag() must exist BEFORE the tag loads or early calls are lost, so the queue shim is set up
+     now and the network request is what gets deferred. */
+  try{ window.dataLayer=window.dataLayer||[]; if(!window.gtag){ window.gtag=function(){dataLayer.push(arguments);}; } }catch(e){}
+  try{
+    if(document.readyState === 'complete'){ setTimeout(__kilMountAnalytics, 0); }
+    else { window.addEventListener('load', function(){ setTimeout(__kilMountAnalytics, 0); }, { once:true }); }
+  }catch(e){ __kilMountAnalytics(); }
   /* Customer feedback widget — V3 only (floating "Feedback" pill -> Supabase feedback table). Added 2026-07-10. */
   try{ if(!window.__kilFeedbackLoad){ window.__kilFeedbackLoad=1;
     var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/v3/keepitil-feedback.js'; document.head.appendChild(_fb);
