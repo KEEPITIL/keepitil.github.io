@@ -272,6 +272,26 @@
     ]).then(function(res){
       var e = res[0].data, totals = res[1].data || {}, prog = res[2].data || {};
       if(!e){ empty('Entry not found', 'It may have been withdrawn.'); return; }
+      /* UNAPPROVED ENTRIES ARE NOT PUBLIC (Founder 2026-08-19 launch proof).
+         This view rendered the full voting UI — "VOTING OPEN", Like/Comment/Repost/Share/Save —
+         for ANY entry id, including a draft that had never been submitted or reviewed. Anyone
+         with the id could see and vote on unmoderated content, and its votes would have counted.
+         The owner still gets to see their own entry, because they paid for it; nobody else does
+         until a human has approved it. */
+      var isOwner = !!(ME && e.creator_user_id && ME.id === e.creator_user_id);
+      if(e.status !== 'approved'){
+        if(!isOwner){
+          empty('Not available', 'This entry has not been approved for public voting yet.');
+          return;
+        }
+        APP.innerHTML = navBar('mine')
+          + '<div class="soon"><div class="i">🕓</div><h2>'+h(e.title||'Your entry')+'</h2>'
+          + '<p>Status: <b>'+h(e.status)+'</b>'+(e.entitlement?' · entry paid':'')+'.<br>'
+          + 'It becomes public and votable once the review team approves it.</p>'
+          + (e.admin_message ? '<p class="vs-note">'+h(e.admin_message)+'</p>' : '')
+          + '<p><button type="button" class="vsp-join" data-nav="mine">‹ My entries</button></p></div>';
+        return;
+      }
       var open = true;
       return SB.from('vs_competitions').select('title,vote_display_mode,voting_closes_at,status,results_locked_at')
         .eq('id', e.competition_id).maybeSingle().then(function(cr){
@@ -385,10 +405,39 @@
               + '<span class="vs-pill '+(x.payment_status==='paid'?'ok':'')+'">'+h(x.payment_status)+'</span></div>'
               + '<div class="vt">'+(x.total_votes||0)+' votes</div>'
               + (x.admin_message ? '<div class="vs-note" style="margin-top:6px">'+h(x.admin_message)+'</div>' : '')
+              /* SUBMIT FOR REVIEW — the missing step (Founder 2026-08-19 launch proof).
+                 renderEntryForm calls vs_submit_entry in the SAME promise chain that does
+                 `location.href = stripeUrl`. For a PAID entry the browser leaves for Stripe
+                 before that .then runs, and on return to ?view=mine nothing ever submits — so
+                 a paid entry sat at draft forever with no control to move it. Two live $1
+                 charges proved it. Only the free path was ever exercised.
+                 This is the control that completes PAID → SUBMITTED. */
+              + ((x.status==='draft' && (x.entitlement===true || x.payment_status==='paid' || x.payment_status==='comped'))
+                  ? '<button type="button" class="vs-cta vs-submit-btn" data-submit="'+x.entry_id+'" '
+                    + 'style="width:100%;margin-top:10px">Submit for review</button>'
+                  : '')
               + '</div></div>';
           }).join('') + '</div>'
         : '<div class="soon"><div class="i">📥</div><h2>No entries yet</h2><p>When you enter a competition it appears here with its status, votes and any note from the review team.</p></div>');
       [].forEach.call(APP.querySelectorAll('[data-entry]'), function(c){ c.onclick=function(){ go({view:'entry', e:c.dataset.entry}); }; });
+      [].forEach.call(APP.querySelectorAll('[data-submit]'), function(b){
+        b.onclick=function(ev){
+          ev.stopPropagation();                       /* the card itself navigates; this must not */
+          var id=Number(b.dataset.submit);
+          b.disabled=true; b.textContent='Submitting…';
+          SB.rpc('vs_submit_entry', { p_entry:id, p_terms_version:'create-2026-q4-v1' })
+            .then(function(sr){
+              if(sr && sr.error) throw sr.error;
+              renderMine();                            /* repaint from the server, not from a guess */
+            })
+            .catch(function(e){
+              /* Never leave the button silently dead — the entrant has paid and needs to know
+                 whether their submission landed. */
+              b.disabled=false; b.textContent='Submit for review';
+              alert('Could not submit: ' + (e && e.message ? e.message : e));
+            });
+        };
+      });
     }).catch(err);
   }
 
