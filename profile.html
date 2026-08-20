@@ -639,7 +639,10 @@ window.KIL_FILTER_BADGES = function(badges){
   <!-- EVENTS tab: shown to subscribed VIEWERS only (public created events → buy tickets). Hidden for the owner. -->
   <div class="pf-tab" data-tab="shows" id="pfTabEvents" style="display:none" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 16H5V10h14v10z"/></svg><span>EVENTS</span></div>
   <div class="pf-tab" data-tab="saved" onclick="showTab('saved')"><svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg><span>SAVED</span></div>
-  <div class="pf-tab" data-tab="tagged" onclick="showTab('tagged')"><svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 015 5c0 2.76-2.24 5-5 5s-5-2.24-5-5a5 5 0 015-5zm0 12c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z"/></svg><span>TAGGED</span></div>
+  <!-- TAGGED → EVENTS (Founder 2026-08-19). The tab id/data-tab stay "tagged" on purpose: the
+       lazy-load switch, the visibility logic at line ~989 and showTab() all key off that string,
+       and renaming it would mean touching four call sites to change one label. Ticket icon. -->
+  <div class="pf-tab" data-tab="tagged" onclick="showTab('tagged')"><svg viewBox="0 0 24 24"><path d="M22 10V6a2 2 0 00-2-2H4a2 2 0 00-2 2v4a2 2 0 010 4v4a2 2 0 002 2h16a2 2 0 002-2v-4a2 2 0 010-4zM9 8h6v2H9zm0 4h6v2H9z"/></svg><span>EVENTS</span></div>
   <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>CHAT</span></div>
 </div>
 
@@ -656,8 +659,22 @@ window.KIL_FILTER_BADGES = function(badges){
 </div>
 
 <div class="pf-panel" id="tab-tagged">
+  <!-- Competition entries live on /create, not here — this link is the route between the two.
+       Always visible, because "I paid $1, where did it go" must have an answer even when the
+       ticket list below is empty. -->
+  <a href="/create/?view=mine&amp;paid=1" id="pfMyEntries"
+     style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;
+            padding:13px 15px;border:1px solid rgba(255,255,255,.14);border-radius:12px;
+            background:rgba(255,92,138,.08);color:#fff;text-decoration:none">
+    <span style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.1rem">⚔️</span>
+      <span><b style="display:block;font-size:.92rem">My competition entries</b>
+      <span style="font-size:.76rem;color:var(--muted,#9aa)">CREATE — entries you have paid for</span></span>
+    </span>
+    <span style="color:#ff5c8a;font-weight:800">→</span>
+  </a>
   <div class="pf-grid" id="tagged-grid"></div>
-  <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">—</div>
+  <div id="tagged-empty" style="display:none;color:var(--muted);text-align:center;padding:44px 20px">No tickets yet.</div>
 </div>
 
 <div style="display:none"><div id="gal-filter"></div><div id="gal-grid"></div></div>
@@ -2524,16 +2541,51 @@ function newCollection(){
     if(r.error){toast('Could not create (name taken?).');} else {toast('Collection ✓');loadSaved();}
   });
 }
+/* EVENTS TAB — purchased tickets (Founder 2026-08-19, replacing "tagged" posts).
+   Reads event_orders, which is what the ticket webhook writes on a completed purchase, joined to
+   the event for title/date/venue. Keyed on buyer_handle.
+   A failed query must NOT render as "no tickets" — someone who paid and sees an empty tab will
+   reasonably conclude their money vanished. Error and empty are shown differently on purpose. */
 function loadTagged(){
-  SB.from('post_tags').select('content_id,profile_content(id,kind,data,profile_slug)').eq('tagged_slug',PROFILE_SLUG).then(function(r){
-    var rows=(r&&r.data)||[]; var g=document.getElementById('tagged-grid'), emp=document.getElementById('tagged-empty');
-    if(!rows.length){ g.innerHTML=''; emp.style.display='block'; return; }
-    emp.style.display='none';
-    g.innerHTML=rows.map(function(s){
-      var c=s.profile_content||{}; var d=c.data||{}; var img=d.img||d.cover||d.image||'';
-      return '<div class="gal-tile" style="aspect-ratio:1/1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f center/cover no-repeat'+(img?';background-image:url(\''+String(img).replace(/'/g,'')+'\')':'')+'"></div>';
-    }).join('');
-  });
+  var g=document.getElementById('tagged-grid'), emp=document.getElementById('tagged-empty');
+  if(!g||!emp) return;
+  SB.from('event_orders')
+    .select('id,qty,amount_cents,status,created_at,qr_token,events(title,slug,starts_at,venue,city,cover_url)')
+    .eq('buyer_handle', PROFILE_SLUG)
+    .neq('status','refunded')
+    .order('created_at',{ascending:false})
+    .then(function(r){
+      if(r && r.error){
+        g.innerHTML='';
+        emp.style.display='block';
+        emp.textContent='Could not load your tickets. This is a loading error, not an empty list — reload, and tell us if it persists.';
+        console.error('[profile] event_orders failed', r.error);
+        return;
+      }
+      var rows=(r&&r.data)||[];
+      if(!rows.length){ g.innerHTML=''; emp.style.display='block'; emp.textContent='No tickets yet.'; return; }
+      emp.style.display='none';
+      g.style.display='block';
+      g.innerHTML=rows.map(function(o){
+        var e=o.events||{};
+        var when='';
+        try{ var dt=new Date(e.starts_at); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }catch(x){}
+        var where=[e.venue,e.city].filter(Boolean).join(' · ');
+        var amt=o.amount_cents ? '$'+(o.amount_cents/100).toFixed(2) : 'Free';
+        var href=e.slug ? '/event.html?e='+encodeURIComponent(e.slug) : '#';
+        return '<a href="'+href+'" style="display:flex;gap:12px;align-items:center;padding:11px;margin-bottom:10px;'
+          + 'border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;text-decoration:none;color:inherit">'
+          + '<div style="width:58px;height:58px;flex:0 0 auto;border-radius:9px;background:#0a0a0f center/cover no-repeat'
+          + (e.cover_url?";background-image:url('"+String(e.cover_url).replace(/'/g,'')+"')":'')+'"></div>'
+          + '<div style="flex:1;min-width:0">'
+          +   '<b style="display:block;font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'
+          +     (e.title||'Event')+'</b>'
+          +   '<div style="font-size:.76rem;color:var(--muted,#9aa)">'+[when,where].filter(Boolean).join(' · ')+'</div>'
+          +   '<div style="font-size:.74rem;color:var(--muted,#9aa);margin-top:2px">'
+          +     (o.qty||1)+' × ticket · '+amt+'</div>'
+          + '</div></a>';
+      }).join('');
+    });
 }
 (function(){ /* lazy-load saved/tagged when their tab opens */
   var done={};
