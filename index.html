@@ -401,7 +401,18 @@
 #evx .evx-daynum{text-align:center;}
 #evx .evx-daydow{font-size:1.05rem;font-weight:800;letter-spacing:.2em;text-indent:.2em;color:var(--green);text-transform:uppercase;margin-top:5px;text-align:center;}
 #evx .evx-daymo{font-size:1.05rem;font-weight:800;letter-spacing:.2em;text-indent:.2em;color:#9aa0b0;text-transform:uppercase;margin-top:1px;text-align:center;}
-@media(max-width:680px){#evx .evx-datecol{display:flex;align-items:baseline;gap:10px;} #evx .evx-daynum{font-size:2rem;}}
+/* MOBILE DAY SECTION — Founder 2026-08-19. ROW 1 is one line: 18 · TUE · AUG · 13 EVENTS.
+   ROW 2 is the card rail, nothing else. The inline count is the copy that lives inside
+   .evx-datecol; the original inside .evx-daycol is hidden here so the number appears once. */
+@media(max-width:680px){
+  #evx .evx-datecol{display:flex;align-items:baseline;gap:8px;flex-wrap:nowrap;overflow:hidden;}
+  #evx .evx-daynum{font-size:2rem;}
+  #evx .evx-daydow,#evx .evx-daymo{font-size:.95rem;margin-top:0;}
+  #evx .evx-daycount-inline{margin-left:auto;margin-bottom:0;white-space:nowrap;color:#5a6570;}
+  #evx .evx-daycol > .evx-daycount{display:none;}
+}
+/* Desktop keeps the count under the date column, so the inline copy is the one hidden. */
+@media(min-width:681px){#evx .evx-daycount-inline{display:none;}}
 /* Mobile create entry point (Founder 2026-07-16): "+" on each date row -> create-event prefilled with that date */
 @media(max-width:860px){#evx .evx-nav{top:0;z-index:120;padding-top:calc(9px + env(safe-area-inset-top,0px))}}  /* mobile: no top bar. Grow into the status-bar band rather than offsetting below it — an offset leaves a transparent strip that content scrolls through. Matches the shell's #radMTabs/#culMTabs treatment. */
 #evx .evx-daycol{border-left:1px solid rgba(0,255,136,.12);padding-left:22px;min-width:0;}
@@ -2424,7 +2435,13 @@ function dayRow(day,mk,i){
   var p=parts(day.date);var dt=new Date(Date.UTC(p.y,p.m-1,p.day));var used=false;
   var cards=day.events.map(function(ev){var sp=ev.pick&&!used;if(sp)used=true;return flyer(ev,sp);}).join('');
   return '<section class="evx-day" id="evx-day-'+mk+'-'+i+'">'
-    +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div></div>'
+    /* The count moved OUT of .evx-daycol and into .evx-datecol (Founder 2026-08-19):
+         ROW 1 = date · day · month · number of events        ROW 2 = the cards
+       It has to be a SIBLING of the date parts to sit on their line — as a child of .evx-daycol
+       it was stacked above the carousel and could never join row 1 by CSS alone. Desktop hides
+       this copy and keeps the count under the date, so the two-column layout is unchanged. */
+    +'<div class="evx-datecol"><div class="evx-daynum">'+(p.day<10?'0'+p.day:p.day)+'</div><div class="evx-daydow">'+DOW[dt.getUTCDay()]+'</div><div class="evx-daymo">'+MON3[p.m-1]+'</div>'
+    +'<div class="evx-daycount evx-daycount-inline">'+day.events.length+' event'+(day.events.length>1?'s':'')+'</div></div>'
     /* §D1: the per-date '+' is REMOVED. It pointed at /create-event.html, which is
        admin-only: create-event runs rpc('is_admin') and redirects everyone else to
        /submit-event.html, DROPPING the ?date= prefill on the way. So the control
@@ -3033,7 +3050,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260819r" defer></script>
+<script src="/keepitil-shell.js?v=20260819s" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->
