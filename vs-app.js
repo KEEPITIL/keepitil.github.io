@@ -263,6 +263,26 @@
   /* ── SUBMISSION DETAIL + the 5 vote actions (§9-17, §21) ───────────────────────── */
   var ACTIONS = [['like','♥','Like'],['comment','💬','Comment'],['repost','🔁','Repost'],['share','➦','Share'],['save','🔖','Save']];
 
+  /* BACK GOES TO THE PROFILE'S EVENTS SECTION (Founder 2026-08-19), not to /create/?view=mine —
+     that view is being retired because entries and tickets both live on the profile now.
+     ME.user_metadata.handle is not guaranteed, so this resolves the slug at click time and falls
+     back to /profile.html, which self-resolves for a signed-in user. A back button that lands
+     nowhere is worse than no back button. */
+  function backToProfileBtn(){
+    return '<button type="button" class="vsp-join" id="vsBackProfile">‹ Back to my events</button>';
+  }
+  document.addEventListener('click', function(ev){
+    var b = ev.target && ev.target.closest && ev.target.closest('#vsBackProfile');
+    if(!b) return;
+    ev.preventDefault();
+    var go2 = function(slug){ location.href = slug ? ('/profile.html?slug='+encodeURIComponent(slug)+'&tab=tagged')
+                                                   : '/profile.html?tab=tagged'; };
+    try{
+      SB.rpc('my_profile_slug').then(function(r){ go2(r && !r.error ? r.data : null); })
+        .catch(function(){ go2(null); });
+    }catch(e){ go2(null); }
+  });
+
   function renderEntry(id){
     busy('Loading entry…');
     Promise.all([
@@ -289,7 +309,7 @@
           + '<p>Status: <b>'+h(e.status)+'</b>'+(e.entitlement?' · entry paid':'')+'.<br>'
           + 'It becomes public and votable once the review team approves it.</p>'
           + (e.admin_message ? '<p class="vs-note">'+h(e.admin_message)+'</p>' : '')
-          + '<p><button type="button" class="vsp-join" data-nav="mine">‹ My entries</button></p></div>';
+          + '<p>'+backToProfileBtn()+'</p></div>';
         return;
       }
       var open = true;
@@ -393,6 +413,23 @@
   /* ── MY ENTRIES (§22) / MY VOTES (§23) ─────────────────────────────────────────── */
   function renderMine(){
     if(!ME){ APP.innerHTML = navBar('mine') + '<div class="soon"><div class="i">🔐</div><h2>Sign in</h2><p>Your VS entries live here.</p><a class="vs-cta" href="/apply.html">Sign in</a></div>'; return; }
+    /* RETIRED AS A DESTINATION (Founder 2026-08-19: "page is not needed since everything will be
+       on the users profile page under events"). It REDIRECTS rather than 404s, because this is
+       still Stripe's success_url — a buyer returning from checkout must never land on a dead page,
+       and that exact failure already happened once today with /v31/vs.html.
+       If the slug cannot be resolved we fall through and render the old list, which still carries
+       the Submit control. Stranding a paid entrant is the one outcome not worth risking. */
+    if(!window.__vsMineRedirected){
+      window.__vsMineRedirected = 1;
+      try{
+        SB.rpc('my_profile_slug').then(function(r){
+          var slug = (r && !r.error) ? r.data : null;
+          if(slug){ location.replace('/profile.html?slug='+encodeURIComponent(slug)+'&tab=tagged'); }
+          else { renderMine(); }                      // no slug → show the list rather than strand
+        }).catch(function(){ renderMine(); });
+        return;
+      }catch(e){ /* fall through to the list */ }
+    }
     busy('Loading your entries…');
     SB.rpc('vs_my_entries').then(function(r){
       if(r.error) throw r.error;
