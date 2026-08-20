@@ -12,7 +12,10 @@ import { readFileSync } from "node:fs";
  * the same class of failure as the homepage this morning.
  */
 
-const src = readFileSync(new URL("../culture.html", import.meta.url), "utf8");
+/* /culture.html became a redirect stub when clean URLs shipped (Founder 2026-08-18); the real
+   page is /culture/. Pointed at the real file — a guard that reads a 13-line stub passes or
+   fails on nothing. KODE 2026-08-19. */
+const src = readFileSync(new URL("../culture/index.html", import.meta.url), "utf8");
 
 /** Pull the media/gate functions out of the page and run them against stubs. */
 function harness({ media = [], feed = [], thresholds = { items: 12, categories: 0 }, win = null } = {}) {

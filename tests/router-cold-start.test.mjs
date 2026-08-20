@@ -116,3 +116,83 @@ test("the developer note reads as prose", () => {
   assert.match(html, /this file is the site’s URL router/);
   assert.match(html, /Do not delete it — every clean URL depends on it/);
 });
+
+/**
+ * Analytics must not hold the load event.
+ *
+ * GA4 and Clarity were injected during parse with async=1. async keeps a script from blocking
+ * DOMContentLoaded but NOT the load event, so document_idle never arrived: measured on production
+ * /create, domInteractive was 39ms and every KEEPITIL-owned resource finished by 89ms, while
+ * domComplete landed at 35762ms with only those two alive in the gap. Anything waiting on
+ * document_idle — devtools, the app's readiness checks, automated verification — timed out, which
+ * is what "the page hangs" actually was.
+ *
+ * These assert BEHAVIOUR, not prose: that the two network-injecting tags exist only inside the
+ * deferred function, that the function is reached via the load event rather than called at parse
+ * time, and that the gtag queue shim stays OUTSIDE it so early gtag() calls are not lost.
+ */
+const shellSrc = readFileSync(new URL("../keepitil-shell.js", import.meta.url), "utf8");
+
+/* Comments have satisfied guards by their own wording here before. Strip them first. */
+function stripComments(js) {
+  return js.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/^\s*\/\/.*$/gm, " ");
+}
+
+/** The body of __kilMountAnalytics, by brace balance rather than a fragile end-anchor. */
+function mountAnalyticsBody(js) {
+  const i = js.indexOf("function __kilMountAnalytics");
+  assert.ok(i > 0, "__kilMountAnalytics is gone — analytics deferral was removed");
+  const open = js.indexOf("{", i);
+  let depth = 0;
+  for (let k = open; k < js.length; k++) {
+    if (js[k] === "{") depth++;
+    else if (js[k] === "}" && --depth === 0) return js.slice(open, k + 1);
+  }
+  assert.fail("__kilMountAnalytics never closes");
+}
+
+test("both analytics tags are injected only from inside the deferred function", () => {
+  const src = stripComments(shellSrc);
+  const inside = mountAnalyticsBody(src);
+  for (const tag of ["googletagmanager.com/gtag/js", "clarity.ms/tag/"]) {
+    assert.ok(inside.includes(tag), `${tag} is not inside __kilMountAnalytics`);
+    assert.equal(
+      src.split(tag).length - 1, 1,
+      `${tag} appears outside __kilMountAnalytics — it would hold the load event again`
+    );
+  }
+});
+
+test("the deferred function is reached via the load event, not called during parse", () => {
+  const src = stripComments(shellSrc);
+  const outside = src.replace(mountAnalyticsBody(src), " ");
+  assert.match(
+    outside,
+    /addEventListener\(\s*['"]load['"]\s*,[\s\S]{0,160}__kilMountAnalytics/,
+    "nothing schedules __kilMountAnalytics on the load event"
+  );
+  assert.match(
+    outside,
+    /readyState\s*===?\s*['"]complete['"][\s\S]{0,120}__kilMountAnalytics/,
+    "an already-complete document would never run analytics at all"
+  );
+  /* A bare __kilMountAnalytics() at parse time defeats the whole change. */
+  /* The declaration `function __kilMountAnalytics()` is not a call; only count invocations.
+     One is expected — the catch-block fallback, which runs only if scheduling itself threw. */
+  const bare = outside.match(/(^|[^.\w])(?<!function\s)__kilMountAnalytics\s*\(\s*\)/g) || [];
+  assert.ok(
+    bare.length <= 1,
+    `__kilMountAnalytics is invoked directly ${bare.length} times — parse-time calls re-gate load`
+  );
+});
+
+test("the gtag queue shim stays outside the deferred function", () => {
+  const src = stripComments(shellSrc);
+  const outside = src.replace(mountAnalyticsBody(src), " ");
+  assert.match(
+    outside,
+    /window\.dataLayer\s*=\s*window\.dataLayer\s*\|\|\s*\[\]/,
+    "dataLayer is only created after load — gtag() calls before then are lost"
+  );
+  assert.match(outside, /window\.gtag\s*=/, "gtag() is undefined until after load");
+});

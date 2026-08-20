@@ -12,7 +12,10 @@ import { readFileSync } from "node:fs";
  * That was never a demand problem.
  */
 
-const vs = readFileSync(new URL("../vs.html", import.meta.url), "utf8");
+/* /vs.html became a redirect stub when clean URLs shipped (Founder 2026-08-18); the VS page
+   itself is /create/. Pointed at the real file — a guard that reads a 13-line stub passes or
+   fails on nothing. KODE 2026-08-19. */
+const vs = readFileSync(new URL("../create/index.html", import.meta.url), "utf8");
 /** Comments stripped. A guard must not be satisfiable — or breakable — by prose about the guard:
  *  the first version of the "on the rail" check failed on the comments explaining the old copy. */
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
