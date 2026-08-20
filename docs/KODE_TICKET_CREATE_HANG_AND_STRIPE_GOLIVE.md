@@ -7,6 +7,65 @@
 
 ---
 
+# ⚠ STATUS UPDATE — 2026-08-19 late. READ THIS BEFORE PART A.
+
+**Part A's diagnosis below is WRONG and is kept only as a record of the error.** KODE overturned it
+by measurement, and Atlas accepted the correction.
+
+**What Part A got wrong.** Atlas saw `get_page_text` and `Runtime.evaluate` time out waiting for
+`document_idle` and concluded the renderer was hung. KODE measured the actual page:
+`domInteractive 39ms`, every KEEPITIL-owned resource finished by `89ms`, sign-in card rendered,
+226 nodes. **The page was never hung.** The load event was held open, and Atlas's tooling waits on
+it. Atlas then wrote that observation into the acceptance criteria, sending KODE hunting a
+renderer bug that did not exist. `[V]`
+
+**Also dead — the `_heal` lead Atlas flagged as `[U]`.** KODE killed it three ways: the rail render
+is guarded by `data-kil-mounted`, `/create/` has zero `[data-kil-destinations]` elements, DOM node
+count was identical across two `_heal` ticks (226 → 226), and wrapping the mount functions showed
+zero calls in 9 seconds. Do not re-investigate it. `[V]`
+
+**Actual cause — third-party analytics holding the load event.** GA4 and Microsoft Clarity were
+injected during parse with `async=1`. Async does not block DOMContentLoaded but DOES hold the load
+event, and Clarity is a session recorder that keeps posting for the life of the page. On
+`?view=submit&c=65`: `domComplete 35762ms` with only 6 third-party requests alive in the gap. `[V]`
+
+**FIXED AND DEPLOYED (Atlas, shell `?v=20260820b`).** Both now mount inside
+`__kilMountAnalytics()`, called after the `load` event (or immediately if load already fired). The
+`gtag` queue shim is installed before the deferral so early calls are not lost. Verified present in
+the served file at `keepitil-shell.js` lines 93–110. `[V]`
+
+## What is actually left for KODE — three things, nothing else
+
+1. **Confirm the load event is now free.** Re-measure `domInteractive` / `domComplete` on
+   `/create`, `/culture` and `/connect`. Atlas cannot: its browser tooling still times out, now
+   even on `404.html` which worked earlier the same day — so either the CDN was still propagating
+   across all 29 pages, or a second holder exists. `[U]`
+2. **If still held, find the second holder.** KODE's own note: `/culture` measured `domComplete
+   4963ms` against `/create`'s `35762ms` with the same shell and the same analytics. Nothing has
+   explained that 5–7× gap. Take several samples per view before concluding it is real — it may be
+   third-party CDN variance rather than anything structural. `[U]`
+3. **Run the authenticated CREATE journey on a real phone.** Pay → submit → review → approve →
+   Culture card → vote. Atlas cannot emulate mobile (browser resize leaves `innerWidth 1440`).
+
+## Corrected acceptance criteria
+
+Atlas's original criterion — "reach `document_idle`" — measured Atlas's tooling, not the user, and
+should not gate this ticket. Use instead:
+
+- signed-out `submit` and `mine` paint their card;
+- signed-in `submit` renders the entry form and `mine` renders the entry list;
+- the radio still starts on first gesture (regression check);
+- record `domComplete` as evidence, but do not gate on it.
+
+## One more correction worth keeping
+
+The Founder's original symptom was a phone *lockup*. Async analytics holding the load event does
+not lock up a phone; a permanently streaming SoundCloud iframe with `auto_play=true` does — that
+was on every page and is now deferred to first gesture. Those two problems were conflated in the
+original ticket. Verify the crash on a device before calling it closed.
+
+---
+
 # PART A — KODE: `/create` hangs on the auth-gated views
 
 ## A1. Symptom
