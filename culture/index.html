@@ -670,7 +670,23 @@ renderTypebar();renderDiscover();renderFeed();
         /* Paint the feed immediately, then repaint once media arrives — a slow videos query must
            never delay the text feed, and must never blank it if it fails. */
         paint();
-        try{ culLoadMedia().then(paint).catch(function(){}); }catch(e){}
+        /* culLoadMedia() is declared in a LATER <script> block (line ~871) than this one, so at
+           boot time it is frequently not defined yet. The first version of this call was wrapped
+           in a bare try/catch, which swallowed the ReferenceError in silence: the feed painted,
+           the videos never loaded, and nothing anywhere said why. Same failure class as the
+           `.catch()` that took /create down — a defensive catch hiding a real fault.
+           Now: wait for the function to exist, and if it never does, SAY SO. Broken must never
+           look like empty. */
+        (function waitForMedia(n){
+          if(typeof culLoadMedia !== 'function'){
+            if(n < 40) return setTimeout(function(){ waitForMedia(n+1); }, 250);
+            console.error('[culture] culLoadMedia never became available — video feed cannot load');
+            return;
+          }
+          culLoadMedia().then(paint).catch(function(e){
+            console.error('[culture] media load failed', e);
+          });
+        })(0);
       }).catch(function(){});
     }
     try{ sb.rpc('my_profile_slug').then(function(rr){ run(rr&&!rr.error&&rr.data?rr.data:null); }).catch(function(){ run(null); }); }catch(e){ run(null); }
