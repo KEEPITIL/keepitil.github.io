@@ -991,6 +991,18 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'@media(min-width:861px){.pf-tabs{top:calc(66px + env(safe-area-inset-top,0px))!important}}'
     +'@media(max-width:860px){#kil-bnav{display:flex}#kil-radio{transform:translateY(220%)!important;pointer-events:none!important}}'
     +'#v3-footer{border-top:1px solid var(--line,rgba(255,255,255,.08));background:var(--bg,#0a0a0f);color:var(--muted,#888);padding:40px 20px;margin-top:56px;font-family:var(--font,Inter,sans-serif);font-size:.85rem;text-align:left}'
+    /* FOOTER GAP — Founder 2026-08-19: "there is a gap after the footer section" on Connect and
+       Create. Cause: each page reserves room for the fixed bottom nav with its own
+       body{padding-bottom} (Connect 72px, Create 96px + safe-area). That padding renders BELOW
+       the footer, so the page ends with a strip of empty background under it.
+       The clearance is still needed — it just belongs to the footer, not to the body. The footer
+       now absorbs it as padding, so its background runs all the way down to the bottom nav and
+       there is nothing after it. */
+    +'@media(max-width:860px){'
+    +  'body{padding-bottom:0!important}'
+    +  '#v3-footer{margin-top:32px;margin-bottom:0;'
+    +    'padding-bottom:calc(40px + var(--kil-bnav-h,56px) + env(safe-area-inset-bottom,0px))}'
+    +'}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
     +'#v3-footer .v3-foot-links{display:flex;gap:16px;font-weight:600;flex-wrap:wrap}#v3-footer a{color:inherit;text-decoration:none}#v3-footer .v3-foot-links a:hover{color:var(--brand,#00b4ff)}'
