@@ -585,6 +585,43 @@ renderTypebar();renderDiscover();renderFeed();
           +'<button class="fba fba-resh" onclick="fbReshareL(\'cul:'+h(d.slug)+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
           +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\'cul:'+h(d.slug)+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button></div></div>';
     }
+    /* ── CREATE COMPETITION ENTRY ──────────────────────────────────────────────────────────
+       Written by the vs_entry_to_culture trigger when an entry is APPROVED. Sits in the feed
+       alongside articles, PIX and VID, but labelled CREATE so nobody mistakes a competition
+       submission for editorial.
+       Voting deliberately links out to the CREATE entry rather than voting inline: votes live
+       in vs_vote_actions and there must be exactly one vote path. A Culture-side vote control
+       would be a second source of truth. Like / comment / save / reshare DO work here, because
+       they key on the profile_content row like every other card. */
+    if(r.kind==='create_entry'){
+      var cd=r.data||{};
+      var cpid=h(r.id);
+      var closes=''; try{ var ct=new Date(cd.voting_closes_at); if(!isNaN(ct)) closes=ct.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}); }catch(x){}
+      var votingOpen = cd.voting_open === true;
+      return '<div class="fcard fbcard" data-pid="'+cpid+'" style="overflow:hidden">'
+        +'<div class="fb-head"><a class="fb-head-l" href="/profile.html?slug='+encodeURIComponent(r.profile_slug||'')+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
+          +'<img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt="">'
+          +'<div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b>'
+          +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(cd.competition||'CREATE')+(cd.division?' · '+h(cd.division):'')+'</div></div></a></div>'
+        +'<a href="'+h(cd.entry_url||'/create/')+'" style="text-decoration:none;display:block">'
+          +'<div style="position:relative;aspect-ratio:2/3;max-height:520px;background:#0a0a0f">'
+            +'<img src="'+h(cd.cover||cd.img||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(cd.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
+            +'<span style="position:absolute;top:10px;left:10px;background:rgba(255,92,138,.95);color:#1a0410;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">CREATE</span>'
+          +'</div>'
+          +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.1rem;color:#fff;line-height:1.2">'+h(cd.title||'Untitled entry')+'</div>'
+          +(closes?'<div style="color:var(--ink3,#9aa);font-size:.78rem;margin-top:5px">'+(votingOpen?'Voting closes ':'Voting opens later · closes ')+h(closes)+'</div>':'')
+          +'</div></a>'
+        +'<div style="padding:8px 15px 4px"><a href="'+h(cd.vote_url||'/create/')+'" style="display:block;text-align:center;background:'
+          +(votingOpen?'#ff5c8a;color:#1a0410':'rgba(255,255,255,.08);color:#9aa')
+          +';font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">'
+          +(votingOpen?'🗳 Vote on this entry':'View entry')+'</a></div>'
+        +'<div class="fb-actions">'
+          +'<button class="fba fba-like" onclick="fbLike(\''+cpid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
+          +'<button class="fba fba-cmt" onclick="culComments(\''+cpid+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
+          +'<button class="fba fba-resh" onclick="fbReshareL(\''+cpid+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
+          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+cpid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
+        +'</div></div>';
+    }
     /* ── THIRD-PARTY MEDIA (YouTube today; TikTok/Instagram later) ─────────────────────────
        Without this branch a media row fell through to the generic post card below, which builds
        its links from r.profile_slug — null on every media row — producing /profile.html?slug=null
