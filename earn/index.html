@@ -42,8 +42,8 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
 .grid>*{flex:0 0 240px;scroll-snap-align:start}
 .grid>.card{aspect-ratio:2/3;display:flex;flex-direction:column;overflow:hidden}
 @media(max-width:860px){ .grid{gap:10px} .grid>*{flex:0 0 160px} }
-.g-stations{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-.g-cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.g-stations>*{flex:0 0 160px}
+.g-cards>*{flex:0 0 240px}
 .card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s;backdrop-filter:blur(10px);overflow:hidden}
 .card:hover{border-color:var(--brand);transform:translateY(-2px)}
 /* image band on every widget */
@@ -77,7 +77,10 @@ section.open .sec-toggle{transform:rotate(180deg)}
 .grid.rad-carou::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
 .grid.rad-carou>*{flex:0 0 230px;scroll-snap-align:start}
 .grid.g-stations.rad-carou>*{flex:0 0 168px}
-section.open .grid.rad-carou{display:grid;overflow:visible}
+/* WAS: section.open reverted the rail back to display:grid, so opening a section turned the
+   carousel into a single stacked column — exactly what the Founder reported 2026-08-20. The
+   rail is now unconditional; a section opening changes what is visible, not how it is laid out. */
+section.open .grid.rad-carou{display:flex;overflow-x:auto}
 /* Vertical sidebar (desktop): subpages on top + this page's sections below (Founder 2026-08-04) */
 .cul-vrail{display:none}
 @media(min-width:861px){
@@ -294,7 +297,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260820b" defer></script>
+<script src="/keepitil-shell.js?v=20260821a" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
