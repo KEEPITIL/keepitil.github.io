@@ -195,6 +195,35 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .fb-more-txt{color:var(--ink3)}
 .fb-cap .fx{max-height:none;margin-top:10px;display:none}.fb-cap.open .fx{display:block}
 .fb-actions{display:flex;align-items:center;gap:4px;padding:6px 10px 10px}
+/* ── VIDEO CARD, YouTube-app layout (Founder 2026-08-21) ────────────────────────────────
+   Identical on mobile and desktop by design: one layout, so a Short and a landscape clip
+   cannot disagree about their own shape between breakpoints. */
+.kv-body{padding:11px 14px 14px}
+.kv-title{display:block;font-family:var(--fs,Inter),sans-serif;font-weight:800;font-size:1.05rem;
+  color:#fff;line-height:1.25;text-decoration:none}
+.kv-meta{margin-top:11px}
+.kv-who{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.kv-av{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2a2a3a center/cover no-repeat;
+  display:flex;align-items:center;justify-content:center;font:800 .95rem Inter,sans-serif;color:#fff}
+.kv-nm{display:flex;flex-direction:column;min-width:0}
+.kv-nm b{font:700 .9rem Inter,sans-serif;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kv-nm i{font:500 .72rem Inter,sans-serif;color:var(--ink3,#9aa0b0);font-style:normal}
+/* Dislike · Like · Share · Save — the order the Founder specified. */
+.kv-acts{padding:12px 0 4px;gap:8px;border-top:1px solid var(--line,#242433);margin-top:12px}
+.kv-acts .fba{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line,#242433);border-radius:999px;padding:8px 14px;color:#cfd3df;cursor:pointer}
+.kv-acts .fba svg{width:17px;height:17px}
+.kv-acts .fba.on{color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff)}
+.kv-acts .fba-dis.on{color:#ff6b6b;border-color:#ff6b6b}
+.kv-cmt{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:11px 12px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line,#242433);border-radius:12px;
+  color:#cfd3df;font:700 .84rem Inter,sans-serif;cursor:pointer;text-align:left}
+.kv-cmt .kv-cmt-n{color:var(--ink3,#9aa0b0);font-weight:600}
+.kv-cmt .kv-chev{margin-left:auto;color:var(--ink3,#9aa0b0)}
+/* A Short already fills the screen; the stack below it would be off-screen, so the frame is
+   the card and the actions overlay it. */
+.kv-short .kv-body{padding:9px 14px 12px}
+.kv-short .kv-acts{border-top:0;padding-top:8px;margin-top:8px}
 .fba{display:inline-flex;align-items:center;gap:5px;background:none;border:0;color:#cfd3df;cursor:pointer;padding:7px 10px;border-radius:9px;font:700 .8rem Inter,sans-serif;text-decoration:none}
 .fba svg{width:21px;height:21px}.fba:hover{color:#fff;background:rgba(255,255,255,.06)}
 .fba.on{color:#ff4d8d}.fb-save.on{color:var(--brand,#00b4ff)}
@@ -632,22 +661,57 @@ renderTypebar();renderDiscover();renderFeed();
       var vd=r.data||{};
       var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
       var vhref=vd.source_url||'#';
-      return '<div class="fcard fbcard kil-vid" data-pid="'+h(r.id)+'" data-embed="'+h(vd.embed_url||'')+'" style="overflow:hidden">'
-        +'<div class="fb-head"><div class="fb-head-l" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
-          +'<div class="fb-who"><b>'+h(r.author_name||'Unknown creator')+'</b>'
-          +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(r.source_platform||'')+(vwhen?' · '+h(vwhen):'')+'</div></div></div></div>'
-        +'<a href="'+h(vhref)+'" target="_blank" rel="noopener" style="text-decoration:none;display:block">'
-          +'<div class="kil-vid-well" style="position:relative;aspect-ratio:16/9;background:#0a0a0f">'
-            +'<img src="'+h(vd.img||vd.cover||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(r.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
-            +'<span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+h((r.source_platform||'VIDEO').toUpperCase())+'</span>'
-            /* Play affordance — a still frame with no marker reads as a photo. */
-            +'<span class="kil-vid-play" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
-              +'<span style="width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">'
-              +'<span style="border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px"></span></span></span>'
-          +'</div>'
-          +'<div style="padding:11px 15px 13px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.05rem;color:#fff;line-height:1.2">'+h(r.title||'Untitled')+'</div>'
-          +'<div style="color:var(--ink3,#9aa);font-size:.78rem;margin-top:6px">Watch on '+h(r.source_platform||'the source')+' ↗</div></div></a>'
-        +'</div>';
+      /* SHORT vs LANDSCAPE (Founder 2026-08-21). A Short in a 16:9 well is a tall frame pillar-
+         boxed inside a wide box — the "empty space" complaint. The well takes the video's own
+         ratio, identically on mobile and desktop, so neither orientation is letterboxed. */
+      var isShort = vd.is_short === true;
+      var wellRatio = isShort ? '9/16' : '16/9';
+      var wellCap = isShort ? 'max-height:calc(100dvh - 210px);margin:0 auto;' : '';
+      var avatarUrl = vd.avatar || r.author_avatar || '';
+      var initial = (r.author_name||'?').trim().charAt(0).toUpperCase();
+
+      /* Engagement stack, YouTube-app order (Founder 2026-08-21): avatar + name, then
+         Dislike / Like / Share / Save, then comments. It fills the dead space under a landscape
+         video. A Short already fills the screen, so it keeps the compact overlay rail instead —
+         stacking this under a full-height frame would push it off-screen entirely. */
+      var engage = ''
+        + '<div class="kv-meta">'
+        +   '<a class="kv-who" href="' + h(vd.creator_profile_url || vhref) + '" target="_blank" rel="noopener">'
+        +     '<span class="kv-av"' + (avatarUrl ? ' style="background-image:url(' + h(avatarUrl) + ')"' : '') + '>'
+        +       (avatarUrl ? '' : h(initial)) + '</span>'
+        +     '<span class="kv-nm"><b>' + h(r.author_name || 'Unknown creator') + '</b>'
+        +       '<i>' + h(r.source_platform || '') + (vwhen ? ' · ' + h(vwhen) : '') + '</i></span>'
+        +   '</a>'
+        + '</div>'
+        + '<div class="fb-actions kv-acts">'
+        +   '<button class="fba fba-dis" onclick="culDislike(\'' + h(r.id) + '\',this)" title="Dislike">'
+        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><b></b></button>'
+        +   '<button class="fba fba-like" onclick="fbLike(\'' + h(r.id) + '\',this)" title="Like">'
+        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><b></b></button>'
+        +   '<button class="fba fba-share" onclick="fbShare(\'' + h(vhref) + '\')" title="Share">'
+        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><b></b></button>'
+        +   '<button class="fba fb-save" onclick="fbSaveL(\'' + h(r.id) + '\',this)" title="Save">'
+        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><b></b></button>'
+        + '</div>'
+        /* Comments open inline via the same culComments() every other card uses — one comment
+           implementation, not a second one that would drift. */
+        + '<button class="kv-cmt" onclick="culComments(\'' + h(r.id) + '\',this)">'
+        +   '<span>Comments</span><span class="kv-cmt-n"></span><span class="kv-chev">&#9662;</span></button>';
+
+      return '<div class="fcard fbcard kil-vid' + (isShort ? ' kv-short' : '') + '" data-pid="' + h(r.id) + '"'
+        + ' data-embed="' + h(vd.embed_url || '') + '" data-short="' + (isShort ? '1' : '0') + '" style="overflow:hidden">'
+        + '<div class="kil-vid-well" style="position:relative;aspect-ratio:' + wellRatio + ';' + wellCap + 'background:#000">'
+        +   '<img src="' + h(vd.img || vd.cover || '/v3/blog-default.jpg') + '" loading="lazy" alt="' + h(r.title || '') + '" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
+        +   '<span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">' + h((r.source_platform || 'VIDEO').toUpperCase()) + '</span>'
+        +   '<span class="kil-vid-play" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
+        +     '<span style="width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">'
+        +     '<span style="border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px"></span></span></span>'
+        + '</div>'
+        + '<div class="kv-body">'
+        +   '<a class="kv-title" href="' + h(vhref) + '" target="_blank" rel="noopener">' + h(r.title || 'Untitled') + '</a>'
+        +   engage
+        + '</div>'
+        + '</div>';
     }
     /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
     var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
@@ -778,6 +842,23 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m #community-feed,body.cul-m #feed{padding-left:0!important;padding-right:0!important}
   /* the tabs + subfilter row keep their own inset so they don't sit flush to the bezel */
   body.cul-m #culMTabs,body.cul-m .cul-typebar{padding-left:2%;padding-right:2%}
+  /* ── SWIPE UP / DOWN BETWEEN POSTS (Founder 2026-08-21) ────────────────────────────────
+     Built with CSS scroll-snap on the normal document scroll, NOT by re-enabling the pager.
+     The pager took every card out of the document and drove them itself, which is what
+     collapsed all 91 cards on top of each other on 2026-08-20. Snap points give the same
+     one-post-per-swipe feel while every card stays in normal flow, so if the CSS is ever
+     dropped the page degrades to an ordinary scrolling feed instead of breaking.
+     scroll-snap-stop:always is what makes a fast flick advance ONE post rather than five. */
+  body.cul-m #community-feed,body.cul-m #feed{
+    scroll-snap-type:y mandatory;overscroll-behavior-y:contain}
+  body.cul-m #community-feed>.fcard,body.cul-m #feed>.fcard{
+    scroll-snap-align:start;scroll-snap-stop:always;
+    min-height:calc(100dvh - var(--kil-bnav-h,62px) - env(safe-area-inset-top,0px) - 12px);
+    display:flex;flex-direction:column;justify-content:center;margin-bottom:12px}
+  /* A card taller than the viewport (a landscape video with its comments open) must be able to
+     scroll normally — snapping it would trap the bottom of the comment list off-screen. */
+  body.cul-m #community-feed>.fcard.cmt-open{scroll-snap-align:none;min-height:0;justify-content:flex-start}
+
   /* ── story card: media fills, nothing letterboxed away ──
      ⚠ EVERY RULE BELOW THAT TAKES A CHILD OUT OF NORMAL FLOW IS GATED ON .cul-fs, AND MUST STAY
      THAT WAY (Atlas, 2026-08-21 — this was the "culture page is broken" bug).
@@ -922,6 +1003,7 @@ function culMediaToRow(v){
       cover: v.thumbnail_url || '',
       embed_url: v.embed_url || '',
       source_url: v.source_url || '',
+      is_short: v.is_short === true,
       provider: v.provider,
       category: v.provider
     }
@@ -972,7 +1054,7 @@ function culFetchMedia(sb){
      than the only gate — but an unapproved or dead embed must never reach a surface even if a
      policy is later loosened. */
   return sb.from('videos')
-    .select('id,provider,media_kind,title,creator_name,creator_profile_url,source_url,embed_url,thumbnail_url,published_at,own_content')
+    .select('id,provider,media_kind,title,creator_name,creator_profile_url,source_url,embed_url,thumbnail_url,published_at,own_content,is_short')
     .eq('review_status','approved').eq('embed_status','active')
     .order('published_at',{ascending:false}).limit(100)
     .then(function(r){
@@ -1010,7 +1092,14 @@ window.culFetchMedia = culFetchMedia;
     var url = card.getAttribute('data-embed'); if(!url) return;
     var well = card.querySelector('.kil-vid-well'); if(!well || well.querySelector('iframe')) return;
     var f = document.createElement('iframe');
-    f.src = url + (url.indexOf('?')>-1?'&':'?') + 'autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1';
+    /* VOLUME 50% (Founder 2026-08-21). The iframe MUST still start muted — every browser blocks
+       autoplay with sound, and an unmuted attempt does not fall back, it just never plays.
+       enablejsapi=1 lets us postMessage unMute + setVolume(50) the moment sound is actually
+       allowed, which is the first real user gesture on the page. If the visitor never taps, the
+       video keeps playing silently rather than not playing at all. */
+    f.src = url + (url.indexOf('?')>-1?'&':'?')
+          + 'autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin='
+          + encodeURIComponent(location.origin);
     f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
     f.setAttribute('allowfullscreen','');
     f.setAttribute('loading','lazy');
@@ -1018,7 +1107,38 @@ window.culFetchMedia = culFetchMedia;
     var img = well.querySelector('img'); if(img) img.style.display='none';
     var ov = well.querySelector('.kil-vid-play'); if(ov) ov.style.display='none';
     well.appendChild(f);
+    /* YouTube ignores commands sent before the player is ready, so wait for load and then
+       retry a couple of times — a single fire-and-forget postMessage is silently dropped
+       often enough that the volume would appear not to work at all. */
+    f.addEventListener('load', function(){ applyVolume(f); });
   }
+
+  var VOLUME = 50;
+  function ytCmd(frame, func, args){
+    try{
+      frame.contentWindow.postMessage(JSON.stringify({event:'command', func:func, args:args||[]}), '*');
+    }catch(e){}
+  }
+  function applyVolume(frame){
+    if(!frame) return;
+    var tries = 0;
+    (function push(){
+      ytCmd(frame,'setVolume',[VOLUME]);
+      if(window.__kilSoundOK) ytCmd(frame,'unMute',[]);
+      if(++tries < 4) setTimeout(push, 400);
+    })();
+  }
+  /* Sound becomes legal on the first real gesture. Record it, unmute whatever is playing, and
+     stop listening — this must not re-run on every tap for the life of the page. */
+  function armSound(){
+    if(window.__kilSoundOK) return;
+    window.__kilSoundOK = true;
+    var f = current && current.querySelector('iframe');
+    if(f) applyVolume(f);
+  }
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){
+    document.addEventListener(ev, armSound, {once:true, passive:true, capture:true});
+  });
 
   var io = new IntersectionObserver(function(entries){
     /* Pick the MOST visible card rather than the first to cross the line — on a fast scroll
@@ -1252,20 +1372,51 @@ function culResolveFilters(){
   function wall(){if(document.getElementById('kil-loginwall'))return true;var next=encodeURIComponent(location.pathname+location.search);var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kil-loginwall';ov.innerHTML='<div class="kil-modal" style="max-width:390px"><div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="__culCloseWall()">&times;</button></div><div class="kil-mb" style="padding:26px 22px;text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">&#128274;</div><p style="font-size:1rem;line-height:1.55;color:var(--ink,#e8e8f0);margin:0 0 20px">Create a free account to like, comment, reshare and save. Anyone can look around &mdash; you just need to be signed in to join in.</p><a href="/apply.html?next='+next+'" class="cmt-send" style="padding:12px 28px">Log in / Join &rarr;</a></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeWall();});return true;}
   function gate(){if(signedIn())return false;wall();return true;}
   function keyOf(x){ x=String(x); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x)) return x; return x.indexOf('cul:')===0?x:('cul:'+x); }
-  function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,resh:0,reshared:false,comments:0});}
+  function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,disliked:false,resh:0,reshared:false,comments:0});}
   function cq(k){return (window.CSS&&CSS.escape)?CSS.escape(k):k;}
-  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt');if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
+  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt'),ds=card.querySelector('.fba-dis'),kc=card.querySelector('.kv-cmt-n');if(ds)ds.classList.toggle('on',!!s.disliked);if(kc)kc.textContent=s.comments?String(s.comments):'';if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
   window.fbLike=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.liked){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);SB.from('post_likes').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.liked=true;s.likes++;paint(k);SB.from('post_likes').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);}});}};
   window.fbReshareL=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.reshared){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);toast('Reshare removed');SB.from('post_reshares').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.reshared=true;s.resh++;paint(k);toast('Reshared ✓');SB.from('post_reshares').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);}});}};
   window.fbSaveL=function(k,el){if(gate())return;k=keyOf(k);var on=el.classList.toggle('on');try{var m=JSON.parse(localStorage.getItem('kil-saves')||'{}');m[k]=on?1:0;localStorage.setItem('kil-saves',JSON.stringify(m));}catch(e){}toast(on?'Saved ✓':'Removed from saved');};
   window.fbShare=function(u){if(gate())return;try{if(navigator.share){navigator.share({url:u});return;}}catch(e){}try{navigator.clipboard.writeText(u);toast('Link copied ✓');}catch(e){prompt('Copy link:',u);}};
   function closeM(){var m=document.getElementById('culModal');if(m)m.remove();}
   window.__culCloseM=closeM;
+  /* DISLIKE (Founder 2026-08-21). Stored in post_likes with sentiment='dislike' rather than a
+     separate table, because like and dislike are mutually exclusive for one user on one post —
+     one row, one uniqueness rule, and no way to hold both at once. Switching sides is an
+     UPDATE, so the like count drops as the dislike count rises in a single write. */
+  window.culDislike = function(k, el){
+    k = keyOf(k);
+    if(gate()) return;
+    if(!SB) return;
+    var s = pst(k), uid = SES.user.id;
+    var wasDisliked = !!s.disliked;
+    if(wasDisliked){
+      s.disliked = false; paint(k);
+      SB.from('post_likes').delete().eq('post_key',k).eq('user_id',uid).then(function(){});
+      return;
+    }
+    /* Taking the dislike side clears the like locally BEFORE the round trip so the two buttons
+       are never both lit while the write is in flight. */
+    if(s.liked){ s.liked=false; s.likes=Math.max(0,s.likes-1); }
+    s.disliked = true; paint(k);
+    SB.from('post_likes')
+      .upsert({post_key:k, profile_slug:'culture', user_id:uid, sentiment:'dislike'},
+              {onConflict:'post_key,user_id'})
+      .then(function(r){
+        if(r && r.error){ s.disliked=false; paint(k); toast('Could not save'); }
+      });
+  };
+
   /* INLINE comments — open inside the post, not a popup */
   window.culComments=function(slug, btn){ var k=keyOf(slug); if(!SB){toast('Loading…');return;}
     var card=btn?btn.closest('.fbcard'):null; if(!card)return;
     var box=card.querySelector('.fb-comments'); if(!box){ box=document.createElement('div'); box.className='fb-comments'; card.appendChild(box); }
     var open=box.style.display!=='block'; box.style.display=open?'block':'none';
+    /* Tell the snap layout this card is now taller than the viewport, so it stops snapping and
+       the bottom of the comment list stays reachable (see body.cul-m .fcard.cmt-open). */
+    card.classList.toggle('cmt-open', open);
+    var chev=card.querySelector('.kv-chev'); if(chev) chev.style.transform=open?'rotate(180deg)':'';
     if(open && !box.getAttribute('data-mounted')){ box.setAttribute('data-mounted','1');
       box.innerHTML='<div class="cmt-list" data-cl="'+k+'"><div class="cmt-empty">Loading…</div></div><div class="cmt-foot">'+(signedIn()?'<input class="cmt-in" placeholder="Write a comment…" maxlength="2000" onkeydown="if(event.key===\'Enter\'){event.preventDefault();__culSend(\''+k+'\',this);}"><button class="cmt-send" onclick="__culSend(\''+k+'\',this.previousElementSibling)">Post</button>':'<a href="/apply.html" class="cmt-send" style="width:100%;text-align:center">Log in to comment</a>')+'</div>';
       loadC(k); }
@@ -1273,7 +1424,7 @@ function culResolveFilters(){
   function loadC(k){var host=document.querySelector('.cmt-list[data-cl="'+cq(k)+'"]');if(!host)return;SB.from('post_comments').select('*').eq('post_key',k).order('created_at',{ascending:true}).then(function(r){var rows=(r&&r.data)||[];var s=pst(k);s.comments=rows.length;paint(k);if(!rows.length){host.innerHTML='<div class="cmt-empty">No comments yet — be the first.</div>';return;}var uid=SES&&SES.user?SES.user.id:null;host.innerHTML=rows.map(function(c){var canDel=uid&&c.user_id===uid;return '<div class="cmt"><img class="cmt-av" src="'+esc(c.author_avatar||'/icon-192.png')+'" onerror="this.src=\'/icon-192.png\'"><div class="cmt-body"><b>'+esc(c.author_name||'User')+'</b><p>'+esc(c.body)+'</p></div>'+(canDel?'<button class="cmt-del" onclick="__culDel(\''+c.id+'\',\''+k+'\')">&times;</button>':'')+'</div>';}).join('');});}
   window.__culSend=function(k,inp){if(!signedIn()){location.href='/apply.html';return;}if(!inp)return;var body=(inp.value||'').trim();if(!body)return;inp.disabled=true;SB.from('post_comments').insert({post_key:k,profile_slug:'culture',user_id:SES.user.id,author_name:meName(),author_avatar:meAvatar(),body:body}).then(function(r){inp.disabled=false;if(r&&r.error){toast('Could not post');return;}inp.value='';loadC(k);});};
   window.__culDel=function(id,k){SB.from('post_comments').delete().eq('id',id).then(function(){loadC(k);});};
-  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.likes++;if(uid&&x.user_id===uid)s.liked=true;}});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});SB.from('post_comments').select('post_key').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s)s.comments++;});keys.forEach(paint);}});}
+  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.disliked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id,sentiment').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(!s)return;var neg=(x.sentiment==='dislike');if(!neg)s.likes++;if(uid&&x.user_id===uid){ if(neg)s.disliked=true; else s.liked=true; }});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});SB.from('post_comments').select('post_key').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s)s.comments++;});keys.forEach(paint);}});}
   window.__culHydrate=hydrate;
   var _rf=window.renderFeed;if(typeof _rf==='function'){window.renderFeed=function(){_rf.apply(this,arguments);setTimeout(hydrate,30);};}
   (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
