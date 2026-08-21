@@ -303,3 +303,32 @@ test("every page with a flex-column body releases min-width on its children", ()
     );
   }
 });
+
+/**
+ * A centred wrapper inside a flex-column body must not size to its content.
+ *
+ * `margin:0 auto` is a CROSS-AXIS auto margin once body is a flex column, and a cross-axis auto
+ * margin cancels align-items:stretch. The wrapper then sizes to fit-content instead of the
+ * viewport. On /earn a flex-wrap:nowrap rail made fit-content 1120px inside a 375px viewport and
+ * body{overflow-x:hidden} clipped it in silence.
+ *
+ * min-width:0 does NOT fix this — it was measured on production still at 1120px afterwards. The
+ * property that fixes it is an explicit width:100%, which max-width:1120px still caps on desktop.
+ */
+test("a .wrap centred with auto margins declares an explicit width", () => {
+  const pages = pagesWithFlexBody();
+  let checked = 0;
+  for (const { path, src } of pages) {
+    for (const m of src.matchAll(/\.wrap\s*\{([^}]*)\}/g)) {
+      const body = m[1];
+      if (!/margin:\s*0 auto/.test(body)) continue;
+      checked++;
+      assert.match(
+        body, /width:\s*100%/,
+        `${path}: .wrap is centred with auto margins inside a flex-column body but declares no ` +
+        `width — it will size to fit-content and overflow the viewport, clipped silently`
+      );
+    }
+  }
+  assert.ok(checked > 0, "no centred .wrap found — the selector or the pages moved");
+});

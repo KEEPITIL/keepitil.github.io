@@ -30,7 +30,11 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 html.has-season body::before{display:none!important} /* seasonal image takes over the hero backdrop on its dates */
 :root{--brand:#a855f7;--brand-2:#c084fc;--glow:#a855f7} /* Culture = neon purple accent */
 /* layout */
-.wrap{max-width:1360px;margin:0 auto;padding:0 26px}
+/* width:100% is load-bearing: body is a flex column and `margin:0 auto` is a cross-axis
+   auto margin, which cancels align-items:stretch. Without it .wrap sizes to fit-content
+   — on /earn a flex-wrap:nowrap rail made that 1120px inside a 375px viewport, clipped
+   silently by body{overflow-x:hidden}. min-width:0 alone does NOT fix it. KODE 2026-08-21. */
+.wrap{width:100%;max-width:1360px;margin:0 auto;padding:0 26px}
 .chero-intro{min-height:calc(100vh - 132px);min-height:calc(100dvh - 132px);display:flex;align-items:flex-end;justify-content:center;padding:0 20px 42px}
 .chero-cue{display:flex;flex-direction:column;align-items:center;gap:7px;color:#fff;opacity:.82;text-shadow:0 2px 12px rgba(0,0,0,.55);cursor:pointer}
 .chero-cue span{font-family:var(--fh,inherit);font-size:.72rem;letter-spacing:.26em;font-weight:800}
