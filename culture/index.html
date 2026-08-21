@@ -403,7 +403,7 @@ function culSection(sec){
     feedEls.forEach(function(e){ if(e)e.style.display=''; });
     if(panel){ panel.style.display='none'; panel.innerHTML=''; }
     if(now)now.textContent='Feed';
-    if(window.matchMedia('(max-width:860px)').matches) document.body.classList.add('cul-fs'); /* full-screen scroll on mobile */
+    /* cul-fs (full-screen snap cards) belonged to the pager; without it the feed just scrolls. */
     if(typeof applyCulFilters==='function') applyCulFilters();
     return;
   }
@@ -495,7 +495,7 @@ function loadCulRelations(){
 }
 function setFeedMode(mode){feedMode=mode;var mm=document.getElementById('feedDDMenu');if(mm){[].forEach.call(mm.children,function(x){x.classList.toggle('on',x.dataset.m===mode);});mm.classList.remove('open');}var lbl=document.getElementById('feedNow');if(lbl)lbl.textContent=(mode==='following'?'Following':'All');renderFeed();}
 /* Full-screen one-item-per-screen scroll ON by default on mobile (Founder 2026-07-31) */
-try{ if(window.matchMedia('(max-width:860px)').matches) document.body.classList.add('cul-fs'); }catch(e){}
+/* cul-fs disabled with the pager 2026-08-20 — see mountCulturePager. */
 /* ── MOBILE swipe (Founder 2026-08-02): horizontal swipe cycles the subfilter (type) pages of the
    current section; if the current section has no subfilter bar, it cycles the EXPLORE pages. ── */
 (function(){
@@ -1089,7 +1089,15 @@ function culResolveFilters(){
   /* 1 — §D.2: Culture becomes a full-screen pager. The mobile tab row and the type bar are
      both replaced by the pager's locked single-filter header, so neither is built here any
      more. Radio is not a Culture filter — it is a global destination since K1. */
+  /* ── MOBILE PAGER RETIRED (Atlas 2026-08-20, after KODE Part C #3) ──────────────────────
+     Culture's ENTIRE mobile experience was this pager — its own comment says the tab row and
+     type bar "are not built here any more" because the pager's header replaced them. When the
+     pager was disabled site-wide (Founder: swipe must not change the page), mobile Culture was
+     left with no feed, no tabs and no scroll. KODE reproduced exactly that on an iPhone 17 Pro.
+     Mobile now uses the same normal scrolling feed as desktop: boot() renders #community-feed
+     and the page simply scrolls. */
   (function mountCulturePager(attempt){
+    return;
     attempt = attempt || 0;
     if(!window.KIL_PAGER){ if(attempt<40) setTimeout(function(){ mountCulturePager(attempt+1); }, 250); return; }
     /* Rows arrive from Supabase, so the first pass is usually empty. */
@@ -1186,7 +1194,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260821a" defer></script>
+<script src="/keepitil-shell.js?v=20260821b" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
