@@ -142,7 +142,13 @@
    + '#vs-app .cd-step{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.88rem;color:#c8cedb}'
    + '#vs-app .cd-step b{color:#8b95a3;font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}'
    /* competitions browser — month row + type row + card cover (Founder 2026-08-18) */
-   + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px}'
+      /* LOCKED TO THE TOP WHEN SCROLLING (Founder 2026-08-20), same as the homepage filter bar.
+      top:0 rather than an offset: the mobile shell has no fixed top bar, so an offset would
+      leave a transparent strip that cards scroll through. */
+   + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px;'
+   +   'position:sticky;top:0;z-index:70;background:rgba(10,10,15,.97);'
+   +   'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 6px}'
+   + '@media(min-width:861px){#vs-app .ce-bar{top:70px}}'
    + '#vs-app .ce-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'
    + '#vs-app .ce-row::-webkit-scrollbar{display:none}'
    + '#vs-app .ce-chip{flex:0 0 auto;height:30px;padding:0 11px;border-radius:5px;cursor:pointer;white-space:nowrap;'
@@ -651,12 +657,15 @@
 
     var html='<div class="ce-bar">'
       + '<div class="ce-row">'
-        + '<button class="ce-chip'+(CE_MONTH==='all'?' on':'')+'" data-m="all">ALL DATES</button>'
+        /* Founder 2026-08-20: "Remove ALL, just use DATE and TYPE." The reset chip keeps its
+           job — it clears the filter — but it is labelled for the axis it controls, not with a
+           second word that repeated what the row already was. */
+        + '<button class="ce-chip'+(CE_MONTH==='all'?' on':'')+'" data-m="all">DATE</button>'
         + mKeys.map(function(mk){ return '<button class="ce-chip'+(CE_MONTH===mk?' on':'')+'" data-m="'+mk+'">'
             + ceMonthLabel(mk)+' <i>'+months[mk]+'</i></button>'; }).join('')
       + '</div>'
       + '<div class="ce-row">'
-        + '<button class="ce-chip'+(CE_TYPE==='all'?' on':'')+'" data-t="all">ALL TYPES</button>'
+        + '<button class="ce-chip'+(CE_TYPE==='all'?' on':'')+'" data-t="all">TYPE</button>'
         + tKeys.map(function(t){ return '<button class="ce-chip'+(CE_TYPE===t?' on':'')+'" data-t="'+h(t)+'">'
             + h(t)+' <i>'+types[t]+'</i></button>'; }).join('')
       + '</div></div>';
