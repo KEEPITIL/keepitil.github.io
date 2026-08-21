@@ -701,8 +701,21 @@ renderTypebar();renderDiscover();renderFeed();
           window.__culMerged = merged;
           if(typeof applyCulFilters==='function' && (window.__culSignedIn)){
             try{ if(typeof loadCulRelations==='function') loadCulRelations(); }catch(e){}
-            applyCulFilters();
+            try{ applyCulFilters(); }catch(e){ console.error('[culture] applyCulFilters threw', e); }
           } else { window.__culRenderRows(merged); }
+          /* SELF-HEAL — Founder 2026-08-20: "the culture page has no content. its empty."
+             The signed-in path routes through applyCulFilters(), and if any filter in that chain
+             yields nothing (or something later re-renders over it) the page goes blank while the
+             data sits in memory — 120 rows loaded, 0 shown. An empty feed with rows available is
+             ALWAYS a bug, never a legitimate state, so render them directly rather than leave a
+             visitor staring at nothing. */
+          try{
+            var box=document.getElementById('community-feed');
+            if(merged.length && box && box.children.length===0){
+              console.warn('[culture] feed rendered empty with '+merged.length+' rows — forcing direct render');
+              window.__culRenderRows(merged);
+            }
+          }catch(e){ console.error('[culture] repaint guard failed', e); }
         }
         /* Paint the feed immediately, then repaint once media arrives — a slow videos query must
            never delay the text feed, and must never blank it if it fails. */
@@ -724,7 +737,7 @@ renderTypebar();renderDiscover();renderFeed();
             console.error('[culture] media load failed', e);
           });
         })(0);
-      }).catch(function(){});
+      }).catch(function(e){ console.error('[culture] feed boot failed', e); });
     }
     try{ sb.rpc('my_profile_slug').then(function(rr){ run(rr&&!rr.error&&rr.data?rr.data:null); }).catch(function(){ run(null); }); }catch(e){ run(null); }
   }
