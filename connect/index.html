@@ -61,7 +61,16 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .stat b{font-family:var(--fh);font-size:1.8rem;letter-spacing:.02em;}
 .stat span{display:block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-top:-2px;}
 .stat.artist b{color:var(--artist);}.stat.brand b{color:var(--brand);}.stat.organizer b{color:var(--organizer);}.stat.venue b{color:var(--venue);}
-.controls{position:sticky;top:70px;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(14px);max-width:1360px;margin:20px auto 0;padding:12px 30px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
+/* FULL-BLEED AND OPAQUE (Founder 2026-08-21): "filling the entire top of the sheet ... no
+   background image visible above or behind it when scrolling."
+   It was a 1360px centred card at 90% opacity, so the backdrop showed through it AND down both
+   sides of it while the page scrolled underneath. The BAR now spans the viewport and is solid;
+   the CONTROLS inside it keep the page's 1360px measure so they still line up with the grid.
+   The top:-1px/border trick closes the hairline the browser leaves above a sticky element. */
+.controls{position:sticky;top:70px;z-index:100;background:#0b0b12;max-width:none;width:100%;
+  margin:20px 0 0;padding:12px 0;border-top:1px solid rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 10px 24px rgba(0,0,0,.45);}
+.controls-row,.subfilters{max-width:1360px;margin-left:auto;margin-right:auto;padding-left:30px;padding-right:30px;}
 .controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:4px;flex-wrap:wrap;}
 .seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s;}
@@ -83,7 +92,8 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .chip:hover{color:#fff;border-color:rgba(255,255,255,.3);}
 .chip.on{background:var(--cyan);color:#04222f;border-color:var(--cyan);}
 @media(max-width:768px){
-.controls{padding:10px 14px;max-width:100%;}
+.controls{padding:10px 0;max-width:none;margin-top:0;}
+.controls-row,.subfilters{padding-left:14px;padding-right:14px;}
 .controls-row{flex-direction:column;align-items:stretch;gap:8px;}
 .seg{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%;}
 .seg::-webkit-scrollbar{display:none;}
