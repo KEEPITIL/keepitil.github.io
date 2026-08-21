@@ -31,7 +31,17 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
 .sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em;text-shadow:0 2px 14px rgba(0,0,0,.5)}
 .sh .sub{color:#d5d9e6;font-size:.88rem;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 /* grids */
-.grid{display:grid;gap:12px}
+/* HOMEPAGE MODEL (Founder 2026-08-20: "needs to be setup like the homepage. Each section a
+   2:3 format card and carousel rows."): each section scrolls horizontally as a rail of 2:3
+   cards instead of stacking a grid. Same shape as #evx .evx-row on the homepage — 240px on
+   desktop, 160px on mobile, x-scroll only, scrollbar hidden. */
+.grid{display:flex;gap:15px;overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;
+  padding:4px 0 14px;scroll-snap-type:x proximity}
+.grid::-webkit-scrollbar{display:none}
+.grid>*{flex:0 0 240px;scroll-snap-align:start}
+.grid>.card{aspect-ratio:2/3;display:flex;flex-direction:column;overflow:hidden}
+@media(max-width:860px){ .grid{gap:10px} .grid>*{flex:0 0 160px} }
 .g-stations{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
 .g-cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
 .card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s;backdrop-filter:blur(10px);overflow:hidden}
@@ -394,7 +404,7 @@ renderStations(); renderPls();
 })();
 </script>
 
-<script src="/keepitil-pager.js?v=20260819q" defer></script>
+<script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script>
 /* ── §D.3 — Radio on the shared pager ──────────────────────────────────────────────────────
    CHANNEL · PLAYLIST · APP. The old `Feed | Radio | VS` switcher (#radMTabs) and the six-button
