@@ -11,12 +11,29 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--brand:#00e0a4;--neon:#00e0a4;--ink:#f4f2fb;--ink2:#aab2c5;--panel:rgba(16,16,24,.72);--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif}
-html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
+/* ⚠ THE COLOUR LIVES ON <html> ONLY — body MUST stay transparent (Atlas 2026-08-21).
+   This was `html,body{background:#0a0a0f}` and it made the backdrop image invisible even though
+   the file loaded and the rule applied. Painting order inside the root stacking context is:
+   html's background → negative-z-index children (body::before) → in-flow block backgrounds
+   (body). So an opaque background ON BODY paints straight over a `z-index:-2` ::before. When only
+   body has a background it is propagated to the canvas instead and body paints no box, which is
+   why /connect's backdrop always worked and this one never did. */
+html{background:#0a0a0f}
+/* overflow-x:clip, NOT hidden (Atlas 2026-08-21). `overflow-x:hidden` on body computes
+   overflow-y:auto, which turns BODY into a scroll container. position:sticky then resolves
+   against body instead of the viewport, and because the page actually scrolls on the
+   viewport the bar never sticks — the filter bars were correctly declared sticky and simply
+   could not work. `clip` clips the same overflow WITHOUT creating a scroll container, so
+   sticky resolves against the viewport again. `hidden` is kept first as the fallback for
+   anything that predates `clip`. */
+body{background:transparent;color:var(--ink);font-family:var(--fb);overflow-x:hidden;overflow-x:clip}
 /* image-forward backdrop (same model as home): default KEEPITIL image, seasonal image takes over on its dates */
 /* EARN backdrop (Founder 2026-08-21). Separate portrait file below 860px — the 16:9 art puts the
    sign centre-left, so `cover` on a phone crops to bare floor. Opacity .5 so the orange does not
    overwhelm the cards sitting on it. */
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/earn-hero.jpg?v=20260821') center/cover no-repeat;opacity:.5}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/earn-hero.jpg?v=20260821') center/cover no-repeat;opacity:1}
+/* One scrim, not a dimmed image — the art stays full strength and this holds text legible. */
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(10,10,15,.35),rgba(10,10,15,.72))}
 @media(max-width:860px){body::before{background-image:url('/v3/earn-hero-m.jpg?v=20260821')}}
 html.has-season body::before{display:none!important}
 body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* clear fixed shell nav + radio bar */
@@ -35,6 +52,22 @@ a{color:inherit;text-decoration:none}
 .hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
 .hero .live .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px var(--brand);animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.35}}
+/* ── filter bar, cloned from /connect (Founder 2026-08-21) ────────────────────────────
+   Sticky under the 70px shell nav on desktop, under the notch on mobile. This only works
+   because body is overflow-x:clip rather than hidden — see the note at the top of the file. */
+.controls{position:sticky;top:70px;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(14px);
+  max-width:1120px;margin:6px auto 0;padding:12px 16px;border-top:1px solid rgba(255,255,255,.05);
+  border-bottom:1px solid rgba(255,255,255,.05)}
+.controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:12px;padding:4px;flex-wrap:wrap}
+.seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s}
+.seg button:hover{color:#fff}
+.seg button.on{background:var(--brand);color:#053a2c}
+.search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:12px;padding:10px 16px}
+.search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--fb);font-size:.95rem;outline:none}
+.search input::placeholder{color:#6b6588}
+.count{font-size:.76rem;color:#6b6588;white-space:nowrap}
+@media(max-width:768px){#radCount{display:none!important}}
 /* section */
 section{padding:30px 0;border-top:1px solid var(--brd)}
 .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
@@ -139,6 +172,25 @@ footer{margin-top:auto}
   </div>
 </header>
 
+<!-- Filter bar cloned from /connect (Founder 2026-08-21: "the info and setup needs to clone how
+     the connect is setup for the info and filter"). Same markup and class names as Connect's
+     .controls so the two pages cannot drift apart. Sticky under the top nav. -->
+<div class="controls" id="radControls">
+  <div class="controls-row">
+    <div class="seg" id="radSeg">
+      <button data-k="all" class="on">All</button>
+      <button data-k="stations">Stations</button>
+      <button data-k="playlists">Playlists</button>
+      <button data-k="earn">Earn</button>
+    </div>
+    <div class="search">
+      <span aria-hidden="true">&#128269;</span>
+      <input id="radQ" type="search" placeholder="Search stations by genre…" autocomplete="off">
+    </div>
+    <span class="count" id="radCount"></span>
+  </div>
+</div>
+
 <main class="wrap">
 
 <!-- STATIONS -->
@@ -207,7 +259,12 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 @media(max-width:860px){
   /* subpage tabs — Radio active, teal accent */
   /* the shell reserves top-nav space even though it hides the bar ≤860px — reclaim it here only */
-  body.rad-m{padding-top:0!important;margin-top:0!important}
+  /* Was padding-top:0 — correct for the missing top nav, wrong for the notch. With
+     viewport-fit=cover and a black-translucent status bar the page starts UNDER the clock and
+     battery, so the EARN title was clipped off the top and the page looked pre-scrolled
+     (Founder 2026-08-21: "default scrolled too high and i can not see the top").
+     The status bar has no fixed height — env() is the only correct value. */
+  body.rad-m{padding-top:env(safe-area-inset-top,0px)!important;margin-top:0!important}
   #radMTabs{position:sticky;top:0;z-index:70;display:flex;gap:6px;height:38px;align-items:center;
     padding:0 2%;background:#0a0a0f;margin:0 0 4px}
   #radMTabs button{flex:1 1 0;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.14);
@@ -229,6 +286,12 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 20px}
   /* The hero used to be hidden on mobile because it was a wall of prose. It is now the stat row,
      which is the point of the header — so it stays, compacted (Founder 2026-08-21). */
+  body.rad-m .controls{top:env(safe-area-inset-top,0px);padding:10px 14px;max-width:100%;margin-top:0}
+  body.rad-m .controls-row{flex-direction:column;align-items:stretch;gap:8px}
+  body.rad-m .seg{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%}
+  body.rad-m .seg::-webkit-scrollbar{display:none}
+  body.rad-m .seg button{flex:0 0 auto;white-space:nowrap}
+  body.rad-m .search{width:100%;min-width:0}
   body.rad-m .hero{display:block;padding:4px 0 14px}
   body.rad-m .hero h1{font-size:2.2rem}
   body.rad-m .hero .stats{margin-top:10px}
@@ -434,6 +497,56 @@ function radStats(){
 radStats();
 /* re-count after a playlist is added or removed */
 (function(){ var _s=savePls; savePls=function(a){ _s(a); try{ radStats(); }catch(e){} }; })();
+
+/* ── filter bar behaviour, cloned from /connect (Founder 2026-08-21) ────────────────────
+   Segments show/hide whole sections; the search filters station cards by genre name. The
+   two are independent — searching does not silently switch you to a section you did not
+   pick, and picking a section does not clear what you typed. */
+(function(){
+  var SEC={stations:'stations',playlists:'playlists',earn:'earn'};
+  var seg=document.getElementById('radSeg'), q=document.getElementById('radQ'),
+      cnt=document.getElementById('radCount');
+  if(!seg) return;
+  var key='all';
+
+  function apply(){
+    var term=((q&&q.value)||'').trim().toLowerCase();
+    Object.keys(SEC).forEach(function(k){
+      var sec=document.getElementById(SEC[k]);
+      if(sec) sec.style.display=(key==='all'||key===k)?'':'none';
+    });
+    var shown=0, total=0;
+    [].forEach.call(document.querySelectorAll('#stationGrid > *'),function(card){
+      total++;
+      var name=(card.textContent||'').toLowerCase();
+      var hit=!term || name.indexOf(term)>-1;
+      card.style.display=hit?'':'none';
+      if(hit) shown++;
+    });
+    /* An active search that matches nothing must SAY so — a silently empty rail is
+       indistinguishable from a broken one. */
+    var grid=document.getElementById('stationGrid');
+    if(grid){
+      var msg=document.getElementById('radNoHits');
+      if(term && shown===0){
+        if(!msg){ msg=document.createElement('div'); msg.id='radNoHits'; msg.className='disc';
+          msg.style.cssText='flex:1 1 100%;padding:14px 2px'; grid.appendChild(msg); }
+        msg.textContent='No station matches “'+term+'”. '+total+' stations available.';
+        msg.style.display='';
+      } else if(msg){ msg.style.display='none'; }
+    }
+    if(cnt) cnt.textContent = term ? (shown+' of '+total+' stations') : (total+' stations');
+  }
+
+  seg.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-k]'); if(!b) return;
+    key=b.dataset.k;
+    [].forEach.call(seg.querySelectorAll('button'),function(x){ x.classList.toggle('on',x===b); });
+    apply();
+  });
+  if(q) q.addEventListener('input',apply);
+  apply();
+})();
 /* Decorate each section: single-row carousel by default + a down-arrow to expand into the full grid (Founder 2026-08-04) */
 (function(){
   [].forEach.call(document.querySelectorAll('main > section'), function(sec){
