@@ -703,8 +703,6 @@ window.KIL_FILTER_BADGES = function(badges){
   #tab-tagged .pfe-price{font:800 .7rem Inter,sans-serif;color:#fff;white-space:nowrap}
   #tab-tagged .pfe-cta{font:800 .54rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#06120a;
     background:#00ff88;padding:6px 11px;border-radius:5px;white-space:nowrap;flex-shrink:0}
-  #tab-tagged .pfe-sub{width:100%;margin-top:8px;background:#ff5c8a;color:#1a0410;border:0;border-radius:9px;
-    padding:9px;font-weight:800;font-size:.78rem;cursor:pointer}
   #tab-tagged .pfe-head{font:800 .7rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;
     color:var(--muted,#9aa);margin:0 0 10px}
   </style>
@@ -2605,7 +2603,6 @@ function loadMyEntries(){
     var esc=function(v){return String(v==null?'':v).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
     box.innerHTML='<div class="pfe-head">Competition entries</div><div class="pfe-grid">'
       + rows.map(function(x){
-        var canSubmit = x.status==='draft' && (x.entitlement===true || x.payment_status==='paid' || x.payment_status==='comped');
         var img = x.thumb_url || '';
         /* Same two-copy trick as the homepage: blurred fill behind, real art contained on top,
            so an entry whose cover is not 2:3 is never centre-cropped. */
@@ -2626,20 +2623,11 @@ function loadMyEntries(){
           +       '<span class="pfe-cta">View</span></div>'
           +   '</div>'
           + '</a>'
-          /* Submit sits OUTSIDE the anchor — inside it, every tap would navigate instead of
-             submitting, and this is the control that turns a paid entry into a real one. */
-          + (canSubmit ? '<button type="button" class="pfe-sub" data-psubmit="'+x.entry_id+'">Submit for review</button>' : '')
           + '</div>';
       }).join('') + '</div>';
-    [].forEach.call(box.querySelectorAll('[data-psubmit]'), function(b){
-      b.onclick=function(){
-        var id=Number(b.dataset.psubmit); b.disabled=true; b.textContent='Submitting…';
-        SB.rpc('vs_submit_entry',{p_entry:id,p_terms_version:'create-2026-q4-v1'})
-          .then(function(sr){ if(sr&&sr.error) throw sr.error; loadMyEntries(); })
-          .catch(function(e){ b.disabled=false; b.textContent='Submit for review';
-            alert('Could not submit: '+(e&&e.message?e.message:e)); });
-      };
-    });
+    /* No submit control here by design (Founder 2026-08-19). Completing an entry submits it —
+       vs_fulfill_entry_payment advances draft → submitted when the entry is confirmed. Asking an
+       entrant to submit work they already submitted is a step that should not exist. */
   }).catch(function(e){ console.error('[profile] vs_my_entries threw', e); });
 }
 
