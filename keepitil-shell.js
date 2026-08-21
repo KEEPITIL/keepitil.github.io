@@ -1020,8 +1020,11 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        there is nothing after it. */
     +'@media(max-width:860px){'
     +  'body{padding-bottom:0!important}'
-    +  '#v3-footer{margin-top:32px;margin-bottom:0;'
-    +    'padding-bottom:calc(40px + var(--kil-bnav-h,56px) + env(safe-area-inset-bottom,0px))}'
+    /* Clearance trimmed 2026-08-20: 40px of padding ON TOP of the 56px nav and the safe area
+       read as a large empty band under the footer. The nav still needs clearing — that part is
+       not optional — but the extra 40 was arbitrary. 12px is enough to breathe. */
+    +  '#v3-footer{margin-top:24px;margin-bottom:0;padding-top:24px;'
+    +    'padding-bottom:calc(12px + var(--kil-bnav-h,56px) + env(safe-area-inset-bottom,0px))}'
     +'}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
