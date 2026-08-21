@@ -778,22 +778,31 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m #community-feed,body.cul-m #feed{padding-left:0!important;padding-right:0!important}
   /* the tabs + subfilter row keep their own inset so they don't sit flush to the bezel */
   body.cul-m #culMTabs,body.cul-m .cul-typebar{padding-left:2%;padding-right:2%}
-  /* ── story card: media fills, nothing letterboxed away ── */
+  /* ── story card: media fills, nothing letterboxed away ──
+     ⚠ EVERY RULE BELOW THAT TAKES A CHILD OUT OF NORMAL FLOW IS GATED ON .cul-fs, AND MUST STAY
+     THAT WAY (Atlas, 2026-08-21 — this was the "culture page is broken" bug).
+     The card-height rule was already `.cul-m.cul-fs`, but the CHILD rules (fb-head, fb-media,
+     ::after, fb-actions, fb-cap) were only `.cul-m`. When cul-fs was switched off with the pager,
+     the card kept no height — its only in-flow child was absolutely positioned — so all 91 cards
+     collapsed to ~0px and stacked on top of each other. On screen that read as duplicated action
+     buttons and garbled overlapping headers, which looks like a double render and is not one.
+     Card height and absolutely-positioned children are ONE layout. Gate them together or not
+     at all. */
   body.cul-m.cul-fs #community-feed>.fcard, body.cul-m.cul-fs #feed>.fcard{
     position:relative;min-height:calc(100dvh - 150px);border-radius:14px;overflow:hidden;
     display:block;padding:0;margin:0 0 10px}
-  body.cul-m .fcard .fb-head{position:absolute;top:8px;left:8px;right:56px;z-index:4;
+  body.cul-m.cul-fs .fcard .fb-head{position:absolute;top:8px;left:8px;right:56px;z-index:4;
     background:linear-gradient(180deg,rgba(0,0,0,.55),transparent);border:0;padding:6px 8px;border-radius:10px}
-  body.cul-m .fcard .fb-media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto!important;
+  body.cul-m.cul-fs .fcard .fb-media{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto!important;
     background-size:cover!important;background-position:center!important;background-repeat:no-repeat;border-radius:14px}
-  body.cul-m .fcard .fb-caro,body.cul-m .fcard .fb-caro>*{height:100%!important}
+  body.cul-m.cul-fs .fcard .fb-caro,body.cul-m.cul-fs .fcard .fb-caro>*{height:100%!important}
   /* MOBILE ONLY: the story format fills the screen. This intentionally overrides the older
      desktop "show the ENTIRE upload" letterbox rule (object-fit:contain), which still applies
      above 860px — hence the !important, which is load-bearing here, not decoration. */
-  body.cul-m .fcard .fb-media img,body.cul-m .fcard .fb-media video{
+  body.cul-m.cul-fs .fcard .fb-media img,body.cul-m.cul-fs .fcard .fb-media video{
     width:100%!important;height:100%!important;object-fit:cover!important;max-height:none!important}
   /* readability scrim behind the caption */
-  body.cul-m .fcard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;
+  body.cul-m.cul-fs .fcard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;
     background:linear-gradient(180deg,transparent,rgba(0,0,0,.82));pointer-events:none;z-index:2}
 
   /* ── ONE RAIL, NEVER TWO (§I3, 2026-08-15) ────────────────────────────────────────────────
@@ -809,7 +818,7 @@ renderTypebar();renderDiscover();renderFeed();
   /* ── vertical action rail: right edge, 6 icons, spread from ~40% height to just above nav ── */
   /* locked values (302x600 frame): rail 44 wide, right ~13px, icons 30px, gap 4px,
      starting ~40% of SCREEN height — 34% of the CARD, since the card starts below the nav. */
-  body.cul-m .fcard .fb-actions{position:absolute;right:3%;top:34%;bottom:20px;width:44px;z-index:6;
+  body.cul-m.cul-fs .fcard .fb-actions{position:absolute;right:3%;top:34%;bottom:20px;width:44px;z-index:6;
     display:flex;flex-direction:column;align-items:center;justify-content:space-between;
     gap:4px;padding:0;background:none;border:0}
   body.cul-m .fcard .fb-actions .fba{width:34px;height:34px;min-width:0;border-radius:50%;
@@ -820,7 +829,7 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m .fcard .fb-actions .fba.on{color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff)}
 
   /* ── description: bottom-anchored, ~77% wide, ...more expands upward ── */
-  body.cul-m .fcard .fb-cap{position:absolute;left:2%;width:84%;bottom:20px;z-index:5;
+  body.cul-m.cul-fs .fcard .fb-cap{position:absolute;left:2%;width:84%;bottom:20px;z-index:5;
     max-height:96px;overflow:hidden;background:none;border:0;padding:0;color:#fff;
     font-family:var(--fb,Inter),system-ui,sans-serif!important;font-size:.78rem!important;
     line-height:1.35;transition:max-height .22s ease}
