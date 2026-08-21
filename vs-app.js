@@ -162,8 +162,9 @@
       top:0 rather than an offset: the mobile shell has no fixed top bar, so an offset would
       leave a transparent strip that cards scroll through. */
    + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px;'
-   +   'position:sticky;top:0;z-index:70;background:rgba(10,10,15,.97);'
-   +   'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 6px}'
+   +   'position:sticky;top:env(safe-area-inset-top,0px);z-index:70;background:rgba(10,10,15,.97);'
+   +   'padding-top:calc(8px + env(safe-area-inset-top,0px));'
+   +   'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-bottom:6px}'
    + '@media(min-width:861px){#vs-app .ce-bar{top:70px}}'
    + '#vs-app .ce-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'
    + '#vs-app .ce-row::-webkit-scrollbar{display:none}'
