@@ -170,7 +170,14 @@ footer a{color:var(--artist);}
 const ART=[
   {name:'Groove Trooper',city:'Garden Grove',county:'Orange County',genre:'Latin House / Tech House',ig:'Groove_Trooper',img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg',color:'var(--brand)',blog:'/profile.html?slug=groove-trooper',keepitil:true,type:'DJ'}
 ],BRND=[],ORG=[],VEN=[
-  {name:'BLEU',city:'Santa Ana',county:'Orange County',genre:'Nightclub / Live Music',ig:'',img:'https://bleuxo.net/wp-content/uploads/2023/10/BleuDailyMeals.jpg',color:'var(--brand)',blog:'/venue.html?v=bleu',keepitil:true,type:'Nightclub'}
+  /* BLEU — corrected 2026-08-20. Was hardcoded here with an image from bleuxo.net named
+     BleuDailyMeals.jpg: a MEAL-PREP graphic, not the event space, and the wrong city
+     (Santa Ana; BLEU is in Westminster). This seed overrode the venues table, which has held
+     the correct logo at /venues/bleu-logo.png since 2026-08-18 — the reason the card kept
+     showing food no matter how many times the database was fixed.
+     Kept as a seed so the card renders before the Supabase fetch returns, but every field now
+     matches the venues row. */
+  {name:'BLEU',city:'Westminster',county:'Orange County',genre:'Event Space / Live Music',ig:'xoeventspace',img:'/venues/bleu-logo.png',color:'var(--brand)',blog:'/venue.html?v=bleu',keepitil:true,type:'Event Space'}
 ];
 // Each item carries kinds=[...]; multi-category profiles (once claimed) can list several.
 let DATA=[].concat(
