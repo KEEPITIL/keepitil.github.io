@@ -187,3 +187,79 @@ I cannot create accounts or handle secret values. These are yours:
   money for entries.
 - **Eventbrite showed 0 orders account-wide.** Ticket revenue is not flowing through the platform
   either. Separate problem, same conclusion: nothing has been sold through KEEPITIL yet.
+
+---
+
+# PART C — KODE: VERIFY THE MOBILE UI ON THE SIMULATOR
+
+**Atlas · 2026-08-20. Founder: "if you cant do it. have kode run it. create a directive for kode
+to verify the work on the phone simulator and ensure its accurate."**
+
+## Why this is being handed over
+
+Atlas cannot verify any of it. Browser resize leaves `innerWidth` at 1440, so every "mobile" check
+is really a desktop check, and a window resize this session reported success while the tab stayed
+at 1440. On top of that, Microsoft Clarity streams continuously, so `document_idle` is never
+reached and `get_page_text` / `find` time out unpredictably — sometimes the DOM tools work,
+sometimes they do not, on the same page seconds apart.
+
+The result: Atlas has shipped these fixes **code-verified only**. Each item below states exactly
+what was changed and what "correct" looks like. **Run each on the iOS simulator at a notched
+device size (iPhone 14/15 Pro or similar) — the safe-area behaviour cannot be reproduced on a
+non-notched frame.**
+
+## What changed, and the check for each
+
+**1. Sticky filters must clear the status bar.**
+`connect/index.html` `.controls` and `vs-app.js` `#vs-app .ce-bar` were `top:0`, which parks them
+under the clock/battery in standalone mode. Both now use `top:env(safe-area-inset-top,0px)` plus
+matching top padding.
+CHECK: scroll up on `/connect` and `/create`. The filter bar pins below the status bar, never
+under it. Test BOTH in Safari and as an installed PWA from the home screen — the inset is 0 in
+Safari and non-zero in standalone, so Safari alone will not catch a regression.
+
+**2. Footer gap.**
+`#v3-footer` clearance was `40px + bnav(56) + safe-area` ≈ 110px of empty background. Now
+`12px + bnav + safe-area`, `margin-top:24px`, `padding-top:24px`.
+CHECK: scroll to the bottom of `/connect` and `/create`. The footer background should end just
+below the links with the bottom nav clearing them — no large empty band. Confirm the bottom nav
+does not overlap the footer links.
+
+**3. Culture is empty.**
+Verified live by Atlas: `__culAllRows` = 20 rows loaded, `__culMerged` unset, `feedCards` = 0.
+Manually running the merge rendered 120 cards, so data and renderer are both fine — the signed-in
+path through `applyCulFilters()` was producing an empty render. Two silent `.catch(function(){})`
+swallows were removed, and a guard now force-renders when the feed is empty while rows exist.
+CHECK: load `/culture` signed in AND signed out. Content must appear in both. **Open the console
+— the guard logs `[culture] feed rendered empty with N rows — forcing direct render` when it
+fires. If that warning appears, the underlying filter bug is still there and the guard is only
+masking it; report the surrounding state rather than treating a populated feed as a pass.**
+
+**4. YouTube autoplay.**
+`culture/index.html` mounts a muted YouTube iframe for the most-visible `.kil-vid` card via
+IntersectionObserver at a 0.6 threshold, one player at a time, unmounting on exit and on tab hide.
+Muted is required — unmuted autoplay is blocked and fails silently to a black box.
+CHECK: scroll the Culture feed on the simulator. The video in view should start playing muted and
+stop when scrolled away. Confirm only ONE iframe exists in the DOM at any moment. Confirm memory
+does not climb as you scroll past many videos.
+
+**5. Earn must be rails, not a column.**
+Sections are accordions and `section.open .grid.rad-carou{display:grid}` reverted each rail to a
+stacked grid on open — the reported symptom. Now `display:flex` unconditionally; `.g-stations`
+children 160px, `.g-cards` 240px, cards `aspect-ratio:2/3`.
+CHECK: `/earn` on the simulator. Each section is ONE horizontally scrolling row of 2:3 cards, like
+the homepage. Opening/closing a section must not change it back to a column.
+
+**6. Swipe must do nothing, anywhere.**
+`KIL_PAGER.mount()` returns null. The pager WAS the swipe — two nested scroll-snap containers
+paging by filter and by item — so hiding its arrows previously left the gesture alive.
+CHECK: on `/culture`, `/create`, `/earn`: swiping left/right must not change filter or page;
+swiping up/down scrolls normally. Only tapping a filter button changes content. Also confirm
+`/create` still shows the "Enter a competition" button ON MOBILE — it is hidden on desktop only,
+and the pager used to be the mobile route in.
+
+## Reporting
+
+For each of the six: PASS/FAIL, the device and mode (Safari vs installed PWA), and a screenshot.
+For any FAIL, the console output — not a description. Do not fix and report as passing; Atlas
+needs to know which of these were wrong, because they were all shipped without on-device proof.
