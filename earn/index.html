@@ -192,9 +192,11 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
     border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#cfe6df;
     font:800 .7rem/1 var(--fh,Inter),sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
   #radMSecs button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
-  /* one section at a time on mobile; swipe cycles them */
-  body.rad-m main.wrap>section{display:none;border-top:0;padding:6px 0 20px}
-  body.rad-m main.wrap>section.rad-on{display:block}
+  /* all sections visible; the one-at-a-time filter was removed 2026-08-20 */
+  /* Every section renders and the page simply scrolls. With the filter bar gone, hiding
+     non-active sections would strand a mobile visitor on the first one with no way to reach
+     the others — removing the control means removing what the control was hiding. */
+  body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 20px}
   body.rad-m .hero{display:none}
   /* the desktop accordion collapses grids until .open — on mobile always show them */
   body.rad-m section .grid.rad-carou{display:grid!important;overflow:visible!important}
@@ -235,10 +237,13 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
      bar's offset both key off it; it just renders nothing. */
   var tabs = document.createElement('div'); tabs.id = 'radMTabs';
   tabs.innerHTML = '';
+  /* SECTION FILTER BAR REMOVED — Founder 2026-08-20: "the mobile earn page still has filters
+     swipe left and right. that needs to be removed."
+     The element stays in the DOM and renders nothing, exactly like #radMTabs above it: M1's
+     safe-area fix and the sticky offsets below both key off these two ids, so deleting the
+     nodes would move every section up under the status bar. Empty bar, no buttons, no swipe. */
   var secbar = document.createElement('div'); secbar.id = 'radMSecs';
-  secbar.innerHTML = SECS.map(function(s,i){
-    return '<button data-i="'+i+'" class="'+(i===0?'on':'')+'">'+s[1]+'</button>';
-  }).join('');
+  secbar.innerHTML = '';
   main.parentNode.insertBefore(tabs, main);
   main.parentNode.insertBefore(secbar, main);
 
@@ -268,13 +273,8 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }
   show(0, true);
 
-  /* swipe left/right cycles the section (ignores the carousel + player + controls) */
-  var x0=null, y0=null, t0=0;
-  document.addEventListener('touchstart', function(e){
-    var t = e.target;
-    if(t && t.closest && t.closest('#radMSecs,#kil-radio,input,textarea,select,button,a,.grid')){ x0=null; return; }
-    var tt = e.touches[0]; x0=tt.clientX; y0=tt.clientY; t0=Date.now();
-  }, {passive:true});
+  /* Swipe-to-cycle removed with the filter bar (Founder 2026-08-20). */
+
   document.addEventListener('touchend', function(e){
     if(x0==null) return;
     var tt=e.changedTouches[0], dx=tt.clientX-x0, dy=tt.clientY-y0, dt=Date.now()-t0; x0=null;
