@@ -103,6 +103,22 @@
    + /* Founder-locked 2026-08-19: 40px tall. Padding is overridden because .vs-cta's 13px
    vertical padding alone makes the button 44px — taller than the locked value. */
    + '#vs-app .cd-buy{width:100%;text-align:center;height:40px;padding:0 26px;border-radius:20px;display:flex;align-items:center;justify-content:center}'
+   /* Entry page: the submitted work sits in the locked flyer slot, and the vote actions take
+      the place the buy button occupies on an event page. Two-copy image trick again so a
+      submission that is not 2:3 is shown whole instead of centre-cropped. */
+   + '#vs-app .cd-flyer-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;'
+   +   'filter:blur(16px) brightness(.45) saturate(1.2);transform:scale(1.25);pointer-events:none}'
+   + '#vs-app .cd-flyer-im{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}'
+   + '#vs-app .cd-buyrow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;width:100%;margin-top:10px}'
+   + '#vs-app .cd-buyrow button{display:flex;flex-direction:column;align-items:center;gap:3px;'
+   +   'padding:9px 2px;border-radius:10px;border:1px solid var(--vsl);background:rgba(255,255,255,.04);'
+   +   'color:#cfd6e2;font:700 .55rem Inter,sans-serif;cursor:pointer}'
+   + '#vs-app .cd-buyrow button.on{background:rgba(0,180,255,.16);border-color:rgba(0,180,255,.5);color:#fff}'
+   + '#vs-app .cd-buyrow button:disabled{opacity:.45;cursor:default}'
+   + '#vs-app .cd-buyrow .em{font-size:1rem;line-height:1}'
+   /* The field grid inside the right column is denser than the browse grid — it sits in 2/3 of
+      the width, so 240px cards would show barely two across. */
+   + '#vs-app .cd-right .ce-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}'
    /* Measured 44px, not the 40 asked for: a global min-height:44px tap-target floor was winning.
       Released only where there is a mouse — on touch the 44px floor stays, because a 40px target
       is below the minimum comfortable tap size and this is the button that takes the money. */
@@ -289,6 +305,17 @@
     }catch(e){ go2(null); }
   });
 
+  /* ── ENTRY PAGE = COMPETITION PAGE TEMPLATE (Founder 2026-08-20) ─────────────────────────
+     Same two-column shell as renderComp(), with two substitutions:
+       LEFT  (locked, 1/3): the entrant's own submitted work in place of the competition flyer,
+                            with the vote actions pinned beneath it exactly where the buy button
+                            sits on an event page.
+       RIGHT (scrolls, 2/3): the entry's details, then the FEED of every other approved entry in
+                            the same competition — so a voter can work through the whole field
+                            without going back to a grid and losing their place.
+     Reuses the cd-* classes rather than inventing a parallel set: the locked-column behaviour,
+     the scroll container and the mobile single-column collapse are already solved there, and a
+     second implementation would drift from it. */
   function renderEntry(id){
     busy('Loading entry…');
     Promise.all([
@@ -298,12 +325,10 @@
     ]).then(function(res){
       var e = res[0].data, totals = res[1].data || {}, prog = res[2].data || {};
       if(!e){ empty('Entry not found', 'It may have been withdrawn.'); return; }
-      /* UNAPPROVED ENTRIES ARE NOT PUBLIC (Founder 2026-08-19 launch proof).
-         This view rendered the full voting UI — "VOTING OPEN", Like/Comment/Repost/Share/Save —
-         for ANY entry id, including a draft that had never been submitted or reviewed. Anyone
-         with the id could see and vote on unmoderated content, and its votes would have counted.
-         The owner still gets to see their own entry, because they paid for it; nobody else does
-         until a human has approved it. */
+
+      /* UNAPPROVED ENTRIES ARE NOT PUBLIC. The owner sees their own; nobody else does until a
+         human approves it. Kept from the 2026-08-19 fix — this view used to render the full
+         voting UI for any id, including drafts. */
       var isOwner = !!(ME && e.creator_user_id && ME.id === e.creator_user_id);
       if(e.status !== 'approved'){
         if(!isOwner){
@@ -318,33 +343,35 @@
           + '<p>'+backToProfileBtn()+'</p></div>';
         return;
       }
-      var open = true;
-      return SB.from('vs_competitions').select('title,vote_display_mode,voting_closes_at,status,results_locked_at')
-        .eq('id', e.competition_id).maybeSingle().then(function(cr){
-          var c = cr.data || {};
-          open = c.status !== 'closed' && !c.results_locked_at &&
-                 (!c.voting_closes_at || new Date(c.voting_closes_at) > new Date());
-          var blind = c.vote_display_mode === 'blind' && open;
-          var used = prog.used || 0;
 
-          APP.innerHTML = navBar('feed')
-            + '<div class="vs-detail">'
-            + '<button class="vs-pill" data-nav="feed">‹ Back</button>'
-            /* no thumbnail = no giant empty block; a slim placeholder instead */
-            + (e.thumb_url
-                ? '<div class="big" style="background-image:url('+h(e.thumb_url)+')"></div>'
-                : '<div class="big nomedia"><span>No preview yet</span></div>')
-            + '<h2 class="vs-h">'+h(e.title)+'</h2>'
-            + '<div class="vs-meta">'+(e.creator_handle?('@'+h(e.creator_handle)+' · '):'')+h(c.title||'')
-            + ' · <span class="vs-pill '+(open?'ok':'')+'">'+(open?'Voting open':'Voting closed')+'</span></div>'
-            + (e.description ? '<p class="vs-note">'+h(e.description)+'</p>' : '')
-            + (e.creator_statement ? '<p class="vs-note"><b>Creator statement:</b> '+h(e.creator_statement)+'</p>' : '')
-            + (e.ai_disclosure ? '<p class="vs-note"><b>AI disclosure:</b> '+h(e.ai_disclosure)+'</p>' : '')
-            /* the user ALWAYS sees their own progress, even in blind mode */
-            + '<div class="vs-prog" id="vsProg">Your votes: '+used+' of 5 <small>'
-            + (ME ? 'each action counts once' : '— sign in to vote') + '</small></div>'
-            + '<div class="vs-votes" id="vsVotes">'
-            + ACTIONS.map(function(a){
+      return Promise.all([
+        SB.from('vs_competitions').select('id,title,vote_display_mode,voting_closes_at,status,results_locked_at')
+          .eq('id', e.competition_id).maybeSingle(),
+        /* The rest of the field. Approved only — the same gate the single entry passes. */
+        SB.from('vs_entries')
+          .select('id,title,thumb_url,creator_handle,status')
+          .eq('competition_id', e.competition_id).eq('status','approved')
+          .order('submitted_at', { ascending:false }).limit(60)
+      ]).then(function(rs){
+        var c = (rs[0] && rs[0].data) || {};
+        var field = ((rs[1] && rs[1].data) || []).filter(function(x){ return String(x.id) !== String(id); });
+        var open = c.status !== 'closed' && !c.results_locked_at &&
+                   (!c.voting_closes_at || new Date(c.voting_closes_at) > new Date());
+        var blind = c.vote_display_mode === 'blind' && open;
+        var used = prog.used || 0;
+
+        /* LEFT — the work itself, locked. Blurred backdrop + contained image so a submission
+           that is not 2:3 is shown whole rather than centre-cropped. */
+        var art = e.thumb_url
+          ? '<img class="cd-flyer-bg" src="'+h(e.thumb_url)+'" alt="" aria-hidden="true">'
+            + '<img class="cd-flyer-im" src="'+h(e.thumb_url)+'" alt="'+h(e.title||'')+'">'
+          : '<div class="cd-flyer-gen"><span class="cat">'+h(c.title||'CREATE')+'</span>'
+            + '<span class="ttl">'+h(e.title||'Untitled')+'</span></div>';
+
+        var left = '<div class="cd-stick">'
+          + '<div class="cd-flyer" style="position:relative;overflow:hidden">'+art+'</div>'
+          + '<div class="vs-votes cd-buyrow" id="vsVotes">'
+          +   ACTIONS.map(function(a){
                 var on = !!prog[a[0]];
                 return '<button data-a="'+a[0]+'" class="'+(on?'on':'')+'"'
                   + (!ME || !open ? ' disabled' : '')
@@ -352,18 +379,55 @@
                   + '<span class="em" aria-hidden="true">'+a[1]+'</span>'
                   + '<span>'+a[2]+(on?' ✓':'')+'</span></button>';
               }).join('')
-            + '</div>'
-            + '<div class="vs-note" id="vsTot">'
-            + (blind ? 'Totals are hidden until winners are announced.'
-                     : 'Total votes: <b>'+(totals.total||0)+'</b> — '
-                       + 'like '+(totals.like||0)+' · comment '+(totals.comment||0)+' · repost '+(totals.repost||0)
-                       + ' · share '+(totals.share||0)+' · save '+(totals.save||0))
-            + '</div>'
-            + '<p class="vs-note" style="margin-top:10px">Your first share counts as one permanent vote. Additional shares help the creator but do not add more votes.</p>'
-            + '</div>';
+          + '</div>'
+          + '<div class="vs-note" id="vsProg" style="text-align:center">Your votes: '+used+' of 5 · '
+          +   (ME ? 'each action counts once' : 'sign in to vote') + '</div>'
+          + '</div>';
 
-          bindVotes(id, open);
+        /* RIGHT — details, then the rest of the field. */
+        var right = ''
+          + '<div class="cd-org"><div class="av"></div><div><b>'+h(e.creator_handle?('@'+e.creator_handle):'Entrant')+'</b>'
+          +   '<div class="vs-note" style="margin:0">'+h(c.title||'')+'</div></div></div>'
+          + '<h1 class="cd-title">'+h(e.title||'Untitled')+'</h1>'
+          + '<div style="margin:0 0 12px"><span class="vs-pill '+(open?'ok':'')+'">'
+          +   (open?'Voting open':'Voting closed')+'</span></div>'
+          + (e.description ? '<div class="cd-sec"><h3>About this entry</h3><p>'+h(e.description)+'</p></div>' : '')
+          + (e.creator_statement ? '<div class="cd-sec"><h3>Creator statement</h3><p>'+h(e.creator_statement)+'</p></div>' : '')
+          + (e.tools ? '<div class="cd-sec"><h3>Tools</h3><p>'+h(e.tools)+'</p></div>' : '')
+          + (e.ai_disclosure ? '<div class="cd-sec"><h3>AI disclosure</h3><p>'+h(e.ai_disclosure)+'</p></div>' : '')
+          + '<div class="cd-sec"><h3>Votes</h3><p>'
+          +   (blind ? 'Totals are hidden until winners are announced.'
+                     : 'Total <b>'+(totals.total||0)+'</b> — like '+(totals.like||0)
+                       +' · comment '+(totals.comment||0)+' · repost '+(totals.repost||0)
+                       +' · share '+(totals.share||0)+' · save '+(totals.save||0))
+          + '</p></div>'
+          + '<div class="cd-sec"><h3>All submitted work'+(field.length?' ('+field.length+')':'')+'</h3>'
+          +   (field.length
+                ? '<div class="ce-grid">'+field.map(function(x){
+                     return '<div class="ce-fly" data-entry="'+x.id+'">'
+                       + (x.thumb_url
+                           ? '<img class="ce-fly-bg" src="'+h(x.thumb_url)+'" alt="" aria-hidden="true" loading="lazy">'
+                             +'<img class="ce-fly-img" src="'+h(x.thumb_url)+'" alt="'+h(x.title||'')+'" loading="lazy">'
+                           : '')
+                       + '<div class="ce-shade"></div>'
+                       + '<div class="ce-body"><div class="ce-title">'+h(x.title||'Untitled')+'</div>'
+                       +   '<div class="ce-meta">'+h(x.creator_handle?('@'+x.creator_handle):'')+'</div>'
+                       +   '<div class="ce-foot"><span class="ce-price"></span><span class="ce-cta">View</span></div>'
+                       + '</div></div>';
+                   }).join('')+'</div>'
+                : '<p>No other approved entries yet — this is the first.</p>')
+          + '</div>';
+
+        APP.innerHTML = navBar('feed')
+          + '<div style="max-width:1120px;margin:0 auto 10px">'+backToProfileBtn()+'</div>'
+          + '<div class="cd2"><div class="cd-left">'+left+'</div>'
+          + '<div class="cd-right">'+right+'</div></div>';
+
+        [].forEach.call(APP.querySelectorAll('[data-entry]'), function(el){
+          el.onclick = function(){ go({ view:'entry', e: el.dataset.entry }); };
         });
+        bindVotes(id, open);
+      });
     }).catch(err);
   }
 
