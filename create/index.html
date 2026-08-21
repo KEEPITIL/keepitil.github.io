@@ -14,11 +14,12 @@
 :root{--brand:#a855f7;--brand-2:#c084fc;--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fs:'Fraunces',serif}
 html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
 body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
-/* A flex item defaults to min-width:auto and will not shrink below its max-content width;
-   a flex-wrap:nowrap rail IS max-content. On /earn that pushed .wrap to 1120px inside a
-   375px viewport and body{overflow-x:hidden} clipped it silently. KODE 2026-08-21. */
-body>*{min-width:0}
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/culture-hero.jpg') center/cover no-repeat;opacity:.55}
+/* CREATE backdrop (Founder 2026-08-21). Two files, not one: the desktop art is 16:9 and its
+   subject sits centre-left, so on a 9:19.5 phone `cover` crops to a slice of empty floor and the
+   logo is gone. The portrait crop is a separate composition, switched at the shell's 860px
+   breakpoint. Opacity .5 keeps the pink from fighting the pink competition cards. */
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/create-hero.jpg?v=20260821') center/cover no-repeat;opacity:.5}
+@media(max-width:860px){body::before{background-image:url('/v3/create-hero-m.jpg?v=20260821')}}
 html.has-season body::before{display:none!important}/* seasonal image takes over on its dates */
 body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,15,.7),rgba(10,10,15,.92))}
 a{color:inherit;text-decoration:none}
@@ -97,20 +98,14 @@ footer a{color:var(--brand-2)}
      pager still carries all six views. -->
 <!-- desktop only: on mobile the pager already carries JOIN as its own filter, and two entry
      buttons on one screen is worse than none — it makes the primary action look uncertain. -->
-<!-- DESKTOP: hidden (Founder 2026-08-20: "remove the enter a competition button").
-     MOBILE: kept. The pager that used to carry JOIN on mobile is disabled site-wide now, so
-     hiding it there too would leave a phone with NO route into a competition — the same
-     failure the desktop rail removal caused in August. Desktop still has the competition
-     grid and every card links straight in, so nothing is lost there. -->
-<style>@media(min-width:861px){#vsJoinBar{display:none!important}}</style>
-<div id="vsJoinBar" style="max-width:1120px;margin:0 auto 6px;padding:0 16px;text-align:right">
-  <button type="button" onclick="window.vsGo&amp;&amp;window.vsGo('join')"
-    style="background:#ff5c8a;color:#1a0410;border:0;border-radius:10px;padding:11px 18px;font-weight:800;letter-spacing:.05em;font-size:.82rem;cursor:pointer">
-    Enter a competition &rarr;</button>
-</div>
+<!-- REMOVED 2026-08-21 (Founder). It was hidden on desktop on 2026-08-20 and kept on mobile on
+     the theory that the disabled pager left a phone with no route into a competition. That was
+     wrong: the default view IS the competition grid, and every card links straight in. On a phone
+     the button just sat alone under the last card, below the fold, looking like a stray control.
+     Both breakpoints now reach a competition the same way — by tapping the competition. -->
 
 <!-- universal shell: injects the KEEPITIL·CULTURE·SCENE·LOGIN nav + footer + radio bar (same on every page) -->
-<script src="/keepitil-shell.js?v=20260821b" defer></script>
+<script src="/keepitil-shell.js?v=20260821c" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260819a" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
@@ -118,7 +113,7 @@ footer a{color:var(--brand-2)}
 <!-- VS platform (KODE): Supabase client + the app that renders into #vs-app.
      vs-app.js defines the real window.vsFilter, replacing the placeholder hook. -->
 <script src="/v3/vendor/supabase-js.min.js"></script>
-<script src="/vs-app.js?v=20260821c"></script>
+<script src="/vs-app.js?v=20260821d"></script>
 <script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script>
 /* VS subpage view switch (Founder 2026-08-05): rail drives vs-app.js via window.vsGo(view).
