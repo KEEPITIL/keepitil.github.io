@@ -931,6 +931,19 @@ function culLoadMedia(){
   });
 }
 
+/* ── EXPOSED ON window (Founder 2026-08-20: "still no youtube feed") ──────────────────────────
+   THE ACTUAL BUG, and the reason three rounds of fixes changed nothing: culLoadMedia,
+   culFetchMedia, culAwaitSB and culMediaToRow are declared inside this IIFE — the "MOBILE
+   CULTURE enhancer" block — so they are function-scoped. boot(), which paints the feed, lives in
+   an EARLIER, separate <script> block and could never see them. Calling culLoadMedia() from
+   there threw a ReferenceError every time.
+   The data was right, RLS was right, the merge was right, the card renderer was right. The
+   function simply did not exist at the call site.
+   Exposing them makes the media loader reachable from the feed at any breakpoint. */
+window.culAwaitSB    = culAwaitSB;
+window.culLoadMedia  = culLoadMedia;
+window.culMediaToRow = culMediaToRow;
+
 function culFetchMedia(sb){
   window.__culMediaLoaded = true;
   /* RLS already restricts anon reads to approved + active, so this is defence in depth rather
@@ -946,6 +959,8 @@ function culFetchMedia(sb){
       return window.__culMediaRows;
     }).catch(function(){ return window.__culMediaRows; });
 }
+
+window.culFetchMedia = culFetchMedia;
 
 function culLiveRows(){
   var feed = (window.__culAllRows||[]).filter(function(x){ return !x.archived; });
