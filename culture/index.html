@@ -562,7 +562,7 @@ renderTypebar();renderDiscover();renderFeed();
 <script src="/v3/vendor/supabase-js.min.js" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260819a" defer></script>
-<script src="/keepitil-pager.js?v=20260819q" defer></script>
+<script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
 <script>
 /* COMMUNITY FEED (Founder doc step 4 + daily auto-post): profile_content posts — agents AND
@@ -632,16 +632,16 @@ renderTypebar();renderDiscover();renderFeed();
       var vd=r.data||{};
       var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
       var vhref=vd.source_url||'#';
-      return '<div class="fcard fbcard" data-pid="'+h(r.id)+'" style="overflow:hidden">'
+      return '<div class="fcard fbcard kil-vid" data-pid="'+h(r.id)+'" data-embed="'+h(vd.embed_url||'')+'" style="overflow:hidden">'
         +'<div class="fb-head"><div class="fb-head-l" style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
           +'<div class="fb-who"><b>'+h(r.author_name||'Unknown creator')+'</b>'
           +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(r.source_platform||'')+(vwhen?' · '+h(vwhen):'')+'</div></div></div></div>'
         +'<a href="'+h(vhref)+'" target="_blank" rel="noopener" style="text-decoration:none;display:block">'
-          +'<div style="position:relative;aspect-ratio:16/9;background:#0a0a0f">'
+          +'<div class="kil-vid-well" style="position:relative;aspect-ratio:16/9;background:#0a0a0f">'
             +'<img src="'+h(vd.img||vd.cover||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(r.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
             +'<span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+h((r.source_platform||'VIDEO').toUpperCase())+'</span>'
             /* Play affordance — a still frame with no marker reads as a photo. */
-            +'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
+            +'<span class="kil-vid-play" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
               +'<span style="width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">'
               +'<span style="border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px"></span></span></span>'
           +'</div>'
@@ -962,6 +962,65 @@ function culFetchMedia(sb){
 
 window.culFetchMedia = culFetchMedia;
 
+/* ── AUTOPLAY THE VIDEO IN VIEW (Founder 2026-08-20: "need videos to auto play on both desktop
+   and mobile") ─────────────────────────────────────────────────────────────────────────────
+   ONE player at a time, and only for the card actually on screen. Mounting an iframe per card
+   would start 120 YouTube players on a single scroll — the reason these were thumbnail-only in
+   the first place. An IntersectionObserver swaps the still for a real player when a card is
+   mostly visible and swaps it back when it leaves, so memory and network stay flat no matter
+   how far you scroll.
+   MUTED is not a style choice: every current browser blocks autoplay with sound, and an
+   unmuted attempt fails silently, leaving a dead black box. Muted autoplays everywhere. */
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  var current = null;
+
+  function stop(card){
+    if(!card) return;
+    var well = card.querySelector('.kil-vid-well'); if(!well) return;
+    var f = well.querySelector('iframe'); if(f) f.remove();
+    var img = well.querySelector('img'); if(img) img.style.display='block';
+    var ov = well.querySelector('.kil-vid-play'); if(ov) ov.style.display='';
+  }
+  function play(card){
+    if(!card || card === current) return;
+    stop(current); current = card;
+    var url = card.getAttribute('data-embed'); if(!url) return;
+    var well = card.querySelector('.kil-vid-well'); if(!well || well.querySelector('iframe')) return;
+    var f = document.createElement('iframe');
+    f.src = url + (url.indexOf('?')>-1?'&':'?') + 'autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1';
+    f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
+    f.setAttribute('allowfullscreen','');
+    f.setAttribute('loading','lazy');
+    f.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;display:block';
+    var img = well.querySelector('img'); if(img) img.style.display='none';
+    var ov = well.querySelector('.kil-vid-play'); if(ov) ov.style.display='none';
+    well.appendChild(f);
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    /* Pick the MOST visible card rather than the first to cross the line — on a fast scroll
+       several fire in one callback and the first is rarely the one being looked at. */
+    var best=null, bestRatio=0;
+    entries.forEach(function(en){
+      if(en.isIntersecting && en.intersectionRatio > bestRatio){ bestRatio=en.intersectionRatio; best=en.target; }
+      else if(!en.isIntersecting && en.target === current){ stop(current); current=null; }
+    });
+    if(best && bestRatio >= 0.6) play(best);
+  }, { threshold:[0, 0.6, 0.9] });
+
+  function scan(){
+    [].forEach.call(document.querySelectorAll('.kil-vid:not([data-vidobs])'), function(c){
+      c.setAttribute('data-vidobs','1'); io.observe(c);
+    });
+  }
+  /* The feed repaints (media arrives after the text feed), so observe new cards as they appear. */
+  if(document.readyState!=='loading') scan(); else document.addEventListener('DOMContentLoaded', scan);
+  new MutationObserver(scan).observe(document.documentElement, {childList:true, subtree:true});
+  /* Anything that leaves the tab should not keep a player running. */
+  document.addEventListener('visibilitychange', function(){ if(document.hidden){ stop(current); current=null; } });
+})();
+
 function culLiveRows(){
   var feed = (window.__culAllRows||[]).filter(function(x){ return !x.archived; });
   return feed.concat(window.__culMediaRows||[]);
@@ -1077,8 +1136,11 @@ function culResolveFilters(){
     }
   },true);
 
-  /* 3 — EVENT cards get a locked Buy button so it stays reachable above a long description */
+  /* 3 — REMOVED (Founder 2026-08-20: "the events pages has 2 buttons").
+     This appended a second BUY on top of the card's own "Get Tickets", so every mobile event
+     card carried two controls doing the same thing. The card button stays; this one goes. */
   function addBuy(){
+    return;
     if(!isMob()) return;
     [].forEach.call(document.querySelectorAll('.fcard.evpost'),function(c){
       if(c.querySelector('.cul-buy')) return;
