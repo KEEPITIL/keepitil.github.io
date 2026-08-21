@@ -163,7 +163,7 @@
       var _instr=function(){
         if(document.getElementById('kil-pwa-instr'))return;
         var steps=_ios
-          ? '1. Tap the <b>Share</b> icon <span style="font-size:1.1em">&#x2191;</span> at the bottom of Safari.<br>2. Scroll down and tap <b>Add to Home Screen</b>.<br>3. Tap <b>Add</b> — KEEPITIL lands on your home screen.'
+          ? '1. Tap the <b>&#8943;</b> menu in Safari, then <b>Share</b> <span style="font-size:1.1em">&#x2191;</span>. On older iOS the Share icon is in the bottom bar instead.<br>2. Scroll down and tap <b>Add to Home Screen</b>.<br>3. Tap <b>Add</b> — KEEPITIL lands on your home screen.'
           : '1. Open your browser menu <b>&#8942;</b> (top-right).<br>2. Tap <b>Install app</b> or <b>Add to Home screen</b>.<br>3. Confirm — KEEPITIL lands on your home screen.';
         var o=document.createElement('div'); o.id='kil-pwa-instr';
         o.style.cssText='position:fixed;inset:0;z-index:1200;background:rgba(4,6,12,.88);display:flex;align-items:center;justify-content:center;padding:24px;font-family:Inter,system-ui,sans-serif';
