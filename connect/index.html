@@ -117,7 +117,12 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .empty .big{font-family:var(--fh);font-size:1.7rem;letter-spacing:.06em;color:var(--ink2);}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 30px;text-align:center;color:var(--ink3);font-size:.82rem;}
 footer a{color:var(--artist);}
-@media(max-width:860px){.controls{top:0}}  /* mobile: no top bar */
+/* Founder 2026-08-20: "do not let it hide behind the clock, battery icon" — top:0 puts the
+   sticky bar under the iOS status bar in standalone/PWA mode. env(safe-area-inset-top) is the
+   height of that band, so the bar parks just below it on a notched phone and at 0 elsewhere. */
+@media(max-width:860px){
+  .controls{top:env(safe-area-inset-top,0px);padding-top:calc(10px + env(safe-area-inset-top,0px))}
+}
 </style>
 <link rel="canonical" href="https://keepitil.com/connect"/>
   <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
@@ -315,6 +320,6 @@ renderSubs();render();
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260819a" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
-<script src="/keepitil-shell.js?v=20260820b" defer></script>
+<script src="/keepitil-shell.js?v=20260821a" defer></script>
 </body>
 </html>
