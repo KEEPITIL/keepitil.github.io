@@ -103,6 +103,37 @@
    + /* Founder-locked 2026-08-19: 40px tall. Padding is overridden because .vs-cta's 13px
    vertical padding alone makes the button 44px — taller than the locked value. */
    + '#vs-app .cd-buy{width:100%;text-align:center;height:40px;padding:0 26px;border-radius:20px;display:flex;align-items:center;justify-content:center}'
+   /* ── SUBMIT PAGE (Founder 2026-08-21) ────────────────────────────────────────────
+      Same two-column shell as the competition and entry pages, with one exception: the left
+      column is NOT height-locked here. Two 2:3 upload slots plus a button do not fit in
+      100vh-216px, and locking it would clip the cover slot out of reach — the exact bug the
+      Founder reported on the competition page ("the top of the flyer is cut off"). */
+   + '@media(min-width:861px){'
+   +   '#vs-app .cd2-sub{height:auto;min-height:0;overflow:visible}'
+   +   '#vs-app .cd2-sub .cd-left,#vs-app .cd2-sub .cd-right{height:auto;overflow:visible}'
+   + '}'
+   + '#vs-app .sf-slot{display:flex;flex-direction:column;gap:7px}'
+   + '#vs-app .sf-cap{font:800 .7rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#9aa0b0}'
+   + '#vs-app .sf-cap b{color:#ff6b6b}'
+   + '#vs-app .sf-file{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}'
+   + '#vs-app .sf-drop{position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;'
+   +   'justify-content:center;border-style:dashed;transition:border-color .15s,background .15s}'
+   + '#vs-app .sf-drop:hover{border-color:var(--vsb);background:rgba(0,180,255,.06)}'
+   + '#vs-app .sf-drop.has{border-style:solid;background:#0a0a0f}'
+   + '#vs-app .sf-ph{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;padding:18px;color:#9aa0b0;font:600 .84rem Inter,sans-serif}'
+   + '#vs-app .sf-ph .ic{font-size:1.7rem;line-height:1;color:var(--vsb)}'
+   + '#vs-app .sf-ph small{font-weight:500;font-size:.72rem;color:#6f7686;line-height:1.35}'
+   + '#vs-app .sf-media{width:100%;height:100%;object-fit:contain;background:#000;display:block}'
+   + '#vs-app .sf-doc{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;text-align:center}'
+   + '#vs-app .sf-doc .ic{font-size:2.2rem;line-height:1}'
+   + '#vs-app .sf-doc b{font:700 .86rem Inter,sans-serif;color:#f0f0f0;word-break:break-all;line-height:1.35}'
+   + '#vs-app .sf-doc small{font:500 .72rem Inter,sans-serif;color:#6f7686}'
+   + '#vs-app .sf-doc audio{width:100%;margin-top:4px}'
+   + '#vs-app .sf-more{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.72);color:#cfd3df;'
+   +   'font:700 .68rem Inter,sans-serif;padding:3px 8px;border-radius:999px}'
+   + '#vs-app .sf-swap{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.72);color:#fff;'
+   +   'font:800 .66rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}'
+   + '#vs-app .sf-back{background:none;border:1px solid var(--vsl);cursor:pointer;margin-bottom:10px}'
    /* Entry page: the submitted work sits in the locked flyer slot, and the vote actions take
       the place the buy button occupies on an event page. Two-copy image trick again so a
       submission that is not 2:3 is shown whole instead of centre-cropped. */
@@ -947,45 +978,123 @@
       if(!comp){ empty('Not open for entries', 'This competition is closed or unavailable.'); return; }
       var paid = comp.entry_fee_cents > 0;
 
-      APP.innerHTML = navBar('enter')
-        + '<div class="vs-form">'
-        + '<button class="vs-pill" data-nav="enter">‹ All competitions</button>'
-        + '<h2 class="vs-h">'+h(comp.title)+'</h2>'
-        + '<p class="vs-note">'+h(comp.description || '')+'</p>'
-        + (comp.rules ? '<div><label>Rules</label><p class="vs-note">'+h(comp.rules)+'</p></div>' : '')
-        + (comp.requirements ? '<div><label>Requirements</label><p class="vs-note">'+h(comp.requirements)+'</p></div>' : '')
-        + '<div class="vs-note"><b>'+(paid ? 'Entry fee: $'+(comp.entry_fee_cents/100).toFixed(2) : 'Free to enter')+'</b>'
-        + (paid ? '<br>Payment allows you to submit an entry for review. Entries that violate competition rules may be rejected or disqualified according to the published event policy.' : '')
+      /* TEMPLATE (Founder 2026-08-21): the submit page now uses the same two-column shell as the
+         competition page and the entry page. LEFT = two upload slots (the work, then the cover).
+         RIGHT = the information section. The rules and requirements are NOT repeated here — the
+         competitor just read them on the competition page they clicked through from. */
+
+      /* LEFT — slot 1: the work itself. Preview is by file type: video and audio play in place,
+         an image shows, and a manuscript (Short Story) shows its file name, because there is
+         nothing to render and a blank grey box would read as a failed upload. */
+      var slotWork = '<div class="sf-slot">'
+        + '<div class="sf-cap">Your work <b id="sfWorkReq">*</b></div>'
+        + '<label class="cd-flyer sf-drop" id="sfWorkBox" for="sfWork">'
+        +   '<div class="sf-ph"><span class="ic">＋</span><span>Add your submission</span>'
+        +   '<small>Image, video, audio or manuscript · 500MB max</small></div>'
+        + '</label>'
+        + '<input id="sfWork" type="file" multiple class="sf-file" '
+        +   'accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.rtf,.txt,.md,.epub">'
+        + '</div>';
+
+      /* LEFT — slot 2: the cover. Separate from the work on purpose: a video or a manuscript has
+         no still image to show in the feed, and the competition rules require a 2:3 cover. */
+      var slotCover = '<div class="sf-slot">'
+        + '<div class="sf-cap">Cover image</div>'
+        + '<label class="cd-flyer sf-drop" id="sfCoverBox" for="sfCover">'
+        +   '<div class="sf-ph"><span class="ic">＋</span><span>Add a cover</span>'
+        +   '<small>2:3 image — how your entry appears in the feed</small></div>'
+        + '</label>'
+        + '<input id="sfCover" type="file" class="sf-file" accept="image/*">'
+        + '</div>';
+
+      var left = '<aside class="cd-left"><div class="cd-stick">'
+        + slotWork + slotCover
+        + '<button class="vs-cta cd-buy" id="eGo">'+(paid ? 'Continue to payment' : 'Submit entry')+'</button>'
+        + '<p class="vs-note" id="eMsg"></p>'
+        + '</div></aside>';
+
+      /* RIGHT — the information section. */
+      var right = '<div class="cd-right">'
+        + '<button type="button" class="vs-pill sf-back" id="sfBack">‹ Back</button>'
+        + '<h1 class="cd-title">'+h(comp.title)+'</h1>'
+        + '<div class="cd-pills">'
+        +   '<span class="vs-pill '+(paid?'':'ok')+'">'
+        +   (paid?('$'+(comp.entry_fee_cents/100).toFixed(2)+' entry'):'Free to enter')+'</span>'
+        +   (comp.submissions_close_at?'<span class="vs-pill warn">Closes '+h(fmtD(comp.submissions_close_at))+'</span>':'')
         + '</div>'
+        + '<div class="vs-form">'
         + '<label>Entry title *</label><input id="eTitle" maxlength="120" placeholder="Name your entry">'
         + '<label>Description</label><textarea id="eDesc" rows="3"></textarea>'
         + '<label>Creator statement</label><textarea id="eStmt" rows="2" placeholder="What is this piece about?"></textarea>'
         + '<label>Tools / software</label><input id="eTools" maxlength="160">'
         + '<label>AI disclosure</label><input id="eAI" maxlength="160" placeholder="Describe any AI use, if required by the rules">'
         + '<label>Collaborators</label><input id="eCollab" maxlength="160">'
-        + '<label>Media (image, video or audio — 500MB max)</label><input id="eFile" type="file" multiple accept="image/*,video/*,audio/*">'
-        + '<div class="vs-note" id="eFiles"></div>'
         + '<label style="display:flex;gap:9px;align-items:flex-start;text-transform:none;letter-spacing:0;color:#cfd3df;font-weight:500">'
         + '<input type="checkbox" id="eTerms" style="width:auto;margin-top:3px">'
         + '<span>I own this work or have permission to submit it, I accept the competition rules and terms'
         + (paid ? ', and I understand the entry fee is governed by the published refund policy' : '')
         + '.</span></label>'
-        + '<button class="vs-cta" id="eGo">'+(paid ? 'Continue to payment' : 'Create entry')+'</button>'
-        + '<p class="vs-note" id="eMsg"></p>'
-        + '</div>';
+        + '</div></div>';
 
-      var picked = [];
-      document.getElementById('eFile').onchange = function(){
-        picked = [].slice.call(this.files || []);
-        document.getElementById('eFiles').textContent = picked.length
-          ? picked.length + ' file(s) selected: ' + picked.map(function(f){ return f.name; }).join(', ')
-          : '';
+      APP.innerHTML = navBar('enter') + '<div class="cd2 cd2-sub">'+left+right+'</div>';
+
+      /* Back goes to the page you came from. Falls back to this competition rather than the list,
+         because arriving here by a shared link and being sent to "all competitions" loses the
+         competition you were actually looking at. */
+      document.getElementById('sfBack').onclick = function(){
+        if(history.length > 1){ history.back(); return; }
+        go({ view:'enter', c: compId });
+      };
+
+      var picked = [], coverFile = null;
+
+      function isDoc(f){ return !/^(image|video|audio)\//.test(f.type || ''); }
+      function paintWork(){
+        var box = document.getElementById('sfWorkBox');
+        if(!box) return;
+        if(!picked.length){
+          box.className = 'cd-flyer sf-drop';
+          box.innerHTML = '<div class="sf-ph"><span class="ic">＋</span><span>Add your submission</span>'
+            + '<small>Image, video, audio or manuscript · 500MB max</small></div>';
+          return;
+        }
+        var f = picked[0], url = URL.createObjectURL(f), inner;
+        if(/^video\//.test(f.type))      inner = '<video class="sf-media" src="'+url+'" controls playsinline></video>';
+        else if(/^image\//.test(f.type)) inner = '<img class="sf-media" src="'+url+'" alt="">';
+        else if(/^audio\//.test(f.type)) inner = '<div class="sf-doc"><span class="ic">♫</span>'
+                                               + '<b>'+h(f.name)+'</b><audio src="'+url+'" controls></audio></div>';
+        else                             inner = '<div class="sf-doc"><span class="ic">📄</span><b>'+h(f.name)+'</b>'
+                                               + '<small>'+(f.size/1048576).toFixed(1)+' MB</small></div>';
+        box.className = 'cd-flyer sf-drop has';
+        box.innerHTML = inner
+          + (picked.length>1 ? '<div class="sf-more">+'+(picked.length-1)+' more file'+(picked.length>2?'s':'')+'</div>' : '')
+          + '<div class="sf-swap">Change</div>';
+      }
+      function paintCover(){
+        var box = document.getElementById('sfCoverBox');
+        if(!box) return;
+        if(!coverFile){
+          box.className = 'cd-flyer sf-drop';
+          box.innerHTML = '<div class="sf-ph"><span class="ic">＋</span><span>Add a cover</span>'
+            + '<small>2:3 image — how your entry appears in the feed</small></div>';
+          return;
+        }
+        box.className = 'cd-flyer sf-drop has';
+        box.innerHTML = '<img class="sf-media" src="'+URL.createObjectURL(coverFile)+'" alt="">'
+          + '<div class="sf-swap">Change</div>';
+      }
+      document.getElementById('sfWork').onchange = function(){
+        picked = [].slice.call(this.files || []); paintWork();
+      };
+      document.getElementById('sfCover').onchange = function(){
+        coverFile = (this.files || [])[0] || null; paintCover();
       };
 
       document.getElementById('eGo').onclick = function(){
         var btn = this, msg = document.getElementById('eMsg');
         var title = document.getElementById('eTitle').value.trim();
         if(!title){ msg.textContent = 'A title is required.'; return; }
+        if(!picked.length){ msg.textContent = 'Add your submission before continuing.'; return; }
         if(!document.getElementById('eTerms').checked){ msg.textContent = 'Please accept the terms to continue.'; return; }
         btn.disabled = true; msg.textContent = 'Creating your entry…';
 
@@ -995,7 +1104,9 @@
           creator_statement: document.getElementById('eStmt').value.trim(),
           tools: document.getElementById('eTools').value.trim(),
           ai_disclosure: document.getElementById('eAI').value.trim(),
-          collaborators: document.getElementById('eCollab').value.trim()
+          collaborators: document.getElementById('eCollab').value.trim(),
+          /* the ownership checkbox IS the rights declaration the Q4 rules require */
+          rights_declared: !!document.getElementById('eTerms').checked
         };
         var entryId = null;
 
@@ -1004,9 +1115,17 @@
             if(res.error) throw res.error;
             var row = Array.isArray(res.data) ? res.data[0] : res.data;
             entryId = row.id;
-            if(!picked.length) return null;
             msg.textContent = 'Uploading media…';
             return uploadAll(entryId, picked, msg);
+          })
+          .then(function(){
+            /* cover second — it needs the entry id for its storage path, and it is optional, so a
+               cover that fails to upload must not lose an entry that is otherwise complete. */
+            if(!coverFile) return null;
+            msg.textContent = 'Uploading cover…';
+            return uploadOne(entryId, coverFile, 'cover')
+              .then(function(url){ return SB.rpc('vs_set_entry_cover', { p_entry: entryId, p_url: url }); })
+              .catch(function(){ return null; });
           })
           .then(function(){
             msg.textContent = paid ? 'Opening secure checkout…' : 'Finishing up…';
@@ -1048,12 +1167,34 @@
         .then(function(up){
           if(up.error) throw up.error;   // bucket enforces type + 500MB, so this is a real gate
           var url = SB.storage.from('vs-entries').getPublicUrl(path).data.publicUrl;
-          var kind = f.type.indexOf('video') === 0 ? 'video' : (f.type.indexOf('audio') === 0 ? 'audio' : 'image');
-          return SB.rpc('vs_add_entry_media', { p_entry: entryId, p_url: url, p_mtype: kind, p_thumb: null });
+          return SB.rpc('vs_add_entry_media', { p_entry: entryId, p_url: url, p_mtype: mediaKind(f), p_thumb: null });
         })
         .then(next);
     }
     return next();
+  }
+
+  /* 'doc' covers the Short Story manuscript formats the bucket now accepts. Anything that is not
+     image/video/audio is a document — there is no fourth kind, and defaulting to 'image' (the old
+     behaviour) made a PDF render as a broken <img> everywhere downstream. */
+  function mediaKind(f){
+    var t = f.type || '';
+    if(t.indexOf('video') === 0) return 'video';
+    if(t.indexOf('audio') === 0) return 'audio';
+    if(t.indexOf('image') === 0) return 'image';
+    return 'doc';
+  }
+
+  /* Single upload that returns the public URL without registering a media row — used for the
+     cover, which lives on vs_entries.cover_url, not in the entry's media list. */
+  function uploadOne(entryId, f, tag){
+    var path = ME.id + '/' + entryId + '/' + (tag ? tag + '-' : '') + Date.now() + '-'
+             + f.name.replace(/[^a-zA-Z0-9.\-_]+/g, '_');
+    return SB.storage.from('vs-entries').upload(path, f, { upsert: false })
+      .then(function(up){
+        if(up.error) throw up.error;
+        return SB.storage.from('vs-entries').getPublicUrl(path).data.publicUrl;
+      });
   }
 
   function renderWinnersSoon(){
