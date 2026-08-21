@@ -135,6 +135,10 @@ footer a{color:var(--artist);}
    live here, below 860px, where they were actually asked for. */
 @media(max-width:860px){
   body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+  /* A flex item defaults to min-width:auto and will not shrink below its max-content width;
+     a flex-wrap:nowrap rail IS max-content. On /earn that pushed .wrap to 1120px inside a
+     375px viewport and body{overflow-x:hidden} clipped it silently. KODE 2026-08-21. */
+  body>*{min-width:0}
   footer{margin-top:auto}
   .controls{position:sticky;top:env(safe-area-inset-top,0px);padding-top:calc(10px + env(safe-area-inset-top,0px))}
 }

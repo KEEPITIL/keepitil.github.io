@@ -12,6 +12,10 @@
 :root{--panel:rgba(255,255,255,.035);--brd:rgba(255,255,255,.09);--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--purple:var(--purple-2);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fs:'Fraunces',serif}
 html{scroll-behavior:smooth}
 body{background:var(--bg,#0a0a0f);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:80px;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+/* A flex item defaults to min-width:auto and will not shrink below its max-content width;
+   a flex-wrap:nowrap rail IS max-content. On /earn that pushed .wrap to 1120px inside a
+   375px viewport and body{overflow-x:hidden} clipped it silently. KODE 2026-08-21. */
+body>*{min-width:0}
 a{color:inherit;text-decoration:none}
 /* uniform pillar sub-nav */
 .hubnav{position:relative;z-index:20;background:color-mix(in srgb,var(--bg,#0a0a0f) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line,rgba(255,255,255,.08))}

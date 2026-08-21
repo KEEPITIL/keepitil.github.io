@@ -258,3 +258,48 @@ test("a browser that refuses sessionStorage still gets the width gate", () => {
     "private-mode storage errors must not re-enable mobile recording");
   assert.equal(runGate({ width: 1440, storageThrows: true }).allowed, true);
 });
+
+/**
+ * A flex body must let its children shrink.
+ *
+ * The locked-footer fix made body a flex column. A flex item defaults to min-width:auto, so it
+ * refuses to shrink below its own max-content width — and a flex-wrap:nowrap rail IS max-content.
+ * Measured on /earn at 375px after both fixes shipped: .wrap computed to 1120px, every section to
+ * 1088px, and body{overflow-x:hidden} clipped the excess, leaving the rails 713px wider than the
+ * screen with no way to reach the rest. Each fix was fine alone; together they broke the page.
+ *
+ * Any page that makes body a flex column must also release min-width on its children.
+ */
+import { readdirSync } from "node:fs";
+
+function pagesWithFlexBody() {
+  const found = [];
+  const roots = ["", "earn/", "connect/", "create/", "culture/", "venues/"];
+  for (const dir of roots) {
+    let names;
+    try { names = readdirSync(new URL("../" + dir, import.meta.url)); } catch { continue; }
+    for (const n of names) {
+      if (!n.endsWith(".html")) continue;
+      let src;
+      try { src = readFileSync(new URL("../" + dir + n, import.meta.url), "utf8"); } catch { continue; }
+      /* Anchor the selector: `.ev-feat-body{display:flex;flex-direction:column}` is not a
+         flex BODY, and matching it flagged 18 files that were never at risk. */
+      if (/(?:^|[\s,};])body\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/m.test(src)) {
+        found.push({ path: dir + n, src });
+      }
+    }
+  }
+  return found;
+}
+
+test("every page with a flex-column body releases min-width on its children", () => {
+  const pages = pagesWithFlexBody();
+  assert.ok(pages.length > 0, "no flex-column body found — did the locked-footer fix get reverted?");
+  for (const { path, src } of pages) {
+    assert.match(
+      src, /body\s*>\s*\*\s*\{[^}]*min-width:\s*0/,
+      `${path} makes body a flex column but never releases min-width on its children — ` +
+      `a nowrap rail there will balloon .wrap past the viewport and be clipped silently`
+    );
+  }
+});

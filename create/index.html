@@ -14,6 +14,10 @@
 :root{--brand:#a855f7;--brand-2:#c084fc;--ink:#f4f2fb;--ink2:#9a94b4;--ink3:#6b6588;--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;--fs:'Fraunces',serif}
 html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
 body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+/* A flex item defaults to min-width:auto and will not shrink below its max-content width;
+   a flex-wrap:nowrap rail IS max-content. On /earn that pushed .wrap to 1120px inside a
+   375px viewport and body{overflow-x:hidden} clipped it silently. KODE 2026-08-21. */
+body>*{min-width:0}
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/culture-hero.jpg') center/cover no-repeat;opacity:.55}
 html.has-season body::before{display:none!important}/* seasonal image takes over on its dates */
 body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,15,.7),rgba(10,10,15,.92))}
