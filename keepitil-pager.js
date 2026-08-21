@@ -615,6 +615,19 @@
      * Mobile only — the pager is a phone interaction, and the desktop layouts stay as they are.
      */
     mount: function (config) {
+      /* ── PAGER DISABLED (Founder 2026-08-20) ────────────────────────────────────────────────
+         "swipe should not work on any pages. swipe should not change the page either. only
+         selecting the filter button changes the page."
+         The pager IS the swipe: two nested scroll-snap containers that page horizontally by
+         filter and vertically by item. Hiding its arrows (2026-08-19) removed the controls but
+         left the gesture, so a swipe still changed filter or item. There is no way to keep the
+         pager and lose the swipe — the swipe is the whole mechanism.
+         mount() now no-ops, so Culture / Create / Earn fall back to their normal scrolling
+         layouts with filter buttons at the top, the same model as the homepage. The file stays
+         loaded because three pages call KIL_PAGER.mount() and a missing global would throw. */
+      return null;
+
+      /* eslint-disable no-unreachable */
       if (!window.matchMedia("(max-width:860px)").matches) return null;
       if (!config || !config.filters || !config.filters.length) return null;
       var p = new Pager(config);
