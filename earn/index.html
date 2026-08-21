@@ -212,7 +212,11 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 20px}
   body.rad-m .hero{display:none}
   /* the desktop accordion collapses grids until .open — on mobile always show them */
-  body.rad-m section .grid.rad-carou{display:grid!important;overflow:visible!important}
+  /* KODE 2026-08-20, Part C #5: THIS is the rule that kept /earn a single column on a phone.
+     The desktop accordion rule was fixed and verified — but this mobile-only !important wins
+     over display:flex and only bites at ≤860px, so the fix was verified exactly where the
+     broken rule does not apply. Rails on mobile too. */
+  body.rad-m section .grid.rad-carou{display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important}
   body.rad-m .sec-toggle{display:none}
   /* persistent mini-player docked above the bottom nav (the shared shell hides it on mobile;
      this page is the one place it must stay visible) */
@@ -297,7 +301,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260821a" defer></script>
+<script src="/keepitil-shell.js?v=20260821b" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
