@@ -1683,7 +1683,7 @@
     <div class="evx-nav-row evx-locrow" id="evx-locrow">
       <div class="evx-catdd" id="evx-locdd">
         <button type="button" class="evx-catdd-btn" id="evx-locdd-btn" aria-haspopup="true" aria-expanded="false">
-          <span class="evx-catdd-ic">▾</span><span class="evx-catdd-lb" id="evx-locdd-lb">ALL AREAS</span>
+          <span class="evx-catdd-ic">▾</span><span class="evx-catdd-lb" id="evx-locdd-lb">ALL</span>
         </button>
         <div class="evx-catdd-menu evx-locmenu" id="evx-locdd-menu" role="menu"></div>
       </div>
@@ -2168,14 +2168,18 @@ function inLoc(e){
   if(!hc&&!hy) return true;
   return (hc&&selCounty[e.county||'']) || (hy&&selCity[e.city||'']) ? true : false;
 }
+/* Founder 2026-08-20: unselected reads just "ALL" — matching row 2, and the same button
+   dimensions. Once an area is chosen the button carries the STATE ABBREVIATION plus the
+   county/city, e.g. "CA · ORANGE COUNTY", so the state is always visible rather than implied. */
 function locLabel(){
   var c=Object.keys(selCounty).filter(function(k){return selCounty[k];});
   var y=Object.keys(selCity).filter(function(k){return selCity[k];});
   var n=c.length+y.length;
-  if(!selState && !n) return 'ALL AREAS';
-  if(n===1) return (c[0]||y[0]).toUpperCase();
-  if(n>1) return (selState? selState+' · ':'')+n+' AREAS';
-  return selState.toUpperCase();
+  var st=(selState||'').toUpperCase();
+  if(!selState && !n) return 'ALL';
+  if(n===1){ var one=(c[0]||y[0]).toUpperCase(); return st? (st+' · '+one) : one; }
+  if(n>1)  return (st? st+' · ':'')+n+' AREAS';
+  return st;
 }
 
 function inGenre(e){
@@ -2273,7 +2277,9 @@ function buildSubGenres(){
   /* Founder 2026-07-31: show the FULL subfilter for the active category (always visible), not only present ones. */
   var subs=cat[2];
   if(el.id==='evx-subgenres') el.className='evx-nav-row evx-subrow on';
-  el.innerHTML='<button class="evx-gn'+(activeGenre===''?' active':'')+'" data-g="">ALL '+cat[1]+'</button>'
+  /* Founder 2026-08-20: just "ALL". The dropdown button to its left already displays the
+     category, so "ALL MUSIC" next to a button reading MUSIC said the same word twice. */
+  el.innerHTML='<button class="evx-gn'+(activeGenre===''?' active':'')+'" data-g="">ALL</button>'
     +subs.map(function(s){return '<button class="evx-gn'+(s[0]===activeGenre?' active':'')+'" data-g="'+s[0]+'">'+s[1]+'</button>';}).join('');
   el.querySelectorAll('.evx-gn').forEach(function(b){b.onclick=function(){setGenre(b.dataset.g);};});
 }
