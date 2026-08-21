@@ -21,8 +21,7 @@ html{scroll-behavior:smooth;}
    min-height:100dvh with footer{margin-top:auto}, so the footer is pushed to the bottom and
    covers the backdrop. Same treatment here. padding-bottom moves to the footer, because on a
    flex column body padding leaves a gap BELOW the footer — the bug fixed on 2026-08-19. */
-body{background:var(--bg,#0a0a0f);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;
-  display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;}
+body{background:var(--bg,#0a0a0f);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 body::before{content:"";position:fixed;inset:0;z-index:-3;background:var(--bg,#0a0a0f) url('/v3/scene-hero.jpg') center/cover no-repeat;opacity:1}
 html.has-season body::before{display:none!important} /* seasonal image takes over the hero backdrop on its dates */
 a{color:inherit;text-decoration:none;}
@@ -55,7 +54,7 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .stat b{font-family:var(--fh);font-size:1.8rem;letter-spacing:.02em;}
 .stat span{display:block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-top:-2px;}
 .stat.artist b{color:var(--artist);}.stat.brand b{color:var(--brand);}.stat.organizer b{color:var(--organizer);}.stat.venue b{color:var(--venue);}
-.controls{position:sticky;top:66px;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(14px);max-width:1360px;margin:20px auto 0;padding:12px 30px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
+.controls{position:static;z-index:100;background:rgba(10,10,15,.9);backdrop-filter:blur(14px);max-width:1360px;margin:20px auto 0;padding:12px 30px;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
 .controls-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 .seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:4px;flex-wrap:wrap;}
 .seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s;}
@@ -124,13 +123,20 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .empty{grid-column:1/-1;text-align:center;color:var(--ink3);padding:56px 0;}
 .empty .big{font-family:var(--fh);font-size:1.7rem;letter-spacing:.06em;color:var(--ink2);}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 30px;text-align:center;color:var(--ink3);font-size:.82rem;
-  margin-top:auto;background:var(--bg,#0a0a0f);}
+  background:var(--bg,#0a0a0f);}
 footer a{color:var(--artist);}
 /* Founder 2026-08-20: "do not let it hide behind the clock, battery icon" — top:0 puts the
    sticky bar under the iOS status bar in standalone/PWA mode. env(safe-area-inset-top) is the
    height of that band, so the bar parks just below it on a notched phone and at 0 elsewhere. */
+/* MOBILE ONLY (Founder 2026-08-21: "i only ask for the mobile change not the desktop").
+   Both of these were global on 2026-08-20 and changed the desktop page — the sticky filter bar
+   was locking to the top of the viewport on scroll, and the flex-column body altered the
+   desktop layout. Desktop is back to static flow; the sticky bar and the green-band footer fix
+   live here, below 860px, where they were actually asked for. */
 @media(max-width:860px){
-  .controls{top:env(safe-area-inset-top,0px);padding-top:calc(10px + env(safe-area-inset-top,0px))}
+  body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+  footer{margin-top:auto}
+  .controls{position:sticky;top:env(safe-area-inset-top,0px);padding-top:calc(10px + env(safe-area-inset-top,0px))}
 }
 </style>
 <link rel="canonical" href="https://keepitil.com/connect"/>
