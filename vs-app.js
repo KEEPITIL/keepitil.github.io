@@ -143,11 +143,15 @@
    + '#vs-app .sf-back{background:none;border:1px solid var(--vsl);cursor:pointer;margin-bottom:10px}'
    + '#vs-app .sf-go{margin-top:16px}'
    /* ── CREATE header stat row (Founder 2026-08-21) — the Connect page's pattern ───── */
-   + '#vs-app .ce-hero{text-align:center;padding:6px 0 18px}'
+   /* LEFT on desktop, matching /connect (Founder 2026-08-21). Centred below 861px, where a
+      left-aligned title over a full-width stat row reads as misaligned rather than deliberate. */
+   + '#vs-app .ce-hero{text-align:left;padding:6px 0 18px}'
+   + '@media(max-width:860px){#vs-app .ce-hero{text-align:center}}'
    + '#vs-app .ce-hero h1{font-family:var(--fh,inherit);font-size:clamp(2.6rem,10vw,5rem);line-height:.9;'
    +   'letter-spacing:.04em;margin:0;background:linear-gradient(90deg,#ff2e88,#a06bff);'
    +   '-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}'
-   + '#vs-app .ce-stats{display:flex;justify-content:center;gap:34px;margin-top:12px;flex-wrap:wrap}'
+   + '#vs-app .ce-stats{display:flex;justify-content:flex-start;gap:34px;margin-top:12px;flex-wrap:wrap}'
+   + '@media(max-width:860px){#vs-app .ce-stats{justify-content:center}}'
    + '#vs-app .ce-stat b{font-family:var(--fh,inherit);font-size:1.8rem;letter-spacing:.02em;display:block;line-height:1}'
    + '#vs-app .ce-stat span{display:block;font:800 .66rem Inter,sans-serif;letter-spacing:.15em;'
    +   'text-transform:uppercase;color:#6b6588;margin-top:3px}'
@@ -211,10 +215,16 @@
       /* LOCKED TO THE TOP WHEN SCROLLING (Founder 2026-08-20), same as the homepage filter bar.
       top:0 rather than an offset: the mobile shell has no fixed top bar, so an offset would
       leave a transparent strip that cards scroll through. */
+   /* FULL-BLEED AND OPAQUE, matching /connect (Founder 2026-08-21). The bar breaks out of the
+      1120px .wrap with a 50vw margin trick so it spans the viewport, and it is a SOLID colour —
+      at 97% the pink backdrop still showed through it while the page scrolled underneath.
+      The chip rows keep the page measure so they stay aligned with the competition grid. */
    + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px;'
-   +   'position:sticky;top:env(safe-area-inset-top,0px);z-index:70;background:rgba(10,10,15,.97);'
-   +   'padding-top:calc(8px + env(safe-area-inset-top,0px));'
-   +   'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-bottom:6px}'
+   +   'position:sticky;top:env(safe-area-inset-top,0px);z-index:70;background:#0b0b12;'
+   +   'padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px;'
+   +   'width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);'
+   +   'border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 10px 24px rgba(0,0,0,.45)}'
+   + '#vs-app .ce-row{max-width:1120px;margin-left:auto;margin-right:auto;padding-left:16px;padding-right:16px;width:100%}'
    + '@media(min-width:861px){#vs-app .ce-bar{top:70px}}'
    + '#vs-app .ce-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'
    + '#vs-app .ce-row::-webkit-scrollbar{display:none}'
