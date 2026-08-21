@@ -13,6 +13,13 @@
   var ME = null, IS_ADMIN = false, FILTER = 'all';
 
   function h(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  /* Header counters. A real 0 renders as "0", not as an em dash — the placeholder means
+     "not loaded yet" and the two must stay distinguishable (BROKEN != EMPTY). */
+  function fmtN(n){
+    n = Number(n);
+    if(!isFinite(n)) return '—';
+    return n >= 1000 ? (n/1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/,'') + 'K' : String(n);
+  }
   function q(k){ try{ return new URLSearchParams(location.search).get(k); }catch(e){ return null; } }
   function go(params){ var u=new URL(location.href); u.search=''; Object.keys(params||{}).forEach(function(k){ if(params[k]!=null) u.searchParams.set(k,params[k]); }); history.pushState({},'',u); route(); }
   window.addEventListener('popstate', function(){ route(); });
@@ -134,6 +141,18 @@
    + '#vs-app .sf-swap{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.72);color:#fff;'
    +   'font:800 .66rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:999px}'
    + '#vs-app .sf-back{background:none;border:1px solid var(--vsl);cursor:pointer;margin-bottom:10px}'
+   + '#vs-app .sf-go{margin-top:16px}'
+   /* ── CREATE header stat row (Founder 2026-08-21) — the Connect page's pattern ───── */
+   + '#vs-app .ce-hero{text-align:center;padding:6px 0 18px}'
+   + '#vs-app .ce-hero h1{font-family:var(--fh,inherit);font-size:clamp(2.6rem,10vw,5rem);line-height:.9;'
+   +   'letter-spacing:.04em;margin:0;background:linear-gradient(90deg,#ff2e88,#a06bff);'
+   +   '-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}'
+   + '#vs-app .ce-stats{display:flex;justify-content:center;gap:34px;margin-top:12px;flex-wrap:wrap}'
+   + '#vs-app .ce-stat b{font-family:var(--fh,inherit);font-size:1.8rem;letter-spacing:.02em;display:block;line-height:1}'
+   + '#vs-app .ce-stat span{display:block;font:800 .66rem Inter,sans-serif;letter-spacing:.15em;'
+   +   'text-transform:uppercase;color:#6b6588;margin-top:3px}'
+   + '#vs-app .ce-stat.a b{color:#ff2e88}#vs-app .ce-stat.v b{color:#a06bff}#vs-app .ce-stat.e b{color:#22e39b}'
+   + '@media(max-width:600px){#vs-app .ce-stats{gap:22px}#vs-app .ce-stat b{font-size:1.45rem}}'
    /* Entry page: the submitted work sits in the locked flyer slot, and the vote actions take
       the place the buy button occupies on an event page. Two-copy image trick again so a
       submission that is not 2:3 is shown whole instead of centre-cropped. */
@@ -771,13 +790,27 @@
       : '<div class="soon"><div class="i">🔎</div><h2>Nothing matches those filters</h2>'
         + '<p>Try a different month or type — there are '+rows.length+' competitions open.</p></div>';
 
+    /* HEADER (Founder 2026-08-21): the Connect page's stat row, not a sentence. "7 of 7
+       competitions — pick one to read its rules and enter" restated what the grid underneath
+       already showed. h1, not h2 — the page-level <h1>CREATE</h1> hero was removed 2026-08-19,
+       so this view is the top of the document outline. */
     APP.innerHTML = navBar('enter')
-      /* h1, not h2 — the page-level <h1>CREATE</h1> hero was removed 2026-08-19, so the browse
-         view is now the top of the document outline. */
-      + '<h1 class="vs-h">Open for entries</h1>'
-      + '<p class="vs-note" style="margin-bottom:12px">'+shown.length+' of '+rows.length
-      + ' competition'+(rows.length===1?'':'s')+' — pick one to read its rules and enter.</p>'
+      + '<header class="ce-hero"><h1>CREATE</h1>'
+      + '<div class="ce-stats">'
+      +   '<div class="ce-stat a"><b id="ceA">—</b><span>Artist</span></div>'
+      +   '<div class="ce-stat v"><b id="ceV">—</b><span>Vs</span></div>'
+      +   '<div class="ce-stat e"><b id="ceE">—</b><span>Entry</span></div>'
+      + '</div></header>'
       + html;
+
+    /* Counts are fetched, never derived from what is on screen — a filtered grid would otherwise
+       silently report a smaller platform than the one that exists. */
+    SB.rpc('create_page_stats').then(function(sr){
+      var s = (sr && sr.data && (Array.isArray(sr.data) ? sr.data[0] : sr.data)) || null;
+      if(!s) return;
+      var set = function(id,n){ var el=document.getElementById(id); if(el) el.textContent = fmtN(n); };
+      set('ceA', s.artists); set('ceV', s.vs); set('ceE', s.entries);
+    }).catch(function(){});
 
     APP.querySelectorAll('[data-m]').forEach(function(b){
       b.onclick=function(){ CE_MONTH=b.dataset.m; ceRender(); };
@@ -1007,10 +1040,11 @@
         + '<input id="sfCover" type="file" class="sf-file" accept="image/*">'
         + '</div>';
 
+      /* Cover FIRST, work second (Founder 2026-08-21, mobile order). Mobile collapses cd2 to one
+         column in DOM order, so the DOM order IS the mobile order — no CSS reordering needed and
+         nothing to keep in sync between breakpoints. */
       var left = '<aside class="cd-left"><div class="cd-stick">'
-        + slotWork + slotCover
-        + '<button class="vs-cta cd-buy" id="eGo">'+(paid ? 'Continue to payment' : 'Submit entry')+'</button>'
-        + '<p class="vs-note" id="eMsg"></p>'
+        + slotCover + slotWork
         + '</div></aside>';
 
       /* RIGHT — the information section. */
@@ -1034,6 +1068,13 @@
         + '<span>I own this work or have permission to submit it, I accept the competition rules and terms'
         + (paid ? ', and I understand the entry fee is governed by the published refund policy' : '')
         + '.</span></label>'
+        /* The submit button belongs at the END of the information section, not in the upload
+           column (Founder 2026-08-21: "there is no submission of entry at the end of the
+           description section"). It was the last thing in the left column, so on mobile it
+           appeared BEFORE the form you have to fill in, and on desktop it sat in a column you
+           had already finished with. */
+        + '<button class="vs-cta cd-buy sf-go" id="eGo">'+(paid ? 'Continue to payment' : 'Submit entry')+'</button>'
+        + '<p class="vs-note" id="eMsg"></p>'
         + '</div></div>';
 
       APP.innerHTML = navBar('enter') + '<div class="cd2 cd2-sub">'+left+right+'</div>';
