@@ -86,41 +86,14 @@
      Now both mount AFTER the window load event (or immediately, if load already fired), so they
      can no longer gate it. Tracking behaviour is otherwise unchanged: same property, same
      project, same gtag/clarity globals and queues. Diagnosis: KODE, 2026-08-19. */
-  /* ── CLARITY IS GATED ───────────────────────────────────────────────────────────────────────
-     Microsoft Clarity is a session RECORDER: it posts to l.clarity.ms/collect continuously for
-     the life of the page, not once at load. Deferring its injection past the load event (below)
-     stopped it holding document_idle, but the streaming itself is what makes the site untestable:
-     measured on an iPhone 17 Pro simulator, pages took 90-110s to paint and the device wedged
-     roughly every 15 minutes, while DOM tooling timed out unpredictably on the same page seconds
-     apart. That is why on-device verification kept failing and work kept shipping code-verified.
-
-     Two gates (Atlas recommendation, 2026-08-21):
-       1. Desktop only. Mobile session replay is the expensive half and the least useful today.
-          861px is the breakpoint the shell already uses for the desktop header - not a new one.
-       2. An explicit opt-out, ?noclarity=1, remembered for the tab so a test run does not have
-          to re-append it to every navigation.
-
-     GA4 is deliberately NOT gated: it is a few beacons, not a recorder, and it is the measurement
-     the Founder actually reads. Reversing this is one function. */
-  function __kilClarityAllowed(){
-    try{
-      if(/[?&]noclarity=1(?:&|$)/.test(String(location.search||''))){
-        try{ sessionStorage.setItem('kil_noclarity','1'); }catch(e){}
-      }
-      try{ if(sessionStorage.getItem('kil_noclarity') === '1') return false; }catch(e){}
-      var w = window.innerWidth || document.documentElement.clientWidth || 0;
-      if(w && w < 861) return false;
-      return true;
-    }catch(e){ return true; }
-  }
   function __kilMountAnalytics(){
     /* GA4 */
     try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
       var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
       window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
     } }catch(e){}
-    /* Microsoft Clarity - desktop only, and never when opted out. See __kilClarityAllowed. */
-    try{ if(!window.__kilClarity && __kilClarityAllowed()){ window.__kilClarity='xk5iwishve';
+    /* Microsoft Clarity */
+    try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
       (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
     } }catch(e){}
   }
@@ -172,10 +145,20 @@
       var _show=function(msg,btnLabel,onBtn){
         if(document.getElementById('kil-pwa-banner'))return;
         var b=document.createElement('div'); b.id='kil-pwa-banner';
-        /* Centred, not bottom-docked (Founder 2026-08-15): at bottom:104px with z-index:900 it sat
-           underneath the chat button, which is on a far higher layer. Centring removes the overlap
-           by geometry rather than by an escalating z-index war. */
-        b.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 32px));z-index:1150;background:#12121c;border:1px solid #2a2a3a;border-radius:14px;padding:14px;display:flex;align-items:center;gap:10px;box-shadow:0 18px 48px rgba(0,0,0,.6);font-family:Inter,system-ui,sans-serif;font-size:.85rem;color:#f0f0f0';
+        /* Bottom-docked, ABOVE the chat button (Founder 2026-08-21 — it was covering the middle
+           of every page on a phone).
+           History: it was bottom:104px/z-index:900 and sat UNDER the chat button, so on 2026-08-15
+           it was centred to escape by geometry. That traded a small overlap for a worse one — a
+           fixed, undismissed banner parked over the centre of the viewport on every page, following
+           the scroll, hiding whatever the visitor came to read.
+           This keeps the geometric fix and drops the collision: the banner is a full-width bar
+           stacked above the chat FAB and the bottom nav, so nothing overlaps at any z-index and
+           the content it interrupts is empty page margin instead of the middle of the feed. */
+        var _lift = 'calc(var(--kil-bnav-h,62px) + 86px + env(safe-area-inset-bottom,0px))';
+        b.style.cssText='position:fixed;left:12px;right:12px;bottom:'+_lift+';margin:0 auto;'
+          +'max-width:520px;z-index:1150;background:#12121c;border:1px solid #2a2a3a;border-radius:14px;'
+          +'padding:14px;display:flex;align-items:center;gap:10px;box-shadow:0 18px 48px rgba(0,0,0,.6);'
+          +'font-family:Inter,system-ui,sans-serif;font-size:.85rem;color:#f0f0f0';
         b.innerHTML='<img src="/icon-192.png" alt="" style="width:34px;height:34px;border-radius:8px;flex:0 0 34px">'+
           '<span style="flex:1;line-height:1.35">'+msg+'</span>'+
           (btnLabel?'<button id="kil-pwa-go" style="background:linear-gradient(90deg,#00b4ff,#22e39b);color:#04121b;border:0;border-radius:9px;padding:8px 14px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">'+btnLabel+'</button>':'')+
