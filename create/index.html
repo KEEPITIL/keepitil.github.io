@@ -93,7 +93,10 @@ footer a{color:var(--brand-2)}
      pager still carries all six views. -->
 <!-- desktop only: on mobile the pager already carries JOIN as its own filter, and two entry
      buttons on one screen is worse than none — it makes the primary action look uncertain. -->
-<style>@media(max-width:860px){#vsJoinBar{display:none!important}}</style>
+<!-- The mobile hide is GONE (Founder 2026-08-20). It was justified by "the pager already
+     carries JOIN as its own filter" — the pager is now disabled site-wide because swipe
+     must not change the page, so hiding this would leave mobile with NO route into a
+     competition. Same failure the desktop rail removal caused in August. -->
 <div id="vsJoinBar" style="max-width:1120px;margin:0 auto 6px;padding:0 16px;text-align:right">
   <button type="button" onclick="window.vsGo&amp;&amp;window.vsGo('join')"
     style="background:#ff5c8a;color:#1a0410;border:0;border-radius:10px;padding:11px 18px;font-weight:800;letter-spacing:.05em;font-size:.82rem;cursor:pointer">
@@ -109,8 +112,8 @@ footer a{color:var(--brand-2)}
 <!-- VS platform (KODE): Supabase client + the app that renders into #vs-app.
      vs-app.js defines the real window.vsFilter, replacing the placeholder hook. -->
 <script src="/v3/vendor/supabase-js.min.js"></script>
-<script src="/vs-app.js?v=20260820d"></script>
-<script src="/keepitil-pager.js?v=20260819q" defer></script>
+<script src="/vs-app.js?v=20260820e"></script>
+<script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script>
 /* VS subpage view switch (Founder 2026-08-05): rail drives vs-app.js via window.vsGo(view).
    FEED/My Votes/My Entry/Manage map to existing app views; Vote/Join/Winners are new (KODE). */
