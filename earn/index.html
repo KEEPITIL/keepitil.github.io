@@ -13,19 +13,25 @@
 :root{--brand:#00e0a4;--neon:#00e0a4;--ink:#f4f2fb;--ink2:#aab2c5;--panel:rgba(16,16,24,.72);--brd:rgba(255,255,255,.12);--fh:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif}
 html,body{background:#0a0a0f;color:var(--ink);font-family:var(--fb);overflow-x:hidden}
 /* image-forward backdrop (same model as home): default KEEPITIL image, seasonal image takes over on its dates */
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1}
+/* EARN backdrop (Founder 2026-08-21). Separate portrait file below 860px — the 16:9 art puts the
+   sign centre-left, so `cover` on a phone crops to bare floor. Opacity .5 so the orange does not
+   overwhelm the cards sitting on it. */
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/earn-hero.jpg?v=20260821') center/cover no-repeat;opacity:.5}
+@media(max-width:860px){body::before{background-image:url('/v3/earn-hero-m.jpg?v=20260821')}}
 html.has-season body::before{display:none!important}
 body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* clear fixed shell nav + radio bar */
 a{color:inherit;text-decoration:none}
-/* width:100% is load-bearing: body is a flex column and `margin:0 auto` is a cross-axis
-   auto margin, which cancels align-items:stretch. Without it .wrap sizes to fit-content
-   — on /earn a flex-wrap:nowrap rail made that 1120px inside a 375px viewport, clipped
-   silently by body{overflow-x:hidden}. min-width:0 alone does NOT fix it. KODE 2026-08-21. */
-.wrap{width:100%;max-width:1120px;margin:0 auto;padding:0 16px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
 /* hero */
 .hero{padding:34px 0 26px;text-align:center}
 .hero h1{font-family:var(--fh);font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.03em;line-height:.95;text-shadow:0 3px 22px rgba(0,0,0,.6)}
 .hero p{color:#e7e9f2;max-width:640px;margin:12px auto 0;font-size:1.02rem;line-height:1.55;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+/* Connect's stat row (Founder 2026-08-21) */
+.hero .stats{display:flex;justify-content:center;gap:34px;margin-top:14px;flex-wrap:wrap}
+.hero .stat b{font-family:var(--fh);font-size:1.8rem;letter-spacing:.02em;display:block;line-height:1;text-shadow:0 2px 14px rgba(0,0,0,.55)}
+.hero .stat span{display:block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:#9aa0b0;margin-top:3px;font-weight:800}
+.hero .stat.s b{color:var(--brand)}.hero .stat.p b{color:#a06bff}.hero .stat.g b{color:#ffb43c}
+@media(max-width:600px){.hero .stats{gap:22px}.hero .stat b{font-size:1.45rem}}
 .hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
 .hero .live .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px var(--brand);animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.35}}
@@ -105,10 +111,6 @@ section.open .grid.rad-carou{display:flex;overflow-x:auto}
 }
 /* universal locked footer — sits at the bottom before the radio bar */
 body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
-/* A flex item defaults to min-width:auto and will not shrink below its max-content width;
-   a flex-wrap:nowrap rail IS max-content. On /earn that pushed .wrap to 1120px inside a
-   375px viewport and body{overflow-x:hidden} clipped it silently. KODE 2026-08-21. */
-body>*{min-width:0}
 footer{margin-top:auto}
 </style>
 <link rel="canonical" href="https://keepitil.com/earn"/>
@@ -124,10 +126,17 @@ footer{margin-top:auto}
 </head>
 <body>
 
+<!-- Founder 2026-08-21: the paragraph listed what the page already shows underneath it, and the
+     "LIVE NOW" chip announced a player that is visible at the bottom of every page anyway.
+     Replaced with the Connect page's stat row. Counts are filled in by script from the page's own
+     data, so they cannot drift from what actually renders. -->
 <header class="hero wrap">
-  <h1>KEEPITIL RADIO</h1>
-  <p>Curated stations across every genre, creator-built playlists, live programming, games and a mobile app — plus real ways to create, compete and earn.</p>
-  <div class="live"><span class="dot"></span> LIVE NOW · the player runs at the bottom of every page</div>
+  <h1>EARN</h1>
+  <div class="stats">
+    <div class="stat s"><b id="eS">0</b><span>Stations</span></div>
+    <div class="stat p"><b id="eP">0</b><span>Playlists</span></div>
+    <div class="stat g"><b id="eG">0</b><span>Games</span></div>
+  </div>
 </header>
 
 <main class="wrap">
@@ -218,7 +227,11 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
      non-active sections would strand a mobile visitor on the first one with no way to reach
      the others — removing the control means removing what the control was hiding. */
   body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 20px}
-  body.rad-m .hero{display:none}
+  /* The hero used to be hidden on mobile because it was a wall of prose. It is now the stat row,
+     which is the point of the header — so it stays, compacted (Founder 2026-08-21). */
+  body.rad-m .hero{display:block;padding:4px 0 14px}
+  body.rad-m .hero h1{font-size:2.2rem}
+  body.rad-m .hero .stats{margin-top:10px}
   /* the desktop accordion collapses grids until .open — on mobile always show them */
   /* KODE 2026-08-20, Part C #5: THIS is the rule that kept /earn a single column on a phone.
      The desktop accordion rule was fixed and verified — but this mobile-only !important wins
@@ -407,6 +420,20 @@ var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen 
 var _g_mobileGrid=document.getElementById('mobileGrid'); if(_g_mobileGrid) _g_mobileGrid.innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
 
 renderStations(); renderPls();
+
+/* Header counters (Founder 2026-08-21). Read from the page's own data rather than hard-coded
+   numbers, so the header can never claim more stations or games than actually render. Playlists
+   are per-device in v1 (localStorage), so that number is this visitor's, which is what the
+   "Your Playlists" section below it also shows. */
+function radStats(){
+  var set=function(id,n){ var el=document.getElementById(id); if(el) el.textContent=String(n); };
+  try{ set('eS', (typeof GENRES!=='undefined' && GENRES.length) || 0); }catch(e){}
+  try{ set('eG', (typeof GAMES!=='undefined' && GAMES.length) || 0); }catch(e){}
+  try{ set('eP', loadPls().length); }catch(e){}
+}
+radStats();
+/* re-count after a playlist is added or removed */
+(function(){ var _s=savePls; savePls=function(a){ _s(a); try{ radStats(); }catch(e){} }; })();
 /* Decorate each section: single-row carousel by default + a down-arrow to expand into the full grid (Founder 2026-08-04) */
 (function(){
   [].forEach.call(document.querySelectorAll('main > section'), function(sec){
