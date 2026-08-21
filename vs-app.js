@@ -417,8 +417,8 @@
        on the users profile page under events"). It REDIRECTS rather than 404s, because this is
        still Stripe's success_url — a buyer returning from checkout must never land on a dead page,
        and that exact failure already happened once today with /v31/vs.html.
-       If the slug cannot be resolved we fall through and render the old list, which still carries
-       the Submit control. Stranding a paid entrant is the one outcome not worth risking. */
+       If the slug cannot be resolved we fall through and render the list rather than stranding
+       a paid entrant on a blank page. */
     if(!window.__vsMineRedirected){
       window.__vsMineRedirected = 1;
       try{
@@ -442,39 +442,10 @@
               + '<span class="vs-pill '+(x.payment_status==='paid'?'ok':'')+'">'+h(x.payment_status)+'</span></div>'
               + '<div class="vt">'+(x.total_votes||0)+' votes</div>'
               + (x.admin_message ? '<div class="vs-note" style="margin-top:6px">'+h(x.admin_message)+'</div>' : '')
-              /* SUBMIT FOR REVIEW — the missing step (Founder 2026-08-19 launch proof).
-                 renderEntryForm calls vs_submit_entry in the SAME promise chain that does
-                 `location.href = stripeUrl`. For a PAID entry the browser leaves for Stripe
-                 before that .then runs, and on return to ?view=mine nothing ever submits — so
-                 a paid entry sat at draft forever with no control to move it. Two live $1
-                 charges proved it. Only the free path was ever exercised.
-                 This is the control that completes PAID → SUBMITTED. */
-              + ((x.status==='draft' && (x.entitlement===true || x.payment_status==='paid' || x.payment_status==='comped'))
-                  ? '<button type="button" class="vs-cta vs-submit-btn" data-submit="'+x.entry_id+'" '
-                    + 'style="width:100%;margin-top:10px">Submit for review</button>'
-                  : '')
               + '</div></div>';
           }).join('') + '</div>'
         : '<div class="soon"><div class="i">📥</div><h2>No entries yet</h2><p>When you enter a competition it appears here with its status, votes and any note from the review team.</p></div>');
       [].forEach.call(APP.querySelectorAll('[data-entry]'), function(c){ c.onclick=function(){ go({view:'entry', e:c.dataset.entry}); }; });
-      [].forEach.call(APP.querySelectorAll('[data-submit]'), function(b){
-        b.onclick=function(ev){
-          ev.stopPropagation();                       /* the card itself navigates; this must not */
-          var id=Number(b.dataset.submit);
-          b.disabled=true; b.textContent='Submitting…';
-          SB.rpc('vs_submit_entry', { p_entry:id, p_terms_version:'create-2026-q4-v1' })
-            .then(function(sr){
-              if(sr && sr.error) throw sr.error;
-              renderMine();                            /* repaint from the server, not from a guess */
-            })
-            .catch(function(e){
-              /* Never leave the button silently dead — the entrant has paid and needs to know
-                 whether their submission landed. */
-              b.disabled=false; b.textContent='Submit for review';
-              alert('Could not submit: ' + (e && e.message ? e.message : e));
-            });
-        };
-      });
     }).catch(err);
   }
 
