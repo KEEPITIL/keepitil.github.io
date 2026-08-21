@@ -86,14 +86,41 @@
      Now both mount AFTER the window load event (or immediately, if load already fired), so they
      can no longer gate it. Tracking behaviour is otherwise unchanged: same property, same
      project, same gtag/clarity globals and queues. Diagnosis: KODE, 2026-08-19. */
+  /* ── CLARITY IS GATED ───────────────────────────────────────────────────────────────────────
+     Microsoft Clarity is a session RECORDER: it posts to l.clarity.ms/collect continuously for
+     the life of the page, not once at load. Deferring its injection past the load event (below)
+     stopped it holding document_idle, but the streaming itself is what makes the site untestable:
+     measured on an iPhone 17 Pro simulator, pages took 90-110s to paint and the device wedged
+     roughly every 15 minutes, while DOM tooling timed out unpredictably on the same page seconds
+     apart. That is why on-device verification kept failing and work kept shipping code-verified.
+
+     Two gates (Atlas recommendation, 2026-08-21):
+       1. Desktop only. Mobile session replay is the expensive half and the least useful today.
+          861px is the breakpoint the shell already uses for the desktop header - not a new one.
+       2. An explicit opt-out, ?noclarity=1, remembered for the tab so a test run does not have
+          to re-append it to every navigation.
+
+     GA4 is deliberately NOT gated: it is a few beacons, not a recorder, and it is the measurement
+     the Founder actually reads. Reversing this is one function. */
+  function __kilClarityAllowed(){
+    try{
+      if(/[?&]noclarity=1(?:&|$)/.test(String(location.search||''))){
+        try{ sessionStorage.setItem('kil_noclarity','1'); }catch(e){}
+      }
+      try{ if(sessionStorage.getItem('kil_noclarity') === '1') return false; }catch(e){}
+      var w = window.innerWidth || document.documentElement.clientWidth || 0;
+      if(w && w < 861) return false;
+      return true;
+    }catch(e){ return true; }
+  }
   function __kilMountAnalytics(){
     /* GA4 */
     try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
       var _g=document.createElement('script'); _g.async=true; _g.src='https://www.googletagmanager.com/gtag/js?id=G-ZR36NRE4MT'; document.head.appendChild(_g);
       window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
     } }catch(e){}
-    /* Microsoft Clarity */
-    try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
+    /* Microsoft Clarity - desktop only, and never when opted out. See __kilClarityAllowed. */
+    try{ if(!window.__kilClarity && __kilClarityAllowed()){ window.__kilClarity='xk5iwishve';
       (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
     } }catch(e){}
   }

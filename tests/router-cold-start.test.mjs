@@ -196,3 +196,65 @@ test("the gtag queue shim stays outside the deferred function", () => {
   );
   assert.match(outside, /window\.gtag\s*=/, "gtag() is undefined until after load");
 });
+
+/**
+ * D2 — Clarity is gated to desktop, with an opt-out.
+ *
+ * Clarity is a session recorder that posts continuously for the life of the page. Deferring its
+ * injection past the load event stopped it holding document_idle, but the streaming is what made
+ * the site untestable: 90-110s to first paint on an iPhone 17 Pro simulator and a wedge roughly
+ * every 15 minutes. GA4 stays ungated — it is beacons, not a recorder.
+ *
+ * These RUN the shipped predicate against fake environments rather than matching its text, so a
+ * rewrite that keeps the wording and loses the behaviour still fails.
+ */
+function clarityGateSource() {
+  const i = shellSrc.indexOf("function __kilClarityAllowed");
+  assert.ok(i > 0, "__kilClarityAllowed is gone — Clarity is ungated again");
+  const open = shellSrc.indexOf("{", i);
+  let depth = 0;
+  for (let k = open; k < shellSrc.length; k++) {
+    if (shellSrc[k] === "{") depth++;
+    else if (shellSrc[k] === "}" && --depth === 0) return shellSrc.slice(i, k + 1);
+  }
+  assert.fail("__kilClarityAllowed never closes");
+}
+
+function runGate({ width, search = "", stored = null, storageThrows = false }) {
+  const store = { kil_noclarity: stored };
+  const sessionStorage = {
+    getItem(k) { if (storageThrows) throw new Error("storage blocked"); return store[k] ?? null; },
+    setItem(k, v) { if (storageThrows) throw new Error("storage blocked"); store[k] = v; }
+  };
+  const fn = new Function(
+    "location", "sessionStorage", "window", "document",
+    clarityGateSource() + "; return __kilClarityAllowed;"
+  )({ search }, sessionStorage, { innerWidth: width }, { documentElement: { clientWidth: width } });
+  return { allowed: fn(), store };
+}
+
+test("Clarity records on desktop and not on phones", () => {
+  assert.equal(runGate({ width: 1440 }).allowed, true, "desktop should still record");
+  assert.equal(runGate({ width: 375 }).allowed, false, "a phone must not stream session replay");
+  /* The boundary is the shell's existing desktop-header breakpoint, not a new number. */
+  assert.equal(runGate({ width: 860 }).allowed, false, "860 is below the 861px breakpoint");
+  assert.equal(runGate({ width: 861 }).allowed, true, "861 is desktop");
+});
+
+test("?noclarity=1 switches Clarity off and is remembered for the tab", () => {
+  const first = runGate({ width: 1440, search: "?noclarity=1" });
+  assert.equal(first.allowed, false, "the opt-out flag was ignored");
+  assert.equal(first.store.kil_noclarity, "1", "the opt-out was not persisted for later navigations");
+  /* A later page in the same tab carries no flag but must stay opted out. */
+  assert.equal(runGate({ width: 1440, stored: "1" }).allowed, false,
+    "the opt-out did not survive a navigation — every test URL would need the flag");
+  /* Not a substring match: noclarity=0 is not an opt-out. */
+  assert.equal(runGate({ width: 1440, search: "?noclarity=0" }).allowed, true,
+    "noclarity=0 should not opt out");
+});
+
+test("a browser that refuses sessionStorage still gets the width gate", () => {
+  assert.equal(runGate({ width: 375, storageThrows: true }).allowed, false,
+    "private-mode storage errors must not re-enable mobile recording");
+  assert.equal(runGate({ width: 1440, storageThrows: true }).allowed, true);
+});
