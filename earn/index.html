@@ -120,16 +120,20 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
 .grid>*{flex:0 0 240px;scroll-snap-align:start}
 .grid>.card{aspect-ratio:2/3;display:flex;flex-direction:column;overflow:hidden}
 @media(max-width:860px){ .grid{gap:10px} .grid>*{flex:0 0 160px} }
-.g-stations>*{flex:0 0 160px}
+/* Stations match the CREATE cards on this page (Founder 2026-08-22) — they were 160px
+   against the CREATE rail's 240px, so two rails on one page disagreed about card size. */
+.g-stations>*{flex:0 0 240px}
 .g-cards>*{flex:0 0 240px}
 /* CREATE rail: ONE row, always (Founder 2026-08-22: "a single carousel row under CREATE").
    The generic .grid is already a nowrap flex rail, but the section-expand toggle could turn
    it back into a wrapping grid; this pins it. */
-#earnGrid{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;
-  overflow-y:hidden!important;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
-#earnGrid::-webkit-scrollbar{display:none}
-#earnGrid>*{flex:0 0 240px;scroll-snap-align:start}
-@media(max-width:860px){#earnGrid>*{flex:0 0 170px}}
+#earnGrid,#affGrid,#plList,#stationGrid{display:flex!important;flex-wrap:nowrap!important;
+  overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch}
+#earnGrid::-webkit-scrollbar,#affGrid::-webkit-scrollbar,#plList::-webkit-scrollbar,
+#stationGrid::-webkit-scrollbar{display:none}
+#earnGrid>*,#affGrid>*,#plList>*,#stationGrid>*{flex:0 0 240px;scroll-snap-align:start}
+@media(max-width:860px){#earnGrid>*,#affGrid>*,#plList>*,#stationGrid>*{flex:0 0 170px}}
 .card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s;backdrop-filter:blur(10px);overflow:hidden}
 .card:hover{border-color:var(--brand);transform:translateY(-2px)}
 /* image band on every widget */
@@ -155,9 +159,6 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
 .pl-item .rm{background:none;border:0;color:#ff6b6b;font-weight:700;cursor:pointer;font-size:.82rem}
 .pl-item iframe{width:100%;height:120px;border:0;border-radius:8px}
 /* Sections as single-row carousels that expand into the full grid via a down-arrow (Founder 2026-08-04) */
-.sec-toggle{margin-left:auto;flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1px solid var(--brd);background:var(--panel);color:var(--ink);font-size:.95rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:transform .22s,border-color .15s;backdrop-filter:blur(8px)}
-.sec-toggle:hover{border-color:var(--brand);color:var(--brand)}
-section.open .sec-toggle{transform:rotate(180deg)}
 .grid.rad-carou{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:8px}
 .grid.rad-carou::-webkit-scrollbar{height:6px}
 .grid.rad-carou::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
@@ -222,8 +223,9 @@ footer{margin-top:auto}
   <div class="controls-row">
     <div class="seg" id="radSeg">
       <button data-k="all" class="on">All</button>
-      <button data-k="stations">Stations</button>
+      <button data-k="stations">Radio</button>
       <button data-k="playlists">Playlists</button>
+      <button data-k="create">Create</button>
       <button data-k="earn">Earn</button>
     </div>
     <div class="search">
@@ -242,21 +244,31 @@ footer{margin-top:auto}
   <div class="grid g-stations" id="stationGrid"></div>
 </section>
 
-<!-- YOUR PLAYLISTS -->
-<!-- Playlists section removed 2026-08-21 (Founder). -->
+<!-- PLAYLISTS — title only, no explanatory copy (Founder 2026-08-22). -->
+<section id="playlists">
+  <div class="sh"><h2>PLAYLIST: ADD YOUR SOUNDCLOUD PLAYLIST</h2></div>
+  <div class="pl-form">
+    <input id="plName" type="text" placeholder="Playlist name" maxlength="60"/>
+    <input id="plUrl" type="url" placeholder="Public SoundCloud URL"/>
+    <button class="btn" onclick="addPlaylist()">&#65291; Save</button>
+  </div>
+  <div class="grid g-cards" id="plList"></div>
+</section>
 
-<!-- SCHEDULE -->
-<!-- PROGRAMMING SCHEDULE REMOVED 2026-08-18 (Founder). Its own subtitle said "architecture ready
-     for live DJ broadcasts" — i.e. a schedule for programming that does not exist yet. A grid of
-     placeholder slots teaches a visitor the product is hollow, which is the same reason the empty
-     Blog/Vid tabs came off Culture. Bring it back when there are real broadcasts to schedule. -->
-
-<!-- CREATE COMPETE EARN -->
-<section id="earn">
+<!-- CREATE — live competition cards, read straight from vs_competitions so this rail can never
+     show a competition that /create does not. -->
+<section id="create">
   <div class="sh"><h2>CREATE</h2></div>
-  <!-- Live competition cards, read straight from vs_competitions so this rail can never show a
-       competition that CREATE does not (Founder 2026-08-21). -->
   <div class="grid g-cards" id="earnGrid"></div>
+</section>
+
+<!-- EARN — referral and affiliate partners ONLY (Founder 2026-08-22). These were pulled out of
+     the radio bar, where they rotated as an ad; they belong on a page a visitor chose to open.
+     Every link keeps rel="sponsored nofollow" — required disclosure, and it keeps the outbound
+     links from passing ranking signal. -->
+<section id="earn">
+  <div class="sh"><h2>EARN</h2></div>
+  <div class="grid g-cards" id="affGrid"></div>
 </section>
 
 <!-- CREATOR SERVICES / GAMES / MOBILE APP sections REMOVED 2026-08-18 (Founder).
@@ -355,9 +367,8 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
     scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;max-width:100%}
   /* Nothing inside a rail may claim a full-width basis — that is what pushes the rail, and then
      the page, wider than the screen. */
-  body.rad-m section .grid > *{flex:0 0 160px!important;scroll-snap-align:start}
+  body.rad-m section .grid > *{flex:0 0 170px!important;scroll-snap-align:start}
   body.rad-m #radNoHits{flex:0 0 auto!important;max-width:80vw}
-  body.rad-m .sec-toggle{display:none}
   /* persistent mini-player docked above the bottom nav (the shared shell hides it on mobile;
      this page is the one place it must stay visible) */
   body.rad-m #kil-radio{transform:none!important;pointer-events:auto!important;
@@ -529,6 +540,62 @@ var BLOCKS=[['Morning Discovery','🌅',35,'Fresh finds to start the day'],['Loc
  ['AI Crew Show','🤖',190,'KEEPITIL agents curate'],['Weekend Mix','🎧',270,'Long-play DJ sets']];
 var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid) _g_scheduleGrid.innerHTML=BLOCKS.map(function(b){return iconCard(b[1],b[2],'Scheduled',b[0],b[3]);}).join('');
 
+/* ── EARN: referral & affiliate partners ONLY (Founder 2026-08-22) ─────────────────────
+   Moved here from the radio bar, where they rotated as an ad on every page. rel="sponsored
+   nofollow" on every one — that is the required disclosure and it stops the outbound links
+   passing ranking signal. data-kt keeps the existing click tracking. */
+(function(){
+  var grid=document.getElementById('affGrid'); if(!grid) return;
+  var AFF=[
+    {t:'DistroKid',           d:'Release your music to every store',        u:'https://distrokid.com/vip/seven/11538316',                          g:'\ud83c\udfb5', h:200},
+    {t:'Posh',                d:'List and sell tickets to your events',     u:'https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt',      g:'\ud83c\udf9f', h:280},
+    {t:'FreeCash',            d:'Earn on the side',                         u:'https://freecash.com/r/Tuitea',                                     g:'\ud83d\udcb8', h:140},
+    {t:'Illestrated Lifestyle',d:'Shop the apparel',                        u:'https://www.illestratedlifestyle.com',                              g:'\ud83d\uded2', h:35}
+  ];
+  grid.innerHTML = AFF.map(function(a){
+    return '<a class="station card" href="'+a.u+'" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click">'
+      + '<div class="card-img" style="background:linear-gradient(135deg,hsl('+a.h+',72%,44%),hsl('+((a.h+40)%360)+',66%,20%))">'+a.g+'</div>'
+      + '<div class="g">'+a.t+'</div>'
+      + '<div class="s">'+a.d+'</div>'
+      + '<span class="chip">PARTNER \u2197</span>'
+      + '</a>';
+  }).join('');
+})();
+
+/* ── PLAYLISTS: a visitor's own SoundCloud sets ────────────────────────────────────────
+   Restored 2026-08-22 with the section, title only, no explanatory copy per the Founder.
+   Still per-device (localStorage) — there is no server-side store for visitor playlists yet,
+   and inventing one silently would be worse than the honest limitation. */
+function scValid2(u){ return /^https?:\/\/(m\.|www\.)?soundcloud\.com\/.+/i.test(u||''); }
+function loadPls(){ try{ return JSON.parse(localStorage.getItem('kil_radio_playlists')||'[]'); }catch(e){ return []; } }
+function savePls(a){ try{ localStorage.setItem('kil_radio_playlists',JSON.stringify(a)); }catch(e){} }
+function addPlaylist(){
+  var n=(document.getElementById('plName')||{}).value, u=(document.getElementById('plUrl')||{}).value;
+  n=(n||'').trim(); u=(u||'').trim();
+  if(!u || !scValid2(u)){ alert('Paste a public SoundCloud URL.'); return; }
+  var a=loadPls(); a.unshift({name:n||'My playlist', url:u, ts:Date.now()}); savePls(a);
+  document.getElementById('plName').value=''; document.getElementById('plUrl').value='';
+  renderPls();
+}
+function rmPlaylist(ts){ savePls(loadPls().filter(function(p){return p.ts!==ts;})); renderPls(); }
+function renderPls(){
+  var el=document.getElementById('plList'); if(!el) return;
+  var a=loadPls();
+  if(!a.length){ el.innerHTML=''; return; }
+  el.innerHTML=a.map(function(p,i){
+    var hue=[280,200,35,140,320,90][i%6];
+    return '<div class="station card" style="position:relative">'
+      + '<a href="'+esc(p.url)+'" target="_blank" rel="noopener" style="display:block;color:inherit;text-decoration:none">'
+      +   '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))">\u266a</div>'
+      +   '<div class="g">'+esc(p.name)+'</div><div class="s">Your playlist</div>'
+      + '</a>'
+      + '<button class="rm" onclick="rmPlaylist('+p.ts+')" title="Remove" '
+      +   'style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:0;color:#ff6b6b;'
+      +   'font-weight:800;cursor:pointer;border-radius:6px;padding:2px 7px">&times;</button>'
+      + '</div>';
+  }).join('');
+}
+
 /* ── CREATE competition cards (Founder 2026-08-21) ─────────────────────────────────────
    The eight entries here used to be a hard-coded array of competitions that do not exist —
    "Song of the Month", "Beat Battle" and so on, every one of them labelled "Open soon". This
@@ -621,6 +688,7 @@ var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen 
 var _g_mobileGrid=document.getElementById('mobileGrid'); if(_g_mobileGrid) _g_mobileGrid.innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
 
 renderStations();
+renderPls();
 
 /* Header counters (Founder 2026-08-21). Read from the page's own data rather than hard-coded
    numbers, so the header can never claim more stations or games than actually render. Playlists
@@ -638,7 +706,7 @@ radStats();
    two are independent — searching does not silently switch you to a section you did not
    pick, and picking a section does not clear what you typed. */
 (function(){
-  var SEC={stations:'stations',playlists:'playlists',earn:'earn'};
+  var SEC={stations:'stations',playlists:'playlists',create:'create',earn:'earn'};
   var seg=document.getElementById('radSeg'), q=document.getElementById('radQ'),
       cnt=document.getElementById('radCount');
   if(!seg) return;
@@ -682,14 +750,14 @@ radStats();
   if(q) q.addEventListener('input',apply);
   apply();
 })();
-/* Decorate each section: single-row carousel by default + a down-arrow to expand into the full grid (Founder 2026-08-04) */
+/* The per-section expand toggle is REMOVED (Founder 2026-08-22: "remove the drop down buttons in
+   each sections. they do not work"). It toggled section.open, which was meant to turn a rail into
+   a full grid — but the rails are now pinned to a single nowrap row at both breakpoints, so the
+   class had nothing left to change and the button did nothing when pressed. The carousel class is
+   still applied; only the dead control is gone. */
 (function(){
   [].forEach.call(document.querySelectorAll('main > section'), function(sec){
-    var grid=sec.querySelector('.grid'); var sh=sec.querySelector('.sh'); if(!grid||!sh) return;
-    grid.classList.add('rad-carou');
-    var btn=document.createElement('button'); btn.type='button'; btn.className='sec-toggle'; btn.setAttribute('aria-label','Expand section'); btn.innerHTML='&#9662;';
-    btn.addEventListener('click',function(){ var open=sec.classList.toggle('open'); btn.setAttribute('aria-label', open?'Collapse section':'Expand section'); });
-    sh.appendChild(btn);
+    var grid=sec.querySelector('.grid'); if(grid) grid.classList.add('rad-carou');
   });
 })();
 </script>
