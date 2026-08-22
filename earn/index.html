@@ -247,11 +247,12 @@ footer{margin-top:auto}
 <!-- PLAYLISTS — title only, no explanatory copy (Founder 2026-08-22). -->
 <section id="playlists">
   <div class="sh"><h2>PLAYLIST: ADD YOUR SOUNDCLOUD PLAYLIST</h2></div>
-  <div class="pl-form">
+  <div class="pl-form" id="plForm">
     <input id="plName" type="text" placeholder="Playlist name" maxlength="60"/>
     <input id="plUrl" type="url" placeholder="Public SoundCloud URL"/>
     <button class="btn" onclick="addPlaylist()">&#65291; Save</button>
   </div>
+  <div id="plGate" style="display:none"><a class="btn" href="/apply.html">Sign in to add a playlist</a></div>
   <div class="grid g-cards" id="plList"></div>
 </section>
 
@@ -269,6 +270,26 @@ footer{margin-top:auto}
 <section id="earn">
   <div class="sh"><h2>EARN</h2></div>
   <div class="grid g-cards" id="affGrid"></div>
+
+  <!-- AIRPLAY SUBMISSIONS. Intake only — nothing here puts a track on air. -->
+  <div class="pl-form" id="airForm" style="margin-top:18px;flex-direction:column;align-items:stretch">
+    <b style="font-family:var(--fh);font-size:1.25rem;letter-spacing:.03em">GET YOUR SONG ON KEEPITIL RADIO</b>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <input id="airArtist" type="text" placeholder="Artist name" maxlength="80"/>
+      <input id="airEmail" type="email" placeholder="Email" maxlength="120"/>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <input id="airUrl" type="url" placeholder="SoundCloud track or playlist URL"/>
+      <input id="airGenre" type="text" placeholder="Genre" maxlength="40"/>
+    </div>
+    <label style="display:flex;gap:9px;align-items:flex-start;font-size:.82rem;color:#cfd4e2">
+      <input type="checkbox" id="airTerms" style="width:auto;margin-top:3px">
+      <span>I have read the submission terms and I am authorised to license this recording.</span>
+    </label>
+    <button class="btn" onclick="submitAirplay()">Submit for review</button>
+    <div id="airMsg" class="disc" style="margin-top:2px"></div>
+  </div>
+  <div id="airGate" style="display:none;margin-top:18px"><a class="btn" href="/apply.html">Sign in to submit</a></div>
 </section>
 
 <!-- CREATOR SERVICES / GAMES / MOBILE APP sections REMOVED 2026-08-18 (Founder).
@@ -456,7 +477,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/v3/keepitil-radio.js?v=20260822e" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260822g" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
 <script src="/v3/keepitil-ai.js?v=20260822a" defer></script>
 <script>
@@ -562,38 +583,125 @@ var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid)
   }).join('');
 })();
 
-/* ── PLAYLISTS: a visitor's own SoundCloud sets ────────────────────────────────────────
-   Restored 2026-08-22 with the section, title only, no explanatory copy per the Founder.
-   Still per-device (localStorage) — there is no server-side store for visitor playlists yet,
-   and inventing one silently would be worse than the honest limitation. */
+/* ── PLAYLISTS: a signed-in listener's own SoundCloud sets (Founder 2026-08-22) ────────
+   Server-side now, not localStorage: a playlist saved on a phone must be there on a laptop.
+   Rows are private by RLS, so these are audible only to the person who saved them — the
+   KEEPITIL rotation everyone hears is unchanged. */
 function scValid2(u){ return /^https?:\/\/(m\.|www\.)?soundcloud\.com\/.+/i.test(u||''); }
-function loadPls(){ try{ return JSON.parse(localStorage.getItem('kil_radio_playlists')||'[]'); }catch(e){ return []; } }
-function savePls(a){ try{ localStorage.setItem('kil_radio_playlists',JSON.stringify(a)); }catch(e){} }
+
+function kilTok(){
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k && k.indexOf('-auth-token')>-1){
+        var j=JSON.parse(localStorage.getItem(k)||'null');
+        if(j && j.access_token) return j.access_token;
+      }
+    }
+  }catch(e){}
+  return null;
+}
+function kilAuthHeaders(){
+  var t=kilTok();
+  return t ? {apikey:window.KIL_EARN_KEY, Authorization:'Bearer '+t, 'Content-Type':'application/json',
+              Prefer:'return=representation'} : null;
+}
+var PL_API='https://ovmqtzjfpzrbzrlkxwgw.supabase.co/rest/v1/user_playlists';
+
+function plGate(){
+  var signedIn=!!kilTok();
+  ['plForm','airForm'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=signedIn?'':'none'; });
+  ['plGate','airGate'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=signedIn?'none':''; });
+  return signedIn;
+}
+
 function addPlaylist(){
+  var h=kilAuthHeaders();
+  if(!h){ location.href='/apply.html'; return; }
   var n=(document.getElementById('plName')||{}).value, u=(document.getElementById('plUrl')||{}).value;
   n=(n||'').trim(); u=(u||'').trim();
-  if(!u || !scValid2(u)){ alert('Paste a public SoundCloud URL.'); return; }
-  var a=loadPls(); a.unshift({name:n||'My playlist', url:u, ts:Date.now()}); savePls(a);
-  document.getElementById('plName').value=''; document.getElementById('plUrl').value='';
-  renderPls();
+  if(!scValid2(u)){ alert('Paste a public SoundCloud URL.'); return; }
+  /* user_id is NOT sent from the client — the RLS check ties the row to the caller's token, and
+     a client-supplied id would just be a value the policy has to reject anyway. */
+  fetch(PL_API, {method:'POST', headers:h, body:JSON.stringify({name:n||'My playlist', url:u,
+        user_id:(function(){ try{ return JSON.parse(atob(kilTok().split('.')[1])).sub; }catch(e){ return null; } })()})})
+    .then(function(r){ if(!r.ok) throw new Error('save failed '+r.status); return r.json(); })
+    .then(function(){ document.getElementById('plName').value=''; document.getElementById('plUrl').value=''; renderPls(); })
+    .catch(function(e){ console.error('[earn] playlist save failed', e); alert('Could not save that playlist.'); });
 }
-function rmPlaylist(ts){ savePls(loadPls().filter(function(p){return p.ts!==ts;})); renderPls(); }
+
+function rmPlaylist(id){
+  var h=kilAuthHeaders(); if(!h) return;
+  fetch(PL_API+'?id=eq.'+encodeURIComponent(id), {method:'DELETE', headers:h})
+    .then(function(){ renderPls(); })
+    .catch(function(e){ console.error('[earn] playlist delete failed', e); });
+}
+
+function setDefaultPlaylist(id){
+  var h=kilAuthHeaders(); if(!h) return;
+  /* One default per user is enforced by a partial unique index, so the old one must be cleared
+     before the new one is set — otherwise the second write is rejected by the database. */
+  fetch(PL_API+'?is_default=eq.true', {method:'PATCH', headers:h, body:JSON.stringify({is_default:false})})
+    .then(function(){ return fetch(PL_API+'?id=eq.'+encodeURIComponent(id), {method:'PATCH', headers:h, body:JSON.stringify({is_default:true})}); })
+    .then(function(){ renderPls(); })
+    .catch(function(e){ console.error('[earn] default failed', e); });
+}
+
 function renderPls(){
   var el=document.getElementById('plList'); if(!el) return;
-  var a=loadPls();
-  if(!a.length){ el.innerHTML=''; return; }
-  el.innerHTML=a.map(function(p,i){
-    var hue=[280,200,35,140,320,90][i%6];
-    return '<div class="station card" style="position:relative">'
-      + '<a href="'+esc(p.url)+'" target="_blank" rel="noopener" style="display:block;color:inherit;text-decoration:none">'
-      +   '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))">\u266a</div>'
-      +   '<div class="g">'+esc(p.name)+'</div><div class="s">Your playlist</div>'
-      + '</a>'
-      + '<button class="rm" onclick="rmPlaylist('+p.ts+')" title="Remove" '
-      +   'style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:0;color:#ff6b6b;'
-      +   'font-weight:800;cursor:pointer;border-radius:6px;padding:2px 7px">&times;</button>'
-      + '</div>';
-  }).join('');
+  if(!plGate()){ el.innerHTML=''; return; }
+  var h=kilAuthHeaders(); if(!h){ el.innerHTML=''; return; }
+  fetch(PL_API+'?select=id,name,url,art,is_default&order=created_at.asc', {headers:h})
+    .then(function(r){ return r.ok?r.json():[]; })
+    .then(function(rows){
+      if(!rows.length){ el.innerHTML=''; return; }
+      el.innerHTML=rows.map(function(p,i){
+        var hue=[280,200,35,140,320,90][i%6];
+        var cover=p.art ? 'background:#15131f url('+p.art+') center/cover no-repeat'
+                        : 'background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))';
+        return '<div class="station card" style="position:relative">'
+          + '<a href="'+esc(p.url)+'" target="_blank" rel="noopener" style="display:block;color:inherit;text-decoration:none">'
+          +   '<div class="card-img" style="'+cover+'">'+(p.art?'':'\u266a')+'</div>'
+          +   '<div class="g">'+esc(p.name)+'</div><div class="s">Your playlist</div>'
+          + '</a>'
+          + '<button class="chip'+(p.is_default?'':' soon')+'" onclick="setDefaultPlaylist('+p.id+')" '
+          +   'style="border:0;cursor:pointer;margin-top:8px">'+(p.is_default?'DEFAULT':'SET DEFAULT')+'</button>'
+          + '<button onclick="rmPlaylist('+p.id+')" title="Remove" '
+          +   'style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);border:0;color:#ff6b6b;'
+          +   'font-weight:800;cursor:pointer;border-radius:6px;padding:2px 7px">&times;</button>'
+          + '</div>';
+      }).join('');
+    })
+    .catch(function(e){ console.error('[earn] playlists failed', e); });
+}
+
+/* ── AIRPLAY SUBMISSION ────────────────────────────────────────────────────────────────
+   Records a REQUEST. It does not put anything on air and it does not create an agreement —
+   status starts 'requested' and a human moves it from there. */
+function submitAirplay(){
+  var h=kilAuthHeaders(), msg=document.getElementById('airMsg');
+  if(!h){ location.href='/apply.html'; return; }
+  var artist=(document.getElementById('airArtist')||{}).value||'';
+  var email =(document.getElementById('airEmail') ||{}).value||'';
+  var url   =(document.getElementById('airUrl')   ||{}).value||'';
+  var genre =(document.getElementById('airGenre') ||{}).value||'';
+  var ok    =(document.getElementById('airTerms') ||{}).checked;
+  if(!artist.trim()||!email.trim()||!scValid2(url.trim())){ msg.textContent='Artist, email and a SoundCloud URL are required.'; return; }
+  if(!ok){ msg.textContent='Please confirm you are authorised to license this recording.'; return; }
+  msg.textContent='Sending…';
+  fetch('https://ovmqtzjfpzrbzrlkxwgw.supabase.co/rest/v1/radio_airplay_requests', {
+    method:'POST', headers:h,
+    body:JSON.stringify({
+      user_id:(function(){ try{ return JSON.parse(atob(kilTok().split('.')[1])).sub; }catch(e){ return null; } })(),
+      artist_name:artist.trim(), contact_email:email.trim(), track_url:url.trim(),
+      genre:genre.trim()||null, terms_agreed:true, terms_version:'airplay-v1'
+    })
+  })
+  .then(function(r){ if(!r.ok) throw new Error('submit failed '+r.status); return r.json(); })
+  .then(function(){ msg.textContent='Received. We review every submission before anything goes on air.';
+                    ['airArtist','airEmail','airUrl','airGenre'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+                    document.getElementById('airTerms').checked=false; })
+  .catch(function(e){ console.error('[earn] airplay submit failed', e); msg.textContent='Could not send that — try again.'; });
 }
 
 /* ── CREATE competition cards (Founder 2026-08-21) ─────────────────────────────────────
