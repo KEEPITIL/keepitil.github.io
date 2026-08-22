@@ -684,80 +684,6 @@ renderTypebar();renderDiscover();renderFeed();
    users — render at the top of Culture with the same FB card chrome. Zero-token, DB-driven. */
 (function(){
   function h(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  function card(r){
-    var d=r.data||{}; var media=(d.media&&d.media[0])||{src:d.img||'',mtype:d.mtype||'image'};
-    var url='/profile.html?slug='+encodeURIComponent(r.profile_slug);
-    if(r.kind==='event'){
-      var ext=!!d.is_external; var turl=d.ticket_url||('/event.html?e='+encodeURIComponent(d.slug||'')); var tgt=ext?' target="_blank" rel="noopener"':'';
-      var when=''; try{var dt=new Date(d.date); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}catch(x){}
-      return '<div class="fcard fbcard evpost" data-pid="cul:'+h(d.slug||r.id)+'" style="overflow:hidden">'
-        +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar)+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name)+'</b></div></a><button class="fb-more" aria-label="More" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
-        +'<a href="'+h(turl)+'"'+tgt+' style="text-decoration:none;display:block"><div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+h(d.cover||'/v3/blog-default.jpg')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'"><span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
-        +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.2rem;color:#fff;line-height:1.15">'+h(d.title||'Event')+'</div><div style="color:var(--ink3,#9aa);font-size:.82rem;margin-top:5px">'+(when?h(when):'')+(d.venue?(when?' · ':'')+h(d.venue):'')+(d.city?' · '+h(d.city):'')+'</div></div></a>'
-        +'<div style="padding:8px 15px 4px"><a href="'+h(turl)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div>'
-        +'<div class="fb-actions"><button class="fba fba-like" onclick="fbLike(\'cul:'+h(d.slug)+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
-          +'<button class="fba fba-cmt" onclick="culComments(\''+h(d.slug)+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
-          +'<button class="fba fba-resh" onclick="fbReshareL(\'cul:'+h(d.slug)+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
-          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\'cul:'+h(d.slug)+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button></div></div>';
-    }
-    /* ── CREATE COMPETITION ENTRY ──────────────────────────────────────────────────────────
-       Written by the vs_entry_to_culture trigger when an entry is APPROVED. Sits in the feed
-       alongside articles, PIX and VID, but labelled CREATE so nobody mistakes a competition
-       submission for editorial.
-       Voting deliberately links out to the CREATE entry rather than voting inline: votes live
-       in vs_vote_actions and there must be exactly one vote path. A Culture-side vote control
-       would be a second source of truth. Like / comment / save / reshare DO work here, because
-       they key on the profile_content row like every other card. */
-    if(r.kind==='create_entry'){
-      var cd=r.data||{};
-      var cpid=h(r.id);
-      var closes=''; try{ var ct=new Date(cd.voting_closes_at); if(!isNaN(ct)) closes=ct.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}); }catch(x){}
-      var votingOpen = cd.voting_open === true;
-      return '<div class="fcard fbcard" data-pid="'+cpid+'" style="overflow:hidden">'
-        +'<div class="fb-head"><a class="fb-head-l" href="/profile.html?slug='+encodeURIComponent(r.profile_slug||'')+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
-          +'<img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt="">'
-          +'<div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b>'
-          +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(cd.competition||'CREATE')+(cd.division?' · '+h(cd.division):'')+'</div></div></a></div>'
-        +'<a href="'+h(cd.entry_url||'/create/')+'" style="text-decoration:none;display:block">'
-          +'<div style="position:relative;aspect-ratio:2/3;max-height:520px;background:#0a0a0f">'
-            +'<img src="'+h(cd.cover||cd.img||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(cd.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
-            +'<span style="position:absolute;top:10px;left:10px;background:rgba(255,92,138,.95);color:#1a0410;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">CREATE</span>'
-          +'</div>'
-          +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.1rem;color:#fff;line-height:1.2">'+h(cd.title||'Untitled entry')+'</div>'
-          +(closes?'<div style="color:var(--ink3,#9aa);font-size:.78rem;margin-top:5px">'+(votingOpen?'Voting closes ':'Voting opens later · closes ')+h(closes)+'</div>':'')
-          +'</div></a>'
-        +'<div style="padding:8px 15px 4px"><a href="'+h(cd.vote_url||'/create/')+'" style="display:block;text-align:center;background:'
-          +(votingOpen?'#ff5c8a;color:#1a0410':'rgba(255,255,255,.08);color:#9aa')
-          +';font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">'
-          +(votingOpen?'🗳 Vote on this entry':'View entry')+'</a></div>'
-        +'<div class="fb-actions">'
-          +'<button class="fba fba-like" onclick="fbLike(\''+cpid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
-          +'<button class="fba fba-cmt" onclick="culComments(\''+cpid+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
-          +'<button class="fba fba-resh" onclick="fbReshareL(\''+cpid+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
-          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+cpid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
-        +'</div></div>';
-    }
-    /* ── THIRD-PARTY MEDIA (YouTube today; TikTok/Instagram later) ─────────────────────────
-       Without this branch a media row fell through to the generic post card below, which builds
-       its links from r.profile_slug — null on every media row — producing /profile.html?slug=null
-       and crediting the video to nobody. Media is not a KEEPITIL post and must not borrow a post's
-       chrome: it carries the creator, the platform, and a link out to the source.
-       Thumbnail only, no iframe: a column of these would otherwise start one player per card. */
-    if(r.kind==='video' || r.kind==='pixle'){
-      var vd=r.data||{};
-      var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
-      var vhref=vd.source_url||'#';
-      /* Rendered from the <template id="kv-video-card"> further down this file — see the
-         comment above it. No card HTML is built here on purpose: two definitions of one card
-         drift, and the Founder edits the template, not this function. */
-      var isShort = vd.is_short === true;
-      return kvRenderVideoCard(r, vd, vhref, vwhen, isShort);
-    }
-    /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
-    var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
-    var m=(media.mtype==='video'&&media.src)
-      ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:contain;display:block"></video>'
-      : '<img src="'+h(mSrc)+'" loading="lazy" onerror="this.src=\'/v3/blog-default.jpg\'" style="width:100%;height:100%;object-fit:contain;display:block">';
   /* ── VIDEO CARD RENDERER ───────────────────────────────────────────────────────────────
      Clones <template id="kv-video-card"> and fills every data-kv hook. Returns an HTML string
      because the feed is painted with list.map(card).join(''). */
@@ -832,6 +758,80 @@ renderTypebar();renderDiscover();renderFeed();
     return box.innerHTML;
   }
 
+  function card(r){
+    var d=r.data||{}; var media=(d.media&&d.media[0])||{src:d.img||'',mtype:d.mtype||'image'};
+    var url='/profile.html?slug='+encodeURIComponent(r.profile_slug);
+    if(r.kind==='event'){
+      var ext=!!d.is_external; var turl=d.ticket_url||('/event.html?e='+encodeURIComponent(d.slug||'')); var tgt=ext?' target="_blank" rel="noopener"':'';
+      var when=''; try{var dt=new Date(d.date); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}catch(x){}
+      return '<div class="fcard fbcard evpost" data-pid="cul:'+h(d.slug||r.id)+'" style="overflow:hidden">'
+        +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar)+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name)+'</b></div></a><button class="fb-more" aria-label="More" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
+        +'<a href="'+h(turl)+'"'+tgt+' style="text-decoration:none;display:block"><div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+h(d.cover||'/v3/blog-default.jpg')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'"><span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
+        +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.2rem;color:#fff;line-height:1.15">'+h(d.title||'Event')+'</div><div style="color:var(--ink3,#9aa);font-size:.82rem;margin-top:5px">'+(when?h(when):'')+(d.venue?(when?' · ':'')+h(d.venue):'')+(d.city?' · '+h(d.city):'')+'</div></div></a>'
+        +'<div style="padding:8px 15px 4px"><a href="'+h(turl)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div>'
+        +'<div class="fb-actions"><button class="fba fba-like" onclick="fbLike(\'cul:'+h(d.slug)+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
+          +'<button class="fba fba-cmt" onclick="culComments(\''+h(d.slug)+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
+          +'<button class="fba fba-resh" onclick="fbReshareL(\'cul:'+h(d.slug)+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
+          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\'cul:'+h(d.slug)+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button></div></div>';
+    }
+    /* ── CREATE COMPETITION ENTRY ──────────────────────────────────────────────────────────
+       Written by the vs_entry_to_culture trigger when an entry is APPROVED. Sits in the feed
+       alongside articles, PIX and VID, but labelled CREATE so nobody mistakes a competition
+       submission for editorial.
+       Voting deliberately links out to the CREATE entry rather than voting inline: votes live
+       in vs_vote_actions and there must be exactly one vote path. A Culture-side vote control
+       would be a second source of truth. Like / comment / save / reshare DO work here, because
+       they key on the profile_content row like every other card. */
+    if(r.kind==='create_entry'){
+      var cd=r.data||{};
+      var cpid=h(r.id);
+      var closes=''; try{ var ct=new Date(cd.voting_closes_at); if(!isNaN(ct)) closes=ct.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}); }catch(x){}
+      var votingOpen = cd.voting_open === true;
+      return '<div class="fcard fbcard" data-pid="'+cpid+'" style="overflow:hidden">'
+        +'<div class="fb-head"><a class="fb-head-l" href="/profile.html?slug='+encodeURIComponent(r.profile_slug||'')+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
+          +'<img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt="">'
+          +'<div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b>'
+          +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(cd.competition||'CREATE')+(cd.division?' · '+h(cd.division):'')+'</div></div></a></div>'
+        +'<a href="'+h(cd.entry_url||'/create/')+'" style="text-decoration:none;display:block">'
+          +'<div style="position:relative;aspect-ratio:2/3;max-height:520px;background:#0a0a0f">'
+            +'<img src="'+h(cd.cover||cd.img||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(cd.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
+            +'<span style="position:absolute;top:10px;left:10px;background:rgba(255,92,138,.95);color:#1a0410;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">CREATE</span>'
+          +'</div>'
+          +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.1rem;color:#fff;line-height:1.2">'+h(cd.title||'Untitled entry')+'</div>'
+          +(closes?'<div style="color:var(--ink3,#9aa);font-size:.78rem;margin-top:5px">'+(votingOpen?'Voting closes ':'Voting opens later · closes ')+h(closes)+'</div>':'')
+          +'</div></a>'
+        +'<div style="padding:8px 15px 4px"><a href="'+h(cd.vote_url||'/create/')+'" style="display:block;text-align:center;background:'
+          +(votingOpen?'#ff5c8a;color:#1a0410':'rgba(255,255,255,.08);color:#9aa')
+          +';font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">'
+          +(votingOpen?'🗳 Vote on this entry':'View entry')+'</a></div>'
+        +'<div class="fb-actions">'
+          +'<button class="fba fba-like" onclick="fbLike(\''+cpid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
+          +'<button class="fba fba-cmt" onclick="culComments(\''+cpid+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
+          +'<button class="fba fba-resh" onclick="fbReshareL(\''+cpid+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
+          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+cpid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
+        +'</div></div>';
+    }
+    /* ── THIRD-PARTY MEDIA (YouTube today; TikTok/Instagram later) ─────────────────────────
+       Without this branch a media row fell through to the generic post card below, which builds
+       its links from r.profile_slug — null on every media row — producing /profile.html?slug=null
+       and crediting the video to nobody. Media is not a KEEPITIL post and must not borrow a post's
+       chrome: it carries the creator, the platform, and a link out to the source.
+       Thumbnail only, no iframe: a column of these would otherwise start one player per card. */
+    if(r.kind==='video' || r.kind==='pixle'){
+      var vd=r.data||{};
+      var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
+      var vhref=vd.source_url||'#';
+      /* Rendered from the <template id="kv-video-card"> further down this file — see the
+         comment above it. No card HTML is built here on purpose: two definitions of one card
+         drift, and the Founder edits the template, not this function. */
+      var isShort = vd.is_short === true;
+      return kvRenderVideoCard(r, vd, vhref, vwhen, isShort);
+    }
+    /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
+    var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
+    var m=(media.mtype==='video'&&media.src)
+      ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:contain;display:block"></video>'
+      : '<img src="'+h(mSrc)+'" loading="lazy" onerror="this.src=\'/v3/blog-default.jpg\'" style="width:100%;height:100%;object-fit:contain;display:block">';
     var pid=h(r.id||('cul:'+r.profile_slug));
     var acts='<div class="fb-actions">'
       +'<button class="fba fba-like" onclick="fbLike(\''+pid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
@@ -864,7 +864,15 @@ renderTypebar();renderDiscover();renderFeed();
         window.__culCard=card;
         window.__culRenderRows=function(list){ var b=document.getElementById('community-feed'); if(!b)return;
           if(!list||!list.length){ b.innerHTML=''; return; }
-          b.innerHTML=list.map(card).join('');
+          /* ONE BAD CARD MUST NOT EMPTY THE FEED. list.map(card) is a single expression: if card()
+             throws on row 7 of 120, the whole map throws and the page renders nothing — which is
+             exactly what happened on 2026-08-21 when a renderer referenced a variable that had not
+             been assigned yet, and every YouTube video disappeared. Each card is now built in
+             isolation; a failure drops that one row and says so in the console. */
+          b.innerHTML=list.map(function(row){
+            try{ return card(row); }
+            catch(e){ console.error('[culture] card failed to render', (row&&row.id), e); return ''; }
+          }).join('');
           try{ if(window.__culHydrate) window.__culHydrate(); }catch(e){} };
         /* MEDIA WAS NEVER RENDERED (Founder 2026-08-19: "i do not see the youtube videos only
            the events"). __culMediaRows was fetched only to count inventory for the tab gate and
