@@ -208,15 +208,40 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .kv-body{padding:11px 14px 14px}
 .kv-title{display:block;font-family:var(--fs,Inter),sans-serif;font-weight:800;font-size:1.05rem;
   color:#fff;line-height:1.25;text-decoration:none}
+/* ONE ROW: creator on the left, all actions on the right (Founder 2026-08-21 — the icons
+   "need to be on the same row as the avatar profile"). The creator block flexes and truncates
+   so a long channel name shortens instead of pushing the buttons off the card. */
+.kv-row{display:flex;align-items:center;gap:12px;margin-top:12px;
+  padding-top:12px;border-top:1px solid var(--line,#242433)}
 .kv-meta{margin-top:11px}
-.kv-who{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.kv-who{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;
+  flex:1 1 auto;min-width:0}
 .kv-av{flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:#2a2a3a center/cover no-repeat;
   display:flex;align-items:center;justify-content:center;font:800 .95rem Inter,sans-serif;color:#fff}
 .kv-nm{display:flex;flex-direction:column;min-width:0}
 .kv-nm b{font:700 .9rem Inter,sans-serif;color:#f0f0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kv-nm i{font:500 .72rem Inter,sans-serif;color:var(--ink3,#9aa0b0);font-style:normal}
 /* Dislike · Like · Share · Save — the order the Founder specified. */
-.kv-acts{padding:12px 0 4px;gap:8px;border-top:1px solid var(--line,#242433);margin-top:12px}
+/* Sits inside .kv-row now — no border or top margin of its own, and it must not shrink. */
+.kv-acts{padding:0;gap:6px;border-top:0;margin-top:0;flex:0 0 auto}
+.kv-acts .kv-src{display:flex;align-items:center;justify-content:center;padding:8px 11px;text-decoration:none}
+.kv-acts .kv-src svg{width:17px;height:17px}
+.kv-acts .fba-dis svg{transform:translateY(1px)}
+/* Below 520px the four buttons plus the platform icon are tighter than the row can hold at
+   full padding, so the buttons become icon-only circles rather than wrapping to a second row. */
+@media(max-width:520px){
+  .kv-row{gap:8px}
+  .kv-acts{gap:4px}
+  .kv-acts .fba,.kv-acts .kv-src{padding:8px;width:36px;height:36px;border-radius:50%;justify-content:center}
+  .kv-acts .fba b{display:none}
+}
+/* badge + play affordance, moved out of inline styles so the template stays readable */
+.kv-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;
+  font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px}
+.kil-vid-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.kv-playdot{width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);
+  border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center}
+.kv-tri{border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
 .kv-acts .fba{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);
   border:1px solid var(--line,#242433);border-radius:999px;padding:8px 14px;color:#cfd3df;cursor:pointer}
 .kv-acts .fba svg{width:17px;height:17px}
@@ -306,6 +331,60 @@ footer a{color:var(--purple)}
          restoring this markup restores the feature with no JS change. -->
     <!-- (no filter bar) -->
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════════════════
+     VIDEO CARD TEMPLATE  (Founder 2026-08-21: "add the template to this page so i can edit
+     the templates of the content")
+
+     EDIT THIS MARKUP DIRECTLY. It is the only definition of a video card — the JavaScript
+     clones this node and fills it, it does not build any HTML of its own. Change the order of
+     the buttons, the wording, the classes, anything: what you write here is what renders.
+
+     HOW THE FILL WORKS — every hook is a data-kv attribute. The script looks for these and
+     nothing else, so you may move or re-nest them freely, but do not rename them:
+       data-kv="well"     the player box — the script sets its aspect-ratio (9/16 or 16/9)
+       data-kv="thumb"    <img> still frame, replaced by the player when the card is on screen
+       data-kv="platform" the YOUTUBE / TIKTOK badge text
+       data-kv="title"    <a> the video title, href = the source
+       data-kv="creator"  <a> wrapping the avatar + name, href = the creator's channel
+       data-kv="avatar"   the round avatar; gets a background-image, or the initial as text
+       data-kv="name"     creator name
+       data-kv="meta"     "YouTube · Aug 19, 2026"
+       data-kv="source"   <a> the platform icon, href = the source. Its data-kv-icon child is
+                          swapped for that platform's logo.
+       data-kv="act"      the action row — the script wires clicks by BUTTON CLASS:
+                          .fba-dis .fba-like .fba-share .fb-save
+     A hook you delete is simply skipped, so removing a button here removes it from the site.
+     ══════════════════════════════════════════════════════════════════════════════════════ -->
+<template id="kv-video-card">
+  <div class="fcard fbcard kil-vid" style="overflow:hidden">
+    <div class="kil-vid-well" data-kv="well" style="position:relative;background:#000">
+      <img data-kv="thumb" loading="lazy" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+      <span class="kv-badge" data-kv="platform"></span>
+      <span class="kil-vid-play"><span class="kv-playdot"><span class="kv-tri"></span></span></span>
+    </div>
+    <div class="kv-body">
+      <a class="kv-title" data-kv="title" target="_blank" rel="noopener"></a>
+
+      <!-- ONE ROW: avatar + name on the left, every action on the right (Founder 2026-08-21). -->
+      <div class="kv-row">
+        <a class="kv-who" data-kv="creator" target="_blank" rel="noopener">
+          <span class="kv-av" data-kv="avatar"></span>
+          <span class="kv-nm"><b data-kv="name"></b><i data-kv="meta"></i></span>
+        </a>
+        <div class="fb-actions kv-acts" data-kv="act">
+          <button class="fba fba-dis" title="Dislike" aria-label="Dislike"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><b></b></button>
+          <button class="fba fba-like" title="Like" aria-label="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><b></b></button>
+          <button class="fba fba-share" title="Share" aria-label="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><b></b></button>
+          <button class="fba fb-save" title="Save" aria-label="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><b></b></button>
+          <a class="fba kv-src" data-kv="source" target="_blank" rel="noopener" title="Watch at the source"><span data-kv-icon></span></a>
+        </div>
+      </div>
+
+      <button class="kv-cmt"><span>Comments</span><span class="kv-cmt-n"></span><span class="kv-chev">&#9662;</span></button>
+    </div>
+  </div>
+</template>
     <div class="feed" id="feed"></div>
     <!-- Culture sections (Radio / VS / Givebacks) render here when selected -->
     <div id="cul-section-panel" style="display:none"></div>
@@ -668,63 +747,91 @@ renderTypebar();renderDiscover();renderFeed();
       var vd=r.data||{};
       var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
       var vhref=vd.source_url||'#';
-      /* SHORT vs LANDSCAPE (Founder 2026-08-21). A Short in a 16:9 well is a tall frame pillar-
-         boxed inside a wide box — the "empty space" complaint. The well takes the video's own
-         ratio, identically on mobile and desktop, so neither orientation is letterboxed. */
+      /* Rendered from the <template id="kv-video-card"> further down this file — see the
+         comment above it. No card HTML is built here on purpose: two definitions of one card
+         drift, and the Founder edits the template, not this function. */
       var isShort = vd.is_short === true;
-      var wellRatio = isShort ? '9/16' : '16/9';
-      var wellCap = isShort ? 'max-height:calc(100dvh - 210px);margin:0 auto;' : '';
-      var avatarUrl = vd.avatar || r.author_avatar || '';
-      var initial = (r.author_name||'?').trim().charAt(0).toUpperCase();
-
-      /* Engagement stack, YouTube-app order (Founder 2026-08-21): avatar + name, then
-         Dislike / Like / Share / Save, then comments. It fills the dead space under a landscape
-         video. A Short already fills the screen, so it keeps the compact overlay rail instead —
-         stacking this under a full-height frame would push it off-screen entirely. */
-      var engage = ''
-        + '<div class="kv-meta">'
-        +   '<a class="kv-who" href="' + h(vd.creator_profile_url || vhref) + '" target="_blank" rel="noopener">'
-        +     '<span class="kv-av"' + (avatarUrl ? ' style="background-image:url(' + h(avatarUrl) + ')"' : '') + '>'
-        +       (avatarUrl ? '' : h(initial)) + '</span>'
-        +     '<span class="kv-nm"><b>' + h(r.author_name || 'Unknown creator') + '</b>'
-        +       '<i>' + h(r.source_platform || '') + (vwhen ? ' · ' + h(vwhen) : '') + '</i></span>'
-        +   '</a>'
-        + '</div>'
-        + '<div class="fb-actions kv-acts">'
-        +   '<button class="fba fba-dis" onclick="culDislike(\'' + h(r.id) + '\',this)" title="Dislike">'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg><b></b></button>'
-        +   '<button class="fba fba-like" onclick="fbLike(\'' + h(r.id) + '\',this)" title="Like">'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg><b></b></button>'
-        +   '<button class="fba fba-share" onclick="fbShare(\'' + h(vhref) + '\')" title="Share">'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg><b></b></button>'
-        +   '<button class="fba fb-save" onclick="fbSaveL(\'' + h(r.id) + '\',this)" title="Save">'
-        +     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><b></b></button>'
-        + '</div>'
-        /* Comments open inline via the same culComments() every other card uses — one comment
-           implementation, not a second one that would drift. */
-        + '<button class="kv-cmt" onclick="culComments(\'' + h(r.id) + '\',this)">'
-        +   '<span>Comments</span><span class="kv-cmt-n"></span><span class="kv-chev">&#9662;</span></button>';
-
-      return '<div class="fcard fbcard kil-vid' + (isShort ? ' kv-short' : '') + '" data-pid="' + h(r.id) + '"'
-        + ' data-embed="' + h(vd.embed_url || '') + '" data-short="' + (isShort ? '1' : '0') + '" style="overflow:hidden">'
-        + '<div class="kil-vid-well" style="position:relative;aspect-ratio:' + wellRatio + ';' + wellCap + 'background:#000">'
-        +   '<img src="' + h(vd.img || vd.cover || '/v3/blog-default.jpg') + '" loading="lazy" alt="' + h(r.title || '') + '" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
-        +   '<span style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">' + h((r.source_platform || 'VIDEO').toUpperCase()) + '</span>'
-        +   '<span class="kil-vid-play" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
-        +     '<span style="width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center">'
-        +     '<span style="border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px"></span></span></span>'
-        + '</div>'
-        + '<div class="kv-body">'
-        +   '<a class="kv-title" href="' + h(vhref) + '" target="_blank" rel="noopener">' + h(r.title || 'Untitled') + '</a>'
-        +   engage
-        + '</div>'
-        + '</div>';
+      return kvRenderVideoCard(r, vd, vhref, vwhen, isShort);
     }
     /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
     var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
     var m=(media.mtype==='video'&&media.src)
       ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:contain;display:block"></video>'
       : '<img src="'+h(mSrc)+'" loading="lazy" onerror="this.src=\'/v3/blog-default.jpg\'" style="width:100%;height:100%;object-fit:contain;display:block">';
+  /* ── VIDEO CARD RENDERER ───────────────────────────────────────────────────────────────
+     Clones <template id="kv-video-card"> and fills every data-kv hook. Returns an HTML string
+     because the feed is painted with list.map(card).join(''). */
+  var KV_ICONS = {
+    youtube:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.9-.5-5.8a3 3 0 0 0-2.1-2.1C18.5 3.6 12 3.6 12 3.6s-6.5 0-8.4.5A3 3 0 0 0 1.5 6.2C1 8.1 1 12 1 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 8.4.5 8.4.5s6.5 0 8.4-.5a3 3 0 0 0 2.1-2.1C23 15.9 23 12 23 12zM9.8 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>',
+    tiktok:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.8a5 5 0 0 1-1.2-3.3h-3.2v13a2.6 2.6 0 1 1-1.9-2.5V9.7a5.8 5.8 0 1 0 5.1 5.8V9.3a8.2 8.2 0 0 0 4.6 1.4V7.5a5 5 0 0 1-3.4-1.7z"/></svg>',
+    instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>'
+  };
+  function kvRenderVideoCard(r, vd, vhref, vwhen, isShort){
+    var tpl = document.getElementById('kv-video-card');
+    /* BROKEN != EMPTY: if the template is missing or was edited into something unrecognisable,
+       say so in the console rather than silently rendering nothing. */
+    if(!tpl || !tpl.content || !tpl.content.firstElementChild){
+      console.error('[culture] <template id="kv-video-card"> is missing or empty — video cards cannot render');
+      return '';
+    }
+    var frag = tpl.content.cloneNode(true);
+    var card = frag.querySelector('.fcard');
+    if(!card){ console.error('[culture] kv-video-card template has no .fcard root'); return ''; }
+
+    var pid = String(r.id == null ? '' : r.id);
+    card.setAttribute('data-pid', pid);
+    card.setAttribute('data-embed', vd.embed_url || '');
+    card.setAttribute('data-short', isShort ? '1' : '0');
+    if(isShort) card.classList.add('kv-short');
+
+    var q = function(k){ return frag.querySelector('[data-kv="'+k+'"]'); };
+    var el;
+
+    /* The well takes the video's own ratio so neither orientation is letterboxed. */
+    if((el = q('well'))){
+      el.style.aspectRatio = isShort ? '9/16' : '16/9';
+      if(isShort){ el.style.maxHeight = 'calc(100dvh - 210px)'; el.style.margin = '0 auto'; }
+    }
+    if((el = q('thumb'))){
+      el.setAttribute('src', vd.img || vd.cover || '/v3/blog-default.jpg');
+      el.setAttribute('alt', r.title || '');
+      el.setAttribute('onerror', "this.src='/v3/blog-default.jpg'");
+    }
+    if((el = q('platform'))) el.textContent = (r.source_platform || 'VIDEO').toUpperCase();
+    if((el = q('title'))){ el.textContent = r.title || 'Untitled'; el.setAttribute('href', vhref); }
+    if((el = q('creator'))) el.setAttribute('href', vd.creator_profile_url || vhref);
+    if((el = q('avatar'))){
+      var av = vd.avatar || r.author_avatar || '';
+      if(av) el.style.backgroundImage = 'url(' + av + ')';
+      else el.textContent = (r.author_name || '?').trim().charAt(0).toUpperCase();
+    }
+    if((el = q('name'))) el.textContent = r.author_name || 'Unknown creator';
+    if((el = q('meta'))) el.textContent = (r.source_platform || '') + (vwhen ? ' \u00b7 ' + vwhen : '');
+    if((el = q('source'))){
+      el.setAttribute('href', vhref);
+      el.setAttribute('title', 'Watch on ' + (r.source_platform || 'the source'));
+      var slot = el.querySelector('[data-kv-icon]');
+      var icon = KV_ICONS[(vd.provider || '').toLowerCase()];
+      /* No icon for an unknown platform is fine; an empty circle is not, so fall back to the
+         platform's first letter rather than an unexplained blank button. */
+      if(slot) slot.innerHTML = icon || ('<b style="font:800 .72rem Inter,sans-serif">'
+        + ((r.source_platform || '?').charAt(0).toUpperCase()) + '</b>');
+    }
+
+    /* Handlers are wired by class, so reordering the buttons in the template cannot unwire them. */
+    var on = function(sel, fn){ var b = frag.querySelector(sel); if(b) b.setAttribute('onclick', fn); };
+    var pe = pid.replace(/'/g, "\\'");
+    on('.fba-dis',   "culDislike('"+pe+"',this)");
+    on('.fba-like',  "fbLike('"+pe+"',this)");
+    on('.fba-share', "fbShare('"+String(vhref).replace(/'/g,"\\'")+"')");
+    on('.fb-save',   "fbSaveL('"+pe+"',this)");
+    on('.kv-cmt',    "culComments('"+pe+"',this)");
+
+    var box = document.createElement('div');
+    box.appendChild(frag);
+    return box.innerHTML;
+  }
+
     var pid=h(r.id||('cul:'+r.profile_slug));
     var acts='<div class="fb-actions">'
       +'<button class="fba fba-like" onclick="fbLike(\''+pid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
