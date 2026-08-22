@@ -58,17 +58,26 @@ a{color:inherit;text-decoration:none}
    into place"). The homepage does this with .hero{min-height:100dvh} — a full-viewport opening
    panel over the fixed backdrop. Same here. svh first so the iOS URL bar collapsing does not
    change the height mid-scroll; dvh is the fallback for anything without svh. */
-.hero{padding:34px 0 26px;text-align:left;max-width:1120px;margin:0 auto;
+/* BOTTOM-WEIGHTED LANDING PANEL (Founder 2026-08-21: "titles and metrics needs to be bigger
+   and towards the bottom of the landing page and also match the color theme of that page").
+   justify-content:flex-end drops the block to the foot of the full-viewport panel, so the
+   artwork owns the top two thirds and the type sits over the darkest part of the scrim where
+   it is most legible. */
+.hero{padding:34px 0 46px;text-align:left;max-width:1120px;margin:0 auto;
   min-height:calc(100svh - 70px);min-height:calc(100dvh - 70px);
-  display:flex;flex-direction:column;justify-content:center}
-.hero h1{font-family:var(--fh);font-size:clamp(2.6rem,9vw,5rem);letter-spacing:.03em;line-height:.95;text-shadow:0 3px 22px rgba(0,0,0,.6)}
+  display:flex;flex-direction:column;justify-content:flex-end}
+/* EARN palette: the neon green and orange of the backdrop art. */
+.hero h1{font-family:var(--fh);font-size:clamp(3.6rem,13vw,8rem);letter-spacing:.03em;line-height:.88;
+  background:linear-gradient(100deg,#8BFF3D 18%,#FF8A1F);-webkit-background-clip:text;background-clip:text;
+  color:transparent;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 4px 26px rgba(0,0,0,.75))}
 .hero p{color:#e7e9f2;max-width:640px;margin:12px 0 0;font-size:1.02rem;line-height:1.55;text-shadow:0 1px 10px rgba(0,0,0,.5)}
 /* Connect's stat row (Founder 2026-08-21) */
-.hero .stats{display:flex;justify-content:flex-start;gap:34px;margin-top:14px;flex-wrap:wrap}
-.hero .stat b{font-family:var(--fh);font-size:1.8rem;letter-spacing:.02em;display:block;line-height:1;text-shadow:0 2px 14px rgba(0,0,0,.55)}
-.hero .stat span{display:block;font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:#9aa0b0;margin-top:3px;font-weight:800}
-.hero .stat.s b{color:var(--brand)}.hero .stat.p b{color:#a06bff}.hero .stat.g b{color:#ffb43c}
-@media(max-width:600px){.hero .stats{gap:22px}.hero .stat b{font-size:1.45rem}}
+.hero .stats{display:flex;justify-content:flex-start;gap:46px;margin-top:22px;flex-wrap:wrap}
+.hero .stat b{font-family:var(--fh);font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:.02em;display:block;line-height:1;text-shadow:0 2px 18px rgba(0,0,0,.7)}
+.hero .stat span{display:block;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:#cfd6c9;margin-top:5px;font-weight:800;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.hero .stat.s b{color:#8BFF3D}.hero .stat.p b{color:#FF8A1F}.hero .stat.g b{color:#8BFF3D}
+@media(max-width:600px){.hero .stats{gap:26px}.hero .stat b{font-size:2rem}.hero .stat span{font-size:.68rem}}
 .hero .live{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--panel);border:1px solid var(--brd);backdrop-filter:blur(8px);border-radius:999px;padding:8px 16px;font-size:.8rem;font-weight:700;letter-spacing:.05em}
 .hero .live .dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 12px var(--brand);animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.35}}
@@ -322,7 +331,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   body.rad-m .hero{display:flex;flex-direction:column;justify-content:center;padding:4px 0 14px;
     min-height:calc(100svh - env(safe-area-inset-top,0px));
     min-height:calc(100dvh - env(safe-area-inset-top,0px))}
-  body.rad-m .hero h1{font-size:2.2rem}
+  body.rad-m .hero h1{font-size:clamp(3rem,16vw,4.4rem)}
   body.rad-m .hero .stats{margin-top:10px}
   /* the desktop accordion collapses grids until .open — on mobile always show them */
   /* KODE 2026-08-20, Part C #5: THIS is the rule that kept /earn a single column on a phone.
