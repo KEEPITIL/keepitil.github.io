@@ -146,19 +146,24 @@
    /* LEFT on desktop, matching /connect (Founder 2026-08-21). Centred below 861px, where a
       left-aligned title over a full-width stat row reads as misaligned rather than deliberate. */
    /* Background-first opening panel, matching the homepage (Founder 2026-08-21). */
-   + '#vs-app .ce-hero{text-align:left;padding:6px 0 18px;display:flex;flex-direction:column;'
-   +   'justify-content:center;min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px)}'
+   /* Bottom-weighted, matching /connect and /earn (Founder 2026-08-21). */
+   + '#vs-app .ce-hero{text-align:left;padding:6px 0 40px;display:flex;flex-direction:column;'
+   +   'justify-content:flex-end;min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px)}'
    + '@media(max-width:860px){#vs-app .ce-hero{text-align:center}}'
-   + '#vs-app .ce-hero h1{font-family:var(--fh,inherit);font-size:clamp(2.6rem,10vw,5rem);line-height:.9;'
-   +   'letter-spacing:.04em;margin:0;background:linear-gradient(90deg,#ff2e88,#a06bff);'
-   +   '-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}'
-   + '#vs-app .ce-stats{display:flex;justify-content:flex-start;gap:34px;margin-top:12px;flex-wrap:wrap}'
+   /* CREATE palette: the pink and violet of the backdrop art. */
+   + '#vs-app .ce-hero h1{font-family:var(--fh,inherit);font-size:clamp(3.6rem,13vw,8rem);line-height:.88;'
+   +   'letter-spacing:.04em;margin:0;background:linear-gradient(100deg,#FF2E88 18%,#A06BFF);'
+   +   '-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'
+   +   'filter:drop-shadow(0 4px 26px rgba(0,0,0,.75))}'
+   + '#vs-app .ce-stats{display:flex;justify-content:flex-start;gap:46px;margin-top:22px;flex-wrap:wrap}'
    + '@media(max-width:860px){#vs-app .ce-stats{justify-content:center}}'
-   + '#vs-app .ce-stat b{font-family:var(--fh,inherit);font-size:1.8rem;letter-spacing:.02em;display:block;line-height:1}'
-   + '#vs-app .ce-stat span{display:block;font:800 .66rem Inter,sans-serif;letter-spacing:.15em;'
-   +   'text-transform:uppercase;color:#6b6588;margin-top:3px}'
-   + '#vs-app .ce-stat.a b{color:#ff2e88}#vs-app .ce-stat.v b{color:#a06bff}#vs-app .ce-stat.e b{color:#22e39b}'
-   + '@media(max-width:600px){#vs-app .ce-stats{gap:22px}#vs-app .ce-stat b{font-size:1.45rem}}'
+   + '#vs-app .ce-stat b{font-family:var(--fh,inherit);font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:.02em;'
+   +   'display:block;line-height:1;text-shadow:0 2px 18px rgba(0,0,0,.7)}'
+   + '#vs-app .ce-stat span{display:block;font:800 .78rem Inter,sans-serif;letter-spacing:.18em;'
+   +   'text-transform:uppercase;color:#d6c9e0;margin-top:5px;text-shadow:0 1px 8px rgba(0,0,0,.7)}'
+   + '#vs-app .ce-stat.a b{color:#FF2E88}#vs-app .ce-stat.v b{color:#A06BFF}#vs-app .ce-stat.e b{color:#FF7AC8}'
+   + '@media(max-width:600px){#vs-app .ce-stats{gap:26px}#vs-app .ce-stat b{font-size:2rem}'
+   +   '#vs-app .ce-stat span{font-size:.68rem}}'
    /* Entry page: the submitted work sits in the locked flyer slot, and the vote actions take
       the place the buy button occupies on an event page. Two-copy image trick again so a
       submission that is not 2:3 is shown whole instead of centre-cropped. */
