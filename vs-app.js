@@ -220,7 +220,7 @@
       at 97% the pink backdrop still showed through it while the page scrolled underneath.
       The chip rows keep the page measure so they stay aligned with the competition grid. */
    + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px;'
-   +   'position:sticky;top:env(safe-area-inset-top,0px);z-index:70;background:#0b0b12;'
+   +   'position:sticky;top:0;z-index:960;background:#0b0b12;'
    +   'padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px;'
    +   'width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);'
    +   'border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 10px 24px rgba(0,0,0,.45)}'
