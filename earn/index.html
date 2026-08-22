@@ -437,10 +437,13 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/v3/keepitil-radio.js?v=20260822a" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260822b" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
 <script src="/v3/keepitil-ai.js?v=20260822a" defer></script>
 <script>
+/* One anon key for this page's two public reads (playlists + competitions). Same publishable
+   key every other page already ships in its HTML. */
+window.KIL_EARN_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
 /* genre → emoji + hue for the card image band */
 var GENRES=[
  ['Hip-Hop','🎤',280],['House','🏠',200],['Techno','🤖',190],['Bass','🔊',260],['R&B & Soul','💜',300],['Pop','⭐',330],
@@ -448,12 +451,51 @@ var GENRES=[
  ['Reggae & Dancehall','🌴',140],['Jazz','🎷',270],['Classical','🎻',220],['Indie & Alternative','🎶',170],['Mixed Discovery','🔀',160]
 ];
 function band(hue,glyph){return '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',70%,42%),hsl('+((hue+40)%360)+',65%,20%))">'+glyph+'</div>';}
+/* ── LIVE RADIO PLAYLISTS (Founder 2026-08-22) ─────────────────────────────────────────
+   One card per real KEEPITIL SoundCloud playlist, named after the playlist, opening the
+   SoundCloud set. Read from platform_config.radio_playlists — the SAME row the radio bar
+   reads — so the page and the player can never disagree about which stations exist.
+   This replaces the 16 hard-coded genre tiles that all said "Add URL" and linked nowhere. */
+function kilStationCard(p, i){
+  var HUES=[280,200,35,140,320,90];
+  var hue=HUES[i%HUES.length];
+  return '<a class="station card" href="'+esc(p.url)+'" target="_blank" rel="noopener">'
+    + '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))">\u266a</div>'
+    + '<div class="g">'+esc(p.name||'Playlist')+'</div>'
+    + '<div class="s">Playlist</div>'
+    + '<span class="chip">PLAY ON SOUNDCLOUD</span>'
+    + '</a>';
+}
+/* esc() already exists further down this file — not redefined here. */
+
 function renderStations(){
-  document.getElementById('stationGrid').innerHTML=GENRES.map(function(g){
-    return '<div class="station card">'+band(g[2],g[1])
-      +'<div class="g">'+g[0]+'</div><div class="s">Station</div>'
-      +'<span class="chip soon">Add URL</span></div>';
-  }).join('');
+  var grid=document.getElementById('stationGrid');
+  if(!grid) return;
+  var SUPA='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var KEY=window.KIL_EARN_KEY||'';
+
+  function paint(list){
+    if(!list || !list.length){
+      /* BROKEN != EMPTY — an empty rail must explain itself. */
+      grid.innerHTML='<div class="disc" style="flex:0 0 auto;max-width:80vw;padding:14px 2px">'
+        +'No playlists configured yet.</div>';
+      var s0=document.getElementById('eS'); if(s0) s0.textContent='0';
+      return;
+    }
+    grid.innerHTML=list.map(kilStationCard).join('');
+    var el=document.getElementById('eS'); if(el) el.textContent=String(list.length);
+  }
+
+  fetch(SUPA+'/rest/v1/platform_config?select=value&key=eq.radio_playlists',
+        {headers:{apikey:KEY,Authorization:'Bearer '+KEY}})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(rows){
+      var v=rows&&rows[0]&&rows[0].value;
+      /* value is a TEXT column holding JSON, so it arrives as a string. */
+      if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v=null; } }
+      paint(v&&v.playlists);
+    })
+    .catch(function(e){ console.error('[earn] playlists failed to load',e); paint(null); });
 }
 
 /* ---- User playlists from public SoundCloud URLs (localStorage v1) ---- */
@@ -514,7 +556,7 @@ var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid)
   var URL_ = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co/rest/v1/vs_competitions'
     + '?select=id,title,category,cover_url,entry_fee_cents,submissions_close_at,status'
     + '&status=eq.published&order=submissions_close_at.asc';
-  var KEY_ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  var KEY_ = window.KIL_EARN_KEY || '';
 
   /* A plain fetch rather than the Supabase SDK: this page needs exactly one public read, and
      pulling the whole client in for that would cost more than the request. The anon key is the
@@ -565,7 +607,6 @@ renderStations();
    "Your Playlists" section below it also shows. */
 function radStats(){
   var set=function(id,n){ var el=document.getElementById(id); if(el) el.textContent=String(n); };
-  try{ set('eS', (typeof GENRES!=='undefined' && GENRES.length) || 0); }catch(e){}
   try{ set('eG', (typeof GAMES!=='undefined' && GAMES.length) || 0); }catch(e){}
 }
 radStats();
