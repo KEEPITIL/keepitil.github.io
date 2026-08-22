@@ -122,6 +122,14 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
 @media(max-width:860px){ .grid{gap:10px} .grid>*{flex:0 0 160px} }
 .g-stations>*{flex:0 0 160px}
 .g-cards>*{flex:0 0 240px}
+/* CREATE rail: ONE row, always (Founder 2026-08-22: "a single carousel row under CREATE").
+   The generic .grid is already a nowrap flex rail, but the section-expand toggle could turn
+   it back into a wrapping grid; this pins it. */
+#earnGrid{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;
+  overflow-y:hidden!important;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+#earnGrid::-webkit-scrollbar{display:none}
+#earnGrid>*{flex:0 0 240px;scroll-snap-align:start}
+@media(max-width:860px){#earnGrid>*{flex:0 0 170px}}
 .card{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:16px;transition:border-color .15s,transform .15s;backdrop-filter:blur(10px);overflow:hidden}
 .card:hover{border-color:var(--brand);transform:translateY(-2px)}
 /* image band on every widget */
@@ -437,7 +445,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/v3/keepitil-radio.js?v=20260822b" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260822c" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
 <script src="/v3/keepitil-ai.js?v=20260822a" defer></script>
 <script>
@@ -459,8 +467,12 @@ function band(hue,glyph){return '<div class="card-img" style="background:linear-
 function kilStationCard(p, i){
   var HUES=[280,200,35,140,320,90];
   var hue=HUES[i%HUES.length];
+  /* Real playlist artwork when config carries it; the gradient is the fallback, not the default. */
+  var cover = p.art
+    ? 'background:#15131f url('+p.art+') center/cover no-repeat'
+    : 'background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))';
   return '<a class="station card" href="'+esc(p.url)+'" target="_blank" rel="noopener">'
-    + '<div class="card-img" style="background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))">\u266a</div>'
+    + '<div class="card-img" style="'+cover+'">'+(p.art?'':'\u266a')+'</div>'
     + '<div class="g">'+esc(p.name||'Playlist')+'</div>'
     + '<div class="s">Playlist</div>'
     + '<span class="chip">PLAY ON SOUNDCLOUD</span>'
@@ -544,7 +556,7 @@ var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid)
       return '<a class="card station" href="/create/?view=enter&c='+encodeURIComponent(c.id)+'">'
         + art
         + '<div class="g">'+esc(c.title)+'</div>'
-        + '<div class="s">'+esc(c.category||'CREATE')+'</div>'
+        + '<div class="s">'+esc(c.season_label||'CREATE')+'</div>'
         + '<span class="chip'+(free?'':' soon')+'">'+(free?'FREE TO ENTER':'$'+(c.entry_fee_cents/100).toFixed(2))+'</span>'
         + (closes?'<div class="meta">'+esc(closes)+'</div>':'')
         + '</a>';
@@ -553,8 +565,13 @@ var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid)
   }
 
   /* Read-only, anon-safe: published competitions are public on /create already. */
+  /* ⚠ SELECT ONLY COLUMNS THAT EXIST. PostgREST answers 400 for an unknown column, and a 400
+     here lands in the "no competitions" branch — so a typo looks exactly like an empty season.
+     vs_competitions has NO `category` column (it has category_id, and the joined name just
+     repeats the title anyway); asking for it is what kept this rail empty. season_label is the
+     useful subtitle: "Q4 2026". */
   var URL_ = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co/rest/v1/vs_competitions'
-    + '?select=id,title,category,cover_url,entry_fee_cents,submissions_close_at,status'
+    + '?select=id,title,season_label,cover_url,entry_fee_cents,submissions_close_at,status'
     + '&status=eq.published&order=submissions_close_at.asc';
   var KEY_ = window.KIL_EARN_KEY || '';
 
@@ -562,7 +579,11 @@ var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid)
      pulling the whole client in for that would cost more than the request. The anon key is the
      same publishable key every other page already ships in its HTML. */
   fetch(URL_, { headers: { apikey: KEY_, Authorization: 'Bearer ' + KEY_ } })
-    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(r){
+      /* Say WHY, in the console, rather than letting a 400 masquerade as an empty season. */
+      if(!r.ok){ console.error('[earn] competitions request failed', r.status, URL_); return null; }
+      return r.json();
+    })
     .then(function(rows){ paint(rows); })
     .catch(function(e){ console.error('[earn] competitions failed to load', e); paint(null); });
 })();
