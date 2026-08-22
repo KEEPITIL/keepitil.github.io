@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en" data-theme="default"><head>
-<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="description" content="KEEPITIL Culture — the community feed plus original journalism, guides and stories from creators across the scene.">
 <title>Culture — The Community Feed | KEEPITIL</title>
 <link rel="canonical" href="https://keepitil.com/culture"/>
@@ -26,7 +26,14 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0
 html.has-season body::before{display:none!important} /* seasonal image takes over the hero backdrop on its dates */
 :root{--brand:#a855f7;--brand-2:#c084fc;--glow:#a855f7} /* Culture = neon purple accent */
 /* layout */
-.wrap{max-width:1360px;margin:0 auto;padding:0 26px}
+/* width:100% IS LOAD-BEARING — DO NOT DROP IT (KODE 2026-08-20, restored by Atlas 08-21).
+   body is a flex column here, so .wrap is a flex ITEM. `margin:0 auto` is a cross-axis auto
+   margin, and a cross-axis auto margin cancels align-items:stretch — .wrap then sizes to
+   fit-content, which for a flex-wrap:nowrap card rail is wider than the phone. Mobile Safari
+   responds by zooming the whole page out to fit. max-width:1120px still caps it on desktop.
+   This was lost once already when a push overwrote the file; if it goes missing again the
+   symptom is "the page is zoomed out", not a layout error. */
+.wrap{max-width:1360px;margin:0 auto;padding:0 26px;width:100%}
 .chero-intro{min-height:calc(100vh - 132px);min-height:calc(100dvh - 132px);display:flex;align-items:flex-end;justify-content:center;padding:0 20px 42px}
 .chero-cue{display:flex;flex-direction:column;align-items:center;gap:7px;color:#fff;opacity:.82;text-shadow:0 2px 12px rgba(0,0,0,.55);cursor:pointer}
 .chero-cue span{font-family:var(--fh,inherit);font-size:.72rem;letter-spacing:.26em;font-weight:800}
