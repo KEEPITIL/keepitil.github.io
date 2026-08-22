@@ -37,6 +37,13 @@
     '.kr-nav.kr-sd{width:24px;height:26px;font-size:1.05rem;font-weight:800;}'+
     '.kr-side{font-size:.72rem;color:rgba(255,255,255,.42);white-space:nowrap;overflow:hidden;'+
       'text-overflow:ellipsis;max-width:150px;flex:0 1 auto;}'+
+    /* Outer playlist labels: brand green so a station name never reads as a song title. */
+    '.kr-plname{font:800 .68rem Inter,sans-serif;letter-spacing:.06em;color:rgba(0,255,136,.72);'+
+      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;flex:0 1 auto;}'+
+    /* Five text slots do not fit a laptop, let alone a phone. Drop them outside-in: the playlist
+       names go first, then the neighbouring song titles, leaving the arrows and NOW PLAYING —
+       which is the part that has to survive at every width. */
+    '@media(max-width:1100px){.kr-plname{display:none;}}'+
     '.kr-now{font-size:.9rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;'+
       'text-overflow:ellipsis;max-width:280px;flex:0 1 auto;padding:0 4px;}'+
     '@media(max-width:900px){.kr-side{display:none;}}'+
@@ -61,7 +68,7 @@
     '@media(max-width:600px){'+
       '.kil-live,.kil-brand-live,.kil-divider{display:none!important;}'+   /* far left = logo + RADIO only */
       '#kil-track{display:block!important;flex:1 1 auto;min-width:0;text-align:center;font-size:.62rem;padding:0 6px;color:rgba(255,255,255,.7);}'+  /* center: song title + artist */
-      '.kr-side{display:none!important;}'+
+      '.kr-side,.kr-plname{display:none!important;}'+
       '#kr-toggle{display:none!important;}'+   /* volume + speaker become the far-right controls */
       '.kil-brand{gap:5px;}'+
       '.kr-controls{gap:9px;margin-left:auto;flex-shrink:0;}'+
@@ -88,14 +95,20 @@
         '<img src="/keepitil-x-logo.png" class="kil-brand-logo" alt="KEEPITIL"/>'+
         '<span class="kil-brand-radio">RADIO</span>'+
       '</div>'+
+      /* Founder-specified order 2026-08-22:
+         PREV PLAYLIST << | PREV SONG < | PLAYLIST: NOW PLAYING | > NEXT SONG | >> NEXT PLAYLIST
+         The label sits OUTSIDE its arrow on each side, so the arrow always points at the thing
+         named next to it. */
       '<div class="kr-shuttle">'+
+        '<span class="kr-plname" id="kr-prevpl-t"></span>'+
         '<button class="kr-nav kr-pl" id="kr-prevpl" title="Previous playlist" aria-label="Previous playlist">&#171;</button>'+
-        '<button class="kr-nav kr-sd" id="kr-prev" title="Previous song" aria-label="Previous song">&#8249;</button>'+
         '<span class="kr-side" id="kr-prevt"></span>'+
+        '<button class="kr-nav kr-sd" id="kr-prev" title="Previous song" aria-label="Previous song">&#8249;</button>'+
         '<span id="kil-track" class="kr-now">Loading\u2026</span>'+
-        '<span class="kr-side" id="kr-nextt"></span>'+
         '<button class="kr-nav kr-sd" id="kr-next" title="Next song" aria-label="Next song">&#8250;</button>'+
+        '<span class="kr-side" id="kr-nextt"></span>'+
         '<button class="kr-nav kr-pl" id="kr-nextpl" title="Next playlist" aria-label="Next playlist">&#187;</button>'+
+        '<span class="kr-plname" id="kr-nextpl-t"></span>'+
       '</div>'+
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">\ud83d\udd0a</button>'+
@@ -201,17 +214,45 @@
   /* ── SHUTTLE CONTROLS ──────────────────────────────────────────────────────────────────
      Song arrows drive the SoundCloud widget. Playlist arrows swap the iframe src, because a
      widget is bound to one playlist for its lifetime — there is no API to repoint it. */
+  function kilPlName(offset){
+    if(!KIL_PL.length) return '';
+    var p = KIL_PL[(KIL_PL_I + offset + KIL_PL.length) % KIL_PL.length];
+    return (p && p.name) ? p.name : '';
+  }
+  /* The two outer labels name the playlists the << and >> arrows lead to. They do not depend on
+     the player, so they are painted as soon as config lands — not only once audio starts. */
+  function kilPaintPlaylistNames(){
+    var solo = KIL_PL.length < 2;   /* one station: nothing to move between, so no labels */
+    var a=document.getElementById('kr-prevpl-t'), b=document.getElementById('kr-nextpl-t');
+    if(a) a.textContent = solo ? '' : kilPlName(-1);
+    if(b) b.textContent = solo ? '' : kilPlName(1);
+  }
+  window.__kilPaintPlaylistNames = kilPaintPlaylistNames;
+
   function kilPaintTitles(){
     if(!widget || !widgetReady) return;
     widget.getSounds(function(list){
       if(!list || !list.length) return;
       widget.getCurrentSoundIndex(function(i){
-        var prevEl=document.getElementById('kr-prevt'), nextEl=document.getElementById('kr-nextt');
-        var p=list[(i-1+list.length)%list.length], n=list[(i+1)%list.length];
-        if(prevEl) prevEl.textContent = (p&&p.title)? p.title : '';
-        if(nextEl) nextEl.textContent = (n&&n.title)? n.title : '';
+        var prevEl=document.getElementById('kr-prevt'),
+            nextEl=document.getElementById('kr-nextt'),
+            nowEl =document.getElementById('kil-track');
+        var here = kilPlName(0);
+        /* First or last track has no neighbour inside this playlist. Rather than leave a blank
+           slot, name the playlist — the Founder's rule: "if non than use the playlist title". */
+        var p = (i > 0) ? list[i-1] : null;
+        var n = (i < list.length-1) ? list[i+1] : null;
+        if(prevEl) prevEl.textContent = (p && p.title) ? p.title : here;
+        if(nextEl) nextEl.textContent = (n && n.title) ? n.title : here;
+        /* Current reads "PLAYLIST: SONG" — e.g. "EDM: VHS TAPES". */
+        if(nowEl){
+          var cur = list[i];
+          var t = (cur && cur.title) ? cur.title : '';
+          nowEl.textContent = here ? (here + (t ? ': ' + t : '')) : t;
+        }
       });
     });
+    kilPaintPlaylistNames();
   }
   window.__kilPaintTitles = kilPaintTitles;
 
@@ -233,6 +274,7 @@
     sc.src=window.__kilPlayerSrc();
     document.body.appendChild(sc);
     if(trackEl) trackEl.textContent = (KIL_PL[KIL_PL_I].name || 'Loading') + '\u2026';
+    kilPaintPlaylistNames();
     if(window.__kilRadioAttach) window.__kilRadioAttach(sc);
   }
 
@@ -263,6 +305,7 @@
       if(KIL_PL.length < 2){
         ['kr-prevpl','kr-nextpl'].forEach(function(id){ var b=document.getElementById(id); if(b) b.style.display='none'; });
       }
+      kilPaintPlaylistNames();
     })
     .catch(function(){});
 
@@ -399,7 +442,7 @@
     if(!window.SC)return;
     widget=SC.Widget(frame);
     widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);syncAndPlay();});
-    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSoundIndex(function(i){currentTrackIdx=i;});widget.getCurrentSound(function(s){if(s&&s.title&&trackEl)trackEl.textContent=s.title;});kilPaintTitles();});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSoundIndex(function(i){currentTrackIdx=i;});kilPaintTitles();});
     widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(e){if(e&&e.currentPosition)currentPosition=e.currentPosition;if(interacted&&widget)widget.setVolume(getVol());});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
     /* ── PLAY A PLAYLIST THROUGH, THEN ROLL TO THE NEXT ONE (Founder 2026-08-22) ──────────
