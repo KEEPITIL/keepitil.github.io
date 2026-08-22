@@ -1849,6 +1849,48 @@
     } catch(e) { return []; }
   }
 
+  /**
+   * Spotlight profiles come from profile_meta, keyed by entity_category.
+   *
+   * The three widgets used to query artists / brands / organizers. Those tables do not exist:
+   * every page load fired three requests that PostgREST answered 404, crawlers included, and
+   * the widgets fell through to their hardcoded placeholder lists on every single visit. The
+   * real rows were in profile_meta the whole time — groove-trooper is published there while
+   * the placeholder list rendered a stale copy of the same artist with an old image.
+   *
+   * profile_meta has no `id`, so ordering is by updated_at. Only published rows are shown;
+   * anything else is a draft and must not appear on the homepage. The placeholder lists below
+   * are left in place as the genuine empty state, not as the normal path.
+   */
+  async function fetchSpotlight(category, limit) {
+    const cols = 'slug,display_name,tagline,bio,avatar_url,entity_category,status';
+    try {
+      const r = await fetch(
+        `${SUPA_URL}/rest/v1/profile_meta?select=${cols}` +
+        `&entity_category=eq.${encodeURIComponent(category)}&status=eq.published` +
+        `&limit=${limit}&order=updated_at.desc`,
+        { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY } }
+      );
+      if (!r.ok) return [];
+      const rows = await r.json();
+      return Array.isArray(rows) ? rows : [];
+    } catch(e) { return []; }
+  }
+
+  /** profile_meta row → the shape buildWidget() renders. */
+  function spotlightItem(row, fallbackTag, fallbackBio) {
+    return {
+      name: row.display_name || row.slug || 'Unknown',
+      tag: row.tagline || fallbackTag,
+      bio: (row.bio || '').slice(0,120) || fallbackBio,
+      /* Canonical public profile URL (Founder 2026-08-04). The artist widget used to build
+         '/scene' + slug — no separator, and the wrong route. */
+      link: '/profile/' + (row.slug || ''),
+      img: row.avatar_url || null,
+      type: 'Profile'
+    };
+  }
+
   const CULTURE_ITEMS = [
     { name:'Hard Techno Essentials 2026', tag:'SONGS', bio:'The tracks moving LA warehouse floors right now — a curated listen through the hard techno records defining the sound.', link:'/blog-song-hard-techno-essentials-2026.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
     { name:'Festival Packing Guide', tag:'TIPS', bio:'What to bring to a SoCal rave — the essential packing list for outdoor festivals in the heat.', link:'/blog-tip-festival-packing-guide-socal.html', color:'var(--culture-color)', img:'https://images.pexels.com/photos/1699161/pexels-photo-1699161.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&fit=crop' },
@@ -1910,15 +1952,9 @@
   async function initWidgets() {
     // Artist widget
     const artistEl = document.getElementById('sw-artist');
-    const artists = await fetchTable('artists', 'slug,name,genre,bio,img', 8);
-    const artistItems = artists.map(a => ({
-      name: a.name || 'Unknown Artist',
-      tag: a.genre || 'Underground',
-      bio: (a.bio||'').slice(0,120) || 'Bringing the underground sound to OC & LA.',
-      link: '/scene' + (a.slug||''),
-      img: a.img || null,
-      type: 'Profile'
-    }));
+    const artists = await fetchSpotlight('artist', 8);
+    const artistItems = artists.map(a =>
+      spotlightItem(a, 'Underground', 'Bringing the underground sound to OC & LA.'));
     if (artistItems.length) buildWidget(artistEl, artistItems, 'var(--artist-color)');
     else buildWidget(artistEl, [
       {name:'Groove Trooper', tag:'House · Techno', bio:'Deep cuts and heavy kicks from the OC underground pioneer. Resident selector and label founder.', link:'/profile/groove-trooper', img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg', type:'Profile'},
@@ -1931,15 +1967,9 @@
 
     // Brand widget
     const brandEl = document.getElementById('sw-brand');
-    const brands = await fetchTable('brands', 'slug,name,category,description,img', 8);
-    const brandItems = brands.map(b => ({
-      name: b.name || 'Unknown Brand',
-      tag: b.category || 'Brand',
-      bio: (b.description||'').slice(0,120) || 'Shaping the culture in OC & LA.',
-      link: '/brand/' + (b.slug||''),
-      img: b.img || null,
-      type: 'Profile'
-    }));
+    const brands = await fetchSpotlight('brand', 8);
+    const brandItems = brands.map(b =>
+      spotlightItem(b, 'Brand', 'Shaping the culture in OC & LA.'));
     if (brandItems.length) buildWidget(brandEl, brandItems, 'var(--brand-color)');
     else buildWidget(brandEl, [
       {name:'KEEPITIL Merch', tag:'Apparel', bio:'Limited-run underground streetwear built for those who live the culture. Drop-only releases.', link:'/scene', img:'https://images.pexels.com/photos/3807517/pexels-photo-3807517.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
@@ -1952,15 +1982,9 @@
 
     // Organizer widget
     const orgEl = document.getElementById('sw-organizer');
-    const orgs = await fetchTable('organizers', 'slug,name,type,description,img', 8);
-    const orgItems = orgs.map(o => ({
-      name: o.name || 'Unknown Organizer',
-      tag: o.type || 'Promoter',
-      bio: (o.description||'').slice(0,120) || 'Curating events across OC & LA.',
-      link: '/organizer/' + (o.slug||''),
-      img: o.img || null,
-      type: 'Profile'
-    }));
+    const orgs = await fetchSpotlight('organizer', 8);
+    const orgItems = orgs.map(o =>
+      spotlightItem(o, 'Promoter', 'Curating events across OC & LA.'));
     if (orgItems.length) buildWidget(orgEl, orgItems, 'var(--org-color)');
     else buildWidget(orgEl, [
       {name:'Electric Carousel', tag:'Promoter', bio:'Monthly underground selectors series roaming OC and LA venues. No headliners, just selectors.', link:'/scene', img:'https://images.pexels.com/photos/1916827/pexels-photo-1916827.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop', type:'Profile'},
