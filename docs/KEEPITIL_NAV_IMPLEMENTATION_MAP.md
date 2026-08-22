@@ -17,7 +17,7 @@ KODE found it the expensive way — built a new shell, wired all five pages, and
 
 ```
 document.body.firstElementChild  →  NAV#v3shell-nav
-script                           →  /keepitil-shell.js?v=20260807a   (47,597 bytes)
+script                           →  /keepitil-shell.js?v=20260822b   (47,597 bytes)
 ```
 
 **There is ONE shell. It already ships on all five destinations.** That makes K1 dramatically smaller and safer than v1 implied.

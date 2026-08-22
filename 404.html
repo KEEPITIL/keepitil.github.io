@@ -66,6 +66,13 @@ a{color:#5cc8ff}</style>
   var hash = location.hash || '';
   function go(url){ location.replace(url + hash); }
   var slug = seg.length ? decodeURIComponent(seg[seg.length-1]).toLowerCase().replace(/[^a-z0-9-]/g,'') : '';
+  /* The 2026-08-16 rename kept the database row and its uuid: echo→cho, nexus→xus.
+     Legacy slugs live on in public.agent_aliases, but this runs before any script can
+     load, so the table is inlined here — an exact-key lookup, never a prefix match:
+     'cho' is a substring of 'echo' and 'echo-west' is a real DJ with a real profile.
+     tests/agent-rename.test.mjs asserts this copy against the generated one. */
+  var AGENT_ALIASES = { echo: 'cho', nexus: 'xus' };
+  if(Object.prototype.hasOwnProperty.call(AGENT_ALIASES, slug)) slug = AGENT_ALIASES[slug];
 
   /* RETIRED .html PATHS → clean URLs (Founder 2026-08-18).
      The four redirect stubs (radio/scene/vs/culture.html) are DELETED, not kept, because a stub

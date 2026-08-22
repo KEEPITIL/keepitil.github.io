@@ -106,7 +106,10 @@ test("no live agent surface still keys on a legacy slug", () => {
   const surfaces = {
     // page, regex over the agent-keyed structure in that page
     "dashboard.html": /var AGENTS=\[(.*?)\];/s,
-    "culture.html": /var CUL_AGENTS=\{(.*?)\};/s,
+    /* culture.html was DELETED on 2026-08-18, not moved: a stub at culture.html hijacked
+       the extensionless /culture on GitHub Pages and redirected the page to itself. The
+       surface itself lives on at culture/index.html with the same agent map. */
+    "culture/index.html": /var CUL_AGENTS=\{(.*?)\};/s,
     "profile.html": /var AGENT_INFO=\{(.*?)\};/s
   };
   for (const [file, re] of Object.entries(surfaces)) {

@@ -86,6 +86,23 @@
      Now both mount AFTER the window load event (or immediately, if load already fired), so they
      can no longer gate it. Tracking behaviour is otherwise unchanged: same property, same
      project, same gtag/clarity globals and queues. Diagnosis: KODE, 2026-08-19. */
+  /* Clarity is gated to desktop, with a per-tab opt-out.
+     Deferring the injection stopped it holding the load event, but the STREAMING is what made
+     phones untestable: 90-110s to first paint on an iPhone 17 Pro simulator and a wedge roughly
+     every 15 minutes. GA4 stays ungated — it is beacons, not a continuous recorder.
+     The boundary is the shell's existing desktop-header breakpoint (861px), not a new number.
+     Storage is consulted, never depended on: a browser that refuses sessionStorage (private
+     mode) must still get the width gate, so every storage access is individually guarded. */
+  function __kilClarityAllowed(){
+    var optOut=false;
+    try{ optOut = /(?:^|[?&])noclarity=1(?:&|$)/.test(location.search||''); }catch(e){}
+    try{ if(optOut){ sessionStorage.setItem('kil_noclarity','1'); } }catch(e){}
+    if(!optOut){ try{ optOut = sessionStorage.getItem('kil_noclarity')==='1'; }catch(e){} }
+    if(optOut) return false;
+    var w=0;
+    try{ w = window.innerWidth || (document.documentElement && document.documentElement.clientWidth) || 0; }catch(e){}
+    return w >= 861;
+  }
   function __kilMountAnalytics(){
     /* GA4 */
     try{ if(!window.__kilGA4){ window.__kilGA4='G-ZR36NRE4MT';
@@ -93,7 +110,7 @@
       window.dataLayer=window.dataLayer||[]; window.gtag=function(){dataLayer.push(arguments);}; gtag('js',new Date()); gtag('config','G-ZR36NRE4MT');
     } }catch(e){}
     /* Microsoft Clarity */
-    try{ if(!window.__kilClarity){ window.__kilClarity='xk5iwishve';
+    try{ if(!window.__kilClarity && __kilClarityAllowed()){ window.__kilClarity='xk5iwishve';
       (function(c,l,a,r,i){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};var t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;var y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","xk5iwishve");
     } }catch(e){}
   }

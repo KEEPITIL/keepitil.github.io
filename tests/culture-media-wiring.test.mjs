@@ -221,6 +221,9 @@ test("hiding is gated on the PAGER being mounted, not on screen width", () => {
 
 test("the card rail still EXISTS in the markup — it is hidden, not deleted", () => {
   // Desktop has no pager and needs these controls.
-  assert.match(src, /class="fb-actions"/);
+  /* Match the CLASS, not the whole attribute: the rail also carries kv-acts (the keyboard-
+     visibility hook), and asserting an exact attribute value failed on markup that was
+     correct — the rail was there, it had simply gained a second class. */
+  assert.match(src, /class="fb-actions(?:\s[^"]*)?"/);
   assert.match(src, /fba fba-like/);
 });

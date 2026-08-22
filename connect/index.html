@@ -176,6 +176,13 @@ footer a{color:var(--artist);}
    live here, below 860px, where they were actually asked for. */
 @media(max-width:860px){
   body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+/* A flex-column body makes every child a flex item, and a flex item defaults to
+   min-width:auto — it will not shrink below its own max-content width. Measured at
+   375px: .wrap computed to 1120px while body{overflow-x:hidden} clipped the excess,
+   hiding the overflow instead of fixing it. Releasing min-width is what lets the
+   locked-footer flex body and a nowrap rail coexist. */
+body>*{min-width:0}
+
   footer{margin-top:auto}
     /* EXACTLY the homepage pattern (#evx .evx-nav, index.html): top:0 and GROW into the
      status-bar band. Offsetting to top:env(safe-area-inset-top) leaves a transparent strip
@@ -379,7 +386,7 @@ renderSubs();render();
 </script>
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260822g" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260822a" defer></script>
-<script src="/keepitil-shell.js?v=20260822a" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
+<script src="/keepitil-shell.js?v=20260822b" defer></script>
 </body>
 </html>

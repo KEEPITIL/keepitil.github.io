@@ -789,15 +789,21 @@ var IS_OWNER = document.documentElement.getAttribute('data-view')!=='public' && 
 /* ── Supabase: shared, cross-device persistence for owner-authored content ── */
 var SUPA_URL='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
-var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q)return q.toLowerCase().replace(/[^a-z0-9-]/g,'');}catch(e){}return '';})();
+/* The 2026-08-16 rename kept the database row and its uuid: echo→cho, nexus→xus.
+ Legacy slugs live on in public.agent_aliases, but this runs before any script can
+ load, so the table is inlined here — an exact-key lookup, never a prefix match:
+ 'cho' is a substring of 'echo' and 'echo-west' is a real DJ with a real profile.
+ tests/agent-rename.test.mjs asserts this copy against the generated one. */
+var AGENT_ALIASES = { echo: 'cho', nexus: 'xus' };
+var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q){var s=q.toLowerCase().replace(/[^a-z0-9-]/g,'');return Object.prototype.hasOwnProperty.call(AGENT_ALIASES,s)?AGENT_ALIASES[s]:s;}}catch(e){}return '';})();
 var IS_DEMO=false;/* Founder 2026-08-04: unclaimed profiles (incl. groove-trooper) show identity from profile_meta but NO demo posts/events — a fresh unclaimed profile is empty until claimed. */
 /* Canonical public URL = /public/profile/<slug> (Founder 2026-08-04) */
 try{ if(PROFILE_SLUG){ var _pu='https://keepitil.com/public/profile/'+PROFILE_SLUG; var _c=document.querySelector('link[rel="canonical"]'); if(_c)_c.href=_pu; var _ou=document.querySelector('meta[property="og:url"]'); if(_ou)_ou.setAttribute('content',_pu); } }catch(e){}
 /* the 14 KEEPITIL agents answer live via the ask-echo edge fn (agent-scoped brain + personality);
    their CHAT tab becomes a real "ask this agent" chat — normal profiles keep scene-room chats */
 var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department) — fallback identity when profile_meta has no row */
-  echo:['Echo','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
-  nexus:['Nexus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
+  cho:['Cho','Hip-Hop','Strategy'],atlas:['Atlas','Techno','Engineering'],pulse:['Pulse','House','Revenue & Growth'],
+  xus:['Xus','Latin','Partnerships'],sentinel:['Sentinel','Hardcore / Hard Dance','Trust & Safety'],
   oracle:['Oracle','Trance','Analytics'],fable:['Fable','Indie / Alternative','Documentation'],
   nova:['Nova','Bass','UX QA'],luna:['Luna','Pop','Visual Design'],lyric:['Lyric','R&B / Soul','Editorial'],
   vibe:['Vibe','African Dance','Community'],scout:['Scout','Country / Americana','Talent & Discovery'],
@@ -2397,7 +2403,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 })();
 </script>
 <script src="/v3/keepitil-radio.js?v=20260822g" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260822a" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
 
 <script>
 /* ══ IG-PARITY ENHANCEMENTS (Founder 2026-07-18) ══ */
@@ -2764,6 +2770,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/keepitil-shell.js?v=20260822a" defer></script>
+<script src="/keepitil-shell.js?v=20260822b" defer></script>
 </body>
 </html>
