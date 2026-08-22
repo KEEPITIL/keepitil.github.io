@@ -17,6 +17,13 @@
 :root{--black:#0b0b0f;--dark:#111118;--dark2:#18181f;--dark3:#22222c;--blue:var(--brand);--white:var(--text);--grey:#888;--font-head:'Bebas Neue',sans-serif;--font-body:'Inter',sans-serif;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--black);color:var(--white);font-family:var(--font-body);min-height:100vh;display:flex;flex-direction:column;padding-bottom:72px;}
+/* A flex-column body makes every child a flex item, and a flex item defaults to
+   min-width:auto — it will not shrink below its own max-content width. Measured at
+   375px: .wrap computed to 1120px while body{overflow-x:hidden} clipped the excess,
+   hiding the overflow instead of fixing it. Releasing min-width is what lets the
+   locked-footer flex body and a nowrap rail coexist. */
+body>*{min-width:0}
+
 a{color:var(--blue);text-decoration:none;}
 nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,180,255,.15);padding:0 24px;}
 .nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;padding:0 32px;height:66px;}
@@ -230,8 +237,8 @@ $('reset-btn').addEventListener('click',function(){
   }).catch(function(){ msg.style.color='#ff5c5c'; msg.textContent='Could not send — try again.'; });
 });
 </script>
-<script src="/v3/keepitil-ai.js?v=20260822a" defer></script>
-<script src="/keepitil-shell.js?v=20260822a" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
+<script src="/keepitil-shell.js?v=20260822b" defer></script>
 <script src="/v3/keepitil-radio.js?v=20260822g" defer></script>
 </body>
 </html>

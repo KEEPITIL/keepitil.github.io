@@ -627,7 +627,7 @@
     var txt = d.answer;
     if (d.upsell) txt += '\n\n' + d.upsell;
     var title = '💡 Echo';
-    if (d.from_agent && String(d.from_agent).toLowerCase() !== 'echo') {
+    if (d.from_agent && String(d.from_agent).toLowerCase() !== 'cho') {
       title = '💡 ' + kilCap(d.from_agent) + (d.genre_lane ? ' · ' + d.genre_lane : '');
     }
     var card = { title: title, text: txt };
