@@ -896,8 +896,10 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        A 30px glyph in a 40px circle leaves 5px of padding — deliberate, but it means the icon
        must not carry its own box: width/height are forced to the glyph size so a 26px default
        can't quietly re-inflate the button. */
-    +'#kilo-btn{right:5px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:40px!important;height:40px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;display:flex!important;align-items:center;justify-content:center;overflow:hidden}'
-    +'#kilo-btn svg,#kilo-btn img,#kilo-btn i{width:30px!important;height:30px!important;font-size:30px!important;line-height:1!important;display:block}'
+    +'#kilo-btn{right:5px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:38px!important;height:38px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;display:flex!important;align-items:center;justify-content:center;overflow:hidden}'
+/* The glyph was 30px inside a 40px button — it overflowed the disc. 17 inside 38 sits
+     properly and matches the desktop ratio (Founder 2026-08-21). */
+    +'#kilo-btn svg,#kilo-btn img,#kilo-btn i{width:17px!important;height:17px!important;font-size:17px!important;line-height:1!important;display:block}'
     /* Chat visibility is now driven by KIL_FLOATING, not a single hardcoded page rule.
        The class is applied to <html> at mount. NOTE: the owner turned chat ON for profile
        (reversing §C) and OFF for Culture and VS on 2026-08-15. */
