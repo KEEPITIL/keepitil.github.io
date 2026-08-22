@@ -63,8 +63,13 @@ a{color:inherit;text-decoration:none}
    justify-content:flex-end drops the block to the foot of the full-viewport panel, so the
    artwork owns the top two thirds and the type sits over the darkest part of the scrim where
    it is most legible. */
+/*   The 130px is /create's value and is now the standard (Founder 2026-08-21: "create is the
+   best example on positioning. it sits above the radio so it is readable on the landing page.
+   the filter sits right behind the radio bar"). It is the fixed top nav (70) plus the radio bar
+   (60): subtracting both keeps the title and metrics clear of the player instead of sitting
+   under it, and lets the filter bar settle behind the bar as you scroll. */
 .hero{padding:34px 0 46px;text-align:left;max-width:1120px;margin:0 auto;
-  min-height:calc(100svh - 70px);min-height:calc(100dvh - 70px);
+  min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px);
   display:flex;flex-direction:column;justify-content:flex-end}
 /* EARN palette: the neon green and orange of the backdrop art. */
 .hero h1{font-family:var(--fh);font-size:clamp(3.6rem,13vw,8rem);letter-spacing:.03em;line-height:.88;
@@ -197,7 +202,7 @@ footer{margin-top:auto}
   <h1>EARN</h1>
   <div class="stats">
     <div class="stat s"><b id="eS">0</b><span>Stations</span></div>
-    <div class="stat p"><b id="eP">0</b><span>Playlists</span></div>
+    <div class="stat p"><b id="eC">0</b><span>Competitions</span></div>
     <div class="stat g"><b id="eG">0</b><span>Games</span></div>
   </div>
 </header>
@@ -225,22 +230,12 @@ footer{margin-top:auto}
 
 <!-- STATIONS -->
 <section id="stations">
-  <div class="sh"><h2>KEEPITIL Stations</h2><span class="sub">Official curated stations — one per genre. Powered by approved public SoundCloud sets.</span></div>
+  <div class="sh"><h2>KEEPITIL RADIO — POWERED BY SOUNDCLOUD ARTIST.</h2></div>
   <div class="grid g-stations" id="stationGrid"></div>
-  <p class="disc">Stations light up as approved public SoundCloud playlist URLs are added. No scraping, no invented links.</p>
 </section>
 
 <!-- YOUR PLAYLISTS -->
-<section id="playlists">
-  <div class="sh"><h2>Your Playlists</h2><span class="sub">Build a KEEPITIL playlist from any public SoundCloud track, set, or profile URL.</span></div>
-  <div class="pl-form">
-    <input id="plName" type="text" placeholder="Playlist name (e.g. Late Night Drive)" maxlength="60"/>
-    <input id="plUrl" type="url" placeholder="Public SoundCloud URL (soundcloud.com/…)"/>
-    <button class="btn" onclick="addPlaylist()">＋ Save playlist</button>
-  </div>
-  <p class="disc">v1 uses public SoundCloud URLs (the compliant first implementation). Deeper library sync would require SoundCloud OAuth you authorize yourself. Saved locally on this device until accounts sync ships.</p>
-  <div class="pl-list" id="plList"></div>
-</section>
+<!-- Playlists section removed 2026-08-21 (Founder). -->
 
 <!-- SCHEDULE -->
 <!-- PROGRAMMING SCHEDULE REMOVED 2026-08-18 (Founder). Its own subtitle said "architecture ready
@@ -250,9 +245,10 @@ footer{margin-top:auto}
 
 <!-- CREATE COMPETE EARN -->
 <section id="earn">
-  <div class="sh"><h2>Create, Compete &amp; Earn</h2><span class="sub">Opportunities for creators to get rotation, features and rewards.</span></div>
+  <div class="sh"><h2>CREATE</h2></div>
+  <!-- Live competition cards, read straight from vs_competitions so this rail can never show a
+       competition that CREATE does not (Founder 2026-08-21). -->
   <div class="grid g-cards" id="earnGrid"></div>
-  <p class="disc">Entries are reviewed. Votes are never for sale. Placement is subject to editorial review — nothing is guaranteed. Any cash-entry or cash-prize competition launches only after legal &amp; platform compliance review.</p>
 </section>
 
 <!-- CREATOR SERVICES / GAMES / MOBILE APP sections REMOVED 2026-08-18 (Founder).
@@ -328,9 +324,10 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   body.rad-m .seg button{flex:0 0 auto;white-space:nowrap}
   body.rad-m .search{width:100%;min-width:0}
   /* Mobile has no fixed top bar, so the panel is the full viewport less the notch. */
-  body.rad-m .hero{display:flex;flex-direction:column;justify-content:center;padding:4px 0 14px;
-    min-height:calc(100svh - env(safe-area-inset-top,0px));
-    min-height:calc(100dvh - env(safe-area-inset-top,0px))}
+  /* Mobile: no fixed top bar, but the radio bar and bottom nav still occupy the foot. */
+  body.rad-m .hero{display:flex;flex-direction:column;justify-content:flex-end;padding:4px 0 22px;
+    min-height:calc(100svh - env(safe-area-inset-top,0px) - var(--kil-bnav-h,62px) - 60px);
+    min-height:calc(100dvh - env(safe-area-inset-top,0px) - var(--kil-bnav-h,62px) - 60px)}
   body.rad-m .hero h1{font-size:clamp(3rem,16vw,4.4rem)}
   body.rad-m .hero .stats{margin-top:10px}
   /* the desktop accordion collapses grids until .open — on mobile always show them */
@@ -436,13 +433,13 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260821c" defer></script>
+<script src="/keepitil-shell.js?v=20260821d" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
 <script src="/v3/keepitil-radio.js?v=20260819a" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
-<script src="/v3/keepitil-ai.js?v=20260815d" defer></script>
+<script src="/v3/keepitil-ai.js?v=20260821a" defer></script>
 <script>
 /* genre → emoji + hue for the card image band */
 var GENRES=[
@@ -461,25 +458,9 @@ function renderStations(){
 
 /* ---- User playlists from public SoundCloud URLs (localStorage v1) ---- */
 function scValid(u){ return /^https?:\/\/(m\.|www\.)?soundcloud\.com\//i.test(u||''); }
-function loadPls(){ try{ return JSON.parse(localStorage.getItem('kil_radio_playlists')||'[]'); }catch(e){ return []; } }
-function savePls(a){ try{ localStorage.setItem('kil_radio_playlists',JSON.stringify(a)); }catch(e){} }
-function addPlaylist(){
-  var n=document.getElementById('plName').value.trim(), u=document.getElementById('plUrl').value.trim();
-  if(!n){ alert('Give your playlist a name.'); return; }
-  if(!scValid(u)){ alert('Paste a public SoundCloud URL (starts with soundcloud.com/).'); return; }
-  var a=loadPls(); a.unshift({name:n,url:u,ts:Date.now()}); savePls(a);
-  document.getElementById('plName').value=''; document.getElementById('plUrl').value=''; renderPls();
-}
-function rmPlaylist(ts){ savePls(loadPls().filter(function(p){return p.ts!==ts;})); renderPls(); }
-function renderPls(){
-  var a=loadPls(), el=document.getElementById('plList');
-  if(!a.length){ el.innerHTML='<p class="disc">No playlists yet — paste a public SoundCloud URL above to start one.</p>'; return; }
-  el.innerHTML=a.map(function(p){
-    var embed='https://w.soundcloud.com/player/?url='+encodeURIComponent(p.url)+'&color=%2300e0a4&auto_play=false&show_artwork=true&show_comments=false&hide_related=true';
-    return '<div class="pl-item"><div class="top"><b>'+esc(p.name)+'</b><button class="rm" onclick="rmPlaylist('+p.ts+')">Remove</button></div>'
-      +'<iframe loading="lazy" scrolling="no" allow="autoplay" src="'+embed+'"></iframe></div>';
-  }).join('');
-}
+/* Playlist plumbing removed 2026-08-21 with the Playlists section (Founder). loadPls,
+   savePls, addPlaylist, rmPlaylist and renderPls all read or wrote #plList, #plName and
+   #plUrl — none of which exist any more, so every one of them was dead. */
 function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function iconCard(glyph,hue,chip,title,desc,extra){
   return '<div class="card">'+band(hue,glyph)+'<span class="chip'+(/soon|scheduled/i.test(chip)?' soon':'')+'">'+chip+'</span>'
@@ -494,12 +475,55 @@ var BLOCKS=[['Morning Discovery','🌅',35,'Fresh finds to start the day'],['Loc
  ['AI Crew Show','🤖',190,'KEEPITIL agents curate'],['Weekend Mix','🎧',270,'Long-play DJ sets']];
 var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid) _g_scheduleGrid.innerHTML=BLOCKS.map(function(b){return iconCard(b[1],b[2],'Scheduled',b[0],b[3]);}).join('');
 
-/* ---- Create, Compete & Earn ---- */
-var COMPS=[['Song of the Month','🏆',45,'Top track wins rotation + a feature'],['DJ Mix Challenge','🎛️',260,'Submit a mix, get judged & aired'],
- ['Remix Competition','🔁',200,'Flip the official stems'],['Beat Battle','🥊',0,'Producers, head to head'],
- ['Playlist Curator Challenge','📻',160,'Best-curated KEEPITIL playlist wins a feature'],['Listener Choice Award','⭐',330,'Voted by the community'],
- ['Radio Host Competition','🎙️',280,'Earn a recurring show'],['Podcast Pitch','🎧',190,'Pitch a show, get produced']];
-document.getElementById('earnGrid').innerHTML=COMPS.map(function(c){return iconCard(c[1],c[2],'Open soon',c[0],c[3],'<div class="meta">Rewards: rotation · feature · badge · commission</div>');}).join('');
+/* ── CREATE competition cards (Founder 2026-08-21) ─────────────────────────────────────
+   The eight entries here used to be a hard-coded array of competitions that do not exist —
+   "Song of the Month", "Beat Battle" and so on, every one of them labelled "Open soon". This
+   now reads vs_competitions, so the rail shows the SAME seven Q4 competitions /create shows and
+   cannot invent one or miss one. Same 2:3 card shape as the homepage and CREATE. */
+(function(){
+  var grid = document.getElementById('earnGrid');
+  if(!grid) return;
+  function esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function paint(rows){
+    if(!rows || !rows.length){
+      /* BROKEN != EMPTY — an empty rail with no explanation reads as a dead page. */
+      grid.innerHTML = '<div class="disc" style="flex:0 0 auto;max-width:80vw;padding:14px 2px">'
+        + 'No competitions are open right now. <a href="/create/" style="color:var(--brand)">See CREATE →</a></div>';
+      var c1=document.getElementById('eC'); if(c1) c1.textContent='0';
+      return;
+    }
+    grid.innerHTML = rows.map(function(c){
+      var closes=''; try{ var dt=new Date(c.submissions_close_at); if(!isNaN(dt)) closes='Closes '+dt.toLocaleDateString([],{month:'short',day:'numeric'}); }catch(e){}
+      var free = !c.entry_fee_cents;
+      var art = c.cover_url
+        ? '<div class="card-img" style="height:auto;aspect-ratio:2/3;margin:-16px -16px 12px;background:#15131f url('+esc(c.cover_url)+') center/cover no-repeat"></div>'
+        : '<div class="card-img" style="background:linear-gradient(150deg,#ff2e88,#a06bff)">🏆</div>';
+      return '<a class="card station" href="/create/?view=enter&c='+encodeURIComponent(c.id)+'">'
+        + art
+        + '<div class="g">'+esc(c.title)+'</div>'
+        + '<div class="s">'+esc(c.category||'CREATE')+'</div>'
+        + '<span class="chip'+(free?'':' soon')+'">'+(free?'FREE TO ENTER':'$'+(c.entry_fee_cents/100).toFixed(2))+'</span>'
+        + (closes?'<div class="meta">'+esc(closes)+'</div>':'')
+        + '</a>';
+    }).join('');
+    var el=document.getElementById('eC'); if(el) el.textContent=String(rows.length);
+  }
+
+  /* Read-only, anon-safe: published competitions are public on /create already. */
+  var URL_ = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co/rest/v1/vs_competitions'
+    + '?select=id,title,category,cover_url,entry_fee_cents,submissions_close_at,status'
+    + '&status=eq.published&order=submissions_close_at.asc';
+  var KEY_ = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+
+  /* A plain fetch rather than the Supabase SDK: this page needs exactly one public read, and
+     pulling the whole client in for that would cost more than the request. The anon key is the
+     same publishable key every other page already ships in its HTML. */
+  fetch(URL_, { headers: { apikey: KEY_, Authorization: 'Bearer ' + KEY_ } })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(rows){ paint(rows); })
+    .catch(function(e){ console.error('[earn] competitions failed to load', e); paint(null); });
+})();
 
 /* ---- Creator Services ---- */
 var SERVICES=[['Add my song','🎵',160,'Get your track considered for a station','Free · reviewed'],
@@ -533,7 +557,7 @@ var MOBILE=[['Install the Web App','📲',190,'Add KEEPITIL to your home screen 
  ['Radio in your pocket','🎧',260,'Keep the stream going anywhere on your phone.']];
 var _g_mobileGrid=document.getElementById('mobileGrid'); if(_g_mobileGrid) _g_mobileGrid.innerHTML=MOBILE.map(function(m){return iconCard(m[1],m[2],'PWA',m[0],m[3]);}).join('');
 
-renderStations(); renderPls();
+renderStations();
 
 /* Header counters (Founder 2026-08-21). Read from the page's own data rather than hard-coded
    numbers, so the header can never claim more stations or games than actually render. Playlists
@@ -543,11 +567,9 @@ function radStats(){
   var set=function(id,n){ var el=document.getElementById(id); if(el) el.textContent=String(n); };
   try{ set('eS', (typeof GENRES!=='undefined' && GENRES.length) || 0); }catch(e){}
   try{ set('eG', (typeof GAMES!=='undefined' && GAMES.length) || 0); }catch(e){}
-  try{ set('eP', loadPls().length); }catch(e){}
 }
 radStats();
 /* re-count after a playlist is added or removed */
-(function(){ var _s=savePls; savePls=function(a){ _s(a); try{ radStats(); }catch(e){} }; })();
 
 /* ── filter bar behaviour, cloned from /connect (Founder 2026-08-21) ────────────────────
    Segments show/hide whole sections; the search filters station cards by genre name. The
