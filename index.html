@@ -7,7 +7,7 @@
     if(h.indexOf('type=recovery')>-1||(h.indexOf('access_token=')>-1&&h.indexOf('recovery')>-1)){location.replace('/reset-password.html'+h);}
     else if(h.indexOf('otp_expired')>-1||h.indexOf('error_code=access_denied')>-1||(h.indexOf('error')>-1&&h.indexOf('expired')>-1)){location.replace('/portal.html'+h);}
   }catch(e){}})();</script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no.0,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
   <title>KEEPITIL — Events, Creators & Culture | The Creator Ecosystem</title>
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
@@ -519,6 +519,16 @@
      unchanged; the bar simply now wins the tap. Fixes the collision without moving the arrow.
      overflow:visible so the dropdown menu can hang below the bar instead of being clipped by it. */
   #evx .evx-nav{padding:0 0 0;padding-top:calc(0px + env(safe-area-inset-top,0px));z-index:960;overflow:visible;}
+  /* THE BLANK STRIP IN THE FILTER BAR (Founder 2026-08-21: "an empty space in the filter bar
+     with open blank space above it"). #evx-subgenres is populated only once a category is
+     chosen, and #evx-genres can also come back empty — but an empty .evx-nav-row still paints
+     its own padding, so the bar reserved a band of dead height for a row with nothing in it.
+     :empty collapses the row until it actually has chips. */
+  #evx .evx-nav-row:empty{display:none!important;padding:0!important;}
+  /* Even rhythm: every row gets the same vertical padding, so two rows and three rows are
+     spaced identically instead of the last one hanging. */
+  #evx .evx-nav-row{padding-top:5px;padding-bottom:5px;}
+  #evx .evx-nav-row:last-child{padding-bottom:7px;}
   /* the one shared button: months, category, subfilters */
   #evx #evx-months .evx-mo,
   #evx .evx-catdd-btn,
