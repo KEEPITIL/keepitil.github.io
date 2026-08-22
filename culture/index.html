@@ -226,7 +226,6 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .kv-acts{padding:0;gap:6px;border-top:0;margin-top:0;flex:0 0 auto}
 .kv-acts .kv-src{display:flex;align-items:center;justify-content:center;padding:8px 11px;text-decoration:none}
 .kv-acts .kv-src svg{width:17px;height:17px}
-.kv-acts .fba-dis svg{transform:translateY(1px)}
 /* Below 520px the four buttons plus the platform icon are tighter than the row can hold at
    full padding, so the buttons become icon-only circles rather than wrapping to a second row. */
 @media(max-width:520px){
@@ -246,7 +245,13 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
   border:1px solid var(--line,#242433);border-radius:999px;padding:8px 14px;color:#cfd3df;cursor:pointer}
 .kv-acts .fba svg{width:17px;height:17px}
 .kv-acts .fba.on{color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff)}
-.kv-acts .fba-dis.on{color:#ff6b6b;border-color:#ff6b6b}
+/* caption + call-to-action, used by posts, events and competition entries */
+.kv-caption{color:#cfd3df;font-size:.86rem;line-height:1.5;margin-top:9px}
+.kv-caption *{max-width:100%}
+.kv-cta{display:block;text-align:center;font-weight:800;letter-spacing:.05em;padding:11px;
+  border-radius:10px;text-decoration:none;margin-top:11px}
+.kv-cta[hidden]{display:none}
+.kv-cta-note{font-size:.68rem;color:var(--ink3,#9aa0b0);text-align:center;margin-top:5px}
 .kv-cmt{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:11px 12px;
   background:rgba(255,255,255,.04);border:1px solid var(--line,#242433);border-radius:12px;
   color:#cfd3df;font:700 .84rem Inter,sans-serif;cursor:pointer;text-align:left}
@@ -333,11 +338,15 @@ footer a{color:var(--purple)}
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
 
 <!-- ══════════════════════════════════════════════════════════════════════════════════════
-     VIDEO CARD TEMPLATE  (Founder 2026-08-21: "add the template to this page so i can edit
-     the templates of the content")
+     UNIVERSAL CONTENT CARD  (Founder 2026-08-21: "make this the universal template for all
+     content on the culture page ... remove any other template used if not this template")
 
-     EDIT THIS MARKUP DIRECTLY. It is the only definition of a video card — the JavaScript
-     clones this node and fills it, it does not build any HTML of its own. Change the order of
+     EVERY card on /culture renders from this block — videos, events, CREATE competition
+     entries and written posts. There is no second card definition anywhere on the page, so a
+     change here changes all four at once. That is the point.
+
+     EDIT THIS MARKUP DIRECTLY. The JavaScript clones this node and fills it; it does not build
+     any HTML of its own. Change the order of
      the buttons, the wording, the classes, anything: what you write here is what renders.
 
      HOW THE FILL WORKS — every hook is a data-kv attribute. The script looks for these and
@@ -352,8 +361,10 @@ footer a{color:var(--purple)}
        data-kv="meta"     "YouTube · Aug 19, 2026"
        data-kv="source"   <a> the platform icon, href = the source. Its data-kv-icon child is
                           swapped for that platform's logo.
+       data-kv="caption"  body text of a written post (removed when there is none)
+       data-kv="cta"      Get Tickets / Vote / Buy button (removed when there is none)
        data-kv="act"      the action row — the script wires clicks by BUTTON CLASS:
-                          .fba-dis .fba-like .fba-share .fb-save
+                          .fba-like .fba-share .fba-resh .fba-cmt .fb-save
      A hook you delete is simply skipped, so removing a button here removes it from the site.
      ══════════════════════════════════════════════════════════════════════════════════════ -->
 <template id="kv-video-card">
@@ -365,6 +376,10 @@ footer a{color:var(--purple)}
     </div>
     <div class="kv-body">
       <a class="kv-title" data-kv="title" target="_blank" rel="noopener"></a>
+      <!-- Optional. Shown only when the content has one; hidden otherwise.
+           caption = the body text of a written post.  cta = Get Tickets / Vote / Buy. -->
+      <div class="kv-caption" data-kv="caption" hidden></div>
+      <a class="kv-cta" data-kv="cta" hidden></a>
       <!-- ONE ROW: avatar + name on the left, every action on the right. -->
       <div class="kv-row">
         <a class="kv-who" data-kv="creator" target="_blank" rel="noopener">
@@ -442,18 +457,30 @@ function culBlogExpand(cap, slug, ev){
     }).catch(function(){ fx.innerHTML='<p><a href="/blog-'+slug+'.html">Open full article →</a></p>'; });
   }
 }
-function feedCard(p){var c=cov(p.slug);var url='/blog-'+p.slug+'.html';var key='cul:'+p.slug;var liked=fbL(key);var resh=fbR(key);
-  return '<div class="fcard fbcard" data-slug="'+p.slug+'" data-pid="cul:'+p.slug+'" style="--ac:'+col(p.c)+'">'
-  +'<div class="fb-head"><img class="fb-av" src="/v3/logo-blue-nav.png" alt=""><div class="fb-who"><b>KEEPITIL</b><span>'+p.c+'</span></div></div>'
-  +'<div class="fb-media"'+(c?(' style="background-image:url('+c+')"'):'')+' onclick="culBlogExpand(this.parentNode.querySelector(\'.fb-cap\'),\''+p.slug+'\')"></div>'
-  +'<div class="fb-cap" onclick="culBlogExpand(this,\''+p.slug+'\',event)"><b>'+p.t+'</b><span class="fb-more-txt">… more</span><div class="fx"></div></div>'
-  +'<div class="fb-actions">'
-    +'<button class="fba fba-like'+(liked?' on':'')+'" onclick="fbLike(\''+key+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
-    +'<button class="fba fba-cmt" onclick="culComments(\''+p.slug+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
-    +'<button class="fba fba-resh'+(resh?' on':'')+'" onclick="fbReshareL(\''+key+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b>'+(resh?'1':'')+'</b></button>'
-    +'<button class="fba fba-share" onclick="fbShare(location.origin+\''+url+'\')" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>'
-    +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+key+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
-  +'</div></div>';}
+/* ── BLOG POSTS THROUGH THE UNIVERSAL TEMPLATE (Founder 2026-08-21) ─────────────────────
+   feedCard() used to build its own card markup — a second definition competing with
+   <template id="kv-video-card">. It now normalises a blog row to the same shape every other
+   kind uses and hands it to the one renderer, so editing the template restyles blog posts too.
+   caroCard() is NOT a content card — it is a thumbnail tile in the category rail, with no
+   author, actions or comments — so it stays as it is. */
+function feedCard(p){
+  if(typeof window.kvRenderCard !== 'function'){
+    console.error('[culture] kvRenderCard not ready — blog cards cannot render');
+    return '';
+  }
+  return window.kvRenderCard({
+    pid:'cul:'+p.slug,
+    href:'/blog-'+p.slug+'.html',
+    thumb:cov(p.slug)||'/v3/blog-default.jpg',
+    aspect:'16/9',
+    badge:(p.c||'').toUpperCase(),
+    title:p.t||'',
+    name:'KEEPITIL',
+    avatar:'/v3/logo-blue-nav.png',
+    creatorHref:'/blog-'+p.slug+'.html',
+    meta:p.c||''
+  });
+}
 function caroCard(p){var c=cov(p.slug);return '<a class="ccard" style="--ac:'+col(p.c)+'" href="/blog-'+p.slug+'.html"><div class="cov"'+(c?(' style="background-image:url('+c+')"'):'')+'></div><div class="bd"><span class="cc">'+p.c+'</span><h3>'+p.t+'</h3></div></a>';}
 
 function renderFeed(){
@@ -681,72 +708,117 @@ renderTypebar();renderDiscover();renderFeed();
    users — render at the top of Culture with the same FB card chrome. Zero-token, DB-driven. */
 (function(){
   function h(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-  /* ── VIDEO CARD RENDERER ───────────────────────────────────────────────────────────────
-     Clones <template id="kv-video-card"> and fills every data-kv hook. Returns an HTML string
-     because the feed is painted with list.map(card).join(''). */
+  /* ── UNIVERSAL CARD RENDERER ───────────────────────────────────────────────────────────
+     Clones <template id="kv-video-card"> and fills its data-kv hooks from the normalised object
+     card() produces. This is the ONLY place a Culture card is built. Returns an HTML string
+     because the feed paints with list.map(card).join(''). */
   var KV_ICONS = {
     youtube:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.9-.5-5.8a3 3 0 0 0-2.1-2.1C18.5 3.6 12 3.6 12 3.6s-6.5 0-8.4.5A3 3 0 0 0 1.5 6.2C1 8.1 1 12 1 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 8.4.5 8.4.5s6.5 0 8.4-.5a3 3 0 0 0 2.1-2.1C23 15.9 23 12 23 12zM9.8 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg>',
     tiktok:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.8a5 5 0 0 1-1.2-3.3h-3.2v13a2.6 2.6 0 1 1-1.9-2.5V9.7a5.8 5.8 0 1 0 5.1 5.8V9.3a8.2 8.2 0 0 0 4.6 1.4V7.5a5 5 0 0 1-3.4-1.7z"/></svg>',
     instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>'
   };
-  function kvRenderVideoCard(r, vd, vhref, vwhen, isShort){
+
+  function kvRenderCard(n){
     var tpl = document.getElementById('kv-video-card');
-    /* BROKEN != EMPTY: if the template is missing or was edited into something unrecognisable,
-       say so in the console rather than silently rendering nothing. */
+    /* BROKEN != EMPTY: say so loudly rather than rendering an empty feed. */
     if(!tpl || !tpl.content || !tpl.content.firstElementChild){
-      console.error('[culture] <template id="kv-video-card"> is missing or empty — video cards cannot render');
+      console.error('[culture] <template id="kv-video-card"> is missing or empty — no card can render');
       return '';
     }
     var frag = tpl.content.cloneNode(true);
     var card = frag.querySelector('.fcard');
-    if(!card){ console.error('[culture] kv-video-card template has no .fcard root'); return ''; }
+    if(!card){ console.error('[culture] template has no .fcard root'); return ''; }
 
-    var pid = String(r.id == null ? '' : r.id);
+    var pid = String(n.pid == null ? '' : n.pid);
     card.setAttribute('data-pid', pid);
-    card.setAttribute('data-embed', vd.embed_url || '');
-    card.setAttribute('data-short', isShort ? '1' : '0');
-    if(isShort) card.classList.add('kv-short');
+    /* .kil-vid is what the one-player-at-a-time IntersectionObserver watches. Only a row with a
+       real embed may carry it, or the observer would try to mount a player into an event card. */
+    if(n.embed){ card.classList.add('kil-vid'); card.setAttribute('data-embed', n.embed); }
+    else       { card.classList.remove('kil-vid'); }
+    if(n.isShort) card.classList.add('kv-short');
 
     var q = function(k){ return frag.querySelector('[data-kv="'+k+'"]'); };
-    var el;
+    var el, tgt = n.external ? ' target="_blank" rel="noopener"' : '';
 
-    /* The well takes the video's own ratio so neither orientation is letterboxed. */
     if((el = q('well'))){
-      el.style.aspectRatio = isShort ? '9/16' : '16/9';
-      if(isShort){ el.style.maxHeight = 'calc(100dvh - 210px)'; el.style.margin = '0 auto'; }
+      el.style.aspectRatio = n.aspect || '16/9';
+      if(n.maxH){ el.style.maxHeight = n.maxH; el.style.margin = '0 auto'; }
+      /* An uploaded video plays inline; everything else shows a still. */
+      if(n.video){
+        var img = el.querySelector('[data-kv="thumb"]');
+        if(img) img.remove();
+        var v = document.createElement('video');
+        v.src = n.video; if(n.poster) v.poster = n.poster;
+        v.muted = true; v.loop = true; v.playsInline = true; v.controls = true;
+        v.setAttribute('style','width:100%;height:100%;object-fit:'+(n.fit||'cover')+';display:block');
+        el.insertBefore(v, el.firstChild);
+      }
     }
     if((el = q('thumb'))){
-      el.setAttribute('src', vd.img || vd.cover || '/v3/blog-default.jpg');
-      el.setAttribute('alt', r.title || '');
+      el.setAttribute('src', n.thumb || '/v3/blog-default.jpg');
+      el.setAttribute('alt', n.title || '');
       el.setAttribute('onerror', "this.src='/v3/blog-default.jpg'");
+      if(n.fit) el.style.objectFit = n.fit;
     }
-    if((el = q('platform'))) el.textContent = (r.source_platform || 'VIDEO').toUpperCase();
-    if((el = q('title'))){ el.textContent = r.title || 'Untitled'; el.setAttribute('href', vhref); }
-    if((el = q('creator'))) el.setAttribute('href', vd.creator_profile_url || vhref);
+    if((el = q('platform'))){
+      if(n.badge){
+        el.textContent = n.badge;
+        if(n.badgeBg) el.style.background = n.badgeBg;
+        if(n.badgeFg) el.style.color = n.badgeFg;
+      } else el.remove();
+    }
+    if((el = q('title'))){
+      if(n.title){ el.textContent = n.title; el.setAttribute('href', n.href || '#');
+                   if(n.external){ el.setAttribute('target','_blank'); el.setAttribute('rel','noopener'); }
+                   else el.removeAttribute('target'); }
+      else el.remove();
+    }
+    if((el = q('caption'))){
+      if(n.caption){ el.innerHTML = n.caption; el.hidden = false; } else el.remove();
+    }
+    if((el = q('cta'))){
+      if(n.cta){
+        el.hidden = false;
+        el.textContent = n.cta.label;
+        el.setAttribute('href', n.cta.href);
+        if(n.cta.external){ el.setAttribute('target','_blank'); el.setAttribute('rel', n.cta.rel || 'noopener'); }
+        el.style.background = n.cta.bg; el.style.color = n.cta.fg;
+        if(n.cta.note){
+          var note = document.createElement('div');
+          note.className = 'kv-cta-note'; note.textContent = n.cta.note;
+          el.insertAdjacentElement('afterend', note);
+        }
+      } else el.remove();
+    }
+    if((el = q('creator'))){
+      el.setAttribute('href', n.creatorHref || '#');
+      if(n.external && n.provider){ el.setAttribute('target','_blank'); el.setAttribute('rel','noopener'); }
+      else el.removeAttribute('target');
+    }
     if((el = q('avatar'))){
-      var av = vd.avatar || r.author_avatar || '';
-      if(av) el.style.backgroundImage = 'url(' + av + ')';
-      else el.textContent = (r.author_name || '?').trim().charAt(0).toUpperCase();
+      if(n.avatar) el.style.backgroundImage = 'url(' + n.avatar + ')';
+      else el.textContent = (n.name || '?').trim().charAt(0).toUpperCase();
     }
-    if((el = q('name'))) el.textContent = r.author_name || 'Unknown creator';
-    if((el = q('meta'))) el.textContent = (r.source_platform || '') + (vwhen ? ' \u00b7 ' + vwhen : '');
+    if((el = q('name'))) el.textContent = n.name || '';
+    if((el = q('meta'))){ if(n.meta) el.textContent = n.meta; else el.remove(); }
     if((el = q('source'))){
-      el.setAttribute('href', vhref);
-      el.setAttribute('title', 'Watch on ' + (r.source_platform || 'the source'));
-      var slot = el.querySelector('[data-kv-icon]');
-      var icon = KV_ICONS[(vd.provider || '').toLowerCase()];
-      /* No icon for an unknown platform is fine; an empty circle is not, so fall back to the
-         platform's first letter rather than an unexplained blank button. */
-      if(slot) slot.innerHTML = icon || ('<b style="font:800 .72rem Inter,sans-serif">'
-        + ((r.source_platform || '?').charAt(0).toUpperCase()) + '</b>');
+      /* Platform icon belongs to third-party media only — a KEEPITIL event has no "source". */
+      if(n.provider){
+        el.setAttribute('href', n.href);
+        el.setAttribute('title', 'Watch at the source');
+        var slot = el.querySelector('[data-kv-icon]');
+        if(slot) slot.innerHTML = KV_ICONS[n.provider] ||
+          ('<b style="font:800 .72rem Inter,sans-serif">'+(n.provider.charAt(0).toUpperCase())+'</b>');
+      } else el.remove();
     }
 
-    /* Handlers are wired by class, so reordering the buttons in the template cannot unwire them. */
-    var on = function(sel, fn){ var b = frag.querySelector(sel); if(b) b.setAttribute('onclick', fn); };
+    /* Wired by class, so reordering buttons in the template cannot unwire them. */
     var pe = pid.replace(/'/g, "\\'");
-    on('.fba-dis',   "culDislike('"+pe+"',this)");
+    var on = function(sel, fn){ var b = frag.querySelector(sel); if(b) b.setAttribute('onclick', fn); };
     on('.fba-like',  "fbLike('"+pe+"',this)");
-    on('.fba-share', "fbShare('"+String(vhref).replace(/'/g,"\\'")+"')");
+    on('.fba-resh',  "fbReshareL('"+pe+"',this)");
+    on('.fba-cmt',   "culComments('"+pe+"',this)");
+    on('.fba-share', "fbShare('"+String(n.href||'').replace(/'/g,"\\'")+"')");
     on('.fb-save',   "fbSaveL('"+pe+"',this)");
     on('.kv-cmt',    "culComments('"+pe+"',this)");
 
@@ -754,96 +826,81 @@ renderTypebar();renderDiscover();renderFeed();
     box.appendChild(frag);
     return box.innerHTML;
   }
+  /* EXPOSED: feedCard() lives in a different <script> block, outside this IIFE. An unexposed
+     helper is invisible to it — the exact trap that made the YouTube feed fail twice. */
+  window.kvRenderCard = kvRenderCard;
 
   function card(r){
     var d=r.data||{}; var media=(d.media&&d.media[0])||{src:d.img||'',mtype:d.mtype||'image'};
     var url='/profile.html?slug='+encodeURIComponent(r.profile_slug);
+    /* ── ONE CARD FOR EVERY KIND (Founder 2026-08-21: "make this the universal template for
+       all content on the culture page ... only this template if allowed").
+       Nothing here builds HTML. Each kind is normalised to the same handful of fields and
+       handed to kvRenderCard(), which fills <template id="kv-video-card">. Editing that
+       template changes events, competition entries, videos and posts together — which is the
+       whole point of making it universal. */
+    var n;
+
     if(r.kind==='event'){
-      var ext=!!d.is_external; var turl=d.ticket_url||('/event.html?e='+encodeURIComponent(d.slug||'')); var tgt=ext?' target="_blank" rel="noopener"':'';
+      var ext=!!d.is_external;
       var when=''; try{var dt=new Date(d.date); if(!isNaN(dt)) when=dt.toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});}catch(x){}
-      return '<div class="fcard fbcard evpost" data-pid="cul:'+h(d.slug||r.id)+'" style="overflow:hidden">'
-        +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar)+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name)+'</b></div></a><button class="fb-more" aria-label="More" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
-        +'<a href="'+h(turl)+'"'+tgt+' style="text-decoration:none;display:block"><div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+h(d.cover||'/v3/blog-default.jpg')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'"><span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
-        +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.2rem;color:#fff;line-height:1.15">'+h(d.title||'Event')+'</div><div style="color:var(--ink3,#9aa);font-size:.82rem;margin-top:5px">'+(when?h(when):'')+(d.venue?(when?' · ':'')+h(d.venue):'')+(d.city?' · '+h(d.city):'')+'</div></div></a>'
-        +'<div style="padding:8px 15px 4px"><a href="'+h(turl)+'"'+tgt+' style="display:block;text-align:center;background:var(--brand,#00b4ff);color:#04121b;font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">🎟 '+(ext?'Get Tickets ↗':'Get Tickets')+'</a></div>'
-        +'<div class="fb-actions"><button class="fba fba-like" onclick="fbLike(\'cul:'+h(d.slug)+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
-          +'<button class="fba fba-cmt" onclick="culComments(\''+h(d.slug)+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
-          +'<button class="fba fba-resh" onclick="fbReshareL(\'cul:'+h(d.slug)+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
-          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\'cul:'+h(d.slug)+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button></div></div>';
-    }
-    /* ── CREATE COMPETITION ENTRY ──────────────────────────────────────────────────────────
-       Written by the vs_entry_to_culture trigger when an entry is APPROVED. Sits in the feed
-       alongside articles, PIX and VID, but labelled CREATE so nobody mistakes a competition
-       submission for editorial.
-       Voting deliberately links out to the CREATE entry rather than voting inline: votes live
-       in vs_vote_actions and there must be exactly one vote path. A Culture-side vote control
-       would be a second source of truth. Like / comment / save / reshare DO work here, because
-       they key on the profile_content row like every other card. */
-    if(r.kind==='create_entry'){
+      var evTarget = d.ticket_url||('/event.html?e='+encodeURIComponent(d.slug||''));
+      n = { pid:'cul:'+(d.slug||r.id), href:evTarget, external:ext,
+            thumb:d.cover||'/v3/blog-default.jpg', aspect:'16/9',
+            badge: ext?'EXTERNAL':'KEEPITIL EVENT',
+            badgeBg: ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)', badgeFg: ext?'#fff':'#06120a',
+            title:d.title||'Event',
+            name:r.author_name, avatar:r.author_avatar, creatorHref:url,
+            meta:[when, d.venue, d.city].filter(Boolean).join(' \u00b7 '),
+            cta:{label:(ext?'\ud83c\udf9f Get Tickets \u2197':'\ud83c\udf9f Get Tickets'), href:evTarget,
+                 bg:'var(--brand,#00b4ff)', fg:'#04121b', external:ext} };
+
+    } else if(r.kind==='create_entry'){
       var cd=r.data||{};
-      var cpid=h(r.id);
       var closes=''; try{ var ct=new Date(cd.voting_closes_at); if(!isNaN(ct)) closes=ct.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}); }catch(x){}
       var votingOpen = cd.voting_open === true;
-      return '<div class="fcard fbcard" data-pid="'+cpid+'" style="overflow:hidden">'
-        +'<div class="fb-head"><a class="fb-head-l" href="/profile.html?slug='+encodeURIComponent(r.profile_slug||'')+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
-          +'<img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt="">'
-          +'<div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b>'
-          +'<div style="color:var(--ink3,#9aa);font-size:.72rem">'+h(cd.competition||'CREATE')+(cd.division?' · '+h(cd.division):'')+'</div></div></a></div>'
-        +'<a href="'+h(cd.entry_url||'/create/')+'" style="text-decoration:none;display:block">'
-          +'<div style="position:relative;aspect-ratio:2/3;max-height:520px;background:#0a0a0f">'
-            +'<img src="'+h(cd.cover||cd.img||'/v3/blog-default.jpg')+'" loading="lazy" alt="'+h(cd.title||'')+'" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
-            +'<span style="position:absolute;top:10px;left:10px;background:rgba(255,92,138,.95);color:#1a0410;font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">CREATE</span>'
-          +'</div>'
-          +'<div style="padding:11px 15px 4px"><div style="font-family:var(--fs,Inter);font-weight:800;font-size:1.1rem;color:#fff;line-height:1.2">'+h(cd.title||'Untitled entry')+'</div>'
-          +(closes?'<div style="color:var(--ink3,#9aa);font-size:.78rem;margin-top:5px">'+(votingOpen?'Voting closes ':'Voting opens later · closes ')+h(closes)+'</div>':'')
-          +'</div></a>'
-        +'<div style="padding:8px 15px 4px"><a href="'+h(cd.vote_url||'/create/')+'" style="display:block;text-align:center;background:'
-          +(votingOpen?'#ff5c8a;color:#1a0410':'rgba(255,255,255,.08);color:#9aa')
-          +';font-weight:800;letter-spacing:.05em;padding:11px;border-radius:10px;text-decoration:none">'
-          +(votingOpen?'🗳 Vote on this entry':'View entry')+'</a></div>'
-        +'<div class="fb-actions">'
-          +'<button class="fba fba-like" onclick="fbLike(\''+cpid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
-          +'<button class="fba fba-cmt" onclick="culComments(\''+cpid+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
-          +'<button class="fba fba-resh" onclick="fbReshareL(\''+cpid+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
-          +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+cpid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
-        +'</div></div>';
-    }
-    /* ── THIRD-PARTY MEDIA (YouTube today; TikTok/Instagram later) ─────────────────────────
-       Without this branch a media row fell through to the generic post card below, which builds
-       its links from r.profile_slug — null on every media row — producing /profile.html?slug=null
-       and crediting the video to nobody. Media is not a KEEPITIL post and must not borrow a post's
-       chrome: it carries the creator, the platform, and a link out to the source.
-       Thumbnail only, no iframe: a column of these would otherwise start one player per card. */
-    if(r.kind==='video' || r.kind==='pixle'){
+      /* Voting links OUT to the CREATE entry on purpose: votes live in vs_vote_actions and
+         there must be exactly one vote path. A Culture-side vote control would be a second
+         source of truth. */
+      n = { pid:r.id, href:cd.entry_url||'/create/',
+            thumb:cd.cover||cd.img||'/v3/blog-default.jpg', aspect:'2/3', maxH:'520px',
+            badge:'CREATE', badgeBg:'rgba(255,92,138,.95)', badgeFg:'#1a0410',
+            title:cd.title||'Untitled entry',
+            name:r.author_name||r.profile_slug, avatar:r.author_avatar,
+            creatorHref:'/profile.html?slug='+encodeURIComponent(r.profile_slug||''),
+            meta:[cd.competition||'CREATE', cd.division, closes?((votingOpen?'Voting closes ':'Closes ')+closes):''].filter(Boolean).join(' \u00b7 '),
+            cta:{label:(votingOpen?'\ud83d\uddf3 Vote on this entry':'View entry'), href:cd.vote_url||'/create/',
+                 bg:(votingOpen?'#ff5c8a':'rgba(255,255,255,.08)'), fg:(votingOpen?'#1a0410':'#9aa')} };
+
+    } else if(r.kind==='video' || r.kind==='pixle'){
       var vd=r.data||{};
       var vwhen=''; try{var vt=new Date(r.created_at); if(!isNaN(vt)) vwhen=vt.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
-      var vhref=vd.source_url||'#';
-      /* Rendered from the <template id="kv-video-card"> further down this file — see the
-         comment above it. No card HTML is built here on purpose: two definitions of one card
-         drift, and the Founder edits the template, not this function. */
       var isShort = vd.is_short === true;
-      return kvRenderVideoCard(r, vd, vhref, vwhen, isShort);
+      n = { pid:r.id, href:vd.source_url||'#', external:true,
+            thumb:vd.img||vd.cover||'/v3/blog-default.jpg',
+            aspect:isShort?'9/16':'16/9', maxH:isShort?'calc(100dvh - 210px)':'',
+            badge:(r.source_platform||'VIDEO').toUpperCase(),
+            title:r.title||'Untitled',
+            name:r.author_name||'Unknown creator', avatar:vd.avatar||r.author_avatar,
+            creatorHref:vd.creator_profile_url||vd.source_url||'#',
+            meta:(r.source_platform||'')+(vwhen?' \u00b7 '+vwhen:''),
+            provider:(vd.provider||'').toLowerCase(), embed:vd.embed_url||'', isShort:isShort };
+
+    } else {
+      /* Written post / PIX. */
+      var media=(r.media&&r.media[0])||{};
+      n = { pid:r.id||('cul:'+r.profile_slug), href:url,
+            thumb:media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg',
+            aspect:'1/1.02', fit:'contain',
+            video:(media.mtype==='video'&&media.src)?media.src:'', poster:d.cover||'',
+            title:d.t||'',
+            name:r.author_name||r.profile_slug, avatar:r.author_avatar, creatorHref:url,
+            meta:'', caption:d.html||'',
+            cta: d.buy_url ? {label:'\ud83d\uded2 '+(d.buy_label||'Buy on Amazon'), href:d.buy_url,
+                              bg:'#ff9900', fg:'#111', external:true, rel:'noopener sponsored nofollow',
+                              note:d.disclosure||'#ad \u00b7 affiliate'} : null };
     }
-    /* every post shows an image — fall back to the author (agent) avatar, then a KEEPITIL default */
-    var mSrc=media.src||d.img||d.cover||r.author_avatar||'/v3/blog-default.jpg';
-    var m=(media.mtype==='video'&&media.src)
-      ? '<video src="'+h(media.src)+'"'+(d.cover?' poster="'+h(d.cover)+'"':'')+' muted loop playsinline controls style="width:100%;height:100%;object-fit:contain;display:block"></video>'
-      : '<img src="'+h(mSrc)+'" loading="lazy" onerror="this.src=\'/v3/blog-default.jpg\'" style="width:100%;height:100%;object-fit:contain;display:block">';
-    var pid=h(r.id||('cul:'+r.profile_slug));
-    var acts='<div class="fb-actions">'
-      +'<button class="fba fba-like" onclick="fbLike(\''+pid+'\',this)" title="Like"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.9-9.3-9C1.2 8 3 4.5 6.4 4.5c2.2 0 3.6 1.2 4.4 2.6.2.4.9.4 1.1 0 .8-1.4 2.2-2.6 4.4-2.6 3.4 0 5.2 3.5 3.7 7-1.8 4.1-8 9-8 9z"/></svg><b></b></button>'
-      +'<button class="fba fba-cmt" onclick="culComments(\''+pid+'\',this)" title="Comment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><b></b></button>'
-      +'<button class="fba fba-resh" onclick="fbReshareL(\''+pid+'\',this)" title="Reshare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b></b></button>'
-      +'<button class="fba fba-share" onclick="fbShare(location.origin+\''+url+'\')" title="Share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></button>'
-      +'<button class="fba fb-save" style="margin-left:auto" onclick="fbSaveL(\''+pid+'\',this)" title="Save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg></button>'
-    +'</div>';
-    return '<div class="fcard fbcard" data-pid="'+pid+'">'
-      +'<div class="fb-head"><a class="fb-head-l" href="'+url+'" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex:1;min-width:0"><img class="fb-av" src="'+h(r.author_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'" alt=""><div class="fb-who"><b>'+h(r.author_name||r.profile_slug)+'</b></div></a><button class="fb-more" aria-label="More options" onclick="culPostMenu(event,\''+h(r.profile_slug)+'\',\''+url+'\')">⋯</button></div>'
-      +'<div class="fb-media" style="background:#000">'+m+'</div>'
-      +'<div class="fb-cap" onclick="this.classList.toggle(\'open\');var fx=this.querySelector(\'.fx\');if(fx)fx.style.display=this.classList.contains(\'open\')?\'block\':\'none\'"><b>'+h(d.t||'')+'</b>'+(d.html?'<span class="fb-more-txt">… more</span><div class="fx" style="display:none">'+d.html+'</div>':'')+'</div>'
-      +(d.buy_url?('<div style="padding:2px 15px 8px"><a href="'+h(d.buy_url)+'" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click" data-agent="'+h(r.profile_slug||'')+'" style="display:block;text-align:center;background:#ff9900;color:#111;font-weight:800;letter-spacing:.03em;padding:11px;border-radius:10px;text-decoration:none">🛒 '+h(d.buy_label||'Buy on Amazon')+'</a><div style="font-size:.68rem;color:var(--ink3,#9aa);text-align:center;margin-top:5px">'+h(d.disclosure||'#ad · affiliate')+'</div></div>'):'')
-      +acts
-    +'</div>';
+    return kvRenderCard(n);
   }
   function boot(n){
     var sb=window.__culSB;
@@ -1491,42 +1548,15 @@ function culResolveFilters(){
   function wall(){if(document.getElementById('kil-loginwall'))return true;var next=encodeURIComponent(location.pathname+location.search);var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kil-loginwall';ov.innerHTML='<div class="kil-modal" style="max-width:390px"><div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="__culCloseWall()">&times;</button></div><div class="kil-mb" style="padding:26px 22px;text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">&#128274;</div><p style="font-size:1rem;line-height:1.55;color:var(--ink,#e8e8f0);margin:0 0 20px">Create a free account to like, comment, reshare and save. Anyone can look around &mdash; you just need to be signed in to join in.</p><a href="/apply.html?next='+next+'" class="cmt-send" style="padding:12px 28px">Log in / Join &rarr;</a></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeWall();});return true;}
   function gate(){if(signedIn())return false;wall();return true;}
   function keyOf(x){ x=String(x); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x)) return x; return x.indexOf('cul:')===0?x:('cul:'+x); }
-  function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,disliked:false,resh:0,reshared:false,comments:0});}
+  function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,resh:0,reshared:false,comments:0});}
   function cq(k){return (window.CSS&&CSS.escape)?CSS.escape(k):k;}
-  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt'),ds=card.querySelector('.fba-dis'),kc=card.querySelector('.kv-cmt-n');if(ds)ds.classList.toggle('on',!!s.disliked);if(kc)kc.textContent=s.comments?String(s.comments):'';if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
+  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt'),kc=card.querySelector('.kv-cmt-n');if(kc)kc.textContent=s.comments?String(s.comments):'';if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
   window.fbLike=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.liked){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);SB.from('post_likes').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.liked=true;s.likes++;paint(k);SB.from('post_likes').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);}});}};
   window.fbReshareL=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.reshared){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);toast('Reshare removed');SB.from('post_reshares').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.reshared=true;s.resh++;paint(k);toast('Reshared ✓');SB.from('post_reshares').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);}});}};
   window.fbSaveL=function(k,el){if(gate())return;k=keyOf(k);var on=el.classList.toggle('on');try{var m=JSON.parse(localStorage.getItem('kil-saves')||'{}');m[k]=on?1:0;localStorage.setItem('kil-saves',JSON.stringify(m));}catch(e){}toast(on?'Saved ✓':'Removed from saved');};
   window.fbShare=function(u){if(gate())return;try{if(navigator.share){navigator.share({url:u});return;}}catch(e){}try{navigator.clipboard.writeText(u);toast('Link copied ✓');}catch(e){prompt('Copy link:',u);}};
   function closeM(){var m=document.getElementById('culModal');if(m)m.remove();}
   window.__culCloseM=closeM;
-  /* DISLIKE (Founder 2026-08-21). Stored in post_likes with sentiment='dislike' rather than a
-     separate table, because like and dislike are mutually exclusive for one user on one post —
-     one row, one uniqueness rule, and no way to hold both at once. Switching sides is an
-     UPDATE, so the like count drops as the dislike count rises in a single write. */
-  window.culDislike = function(k, el){
-    k = keyOf(k);
-    if(gate()) return;
-    if(!SB) return;
-    var s = pst(k), uid = SES.user.id;
-    var wasDisliked = !!s.disliked;
-    if(wasDisliked){
-      s.disliked = false; paint(k);
-      SB.from('post_likes').delete().eq('post_key',k).eq('user_id',uid).then(function(){});
-      return;
-    }
-    /* Taking the dislike side clears the like locally BEFORE the round trip so the two buttons
-       are never both lit while the write is in flight. */
-    if(s.liked){ s.liked=false; s.likes=Math.max(0,s.likes-1); }
-    s.disliked = true; paint(k);
-    SB.from('post_likes')
-      .upsert({post_key:k, profile_slug:'culture', user_id:uid, sentiment:'dislike'},
-              {onConflict:'post_key,user_id'})
-      .then(function(r){
-        if(r && r.error){ s.disliked=false; paint(k); toast('Could not save'); }
-      });
-  };
-
   /* INLINE comments — open inside the post, not a popup */
   window.culComments=function(slug, btn){ var k=keyOf(slug); if(!SB){toast('Loading…');return;}
     var card=btn?btn.closest('.fbcard'):null; if(!card)return;
@@ -1543,7 +1573,7 @@ function culResolveFilters(){
   function loadC(k){var host=document.querySelector('.cmt-list[data-cl="'+cq(k)+'"]');if(!host)return;SB.from('post_comments').select('*').eq('post_key',k).order('created_at',{ascending:true}).then(function(r){var rows=(r&&r.data)||[];var s=pst(k);s.comments=rows.length;paint(k);if(!rows.length){host.innerHTML='<div class="cmt-empty">No comments yet — be the first.</div>';return;}var uid=SES&&SES.user?SES.user.id:null;host.innerHTML=rows.map(function(c){var canDel=uid&&c.user_id===uid;return '<div class="cmt"><img class="cmt-av" src="'+esc(c.author_avatar||'/icon-192.png')+'" onerror="this.src=\'/icon-192.png\'"><div class="cmt-body"><b>'+esc(c.author_name||'User')+'</b><p>'+esc(c.body)+'</p></div>'+(canDel?'<button class="cmt-del" onclick="__culDel(\''+c.id+'\',\''+k+'\')">&times;</button>':'')+'</div>';}).join('');});}
   window.__culSend=function(k,inp){if(!signedIn()){location.href='/apply.html';return;}if(!inp)return;var body=(inp.value||'').trim();if(!body)return;inp.disabled=true;SB.from('post_comments').insert({post_key:k,profile_slug:'culture',user_id:SES.user.id,author_name:meName(),author_avatar:meAvatar(),body:body}).then(function(r){inp.disabled=false;if(r&&r.error){toast('Could not post');return;}inp.value='';loadC(k);});};
   window.__culDel=function(id,k){SB.from('post_comments').delete().eq('id',id).then(function(){loadC(k);});};
-  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.disliked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id,sentiment').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(!s)return;var neg=(x.sentiment==='dislike');if(!neg)s.likes++;if(uid&&x.user_id===uid){ if(neg)s.disliked=true; else s.liked=true; }});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});SB.from('post_comments').select('post_key').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s)s.comments++;});keys.forEach(paint);}});}
+  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.likes++;if(uid&&x.user_id===uid)s.liked=true;}});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});SB.from('post_comments').select('post_key').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s)s.comments++;});keys.forEach(paint);}});}
   window.__culHydrate=hydrate;
   var _rf=window.renderFeed;if(typeof _rf==='function'){window.renderFeed=function(){_rf.apply(this,arguments);setTimeout(hydrate,30);};}
   (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
