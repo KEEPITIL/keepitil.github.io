@@ -896,19 +896,18 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        A 30px glyph in a 40px circle leaves 5px of padding — deliberate, but it means the icon
        must not carry its own box: width/height are forced to the glyph size so a 26px default
        can't quietly re-inflate the button. */
-    +'#kilo-btn{right:5px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:38px!important;height:38px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;display:flex!important;align-items:center;justify-content:center;overflow:hidden}'
-/* The glyph was 30px inside a 40px button — it overflowed the disc. 17 inside 38 sits
-     properly and matches the desktop ratio (Founder 2026-08-21). */
-    +'#kilo-btn svg,#kilo-btn img,#kilo-btn i{width:17px!important;height:17px!important;font-size:17px!important;line-height:1!important;display:block}'
+    +'#kilo-btn{right:5px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:40px!important;height:40px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;background:linear-gradient(135deg,#00b4ff,#22e39b)!important;display:flex!important;align-items:center;justify-content:center;overflow:hidden}'
+/* Founder-tuned 2026-08-22 in the floating-button editor: 40px button, 20px glyph. */
+    +'#kilo-btn svg,#kilo-btn img,#kilo-btn i{width:20px!important;height:20px!important;font-size:20px!important;line-height:1!important;display:block}'
     /* Chat visibility is now driven by KIL_FLOATING, not a single hardcoded page rule.
        The class is applied to <html> at mount. NOTE: the owner turned chat ON for profile
        (reversing §C) and OFF for Culture and VS on 2026-08-15. */
     +'html.kil-nochat #kilo-btn,html.kil-nochat #kilo-panel{display:none!important}'
-    /* Scroll-to-top. Founder-tuned: 30px button, 36px glyph, left, 5px from edge, 5px above
-       the nav. The glyph is INTENTIONALLY larger than the button per the tuner values, so the
-       chip is a backing disc behind an oversized arrow rather than a container for it —
-       overflow stays visible or the arrow would be clipped to a 30px box. */
-    +'#kil-top{position:fixed;left:5px;right:auto;bottom:calc(var(--kil-bnav-h,56px) + 5px);width:30px;height:30px;border-radius:50%;background:#0aa2e8;color:#fff;border:0;cursor:pointer;z-index:940;display:flex;align-items:center;justify-content:center;font-size:36px;line-height:0;padding:0;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .28s,transform .28s;overflow:visible}'
+    /* Scroll-to-top. Founder-tuned 2026-08-22 in the floating-button editor: 35px SQUARE
+       (border-radius 0 — deliberate, it is no longer a disc), 25px glyph, left, 5px from the
+       edge, 5px above the nav. The glyph now fits inside the box, so overflow:visible is no
+       longer load-bearing, but it is kept: it costs nothing and a later glyph bump would clip. */
+    +'#kil-top{position:fixed;left:5px;right:auto;bottom:calc(var(--kil-bnav-h,56px) + 5px);width:35px;height:35px;border-radius:0;background:#0aa2e8;color:#fff;border:0;cursor:pointer;z-index:940;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:0;padding:0;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .28s,transform .28s;overflow:visible}'
     +'#kil-top.on{opacity:1;transform:none;pointer-events:auto}'
     +'html.kil-noarrow #kil-top{display:none!important}'
     /* ── BUTTON SIZES, Founder-locked 2026-08-19 via the sizing preview ──────────────────────
@@ -919,16 +918,13 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        it needs !important at equal specificity — the same reason the mobile override already
        carried one. The glyph is scaled with the button; at 30px the stock 26px icon would fill
        the disc edge to edge. */
-    +'@media(min-width:861px){'
-    +  '#kil-top{width:50px;height:50px;font-size:44px}'
-    +  '#kilo-btn{width:50px!important;height:50px!important}'
-    +  '#kilo-btn svg{width:22px!important;height:22px!important}'
-    +'}'
-    +'@media(max-width:860px){'
-    +  '#kil-top{width:30px;height:30px;font-size:36px}'
-    +  '#kilo-btn{width:30px!important;height:30px!important}'
-    +  '#kilo-btn svg{width:15px!important;height:15px!important}'
-    +'}'
+    /* The per-breakpoint SIZES that used to live here (desktop 50/22, mobile 30/15, locked
+       2026-08-19 via the older sizing preview) are REMOVED. The Founder re-tuned both buttons on
+       2026-08-22 in the floating-button editor and specified ONE set of values for every width:
+       chat 40/20, arrow 35 square/25. Leaving the media queries in place would have silently
+       beaten those values at both breakpoints — the base rules above would never have applied at
+       any screen size. One size, one rule; re-add a query only if a width genuinely needs to
+       differ. */
     +'body.kil-sheet-open #kilo-btn,body.kil-sheet-open #kil-mhamb{display:none!important}'
     /* K4 destination rail. Horizontal scroll on narrow screens rather than wrapping, so it
        never pushes the page's own content down a phone screen. */
