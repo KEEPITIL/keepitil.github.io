@@ -14,7 +14,7 @@
     '#kil-radio.kil-mini{bottom:20px!important;left:auto!important;right:24px!important;width:58px!important;height:58px!important;border-radius:50%!important;border:2px solid rgba(0,255,136,.3)!important;border-top:2px solid rgba(0,255,136,.3)!important;box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 20px rgba(0,255,136,.08)!important;cursor:pointer!important;padding:0!important;justify-content:center!important;gap:0!important;}'+
     '#kil-mini-dot{display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.5rem;color:#00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '#kil-radio.kil-mini #kil-mini-dot{display:flex!important;}'+
-    '#kil-radio.kil-mini .kil-live,#kil-radio.kil-mini .kil-brand,#kil-radio.kil-mini .kil-divider,#kil-radio.kil-mini #kil-track,#kil-radio.kil-mini .kr-controls,#kil-radio.kil-mini .kil-submit,#kil-radio.kil-mini #kr-toggle{display:none!important;}'+
+    '#kil-radio.kil-mini .kil-live,#kil-radio.kil-mini .kil-brand,#kil-radio.kil-mini .kil-divider,#kil-radio.kil-mini #kil-track,#kil-radio.kil-mini .kr-controls,#kil-radio.kil-mini #kr-toggle{display:none!important;}'+
     '.kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '.kil-live.off{background:#444;box-shadow:none;animation:none;}'+
     '@keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}'+
@@ -24,17 +24,28 @@
     '.kil-brand-radio{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
     '#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
     '.kil-hasad #kil-track{flex:0 1 auto;max-width:210px;}'+
-    '.kil-ad{flex:1;display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden;}'+
-    '.kil-ad a{display:inline-flex;align-items:center;gap:8px;font-size:1.15rem;font-weight:800;letter-spacing:.01em;background:rgba(0,255,136,.14);border:1px solid rgba(0,255,136,.45);color:#00ff88;padding:8px 22px;border-radius:12px;white-space:nowrap;line-height:1;transition:opacity .5s;}'+
-    '.kil-ad .rlabel{opacity:.6;font-weight:600;}'+
-    '#kil-radio.kil-mini .kil-ad{display:none!important;}'+
+    /* ── SHUTTLE (Founder 2026-08-22) ────────────────────────────────────────────────
+       << playlist · < song · NOW PLAYING · song > · playlist >>
+       The neighbouring titles are a convenience, not the control: they truncate hard and
+       disappear below 900px so the arrows and the current track always fit. */
+    '.kr-shuttle{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;}'+
+    '.kr-nav{background:rgba(255,255,255,.06);border:1px solid rgba(0,255,136,.28);color:#00ff88;'+
+      'border-radius:8px;cursor:pointer;line-height:1;padding:0;flex:0 0 auto;'+
+      'display:flex;align-items:center;justify-content:center;transition:background .15s;}'+
+    '.kr-nav:hover{background:rgba(0,255,136,.16);}'+
+    '.kr-nav.kr-pl{width:30px;height:26px;font-size:1rem;font-weight:800;}'+
+    '.kr-nav.kr-sd{width:24px;height:26px;font-size:1.05rem;font-weight:800;}'+
+    '.kr-side{font-size:.72rem;color:rgba(255,255,255,.42);white-space:nowrap;overflow:hidden;'+
+      'text-overflow:ellipsis;max-width:150px;flex:0 1 auto;}'+
+    '.kr-now{font-size:.9rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;'+
+      'text-overflow:ellipsis;max-width:280px;flex:0 1 auto;padding:0 4px;}'+
+    '@media(max-width:900px){.kr-side{display:none;}}'+
+    '#kil-radio.kil-mini .kr-shuttle{display:none!important;}'+
     '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
     '.kr-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}'+
     '.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.85rem;line-height:1;padding:2px 4px;transition:opacity .2s;flex-shrink:0;}'+
     '.kr-btn:hover{opacity:.6;}'+
     '#kr-vol{width:60px;accent-color:#00ff88;cursor:pointer;opacity:.75;vertical-align:middle;}'+
-    '.kil-submit{font-size:.62rem;font-weight:700;color:#00ff88;border:1px solid rgba(0,255,136,.3);border-radius:20px;padding:3px 10px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:background .2s;}'+
-    '.kil-submit:hover{background:rgba(0,255,136,.08);}'+
     '#kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}'+
     /* The #kilo-btn overrides that lived here are GONE — the shell owns the chat
        button's position now. The PANEL still needs to clear the radio bar. */
@@ -48,10 +59,9 @@
     // Nav logo: bigger across all pages (overrides inline height:30px)
     'a.nav-logo img,#main-nav img,nav img[src*="keepitil-x-"]{height:44px!important;width:auto!important;}'+
     '@media(max-width:600px){'+
-      '.kil-ad{display:none!important;}'+
       '.kil-live,.kil-brand-live,.kil-divider{display:none!important;}'+   /* far left = logo + RADIO only */
       '#kil-track{display:block!important;flex:1 1 auto;min-width:0;text-align:center;font-size:.62rem;padding:0 6px;color:rgba(255,255,255,.7);}'+  /* center: song title + artist */
-      '.kil-submit{display:none!important;}'+
+      '.kr-side{display:none!important;}'+
       '#kr-toggle{display:none!important;}'+   /* volume + speaker become the far-right controls */
       '.kil-brand{gap:5px;}'+
       '.kr-controls{gap:9px;margin-left:auto;flex-shrink:0;}'+
@@ -65,41 +75,35 @@
   if(!document.getElementById('kil-radio')){
     var bar=document.createElement('div');
     bar.id='kil-radio';
-    var __ad=true; bar.className='kil-hasad';
-    var adHTML='<div class="kil-ad"><a href="https://distrokid.com/vip/seven/11538316" id="kil-ad-link" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click"><span id="kil-ad-text">🎵 Release on DistroKid</span></a></div>';
+    /* ── BAR LAYOUT (Founder 2026-08-22) ────────────────────────────────────────────────
+       << Prev Playlist · < Prev song · CURRENT · Next song > · Next Playlist >> · (mute)
+       Every referral and affiliate link is gone: the rotating DistroKid / Posh / FreeCash /
+       Illestrated ad that used to sit in the middle of the bar, and the "Play your song?"
+       link beside it. The bar is now controls only. */
     bar.innerHTML=
-      '<div id="kil-mini-dot">♬</div>'+
+      '<div id="kil-mini-dot">\u266c</div>'+
       '<div class="kil-live off" id="kil-led"></div>'+
       '<div class="kil-brand">'+
         '<span class="kil-brand-live">LIVE</span>'+
         '<img src="/keepitil-x-logo.png" class="kil-brand-logo" alt="KEEPITIL"/>'+
         '<span class="kil-brand-radio">RADIO</span>'+
       '</div>'+
-      '<span class="kil-divider">·</span>'+
-      '<span id="kil-track">Loading...</span>'+
-      adHTML+
-      '<div class="kr-controls">'+
-        '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">🔊</button>'+
+      '<div class="kr-shuttle">'+
+        '<button class="kr-nav kr-pl" id="kr-prevpl" title="Previous playlist" aria-label="Previous playlist">&#171;</button>'+
+        '<button class="kr-nav kr-sd" id="kr-prev" title="Previous song" aria-label="Previous song">&#8249;</button>'+
+        '<span class="kr-side" id="kr-prevt"></span>'+
+        '<span id="kil-track" class="kr-now">Loading\u2026</span>'+
+        '<span class="kr-side" id="kr-nextt"></span>'+
+        '<button class="kr-nav kr-sd" id="kr-next" title="Next song" aria-label="Next song">&#8250;</button>'+
+        '<button class="kr-nav kr-pl" id="kr-nextpl" title="Next playlist" aria-label="Next playlist">&#187;</button>'+
       '</div>'+
-      (location.pathname.indexOf('/v31/')===0?'':'<a href="/v3/earn" class="kil-submit">🎵 Play your song?</a>')+   /* V3.1 containment: no /v3/ nav from the public face */
-      '<button class="kr-btn" id="kr-toggle" title="Minimize radio">—</button>';
+      '<div class="kr-controls">'+
+        '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">\ud83d\udd0a</button>'+
+      '</div>'+
+      '<button class="kr-btn" id="kr-toggle" title="Minimize radio">\u2014</button>';
     document.body.appendChild(bar);
-    // ── rotating referral ad (middle of the bar) ──
-    (function(){
-      var link=document.getElementById('kil-ad-link'),txt=document.getElementById('kil-ad-text');
-      if(!link||!txt)return;
-      var ads=[
-        {t:'🎵 Release on DistroKid',u:'https://distrokid.com/vip/seven/11538316'},
-        {t:'🎟 List Your Event · Posh',u:'https://posh.vip/create_group?ref=S-referral-mp9itc5j-wb9dbt'},
-        {t:'💸 Earn on FreeCash',u:'https://freecash.com/r/Tuitea'},
-        {t:'🛒 Shop Rave Gear',u:'https://www.illestratedlifestyle.com'}
-      ];
-      var i=0;
-      setInterval(function(){
-        i=(i+1)%ads.length;link.style.opacity=0;
-        setTimeout(function(){txt.textContent=ads[i].t;link.href=ads[i].u;link.style.opacity=1;},400);
-      },5000);
-    })();
+    /* The rotating referral ad that lived here was removed 2026-08-22 (Founder).
+       No affiliate or referral link ships in the radio bar. */
 
     /* ── IFRAME DEFERRED TO FIRST GESTURE (Founder 2026-08-19) ──────────────────────────────
        This used to be appended on every page load. A SoundCloud player with auto_play=true
@@ -117,11 +121,28 @@
       sc.setAttribute('allow','autoplay');
       sc.setAttribute('scrolling','no');
       sc.setAttribute('frameborder','no');
-      sc.src='https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/illestrated-lifestyle&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false&show_artwork=false&show_comments=false&show_playcount=false&show_user=false&hide_related=true&continuous_play=true&single_active=false';
+      sc.src=window.__kilPlayerSrc();
       document.body.appendChild(sc);
       if(window.__kilRadioAttach) window.__kilRadioAttach(sc);
     };
   }
+
+  /* ── PLAYLISTS (Founder 2026-08-22: "all feeds from soundcloud only. keepitil soundcloud
+     account music playlist") ───────────────────────────────────────────────────────────────
+     Read from platform_config.radio_playlists so adding or reordering a station is a row edit,
+     not a code push. The seed below is only a fallback for the first paint and for the case
+     where config cannot be reached — the bar must never come up silent. */
+  var KIL_PL = [{name:'KEEPITIL', url:'https://soundcloud.com/illestrated-lifestyle'}];
+  var KIL_PL_I = 0;
+  try{ var _sv=sessionStorage.getItem('kil_pl_i'); if(_sv!=null) KIL_PL_I=Math.max(0,parseInt(_sv,10)||0); }catch(e){}
+
+  window.__kilPlayerSrc = function(){
+    var p = KIL_PL[KIL_PL_I] || KIL_PL[0];
+    return 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(p.url)
+      + '&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false'
+      + '&show_artwork=false&show_comments=false&show_playcount=false&show_user=false'
+      + '&hide_related=true&continuous_play=true&single_active=false';
+  };
 
   // ── Radio init ────────────────────────────────────────────────────────────
   var radio=document.getElementById('kil-radio');
@@ -167,11 +188,70 @@
     radio.addEventListener('click',function(e){
       if(miniState){setMini(false);return;}
       /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
-      if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,#kr-toggle,.kil-ad,#kil-ad-link')){return;}
+      if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,#kr-toggle,.kr-shuttle')){return;}
       if(location.pathname.indexOf('/v31/radio')===0)return; /* already on Radio */
       location.href='/v31/earn';
     });
   }
+
+  /* ── SHUTTLE CONTROLS ──────────────────────────────────────────────────────────────────
+     Song arrows drive the SoundCloud widget. Playlist arrows swap the iframe src, because a
+     widget is bound to one playlist for its lifetime — there is no API to repoint it. */
+  function kilPaintTitles(){
+    if(!widget || !widgetReady) return;
+    widget.getSounds(function(list){
+      if(!list || !list.length) return;
+      widget.getCurrentSoundIndex(function(i){
+        var prevEl=document.getElementById('kr-prevt'), nextEl=document.getElementById('kr-nextt');
+        var p=list[(i-1+list.length)%list.length], n=list[(i+1)%list.length];
+        if(prevEl) prevEl.textContent = (p&&p.title)? p.title : '';
+        if(nextEl) nextEl.textContent = (n&&n.title)? n.title : '';
+      });
+    });
+  }
+  window.__kilPaintTitles = kilPaintTitles;
+
+  function kilLoadPlaylist(dir){
+    if(KIL_PL.length < 2) return;                 /* one station: the arrows have nowhere to go */
+    KIL_PL_I = (KIL_PL_I + dir + KIL_PL.length) % KIL_PL.length;
+    try{ sessionStorage.setItem('kil_pl_i', String(KIL_PL_I)); }catch(e){}
+    var old = document.getElementById('kil-sc');
+    if(old) old.remove();
+    widget=null; widgetReady=false;
+    var sc=document.createElement('iframe');
+    sc.id='kil-sc'; sc.setAttribute('allow','autoplay');
+    sc.setAttribute('scrolling','no'); sc.setAttribute('frameborder','no');
+    sc.src=window.__kilPlayerSrc();
+    document.body.appendChild(sc);
+    if(trackEl) trackEl.textContent = (KIL_PL[KIL_PL_I].name || 'Loading') + '\u2026';
+    if(window.__kilRadioAttach) window.__kilRadioAttach(sc);
+  }
+
+  (function(){
+    function on(id, fn){ var b=document.getElementById(id); if(b) b.addEventListener('click',function(e){ e.stopPropagation(); fn(); }); }
+    on('kr-prev',  function(){ if(widget&&widgetReady){ widget.prev(); widget.play(); } });
+    on('kr-next',  function(){ if(widget&&widgetReady){ widget.next(); widget.play(); } });
+    on('kr-prevpl',function(){ kilLoadPlaylist(-1); });
+    on('kr-nextpl',function(){ kilLoadPlaylist(1); });
+  })();
+
+  /* Config load. Failure is silent by design — the seed playlist keeps playing. */
+  fetch(SUPA_URL+'/rest/v1/platform_config?select=value&key=eq.radio_playlists',
+        {headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(rows){
+      var v = rows && rows[0] && rows[0].value;
+      var list = v && v.playlists;
+      if(list && list.length){
+        KIL_PL = list.filter(function(p){ return p && p.url; });
+        if(KIL_PL_I >= KIL_PL.length) KIL_PL_I = 0;
+      }
+      /* More than one station? Show the playlist arrows. One station and they are dead weight. */
+      if(KIL_PL.length < 2){
+        ['kr-prevpl','kr-nextpl'].forEach(function(id){ var b=document.getElementById(id); if(b) b.style.display='none'; });
+      }
+    })
+    .catch(function(){});
 
   // ── LED state ─────────────────────────────────────────────────────────────
   function goLive(){if(led)led.classList.remove('off');playing=true;}
@@ -306,7 +386,7 @@
     if(!window.SC)return;
     widget=SC.Widget(frame);
     widget.bind(SC.Widget.Events.READY,function(){widgetReady=true;widget.setVolume(0);syncAndPlay();});
-    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSoundIndex(function(i){currentTrackIdx=i;});widget.getCurrentSound(function(s){if(s&&s.title&&trackEl)trackEl.textContent=s.title;});});
+    widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSoundIndex(function(i){currentTrackIdx=i;});widget.getCurrentSound(function(s){if(s&&s.title&&trackEl)trackEl.textContent=s.title;});kilPaintTitles();});
     widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(e){if(e&&e.currentPosition)currentPosition=e.currentPosition;if(interacted&&widget)widget.setVolume(getVol());});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
     widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
