@@ -31,13 +31,16 @@ body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom));di
    subject sits centre-left, so on a 9:19.5 phone `cover` crops to a slice of empty floor and the
    logo is gone. The portrait crop is a separate composition, switched at the shell's 860px
    breakpoint. Opacity .5 keeps the pink from fighting the pink competition cards. */
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/create-hero.jpg?v=20260821') center/cover no-repeat;opacity:1}
-@media(max-width:860px){body::before{background-image:url('/v3/create-hero-m.jpg?v=20260821')}}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/create-hero.jpg?v=20260821b') center/cover no-repeat;opacity:1}
+@media(max-width:860px){body::before{background-image:url('/v3/create-hero-m.jpg?v=20260821b')}}
 html.has-season body::before{display:none!important}/* seasonal image takes over on its dates */
 /* The scrim was .70→.92 black. Stacked on the backdrop that left the art effectively invisible —
    two separate dimmers on one image. The backdrop is now full opacity and this single scrim does
    all the darkening, kept just heavy enough at the bottom to hold card text legible. */
-body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,15,.35),rgba(10,10,15,.72))}
+/* Scrim lightened for the 2026-08-21b artwork: these compositions already leave a dark,
+   empty centre for the page content and put the neon out at the edges. The heavier
+   .35->.72 scrim was flattening exactly the parts meant to be seen. */
+body::after{content:"";position:fixed;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,15,.12),rgba(10,10,15,.55))}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1120px;margin:0 auto;padding:0 16px;width:100%}
 .hero{padding:34px 0 18px;text-align:center}
