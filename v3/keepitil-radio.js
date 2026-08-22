@@ -138,7 +138,11 @@
 
   window.__kilPlayerSrc = function(){
     var p = KIL_PL[KIL_PL_I] || KIL_PL[0];
-    return 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(p.url)
+    /* Prefer the api.soundcloud.com playlist-id form — it is what SoundCloud's own embed emits
+       (see twitter:player on any set page) and it always resolves. A /sets/ permalink is only
+       sometimes accepted by the widget, and when it is not the frame loads and simply never
+       plays: no error, no sound. That was the silent radio. */
+    return 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(p.api || p.url)
       + '&color=%2300ff88&auto_play=true&buying=false&liking=false&download=false&sharing=false'
       + '&show_artwork=false&show_comments=false&show_playcount=false&show_user=false'
       + '&hide_related=true&continuous_play=true&single_active=false';
