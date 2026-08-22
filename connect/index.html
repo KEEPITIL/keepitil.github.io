@@ -2,7 +2,7 @@
 <html lang="en" data-theme="default">
 <head>
 <link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
   <meta name="description" content="The KEEPITIL Scene — discover creators, artists, brands, venues and organizers across every genre. Southern California first.">
 <title>Connect — Artists, Brands, Organizers & Venues | KEEPITIL</title>
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
@@ -160,7 +160,11 @@ footer a{color:var(--artist);}
 @media(max-width:860px){
   body{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
   footer{margin-top:auto}
-  .controls{top:env(safe-area-inset-top,0px);padding-top:calc(10px + env(safe-area-inset-top,0px))}
+    /* EXACTLY the homepage pattern (#evx .evx-nav, index.html): top:0 and GROW into the
+     status-bar band. Offsetting to top:env(safe-area-inset-top) leaves a transparent strip
+     above the bar that page content scrolls through — the Founder's "you can see scrolling
+     above the filter". The bar must own that band, not sit below it. */
+  .controls{top:0;padding-top:calc(10px + env(safe-area-inset-top,0px));z-index:960;}
 }
 </style>
 <link rel="canonical" href="https://keepitil.com/connect"/>
