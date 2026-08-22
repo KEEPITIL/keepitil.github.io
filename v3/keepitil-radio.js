@@ -14,7 +14,7 @@
     '#kil-radio.kil-mini{bottom:20px!important;left:auto!important;right:24px!important;width:58px!important;height:58px!important;border-radius:50%!important;border:2px solid rgba(0,255,136,.3)!important;border-top:2px solid rgba(0,255,136,.3)!important;box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 20px rgba(0,255,136,.08)!important;cursor:pointer!important;padding:0!important;justify-content:center!important;gap:0!important;}'+
     '#kil-mini-dot{display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.5rem;color:#00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '#kil-radio.kil-mini #kil-mini-dot{display:flex!important;}'+
-    '#kil-radio.kil-mini .kil-live,#kil-radio.kil-mini .kil-brand,#kil-radio.kil-mini .kil-divider,#kil-radio.kil-mini #kil-track,#kil-radio.kil-mini .kr-controls,#kil-radio.kil-mini #kr-toggle{display:none!important;}'+
+    '#kil-radio.kil-mini .kil-live,#kil-radio.kil-mini .kil-brand,#kil-radio.kil-mini .kil-divider,#kil-radio.kil-mini #kil-track,#kil-radio.kil-mini .kr-controls{display:none!important;}'+
     '.kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '.kil-live.off{background:#444;box-shadow:none;animation:none;}'+
     '@keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}'+
@@ -28,7 +28,11 @@
        << playlist · < song · NOW PLAYING · song > · playlist >>
        The neighbouring titles are a convenience, not the control: they truncate hard and
        disappear below 900px so the arrows and the current track always fit. */
-    '.kr-shuttle{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;}'+
+    '.kr-shuttle{flex:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;'+
+      'gap:6px;min-width:0;}'+
+    '.kr-grp{display:flex;align-items:center;gap:6px;min-width:0;}'+
+    '.kr-grp-l{justify-content:flex-end;}'+
+    '.kr-grp-r{justify-content:flex-start;}'+
     '.kr-nav{background:rgba(255,255,255,.06);border:1px solid rgba(0,255,136,.28);color:#00ff88;'+
       'border-radius:8px;cursor:pointer;line-height:1;padding:0;flex:0 0 auto;'+
       'display:flex;align-items:center;justify-content:center;transition:background .15s;}'+
@@ -45,7 +49,7 @@
        which is the part that has to survive at every width. */
     '@media(max-width:1100px){.kr-plname{display:none;}}'+
     '.kr-now{font-size:.9rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;'+
-      'text-overflow:ellipsis;max-width:280px;flex:0 1 auto;padding:0 4px;}'+
+      'text-overflow:ellipsis;max-width:280px;padding:0 4px;text-align:center;}'+
     '@media(max-width:900px){.kr-side{display:none;}}'+
     '#kil-radio.kil-mini .kr-shuttle{display:none!important;}'+
     '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
@@ -69,7 +73,6 @@
       '.kil-live,.kil-brand-live,.kil-divider{display:none!important;}'+   /* far left = logo + RADIO only */
       '#kil-track{display:block!important;flex:1 1 auto;min-width:0;text-align:center;font-size:.62rem;padding:0 6px;color:rgba(255,255,255,.7);}'+  /* center: song title + artist */
       '.kr-side,.kr-plname{display:none!important;}'+
-      '#kr-toggle{display:none!important;}'+   /* volume + speaker become the far-right controls */
       '.kil-brand{gap:5px;}'+
       '.kr-controls{gap:9px;margin-left:auto;flex-shrink:0;}'+
       '#kr-vol{width:74px;height:20px;}'+
@@ -99,21 +102,29 @@
          PREV PLAYLIST << | PREV SONG < | PLAYLIST: NOW PLAYING | > NEXT SONG | >> NEXT PLAYLIST
          The label sits OUTSIDE its arrow on each side, so the arrow always points at the thing
          named next to it. */
+      /* Three groups, not one flat row (Founder 2026-08-22: "center the title of the current
+         song playing"). The side groups are equal-width grid tracks, so NOW PLAYING lands on the
+         true centre of the bar no matter how long the neighbouring titles are — in a flat flex
+         row it drifted with them. */
       '<div class="kr-shuttle">'+
-        '<span class="kr-plname" id="kr-prevpl-t"></span>'+
-        '<button class="kr-nav kr-pl" id="kr-prevpl" title="Previous playlist" aria-label="Previous playlist">&#171;</button>'+
-        '<span class="kr-side" id="kr-prevt"></span>'+
-        '<button class="kr-nav kr-sd" id="kr-prev" title="Previous song" aria-label="Previous song">&#8249;</button>'+
+        '<div class="kr-grp kr-grp-l">'+
+          '<span class="kr-plname" id="kr-prevpl-t"></span>'+
+          '<button class="kr-nav kr-pl" id="kr-prevpl" title="Previous playlist" aria-label="Previous playlist">&#171;</button>'+
+          '<span class="kr-side" id="kr-prevt"></span>'+
+          '<button class="kr-nav kr-sd" id="kr-prev" title="Previous song" aria-label="Previous song">&#8249;</button>'+
+        '</div>'+
         '<span id="kil-track" class="kr-now">Loading\u2026</span>'+
-        '<button class="kr-nav kr-sd" id="kr-next" title="Next song" aria-label="Next song">&#8250;</button>'+
-        '<span class="kr-side" id="kr-nextt"></span>'+
-        '<button class="kr-nav kr-pl" id="kr-nextpl" title="Next playlist" aria-label="Next playlist">&#187;</button>'+
-        '<span class="kr-plname" id="kr-nextpl-t"></span>'+
+        '<div class="kr-grp kr-grp-r">'+
+          '<button class="kr-nav kr-sd" id="kr-next" title="Next song" aria-label="Next song">&#8250;</button>'+
+          '<span class="kr-side" id="kr-nextt"></span>'+
+          '<button class="kr-nav kr-pl" id="kr-nextpl" title="Next playlist" aria-label="Next playlist">&#187;</button>'+
+          '<span class="kr-plname" id="kr-nextpl-t"></span>'+
+        '</div>'+
       '</div>'+
       '<div class="kr-controls">'+
         '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">\ud83d\udd0a</button>'+
       '</div>'+
-      '<button class="kr-btn" id="kr-toggle" title="Minimize radio">\u2014</button>';
+      '';   /* the minimise button is gone — see setMini() */
     document.body.appendChild(bar);
     /* The rotating referral ad that lived here was removed 2026-08-22 (Founder).
        No affiliate or referral link ships in the radio bar. */
@@ -168,7 +179,7 @@
   var trackEl=document.getElementById('kil-track');
   var muteBtn=document.getElementById('kr-mute');
   var volEl=document.getElementById('kr-vol');
-  var toggleBtn=document.getElementById('kr-toggle');
+  /* toggleBtn removed with the collapse feature 2026-08-22. */
   var widget=null,playing=false,muted=false,savedVol=5,interacted=false,widgetReady=false,miniState=false,wakeLock=null;
   var isMobile=('ontouchstart'in window)||(navigator.maxTouchPoints>0);
   var DEFAULT_VOL=3;
@@ -192,20 +203,23 @@
   function getVol(){return muted?0:Math.max(0,Math.min(100,parseInt(volEl?volEl.value:DEFAULT_VOL)||DEFAULT_VOL));}
 
   // ── Mini / expand toggle ──────────────────────────────────────────────────
-  function setMini(on){
-    miniState=on;
-    if(on){radio.classList.add('kil-mini');document.body.classList.add('radio-mini');}
-    else{radio.classList.remove('kil-mini');document.body.classList.remove('radio-mini');}
-    try{localStorage.setItem('kil_radio_mini',on?'1':'0');}catch(e){}
+  /* COLLAPSE REMOVED (Founder 2026-08-22: "do not allow the radio bar to collapse. remove that
+     feature button"). setMini is kept as a no-op because other code — the pager, the shell, the
+     mini dot — still calls it; deleting the function would throw instead of doing nothing.
+     The stored preference is actively cleared, or anyone who collapsed the bar before today
+     would load into a collapsed bar forever with no control left to expand it. */
+  function setMini(){
+    miniState=false;
+    if(radio) radio.classList.remove('kil-mini');
+    document.body.classList.remove('radio-mini');
   }
-  try{if(localStorage.getItem('kil_radio_mini')==='1')setMini(true);}catch(e){}
-  if(toggleBtn){toggleBtn.addEventListener('click',function(e){e.stopPropagation();setMini(true);});}
+  try{ localStorage.removeItem('kil_radio_mini'); }catch(e){}
+  setMini();
   if(radio){
     radio.style.cursor='pointer';
     radio.addEventListener('click',function(e){
-      if(miniState){setMini(false);return;}
       /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
-      if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,#kr-toggle,.kr-shuttle')){return;}
+      if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,.kr-shuttle')){return;}
       if(location.pathname.indexOf('/v31/radio')===0)return; /* already on Radio */
       location.href='/v31/earn';
     });
@@ -257,9 +271,9 @@
   window.__kilPaintTitles = kilPaintTitles;
 
   function kilLoadPlaylist(dir){
-    /* With one station there is nowhere to roll to, so restart it rather than stopping dead —
-       the radio must never fall silent at the end of a playlist. */
-    if(KIL_PL.length < 2){
+    /* dir 0 = reload the CURRENT entry in place (used when a default playlist is applied). */
+    if(dir === 0){ KIL_PL_I = KIL_PL_I; }
+    else if(KIL_PL.length < 2){
       if(widget && widgetReady){ widget.skip(0); widget.play(); }
       return;
     }
@@ -306,8 +320,51 @@
         ['kr-prevpl','kr-nextpl'].forEach(function(id){ var b=document.getElementById(id); if(b) b.style.display='none'; });
       }
       kilPaintPlaylistNames();
+      kilLoadMine();
     })
     .catch(function(){});
+
+  /* ── A SIGNED-IN LISTENER'S OWN PLAYLISTS (Founder 2026-08-22) ──────────────────────────
+     Appended AFTER the station playlists, never mixed into them: the KEEPITIL rotation is the
+     same for everyone, and these are audible only to the person who saved them. RLS does the
+     enforcing — the request carries the user's own token, so it can only ever return their rows.
+     Signed out, this is a no-op and the bar behaves exactly as before. */
+  function kilLoadMine(){
+    var tok = null;
+    try{
+      /* supabase-js stores its session under a project-scoped key. Reading it here avoids
+         pulling the whole SDK into the radio bar for one authenticated GET. */
+      for(var i=0;i<localStorage.length;i++){
+        var k = localStorage.key(i);
+        if(k && k.indexOf('-auth-token') > -1){
+          var j = JSON.parse(localStorage.getItem(k) || 'null');
+          if(j && j.access_token){ tok = j.access_token; break; }
+        }
+      }
+    }catch(e){}
+    if(!tok) return;                       /* signed out — stations only */
+
+    fetch(SUPA_URL + '/rest/v1/user_playlists?select=name,url,api_url,art,is_default&order=created_at.asc',
+          { headers:{ apikey:SUPA_KEY, Authorization:'Bearer ' + tok } })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(rows){
+        if(!rows || !rows.length) return;
+        var mine = rows.map(function(p){
+          return { name:p.name, url:p.url, api:p.api_url, art:p.art, mine:true, def:p.is_default };
+        });
+        KIL_PL = KIL_PL.concat(mine);
+        /* A playlist marked default starts the session on it. */
+        var d = KIL_PL.findIndex ? KIL_PL.findIndex(function(p){ return p.def; }) : -1;
+        if(d > -1 && d !== KIL_PL_I){
+          KIL_PL_I = d;
+          try{ sessionStorage.setItem('kil_pl_i', String(d)); }catch(e){}
+          if(document.getElementById('kil-sc')) kilLoadPlaylist(0);
+        }
+        ['kr-prevpl','kr-nextpl'].forEach(function(id){ var b=document.getElementById(id); if(b) b.style.display=''; });
+        kilPaintPlaylistNames();
+      })
+      .catch(function(){});
+  }
 
   // ── LED state ─────────────────────────────────────────────────────────────
   function goLive(){if(led)led.classList.remove('off');playing=true;}
