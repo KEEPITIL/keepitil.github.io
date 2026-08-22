@@ -376,9 +376,9 @@
   // ── CSS injection ────────────────────────────────────────────────────────────
   function injectStyles() {
     var css = [
-      /* Resized 2026-08-21 (Founder). 58px with a 26px glyph was a large disc floating over the
-   content on every page. 46/20 keeps it a comfortable tap target without dominating. */
-      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:46px;height:46px;border-radius:50%;',
+      /* Resized 2026-08-22 (Founder, floating-button editor): 40px button, 20px glyph. Matched to
+   keepitil-shell.js so the button does not paint at one size and then jump to another. */
+      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:40px;height:40px;border-radius:50%;',
       'background:linear-gradient(135deg,#00b4ff,#00ff88);border:none;cursor:pointer;',
       'box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);',
       'display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;',
