@@ -145,7 +145,9 @@
    /* ── CREATE header stat row (Founder 2026-08-21) — the Connect page's pattern ───── */
    /* LEFT on desktop, matching /connect (Founder 2026-08-21). Centred below 861px, where a
       left-aligned title over a full-width stat row reads as misaligned rather than deliberate. */
-   + '#vs-app .ce-hero{text-align:left;padding:6px 0 18px}'
+   /* Background-first opening panel, matching the homepage (Founder 2026-08-21). */
+   + '#vs-app .ce-hero{text-align:left;padding:6px 0 18px;display:flex;flex-direction:column;'
+   +   'justify-content:center;min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px)}'
    + '@media(max-width:860px){#vs-app .ce-hero{text-align:center}}'
    + '#vs-app .ce-hero h1{font-family:var(--fh,inherit);font-size:clamp(2.6rem,10vw,5rem);line-height:.9;'
    +   'letter-spacing:.04em;margin:0;background:linear-gradient(90deg,#ff2e88,#a06bff);'
