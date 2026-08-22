@@ -241,6 +241,10 @@
     .then(function(r){ return r.ok?r.json():null; })
     .then(function(rows){
       var v = rows && rows[0] && rows[0].value;
+      /* platform_config.value is a TEXT column holding JSON, so it arrives as a string, not an
+         object. Parsing only when it is a string keeps this working if the column is ever
+         migrated to jsonb. */
+      if(typeof v === 'string'){ try{ v = JSON.parse(v); }catch(e){ v = null; } }
       var list = v && v.playlists;
       if(list && list.length){
         KIL_PL = list.filter(function(p){ return p && p.url; });
