@@ -216,7 +216,12 @@
   window.__kilPaintTitles = kilPaintTitles;
 
   function kilLoadPlaylist(dir){
-    if(KIL_PL.length < 2) return;                 /* one station: the arrows have nowhere to go */
+    /* With one station there is nowhere to roll to, so restart it rather than stopping dead —
+       the radio must never fall silent at the end of a playlist. */
+    if(KIL_PL.length < 2){
+      if(widget && widgetReady){ widget.skip(0); widget.play(); }
+      return;
+    }
     KIL_PL_I = (KIL_PL_I + dir + KIL_PL.length) % KIL_PL.length;
     try{ sessionStorage.setItem('kil_pl_i', String(KIL_PL_I)); }catch(e){}
     var old = document.getElementById('kil-sc');
@@ -397,7 +402,20 @@
     widget.bind(SC.Widget.Events.PLAY,function(){goLive();reListenGesture();widget.getCurrentSoundIndex(function(i){currentTrackIdx=i;});widget.getCurrentSound(function(s){if(s&&s.title&&trackEl)trackEl.textContent=s.title;});kilPaintTitles();});
     widget.bind(SC.Widget.Events.PLAY_PROGRESS,function(e){if(e&&e.currentPosition)currentPosition=e.currentPosition;if(interacted&&widget)widget.setVolume(getVol());});
     widget.bind(SC.Widget.Events.PAUSE,function(){goOff();});
-    widget.bind(SC.Widget.Events.FINISH,function(){widget.getSounds(function(s){if(!s||!s.length)return;widget.getCurrentSoundIndex(function(i){widget.skip((i+1)%s.length);widget.play();});});});
+    /* ── PLAY A PLAYLIST THROUGH, THEN ROLL TO THE NEXT ONE (Founder 2026-08-22) ──────────
+       Was `skip((i+1) % length)` — the modulo wrapped back to track 0 of the SAME playlist and
+       looped it forever, so the other stations never got reached. On the LAST track it now
+       advances to the next playlist instead of wrapping, and after the last playlist it comes
+       back round to the first. One continuous programme across every station. */
+    widget.bind(SC.Widget.Events.FINISH,function(){
+      widget.getSounds(function(s){
+        if(!s||!s.length) return;
+        widget.getCurrentSoundIndex(function(i){
+          if(i >= s.length-1){ kilLoadPlaylist(1); }   /* end of this playlist -> next station */
+          else { widget.skip(i+1); widget.play(); }
+        });
+      });
+    });
     widget.bind(SC.Widget.Events.ERROR,function(){setTimeout(function(){widget.next();widget.play();},1000);});
   }
   /* The SoundCloud API script is deferred alongside the iframe — loading it eagerly would
