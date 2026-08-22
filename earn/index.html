@@ -2,7 +2,7 @@
 <html lang="en" data-theme="default">
 <head>
 <link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="description" content="KEEPITIL EARN — curated stations across every genre, creator playlists, and ways to create, compete and earn.">
 <title>Earn — Stations, Playlists &amp; Creator Opportunities | KEEPITIL</title>
 <link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
@@ -38,7 +38,14 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 html.has-season body::before{display:none!important}
 body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom))} /* clear fixed shell nav + radio bar */
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+/* width:100% IS LOAD-BEARING — DO NOT DROP IT (KODE 2026-08-20, restored by Atlas 08-21).
+   body is a flex column here, so .wrap is a flex ITEM. `margin:0 auto` is a cross-axis auto
+   margin, and a cross-axis auto margin cancels align-items:stretch — .wrap then sizes to
+   fit-content, which for a flex-wrap:nowrap card rail is wider than the phone. Mobile Safari
+   responds by zooming the whole page out to fit. max-width:1120px still caps it on desktop.
+   This was lost once already when a push overwrote the file; if it goes missing again the
+   symptom is "the page is zoomed out", not a layout error. */
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px;width:100%}
 /* hero */
 /* LEFT, not centred (Founder 2026-08-21): "on the desktop version the connect metric and
    title is on the left side of the screen. should be the same for the other pages."
@@ -290,7 +297,11 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 20px}
   /* The hero used to be hidden on mobile because it was a wall of prose. It is now the stat row,
      which is the point of the header — so it stays, compacted (Founder 2026-08-21). */
-  body.rad-m .controls{top:env(safe-area-inset-top,0px);padding:10px 0;max-width:none;margin-top:0}
+  /* EXACTLY the homepage pattern (#evx .evx-nav, index.html): top:0 and GROW into the
+     status-bar band. Offsetting to top:env(safe-area-inset-top) leaves a transparent strip
+     above the bar that page content scrolls through — the Founder's "you can see scrolling
+     above the filter". The bar must own that band, not sit below it. */
+  body.rad-m .controls{top:0;padding:10px 0;padding-top:calc(10px + env(safe-area-inset-top,0px));max-width:none;margin-top:0;z-index:960}
   body.rad-m .controls-row{padding:0 14px}
   body.rad-m .controls-row{flex-direction:column;align-items:stretch;gap:8px}
   body.rad-m .seg{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%}
@@ -305,7 +316,20 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
      The desktop accordion rule was fixed and verified — but this mobile-only !important wins
      over display:flex and only bites at ≤860px, so the fix was verified exactly where the
      broken rule does not apply. Rails on mobile too. */
-  body.rad-m section .grid.rad-carou{display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important}
+  /* ONE ROW PER SECTION, ALWAYS (Founder 2026-08-21: "carousel by section and single row only",
+     same as the homepage event rails). The section.open state could still expand a rail back
+     into a wrapping grid; on a phone that turns one swipeable row into a tall block and the page
+     grows past the viewport. Locked to a nowrap rail regardless of open state. */
+  body.rad-m section .grid,
+  body.rad-m section.open .grid,
+  body.rad-m section .grid.rad-carou,
+  body.rad-m section.open .grid.rad-carou{
+    display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;
+    scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;max-width:100%}
+  /* Nothing inside a rail may claim a full-width basis — that is what pushes the rail, and then
+     the page, wider than the screen. */
+  body.rad-m section .grid > *{flex:0 0 160px!important;scroll-snap-align:start}
+  body.rad-m #radNoHits{flex:0 0 auto!important;max-width:80vw}
   body.rad-m .sec-toggle{display:none}
   /* persistent mini-player docked above the bottom nav (the shared shell hides it on mobile;
      this page is the one place it must stay visible) */
