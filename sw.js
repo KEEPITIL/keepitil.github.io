@@ -7,10 +7,16 @@
    - Only images/fonts/icons keep stale-while-revalidate (stale pixels can't break logic).
    - VERSION bump evicts every v1/v2 cache on activate + clients.claim().
    To retire this SW: bump VERSION and ship, or restore the self-destruct worker. */
-var VERSION = 'kil-pwa-v41-20260809a';
-var PAGES = 'kil-pages-v39';
-var ASSETS = 'kil-assets-v38';
-var CODE = 'kil-code-v39';
+/* CACHE VERSIONS BUMPED 2026-08-22 (Founder: "update the mobile version. its showing the old
+   version"). The strategy was already network-first for HTML and JS/CSS, so this is not a fix to
+   the rules — it is an eviction. Renaming every cache makes `activate` delete the old ones and
+   clients.claim() take over immediately, which clears anything a phone or an installed PWA was
+   still holding from before. Bump these four names whenever a release must reach returning
+   users regardless of what they have cached. */
+var VERSION = 'kil-pwa-v42-20260822a';
+var PAGES = 'kil-pages-v40';
+var ASSETS = 'kil-assets-v39';
+var CODE = 'kil-code-v40';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [
