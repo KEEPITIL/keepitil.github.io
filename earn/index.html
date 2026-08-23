@@ -506,9 +506,10 @@ function band(hue,glyph){return '<div class="card-img" style="background:linear-
 function kilStationCard(p, i){
   var HUES=[280,200,35,140,320,90];
   var hue=HUES[i%HUES.length];
-  /* Real playlist artwork when config carries it; the gradient is the fallback, not the default. */
+  /* The station art is a full 2:3 poster, so it fills the card instead of sitting in the 92px
+     band a small thumbnail used. The gradient stays as the fallback for a station with no art. */
   var cover = p.art
-    ? 'background:#15131f url('+p.art+') center/cover no-repeat'
+    ? 'height:auto;aspect-ratio:2/3;background:#15131f url('+p.art+') center/cover no-repeat'
     : 'background:linear-gradient(135deg,hsl('+hue+',72%,44%),hsl('+((hue+40)%360)+',66%,20%))';
   return '<a class="station card" href="'+esc(p.url)+'" target="_blank" rel="noopener">'
     + '<div class="card-img" style="'+cover+'">'+(p.art?'':'\u266a')+'</div>'
