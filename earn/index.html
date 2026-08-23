@@ -103,6 +103,25 @@ a{color:inherit;text-decoration:none}
 .search input::placeholder{color:#6b6588}
 .count{font-size:.76rem;color:#6b6588;white-space:nowrap}
 @media(max-width:768px){#radCount{display:none!important}}
+/* ── PARTNER TILES ─────────────────────────────────────────────────────────────────────
+   Same 2:3 shape as every other card on the site, but the art is the card rather than a strip
+   inside it. The glyph is oversized and low-contrast so it reads as artwork, not an icon. */
+.aff-card{position:relative;display:block;aspect-ratio:2/3;border-radius:14px;overflow:hidden;
+  border:1px solid var(--brd);text-decoration:none;color:#fff;
+  transition:border-color .15s,transform .15s}
+.aff-card:hover{border-color:var(--brand);transform:translateY(-2px)}
+.aff-glyph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(3.4rem,9vw,5.4rem);opacity:.34;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5))}
+.aff-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;
+  font:800 .56rem Inter,sans-serif;letter-spacing:.1em;padding:4px 9px;border-radius:6px}
+.aff-body{position:absolute;left:0;right:0;bottom:0;padding:16px 14px 14px;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.55) 38%,rgba(0,0,0,.9))}
+.aff-body b{display:block;font-family:var(--fh);font-size:1.5rem;letter-spacing:.02em;line-height:1.02}
+.aff-body span{display:block;margin-top:5px;font-size:.8rem;line-height:1.35;color:#dfe4ee}
+@media(max-width:860px){
+  .aff-body b{font-size:1.2rem}
+  .aff-body span{font-size:.72rem}
+}
 /* section */
 section{padding:30px 0;border-top:1px solid var(--brd)}
 .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
@@ -278,25 +297,10 @@ footer{margin-top:auto}
   <div class="sh"><h2>EARN</h2></div>
   <div class="grid g-cards" id="affGrid"></div>
 
-  <!-- AIRPLAY SUBMISSIONS. Intake only — nothing here puts a track on air. -->
-  <div class="pl-form" id="airForm" style="margin-top:18px;flex-direction:column;align-items:stretch">
-    <b style="font-family:var(--fh);font-size:1.25rem;letter-spacing:.03em">GET YOUR SONG ON KEEPITIL RADIO</b>
-    <div style="display:flex;flex-wrap:wrap;gap:10px">
-      <input id="airArtist" type="text" placeholder="Artist name" maxlength="80"/>
-      <input id="airEmail" type="email" placeholder="Email" maxlength="120"/>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px">
-      <input id="airUrl" type="url" placeholder="SoundCloud track or playlist URL"/>
-      <input id="airGenre" type="text" placeholder="Genre" maxlength="40"/>
-    </div>
-    <label style="display:flex;gap:9px;align-items:flex-start;font-size:.82rem;color:#cfd4e2">
-      <input type="checkbox" id="airTerms" style="width:auto;margin-top:3px">
-      <span>I have read the submission terms and I am authorised to license this recording.</span>
-    </label>
-    <button class="btn" onclick="submitAirplay()">Submit for review</button>
-    <div id="airMsg" class="disc" style="margin-top:2px"></div>
-  </div>
-  <div id="airGate" style="display:none;margin-top:18px"><a class="btn" href="/apply.html">Sign in to submit</a></div>
+  <!-- The "GET YOUR SONG ON KEEPITIL RADIO" submission form was removed 2026-08-22
+       (Founder). The radio_airplay_requests table and submitAirplay() are left in place — the
+       terms were still pending review, so nothing is lost by taking the form down and it can be
+       re-mounted without rebuilding it. -->
 </section>
 
 <!-- CREATOR SERVICES / GAMES / MOBILE APP sections REMOVED 2026-08-18 (Founder).
@@ -581,12 +585,15 @@ var _g_scheduleGrid=document.getElementById('scheduleGrid'); if(_g_scheduleGrid)
     {t:'FreeCash',            d:'Earn on the side',                         u:'https://freecash.com/r/Tuitea',                                     g:'\ud83d\udcb8', h:140},
     {t:'Illestrated Lifestyle',d:'Shop the apparel',                        u:'https://www.illestratedlifestyle.com',                              g:'\ud83d\uded2', h:35}
   ];
+  /* Full-bleed tile (Founder 2026-08-22: "filled with an image ... too much empty space").
+     The art covers the whole 2:3 card and the copy sits on a scrim at the foot of it, instead of
+     a 92px band with three short lines floating in the middle of an otherwise empty card. */
   grid.innerHTML = AFF.map(function(a){
-    return '<a class="station card" href="'+a.u+'" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click">'
-      + '<div class="card-img" style="background:linear-gradient(135deg,hsl('+a.h+',72%,44%),hsl('+((a.h+40)%360)+',66%,20%))">'+a.g+'</div>'
-      + '<div class="g">'+a.t+'</div>'
-      + '<div class="s">'+a.d+'</div>'
-      + '<span class="chip">PARTNER \u2197</span>'
+    return '<a class="aff-card" href="'+a.u+'" target="_blank" rel="noopener sponsored nofollow" data-kt="affiliate_click" '
+      + 'style="background:linear-gradient(150deg,hsl('+a.h+',78%,46%),hsl('+((a.h+40)%360)+',70%,14%))">'
+      + '<span class="aff-glyph">'+a.g+'</span>'
+      + '<span class="aff-tag">PARTNER \u2197</span>'
+      + '<div class="aff-body"><b>'+a.t+'</b><span>'+a.d+'</span></div>'
       + '</a>';
   }).join('');
 })();
@@ -618,8 +625,9 @@ var PL_API='https://ovmqtzjfpzrbzrlkxwgw.supabase.co/rest/v1/user_playlists';
 
 function plGate(){
   var signedIn=!!kilTok();
-  ['plForm','airForm'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=signedIn?'':'none'; });
-  ['plGate','airGate'].forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=signedIn?'none':''; });
+  /* airForm/airGate dropped with the submission form 2026-08-22. */
+  var f=document.getElementById('plForm'); if(f) f.style.display=signedIn?'':'none';
+  var g=document.getElementById('plGate'); if(g) g.style.display=signedIn?'none':'';
   return signedIn;
 }
 
