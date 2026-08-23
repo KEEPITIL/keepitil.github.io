@@ -756,7 +756,9 @@ renderTypebar();renderDiscover();renderFeed();
         if(img) img.remove();
         var v = document.createElement('video');
         v.src = n.video; if(n.poster) v.poster = n.poster;
-        v.muted = true; v.loop = true; v.playsInline = true; v.controls = true;
+        /* Muted ONLY while the browser still requires it; unmuted once a gesture has happened. */
+        v.muted = !window.__kilSoundOK; v.volume = 0.5;
+        v.loop = true; v.playsInline = true; v.controls = true;
         v.setAttribute('style','width:100%;height:100%;object-fit:'+(n.fit||'cover')+';display:block');
         el.insertBefore(v, el.firstChild);
       }
@@ -1294,8 +1296,11 @@ window.culFetchMedia = culFetchMedia;
        enablejsapi=1 lets us postMessage unMute + setVolume(50) the moment sound is actually
        allowed, which is the first real user gesture on the page. If the visitor never taps, the
        video keeps playing silently rather than not playing at all. */
+    /* mute=0 the moment sound is legal. A browser only blocks UNMUTED autoplay before the first
+       gesture — after it, an unmuted player is allowed and starts with audio immediately. */
+    var muteFlag = window.__kilSoundOK ? '0' : '1';
     f.src = url + (url.indexOf('?')>-1?'&':'?')
-          + 'autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin='
+          + 'autoplay=1&mute=' + muteFlag + '&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin='
           + encodeURIComponent(location.origin);
     f.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
     f.setAttribute('allowfullscreen','');
@@ -1311,6 +1316,11 @@ window.culFetchMedia = culFetchMedia;
   }
 
   var VOLUME = 50;
+  /* Sound permission is per-session, not per-page (Founder 2026-08-22: "dont have any of the
+     videos muted"). Once the visitor has interacted anywhere on the site, every player after
+     that mounts UNMUTED from the start rather than mounting muted and being un-muted a beat
+     later — which is both faster and more reliable than a postMessage race. */
+  try{ if(sessionStorage.getItem('kil_sound_ok') === '1') window.__kilSoundOK = true; }catch(e){}
   function ytCmd(frame, func, args){
     try{
       frame.contentWindow.postMessage(JSON.stringify({event:'command', func:func, args:args||[]}), '*');
@@ -1330,8 +1340,14 @@ window.culFetchMedia = culFetchMedia;
   function armSound(){
     if(window.__kilSoundOK) return;
     window.__kilSoundOK = true;
+    try{ sessionStorage.setItem('kil_sound_ok','1'); }catch(e){}
     var f = current && current.querySelector('iframe');
     if(f) applyVolume(f);
+    /* Uploaded clips are plain <video>, not the YouTube widget, so they need unmuting directly. */
+    document.querySelectorAll('.fcard video').forEach(function(v){
+      v.muted = false; v.volume = VOLUME/100;
+      var p = v.play(); if(p && p.catch) p.catch(function(){});
+    });
   }
   ['pointerdown','keydown','touchstart'].forEach(function(ev){
     document.addEventListener(ev, armSound, {once:true, passive:true, capture:true});
@@ -1520,7 +1536,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260822b" defer></script>
+<script src="/keepitil-shell.js?v=20260822c" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
