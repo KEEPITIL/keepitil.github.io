@@ -142,7 +142,22 @@
       if(!document.querySelector('meta[name="'+m[0]+'"]')){ var t=document.createElement('meta'); t.name=m[0]; t.content=m[1]; document.head.appendChild(t); }
     });
     if(!document.querySelector('link[rel="apple-touch-icon"]')){ var _ai=document.createElement('link'); _ai.rel='apple-touch-icon'; _ai.href='/apple-touch-icon.png'; document.head.appendChild(_ai); }
-    if('serviceWorker' in navigator){ navigator.serviceWorker.register('/sw.js').catch(function(){}); }
+    if('serviceWorker' in navigator){
+      /* VERSIONED SW URL (Atlas 2026-08-22). Registering the bare '/sw.js' relies on the browser
+         noticing the file's bytes changed on its own update check — which an installed PWA on iOS
+         may defer for up to a day, so a shipped fix can sit unseen on a phone while the desktop
+         has it. A different URL is a different worker: the new one installs immediately, and
+         because sw.js already calls skipWaiting() on install and clients.claim() on activate, it
+         takes over without waiting for every tab to close. Bump this ?v= with the cache names in
+         sw.js whenever a release must reach returning users. */
+      navigator.serviceWorker.register('/sw.js?v=20260822b').catch(function(){});
+      /* An older worker may still be in control from a previous registration of the bare URL.
+         Asking every registration to update forces that one to re-check now rather than on its
+         own schedule. */
+      navigator.serviceWorker.getRegistrations().then(function(rs){
+        rs.forEach(function(r){ try{ r.update(); }catch(e){} });
+      }).catch(function(){});
+    }
   }catch(e){}
   /* Install banner: Android/desktop via beforeinstallprompt; iOS gets a one-time Share hint. */
   try{
