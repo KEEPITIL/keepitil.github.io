@@ -142,6 +142,22 @@
       if(!document.querySelector('meta[name="'+m[0]+'"]')){ var t=document.createElement('meta'); t.name=m[0]; t.content=m[1]; document.head.appendChild(t); }
     });
     if(!document.querySelector('link[rel="apple-touch-icon"]')){ var _ai=document.createElement('link'); _ai.rel='apple-touch-icon'; _ai.href='/apple-touch-icon.png'; document.head.appendChild(_ai); }
+    /* SOUND PERMISSION IS SITE-WIDE (Founder 2026-08-22: "dont have any of the videos muted").
+       Recorded here, in the shell, so ANY page counts as the first interaction — tap CONNECT,
+       then open CULTURE, and the first video already plays with audio instead of starting muted
+       and waiting for another tap. Browsers only block unmuted autoplay BEFORE a gesture; this
+       just makes sure the gesture the visitor already made is not forgotten on navigation. */
+    (function(){
+      try{ if(sessionStorage.getItem('kil_sound_ok')==='1'){ window.__kilSoundOK = true; return; } }catch(e){}
+      var arm = function(){
+        window.__kilSoundOK = true;
+        try{ sessionStorage.setItem('kil_sound_ok','1'); }catch(e){}
+      };
+      ['pointerdown','keydown','touchstart'].forEach(function(ev){
+        document.addEventListener(ev, arm, {once:true, passive:true, capture:true});
+      });
+    })();
+
     if('serviceWorker' in navigator){
       /* VERSIONED SW URL (Atlas 2026-08-22). Registering the bare '/sw.js' relies on the browser
          noticing the file's bytes changed on its own update check — which an installed PWA on iOS
