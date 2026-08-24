@@ -24,8 +24,20 @@
 <style>
 :root{--page:#f6f4fb;--card:#ffffff;--card2:#f2eefb;--ink:#191426;--ink2:#544c6b;--ink3:#8b839e;--line:rgba(30,15,60,.12);--blue:#5b21b6;--blue2:#7c3aed;--accent:#0071e3;--good:#0a8f5b;--fh:'Bebas Neue',sans-serif;--fs:'Fraunces',Georgia,serif;--fb:'Inter',system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--page);color:var(--ink);font-family:var(--fb);line-height:1.75;padding-bottom:40px}
-body::before{display:none!important}.kil-social-bar{display:none!important}
+/* ⚠ COLOUR ON <html>, BODY TRANSPARENT. An opaque body background paints OVER a negative
+   z-index ::before — the same trap that hid the backdrops on /create and /earn. */
+html{background:#0a0a0f}
+body{background:transparent;color:var(--ink);font-family:var(--fb);line-height:1.75;padding-bottom:40px}
+/* THE COVER IS FIXED FOR THE WHOLE ARTICLE (Founder 2026-08-23: "does not stay locked like the
+   homepage, through out the entire article"). It used to live inside .artlead, so it scrolled
+   away with the landing panel. position:fixed on body::before makes the article scroll OVER a
+   stationary image, exactly like the homepage. --artbg is set on <body style="--artbg:url('https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&height=600&nologo=true&seed=88&model=flux')"> per article. */
+body::before{content:"";display:block!important;position:fixed;inset:0;z-index:-2;
+  background:#0a0a0f var(--artbg,none) center/cover no-repeat}
+@media(max-width:860px){body::before{background-image:var(--artbg-m,var(--artbg,none))}}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(8,6,16,.10),rgba(8,6,16,.42))}
+.kil-social-bar{display:none!important}
 .hero{max-width:900px;margin:0 auto;padding:96px 22px 8px;text-align:center}
 .kick{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--blue2);background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:6px 16px;margin-bottom:18px}
 .hero h1{font-family:var(--fs);font-weight:900;font-size:clamp(2rem,5vw,3.2rem);line-height:1.07;letter-spacing:-.01em;color:#120e1f}
@@ -81,10 +93,10 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 .artlead{position:relative;min-height:calc(100svh - 70px);min-height:calc(100dvh - 70px);
   display:flex;flex-direction:column;justify-content:flex-end;
   padding:40px 22px 46px;margin:0;isolation:isolate}
-.artlead::before{content:"";position:absolute;inset:0;z-index:-2;
-  background:#0a0a0f var(--artbg,none) center/cover no-repeat}
-.artlead::after{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(180deg,rgba(8,6,16,.15),rgba(8,6,16,.55) 55%,rgba(8,6,16,.94))}
+/* The panel is transparent — the art is the FIXED body backdrop now. This gradient only
+   deepens the foot of the first screen so the title reads against whatever is behind it. */
+.artlead::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,transparent 35%,rgba(8,6,16,.72) 88%)}
 .artlead .inner{max-width:900px;margin:0 auto;width:100%}
 .artlead .kick{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.16em;
   text-transform:uppercase;color:#c9b8ff;margin-bottom:12px}
@@ -96,7 +108,6 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 @media(max-width:860px){
   .artlead{min-height:calc(100svh - env(safe-area-inset-top,0px));
     min-height:calc(100dvh - env(safe-area-inset-top,0px))}
-  .artlead::before{background-image:var(--artbg-m,var(--artbg,none))}
 }
 /* Sticky bar: title + byline + socials. Under 950 so it passes BEHIND the bottom nav. */
 .artbar{position:sticky;top:0;z-index:940;background:#0b0b12;color:#fff;
@@ -114,6 +125,18 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
   display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;text-decoration:none}
 .artbar .soc a:hover,.artbar .soc button:hover{border-color:#00e0a4;color:#00e0a4}
 @media(max-width:700px){.artbar .who{display:none}.artbar .t{font-size:.86rem}}
+
+/* READING PANEL (Founder 2026-08-23: "some transparency behind the articles text to make the
+   font color easier to read"). The article is dark type on a light theme, so the panel is light
+   and translucent — dark-on-photo would be unreadable. Opaque enough to hold body copy, sheer
+   enough that the artwork still shows through. */
+.artpanel{max-width:764px;margin:0 auto;background:rgba(252,250,255,.90);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.55);border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);padding:30px 6px 34px;margin-top:26px}
+.artpanel .art,.artpanel .src-wrap{max-width:720px}
+.artpanel .foot-note{border-top-color:rgba(30,15,60,.14)}
+@media(max-width:700px){.artpanel{border-radius:14px;padding:22px 2px 26px;margin-top:16px}}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"20 Minutes to an Anthem: The Story of 2Pac's \"California Love\"","description":"The history of 2Pac's 'California Love' \u2014 the comeback single, Dr. Dre's Joe Cocker sample, Roger Troutman's talk box, and how it became the definitive California anthem.","image":["https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&height=600&nologo=true&seed=88&model=flux"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://keepitil.com/article/california-love-history"},"author":{"@type":"Organization","name":"KEEPITIL","url":"https://keepitil.com"},"publisher":{"@type":"Organization","name":"KEEPITIL","logo":{"@type":"ImageObject","url":"https://keepitil.com/icon-512.png"}},"inLanguage":"en-US"}</script>
@@ -122,7 +145,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 <main id="content">
 <!-- LANDING: cover art fills the screen, title at the foot of it. The image is set as a CSS
      variable so this template works for any article by swapping one value. -->
-<header class="artlead" style="--artbg:url('https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&amp;height=600&amp;nologo=true&amp;seed=88&amp;model=flux');--artbg-m:url('https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&amp;height=600&amp;nologo=true&amp;seed=88&amp;model=flux')">
+<header class="artlead">
   <div class="inner">
     <span class="kick">Song History &middot; West Coast</span>
     <h1>20 Minutes to an Anthem: The Story of "California Love"</h1>
@@ -146,6 +169,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
   </div>
 </div>
 
+<div class="artpanel">
 <article class="art">
   <p class="lead">Some records take a year. This one took about twenty minutes — and it still hasn't stopped playing at every California cookout, wedding, and last-call in the thirty years since.</p>
   <p>"California Love" is the rare song that's bigger than any of the enormous people who made it. It's the sound of the West Coast waving at itself. But the story of how it actually got made is stranger and faster than its monument status suggests — a track written for one legend, hijacked by another the week he got out of prison, and glued together by a funk pioneer with a plastic tube in his mouth. Here's the real history, sourced — and the licensed places to go read the lyrics and hear it.</p>
@@ -201,6 +225,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
     <li>Magnetic Magazine, <a class="inline" href="https://magneticmag.com/2022/08/california-love-sample/" target="_blank" rel="noopener">"The California Love Sample: What To Know About 2Pac's Biggest Hit"</a> — Joe Cocker sample and the talk-box hook lineage.</li>
     <li>WhoSampled, <a class="inline" href="https://www.whosampled.com/2Pac/California-Love/" target="_blank" rel="noopener">"California Love — Samples, Covers and Remixes"</a> — the full sample family tree.</li>
   </ul>
+</div>
 </div>
 
 <script>
