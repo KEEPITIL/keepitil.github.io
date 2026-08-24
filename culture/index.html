@@ -212,6 +212,11 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 /* ── VIDEO CARD, YouTube-app layout (Founder 2026-08-21) ────────────────────────────────
    Identical on mobile and desktop by design: one layout, so a Short and a landscape clip
    cannot disagree about their own shape between breakpoints. */
+/* PROFILE / VENUE CARDS ARE 2:3 ON CULTURE (Founder 2026-08-23). Every card that represents a
+   PROFILE — a person, a venue, a brand — uses the same portrait frame as the homepage, CREATE
+   and Connect. Video cards keep their own ratio (9:16 or 16:9) because a clip has a real shape;
+   a profile card does not, so it takes the house format. */
+.fcard.kv-profile .kil-vid-well{aspect-ratio:2/3!important;max-height:none!important}
 .kv-body{padding:11px 14px 14px}
 .kv-title{display:block;font-family:var(--fs,Inter),sans-serif;font-weight:800;font-size:1.05rem;
   color:#fff;line-height:1.25;text-decoration:none}
@@ -743,6 +748,9 @@ renderTypebar();renderDiscover();renderFeed();
     if(n.embed){ card.classList.add('kil-vid'); card.setAttribute('data-embed', n.embed); }
     else       { card.classList.remove('kil-vid'); }
     if(n.isShort) card.classList.add('kv-short');
+    /* A card with no embed and no inline video is representing a profile/venue/entry, not
+       a clip — it takes the 2:3 house frame. */
+    if(n.profileCard) card.classList.add('kv-profile');
 
     var q = function(k){ return frag.querySelector('[data-kv="'+k+'"]'); };
     var el, tgt = n.external ? ' target="_blank" rel="noopener"' : '';
