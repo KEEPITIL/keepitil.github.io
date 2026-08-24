@@ -371,7 +371,9 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   /*     ⚠ z-index 940, BELOW the shell's bottom nav (#kil-bnav is 950). It was 960, which put the
      filter bar IN FRONT of the bottom nav as the page scrolled — every other page passes behind
      it. Anything sticky on a page must stay under 950 or it will cross the nav. */
-  body.rad-m .controls{top:0;padding:10px 0;padding-top:calc(10px + env(safe-area-inset-top,0px));max-width:none;margin-top:0;z-index:940}
+  /* Founder 2026-08-24 — same change as /connect and /create: offset below the black status
+     layer instead of growing into it. See the note in connect/index.html for why. */
+  body.rad-m .controls{top:var(--kil-safe-top,0px);padding:10px 0;max-width:none;margin-top:0;z-index:940}
   body.rad-m .controls-row{padding:0 14px}
   body.rad-m .controls-row{flex-direction:column;align-items:stretch;gap:8px}
   body.rad-m .seg{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:100%}
@@ -491,7 +493,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260824a" defer></script>
+<script src="/keepitil-shell.js?v=20260824b" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
