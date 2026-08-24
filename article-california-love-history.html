@@ -73,23 +73,78 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 .src-wrap{max-width:720px;margin:0 auto;padding:0 22px}
 .src-wrap h2{font-family:var(--fs);font-weight:900;font-size:1.4rem;margin:40px 0 6px;color:#160f24}
 .src-list{padding:0 0 0 20px;color:var(--ink2);font-size:.9rem}.src-list li{margin:8px 0}.src-list a{color:var(--accent)}
+
+/* ═══ ARTICLE TEMPLATE v2 (Founder 2026-08-23) ═══════════════════════════════════════════
+   Opens like the homepage: the cover art fills the first screen and the title sits at the foot
+   of it. Scroll, and the title collapses into a sticky bar with the byline + socials. Then the
+   body, then SUPPORT KEEPITIL, then Sources. */
+.artlead{position:relative;min-height:calc(100svh - 70px);min-height:calc(100dvh - 70px);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:40px 22px 46px;margin:0;isolation:isolate}
+.artlead::before{content:"";position:absolute;inset:0;z-index:-2;
+  background:#0a0a0f var(--artbg,none) center/cover no-repeat}
+.artlead::after{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(8,6,16,.15),rgba(8,6,16,.55) 55%,rgba(8,6,16,.94))}
+.artlead .inner{max-width:900px;margin:0 auto;width:100%}
+.artlead .kick{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.16em;
+  text-transform:uppercase;color:#c9b8ff;margin-bottom:12px}
+.artlead h1{font-family:var(--fs);font-weight:900;color:#fff;line-height:1.03;letter-spacing:-.01em;
+  font-size:clamp(2.1rem,6.2vw,4rem);text-shadow:0 4px 30px rgba(0,0,0,.7)}
+.artlead .deck{color:#e4dff2;font-size:1.06rem;line-height:1.55;margin-top:14px;max-width:640px;
+  text-shadow:0 2px 14px rgba(0,0,0,.6)}
+/* 16:9 on desktop, 9:16 on mobile — the same two-crop rule the section pages use. */
+@media(max-width:860px){
+  .artlead{min-height:calc(100svh - env(safe-area-inset-top,0px));
+    min-height:calc(100dvh - env(safe-area-inset-top,0px))}
+  .artlead::before{background-image:var(--artbg-m,var(--artbg,none))}
+}
+/* Sticky bar: title + byline + socials. Under 950 so it passes BEHIND the bottom nav. */
+.artbar{position:sticky;top:0;z-index:940;background:#0b0b12;color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.artbar .row{max-width:900px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px}
+.artbar .t{font-family:var(--fs);font-weight:900;font-size:.98rem;line-height:1.15;color:#fff;
+  flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.artbar .by{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.artbar .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#00b4ff,#a06bff);
+  display:inline-flex;align-items:center;justify-content:center;font:800 .7rem Inter,sans-serif;color:#fff}
+.artbar .who{font:800 .78rem Inter,sans-serif;letter-spacing:.02em;color:#fff}
+.artbar .soc{display:inline-flex;gap:4px;flex:0 0 auto}
+.artbar .soc a,.artbar .soc button{width:30px;height:30px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#cfd3df;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;text-decoration:none}
+.artbar .soc a:hover,.artbar .soc button:hover{border-color:#00e0a4;color:#00e0a4}
+@media(max-width:700px){.artbar .who{display:none}.artbar .t{font-size:.86rem}}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"20 Minutes to an Anthem: The Story of 2Pac's \"California Love\"","description":"The history of 2Pac's 'California Love' \u2014 the comeback single, Dr. Dre's Joe Cocker sample, Roger Troutman's talk box, and how it became the definitive California anthem.","image":["https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&height=600&nologo=true&seed=88&model=flux"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://keepitil.com/article/california-love-history"},"author":{"@type":"Organization","name":"KEEPITIL","url":"https://keepitil.com"},"publisher":{"@type":"Organization","name":"KEEPITIL","logo":{"@type":"ImageObject","url":"https://keepitil.com/icon-512.png"}},"inLanguage":"en-US"}</script>
 </head>
 <body>
 <main id="content">
-<header class="hero">
-  <span class="kick">Song History · West Coast</span>
-  <h1>20 Minutes to an Anthem: The Story of "California Love"</h1>
-  <p class="deck">How a track originally written for Dr. Dre became 2Pac's comeback single, borrowed a talk box from a funk legend, and turned into the definitive California anthem.</p>
+<!-- LANDING: cover art fills the screen, title at the foot of it. The image is set as a CSS
+     variable so this template works for any article by swapping one value. -->
+<header class="artlead" style="--artbg:url('https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&amp;height=600&amp;nologo=true&amp;seed=88&amp;model=flux');--artbg-m:url('https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&amp;height=600&amp;nologo=true&amp;seed=88&amp;model=flux')">
+  <div class="inner">
+    <span class="kick">Song History &middot; West Coast</span>
+    <h1>20 Minutes to an Anthem: The Story of "California Love"</h1>
+    <p class="deck">How a track originally written for Dr. Dre became 2Pac's comeback single, borrowed a talk box from a funk legend, and turned into the definitive California anthem.</p>
+  </div>
 </header>
-<div class="meta">
-  <span class="av">K</span><span class="who">KEEPITIL Editorial</span>
-  <span class="dot">·</span><span>August 1, 2026</span><span class="dot">·</span><span>History</span><span class="dot">·</span><span>8 min read</span>
-  <span class="share"><button title="Copy link" onclick="kilShare('link')">🔗</button><button title="Share on X" onclick="kilShare('x')">𝕏</button><button title="Share" onclick="kilShare('native')">↗</button></span>
+
+<!-- STICKY BAR: title + composer + KEEPITIL socials + share. Replaces the old byline row, which
+     carried "KEEPITIL Editorial · date · category · read time" — all removed per the Founder. -->
+<div class="artbar">
+  <div class="row">
+    <span class="t">20 Minutes to an Anthem: The Story of "California Love"</span>
+    <span class="by"><span class="av">K</span><span class="who">KEEPITIL</span></span>
+      <span class="soc">
+        <a href="https://www.instagram.com/keepitil/" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">&#9673;</a>
+        <a href="https://www.tiktok.com/@keepitil" target="_blank" rel="noopener" title="TikTok" aria-label="TikTok">&#9834;</a>
+        <a href="https://youtube.com/@keepitil" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube">&#9654;</a>
+        <a href="https://soundcloud.com/keepitil" target="_blank" rel="noopener" title="SoundCloud" aria-label="SoundCloud">&#9835;</a>
+        <button title="Share" aria-label="Share" onclick="kilShare('native')">&#8599;</button>
+      </span>
+  </div>
 </div>
-<div class="cover"><div class="band"><img decoding="async" alt="1990s Los Angeles golden-hour scene with palm trees and a lowrider on a sunset boulevard" loading="eager" onerror="this.onerror=null;this.src='/assets/article-covers/how-socal-became-dance-music-capital.png'" src="https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&amp;height=600&amp;nologo=true&amp;seed=88&amp;model=flux"/></div></div>
 
 <article class="art">
   <p class="lead">Some records take a year. This one took about twenty minutes — and it still hasn't stopped playing at every California cookout, wedding, and last-call in the thirty years since.</p>
@@ -134,14 +189,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 </section>
 
 </main>
-<section class="related">
-  <h3>Keep reading</h3>
-  <div class="rel-grid">
-    <a class="rel-card" href="/article/insomniac-edc-history"><div class="rc-cov" style="background-image:url('/assets/article-covers/socal-festival-season-2026-guide.png')"></div><div class="rc-bd"><div class="rc-k">History</div><h4>From a Warehouse to EDC: The History of Insomniac</h4></div></a>
-    <a class="rel-card" href="/songs"><div class="rc-cov" style="background-image:url('/assets/article-covers/history-of-house-music.jpg')"></div><div class="rc-bd"><div class="rc-k">Directory</div><h4>Browse the KEEPITIL Song Directory</h4></div></a>
-    <a class="rel-card" href="/article/underground-money-stack"><div class="rc-cov" style="background-image:url('/assets/article-covers/ultimate-rave-festival-gear-guide-2026.png')"></div><div class="rc-bd"><div class="rc-k">Money &amp; Gear</div><h4>The Underground Money Stack</h4></div></a>
-  </div>
-</section>
+<!-- "Keep reading" removed 2026-08-23 (Founder). -->
 
 <div class="foot-note">Lyrics are hosted by Genius (licensed). KEEPITIL links out — it doesn't reproduce lyrics.</div>
 
