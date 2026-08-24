@@ -39,7 +39,20 @@ body>*{min-width:0}
    logo is gone. The portrait crop is a separate composition, switched at the shell's 860px
    breakpoint. Opacity .5 keeps the pink from fighting the pink competition cards. */
 body::before{content:"";position:fixed;inset:0;z-index:-2;background:#0a0a0f url('/v3/create-hero.jpg?v=20260821b') center/cover no-repeat;opacity:1}
-@media(max-width:860px){body::before{background-image:url('/v3/create-hero-m.jpg?v=20260821b')}}
+@media(max-width:860px){
+  body::before{background-image:url('/v3/create-hero-m.jpg?v=20260821b')}
+  /* Founder 2026-08-24: the 70px clears the DESKTOP shell nav, which is display:none below
+     861px. Leaving it makes the landing panel start at y=70 while the canonical height assumes
+     y=0, so the panel overshoots by exactly 70px and the metrics row — the last thing in a
+     bottom-weighted column — falls behind the bottom nav.
+     /connect has no body padding-top; that is the whole reason it was the only correct page.
+     Third instance of one defect: Discovery's 56px, /earn's rad-m inset, now this.
+     padding-bottom is deliberately NOT touched here: the shell already emits
+     `body{padding-bottom:0!important}` inside its own 860px block, so the page's
+     calc(96px + env(safe-area-inset-bottom)) is already dead on mobile and the two are not
+     compounding. Verified in the served shell before changing anything. KODE 2026-08-24. */
+  body{padding-top:0!important}
+}
 html.has-season body::before{display:none!important}/* seasonal image takes over on its dates */
 /* The scrim was .70→.92 black. Stacked on the backdrop that left the art effectively invisible —
    two separate dimmers on one image. The backdrop is now full opacity and this single scrim does
