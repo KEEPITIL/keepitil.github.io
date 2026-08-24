@@ -122,7 +122,11 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
     min-height:calc(100dvh - env(safe-area-inset-top,0px))}
 }
 /* Sticky bar: title + byline + socials. Under 950 so it passes BEHIND the bottom nav. */
-.artbar{position:sticky;top:0;z-index:940;background:#0b0b12;color:#fff;
+/* Sticks UNDER the shell's fixed 70px top nav — top:0 parked it behind that nav, which reads as
+   "not locking" because you never see it (Founder 2026-08-23). z-index 940 keeps it below the
+   bottom nav (950) and the radio bar (9998), so it passes BEHIND both, which is what the rest of
+   the site does. Mobile has no fixed top bar, so there it grows into the status-bar band. */
+.artbar{position:sticky;top:70px;z-index:940;background:#0b0b12;color:#fff;
   border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 24px rgba(0,0,0,.45)}
 .artbar .row{max-width:var(--measure,764px);margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px}
 .artbar .soc{margin-left:auto}
@@ -136,6 +140,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 .artbar .soc a:hover,.artbar .soc button:hover{border-color:#00e0a4;color:#00e0a4}
 .artbar .soc svg{width:16px;height:16px;display:block}
 @media(max-width:520px){.artbar .soc a,.artbar .soc button{width:28px;height:28px}.artbar .soc svg{width:14px;height:14px}}
+@media(max-width:860px){.artbar{top:0;padding-top:env(safe-area-inset-top,0px)}}
 @media(max-width:700px){.artbar .who{font-size:.72rem}}
 
 /* READING PANEL (Founder 2026-08-23: "some transparency behind the articles text to make the
