@@ -50,17 +50,6 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .mobile-menu a{font-family:var(--fh);font-size:1.3rem;letter-spacing:.12em;color:rgba(255,255,255,.8);padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06);}
 .mobile-menu a:last-child{border-bottom:none;color:var(--brand)!important;}
 @media(max-width:820px){.nav-links{display:none;}.nav-inner>a.nav-cta{display:none;}.nav-hamburger{display:flex;margin-left:auto;}}
-/* MOBILE METRICS: one row, centred — the /create treatment is the standard (Founder 2026-08-22).
-   Four stats at gap:46px wrapped to two rows on a phone. nowrap + a tighter gap keeps them on one
-   line, and each stat is allowed to shrink rather than force a wrap. */
-@media(max-width:860px){
-  .hero{text-align:center;}
-  .hero-head{width:auto;margin:0 auto;}
-  .stats{flex-wrap:nowrap;justify-content:center;gap:min(6vw,26px);}
-  .stat{flex:0 1 auto;min-width:0;}
-  .stat b{font-size:clamp(1.5rem,7vw,2.1rem);}
-  .stat span{font-size:.58rem;letter-spacing:.1em;}
-}
 /* BACKGROUND FIRST, CONTENT SCROLLS UP (Founder 2026-08-21: "every page except culture
    should start like the homepage. background image first, than everything else can scroll up
    into place"). The homepage does this with .hero{min-height:100dvh} — a full-viewport opening
@@ -89,6 +78,20 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .stat b{font-family:var(--fh);font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:.02em;line-height:1;display:block;text-shadow:0 2px 18px rgba(0,0,0,.7);}
 .stat span{display:block;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:#c9c2e0;margin-top:5px;font-weight:800;text-shadow:0 1px 8px rgba(0,0,0,.7);}
 .stat.artist b{color:var(--artist);}.stat.brand b{color:var(--brand);}.stat.organizer b{color:var(--organizer);}.stat.venue b{color:var(--venue);}
+/* MOBILE METRICS — one centred row, matching /create and /earn (Founder 2026-08-22/23).
+   ⚠ THIS BLOCK MUST STAY BELOW THE BASE .stats/.stat RULES. A media query adds no specificity,
+   so when it sat above them the base `.stats{gap:46px;flex-wrap:wrap}` simply won on source
+   order and the stats kept wrapping to two rows on a phone. That is why the earlier fix looked
+   like it had not applied. */
+@media(max-width:860px){
+  .hero{text-align:center;}
+  .hero-head{width:auto;margin:0 auto;}
+  .hero p{margin-left:auto;margin-right:auto;}
+  .stats{display:flex;flex-wrap:nowrap;justify-content:center;gap:min(6vw,26px);margin-top:18px;}
+  .stat{flex:0 1 auto;min-width:0;text-align:center;}
+  .stat b{font-size:clamp(1.4rem,6.5vw,2rem);}
+  .stat span{font-size:.56rem;letter-spacing:.09em;margin-top:4px;}
+}
 /* FULL-BLEED AND OPAQUE (Founder 2026-08-21): "filling the entire top of the sheet ... no
    background image visible above or behind it when scrolling."
    It was a 1360px centred card at 90% opacity, so the backdrop showed through it AND down both
@@ -399,7 +402,7 @@ renderSubs();render();
 })();
 </script>
 <script src="/kil-seasons.js?v=20260809a"></script>
-<script src="/v3/keepitil-radio.js?v=20260823a" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
 <script src="/keepitil-shell.js?v=20260823a" defer></script>
 </body>
