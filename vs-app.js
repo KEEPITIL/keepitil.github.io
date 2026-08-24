@@ -227,11 +227,20 @@
       at 97% the pink backdrop still showed through it while the page scrolled underneath.
       The chip rows keep the page measure so they stay aligned with the competition grid. */
    + '#vs-app .ce-bar{display:flex;flex-direction:column;gap:7px;margin:0 0 16px;'
-   +   'position:sticky;top:0;z-index:940;background:#0b0b12;'
-   +   'padding-top:calc(8px + env(safe-area-inset-top,0px));padding-bottom:8px;'
+   /* Founder 2026-08-24: the deck sticks DIRECTLY under the black status layer. Was
+      `top:0` plus `padding-top:8px + env(safe-area-inset-top)` — the grow-and-pad pattern,
+      where the bar starts at y=0 (behind the clock) and pads its own content clear. That is
+      what produced the blank extension above the filters: the padding is bar-coloured, so on a
+      notched phone the deck read as ~55px of empty chrome before the first chip.
+      Offsetting by the measured layer height instead means the bar simply BEGINS below the
+      black strip. Same result on a non-notched device (the variable is 0), no spacer on one
+      that has a notch. */
+   +   'position:sticky;top:var(--kil-safe-top,0px);z-index:940;background:#0b0b12;'
+   +   'padding-top:8px;padding-bottom:8px;'
    +   'width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);'
    +   'border-bottom:1px solid rgba(255,255,255,.06);box-shadow:0 10px 24px rgba(0,0,0,.45)}'
    + '#vs-app .ce-row{max-width:1120px;margin-left:auto;margin-right:auto;padding-left:16px;padding-right:16px;width:100%}'
+   /* Desktop keeps the fixed header offset; there is no safe area to account for there. */
    + '@media(min-width:861px){#vs-app .ce-bar{top:70px}}'
    + '#vs-app .ce-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'
    + '#vs-app .ce-row::-webkit-scrollbar{display:none}'
