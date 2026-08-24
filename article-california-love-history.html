@@ -31,10 +31,16 @@ body{background:transparent;color:var(--ink);font-family:var(--fb);line-height:1
 /* THE COVER IS FIXED FOR THE WHOLE ARTICLE (Founder 2026-08-23: "does not stay locked like the
    homepage, through out the entire article"). It used to live inside .artlead, so it scrolled
    away with the landing panel. position:fixed on body::before makes the article scroll OVER a
-   stationary image, exactly like the homepage. --artbg is set on <body style="--artbg:url('https://image.pollinations.ai/prompt/cinematic%201990s%20Los%20Angeles%20golden%20hour%20palm%20trees%20and%20a%20classic%20lowrider%20car%20cruising%20a%20sunset%20boulevard%20warm%20nostalgic%20film%20grain%20west%20coast%20no%20text?width=1600&height=600&nologo=true&seed=88&model=flux')"> per article. */
+   stationary image, exactly like the homepage. --artbg is set on <body> per article. */
+/* DEFAULT BACKDROP = THE HOMEPAGE IMAGE (Founder 2026-08-23: "use the current background image
+   from the homepage as the default image always"). Articles used to point --artbg at a generated
+   pollinations.ai URL — a third-party image service that, when it fails to answer, leaves the
+   page with no backdrop at all. That is why it was missing. /v3/logo-bg.jpg is the same file the
+   homepage uses and it is served from our own origin, so it cannot disappear. An article may
+   still override --artbg with its own art; the default is now a real image, not nothing. */
 body::before{content:"";display:block!important;position:fixed;inset:0;z-index:-2;
-  background:#0a0a0f var(--artbg,none) center/cover no-repeat}
-@media(max-width:860px){body::before{background-image:var(--artbg-m,var(--artbg,none))}}
+  background:#0a0a0f var(--artbg,url('/v3/logo-bg.jpg')) center/cover no-repeat}
+@media(max-width:860px){body::before{background-image:var(--artbg-m,var(--artbg,url('/v3/logo-bg.jpg')))}}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:linear-gradient(180deg,rgba(8,6,16,.10),rgba(8,6,16,.42))}
 .kil-social-bar{display:none!important}
@@ -113,6 +119,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 .artbar{position:sticky;top:0;z-index:940;background:#0b0b12;color:#fff;
   border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 24px rgba(0,0,0,.45)}
 .artbar .row{max-width:900px;margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px}
+.artbar .soc{margin-left:auto}
 .artbar .t{font-family:var(--fs);font-weight:900;font-size:.98rem;line-height:1.15;color:#fff;
   flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .artbar .by{display:flex;align-items:center;gap:8px;flex:0 0 auto}
@@ -147,25 +154,23 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
      variable so this template works for any article by swapping one value. -->
 <header class="artlead">
   <div class="inner">
-    <span class="kick">Song History &middot; West Coast</span>
     <h1>20 Minutes to an Anthem: The Story of "California Love"</h1>
     <p class="deck">How a track originally written for Dr. Dre became 2Pac's comeback single, borrowed a talk box from a funk legend, and turned into the definitive California anthem.</p>
   </div>
 </header>
 
-<!-- STICKY BAR: title + composer + KEEPITIL socials + share. Replaces the old byline row, which
-     carried "KEEPITIL Editorial · date · category · read time" — all removed per the Founder. -->
+<!-- Locked bar: composer + KEEPITIL socials + share. No title — the headline belongs to the
+     landing panel and is not repeated here (Founder 2026-08-23). -->
 <div class="artbar">
   <div class="row">
-    <span class="t">20 Minutes to an Anthem: The Story of "California Love"</span>
     <span class="by"><span class="av">K</span><span class="who">KEEPITIL</span></span>
-      <span class="soc">
-        <a href="https://www.instagram.com/keepitil/" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">&#9673;</a>
-        <a href="https://www.tiktok.com/@keepitil" target="_blank" rel="noopener" title="TikTok" aria-label="TikTok">&#9834;</a>
-        <a href="https://youtube.com/@keepitil" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube">&#9654;</a>
-        <a href="https://soundcloud.com/keepitil" target="_blank" rel="noopener" title="SoundCloud" aria-label="SoundCloud">&#9835;</a>
-        <button title="Share" aria-label="Share" onclick="kilShare('native')">&#8599;</button>
-      </span>
+    <span class="soc">
+      <a href="https://www.instagram.com/keepitil/" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">&#9673;</a>
+      <a href="https://www.tiktok.com/@keepitil" target="_blank" rel="noopener" title="TikTok" aria-label="TikTok">&#9834;</a>
+      <a href="https://youtube.com/@keepitil" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube">&#9654;</a>
+      <a href="https://soundcloud.com/keepitil" target="_blank" rel="noopener" title="SoundCloud" aria-label="SoundCloud">&#9835;</a>
+      <button title="Share" aria-label="Share" onclick="kilShare('native')">&#8599;</button>
+    </span>
   </div>
 </div>
 
