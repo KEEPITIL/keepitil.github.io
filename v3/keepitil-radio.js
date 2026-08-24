@@ -28,8 +28,13 @@
        << playlist · < song · NOW PLAYING · song > · playlist >>
        The neighbouring titles are a convenience, not the control: they truncate hard and
        disappear below 900px so the arrows and the current track always fit. */
-    '.kr-shuttle{flex:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;'+
-      'gap:6px;min-width:0;}'+
+    /* FIXED GEOMETRY (Founder 2026-08-23: "no changing position regardless of song text title
+       length"). The centre column was `auto`, so it grew and shrank with the track title and
+       dragged both side columns — and therefore every arrow — sideways on each song change.
+       A fixed centre width means the three columns never re-measure: the arrows sit at the same
+       pixel all night and the title truncates inside its slot instead of pushing the layout. */
+    '.kr-shuttle{flex:1;display:grid;align-items:center;gap:6px;min-width:0;'+
+      'grid-template-columns:minmax(0,1fr) clamp(150px,26vw,300px) minmax(0,1fr);}'+
     '.kr-grp{display:flex;align-items:center;gap:6px;min-width:0;}'+
     '.kr-grp-l{justify-content:flex-end;}'+
     '.kr-grp-r{justify-content:flex-start;}'+
@@ -40,7 +45,7 @@
     '.kr-nav.kr-pl{width:30px;height:26px;font-size:1rem;font-weight:800;}'+
     '.kr-nav.kr-sd{width:24px;height:26px;font-size:1.05rem;font-weight:800;}'+
     '.kr-side{font-size:.72rem;color:rgba(255,255,255,.42);white-space:nowrap;overflow:hidden;'+
-      'text-overflow:ellipsis;max-width:150px;flex:0 1 auto;}'+
+      'text-overflow:ellipsis;flex:1 1 0;min-width:0;}'+
     /* Outer playlist labels: brand green so a station name never reads as a song title. */
     '.kr-plname{font:800 .68rem Inter,sans-serif;letter-spacing:.06em;color:rgba(0,255,136,.72);'+
       'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;flex:0 1 auto;}'+
@@ -49,7 +54,8 @@
        which is the part that has to survive at every width. */
     '@media(max-width:1100px){.kr-plname{display:none;}}'+
     '.kr-now{font-size:.9rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;'+
-      'text-overflow:ellipsis;max-width:280px;padding:0 4px;text-align:center;}'+
+      'text-overflow:ellipsis;padding:0 4px;text-align:center;width:100%;'+
+      'justify-self:stretch;}'+
     '@media(max-width:900px){.kr-side{display:none;}}'+
     '#kil-radio.kil-mini .kr-shuttle{display:none!important;}'+
     '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
