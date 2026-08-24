@@ -149,7 +149,11 @@
    /* Bottom-weighted, matching /connect and /earn (Founder 2026-08-21). */
    + '#vs-app .ce-hero{text-align:left;padding:6px 0 40px;display:flex;flex-direction:column;'
    +   'justify-content:flex-end;min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px)}'
-   + '@media(max-width:860px){#vs-app .ce-hero{text-align:center}}'
+   /* Founder 2026-08-24: metrics sit ON the bottom nav, deck begins behind it. The base rule
+      subtracts 130px for the desktop top nav + radio bar; on a phone the shell hides both, so
+      the panel was 130px short and the filters were already in view on landing. */
+   + '@media(max-width:860px){#vs-app .ce-hero{text-align:center;padding-bottom:14px;'
+   +   'min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px))}}'
    /* CREATE palette: the pink and violet of the backdrop art. */
    + '#vs-app .ce-hero h1{font-family:var(--fh,inherit);font-size:clamp(3.6rem,13vw,8rem);line-height:.88;'
    +   'letter-spacing:.04em;margin:0;background:linear-gradient(100deg,#FF2E88 18%,#A06BFF);'
