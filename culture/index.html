@@ -1053,18 +1053,26 @@ renderTypebar();renderDiscover();renderFeed();
      the variable is not set at all. Anchoring the scroller to the viewport edges instead means
      the browser does the arithmetic — it cannot be off, and it lands exactly on top of the nav
      whatever height that nav turns out to be. */
-  body.cul-m #community-feed,body.cul-m #feed{
+  /* ⚠ #community-feed ONLY — NOT #feed. Both containers are shown together, and #feed sits
+     AFTER #community-feed in the DOM, so making both position:fixed stacked the blog list
+     directly on top of the video feed and hid every video behind it. That is why the videos
+     "would not load" on mobile: they were rendering, painting, and being covered. */
+  body.cul-m #community-feed{
     position:fixed;left:0;right:0;
     top:env(safe-area-inset-top,0px);
     bottom:var(--kil-bnav-h,62px);
     margin:0;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
     scroll-snap-type:y mandatory;overscroll-behavior-y:contain;z-index:1}
-  body.cul-m #community-feed>.fcard,body.cul-m #feed>.fcard{
+  body.cul-m #community-feed>.fcard{
     scroll-snap-align:start;scroll-snap-stop:always;
     height:100%;min-height:0;margin:0;border-radius:0;border-left:0;border-right:0;
     display:flex;flex-direction:column;justify-content:center}
   /* The page behind the fixed feed must not scroll as well, or the two fight each other. */
   body.cul-m{overflow:hidden}
+  /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
+     column can only ever cover it. Hidden here rather than left invisible-but-present, so it
+     cannot silently intercept taps. Desktop is untouched — blogs still render there. */
+  body.cul-m #feed{display:none!important}
   body.cul-m #community-feed>.fcard.cmt-open{scroll-snap-align:none;height:auto;min-height:100%;
     justify-content:flex-start;overflow-y:auto}
 
