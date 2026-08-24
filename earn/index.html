@@ -348,7 +348,17 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
      shifted the panel down by the inset a second time, pushing the metrics off the nav.
      /connect — the reference — has no body padding-top. The title cannot clip the way it
      did in the original bug because the hero is now bottom-weighted (flex-end). */
-  body.rad-m{margin-top:0!important}
+  /* Founder 2026-08-24: the 70px clears the DESKTOP shell nav, which is display:none below
+     861px. Leaving it makes the landing panel start at y=70 while the canonical height assumes
+     y=0, so the panel overshoots by exactly 70px and the metrics row — the last thing in a
+     bottom-weighted column — falls behind the bottom nav.
+     /connect has no body padding-top; that is the whole reason it was the only correct page.
+     Third instance of one defect: Discovery's 56px, /earn's rad-m inset, now this.
+     padding-bottom is deliberately NOT touched here: the shell already emits
+     `body{padding-bottom:0!important}` inside its own 860px block, so the page's
+     calc(96px + env(safe-area-inset-bottom)) is already dead on mobile and the two are not
+     compounding. Verified in the served shell before changing anything. KODE 2026-08-24. */
+  body.rad-m{padding-top:0!important;margin-top:0!important}
   #radMTabs{position:sticky;top:0;z-index:70;display:flex;gap:6px;height:38px;align-items:center;
     padding:0 2%;background:#0a0a0f;margin:0 0 4px}
   #radMTabs button{flex:1 1 0;height:30px;border-radius:9px;border:1px solid rgba(255,255,255,.14);
