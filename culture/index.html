@@ -1067,6 +1067,17 @@ renderTypebar();renderDiscover();renderFeed();
     scroll-snap-align:start;scroll-snap-stop:always;
     height:100%;min-height:0;margin:0;border-radius:0;border-left:0;border-right:0;
     display:flex;flex-direction:column;justify-content:center}
+  /* THE CARD MUST FILL THE SCREEN (Founder 2026-08-23: "does not fill the screen either").
+     The card was full height but the PLAYER inside it kept its own aspect-ratio — a 16:9 clip in
+     a tall card leaves a band of dead space above and below. On this feed the media is the card,
+     so the well takes whatever height is left after the caption row and the frame covers it. */
+  body.cul-m #community-feed>.fcard .kil-vid-well{
+    flex:1 1 auto;min-height:0;aspect-ratio:auto!important;max-height:none!important;margin:0!important}
+  body.cul-m #community-feed>.fcard .kil-vid-well iframe,
+  body.cul-m #community-feed>.fcard .kil-vid-well img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  body.cul-m #community-feed>.fcard .kv-body{flex:0 0 auto}
+
   /* The page behind the fixed feed must not scroll as well, or the two fight each other. */
   body.cul-m{overflow:hidden}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
@@ -1304,7 +1315,9 @@ window.culFetchMedia = culFetchMedia;
     var ov = well.querySelector('.kil-vid-play'); if(ov) ov.style.display='';
   }
   function play(card){
-    if(!card || card === current) return;
+    if(!card) return;
+    if(current && !document.contains(current)) current = null;   /* survived a repaint */
+    if(card === current) return;
     stop(current); current = card;
     var url = card.getAttribute('data-embed'); if(!url) return;
     var well = card.querySelector('.kil-vid-well'); if(!well || well.querySelector('iframe')) return;
@@ -1411,6 +1424,12 @@ window.culFetchMedia = culFetchMedia;
        play fast"). An IntersectionObserver does not fire until something MOVES — so the first
        card just sat on its thumbnail until the visitor scrolled. Mount it as soon as it exists
        instead of waiting for a scroll that may never come. */
+    /* `current` must be treated as stale after a repaint. The feed paints TWICE — text first,
+       then again when the videos arrive — and __culRenderRows replaces innerHTML wholesale. That
+       leaves `current` pointing at a DETACHED node, so `if(!current)` was false and the autostart
+       never ran for the newly painted cards. The videos that "would not load", especially the
+       first few, were the ones that arrived in that second paint. */
+    if(current && !document.contains(current)) current = null;
     if(!current){
       var first = document.querySelector('#community-feed .kil-vid[data-embed], .kil-vid[data-embed]');
       if(first) play(first);
