@@ -33,7 +33,12 @@ a{color:inherit;text-decoration:none}
 .hubnav a.on{background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;border-color:transparent}
 @media(max-width:640px){.hubnav .in{overflow-x:auto}.hubnav a{flex:0 0 auto;padding:8px 15px}}
 /* hero banner */
-body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0a0a0f) url('/v3/culture-hero.jpg') center/cover no-repeat;opacity:1}
+/* Founder 2026-08-24 artwork, one file per orientation — same pattern as /create and /earn.
+   The mobile file is the 9:16 crop; without it, `cover` on a 16:9 image at phone width crops
+   away both edges of the collage and leaves only the empty middle. Never darken it: the
+   backdrop ships at full brightness site-wide (Founder 2026-08-23). */
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg,#0a0a0f) url('/v3/culture-hero.jpg?v=20260824') center/cover no-repeat;opacity:1}
+@media(max-width:860px){body::before{background-image:url('/v3/culture-hero-m.jpg?v=20260824')}}
 html.has-season body::before{display:none!important} /* seasonal image takes over the hero backdrop on its dates */
 :root{--brand:#a855f7;--brand-2:#c084fc;--glow:#a855f7} /* Culture = neon purple accent */
 /* layout */
