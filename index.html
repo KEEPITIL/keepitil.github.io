@@ -414,7 +414,12 @@
 /* Desktop keeps the count under the date column, so the inline copy is the one hidden. */
 @media(min-width:681px){#evx .evx-daycount-inline{display:none;}}
 /* Mobile create entry point (Founder 2026-07-16): "+" on each date row -> create-event prefilled with that date */
-@media(max-width:860px){#evx .evx-nav{top:0;z-index:120;padding-top:calc(9px + env(safe-area-inset-top,0px))}}  /* mobile: no top bar. Grow into the status-bar band rather than offsetting below it — an offset leaves a transparent strip that content scrolls through. Matches the shell's #radMTabs/#culMTabs treatment. */
+/* Founder 2026-08-24: offset below the black status layer, do NOT grow into it. The old note
+   here was right for its time — an offset DID leave a transparent strip content scrolled
+   through — but that was before the shell painted the strip itself. Now #kil-statusbar owns it
+   in solid black at the top of the stack, so there is nothing to grow into and the padding it
+   required only read as dead space above the filters. */
+@media(max-width:860px){#evx .evx-nav{top:var(--kil-safe-top,0px);z-index:120;padding-top:9px}}
 #evx .evx-daycol{border-left:1px solid rgba(0,255,136,.12);padding-left:22px;min-width:0;}
 @media(max-width:680px){#evx .evx-daycol{border-left:none;padding-left:0;border-top:1px solid rgba(0,255,136,.12);padding-top:14px;}}
 #evx .evx-daycount{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#3a4550;margin-bottom:12px;}
@@ -518,7 +523,7 @@
      2026-08-17: three taps on ▾ did nothing). The Founder's arrow placement is deliberate and
      unchanged; the bar simply now wins the tap. Fixes the collision without moving the arrow.
      overflow:visible so the dropdown menu can hang below the bar instead of being clipped by it. */
-  #evx .evx-nav{padding:0 0 0;padding-top:calc(0px + env(safe-area-inset-top,0px));z-index:960;overflow:visible;}
+  #evx .evx-nav{padding:0;z-index:960;overflow:visible;}  /* safe area is the shell's layer now (Founder 2026-08-24) */
   /* THE BLANK STRIP IN THE FILTER BAR (Founder 2026-08-21: "an empty space in the filter bar
      with open blank space above it"). #evx-subgenres is populated only once a category is
      chosen, and #evx-genres can also come back empty — but an empty .evx-nav-row still paints
@@ -1607,7 +1612,10 @@
     .nav-emoji{display:block;font-size:1.15rem;line-height:1;}
     .nav-only-mobile{display:block;}
     body{padding-top:56px !important;}
-    #evx .evx-nav{top:0;padding-top:calc(9px + env(safe-area-inset-top,0px));}
+    /* Founder 2026-08-24 — see the note on the .evx-nav rule above: below the black layer,
+       not grown into it. Duplicated here because this block is a later, narrower media query
+       and would otherwise re-apply the old grow-and-pad on source order. */
+    #evx .evx-nav{top:var(--kil-safe-top,0px);padding-top:9px;}
     nav#main-nav{position:static !important;}
     /* Mobile hero: animated typed tagline replaces the two static lines */
     .hero-sub-static{display:none !important;}
@@ -3090,7 +3098,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260824a" defer></script>
+<script src="/keepitil-shell.js?v=20260824b" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->
