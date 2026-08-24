@@ -1173,7 +1173,13 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        read as a large empty band under the footer. The nav still needs clearing — that part is
        not optional — but the extra 40 was arbitrary. 12px is enough to breathe. */
     +  '#v3-footer{margin-top:24px;margin-bottom:0;padding-top:24px;'
-    +    'padding-bottom:calc(12px + var(--kil-bnav-h,56px) + env(safe-area-inset-bottom,0px))}'
+    /* ⚠ THE INSET IS NOT ADDED HERE (Founder 2026-08-24: "there is still a gap between the
+       bottom of the content and the bottom nav bar"). --kil-bnav-h is MEASURED from the mounted
+       bar, and that bar carries `padding-bottom:calc(6px + env(safe-area-inset-bottom))` — so
+       the inset is already inside the number. Adding env() again reserved it twice and the
+       second copy rendered as empty background between the content and the nav. Same mistake
+       the Culture card made on 2026-08-23; see keepitil-shell-geometry-variables. */
+    +    'padding-bottom:calc(12px + var(--kil-bnav-h,56px))}'
     +'}'
     +'#v3-footer .v3-foot-inner{max-width:var(--maxw,1400px);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}'
     +'#v3-footer .v3-foot-brand{font-weight:900;letter-spacing:.14em;font-size:1.05rem;background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}'
