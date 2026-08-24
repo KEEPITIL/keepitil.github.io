@@ -206,7 +206,11 @@ body>*{min-width:0}
   /*     ⚠ z-index 940, BELOW the shell's bottom nav (#kil-bnav is 950). It was 960, which put the
      filter bar IN FRONT of the bottom nav as the page scrolled — every other page passes behind
      it. Anything sticky on a page must stay under 950 or it will cross the nav. */
-  .controls{top:0;padding-top:calc(10px + env(safe-area-inset-top,0px));z-index:940;}
+  /* Founder 2026-08-24: sticks directly under the black status layer, no spacer. The old
+     grow-and-pad (top:0 + padding-top:10px + inset) put the bar's top edge behind the clock and
+     padded its content clear, which rendered as an empty bar-coloured band above the filters.
+     --kil-safe-top is the shell's measured layer height; identical on desktop where it is 0. */
+  .controls{top:var(--kil-safe-top,0px);padding-top:10px;z-index:940;}
 }
 </style>
 <link rel="canonical" href="https://keepitil.com/connect"/>
@@ -405,6 +409,6 @@ renderSubs();render();
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
-<script src="/keepitil-shell.js?v=20260824a" defer></script>
+<script src="/keepitil-shell.js?v=20260824b" defer></script>
 </body>
 </html>
