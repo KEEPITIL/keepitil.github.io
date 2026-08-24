@@ -833,6 +833,14 @@ renderTypebar();renderDiscover();renderFeed();
     if((el = q('well'))){
       el.style.aspectRatio = n.aspect || '16/9';
       if(n.maxH){ el.style.maxHeight = n.maxH; el.style.margin = '0 auto'; }
+      /* Published for the mobile full-bleed frame (Founder 2026-08-24). On mobile the well
+         stops being an aspect-ratio box — it takes the whole usable viewport — so the clip's
+         real ratio has to survive somewhere or a portrait Short gets stretched to landscape.
+         --kv-ar sizes the player inside the frame; --kv-poster fills whatever the player does
+         not cover with a blurred still of itself, which is the "intentional background
+         treatment" instead of exposing page gaps. */
+      el.style.setProperty('--kv-ar', (n.aspect || '16/9').replace('/',' / '));
+      if(n.thumb) el.style.setProperty('--kv-poster', 'url("'+String(n.thumb).replace(/"/g,'%22')+'")');
       /* An uploaded video plays inline; everything else shows a still. */
       if(n.video){
         var img = el.querySelector('[data-kv="thumb"]');
@@ -1128,26 +1136,70 @@ renderTypebar();renderDiscover();renderFeed();
      AFTER #community-feed in the DOM, so making both position:fixed stacked the blog list
      directly on top of the video feed and hid every video behind it. That is why the videos
      "would not load" on mobile: they were rendering, painting, and being covered. */
+  /* ── THE CARD OWNS THE VIEWPORT (Founder 2026-08-24) ──────────────────────────────────
+     "A Culture card should occupy exactly: bottom of status bar -> top of bottom navigation.
+      No unexplained black band above the media. No black band below the interaction area.
+      No page-level vertical margin. Think TikTok/Reels rather than a conventional webpage."
+
+     The offsets are the SHELL's published variables, not env() and not a guess. --kil-safe-top
+     is the measured height of the black status layer and --kil-bnav-h the measured height of
+     the nav, so this frame is identical in Safari, in the Home Screen PWA and in a native
+     wrapper — the three contexts that report three different insets for the same phone. The
+     old `top:env(safe-area-inset-top)` was only correct in one of them.
+     background:#000 is load-bearing: the feed used to be transparent, so any pixel the card
+     did not cover showed the purple backdrop through it — that is the band the Founder saw
+     under the comments row. */
   body.cul-m #community-feed{
     position:fixed;left:0;right:0;
-    top:env(safe-area-inset-top,0px);
+    top:var(--kil-safe-top,env(safe-area-inset-top,0px));
     bottom:var(--kil-bnav-h,62px);
-    margin:0;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    margin:0;padding:0;background:#000;overflow-y:auto;-webkit-overflow-scrolling:touch;
     scroll-snap-type:y mandatory;overscroll-behavior-y:contain;z-index:1}
+  /* justify-content was `center`, which is what put equal dead bands above the media and below
+     the actions whenever the content was shorter than the frame. The card is now a column that
+     FILLS: the media well takes every pixel the body does not, so there is nothing left over to
+     distribute. Next swipe snaps into the identical frame because every card is exactly 100%. */
   body.cul-m #community-feed>.fcard{
     scroll-snap-align:start;scroll-snap-stop:always;
-    height:100%;min-height:0;margin:0;border-radius:0;border-left:0;border-right:0;
-    display:flex;flex-direction:column;justify-content:center}
+    height:100%;min-height:0;margin:0;padding:0;border-radius:0;border:0;background:#000;
+    display:flex;flex-direction:column;justify-content:flex-start}
   /* THE CARD MUST FILL THE SCREEN (Founder 2026-08-23: "does not fill the screen either").
      The card was full height but the PLAYER inside it kept its own aspect-ratio — a 16:9 clip in
      a tall card leaves a band of dead space above and below. On this feed the media is the card,
      so the well takes whatever height is left after the caption row and the frame covers it. */
   body.cul-m #community-feed>.fcard .kil-vid-well{
-    flex:1 1 auto;min-height:0;aspect-ratio:auto!important;max-height:none!important;margin:0!important}
-  body.cul-m #community-feed>.fcard .kil-vid-well iframe,
-  body.cul-m #community-feed>.fcard .kil-vid-well img{
-    position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  body.cul-m #community-feed>.fcard .kv-body{flex:0 0 auto}
+    flex:1 1 auto;min-height:0;aspect-ratio:auto!important;max-height:none!important;margin:0!important;
+    position:relative;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+  /* THE INTENTIONAL BACKGROUND (Founder 2026-08-24: "For landscape or images, use an
+     intentional background treatment rather than exposing arbitrary page gaps").
+     The clip's own still, blown up, blurred and dimmed, fills whatever the player cannot —
+     the letterbox reads as part of the design instead of as a hole in the page. */
+  body.cul-m #community-feed>.fcard .kil-vid-well::before{
+    content:"";position:absolute;inset:-8%;z-index:0;
+    background:var(--kv-poster,none) center/cover no-repeat;
+    filter:blur(26px) brightness(.42) saturate(1.2)}
+  /* MAXIMIZE WITHIN THE RATIO, DO NOT STRETCH (Founder 2026-08-24: "the video should maximize
+     available space while maintaining aspect ratio").
+     `object-fit:cover` was the previous fix and it cannot work on an IFRAME — object-fit has no
+     effect on a nested browsing context, so YouTube kept its own letterbox and painted its grey
+     inside our black. Sizing the element to the ratio is the only thing an iframe honours:
+     aspect-ratio + max-width/height 100% grows it until whichever axis runs out first, which is
+     exactly "as big as it fits". A 9:16 Short now fills a phone edge to edge. */
+  body.cul-m #community-feed>.fcard .kil-vid-well>iframe,
+  body.cul-m #community-feed>.fcard .kil-vid-well>video,
+  body.cul-m #community-feed>.fcard .kil-vid-well>img{
+    position:relative!important;z-index:1;inset:auto!important;
+    width:auto!important;height:auto!important;max-width:100%!important;max-height:100%!important;
+    aspect-ratio:var(--kv-ar,16 / 9)!important;border:0;display:block;object-fit:contain!important;margin:0!important}
+  /* !important is not decoration here. mountVid() writes the iframe's geometry as an inline
+     cssText (position:absolute;inset:0;width:100%;height:100%) and the card template does the
+     same on the thumbnail — an inline declaration outranks any selector, so without this the
+     rule above would be computed and then discarded. The inline styles are correct for desktop,
+     which is why they stay; this overrides them for the full-bleed frame only. */
+  /* The play overlay is a sibling of the media and must stay pinned to the whole well. */
+  body.cul-m #community-feed>.fcard .kil-vid-well>.kil-vid-play,
+  body.cul-m #community-feed>.fcard .kil-vid-well>.kv-badge{z-index:2}
+  body.cul-m #community-feed>.fcard .kv-body{flex:0 0 auto;background:#000}
 
   /* The page behind the fixed feed must not scroll as well, or the two fight each other. */
   body.cul-m{overflow:hidden}
@@ -1673,7 +1725,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260824a" defer></script>
+<script src="/keepitil-shell.js?v=20260824b" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
