@@ -88,7 +88,11 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 @media(max-width:860px){
   /* align-items must flip too — the desktop rule pins children to flex-start, which would
      defeat the centring that `text-align` and the auto margins are doing here. */
-  .hero{text-align:center;padding:42px 18px 18px;align-items:center;}
+  /* Founder 2026-08-24 — see connect/index.html for why the base 130px is wrong on a phone.
+     Culture's hero is hidden below (the swipe feed owns mobile), but the rule stays correct so
+     the four surfaces do not drift if that ever changes. */
+  .hero{text-align:center;padding:42px 18px 14px;align-items:center;
+    min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));}
   .hero-head{width:auto;margin:0 auto;}
   .hero p{margin-left:auto;margin-right:auto;}
   .stats{display:flex;flex-wrap:nowrap;justify-content:center;gap:min(6vw,26px);margin-top:18px;}
@@ -1450,9 +1454,19 @@ window.culFetchMedia = culFetchMedia;
        enablejsapi=1 lets us postMessage unMute + setVolume(50) the moment sound is actually
        allowed, which is the first real user gesture on the page. If the visitor never taps, the
        video keeps playing silently rather than not playing at all. */
-    /* mute=0 the moment sound is legal. A browser only blocks UNMUTED autoplay before the first
-       gesture — after it, an unmuted player is allowed and starts with audio immediately. */
-    var muteFlag = window.__kilSoundOK ? '0' : '1';
+    /* ⚠ ALWAYS mute=1 IN THE URL. DO NOT make this conditional again.
+       (Founder 2026-08-24: "the video content from youtube needs to auto play on the mobile
+       device at 50%.")
+       It was `window.__kilSoundOK ? '0' : '1'`, on the reasoning that once a gesture has
+       happened an unmuted player is allowed. That holds for a same-document <video>. It does
+       NOT hold for a cross-origin iframe on iOS: Safari's autoplay permission is not inherited
+       by a nested browsing context, so `mute=0&autoplay=1` is refused outright — and a refused
+       autoplay does not fall back to muted, it simply never starts. So on any phone where the
+       visitor had already tapped once, every video silently failed to play.
+       Muted autoplay is always permitted. Start muted, then unMute + setVolume(50) over the
+       postMessage API once the frame is up — see applyVolume(). That is the only sequence that
+       yields both autoplay AND sound on iOS. */
+    var muteFlag = '1';
     f.src = url + (url.indexOf('?')>-1?'&':'?')
           + 'autoplay=1&mute=' + muteFlag + '&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin='
           + encodeURIComponent(location.origin);
@@ -1496,9 +1510,17 @@ window.culFetchMedia = culFetchMedia;
     if(!frame) return;
     var tries = 0;
     (function push(){
+      /* playVideo too: the frame now always loads muted (see mountVid), and on iOS the widget
+         occasionally comes up paused when it is mounted mid-scroll. Re-asserting play costs
+         nothing when it is already running. */
+      ytCmd(frame,'playVideo',[]);
       ytCmd(frame,'setVolume',[VOLUME]);
       if(window.__kilSoundOK) ytCmd(frame,'unMute',[]);
-      if(++tries < 4) setTimeout(push, 400);
+      /* 8 x 500ms rather than 4 x 400ms. The widget ignores every command sent before it has
+         finished its own handshake, and a fire-and-forget message is dropped without error —
+         on a cold mobile connection the old 1.6s window closed before the player was listening,
+         so the video played on at the default volume, muted. ~4s covers it. */
+      if(++tries < 8) setTimeout(push, 500);
     })();
   }
   /* Sound becomes legal on the first real gesture. Record it, unmute whatever is playing, and
@@ -1725,7 +1747,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260824b" defer></script>
+<script src="/keepitil-shell.js?v=20260824c" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
