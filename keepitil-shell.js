@@ -668,6 +668,27 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
       window.__kilMountBnav=function(){
         try{
           if(IN_IFRAME) return;   /* NEVER inside embedded frames — this leaked into the desktop chat card */
+
+          /* ── STATUS BAR IS ITS OWN LAYER (Founder 2026-08-24) ────────────────────────────
+             "Make the iOS status area its own permanent black layer ... It should not belong
+             to the page header, hero, filters, or content."
+
+             This replaces the grow-and-pad pattern documented in M1 below. That pattern was
+             correct but it made the safe area every page's problem: each sticky row had to
+             grow upward and pad itself, so a page that forgot (or a NEW page) rendered its
+             content under the clock, and a page that remembered twice left a dead band. The
+             per-page rules for #culMTabs, #radMTabs, .pf-tabs and friends all exist to solve
+             the same one problem five times.
+             Now the shell paints the strip once, in black, above everything, and publishes its
+             height as --kil-safe-top. A surface's only job is to start below it.
+             Inert on any device without a notch: env() resolves to 0 and the layer has no
+             height. */
+          if(!document.getElementById('kil-statusbar')){
+            var sbl=document.createElement('div'); sbl.id='kil-statusbar';
+            sbl.setAttribute('aria-hidden','true');
+            document.body.appendChild(sbl);
+          }
+
           if(document.getElementById('kil-bnav')) return;
           var bn=document.createElement('nav'); bn.id='kil-bnav';
           /* K1: five slots, five destinations. Create WAS the centre slot — it is an action,
@@ -737,6 +758,34 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
           var publishBarHeight=function(){
             var h=Math.round(bn.getBoundingClientRect().height);
             if(h>0 && h<=BNAV_MAX_H) document.documentElement.style.setProperty('--kil-bnav-h', h+'px');
+
+            /* ── SHELL GEOMETRY, ONE SOURCE OF TRUTH (Founder 2026-08-24) ──────────────────
+               "whether KEEPITIL is opened from Safari, installed to the Home Screen, or
+               eventually wrapped natively, Discovery, Connect, Create, Culture and Earn
+               maintain the same geometry."
+
+               MEASURED, not assumed. env(safe-area-inset-top) is not readable from JS and its
+               value differs between Safari with a URL bar, a Home Screen PWA and a native
+               wrapper — the same device reports three numbers. Reading the painted height of
+               the status layer gives whichever one is actually true right now, so the pages
+               never have to care which context they are in.
+
+                 --kil-safe-top  black status layer (0 on non-notched devices)
+                 --kil-bnav-h    fixed bottom nav, measured above
+                 --kil-ctl-h     sticky control deck, published by .kil-deck when one mounts
+                 --kil-vh        what is left for the page: the usable viewport
+
+               --kil-vh is what Culture's full-bleed card consumes, and it is why that card can
+               sit flush against both boundaries without guessing at either one. */
+            var de=document.documentElement;
+            var sb=document.getElementById('kil-statusbar');
+            var safeTop=sb?Math.round(sb.getBoundingClientRect().height):0;
+            if(safeTop>=0 && safeTop<=120) de.style.setProperty('--kil-safe-top', safeTop+'px');
+            var bnavH=(h>0 && h<=BNAV_MAX_H)?h:0;
+            /* innerHeight already excludes browser chrome; subtracting the two shell layers
+               leaves exactly the band the active page owns. */
+            var usable=Math.round(window.innerHeight - safeTop - bnavH);
+            if(usable>120) de.style.setProperty('--kil-vh', usable+'px');
 
             /* Distance from the bottom of the viewport to the highest pinned control. */
             var vh=window.innerHeight, top=vh;
@@ -1050,6 +1099,44 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        rule for #radMTabs lost on source order even though it was correct — measured:
        the substituted rule was present in v3shell-style and computed height stayed 38px.
        Specificity/order cannot be relied on across pages that add styles at runtime. */
+    /* ── THE BLACK STATUS LAYER (Founder 2026-08-24) ───────────────────────────────────────
+       Solid black, edge to edge, above every page layer including the bottom nav (950) and the
+       radio bar (9998) — nothing may ever paint over the clock. pointer-events:none because it
+       covers the iOS pull-down region and swallowing that would break Control Centre.
+       PHONE ONLY: on desktop there is no inset, and a stray fixed strip at z-index 2147483000
+       is not worth the risk. */
+    +'@media(max-width:860px){'
+    +  '#kil-statusbar{position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);'
+    +    'background:#000;z-index:2147483000;pointer-events:none}'
+    /* ── STICKY CONTROL DECK (Founder 2026-08-24) ────────────────────────────────────────
+       "the filters sit naturally underneath the page name/metrics. As the user scrolls and
+       the hero disappears, the filter deck sticks directly underneath the black iOS status
+       bar. No additional blank spacer."
+       One class, used by Discovery, Connect, Create and Earn, so the four surfaces cannot
+       drift apart again. `top` is the measured layer height, NOT a hardcoded 46/38/66 — that
+       is the whole point of publishing --kil-safe-top.
+       z-index 940: BELOW the bottom nav (950), because the Founder's rule is that the nav is
+       an app-shell layer that page content passes behind, never in front of. */
+    +  '.kil-deck{position:sticky;top:var(--kil-safe-top,0px);z-index:940;'
+    +    'background:#0b0b12;width:100vw;margin-left:calc(50% - 50vw);'
+    +    'padding:8px 14px;display:flex;flex-direction:column;gap:8px}'
+    /* Full-bleed opaque, so no backdrop shows above it or down either side as the page scrolls
+       underneath (Founder 2026-08-21). The ::before closes the sub-pixel seam that opens
+       between a sticky element and the layer above it while momentum-scrolling on iOS —
+       without it a thin bright line of backdrop flickers through. */
+    +  '.kil-deck::before{content:"";position:absolute;left:0;right:0;top:-14px;height:14px;background:#0b0b12}'
+    +  '.kil-deck-row{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}'
+    +  '.kil-deck-row::-webkit-scrollbar{display:none}'
+    /* The leading chip is the scope of the row — DATE, TYPE, MUSIC, or the active geography
+       (CA · OC). It is visually distinct because it is a label, not one of the options. */
+    +  '.kil-deck-row>.kd-k{flex:0 0 auto;font-weight:800;letter-spacing:.08em;text-transform:uppercase;'
+    +    'font-size:.68rem;color:#0b0b12;background:var(--brand,#00b4ff);border:0;border-radius:999px;'
+    +    'padding:7px 13px;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}'
+    +  '.kil-deck-row>button:not(.kd-k){flex:0 0 auto;font-weight:700;letter-spacing:.06em;text-transform:uppercase;'
+    +    'font-size:.68rem;color:#cfd6e4;background:transparent;border:1px solid rgba(255,255,255,.16);'
+    +    'border-radius:999px;padding:7px 13px;cursor:pointer;white-space:nowrap}'
+    +  '.kil-deck-row>button.on{color:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff)}'
+    +'}'
     +'#v3shell-nav{padding-top:env(safe-area-inset-top,0px)!important}'
     +'#kil-mhamb{top:max(12px,env(safe-area-inset-top,0px))!important}'
     /* culture.html — #culMTabs(46) -> .cul-typebar(46) -> #culSwToast(96) */
