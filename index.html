@@ -125,9 +125,21 @@
        display:none at base so the row exists in the DOM but never renders on desktop. */
     .hero-stats{display:none;}
     @media(max-width:860px){
+      /* max-height as well as min-height. min-height does not CAP anything: Discovery's hero
+         carries a clamp(60px,10vw,130px) headline, a sub-line, a decorative animation slot and
+         now a metrics row, and that stack is taller than the band. The panel grew to fit it and
+         its bottom landed BELOW the nav, which put the metrics behind the nav instead of on it.
+         /connect never hit this because its hero content is short enough to fit — which is why
+         copying its rule was necessary but not sufficient here.
+         Pinning both bounds makes the panel exactly the band; with align-items:flex-end the
+         overflow comes off the TOP, behind artwork already clipped by overflow:hidden, and the
+         metrics stay on the nav where the Founder asked for them. KODE 2026-08-24. */
       .hero{align-items:flex-end;padding-top:0;
-        min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));}
+        min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));
+        max-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));}
       .hero-content{padding-bottom:14px;}
+      /* Decorative only (aria-hidden) and it reserves vertical space the metrics need. */
+      .hero-anim{display:none;}
       .hero-stats{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:min(7vw,30px);margin-top:18px;}
       .hero-stats .stat{flex:0 1 auto;min-width:0;}
       .hero-stats .stat b{font-family:var(--font-head);font-size:clamp(1.5rem,7vw,2.2rem);
