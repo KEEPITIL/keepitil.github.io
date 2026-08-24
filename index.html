@@ -112,6 +112,30 @@
     .section-title{font-family:var(--font-head);font-size:clamp(36px,5vw,58px);letter-spacing:.04em;color:var(--white);margin-bottom:24px;}
 
     .hero{min-height:100vh;min-height:100dvh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:64px;}
+    /* ── MOBILE LANDING STANDARD (Founder 2026-08-24, KODE) ────────────────────────────────
+       Discovery was the one surface never converted. The base rule above is the original
+       homepage hero: align-items:center (so the title floats mid-screen instead of sitting on
+       the nav), padding-top:64px for a top nav the shell hides below 861px, and 100dvh, which
+       ignores the bottom nav entirely and so ran the panel past it.
+       .hero is a row-direction flex box whose only in-flow child is .container, so the vertical
+       axis is align-items — flex-end here is the equivalent of the directive's flex-end.
+       Height per the shell contract: the measured usable band plus --kil-safe-top, because the
+       panel starts at y=0 underneath the fixed black status layer.
+       Desktop is untouched: every rule below is inside the 860px query, and .hero-stats is
+       display:none at base so the row exists in the DOM but never renders on desktop. */
+    .hero-stats{display:none;}
+    @media(max-width:860px){
+      .hero{align-items:flex-end;padding-top:0;
+        min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));}
+      .hero-content{padding-bottom:14px;}
+      .hero-stats{display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:min(7vw,30px);margin-top:18px;}
+      .hero-stats .stat{flex:0 1 auto;min-width:0;}
+      .hero-stats .stat b{font-family:var(--font-head);font-size:clamp(1.5rem,7vw,2.2rem);
+        line-height:1;display:block;color:var(--white);text-shadow:0 2px 18px rgba(0,0,0,.7);}
+      .hero-stats .stat span{display:block;font-size:.58rem;letter-spacing:.14em;
+        text-transform:uppercase;color:#c9c2e0;margin-top:4px;font-weight:800;
+        text-shadow:0 1px 8px rgba(0,0,0,.7);}
+    }
     #hero-canvas{position:absolute;inset:0;z-index:0;}
     .hero-overlay{position:absolute;inset:0;background:none;z-index:1;pointer-events:none;} /* tint removed per Founder 2026-07-12 — full background shows behind hero text */
     .hero-content{position:relative;z-index:2;max-width:800px;}
@@ -1673,7 +1697,20 @@
              all five now, so the rail was a second path to the same places. The shell's
              renderer stays available for any page that opts in with data-kil-destinations. -->
         <!-- hero actions removed per Founder -->
-        <!-- Stats: hardcoded real numbers — do not pull from Supabase -->
+        <!-- Landing metrics (Founder 2026-08-24): event/location numbers, mobile only.
+             This replaces a note that said "hardcoded real numbers — do not pull from Supabase".
+             That note predates the SECURITY DEFINER pattern: anon cannot count() tables RLS will
+             not let it read, so the client-side count it was warning about really did return 0.
+             discovery_page_stats() counts server-side and is the same shape as the working
+             create_page_stats() and culture_page_stats(). Leaving the old note in place would
+             have told the next person the opposite of what the code now does.
+             VENUES is distinct venue NAMES on upcoming published events (56), not public.venues,
+             which holds exactly one row — "1 VENUE" would read as broken. -->
+        <div class="hero-stats" aria-label="KEEPITIL at a glance">
+          <div class="stat"><b id="dEV">—</b><span>Events</span></div>
+          <div class="stat"><b id="dVE">—</b><span>Venues</span></div>
+          <div class="stat"><b id="dCI">—</b><span>Cities</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -3213,5 +3250,28 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
     },true);
   })();
   </script>
+
+<!-- LANDING METRICS — Discovery (Founder 2026-08-24, KODE) ────────────────────────────────
+     A plain fetch against the RPC rather than supabase-js: this page creates its client further
+     down and the numbers sit in the first thing a visitor sees, so this paints as soon as the
+     network answers regardless of SDK load order. Same shape as the working call in
+     culture/index.html.
+     Failure is silent and the em-dashes stay. A broken stat must never blank the hero, and a
+     zero would read as "no events" — a different and much worse claim than "unknown". -->
+<script>
+(function(){
+  var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co', K='';
+  try{ var m=document.documentElement.innerHTML.match(/eyJ[A-Za-z0-9._-]{60,}/); K=m?m[0]:''; }catch(e){}
+  if(!K) return;
+  function fmtN(n){ n=Number(n)||0; return n>=1000 ? (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'')+'K' : String(n); }
+  function set(id,v){ var e=document.getElementById(id); if(e && v!=null) e.textContent=fmtN(v); }
+  fetch(U+'/rest/v1/rpc/discovery_page_stats',{method:'POST',
+    headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:'{}'})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(d){ var st=Array.isArray(d)?d[0]:d; if(!st)return;
+      set('dEV',st.events); set('dVE',st.venues); set('dCI',st.cities); })
+    .catch(function(){});
+})();
+</script>
 </body>
 </html>
