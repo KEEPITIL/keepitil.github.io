@@ -85,7 +85,19 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
    order and the stats kept wrapping to two rows on a phone. That is why the earlier fix looked
    like it had not applied. */
 @media(max-width:860px){
-  .hero{text-align:center;}
+  /* ── LANDING FILLS THE PHONE EXACTLY (Founder 2026-08-24) ─────────────────────────────
+     "the page title and metric always sits on top of the bottom nav bar ... filters need to
+     start behind the bottom nav bar only."
+     The base rule subtracts 130px — the desktop top nav (70) plus the radio bar (60). NEITHER
+     EXISTS ON A PHONE: the shell hides the top nav below 861px and pushes the radio bar off
+     screen. So the panel came up 130px short, which lifted the metrics away from the nav and
+     dragged the filter deck up into view on first paint. That is the whole bug.
+     --kil-vh is the shell's measured usable band (status layer -> nav top); adding
+     --kil-safe-top back accounts for the panel starting at y=0, underneath the black layer.
+     Result: metrics land exactly on the nav and the deck begins one pixel below the fold. */
+  .hero{text-align:center;
+    min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));
+    padding-bottom:14px;}
   .hero-head{width:auto;margin:0 auto;}
   .hero p{margin-left:auto;margin-right:auto;}
   .stats{display:flex;flex-wrap:nowrap;justify-content:center;gap:min(6vw,26px);margin-top:18px;}
@@ -409,6 +421,6 @@ renderSubs();render();
 <script src="/kil-seasons.js?v=20260809a"></script>
 <script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
-<script src="/keepitil-shell.js?v=20260824b" defer></script>
+<script src="/keepitil-shell.js?v=20260824c" defer></script>
 </body>
 </html>
