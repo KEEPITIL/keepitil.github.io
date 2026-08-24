@@ -387,7 +387,12 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
     min-height:calc(100dvh - env(safe-area-inset-top,0px) - var(--kil-bnav-h,62px) - 60px)}
   body.rad-m .hero h1{font-size:clamp(3rem,16vw,4.4rem)}
   /* Centred on mobile, matching /create (Founder 2026-08-22). */
-  body.rad-m .hero{text-align:center}
+  /* Founder 2026-08-24 — metrics on top of the nav, deck starts behind it. The base rule
+     subtracts 130px for a top nav and radio bar that do not exist on a phone; see the note in
+     connect/index.html. */
+  body.rad-m .hero{text-align:center;
+    min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));
+    padding-bottom:14px}
   body.rad-m .hero .stats{flex-wrap:nowrap;justify-content:center;gap:min(6vw,26px)}
   body.rad-m .hero .stat{flex:0 1 auto;min-width:0}
   body.rad-m .hero .stats{margin-top:10px}
@@ -493,7 +498,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260824b" defer></script>
+<script src="/keepitil-shell.js?v=20260824c" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
