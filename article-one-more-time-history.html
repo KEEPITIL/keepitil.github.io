@@ -22,10 +22,12 @@
 <link rel="stylesheet" href="/v3/v3-tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-:root{--page:#f6f4fb;--card:#ffffff;--card2:#f2eefb;--ink:#191426;--ink2:#544c6b;--ink3:#8b839e;--line:rgba(30,15,60,.12);--blue:#5b21b6;--blue2:#7c3aed;--accent:#0071e3;--good:#0a8f5b;--fh:'Bebas Neue',sans-serif;--fs:'Fraunces',Georgia,serif;--fb:'Inter',system-ui,sans-serif}
+:root{--measure:764px;--page:#f6f4fb;--card:#ffffff;--card2:#f2eefb;--ink:#191426;--ink2:#544c6b;--ink3:#8b839e;--line:rgba(30,15,60,.12);--blue:#5b21b6;--blue2:#7c3aed;--accent:#0071e3;--good:#0a8f5b;--fh:'Bebas Neue',sans-serif;--fs:'Fraunces',Georgia,serif;--fb:'Inter',system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--page);color:var(--ink);font-family:var(--fb);line-height:1.75;padding-bottom:40px}
-body::before{display:none!important}.kil-social-bar{display:none!important}
+html{background:#0a0a0f}
+body{background:transparent;color:var(--ink);font-family:var(--fb);line-height:1.75;padding-bottom:40px}
+body::before{content:"";display:block!important;position:fixed;inset:0;z-index:-2;background:var(--bg,#0a0a0f) url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1}
+.kil-social-bar{display:none!important}
 .hero{max-width:900px;margin:0 auto;padding:96px 22px 8px;text-align:center}
 .kick{display:inline-block;font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--blue2);background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:6px 16px;margin-bottom:18px}
 .hero h1{font-family:var(--fs);font-weight:900;font-size:clamp(2rem,5vw,3.2rem);line-height:1.07;letter-spacing:-.01em;color:#120e1f}
@@ -69,24 +71,104 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 .src-wrap{max-width:720px;margin:0 auto;padding:0 22px}
 .src-wrap h2{font-family:var(--fs);font-weight:900;font-size:1.4rem;margin:40px 0 6px;color:#160f24}
 .src-list{padding:0 0 0 20px;color:var(--ink2);font-size:.9rem}.src-list li{margin:8px 0}.src-list a{color:var(--accent)}
+/* ═══ ARTICLE TEMPLATE v2 (Founder 2026-08-23) ═══════════════════════════════════════════
+   Opens like the homepage: the cover art fills the first screen and the title sits at the foot
+   of it. Scroll, and the title collapses into a sticky bar with the byline + socials. Then the
+   body, then SUPPORT KEEPITIL, then Sources. */
+.artlead{position:relative;min-height:calc(100svh - 70px);min-height:calc(100dvh - 70px);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:40px 22px 46px;margin:0;isolation:isolate}
+/* The panel is transparent — the art is the FIXED body backdrop now. This gradient only
+   deepens the foot of the first screen so the title reads against whatever is behind it. */
+/* NO landing scrim. Title legibility comes from text-shadow on the type only. */
+/* ONE MEASURE (Founder 2026-08-23: "the sides are different for the title, the filter and the
+   body ... needs to be uniformed"). Landing 900, bar 900, body 720 — three different left edges
+   down the page. All three now share --measure with the same 22px gutter, so the title, the
+   locked bar and the paragraphs start and end on exactly the same x. */
+.artlead .inner{max-width:var(--measure,764px);margin:0 auto;width:100%;padding:0 22px}
+.artlead .kick{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.16em;
+  text-transform:uppercase;color:#c9b8ff;margin-bottom:12px}
+.artlead h1{font-family:var(--fs);font-weight:900;color:#fff;line-height:1.03;letter-spacing:-.01em;
+  font-size:clamp(2.1rem,6.2vw,4rem);text-shadow:0 2px 8px rgba(0,0,0,.85),0 6px 34px rgba(0,0,0,.7)}
+.artlead .deck{color:#e4dff2;font-size:1.06rem;line-height:1.55;margin-top:14px;max-width:640px;
+  text-shadow:0 2px 6px rgba(0,0,0,.9),0 4px 18px rgba(0,0,0,.6)}
+/* 16:9 on desktop, 9:16 on mobile — the same two-crop rule the section pages use. */
+@media(max-width:860px){
+  .artlead{min-height:calc(100svh - env(safe-area-inset-top,0px));
+    min-height:calc(100dvh - env(safe-area-inset-top,0px))}
+}
+/* Sticky bar: title + byline + socials. Under 950 so it passes BEHIND the bottom nav. */
+/* Sticks UNDER the shell's fixed 70px top nav — top:0 parked it behind that nav, which reads as
+   "not locking" because you never see it (Founder 2026-08-23). z-index 940 keeps it below the
+   bottom nav (950) and the radio bar (9998), so it passes BEHIND both, which is what the rest of
+   the site does. Mobile has no fixed top bar, so there it grows into the status-bar band. */
+/* top:66px — the shell nav is 66px tall, not 70. At 70 the page scrolled through a 4px slot
+   between the nav and this bar. The ::before below extends the bar's own colour 18px upward so
+   any future change to the nav height cannot reopen that gap; it sits behind the nav, which is
+   on a higher layer, so it is never visible on its own. */
+.artbar{position:sticky;top:66px;z-index:940;background:#0b0b12;color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.artbar::before{content:"";position:absolute;left:0;right:0;top:-18px;height:18px;background:#0b0b12}
+.artbar .row{max-width:var(--measure,764px);margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px}
+.artbar .soc{margin-left:auto}
+.artbar .t{font-family:var(--fs);font-weight:900;font-size:.98rem;line-height:1.15;color:#fff;
+  flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.artbar .who{font:800 .78rem Inter,sans-serif;letter-spacing:.02em;color:#fff}
+.artbar .soc{display:inline-flex;gap:4px;flex:0 0 auto}
+.artbar .soc a,.artbar .soc button{width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#cfd3df;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;font-size:.82rem;text-decoration:none}
+.artbar .soc a:hover,.artbar .soc button:hover{border-color:#00e0a4;color:#00e0a4}
+.artbar .soc svg{width:16px;height:16px;display:block}
+@media(max-width:520px){.artbar .soc a,.artbar .soc button{width:28px;height:28px}.artbar .soc svg{width:14px;height:14px}}
+@media(max-width:860px){.artbar{top:0;padding-top:env(safe-area-inset-top,0px)}.artbar::before{display:none}}
+@media(max-width:700px){.artbar .who{font-size:.72rem}}
+
+/* READING PANEL (Founder 2026-08-23: "some transparency behind the articles text to make the
+   font color easier to read"). The article is dark type on a light theme, so the panel is light
+   and translucent — dark-on-photo would be unreadable. Opaque enough to hold body copy, sheer
+   enough that the artwork still shows through. */
+.artpanel{max-width:var(--measure,764px);margin:0 auto;background:rgba(252,250,255,.86);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.55);border-radius:20px;
+  box-shadow:0 20px 60px rgba(0,0,0,.45);padding:30px 0 34px;margin-top:26px}
+.artpanel .art,.artpanel .src-wrap,.artpanel .support .box{max-width:none;padding-left:22px;padding-right:22px}
+.artpanel .foot-note{border-top-color:rgba(30,15,60,.14)}
+@media(max-width:700px){.artpanel{border-radius:14px;padding:22px 0 26px;margin-top:16px}}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"One Second of Disco: The Story of Daft Punk's \"One More Time\"","description":"How Daft Punk built 'One More Time' from a one-second 1979 disco chord and Romanthony's autotuned vocal \u2014 the making, the uncredited sample, and the legacy.","image":["https://image.pollinations.ai/prompt/cinematic%20warm%20golden%20photo%20of%20a%20glowing%20disco%20mirrorball%20and%20brass%20instruments%20in%20a%20dark%20club%20euphoric%20french%20house%20nostalgic%20film%20grain%20no%20text?width=1600&height=600&nologo=true&seed=131&model=flux"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://keepitil.com/article/one-more-time-history"},"author":{"@type":"Organization","name":"KEEPITIL","url":"https://keepitil.com"},"publisher":{"@type":"Organization","name":"KEEPITIL","logo":{"@type":"ImageObject","url":"https://keepitil.com/icon-512.png"}},"inLanguage":"en-US"}</script>
 </head>
 <body>
 <main id="content">
-<header class="hero">
-  <span class="kick">Song History · House</span>
-  <h1>One Second of Disco: The Story of "One More Time"</h1>
-  <p class="deck">How Daft Punk pitched-up a single second of a forgotten 1979 disco record, layered a heavily autotuned soul vocal over it, and made what many call the greatest dance record ever.</p>
+<header class="artlead">
+  <div class="inner">
+    <h1>One Second of Disco: The Story of "One More Time"</h1>
+    <p class="deck">How Daft Punk pitched-up a single second of a forgotten 1979 disco record, layered a heavily autotuned soul vocal over it, and made what many call the greatest dance record ever.</p>
+  </div>
 </header>
-<div class="meta">
-  <span class="av">K</span><span class="who">KEEPITIL Editorial</span>
-  <span class="dot">·</span><span>August 1, 2026</span><span class="dot">·</span><span>History</span><span class="dot">·</span><span>7 min read</span>
-  <span class="share"><button title="Copy link" onclick="kilShare('link')">🔗</button><button title="Share on X" onclick="kilShare('x')">𝕏</button><button title="Share" onclick="kilShare('native')">↗</button></span>
-</div>
-<div class="cover"><div class="band"><img decoding="async" alt="Golden disco-house visual — mirrorball light and warm brass tones" loading="eager" onerror="this.onerror=null;this.src='/assets/article-covers/history-of-house-music.jpg'" src="https://image.pollinations.ai/prompt/cinematic%20warm%20golden%20photo%20of%20a%20glowing%20disco%20mirrorball%20and%20brass%20instruments%20in%20a%20dark%20club%20euphoric%20french%20house%20nostalgic%20film%20grain%20no%20text?width=1600&amp;height=600&amp;nologo=true&amp;seed=131&amp;model=flux"/></div></div>
 
+<!-- Locked bar: composer + KEEPITIL socials + share. No title — the headline belongs to the
+     landing panel and is not repeated here (Founder 2026-08-23). -->
+<!-- Locked bar: composer + real KEEPITIL social marks + share. No "K" badge — that letter was
+     never the brand (Founder 2026-08-23). Same measure as the title and the body copy. -->
+<div class="artbar">
+  <div class="row">
+    <span class="who">KEEPITIL</span>
+    <span class="soc">
+      <a href="https://www.instagram.com/keepitil/" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2.5" y="2.5" width="19" height="19" rx="5.4"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.6" cy="6.4" r="1.15" fill="currentColor" stroke="none"/></svg></a>
+      <a href="https://www.facebook.com/keepitil" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.25 10.44 22v-7.03H7.9v-2.91h2.54V9.85c0-2.52 1.49-3.91 3.77-3.91 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.91h-2.34V22C18.34 21.25 22 17.08 22 12.06z"/></svg></a>
+      <a href="https://www.tiktok.com/@keepitil" target="_blank" rel="noopener" aria-label="TikTok" title="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.96 4.96 0 0 1 15.4 2.5h-3.23v13.02a2.61 2.61 0 1 1-1.86-2.5V9.72a5.83 5.83 0 1 0 5.09 5.79V9.3a8.2 8.2 0 0 0 4.6 1.42V7.5a4.96 4.96 0 0 1-3.4-1.68z"/></svg></a>
+      <a href="https://youtube.com/@keepitil" target="_blank" rel="noopener" aria-label="YouTube" title="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.9-.5-5.79a3 3 0 0 0-2.11-2.11C18.5 3.6 12 3.6 12 3.6s-6.5 0-8.39.5A3 3 0 0 0 1.5 6.21C1 8.1 1 12 1 12s0 3.9.5 5.79a3 3 0 0 0 2.11 2.11c1.89.5 8.39.5 8.39.5s6.5 0 8.39-.5a3 3 0 0 0 2.11-2.11C23 15.9 23 12 23 12zM9.8 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></a>
+      <a href="https://x.com/keepitil" target="_blank" rel="noopener" aria-label="X" title="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.82l4.71 6.23 5.46-6.23zm-1.16 17.52h1.83L7.01 4.13H5.05l12.03 15.64z"/></svg></a>
+      <a href="mailto:info@keepitil.com" aria-label="Email" title="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2.5" y="4.5" width="19" height="15" rx="2.6"/><path d="M3 6.5l9 6.2 9-6.2"/></svg></a>
+      <button aria-label="Share" title="Share" onclick="kilShare('native')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
+    </span>
+  </div>
+</div>
+
+
+<div class="artpanel">
 <article class="art">
   <p class="lead">The entire backbone of one of the most famous dance songs ever recorded is a single second of a record almost nobody had heard — pitched up until it became a hook.</p>
   <p>"One More Time" sounds like pure joy engineered in a lab, and in a way it was. Daft Punk built a monument out of one borrowed brass chord and a soul singer run through so much autotune it became an instrument. It's also a story with an uncomfortable footnote about who gets paid when a forgotten record becomes a global anthem. Here's the real history, sourced — and where to hear it.</p>
@@ -118,16 +200,6 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
   </div>
 </section>
 
-</main>
-<section class="related">
-  <h3>Keep reading</h3>
-  <div class="rel-grid">
-    <a class="rel-card" href="/article/strings-of-life-history"><div class="rc-cov" style="background-image:url('/assets/article-covers/charlotte-de-witte-techno-profile.png')"></div><div class="rc-bd"><div class="rc-k">History</div><h4>The Story of "Strings of Life"</h4></div></a>
-    <a class="rel-card" href="/article/insomniac-edc-history"><div class="rc-cov" style="background-image:url('/assets/article-covers/socal-festival-season-2026-guide.png')"></div><div class="rc-bd"><div class="rc-k">History</div><h4>The History of Insomniac &amp; EDC</h4></div></a>
-    <a class="rel-card" href="/songs"><div class="rc-cov" style="background-image:url('/assets/article-covers/history-of-house-music.jpg')"></div><div class="rc-bd"><div class="rc-k">Directory</div><h4>Browse the KEEPITIL Song Directory</h4></div></a>
-  </div>
-</section>
-
 <div class="foot-note">KEEPITIL — the Southern California underground, in one place.</div>
 
 <div class="src-wrap">
@@ -139,6 +211,10 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
     <li>Wikipedia, <a class="inline" href="https://en.wikipedia.org/wiki/Discovery_(Daft_Punk_album)" target="_blank" rel="noopener">"Discovery (Daft Punk album)"</a> — album context and reception.</li>
   </ul>
 </div>
+</div>
+</main>
+<!-- "Keep reading" removed 2026-08-23 (Founder). -->
+
 
 <script>
 function kilShare(kind){var url=location.href,t=document.title;if(kind==='x'){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(t)+'&url='+encodeURIComponent(url),'_blank');return;}if(kind==='native'&&navigator.share){navigator.share({title:t,url:url});return;}try{navigator.clipboard.writeText(url);var b=event&&event.currentTarget;if(b){var o=b.textContent;b.textContent='✓';setTimeout(function(){b.textContent=o;},1200);}}catch(e){prompt('Copy link:',url);}}
