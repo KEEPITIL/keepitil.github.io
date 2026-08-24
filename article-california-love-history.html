@@ -126,8 +126,13 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
    "not locking" because you never see it (Founder 2026-08-23). z-index 940 keeps it below the
    bottom nav (950) and the radio bar (9998), so it passes BEHIND both, which is what the rest of
    the site does. Mobile has no fixed top bar, so there it grows into the status-bar band. */
-.artbar{position:sticky;top:70px;z-index:940;background:#0b0b12;color:#fff;
+/* top:66px — the shell nav is 66px tall, not 70. At 70 the page scrolled through a 4px slot
+   between the nav and this bar. The ::before below extends the bar's own colour 18px upward so
+   any future change to the nav height cannot reopen that gap; it sits behind the nav, which is
+   on a higher layer, so it is never visible on its own. */
+.artbar{position:sticky;top:66px;z-index:940;background:#0b0b12;color:#fff;
   border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.artbar::before{content:"";position:absolute;left:0;right:0;top:-18px;height:18px;background:#0b0b12}
 .artbar .row{max-width:var(--measure,764px);margin:0 auto;padding:10px 22px;display:flex;align-items:center;gap:12px}
 .artbar .soc{margin-left:auto}
 .artbar .t{font-family:var(--fs);font-weight:900;font-size:.98rem;line-height:1.15;color:#fff;
@@ -140,7 +145,7 @@ hr{border:0;border-top:1px solid var(--line);margin:42px 0}
 .artbar .soc a:hover,.artbar .soc button:hover{border-color:#00e0a4;color:#00e0a4}
 .artbar .soc svg{width:16px;height:16px;display:block}
 @media(max-width:520px){.artbar .soc a,.artbar .soc button{width:28px;height:28px}.artbar .soc svg{width:14px;height:14px}}
-@media(max-width:860px){.artbar{top:0;padding-top:env(safe-area-inset-top,0px)}}
+@media(max-width:860px){.artbar{top:0;padding-top:env(safe-area-inset-top,0px)}.artbar::before{display:none}}
 @media(max-width:700px){.artbar .who{font-size:.72rem}}
 
 /* READING PANEL (Founder 2026-08-23: "some transparency behind the articles text to make the
