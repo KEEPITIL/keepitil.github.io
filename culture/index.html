@@ -45,6 +45,43 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
    This was lost once already when a push overwrote the file; if it goes missing again the
    symptom is "the page is zoomed out", not a layout error. */
 .wrap{max-width:1360px;margin:0 auto;padding:0 26px;width:100%}
+/* ── LANDING PANEL (Founder 2026-08-24: "culture needs to have the same setup as a landing
+   page similar to all the other pages. title and metric. same position. the page theme
+   color is purple") ────────────────────────────────────────────────────────────────────────
+   Identical geometry to /connect, /create and /earn so the four pillars open the same way:
+   a full-viewport panel over the fixed backdrop, type dropped to the FOOT of it, then the
+   content scrolls up into place.
+   The 130px subtracted is the fixed top nav (70) + the radio bar (60) — that is what keeps
+   the title and metrics readable above the player instead of tucked behind it. Do not
+   "simplify" it to 100dvh. svh comes first so a collapsing iOS URL bar cannot resize the
+   panel mid-scroll. */
+.hero{position:relative;padding:58px 30px 46px;max-width:1360px;margin:0 auto;overflow:hidden;
+  min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px);
+  display:flex;flex-direction:column;justify-content:flex-end;}
+.hero::before{content:"";position:absolute;top:-160px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.32),transparent 62%);filter:blur(20px);z-index:-1;}
+.hero::after{content:"";position:absolute;top:-90px;right:-120px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(192,132,252,.20),transparent 62%);filter:blur(20px);z-index:-1;}
+.hero-head{width:max-content;max-width:100%;}
+/* CULTURE is neon purple — the page theme (Founder 2026-08-24). CONNECT is green, so the
+   gradient stops are the only thing that differs between the two heroes. */
+.hero h1{font-family:var(--fh);font-size:clamp(3.6rem,13vw,8rem);line-height:.88;letter-spacing:.02em;filter:drop-shadow(0 4px 26px rgba(0,0,0,.7));background:linear-gradient(120deg,#EBD9FF 12%,#C084FC 48%,#A855F7);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p{max-width:640px;color:var(--ink2);margin-top:12px;font-size:1.02rem;}
+.stats{display:flex;gap:46px;margin-top:22px;flex-wrap:wrap;}
+.stat b{font-family:var(--fh);font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:.02em;line-height:1;display:block;text-shadow:0 2px 18px rgba(0,0,0,.7);color:#C084FC;}
+.stat span{display:block;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:#c9c2e0;margin-top:5px;font-weight:800;text-shadow:0 1px 8px rgba(0,0,0,.7);}
+.stat.videos b{color:#C084FC;}.stat.posts b{color:#A855F7;}.stat.creators b{color:#EBD9FF;}
+/* MOBILE METRICS — one centred row, matching /connect, /create and /earn.
+   ⚠ THIS BLOCK MUST STAY BELOW THE BASE .stats/.stat RULES. A media query adds no
+   specificity, so above them the base `gap:46px;flex-wrap:wrap` wins on source order and the
+   metrics wrap to two rows on a phone. */
+@media(max-width:860px){
+  .hero{text-align:center;padding:42px 18px 18px;}
+  .hero-head{width:auto;margin:0 auto;}
+  .hero p{margin-left:auto;margin-right:auto;}
+  .stats{display:flex;flex-wrap:nowrap;justify-content:center;gap:min(6vw,26px);margin-top:18px;}
+  .stat{flex:0 1 auto;min-width:0;text-align:center;}
+  .stat b{font-size:clamp(1.4rem,6.5vw,2rem);}
+  .stat span{font-size:.56rem;letter-spacing:.09em;margin-top:4px;}
+}
 .chero-intro{min-height:calc(100vh - 132px);min-height:calc(100dvh - 132px);display:flex;align-items:flex-end;justify-content:center;padding:0 20px 42px}
 .chero-cue{display:flex;flex-direction:column;align-items:center;gap:7px;color:#fff;opacity:.82;text-shadow:0 2px 12px rgba(0,0,0,.55);cursor:pointer}
 .chero-cue span{font-family:var(--fh,inherit);font-size:.72rem;letter-spacing:.26em;font-weight:800}
@@ -157,6 +194,13 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .gb-card p{color:var(--ink2,#9aa);font-size:.82rem;line-height:1.4}
 @media(max-width:860px){
   .chero-intro,.discovercol{display:none!important}
+  /* The landing panel is DESKTOP-ONLY on Culture, and only on Culture. Mobile Culture is the
+     locked full-screen swipe feed (Founder 2026-08-22: "each content needs to be locked into
+     the screen and swiped up one at a time only") — body.cul-m makes #community-feed
+     position:fixed over the whole viewport, so a hero above it would be covered by the feed
+     and unreachable, not scrolled past. The two cannot share a screen; the swipe feed wins
+     because it was asked for explicitly. Every other page keeps its hero at every width. */
+  .hero{display:none!important}
   /* Founder 2026-07-16: mobile Culture nav = "+ | FEED | FOLLOW | ♥" + one even row of 5 pillar icons */
   .hubnav{display:none!important}
   /* MOBILE: keep the +/toggle/bell row and LOCK it to the top of the page (Founder 2026-07-18) */
@@ -325,6 +369,19 @@ footer a{color:var(--purple)}
   <meta name="apple-mobile-web-app-title" content="KEEPITIL"/>
 </head><body>
 <nav id="main-nav"></nav>
+
+<!-- LANDING PANEL — same structure and position as /connect, /create and /earn
+     (Founder 2026-08-24). Purple is Culture's theme colour. -->
+<header class="hero">
+  <div class="hero-head">
+    <h1>CULTURE</h1>
+  </div>
+  <div class="stats">
+    <div class="stat videos"><b id="kV">0</b><span>Videos</span></div>
+    <div class="stat posts"><b id="kP">0</b><span>Posts</span></div>
+    <div class="stat creators"><b id="kC">0</b><span>Creators</span></div>
+  </div>
+</header>
 
 <div class="wrap"><div class="merge">
   <!-- LEFT: live feed -->
@@ -1710,5 +1767,26 @@ function vrSF(sp,k,el){
   if(sp==='feed' && typeof setCulContentType==='function'){ try{ setCulContentType(k); }catch(e){} }
 }
 try{ vrRenderFilters('feed'); }catch(e){}
+</script>
+
+<!-- LANDING METRICS (Founder 2026-08-24) ─────────────────────────────────────────────────
+     A plain fetch against the RPC, not supabase-js: the SDK boots behind a 40-attempt poller
+     on this page, and the numbers sit in the first thing a visitor sees. This paints as soon
+     as the network answers, whether or not the SDK ever arrives.
+     culture_page_stats() is SECURITY DEFINER for the same reason create_page_stats() is —
+     anon cannot count rows in tables it is not allowed to read, so a client-side count() would
+     return 0 and read as "no content" rather than as a permissions result.
+     Failure is silent and the zeros stay: a broken stat must never blank the hero. -->
+<script>
+(function(){
+  var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co',
+      K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  function fmtN(n){ n=Number(n)||0; return n>=1000 ? (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'')+'K' : String(n); }
+  function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=fmtN(v); }
+  fetch(U+'/rest/v1/rpc/culture_page_stats',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:'{}'})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(d){ var s=Array.isArray(d)?d[0]:d; if(!s)return; set('kV',s.videos); set('kP',s.posts); set('kC',s.creators); })
+    .catch(function(){});
+})();
 </script>
 </body></html>
