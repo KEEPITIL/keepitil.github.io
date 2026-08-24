@@ -23,7 +23,11 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:960px;margin:0 auto;padding:0 20px}
 .loading{max-width:700px;margin:90px auto;text-align:center;color:var(--muted)}
 /* hero */
-.v-cover{height:300px;background:linear-gradient(130deg,color-mix(in srgb,var(--brand,#00b4ff) 34%,#0a0a12),color-mix(in srgb,var(--accent,#8b5cff) 40%,#0a0a12));position:relative;border-bottom:1px solid var(--line)}
+/* VENUE HEADER IS 16:9 (Founder 2026-08-23). A fixed 300px height cropped a 16:9 cover to
+   whatever 300px happened to be on that screen — on a phone, a narrow band across the
+   middle of the artwork. aspect-ratio keeps the whole frame at every width; max-height
+   stops it swallowing the viewport on a wide desktop. */
+.v-cover{aspect-ratio:16/9;height:auto;max-height:min(56vh,520px);background:linear-gradient(130deg,color-mix(in srgb,var(--brand,#00b4ff) 34%,#0a0a12),color-mix(in srgb,var(--accent,#8b5cff) 40%,#0a0a12));position:relative;border-bottom:1px solid var(--line)}
 .v-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
 .v-head{margin-top:-64px;position:relative}
 .v-badge{display:inline-block;font-size:.64rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#04121b;background:var(--brand,#00b4ff);border-radius:999px;padding:5px 13px;margin-bottom:12px}
