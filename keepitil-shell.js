@@ -70,7 +70,13 @@
     } else {
       document.addEventListener('DOMContentLoaded',function(){ try{
         if(!document.getElementById('kil-radio') && !document.querySelector('script[src*="keepitil-radio"]')){
-          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/v3/keepitil-radio.js?v=20260718'; document.body.appendChild(_rs);
+          /* ⚠ THIS VERSION MUST TRACK v3/keepitil-radio.js (Atlas 2026-08-23). Pages that do not
+             load the radio themselves get it from here — and this was pinned at ?v=20260718,
+             so every one of them ran a build from JULY while the pages with their own <script>
+             tag ran the current one. Two different radio bars on one site, and the stale half
+             was invisible to a cache bump because the URL never changed. Bump this WITH the
+             page tags whenever keepitil-radio.js changes. */
+          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/v3/keepitil-radio.js?v=20260823a'; document.body.appendChild(_rs);
         }
       }catch(e){} });
     }
