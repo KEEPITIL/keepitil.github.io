@@ -3,6 +3,10 @@
 <meta name="description" content="KEEPITIL Culture — the community feed plus original journalism, guides and stories from creators across the scene.">
 <title>Culture — The Community Feed | KEEPITIL</title>
 <link rel="canonical" href="https://keepitil.com/culture"/>
+<!-- The player is a YouTube iframe; opening those connections during page load rather
+     than at first swipe removes a DNS+TLS round trip from the moment of playback. -->
+<link rel="preconnect" href="https://www.youtube.com" crossorigin/>
+<link rel="preconnect" href="https://i.ytimg.com" crossorigin/>
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <link rel="icon" type="image/png" href="/v3/logo-purple-nav.png"/>
@@ -712,7 +716,7 @@ renderTypebar();renderDiscover();renderFeed();
 </script>
 <script src="/v3/vendor/supabase-js.min.js" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
-<script src="/v3/keepitil-radio.js?v=20260823a" defer></script>
+<script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
 <script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
 <script>
@@ -1317,6 +1321,18 @@ window.culFetchMedia = culFetchMedia;
     var img = well.querySelector('img'); if(img) img.style.display='none';
     var ov = well.querySelector('.kil-vid-play'); if(ov) ov.style.display='none';
     well.appendChild(f);
+    /* Warm the NEXT card: preconnect + prefetch its thumbnail so swiping to it does not start
+       from a cold network. Only ONE player is ever mounted — this is a hint, not a second
+       iframe, so the "one player at a time" rule is untouched. */
+    try{
+      var nxt = card.nextElementSibling;
+      while(nxt && !nxt.classList.contains('kil-vid')) nxt = nxt.nextElementSibling;
+      if(nxt && !nxt.__warm){
+        nxt.__warm = 1;
+        var t = nxt.querySelector('img');
+        if(t && t.src){ var pre = new Image(); pre.src = t.src; }
+      }
+    }catch(e){}
     /* YouTube ignores commands sent before the player is ready, so wait for load and then
        retry a couple of times — a single fire-and-forget postMessage is silently dropped
        often enough that the volume would appear not to work at all. */
@@ -1361,6 +1377,13 @@ window.culFetchMedia = culFetchMedia;
     document.addEventListener(ev, armSound, {once:true, passive:true, capture:true});
   });
 
+  /* The feed is its own scroller on mobile, so the observer must watch THAT box — with the
+     default (viewport) root a card can be fully on screen inside the scroller and still be
+     reported late. Combined with a 0.6 threshold, the player only mounted well after the card
+     had settled, which is the lag. */
+  var scrollRoot = document.getElementById('community-feed');
+  if(scrollRoot && getComputedStyle(scrollRoot).overflowY !== 'auto') scrollRoot = null;
+
   var io = new IntersectionObserver(function(entries){
     /* Pick the MOST visible card rather than the first to cross the line — on a fast scroll
        several fire in one callback and the first is rarely the one being looked at. */
@@ -1369,8 +1392,10 @@ window.culFetchMedia = culFetchMedia;
       if(en.isIntersecting && en.intersectionRatio > bestRatio){ bestRatio=en.intersectionRatio; best=en.target; }
       else if(!en.isIntersecting && en.target === current){ stop(current); current=null; }
     });
-    if(best && bestRatio >= 0.6) play(best);
-  }, { threshold:[0, 0.6, 0.9] });
+    /* 0.35 rather than 0.6: on a full-height card the player now mounts as the card arrives
+       instead of after it has stopped moving. */
+    if(best && bestRatio >= 0.35) play(best);
+  }, { root: scrollRoot || null, rootMargin: '120% 0px 120% 0px', threshold:[0, 0.35, 0.7] });
 
   function scan(){
     [].forEach.call(document.querySelectorAll('.kil-vid:not([data-vidobs])'), function(c){
