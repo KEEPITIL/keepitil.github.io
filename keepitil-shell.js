@@ -816,7 +816,30 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
                   var cur=parseFloat(getComputedStyle(document.body).paddingBottom);
                   KIL_BASE_PAD=isFinite(cur)?cur:0;
                 }
-                var want=Math.max(KIL_BASE_PAD, stack+12);
+                /* ── DO NOT RESERVE THE NAV TWICE (Founder/KODE 2026-08-24) ──────────────
+                   Symptom: a 57pt strip of page backdrop between the footer and the bottom nav
+                   on /connect. KODE measured it — footer background ended at 701pt, nav at
+                   758pt.
+
+                   Cause: this padding sits OUTSIDE the footer, on the body box. On a short page
+                   `body{min-height:100dvh}` + `footer{margin-top:auto}` pushes the footer to the
+                   bottom of the CONTENT box, and with border-box sizing that box stops
+                   `padding-bottom` short of the viewport — so the reserved strip renders as bare
+                   `body::before`. Meanwhile the shell's own stylesheet ALREADY gives
+                   `#v3-footer` a `padding-bottom:calc(12px + var(--kil-bnav-h))`, which reserves
+                   the same space correctly, INSIDE the footer, painted in the footer's colour.
+                   Two reservations, one of them visible as a hole.
+
+                   So: when a visible #v3-footer is present it owns the clearance and the body
+                   gets none. Pages WITHOUT that footer (radio, and anything mounting its own
+                   chrome) still need the body padding, which is why this is a condition and not
+                   a deletion — removing it outright would put content under the nav there.
+                   This is the smaller relative of the 128pt band from Part C; the
+                   flex-body + margin-top:auto fix shrank it but could not close it, because the
+                   remainder was never the footer's margin — it was this. */
+                var _ft=document.getElementById('v3-footer');
+                var _ftOwns = !!_ft && getComputedStyle(_ft).display!=='none' && _ft.getBoundingClientRect().height>0;
+                var want=_ftOwns ? KIL_BASE_PAD : Math.max(KIL_BASE_PAD, stack+12);
                 document.body.style.setProperty('padding-bottom', Math.round(want)+'px', 'important');
               } else if(KIL_BASE_PAD!==null){
                 document.body.style.removeProperty('padding-bottom');
