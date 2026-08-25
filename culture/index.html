@@ -1250,6 +1250,19 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m{overflow:visible;scroll-snap-type:y mandatory}
   /* The landing panel is the FIRST snap point, so the page opens on title + metrics and one
      swipe moves to the first post. */
+  /* ── THE SNAP CONTAINER MUST BE THE SCROLLER (KODE 2026-08-24) ────────────────────────
+     scroll-snap-type was declared on `body`, but the element that actually scrolls the
+     document is <html> — document.scrollingElement === documentElement. Unlike `overflow`,
+     scroll-snap-type does NOT propagate from body to html, so the real scroller was left with
+     scroll-snap-type:none and nothing snapped at all.
+     Measured on production before this change: html "none", body "y mandatory",
+     scrollingElement === documentElement. Symptom: a fast flick settled BETWEEN two cards,
+     showing the tail of one and the head of the next, instead of landing on one.
+     Scoped with :has so it can only bite when the mobile feed is actually mounted; this
+     stylesheet is Culture's own, so it cannot affect another surface either way.
+     The body declaration is left in place — harmless, and it is what a future reader will
+     look for first. */
+  html:has(body.cul-m){scroll-snap-type:y mandatory}
   body.cul-m .hero{scroll-snap-align:start;scroll-snap-stop:always}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
