@@ -436,7 +436,18 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   body.rad-m #kil-radio{transform:none!important;pointer-events:auto!important;
     position:fixed!important;left:8px;right:8px;bottom:calc(56px + 8px + env(safe-area-inset-bottom,0px))!important;
     z-index:60;border-radius:12px}
-  body.rad-m{padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important}
+  /* ── FOOTER MATCHES /connect AND /create (Founder 2026-08-24) ────────────────────────────
+     "footer has extra space at the bottom of the footer followed by a gap after the footer.
+      connect and create do not and have the best examples."
+     This was `padding-bottom:calc(120px + env(safe-area-inset-bottom))!important` — the page
+     reserving room for a mini player, on top of the 96px the base body rule already reserves.
+     That padding lives OUTSIDE the footer, so it rendered as the gap AFTER it, and the shell
+     then honoured it as a floor: publishBarHeight() measures the page's own padding once as
+     KIL_BASE_PAD and never goes below it. /connect measures 0 there, which is the entire
+     reason its footer sits clean against the nav.
+     Zeroing it lets the shell's `#v3-footer{padding-bottom:calc(12px + var(--kil-bnav-h))}`
+     be the ONLY clearance — inside the footer, painted in the footer's colour. */
+  body.rad-m{padding-bottom:0!important}
   /* section-name pop that fades, same affordance as Culture */
   #radSwToast{position:fixed;left:50%;top:calc(38px + 36px + 10px);transform:translateX(-50%);z-index:90;
     background:rgba(10,16,14,.88);border:1px solid rgba(0,224,164,.35);border-radius:999px;
