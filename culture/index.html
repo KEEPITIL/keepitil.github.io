@@ -1262,7 +1262,14 @@ renderTypebar();renderDiscover();renderFeed();
      stylesheet is Culture's own, so it cannot affect another surface either way.
      The body declaration is left in place — harmless, and it is what a future reader will
      look for first. */
-  html:has(body.cul-m){scroll-snap-type:y mandatory}
+  /* scroll-padding-top matches the snapport to the VISIBLE band. scroll-snap-align:start
+     aligns a card's top edge to the scrollport's top edge, which is y=0 — underneath the fixed
+     black status layer. Without this the card rested ~1 status-bar too low: the hero's metrics
+     row was still bleeding in at the top and the card's Comments row was clipped by the bottom
+     nav. Padding the snapport by the measured layer height moves every snap position down by
+     exactly that much, so a card comes to rest in the same frame the standard describes:
+     status layer to nav. KODE 2026-08-24. */
+  html:has(body.cul-m){scroll-snap-type:y mandatory;scroll-padding-top:var(--kil-safe-top,0px)}
   body.cul-m .hero{scroll-snap-align:start;scroll-snap-stop:always}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
