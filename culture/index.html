@@ -1192,7 +1192,19 @@ renderTypebar();renderDiscover();renderFeed();
        and identical once --kil-vh arrives.
        ⚠ env(safe-area-inset-BOTTOM) is deliberately absent: --kil-bnav-h already contains it,
        and double-counting it is the exact defect that produced three earlier bugs here. */
-    /* R4.4 — MEASURED, not assumed. With ?kildebug=1 on an iPhone 17 Pro in Safari:
+    /* ⚠ DO NOT "UNIFY" THIS WITH --kil-vh. It looks like a duplicate of the shell's variable
+       and it is not — the two are both correct, in different contexts, and merging them breaks
+       signed-off pages. Decision recorded R7, 2026-08-24:
+         · A LANDING PANEL (the heroes on /, /connect, /create, /earn) is seen at load with the
+           URL bar EXPANDED. --kil-vh is a JS snapshot of innerHeight taken at that moment, which
+           is the true band while a hero is on screen. Re-deriving it from dvh would size every
+           hero for a collapsed URL bar it has not reached yet, growing each one ~40px and
+           pushing the metrics behind the nav on four pages the Founder has signed off.
+         · THIS CARD is seen mid-scroll with the URL bar COLLAPSED. 100dvh is correct here, and
+           the load-time snapshot is 40px short — which was the next-card bleed.
+       The shell keeps publishing --kil-vh for the heroes; this stays on dvh. See the same note
+       in keepitil-shell.js's publishBarHeight (to be added next time the shell ships).
+       R4.4 — MEASURED, not assumed. With ?kildebug=1 on an iPhone 17 Pro in Safari:
          safe-top 0px · bnav-h 59px · innerH 754 · navTop 695 · --kil-vh 655 · card 655
        The true band is 754-0-59 = 695, and navTop confirms 695. --kil-vh was 655 — short by
        exactly 40px, which is the strip the next card was bleeding through. The shell computes
