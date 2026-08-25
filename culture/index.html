@@ -1192,7 +1192,17 @@ renderTypebar();renderDiscover();renderFeed();
        and identical once --kil-vh arrives.
        ⚠ env(safe-area-inset-BOTTOM) is deliberately absent: --kil-bnav-h already contains it,
        and double-counting it is the exact defect that produced three earlier bugs here. */
-    height:var(--kil-vh,calc(100dvh - env(safe-area-inset-top,0px) - var(--kil-bnav-h,62px)));
+    /* R4.4 — MEASURED, not assumed. With ?kildebug=1 on an iPhone 17 Pro in Safari:
+         safe-top 0px · bnav-h 59px · innerH 754 · navTop 695 · --kil-vh 655 · card 655
+       The true band is 754-0-59 = 695, and navTop confirms 695. --kil-vh was 655 — short by
+       exactly 40px, which is the strip the next card was bleeding through. The shell computes
+       --kil-vh once from innerHeight; Safari's innerHeight grows by ~40px as the URL bar
+       collapses, so the published value is stale from that moment on.
+       100dvh IS the dynamic viewport and tracks that change by definition, so the card is
+       correct at every URL-bar state without the shell having to re-measure. --kil-vh is
+       deliberately no longer consulted for this height.
+       ⚠ env(safe-area-inset-BOTTOM) stays absent: --kil-bnav-h already contains it. */
+    height:calc(100dvh - env(safe-area-inset-top,0px) - var(--kil-bnav-h,62px));
     min-height:0;margin:0;padding:0;
     border-radius:0;border:0;background:#000;
     display:flex;flex-direction:column;justify-content:flex-start}
@@ -1248,7 +1258,32 @@ renderTypebar();renderDiscover();renderFeed();
   /* The play overlay is a sibling of the media and must stay pinned to the whole well. */
   body.cul-m #community-feed>.fcard .kil-vid-well>.kil-vid-play,
   body.cul-m #community-feed>.fcard .kil-vid-well>.kv-badge{z-index:2}
-  body.cul-m #community-feed>.fcard .kv-body{flex:0 0 auto;background:#000}
+  /* ── R4.1 — THE MEDIA IS THE CARD (Founder: "the videos ... its shrunk inside the content
+     page"). .kil-vid-well and .kv-body were SIBLINGS splitting the card's height, so the
+     player only ever got what the caption row left over — that, not the aspect ratio, is why
+     it read as shrunk. Reels/TikTok model: the well takes the whole card and the meta floats
+     over it on a scrim. */
+  body.cul-m #community-feed>.fcard{position:relative}
+  body.cul-m #community-feed>.fcard .kil-vid-well{
+    position:absolute!important;inset:0!important;flex:none!important;width:auto!important;height:auto!important}
+  body.cul-m #community-feed>.fcard .kv-body{
+    position:absolute;left:0;right:0;bottom:0;z-index:3;background:none;
+    background-image:linear-gradient(to top,rgba(0,0,0,.94) 0%,rgba(0,0,0,.74) 52%,rgba(0,0,0,0) 100%);
+    padding-bottom:12px}
+  /* COVER, not contain. object-fit cannot reach inside an iframe, so the iframe itself is sized
+     to the CLIP's aspect and the well clips the overflow. Landscape pins HEIGHT (width spills
+     past the sides); a Short pins WIDTH (a little is cropped top and bottom). Both are centred.
+     Note this is the opposite of the earlier contain rules and must come after them. */
+  body.cul-m #community-feed>.fcard .kil-vid-well>iframe,
+  body.cul-m #community-feed>.fcard .kil-vid-well>video{
+    position:absolute!important;top:50%!important;left:50%!important;
+    transform:translate(-50%,-50%)!important;
+    height:100%!important;width:auto!important;aspect-ratio:var(--kv-ar,16 / 9)!important;
+    max-width:none!important;max-height:none!important;object-fit:cover!important}
+  /* Portrait clip: the well is very slightly wider than 9:16, so pinning width is what fills. */
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>iframe,
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>video{
+    width:100%!important;height:auto!important;aspect-ratio:9 / 16!important}
 
   /* THE DOCUMENT IS THE SCROLLER AGAIN (Founder 2026-08-24). `overflow:hidden` existed only to
      stop the page scrolling behind the fixed feed; with the feed back in flow it would freeze
@@ -1278,6 +1313,11 @@ renderTypebar();renderDiscover();renderFeed();
      exactly that much, so a card comes to rest in the same frame the standard describes:
      status layer to nav. KODE 2026-08-24. */
   html:has(body.cul-m){scroll-snap-type:y mandatory;scroll-padding-top:var(--kil-safe-top,0px)}
+  /* R4.2 — opening comments jumped to the next post. .fcard.cmt-open already sets
+     scroll-snap-align:none, but removing a CHILD's alignment does not stop a MANDATORY
+     container re-snapping to the nearest remaining snap point, which is the next card. Snap
+     has to come off the scroller itself for as long as a thread is open. */
+  html:has(body.cul-m .fcard.cmt-open){scroll-snap-type:none}
   body.cul-m .hero{scroll-snap-align:start;scroll-snap-stop:always}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
