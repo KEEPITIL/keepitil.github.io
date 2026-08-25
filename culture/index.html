@@ -212,13 +212,16 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 .gb-card p{color:var(--ink2,#9aa);font-size:.82rem;line-height:1.4}
 @media(max-width:860px){
   .chero-intro,.discovercol{display:none!important}
-  /* The landing panel is DESKTOP-ONLY on Culture, and only on Culture. Mobile Culture is the
-     locked full-screen swipe feed (Founder 2026-08-22: "each content needs to be locked into
-     the screen and swiped up one at a time only") — body.cul-m makes #community-feed
-     position:fixed over the whole viewport, so a hero above it would be covered by the feed
-     and unreachable, not scrolled past. The two cannot share a screen; the swipe feed wins
-     because it was asked for explicitly. Every other page keeps its hero at every width. */
-  .hero{display:none!important}
+  /* ⚠ The hero was `display:none!important` here from 2026-08-22 until 2026-08-24. That was
+     correct ONLY while #community-feed was position:fixed over the viewport — a panel under a
+     fixed feed is covered, not scrolled past. The feed is back in normal flow now, so the
+     panel works and the Founder has asked for it:
+       "the culture page needs to start like the other pages with a title and metric only and
+        then swipe scroll up by content."
+     Do not re-hide it without also re-fixing the feed; the two changes are one decision.
+     Geometry is the same canonical value as /connect, /create and /earn. */
+  .hero{min-height:calc(var(--kil-vh,100dvh) + var(--kil-safe-top,0px));padding-bottom:14px}
+  /* Culture is the one page with no body padding-top to remove — it never had one. */
   /* Founder 2026-07-16: mobile Culture nav = "+ | FEED | FOLLOW | ♥" + one even row of 5 pillar icons */
   .hubnav{display:none!important}
   /* MOBILE: keep the +/toggle/bell row and LOCK it to the top of the page (Founder 2026-07-18) */
@@ -1153,19 +1156,37 @@ renderTypebar();renderDiscover();renderFeed();
      background:#000 is load-bearing: the feed used to be transparent, so any pixel the card
      did not cover showed the purple backdrop through it — that is the band the Founder saw
      under the comments row. */
+  /* ── CULTURE OPENS LIKE EVERY OTHER PAGE (Founder 2026-08-24) ─────────────────────────────
+     "the culture page needs to start like the other pages with a title and metric only and
+      then swipe scroll up by content."
+
+     This REVERSES the 2026-08-22 design. The feed was `position:fixed` over the whole viewport,
+     which is why the hero had to be hidden — a landing panel under a fixed feed is covered, not
+     scrolled past. A fixed feed and a landing panel cannot coexist, so the feed comes back into
+     NORMAL FLOW and the snapping moves to the document scroller.
+     Consequences, all deliberate:
+       · the hero is no longer hidden (see the rule below)
+       · body{overflow:hidden} is gone — the document is the scroller again
+       · each card is a snap point sized to --kil-vh, so it lands in the same frame every time
+       · the hero is itself the FIRST snap point, so the page opens on title + metrics and one
+         swipe moves to the first post
+     The IntersectionObserver needs no change: it already re-points its root to the viewport
+     when #community-feed stops being an `overflow-y:auto` scroller. */
   body.cul-m #community-feed{
-    position:fixed;left:0;right:0;
-    top:var(--kil-safe-top,env(safe-area-inset-top,0px));
-    bottom:var(--kil-bnav-h,62px);
-    margin:0;padding:0;background:#000;overflow-y:auto;-webkit-overflow-scrolling:touch;
-    scroll-snap-type:y mandatory;overscroll-behavior-y:contain;z-index:1}
+    position:static;margin:0;padding:0;background:#000}
   /* justify-content was `center`, which is what put equal dead bands above the media and below
      the actions whenever the content was shorter than the frame. The card is now a column that
      FILLS: the media well takes every pixel the body does not, so there is nothing left over to
      distribute. Next swipe snaps into the identical frame because every card is exactly 100%. */
+  /* height is --kil-vh, NOT 100% — the parent is no longer a fixed box with a known height, so
+     a percentage would resolve against `auto` and collapse. --kil-vh is the shell's measured
+     status-layer-to-nav band, which is exactly the frame the Founder specified. This also
+     closes the gap between the last card and the nav: the card ENDS where the nav begins
+     instead of being sized against a viewport unit that ignores the nav. */
   body.cul-m #community-feed>.fcard{
     scroll-snap-align:start;scroll-snap-stop:always;
-    height:100%;min-height:0;margin:0;padding:0;border-radius:0;border:0;background:#000;
+    height:var(--kil-vh,calc(100dvh - 62px));min-height:0;margin:0;padding:0;
+    border-radius:0;border:0;background:#000;
     display:flex;flex-direction:column;justify-content:flex-start}
   /* THE CARD MUST FILL THE SCREEN (Founder 2026-08-23: "does not fill the screen either").
      The card was full height but the PLAYER inside it kept its own aspect-ratio — a 16:9 clip in
@@ -1189,12 +1210,28 @@ renderTypebar();renderDiscover();renderFeed();
      inside our black. Sizing the element to the ratio is the only thing an iframe honours:
      aspect-ratio + max-width/height 100% grows it until whichever axis runs out first, which is
      exactly "as big as it fits". A 9:16 Short now fills a phone edge to edge. */
+  /* ⚠ `width:auto` + `aspect-ratio` ON AN IFRAME RESOLVES TO 300x150, NOT TO THE CONTAINER.
+     That was the bug behind "landscape youtube is not fitted to the mobile screen. its shrunk"
+     (Founder 2026-08-24). An <iframe> is a replaced element with an INTRINSIC default size of
+     300x150; with `width:auto;height:auto` there is nothing for aspect-ratio to scale, so the
+     player rendered at its intrinsic size in the middle of a full-screen card. `max-width:100%`
+     never fired because 300px was already under the cap.
+     One axis must be pinned to the container, and WHICH axis depends on the clip:
+       landscape (16:9) in a portrait phone -> pin WIDTH, height follows the ratio
+       portrait  (9:16) in a portrait phone -> pin HEIGHT, width follows the ratio
+     Pinning the wrong one overflows and gets clamped, which breaks the ratio — so this is
+     driven off .kv-short, the class kvRenderCard already sets from `is_short`. */
   body.cul-m #community-feed>.fcard .kil-vid-well>iframe,
   body.cul-m #community-feed>.fcard .kil-vid-well>video,
   body.cul-m #community-feed>.fcard .kil-vid-well>img{
     position:relative!important;z-index:1;inset:auto!important;
-    width:auto!important;height:auto!important;max-width:100%!important;max-height:100%!important;
+    width:100%!important;height:auto!important;max-width:100%!important;max-height:100%!important;
     aspect-ratio:var(--kv-ar,16 / 9)!important;border:0;display:block;object-fit:contain!important;margin:0!important}
+  /* Portrait clip: fill the height instead, so a Short runs edge to edge top to bottom. */
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>iframe,
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>video,
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>img{
+    width:auto!important;height:100%!important}
   /* !important is not decoration here. mountVid() writes the iframe's geometry as an inline
      cssText (position:absolute;inset:0;width:100%;height:100%) and the card template does the
      same on the thumbnail — an inline declaration outranks any selector, so without this the
@@ -1205,8 +1242,15 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m #community-feed>.fcard .kil-vid-well>.kv-badge{z-index:2}
   body.cul-m #community-feed>.fcard .kv-body{flex:0 0 auto;background:#000}
 
-  /* The page behind the fixed feed must not scroll as well, or the two fight each other. */
-  body.cul-m{overflow:hidden}
+  /* THE DOCUMENT IS THE SCROLLER AGAIN (Founder 2026-08-24). `overflow:hidden` existed only to
+     stop the page scrolling behind the fixed feed; with the feed back in flow it would freeze
+     the page outright. Snap lives on the scroller, so it moves here.
+     scroll-snap-stop:always on the children is what makes a fast flick advance ONE post rather
+     than five; mandatory is what makes each land in the same frame. */
+  body.cul-m{overflow:visible;scroll-snap-type:y mandatory}
+  /* The landing panel is the FIRST snap point, so the page opens on title + metrics and one
+     swipe moves to the first post. */
+  body.cul-m .hero{scroll-snap-align:start;scroll-snap-stop:always}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
      cannot silently intercept taps. Desktop is untouched — blogs still render there. */
