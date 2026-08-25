@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en" data-theme="default"><head>
-<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover,interactive-widget=resizes-content"/>
 <meta name="description" content="KEEPITIL Culture — the community feed plus original journalism, guides and stories from creators across the scene.">
 <title>Culture — The Community Feed | KEEPITIL</title>
 <link rel="canonical" href="https://keepitil.com/culture"/>
@@ -1350,11 +1350,42 @@ renderTypebar();renderDiscover();renderFeed();
      container re-snapping to the nearest remaining snap point, which is the next card. Snap
      has to come off the scroller itself for as long as a thread is open. */
   html:has(body.cul-m .fcard.cmt-open){scroll-snap-type:none}
+  /* R8.1 — same reason, new owner: the sheet replaces the inline .cmt-open panel. */
+  html:has(body.kil-cmt-open){scroll-snap-type:none}
   body.cul-m .hero{scroll-snap-align:start;scroll-snap-stop:always}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
      cannot silently intercept taps. Desktop is untouched — blogs still render there. */
   body.cul-m #feed{display:none!important}
+  /* ── R8.1 — COMMENTS ARE A SHEET, NOT PART OF THE CARD ──────────────────────────────────
+     Founder: "the bottom nav scrolls up because the keyboard pushes it up which never should
+     happen and the comment rows doubles."
+     The inline .cmt-open panel could never win this. A comment thread inside a snap card is
+     fighting a fixed card height and the keyboard at the same time. One reused sheet, mounted
+     once, filled from whichever post was tapped.
+     #kil-bnav is HIDDEN outright while the sheet is open — that is the nav-rides-up complaint,
+     and it is what YouTube does for the same reason. Nothing to push up if it is not there. */
+  #kil-cmt-sheet{position:fixed;left:0;right:0;top:var(--kil-safe-top,0px);bottom:0;
+    z-index:960;background:#0b0b12;display:none;flex-direction:column;overscroll-behavior:contain}
+  body.kil-cmt-open #kil-cmt-sheet{display:flex}
+  body.kil-cmt-open #kil-bnav{display:none!important}
+  #kil-cmt-head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 14px;
+    border-bottom:1px solid rgba(255,255,255,.08)}
+  #kil-cmt-title{flex:1;min-width:0;margin:0;font:700 .95rem/1.3 Inter,sans-serif;color:#fff;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #kil-cmt-x{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:0;
+    background:rgba(255,255,255,.09);color:#fff;font-size:1.25rem;line-height:1;cursor:pointer}
+  /* The sheet owns its scrolling; contain stops the feed moving behind it. */
+  #kil-cmt-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 14px}
+  #kil-cmt-foot{flex:0 0 auto;display:flex;gap:8px;align-items:center;padding:10px 12px;
+    border-top:1px solid rgba(255,255,255,.08);background:#0b0b12}
+  #kil-cmt-foot .cmt-in{flex:1;min-width:0;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);border-radius:20px;color:#fff;padding:10px 14px;
+    font:500 .9rem Inter,sans-serif}
+  #kil-cmt-foot button{flex:0 0 auto;border:0;border-radius:20px;padding:10px 16px;
+    background:#7c3aed;color:#fff;font:700 .85rem Inter,sans-serif;cursor:pointer}
+  #kil-cmt-foot .cmt-signin{flex:1;text-align:center;color:#c9c2e0;font:600 .85rem Inter,sans-serif;
+    text-decoration:none;padding:10px}
   /* ── R6.2 — COMMENTS DROP OUT OF THE OVERLAY MODEL ──────────────────────────────────────
      Founder: "the comment sections do not allow me to comment."
      The R4.1 overlay is what broke this. .kv-body is position:absolute and the well is
@@ -2009,7 +2040,62 @@ function culResolveFilters(){
   function closeM(){var m=document.getElementById('culModal');if(m)m.remove();}
   window.__culCloseM=closeM;
   /* INLINE comments — open inside the post, not a popup */
-  window.culComments=function(slug, btn){ var k=keyOf(slug); if(!SB){toast('Loading…');return;}
+  /* ── R8.1 — ONE sheet, reused ───────────────────────────────────────────────────────────
+     Mounted once and refilled, never one per card. That is also the fix for "the comment rows
+     doubles": loadC() targets `.cmt-list[data-cl=<key>]` with querySelector, which returns the
+     FIRST match — so with a per-card panel AND a sheet in the DOM, one of them silently kept a
+     stale copy of the thread. The sheet hosts the only .cmt-list that exists, so loadC() and
+     __culSend() work unchanged and there is nothing to double.
+     The body is emptied before every open, so a reopen cannot stack. */
+  function kilCmtSheet(){
+    var s=document.getElementById('kil-cmt-sheet');
+    if(s) return s;
+    s=document.createElement('div'); s.id='kil-cmt-sheet';
+    s.innerHTML='<div id="kil-cmt-head"><h3 id="kil-cmt-title">Comments</h3>'
+      +'<button id="kil-cmt-x" type="button" aria-label="Close comments">&times;</button></div>'
+      +'<div id="kil-cmt-body"></div><div id="kil-cmt-foot"></div>';
+    document.body.appendChild(s);
+    s.querySelector('#kil-cmt-x').addEventListener('click', kilCmtClose);
+    return s;
+  }
+  function kilCmtClose(){
+    document.body.classList.remove('kil-cmt-open');
+    var s=document.getElementById('kil-cmt-sheet');
+    if(s){ s.querySelector('#kil-cmt-body').innerHTML=''; s.querySelector('#kil-cmt-foot').innerHTML=''; }
+  }
+  window.__kilCmtClose=kilCmtClose;
+  function kilCmtOpen(k, title){
+    var s=kilCmtSheet();
+    s.querySelector('#kil-cmt-title').textContent = title || 'Comments';
+    s.querySelector('#kil-cmt-body').innerHTML =
+      '<div class="cmt-list" data-cl="'+k+'"><div class="cmt-empty">Loading\u2026</div></div>';
+    /* Sign-in gate unchanged — the Founder called that out as already correct. */
+    s.querySelector('#kil-cmt-foot').innerHTML = signedIn()
+      ? '<input class="cmt-in" type="text" placeholder="Write a comment\u2026" maxlength="2000"><button type="button">Post</button>'
+      : '<a class="cmt-signin" href="/apply.html">Sign in to comment</a>';
+    var inp=s.querySelector('.cmt-in'), btn=s.querySelector('#kil-cmt-foot button');
+    if(inp && btn){
+      btn.addEventListener('click', function(){ window.__culSend(k, inp); });
+      inp.addEventListener('keydown', function(e){
+        if(e.key==='Enter'){ e.preventDefault(); window.__culSend(k, inp); }
+      });
+    }
+    document.body.classList.add('kil-cmt-open');
+    loadC(k);
+  }
+  /* Mobile gets the sheet; desktop keeps the inline panel it already had. */
+  window.culComments=function(slug, btn){
+    var k=keyOf(slug);
+    if(!SB){ toast('Loading\u2026'); return; }
+    if(document.body.classList.contains('cul-m')){
+      var card = btn ? btn.closest('.fcard,.fbcard') : null;
+      var t = card ? (card.querySelector('.kv-title,.fb-title,h3,h4') || {}).textContent : '';
+      kilCmtOpen(k, (t||'').trim());
+      return;
+    }
+    return window.__culCommentsInline(slug, btn);
+  };
+  window.__culCommentsInline=function(slug, btn){ var k=keyOf(slug); if(!SB){toast('Loading…');return;}
     var card=btn?btn.closest('.fbcard'):null; if(!card)return;
     var box=card.querySelector('.fb-comments'); if(!box){ box=document.createElement('div'); box.className='fb-comments'; card.appendChild(box); }
     var open=box.style.display!=='block'; box.style.display=open?'block':'none';
