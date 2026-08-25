@@ -1185,7 +1185,15 @@ renderTypebar();renderDiscover();renderFeed();
      instead of being sized against a viewport unit that ignores the nav. */
   body.cul-m #community-feed>.fcard{
     scroll-snap-align:start;scroll-snap-stop:always;
-    height:var(--kil-vh,calc(100dvh - 62px));min-height:0;margin:0;padding:0;
+    /* R4.4 — the FALLBACK now computes what the shell would, instead of guessing 62px.
+       --kil-vh is published after the shell measures; until then the card fell back to
+       100dvh - 62px, which is short by the safe area, so the next card's head bled in above
+       the nav. env() is readable from CSS immediately, so the card is correct on first paint
+       and identical once --kil-vh arrives.
+       ⚠ env(safe-area-inset-BOTTOM) is deliberately absent: --kil-bnav-h already contains it,
+       and double-counting it is the exact defect that produced three earlier bugs here. */
+    height:var(--kil-vh,calc(100dvh - env(safe-area-inset-top,0px) - var(--kil-bnav-h,62px)));
+    min-height:0;margin:0;padding:0;
     border-radius:0;border:0;background:#000;
     display:flex;flex-direction:column;justify-content:flex-start}
   /* THE CARD MUST FILL THE SCREEN (Founder 2026-08-23: "does not fill the screen either").
@@ -1939,6 +1947,41 @@ try{ vrRenderFilters('feed'); }catch(e){}
     .then(function(r){ return r.ok?r.json():null; })
     .then(function(d){ var s=Array.isArray(d)?d[0]:d; if(!s)return; set('kV',s.videos); set('kP',s.posts); set('kC',s.creators); })
     .catch(function(){});
+})();
+</script>
+
+<!-- R4.0 — geometry readout, OFF unless ?kildebug=1 (KODE 2026-08-24).
+     Added because the Culture framing was twice reasoned about without being able to read
+     --kil-vh on a real phone, and both times the residual error pointed back at it. Device
+     Safari has no scriptable console and the shell returns early inside an iframe, so this is
+     the only way to see the published values on the actual hardware.
+     REMOVE once R4.4 is signed off. -->
+<script>
+(function(){
+  try{ if(!/[?&]kildebug=1(?:&|$)/.test(location.search)) return; }catch(e){ return; }
+  var el=document.createElement('div');
+  el.id='kil-debug';
+  el.style.cssText='position:fixed;left:6px;top:calc(var(--kil-safe-top,0px) + 6px);z-index:99999;'
+    +'background:rgba(0,0,0,.86);color:#0f0;font:600 10px/1.35 ui-monospace,Menlo,monospace;'
+    +'padding:6px 8px;border:1px solid #0f0;border-radius:4px;white-space:pre;pointer-events:none';
+  document.body.appendChild(el);
+  function v(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim() || '(unset)'; }
+  function tick(){
+    var card=document.querySelector('#community-feed>.fcard');
+    var nav=document.getElementById('kil-bnav');
+    el.textContent=
+      'safe-top  '+v('--kil-safe-top')+'\n'+
+      'bnav-h    '+v('--kil-bnav-h')+'\n'+
+      'kil-vh    '+v('--kil-vh')+'\n'+
+      'innerH    '+window.innerHeight+'\n'+
+      'card.offH '+(card?card.offsetHeight:'(none)')+'\n'+
+      'navTop    '+(nav?Math.round(nav.getBoundingClientRect().top):'(none)')+'\n'+
+      'cardBot   '+(card?Math.round(card.getBoundingClientRect().bottom):'(none)')+'\n'+
+      'scrollY   '+Math.round(window.scrollY);
+  }
+  tick();
+  setInterval(tick,500);
+  window.addEventListener('resize',tick);
 })();
 </script>
 </body></html>
