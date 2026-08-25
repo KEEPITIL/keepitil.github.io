@@ -1036,6 +1036,13 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#kil-top{position:fixed;left:5px;right:auto;bottom:calc(var(--kil-bnav-h,56px) + 5px);width:35px;height:35px;border-radius:0;background:#0aa2e8;color:#fff;border:0;cursor:pointer;z-index:940;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:0;padding:0;opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .28s,transform .28s;overflow:visible}'
     +'#kil-top.on{opacity:1;transform:none;pointer-events:auto}'
     +'html.kil-noarrow #kil-top{display:none!important}'
+    /* R4.5 (Founder 2026-08-24: "remove the up blue arrow in the bottom left corner").
+       Culture mobile ONLY. On a snap feed there is no scroll position to return from, and the
+       control sits over the card's action rail. It stays on long pages like / and /earn, which
+       the Founder signed off in the same round — removing it globally would change pages he
+       has just approved. Lives here rather than in culture/index.html because the shell owns
+       this control and a page rule would only be fighting it. */
+    +'body.cul-m #kil-top{display:none!important}'
     /* ── BUTTON SIZES, Founder-locked 2026-08-19 via the sizing preview ──────────────────────
        desktop up 50 · desktop chat 50 · mobile up 30 · mobile chat 30.
        #kil-top had NO desktop rule at all — its only declaration lived inside the ≤860px block,
