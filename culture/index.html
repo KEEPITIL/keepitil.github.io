@@ -1274,15 +1274,29 @@ renderTypebar();renderDiscover();renderFeed();
      to the CLIP's aspect and the well clips the overflow. Landscape pins HEIGHT (width spills
      past the sides); a Short pins WIDTH (a little is cropped top and bottom). Both are centred.
      Note this is the opposite of the earlier contain rules and must come after them. */
+  /* >img is included deliberately. Measured with ?kildebug=1: well 402x695, iframe
+     "(not mounted)" — only the most-visible card gets a player, so on every other card the
+     thing filling the frame is the POSTER. Leaving img out of the cover rule meant the older
+     contain rule (which does list >img) still governed it, and the poster stayed letterboxed.
+     That poster is what the Founder has been calling shrunk. */
   body.cul-m #community-feed>.fcard .kil-vid-well>iframe,
-  body.cul-m #community-feed>.fcard .kil-vid-well>video{
+  body.cul-m #community-feed>.fcard .kil-vid-well>video,
+  body.cul-m #community-feed>.fcard .kil-vid-well>img{
     position:absolute!important;top:50%!important;left:50%!important;
     transform:translate(-50%,-50%)!important;
     height:100%!important;width:auto!important;aspect-ratio:var(--kv-ar,16 / 9)!important;
     max-width:none!important;max-height:none!important;object-fit:cover!important}
+  /* An <img> has genuine intrinsic dimensions, so it can simply be told to fill and crop —
+     no aspect maths, and it cannot fall into the 300x150 replaced-element default that
+     bit the iframes in R3.4. */
+  body.cul-m #community-feed>.fcard .kil-vid-well>img,
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>img{
+    width:100%!important;height:100%!important;aspect-ratio:auto!important;
+    object-fit:cover!important;object-position:center!important}
   /* Portrait clip: the well is very slightly wider than 9:16, so pinning width is what fills. */
   body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>iframe,
-  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>video{
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>video,
+  body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>img{
     width:100%!important;height:auto!important;aspect-ratio:9 / 16!important}
 
   /* THE DOCUMENT IS THE SCROLLER AGAIN (Founder 2026-08-24). `overflow:hidden` existed only to
