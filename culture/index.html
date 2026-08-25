@@ -2017,7 +2017,22 @@ try{ vrRenderFilters('feed'); }catch(e){}
       'card.offH '+(card?card.offsetHeight:'(none)')+'\n'+
       'navTop    '+(nav?Math.round(nav.getBoundingClientRect().top):'(none)')+'\n'+
       'cardBot   '+(card?Math.round(card.getBoundingClientRect().bottom):'(none)')+'\n'+
-      'scrollY   '+Math.round(window.scrollY);
+      'scrollY   '+Math.round(window.scrollY)+'\n'+
+      (function(){
+        var w=document.querySelector('#community-feed>.fcard .kil-vid-well');
+        var f=w&&w.querySelector('iframe');
+        if(!w) return 'well      (none)';
+        var wr=w.getBoundingClientRect();
+        var out='well      '+Math.round(wr.width)+'x'+Math.round(wr.height);
+        if(f){ var fr=f.getBoundingClientRect(), cs=getComputedStyle(f);
+          out+='\niframe    '+Math.round(fr.width)+'x'+Math.round(fr.height)
+             +'\n f.w/h    '+cs.width+' / '+cs.height
+             +'\n f.ar     '+cs.aspectRatio
+             +'\n kv-ar    '+(getComputedStyle(w).getPropertyValue('--kv-ar').trim()||'(unset)')
+             +'\n short?   '+(w.closest('.fcard').classList.contains('kv-short')?'yes':'no');
+        } else out+='\niframe    (not mounted)';
+        return out;
+      })();
   }
   tick();
   setInterval(tick,500);
