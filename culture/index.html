@@ -1289,7 +1289,10 @@ renderTypebar();renderDiscover();renderFeed();
   /* An <img> has genuine intrinsic dimensions, so it can simply be told to fill and crop —
      no aspect maths, and it cannot fall into the 300x150 replaced-element default that
      bit the iframes in R3.4. */
-  body.cul-m #community-feed>.fcard .kil-vid-well>img,
+  /* R6.1 — SCOPED TO .kv-short. This was applying to every card, and because it comes later
+     in source it beat the landscape rule below. The poster is what is on screen for every card
+     that is not the most-visible one, so a cover poster meant the Founder still saw a zoomed
+     frame even with the iframe rule correct. Same trap as R4.1, opposite direction. */
   body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>img{
     width:100%!important;height:100%!important;aspect-ratio:auto!important;
     object-fit:cover!important;object-position:center!important}
@@ -1298,6 +1301,21 @@ renderTypebar();renderDiscover();renderFeed();
   body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>video,
   body.cul-m #community-feed>.fcard.kv-short .kil-vid-well>img{
     width:100%!important;height:auto!important;aspect-ratio:9 / 16!important}
+  /* ── R6.1 — LANDSCAPE PINS WIDTH, NOT HEIGHT ────────────────────────────────────────────
+     Founder: "the landscape videos are zoomed in and not fitted to the width of the screen.
+     the other 9:16 videos fits perfectly."
+     Cover was implemented correctly and is the wrong outcome here: height:100% on a 16:9 clip
+     in a 402x695 well computes 1236px wide — 3x the screen — so it reads as a zoomed crop
+     through the middle. Landscape is fitted to the width and letterboxed vertically; the
+     blurred --kv-poster ::before fills the bands, which is why contain is not a hole.
+     .kv-short is deliberately untouched — it fits perfectly and is signed off. */
+  body.cul-m #community-feed>.fcard:not(.kv-short) .kil-vid-well>iframe,
+  body.cul-m #community-feed>.fcard:not(.kv-short) .kil-vid-well>video,
+  body.cul-m #community-feed>.fcard:not(.kv-short) .kil-vid-well>img{
+    width:100%!important;height:auto!important;
+    aspect-ratio:var(--kv-ar,16 / 9)!important;
+    max-width:100%!important;max-height:100%!important;
+    object-fit:contain!important}
 
   /* THE DOCUMENT IS THE SCROLLER AGAIN (Founder 2026-08-24). `overflow:hidden` existed only to
      stop the page scrolling behind the fixed feed; with the feed back in flow it would freeze
@@ -1337,8 +1355,28 @@ renderTypebar();renderDiscover();renderFeed();
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
      cannot silently intercept taps. Desktop is untouched — blogs still render there. */
   body.cul-m #feed{display:none!important}
-  body.cul-m #community-feed>.fcard.cmt-open{scroll-snap-align:none;height:auto;min-height:100%;
-    justify-content:flex-start;overflow-y:auto}
+  /* ── R6.2 — COMMENTS DROP OUT OF THE OVERLAY MODEL ──────────────────────────────────────
+     Founder: "the comment sections do not allow me to comment."
+     The R4.1 overlay is what broke this. .kv-body is position:absolute and the well is
+     inset:0, so the card's only in-flow content is nothing at all — and `height:auto` on a box
+     whose children are all absolutely positioned COLLAPSES. The thread and its composer had
+     nowhere to render and ended up clipped or behind the bottom nav.
+     So: keep the overlay for the resting state, and return to normal flow while a thread is
+     open. The well becomes an in-flow band, .kv-body goes back to static (and loses its scrim,
+     which exists to make text legible over media it is no longer sitting on), and the card
+     grows and scrolls.
+     padding-bottom is what keeps the composer ABOVE the fixed nav — without it the input
+     renders but cannot be tapped. No env(safe-area-inset-bottom): --kil-bnav-h contains it.
+     Snap is already off while open via html:has(body.cul-m .fcard.cmt-open). */
+  body.cul-m #community-feed>.fcard.cmt-open{scroll-snap-align:none;
+    justify-content:flex-start;
+    height:auto!important;min-height:100%;overflow:visible!important;
+    padding-bottom:calc(12px + var(--kil-bnav-h,62px))!important}
+  body.cul-m #community-feed>.fcard.cmt-open .kil-vid-well{
+    position:relative!important;inset:auto!important;flex:0 0 auto!important;
+    height:38vh!important;width:auto!important}
+  body.cul-m #community-feed>.fcard.cmt-open .kv-body{
+    position:static!important;background-image:none!important}
 
   /* ── story card: media fills, nothing letterboxed away ──
      ⚠ EVERY RULE BELOW THAT TAKES A CHILD OUT OF NORMAL FLOW IS GATED ON .cul-fs, AND MUST STAY
@@ -1711,6 +1749,45 @@ window.culFetchMedia = culFetchMedia;
   new MutationObserver(scan).observe(document.documentElement, {childList:true, subtree:true});
   /* Anything that leaves the tab should not keep a player running. */
   document.addEventListener('visibilitychange', function(){ if(document.hidden){ stop(current); current=null; } });
+
+  /* ── R6.3 — THE RESTED CARD ALWAYS GETS A PLAYER ────────────────────────────────────────
+     intersectionRatio >= 0.35 is a SCROLLING heuristic. On a snap feed the correct trigger is
+     "this card is the snapped one": a card can come to rest at its snap position while a
+     neighbour still scores higher, and the debug readout confirmed the consequence — most
+     cards report `iframe (not mounted)` and sit on a poster with a play glyph, which is
+     visually identical to autoplay being broken.
+     The observer keeps doing what it is good at (teardown, and the one-player-at-a-time rule);
+     this only guarantees that whatever is at rest in the frame is a player and not a still.
+     scrollend where it exists, a debounced scroll everywhere else. */
+  function kvSnappedCard(){
+    var cards = document.querySelectorAll('.kil-vid[data-embed]');
+    if(!cards.length) return null;
+    var bnav = parseFloat(getComputedStyle(document.documentElement)
+                 .getPropertyValue('--kil-bnav-h')) || 0;
+    var mid = (window.innerHeight - bnav) / 2;
+    var best=null, bestD=Infinity;
+    [].forEach.call(cards, function(c){
+      var r=c.getBoundingClientRect();
+      if(r.bottom<=0 || r.top>=window.innerHeight) return;
+      var d=Math.abs((r.top+r.bottom)/2 - mid);
+      if(d<bestD){ bestD=d; best=c; }
+    });
+    return best;
+  }
+  function kvMountSnapped(){
+    try{
+      if(current && !document.contains(current)) current=null;
+      var c=kvSnappedCard();
+      if(c && c!==current) play(c);
+    }catch(e){}
+  }
+  var kvT;
+  window.addEventListener('scroll', function(){
+    clearTimeout(kvT); kvT=setTimeout(kvMountSnapped,140);
+  }, {passive:true});
+  if('onscrollend' in window){
+    window.addEventListener('scrollend', kvMountSnapped, {passive:true});
+  }
 })();
 
 function culLiveRows(){
@@ -1873,7 +1950,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260824e" defer></script>
+<script src="/keepitil-shell.js?v=20260824d" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
