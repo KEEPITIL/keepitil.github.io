@@ -709,8 +709,17 @@ function kilCentreActive(smooth){
      function. Centring is a correction, not a journey: suspend the CSS behaviour, set the
      position outright, put it back. Deterministic in every browser, no half-finished states. */
   var prevBehavior = grid.style.scrollBehavior;
+  var prevSnap     = grid.style.scrollSnapType;
   grid.style.scrollBehavior = 'auto';
+  /* Snap is suspended for the assignment too. With `x mandatory` the browser re-resolves the
+     position immediately afterwards, and for the FIRST card it settled half a card off —
+     measured -86px on a 170px card, while cards 2 and 3 landed exactly. Restoring snap after
+     the position is already on a snap point leaves it where it is, so nothing is given up. */
+  grid.style.scrollSnapType = 'none';
   grid.scrollLeft = target;
+  /* Read back forces layout, so snap cannot fold the assignment into the same frame. */
+  void grid.scrollLeft;
+  grid.style.scrollSnapType = prevSnap;
   grid.style.scrollBehavior = prevBehavior;
 }
 function kilMarkActive(i){
