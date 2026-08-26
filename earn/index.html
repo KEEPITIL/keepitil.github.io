@@ -250,8 +250,10 @@ footer{margin-top:auto}
    An earlier version carried its own 152px/124px square tiles; that is precisely the parallel
    rule that drifts away from the rest of the page, and the Founder's instruction is that this
    never changes again. Add nothing here that sets width, height or aspect-ratio. */
-.kr-carousel{scroll-snap-type:x mandatory;scroll-padding-left:50%;scroll-padding-right:50%;
-  scrollbar-width:none}
+/* No scroll-padding here. It was 50% on both sides, which insets the snapport to zero width —
+   the end spacers are what let the first and last cards reach the centre, and they do it
+   without breaking the snapport. */
+.kr-carousel{scroll-snap-type:x mandatory;scrollbar-width:none}
 .kr-carousel::-webkit-scrollbar{display:none}
 /* First and last tiles must reach the CENTRE of the rail, not just its edge.
    ⚠ The half-card figure is MEASURED, not written down. It was calc(50% - 120px) desktop /
@@ -697,8 +699,19 @@ function kilCentreActive(smooth){
   var er = el.getBoundingClientRect(), gr2 = grid.getBoundingClientRect();
   var target = grid.scrollLeft + (er.left - gr2.left) - (gr2.width - er.width) / 2;
   if(Math.abs(grid.scrollLeft - target) < 2) return;      /* already centred — do not fight it */
-  try{ grid.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'auto' }); }
-  catch(e){ grid.scrollLeft = target; }
+  /* ⚠ .grid carries CSS `scroll-behavior:smooth`, which applies to scrollLeft ASSIGNMENTS and
+     to scrollTo({behavior:'auto'}) alike — the CSS value wins. Every centring attempt was
+     therefore an animation, and reading scrollLeft straight after returned the old value,
+     which is what made this look like "the rail cannot scroll": a direct assignment of 180
+     read back as 0. Proved it by calling scrollTo({behavior:'instant'}), which landed on 180
+     immediately.
+     Animations here also lose races — the scroll listener fires during them and re-enters this
+     function. Centring is a correction, not a journey: suspend the CSS behaviour, set the
+     position outright, put it back. Deterministic in every browser, no half-finished states. */
+  var prevBehavior = grid.style.scrollBehavior;
+  grid.style.scrollBehavior = 'auto';
+  grid.scrollLeft = target;
+  grid.style.scrollBehavior = prevBehavior;
 }
 function kilMarkActive(i){
   var grid = document.getElementById('stationGrid'); if(!grid) return;
