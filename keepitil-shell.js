@@ -380,7 +380,7 @@ window.KIL_ICONS = {
    `pill` is what renders in both navs; `label` stays the real page name for the footer sitemap
    and the accessible name, so "EARN" still announces as "EARN — Radio". */
 var DESTINATIONS=[
-  {href:'/',             label:'Discovery', pill:'DISCOVERY', icon:'home',   home:true,
+  {href:'/',             label:'Discover',  pill:'DISCOVER',  icon:'home',   home:true,
    match:/^\/((index|v31)(\.html)?)?$/},
   /* Founder 2026-08-18 — clean URLs. Each `match` accepts BOTH the new path and the retired
      .html one, because the old files still exist as redirect stubs and an installed app bundle
@@ -458,7 +458,7 @@ window.KIL_NOT_FOUND = function(opts){
     + (opts.heading || ('That ' + what + ' isn’t here')) + '</h1>'
     + '<p style="color:rgba(255,255,255,.7);line-height:1.6;margin:0 0 22px">'
     + (opts.body || ('It may have been removed, or the link may be wrong.')) + '</p>'
-    + (opts.links || [['/', 'Discovery'], ['/culture','Culture'], ['/connect','Connect']])
+    + (opts.links || [['/', 'Discover'], ['/culture','Culture'], ['/connect','Connect']])
         .map(function(l){ return '<a href="'+l[0]+'" style="display:inline-block;margin:0 7px 10px;padding:12px 20px;'
           + 'border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#fff;min-height:44px;line-height:20px">'+l[1]+'</a>'; })
         .join('')
