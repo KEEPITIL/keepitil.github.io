@@ -249,8 +249,12 @@ footer{margin-top:auto}
 @media(max-width:860px){ .kr-carousel::before,.kr-carousel::after{flex:0 0 calc(50% - 80px)} }
 /* A <button> resets nothing by itself; .card supplies the frame, this supplies the rest. */
 .kr-tile{font:inherit;text-align:left;color:inherit;cursor:pointer;scroll-snap-align:center;
-  opacity:.55;transform:scale(.96);transition:opacity .22s ease,transform .22s ease,border-color .22s ease}
-.kr-tile.on{opacity:1;transform:scale(1);border-color:var(--brand)}
+  opacity:.55;transition:opacity .22s ease,border-color .22s ease}
+/* ⚠ NO transform:scale() here. It was scale(.96) on inactive tiles, which renders them 4%
+   smaller than every other card on the page even though their layout box is identical —
+   and "same size as the other cards" is a rule about what the eye sees, not about the box.
+   Active state is carried by opacity and the border alone. */
+.kr-tile.on{opacity:1;border-color:var(--brand)}
 /* Full 2:3 poster, the way the station cards looked before the carousel. */
 .kr-tile .card-img{height:auto;aspect-ratio:2/3;background:#15131f center/cover no-repeat;
   display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#fff}
