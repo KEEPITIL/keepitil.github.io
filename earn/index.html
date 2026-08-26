@@ -689,7 +689,13 @@ function kilCentreActive(smooth){
   var gap  = parseFloat(cs.columnGap || cs.gap) || 0;
   var half = Math.round(el.offsetWidth / 2);
   if(half) grid.style.setProperty('--kr-pad', 'calc(50% - ' + half + 'px - ' + gap + 'px)');
-  var target = el.offsetLeft - (grid.clientWidth - el.offsetWidth) / 2;
+  /* ⚠ NOT offsetLeft. offsetLeft is measured from the nearest POSITIONED ancestor, and this
+     rail is not positioned — so it returned a coordinate in some outer box and the target was
+     wrong for every card except the one that happened to sit at zero. Measured after a tap:
+     the correct card was marked active and the row updated, but it sat 360px off screen.
+     Rects are relative to the viewport and always comparable, whatever the offsetParent is. */
+  var er = el.getBoundingClientRect(), gr2 = grid.getBoundingClientRect();
+  var target = grid.scrollLeft + (er.left - gr2.left) - (gr2.width - er.width) / 2;
   if(Math.abs(grid.scrollLeft - target) < 2) return;      /* already centred — do not fight it */
   try{ grid.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'auto' }); }
   catch(e){ grid.scrollLeft = target; }
