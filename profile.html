@@ -7,7 +7,7 @@
 -->
 <html lang="en" data-theme="dark" data-view="owner">
 <head>
-<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/>
+<link rel="stylesheet" href="/assets/css/tokens.css?v=20260718"/>
 <meta name="robots" content="index,follow">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <meta name="description" content="A KEEPITIL member profile — music, shows, links and more from the OC & LA scene."/>
-  <link rel="icon" type="image/png" href="/v3/logo-green-nav.png"/>
+  <link rel="icon" type="image/png" href="/assets/images/logo-green-nav.png"/>
   <script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -51,7 +51,7 @@ nav#main-nav{position:sticky;top:0;z-index:100;background:var(--nav);backdrop-fi
 .pf-cover{display:none!important;}
 /* Locked full-page backdrop (like culture + homepage) — content scrolls over it. Image is editable via --pf-bg. Dark scrim keeps feed text readable over any image. */
 body{background:transparent!important;}
-body::before{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;background:linear-gradient(rgba(6,7,14,.62),rgba(6,7,14,.62)),var(--pf-bg,url('/v3/scene-hero.jpg')) center center/cover no-repeat #0a0a0f!important;opacity:1!important;}
+body::before{content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;background:linear-gradient(rgba(6,7,14,.62),rgba(6,7,14,.62)),var(--pf-bg,url('/assets/images/scene-hero.jpg')) center center/cover no-repeat #0a0a0f!important;opacity:1!important;}
 .pf-cover img{width:100%;height:100%;object-fit:cover;object-position:center 35%;filter:brightness(.62);}
 .pf-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 30%,var(--bg));}
 .pf-head{max-width:940px;margin:0 auto;padding:0 22px;position:relative;z-index:2;margin-top:28px;}
@@ -370,7 +370,7 @@ footer a{color:var(--accent2);}
 /* EVENTS hub — 9:16 universal flyer cards */
 .ev-group-h{font-family:var(--font-head);font-size:1.05rem;letter-spacing:.1em;color:var(--muted);margin:22px 0 12px;display:flex;align-items:center;gap:8px;}
 .ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-.ev-flyer{position:relative;aspect-ratio:2/3;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f url('/v3/scene-hero.jpg') center/cover no-repeat;cursor:pointer;transition:transform .18s,border-color .18s;}
+.ev-flyer{position:relative;aspect-ratio:2/3;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0a0a0f url('/assets/images/scene-hero.jpg') center/cover no-repeat;cursor:pointer;transition:transform .18s,border-color .18s;}
 .ev-flyer:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 45%,transparent);}
 .ev-flyer .cov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
 .ev-flyer::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(transparent 34%,rgba(0,0,0,.86));}
@@ -573,7 +573,7 @@ window.KIL_FILTER_BADGES = function(badges){
 
 <nav id="main-nav">
   <div class="nav-inner">
-    <a class="nav-logo" href="/"><img src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
+    <a class="nav-logo" href="/"><img src="/assets/images/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
     <ul class="nav-links"><li><a href="/culture">CULTURE</a></li><li><a href="/connect">SCENE</a></li></ul>
     <a href="/apply.html" class="nav-cta">LOGIN</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
@@ -778,7 +778,7 @@ window.KIL_FILTER_BADGES = function(badges){
 <!-- custom footer removed: the universal shell footer (#v3-footer, same as the homepage) is injected by keepitil-shell.js -->
 <!-- pfFootSocials removed (Founder 2026-07-31): socials/links live only in the header Links row, not duplicated at the bottom of the page -->
 
-<script src="/v3/vendor/supabase-js.min.js"></script>
+<script src="/assets/js/vendor/supabase-js.min.js"></script>
 <!-- Nudity / explicit-content moderation for image uploads (in-browser, no keys) -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/nsfwjs@3.0.0/dist/nsfwjs.min.js" defer></script>
@@ -1162,7 +1162,7 @@ function applyProfile(){
   var g=function(id){return document.getElementById(id);};
   try{document.title=(PROFILE.name?PROFILE.name+' — ':'')+'Artist Profile | KEEPITIL';}catch(e){}
   /* the profile "cover" is now the LOCKED BACKGROUND image (editable in Edit Profile) */
-  try{ var _isM=window.matchMedia('(max-width:768px)').matches; var _bg=(_isM&&PROFILE.cover_mobile)?PROFILE.cover_mobile:PROFILE.cover; document.documentElement.style.setProperty('--pf-bg', _bg?("url('"+String(_bg).replace(/'/g,"%27")+"')"):"url('/v3/logo-bg.jpg')"); }catch(e){}
+  try{ var _isM=window.matchMedia('(max-width:768px)').matches; var _bg=(_isM&&PROFILE.cover_mobile)?PROFILE.cover_mobile:PROFILE.cover; document.documentElement.style.setProperty('--pf-bg', _bg?("url('"+String(_bg).replace(/'/g,"%27")+"')"):"url('/assets/images/logo-bg.jpg')"); }catch(e){}
   var _av=g('pfAvatar'); if(_av){ _av.classList.remove('pf-skel'); if(PROFILE.avatar){ _av.style.display=''; _av.src=PROFILE.avatar; } }
   if(g('pfName'))g('pfName').textContent=PROFILE.name||' ';
   if(g('pfHandle'))g('pfHandle').textContent=PROFILE.handle?('@'+PROFILE.handle+(PROFILE.location?' · '+PROFILE.location:'')+(PROFILE.pronouns?' · '+PROFILE.pronouns:'')):' ';
@@ -2083,12 +2083,12 @@ document.addEventListener('scroll',function(e){
 },true);
 function eventCardHtml(e,pid){
   var ext=!!e.is_external; var url=e.ticket_url||('/event.html?e='+encodeURIComponent(e.slug||''));
-  var img=e.cover||'/v3/blog-default.jpg';
+  var img=e.cover||'/assets/images/blog-default.jpg';
   var when=''; try{var dt=new Date(e.date); if(!isNaN(dt)) when=dt.toLocaleDateString([], {weekday:'short',month:'short',day:'numeric'});}catch(x){}
   var tgt=ext?' target="_blank" rel="noopener"':'';
   return '<div class="pf-card fbcard evpost" data-pid="'+esc(pid)+'" style="overflow:hidden">'
     +'<a href="'+esc(url)+'"'+tgt+' style="text-decoration:none;display:block">'
-      +'<div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+esc(img)+'" alt="'+esc(e.title||'Event')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/v3/blog-default.jpg\'">'
+      +'<div style="position:relative;aspect-ratio:16/9;background:#0a0a0f"><img src="'+esc(img)+'" alt="'+esc(e.title||'Event')+'" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block" onerror="this.src=\'/assets/images/blog-default.jpg\'">'
         +'<span style="position:absolute;top:10px;left:10px;background:'+(ext?'rgba(0,0,0,.7)':'rgba(0,224,164,.95)')+';color:'+(ext?'#fff':'#06120a')+';font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px">'+(ext?'EXTERNAL':'KEEPITIL EVENT')+'</span></div>'
       +'<div style="padding:12px 15px 6px"><div style="font-family:var(--font-head,Inter);font-weight:800;font-size:1.15rem;letter-spacing:.02em;color:#fff;line-height:1.15">'+esc(e.title||'Event')+'</div>'
         +'<div style="color:var(--muted,#9aa0b0);font-size:.82rem;margin-top:5px">'+(when?esc(when):'')+(e.venue?(when?' · ':'')+esc(e.venue):'')+(e.city?' · '+esc(e.city):'')+'</div></div></a>'
@@ -2402,8 +2402,8 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
   var n=0; var iv=setInterval(function(){ n++; build(); if(n>20) clearInterval(iv); },600);
 })();
 </script>
-<script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260823b" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
 
 <script>
 /* ══ IG-PARITY ENHANCEMENTS (Founder 2026-07-18) ══ */
@@ -2770,6 +2770,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/keepitil-shell.js?v=20260825a" defer></script>
+<script src="/keepitil-shell.js?v=20260825b" defer></script>
 </body>
 </html>

@@ -7,12 +7,12 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no.0,viewport-fit=cover"/>
 <meta name="robots" content="noindex,nofollow"/>
-<link rel="icon" type="image/png" href="/v3/logo-blue-nav.png"/>
+<link rel="icon" type="image/png" href="/assets/images/logo-blue-nav.png"/>
 <title>Organizer Dashboard — KEEPITIL</title>
 <meta name="description" content="Manage your KEEPITIL events — sales, check-ins, revenue, promotion."/>
-<link rel="stylesheet" href="/v3/v3-tokens.css"/>
+<link rel="stylesheet" href="/assets/css/tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
-<script src="/v3/vendor/supabase-js.min.js"></script>
+<script src="/assets/js/vendor/supabase-js.min.js"></script>
 <style>
 :root{--bg:#0c0d1a;--panel:#191c30;--panel2:#20243d;--text:#f3f5ff;--muted:#aab2e0;--line:#2f3556;--brand:#3aa5ff;--brand-2:#26e6a6;--accent:#a56bff;--warn:#ffb43c}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -448,7 +448,7 @@ async function loadPostReview(){
       var buy=p.buy_url?'<a class="fc-buy" href="'+esc(p.buy_url)+'" target="_blank" rel="noopener sponsored nofollow">🛒 '+esc(p.buy_label||'Buy on Amazon')+'</a>':'';
       var when=''; try{ when=new Date(p.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }catch(e){}
       return '<div class="fc" id="fc-'+p.id+'">'
-        +'<div class="fc-head"><img class="fc-av" src="'+esc(p.agent_avatar||'/v3/logo-blue-nav.png')+'" onerror="this.src=\'/v3/logo-blue-nav.png\'"><div class="fc-who"><b>'+esc(p.agent_name||'')+'</b><span>'+esc((p.agent||'').toUpperCase())+' · '+esc(when)+'</span></div><span class="fc-tag">'+esc(typ)+'</span></div>'
+        +'<div class="fc-head"><img class="fc-av" src="'+esc(p.agent_avatar||'/assets/images/logo-blue-nav.png')+'" onerror="this.src=\'/assets/images/logo-blue-nav.png\'"><div class="fc-who"><b>'+esc(p.agent_name||'')+'</b><span>'+esc((p.agent||'').toUpperCase())+' · '+esc(when)+'</span></div><span class="fc-tag">'+esc(typ)+'</span></div>'
         +media
         +'<div class="fc-body"><div class="fc-title">'+esc(p.title||'(untitled)')+'</div><div class="fc-text">'+(p.body||'')+'</div>'+buy+'</div>'
         +'<div class="fc-acts"><button class="approve" onclick="approveFeed(\''+p.id+'\',this)">✓ Approve &amp; publish</button><button class="deny" onclick="denyFeed(\''+p.id+'\',this)">✕ Deny</button><a class="fc-view" href="/profile.html?slug='+encodeURIComponent(p.agent||'')+'" target="_blank">View profile ↗</a></div>'
@@ -1051,8 +1051,8 @@ async function init(){
 }
 init();
 </script>
-<script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
-<script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
-<script src="/keepitil-shell.js?v=20260825a" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260823b" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
+<script src="/keepitil-shell.js?v=20260825b" defer></script>
 </body>
 </html>

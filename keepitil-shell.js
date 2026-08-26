@@ -76,7 +76,7 @@
              tag ran the current one. Two different radio bars on one site, and the stale half
              was invisible to a cache bump because the URL never changed. Bump this WITH the
              page tags whenever keepitil-radio.js changes. */
-          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/v3/keepitil-radio.js?v=20260823b'; document.body.appendChild(_rs);
+          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/assets/js/keepitil-radio.js?v=20260823b'; document.body.appendChild(_rs);
         }
       }catch(e){} });
     }
@@ -129,16 +129,16 @@
   }catch(e){ __kilMountAnalytics(); }
   /* Customer feedback widget — V3 only (floating "Feedback" pill -> Supabase feedback table). Added 2026-07-10. */
   try{ if(!window.__kilFeedbackLoad){ window.__kilFeedbackLoad=1;
-    var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/v3/keepitil-feedback.js'; document.head.appendChild(_fb);
+    var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/assets/js/keepitil-feedback.js'; document.head.appendChild(_fb);
   } }catch(e){}
   /* Universal social: share-to-any-platform + save, site-wide on V3. Added 2026-07-11. */
   try{ if(!window.__kilSocialLoad){ window.__kilSocialLoad=1;
-    var _so=document.createElement('script'); _so.defer=true; _so.src='/v3/keepitil-social.js'; document.head.appendChild(_so);
+    var _so=document.createElement('script'); _so.defer=true; _so.src='/assets/js/keepitil-social.js'; document.head.appendChild(_so);
   } }catch(e){}
   /* In-app notification center (bell + panel + opt-in) — logged-in members only.
      Standards-driven (page_standards.bell_visibility): bell loads only where the page type allows. */
   try{ if(!window.__kilNotifyLoad && RULES.bell==='signed_in'){ window.__kilNotifyLoad=1;
-    var _no=document.createElement('script'); _no.defer=true; _no.src='/v3/keepitil-notify.js'; document.head.appendChild(_no);
+    var _no=document.createElement('script'); _no.defer=true; _no.src='/assets/js/keepitil-notify.js'; document.head.appendChild(_no);
   } }catch(e){}
   /* ── PWA: manifest + iOS install meta + service worker + install hint. Added 2026-07-16.
      SW is conservative: never caches page HTML or Supabase — see /sw.js. ── */
@@ -898,7 +898,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
      file and in every page's markup; it grants nothing beyond RLS. Set here rather than duplicated
      in the tracker so there is ONE copy of the key in the shell. */
   try{ window.KIL_ANON = SB_KEY; window.KIL_SB_URL = SB_URL; }catch(e){}
-  function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="/v3/vendor/supabase-js.min.js"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
+  function ensureSB(cb){ if(window.supabase){cb();return;} var s=document.createElement('script'); s.src="/assets/js/vendor/supabase-js.min.js"; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
   function shellClient(){ try{ if(!window.__kilShellSB && window.supabase) window.__kilShellSB=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){} return window.__kilShellSB||null; }
   /* profile hamburger dropdown: Edit profile · Settings */
   function kilProfMenu(ev){ try{ ev.preventDefault(); ev.stopPropagation(); }catch(e){}
@@ -955,8 +955,8 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
   }
   function logoUrl(){
     try{ var v=getComputedStyle(document.documentElement).getPropertyValue('--theme-logo').trim();
-      var mm=v.match(/url\(([^)]+)\)/); return mm?mm[1].replace(/['"]/g,''):'/v3/logo-blue-nav.png';
-    }catch(e){ return '/v3/logo-blue-nav.png'; }
+      var mm=v.match(/url\(([^)]+)\)/); return mm?mm[1].replace(/['"]/g,''):'/assets/images/logo-blue-nav.png';
+    }catch(e){ return '/assets/images/logo-blue-nav.png'; }
   }
   function style(){
     if(document.getElementById('v3shell-style'))return;

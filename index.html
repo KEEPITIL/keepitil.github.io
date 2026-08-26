@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="default">
 <head>
-<link rel="stylesheet" href="/v3/v3-tokens.css?v=20260718"/>    <meta charset="UTF-8"/>
+<link rel="stylesheet" href="/assets/css/tokens.css?v=20260718"/>    <meta charset="UTF-8"/>
   <!-- Password-recovery guard: forward Supabase recovery tokens to the reset page; forward expired/invalid links to the portal's "get a fresh link" screen instead of dead-ending here -->
   <script>(function(){try{var h=location.hash||'';
     if(h.indexOf('type=recovery')>-1||(h.indexOf('access_token=')>-1&&h.indexOf('recovery')>-1)){location.replace('/reset-password.html'+h);}
@@ -68,7 +68,7 @@
     }
     html{scroll-behavior:smooth;}
     body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;overflow-x:hidden;overflow-y:auto;}
-    body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('/v3/logo-bg.jpg') center/cover no-repeat;opacity:1;} /* full-strength backdrop — ABSOLUTE path: relative 'logo-bg.jpg' resolved to / and 404'd (Founder 2026-07-18) */
+    body::before{content:"";position:fixed;inset:0;z-index:-1;background:var(--bg) url('/assets/images/logo-bg.jpg') center/cover no-repeat;opacity:1;} /* full-strength backdrop — ABSOLUTE path: relative 'logo-bg.jpg' resolved to / and 404'd (Founder 2026-07-18) */
     /* when a seasonal image is active, the static backdrop yields to the auto-rotating season background */
     html.has-season body::before{display:none!important;}
     /* (chat FAB placement lives in the later <style> near the end of this file — single source of truth) */
@@ -623,7 +623,7 @@
 #evx .evx-more:hover{background:rgba(0,255,136,.14);border-color:var(--green);}
 </style>
 
-    <script src="/v3/keepitil-events-store.js?v=20260718" defer></script>
+    <script src="/assets/js/keepitil-events-store.js?v=20260718" defer></script>
   <!-- hardening: removed duplicate canonical/robots/OG/Twitter tags (primary set is in the head above; conflicting logo-bg.jpg og:image dropped in favor of keepitil-og.png) -->
   <script type="application/ld+json">
 {
@@ -1667,7 +1667,7 @@
   <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/">
-      <img loading="lazy" decoding="async" src="/v3/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
+      <img loading="lazy" decoding="async" src="/assets/images/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span>
     </a>
     <ul class="nav-links">
       <li><a href="/culture">CULTURE</a></li><li><a href="/connect">SCENE</a></li>
@@ -1772,7 +1772,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a class="logo" href="https://keepitil.com/" style="text-decoration:none;color:inherit;">
-            <img loading="lazy" decoding="async" class="logo-img" src="/v3/logo-blue-nav.png" alt="Keep It IL Logo"/>
+            <img loading="lazy" decoding="async" class="logo-img" src="/assets/images/logo-blue-nav.png" alt="Keep It IL Logo"/>
             <span class="logo-text">KEEP IT IL</span>
           </a>
           <p>A creator ecosystem — events, creator profiles and culture across every genre. Southern California first, built to help creators grow.</p>
@@ -1821,7 +1821,7 @@
   <!-- Scroll-to-top moved into keepitil-shell.js (#kil-top) on 2026-08-15 so it can appear on
        every page from one config instead of being copied per page. Do not re-add it here. -->
 
-  <script src="/v3/vendor/supabase-js.min.js"></script>
+  <script src="/assets/js/vendor/supabase-js.min.js"></script>
 <script>
   /* ── SUPABASE ── */
   const SUPA_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
@@ -2856,7 +2856,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
 
   function loadEvents(){
     evxState('loading');
-    /* The library is self-hosted (/v3/vendor/supabase-js.min.js), so this is now a local-file
+    /* The library is self-hosted (/assets/js/vendor/supabase-js.min.js), so this is now a local-file
        problem rather than a CDN one — but it is still reported instead of swallowed. */
     if(!window.supabase||!window.supabase.createClient){ evxFail('The events library did not load.'); return; }
     try{ if(!_sb) _sb=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ'); }
@@ -2889,7 +2889,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
 </script>
 
 <script src="/kil-seasons.js?v=20260809a"></script>
-<script src="/v3/keepitil-radio.js?v=20260823b" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260823b" defer></script>
 <script>
 /* Inline KEEPITIL-X save icon (staging preview self-contained; /keepitil-save.js not yet deployed) */
 (function(){
@@ -2922,7 +2922,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   if(document.readyState!=='loading')run(); document.addEventListener('DOMContentLoaded',run); setTimeout(run,1200);
 })();
 </script>
-<script src="/v3/keepitil-ai.js?v=20260822b" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
 
 <style>
 .kil-tabs{display:flex;gap:6px;margin:6px 0 14px;}
@@ -3143,7 +3143,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260825a" defer></script>
+<script src="/keepitil-shell.js?v=20260825b" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to /v3/create.html (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->
