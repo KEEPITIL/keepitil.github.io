@@ -37,8 +37,14 @@ body{padding-top:70px;padding-bottom:calc(96px + env(safe-area-inset-bottom));di
    margin-top:auto moves that free space ABOVE the footer, pinning it to the bottom. This is
    the same rule connect/index.html and earn/index.html already carry — create was the one page
    with the flex body and without the fix. On a tall page auto resolves to 0 and the footer's
-   own padding supplies the separation, so nothing changes there. */
+   own padding supplies the separation, so nothing changes there.
+   ⚠ SPECIFICITY: the shell injects `#v3-footer{...margin-top:56px}` — an ID, (1,0,0) — and it
+   appends its stylesheet at runtime, so it also wins ties on source order. A bare
+   `footer{margin-top:auto}` (0,0,1) is silently overridden; measured on the deployed page,
+   computed margin-top stayed 56px and the 320px gap stayed with it. `body #v3-footer` is
+   (1,0,1) and wins. The bare selector is kept for any page footer that is not the shell's. */
 footer{margin-top:auto}
+body #v3-footer{margin-top:auto}
 /* A flex-column body makes every child a flex item, and a flex item defaults to
    min-width:auto — it will not shrink below its own max-content width. Measured at
    375px: .wrap computed to 1120px while body{overflow-x:hidden} clipped the excess,
