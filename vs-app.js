@@ -107,8 +107,15 @@
    + '#vs-app .cd-flyer-gen .cat{font:800 .72rem Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#bfe3ff}'
    + '#vs-app .cd-flyer-gen .ttl{font-family:var(--fs,inherit);font-size:1.5rem;line-height:1.15;color:#fff}'
    + '#vs-app .cd-flyer-gen .dt{font:700 .74rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9fb2c6}'
-   + /* Founder-locked 2026-08-19: 40px tall. Padding is overridden because .vs-cta's 13px
-   vertical padding alone makes the button 44px — taller than the locked value. */
+   /* Founder-locked 2026-08-19: 40px tall. Padding is overridden because .vs-cta's 13px
+      vertical padding alone makes the button 44px — taller than the locked value.
+      WARNING: this comment used to have a leading `+` on its own line, and that was a bug.
+      An operator, then a block comment, then another operator is NOT concatenation: it parses
+      as CSS + (+'string') — unary plus applied to a string — which evaluates to NaN. The
+      literal text "NaN" was emitted into the stylesheet at this exact point, the .cd-buy rule
+      disappeared with it, and the CSS parser then discarded the @media block that follows,
+      which is the .cd2-sub unlock the submit page depends on.
+      Never place an operator immediately before a comment in this chain. */
    + '#vs-app .cd-buy{width:100%;text-align:center;height:40px;padding:0 26px;border-radius:20px;display:flex;align-items:center;justify-content:center}'
    /* ── SUBMIT PAGE (Founder 2026-08-21) ────────────────────────────────────────────
       Same two-column shell as the competition and entry pages, with one exception: the left
@@ -119,6 +126,7 @@
    +   '#vs-app .cd2-sub{height:auto;min-height:0;overflow:visible}'
    +   '#vs-app .cd2-sub .cd-left,#vs-app .cd2-sub .cd-right{height:auto;overflow:visible}'
    + '}'
+   + '#vs-app .cd-back{margin:0 0 12px;cursor:pointer}'
    + '#vs-app .sf-slot{display:flex;flex-direction:column;gap:7px}'
    + '#vs-app .sf-cap{font:800 .7rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#9aa0b0}'
    + '#vs-app .sf-cap b{color:#ff6b6b}'
@@ -997,6 +1005,13 @@
       /* RIGHT — single scrolling column, in the order specified */
       var right = '<div class="cd-right">';
 
+      /* BACK (Founder 2026-08-25: "there is no back button to the create page"). The submit
+         view has always had one; this view never did, so a visitor who opened a competition
+         had no route back to the list except the browser's own control — and none at all when
+         they arrived from a shared link. Same control and same behaviour as the submit view's
+         sfBack: step back if there is history to step through, otherwise go to the list. */
+      right += '<button type="button" class="vs-pill cd-back" id="cdBack">\u2039 Back to CREATE</button>';
+
       /* 1 organizer */
       right += '<div class="cd-org"><span class="av">K</span><div><b>KEEPITIL</b>'
              + '<div class="sub">Competition organizer</div></div></div>';
@@ -1069,6 +1084,13 @@
 
       var goBtn=document.getElementById('cd-go');
       if(goBtn) goBtn.onclick=function(){ go({view:'submit', c:compId}); };
+      var backBtn=document.getElementById('cdBack');
+      if(backBtn) backBtn.onclick=function(){
+        /* history.back() keeps the visitor's place in a filtered list. A shared link has no
+           history to return to, so fall through to the competition list itself. */
+        if(history.length > 1){ history.back(); return; }
+        go({ view:'enter' });
+      };
     }).catch(err);
   }
 
