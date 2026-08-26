@@ -268,12 +268,14 @@ footer{margin-top:auto}
 .kr-tile.on .kr-state em{font-style:normal;color:#06120a;background:var(--brand);
   padding:2px 7px;border-radius:9px;flex:0 0 auto}
 .kr-tile:not(.on) .kr-state em{font-style:normal;color:var(--ink2);flex:0 0 auto}
-/* Rows 1-3 (title, POWERED BY, live bar) are MOBILE ONLY (Founder 2026-08-25). On desktop the
-   persistent radio bar is docked at the foot of the page and already shows playlist and track,
-   so repeating it mid-page is the same information twice. Mobile keeps them: there the shell
-   bar is pushed off screen, so this is the only place that state is visible. */
+/* Row 3 ONLY is desktop-hidden (Founder 2026-08-25). The persistent radio bar is docked at the
+   foot of the desktop page and already shows playlist and track, so the mid-page bar was the
+   same information twice. Rows 1 and 2 are the section's TITLE and stay at every width — a
+   rail with no heading is inconsistent with every other section on this page.
+   Mobile keeps row 3: there the shell bar is pushed off screen, so it is the only place that
+   state is visible. */
 @media(min-width:861px){
-  #stations .sh, #stations .kr-sub, #stations .kr-bar{display:none}
+  #stations .kr-bar{display:none}
 }
 }
 </style>
@@ -333,7 +335,7 @@ footer{margin-top:auto}
      listens to `kil-radio-state` and calls __kilRadioSelect() — see assets/js/keepitil-radio.js. -->
 <section id="stations">
   <div class="sh"><h2>KEEPITIL RADIO</h2></div>
-  <div class="kr-sub">POWERED BY SOUNDCLOUD</div>
+  <div class="kr-sub">POWERED BY SOUNDCLOUD <span id="krCount"></span></div>
   <div class="kr-bar" id="krBar" aria-live="polite">
     <span class="kr-pl"  id="krPl">&mdash;</span>
     <span class="kr-sep" aria-hidden="true">&laquo;</span>
@@ -704,10 +706,15 @@ function renderStations(){
       grid.innerHTML='<div class="disc" style="flex:0 0 auto;max-width:80vw;padding:14px 2px">'
         +'No playlists configured yet.</div>';
       var s0=document.getElementById('eS'); if(s0) s0.textContent='0';
+      var k0=document.getElementById('krCount'); if(k0) k0.textContent='(0)';
       return;
     }
     grid.innerHTML=list.map(kilStationCard).join('');
     var el=document.getElementById('eS'); if(el) el.textContent=String(list.length);
+    /* Row 2 names the source and the size of it. Taken from the SAME list the rail renders,
+       so the number can never disagree with the number of cards beside it. */
+    var kc=document.getElementById('krCount');
+    if(kc) kc.textContent='('+list.length+')';
     /* keepitil-radio.js is deferred and fetches its own config, so it may not exist yet — and
        when it does, its first `kil-radio-state` only fires once the SoundCloud widget reports
        a track. Until then the rail would show no active station at all. Poll briefly for the
