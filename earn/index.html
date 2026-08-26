@@ -217,8 +217,9 @@ body>*{min-width:0}
 footer{margin-top:auto}
 
 /* ── RADIO ROWS (Founder 2026-08-25) ──────────────────────────────────────────────────── */
-.kr-sub{font:800 .7rem/1 Inter,sans-serif;letter-spacing:.22em;color:var(--muted,#9aa0b0);
-  text-transform:uppercase;margin:-6px 0 14px}
+.kr-sub{display:inline-block;font:800 .7rem/1 Inter,sans-serif;letter-spacing:.22em;
+  color:#cfd3df;text-transform:uppercase;margin:-6px 0 14px;
+  text-shadow:0 1px 6px rgba(0,0,0,.85)}
 /* The bar is one line that must survive three variable-length titles on a 360px phone.
    min-width:0 on the flex children is what actually permits the ellipsis — without it a flex
    item refuses to shrink below its max-content width and the row overflows instead. */
@@ -248,9 +249,15 @@ footer{margin-top:auto}
   display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#fff;
   border:1px solid var(--line,#242433)}
 .kr-tile.on .kr-art{border-color:var(--accent,#00b4ff);box-shadow:0 0 0 2px rgba(0,180,255,.28)}
-.kr-tile .kr-nm{margin-top:8px;font:800 .78rem/1.3 Inter,sans-serif;letter-spacing:.04em;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.kr-tile .kr-st{font:600 .68rem/1.3 Inter,sans-serif;color:var(--muted,#9aa0b0)}
+/* display:block is load-bearing, not tidiness. .kr-nm/.kr-st are <span> inside a <button>,
+   so they are inline by default and the station name ran into its status on one line —
+   "EDMNow playing". A button is not a block formatting context for its inline children. */
+.kr-tile .kr-art{display:flex}
+.kr-tile .kr-nm{display:block;margin-top:8px;font:800 .78rem/1.3 Inter,sans-serif;letter-spacing:.04em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-shadow:0 1px 6px rgba(0,0,0,.85)}
+.kr-tile .kr-st{display:block;font:600 .68rem/1.3 Inter,sans-serif;color:var(--muted,#9aa0b0);
+  text-shadow:0 1px 6px rgba(0,0,0,.85)}
 .kr-tile.on .kr-st{color:var(--accent,#00b4ff)}
 @media(max-width:520px){
   .kr-tile{flex:0 0 124px}
