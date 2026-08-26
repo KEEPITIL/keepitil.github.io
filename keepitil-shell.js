@@ -564,7 +564,11 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
       f.innerHTML =
         '<div class="v3-foot-inner">'
         +'<div class="v3-foot-about"><a href="/" class="v3-foot-brand">KEEPITIL</a>'
-          +'<p class="v3-foot-addr">9252 Garden Grove Blvd, Ste 19 PMB 1066, Garden Grove, CA 92844 · <a href="mailto:info@keepitil.com">info@keepitil.com</a></p></div>'
+          +'<p class="v3-foot-addr">'
+          +'<span class="fa-l1">9252 Garden Grove Blvd, Ste 19</span>'
+          +'<span class="fa-pmb"> PMB 1066,</span> '
+          +'<span class="fa-l2">Garden Grove, CA 92844</span>'
+          +'<span class="fa-mail"> · <a href="mailto:info@keepitil.com">info@keepitil.com</a></span></p></div>'
         +'<nav class="v3-foot-links">'
         +DESTINATIONS.map(function(d){ return '<a href="'+d.href+'">'+d.label+'</a>'; }).join('')
         +'<a href="/apply.html">Login</a></nav>'
@@ -580,7 +584,8 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
         +'</div></div>'
         +'<div class="v3-foot-legal" style="max-width:var(--maxw,1400px);margin:14px auto 0;font-size:.78rem;opacity:.7;display:flex;gap:14px;flex-wrap:wrap;align-items:center">'
         +'<a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a><a href="/refund.html">Refunds</a>'
-        +'<a href="/ticket-terms.html">Ticket Terms</a><a href="/community-guidelines.html">Community Guidelines</a>'
+        +'<a href="/ticket-terms.html"><span class="lg-f">Ticket Terms</span><span class="lg-s">Tickets</span></a>'
+        +'<a href="/community-guidelines.html"><span class="lg-f">Community Guidelines</span><span class="lg-s">Rules</span></a>'
         +'<span style="margin-left:auto">© '+(new Date().getFullYear())+' KEEPITIL</span></div>';
       if(RULES.nav!==false) document.body.appendChild(f);
 
@@ -1227,6 +1232,47 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     +'#v3-footer .v3-foot-inner{align-items:flex-start}#v3-footer .v3-foot-about{max-width:420px;flex:1 1 300px;text-align:left}#v3-footer .v3-foot-brand,#v3-footer .v3-foot-addr{text-align:left;display:block}'
     +'#v3-footer .v3-foot-desc{margin:10px 0 0;font-size:.82rem;line-height:1.55;color:var(--muted,#9a94b4);opacity:.9}'
     +'#v3-footer .v3-foot-addr{margin:8px 0 0;font-size:.74rem;line-height:1.5;color:var(--muted,#888);opacity:.7}#v3-footer .v3-foot-addr a{color:var(--brand-2,#5cc8ff)}'
+    /* ── MOBILE FOOTER, SIX ROWS (Founder 2026-08-26) ────────────────────────────────────
+       1 KEEPITIL · 2 street · 3 city · 4 social, full width · 5 legal, full width · 6 space.
+       Desktop is untouched — every rule below is inside the ≤860px block.
+       The short legal labels and the split address are markup that already exists on both
+       breakpoints; only which half is shown changes, so there is no second copy of the
+       footer to keep in sync. */
+    +'@media(max-width:860px){'
+    +  '#v3-footer .v3-foot-inner{flex-direction:column;align-items:center;gap:14px;text-align:center}'
+    +  '#v3-footer .v3-foot-about{max-width:none;flex:0 0 auto;text-align:center}'
+    +  '#v3-footer .v3-foot-brand{display:block;text-align:center;font-size:1.05rem;letter-spacing:.14em}'
+    /* rows 2 and 3: two clean address lines. PMB and the email address are for the desktop
+       one-liner; on a phone they push the street onto three ragged lines. */
+    +  '#v3-footer .v3-foot-addr{text-align:center;text-transform:uppercase;letter-spacing:.06em;'
+    +    'font-size:.7rem;line-height:1.7;opacity:.75}'
+    +  '#v3-footer .fa-l1,#v3-footer .fa-l2{display:block}'
+    +  '#v3-footer .fa-pmb,#v3-footer .fa-mail{display:none}'
+    /* the destination links are the bottom nav on a phone — repeating them here is furniture */
+    +  '#v3-footer .v3-foot-links{display:none}'
+    /* row 4: icons stretched edge to edge, and big enough to hit. 44px is the minimum
+       comfortable touch target; space-between spreads them across the full width. */
+    +  '#v3-footer .v3-foot-social{display:flex;width:100%;justify-content:space-between;'
+    +    'align-items:center;gap:0;margin:2px 0 0}'
+    +  '#v3-footer .v3-foot-social a{flex:1 1 0;display:flex;align-items:center;justify-content:center;'
+    +    'min-height:44px;padding:0}'
+    +  '#v3-footer .v3-foot-social a svg{width:26px!important;height:26px!important}'
+    /* row 5: the same treatment for legal, with the short labels */
+    +  '#v3-footer .v3-foot-legal{display:flex!important;width:100%;flex-wrap:wrap;gap:6px 4px;'
+    +    'justify-content:space-between;align-items:center;margin-top:14px!important;font-size:.66rem}'
+    +  '#v3-footer .v3-foot-legal a{flex:1 1 0;text-align:center;white-space:nowrap;'
+    +    'text-transform:uppercase;letter-spacing:.05em;min-height:34px;display:flex;'
+    +    'align-items:center;justify-content:center}'
+    +  '#v3-footer .lg-f{display:none}#v3-footer .lg-s{display:inline}'
+    /* the copyright drops to its own centred line rather than fighting for width in row 5 */
+    +  '#v3-footer .v3-foot-legal>span{flex:1 0 100%;margin-left:0!important;text-align:center;'
+    +    'opacity:.6;padding-top:6px}'
+    /* row 6: deliberate empty space so the floating up-arrow (left) and chat (right) buttons
+       have somewhere to sit that is not on top of a link. */
+    +  '#v3-footer{padding-bottom:calc(84px + var(--kil-bnav-h,62px))!important}'
+    +'}'
+    /* desktop keeps the long labels */
+    +'#v3-footer .lg-s{display:none}'
     +'#v3-theme{position:fixed;left:16px;bottom:124px;z-index:600;display:flex;flex-direction:column-reverse;align-items:center;gap:8px}'
     +'#v3-theme .v3t-btn{width:44px;height:44px;border-radius:50%;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));color:var(--text,#f0f0f0);font-size:1.15rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);line-height:1}'
     +'#v3-theme .v3t-pop{display:none;flex-direction:column;gap:9px;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));border-radius:26px;padding:10px;box-shadow:0 12px 30px rgba(0,0,0,.5)}'
