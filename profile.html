@@ -130,10 +130,19 @@ body::before{content:""!important;position:fixed!important;inset:0!important;z-i
 /* social icons live in the About "Links" dropdown on profiles, not in the footer (Founder 2026-07-27) */
 #v3-footer .v3-foot-social{display:none!important}
 #dm-new{display:none!important}
-#pfBadges,#pfPassport{display:none!important}
+#pfBadges{display:none!important}
 .pf-cta #pfShare>button svg{display:none!important}
 .pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
 .pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
+/* PUBLIC VIEW: follow, message and share are one row of EQUAL buttons (Founder 2026-08-26).
+   flex:1 1 0 with a zero basis is what makes them equal — flex:1 alone still sizes from each
+   button's own content, so "+ FOLLOW" came out wider than "SHARE". A fixed height keeps them
+   level whether the child is a <button>, an <a> or a wrapper <div>. */
+.pf-cta #pfFollow,.pf-cta #pfBook,.pf-cta #pfShare,.pf-cta #pfDashWrap{flex:1 1 0;min-width:0}
+.pf-cta #pfFollow,.pf-cta #pfBook,
+.pf-cta #pfShare>button,.pf-cta #pfDashWrap>button{
+  width:100%;height:40px;display:flex;align-items:center;justify-content:center;
+  padding:0 10px;white-space:nowrap}
 .pf-cta #pfFollow,.pf-cta #pfBook{flex:1;text-align:center}
 .alert-btn{font-family:var(--font-head);font-size:.95rem;letter-spacing:.1em;background:var(--accent);color:var(--onacc);border:none;border-radius:6px;padding:9px 20px;cursor:pointer;white-space:nowrap;transition:filter .15s,transform .15s;}
 .alert-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
@@ -483,13 +492,7 @@ footer a{color:var(--accent2);}
 </style>
 <style>.pf-tab[data-tab="gallery"]{display:none!important}
 /* EVENTS tab visibility is controlled by applyProfileTabs() (viewer sees FEED+EVENTS; owner sees FEED/SAVED/TAGGED/CHAT) */
-#pfPassport{display:none} /* mobile @media re-shows it; hidden on desktop */
-.pf-passport-row{display:none} /* desktop hides the standalone passport row; mobile re-shows it before the description */
 /* Global (both viewports, functional only — no layout change to desktop) */
-#pfDashMenu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:95;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:190px;box-shadow:0 14px 34px rgba(0,0,0,.5)}
-#pfDashMenu.open{display:block}
-#pfDashMenu button{display:block;width:100%;text-align:left;background:none;border:0;color:#e8e8f0;font-size:.9rem;font-weight:700;padding:11px 12px;border-radius:8px;cursor:pointer}
-#pfDashMenu button:hover{background:rgba(255,255,255,.08)}
 #pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
 /* ============ MOBILE ONLY (max-width:768px) — desktop is never touched ============ */
 @media(max-width:768px){
@@ -502,17 +505,15 @@ footer a{color:var(--accent2);}
   .pf-meta{display:flex!important;flex-direction:column;margin-top:0!important;padding-top:0!important}
   .pf-head{padding-bottom:0!important;margin-bottom:0!important}
   .pf-idblock{justify-content:center!important}
-  /* Mobile stack order (Founder 2026-07-29): category → passport → description → links */
+  /* Mobile stack order (Founder 2026-07-29): category → description → links */
   .pf-bcrow{order:1;display:flex!important;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:2px 0 6px;min-height:22px}
   .pf-bcrow::-webkit-scrollbar{display:none}
-  .pf-passport-row{order:2;display:block!important;margin:0 0 8px}
   .pf-bio{order:3}#pfAbout{order:3}#pfAboutTop{order:3}
   #pfLinks{order:4;display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:10px;margin:8px 0 4px;-webkit-overflow-scrolling:touch}
   #pfLinks::-webkit-scrollbar{display:none}
   #pfLinksDrop{display:none!important}/* links show as a scrollable icon row on mobile, not a dropdown */
   .pf-cta{order:4}
   #pfAcctType{display:inline-block!important;margin-bottom:0!important;background:rgba(139,92,255,.18);color:var(--accent,#8b5cff);padding:4px 10px;border-radius:999px;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
-  #pfPassport{display:inline-flex!important;flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.16);color:#00e0a4;white-space:nowrap}
   #pfBadges{display:flex!important;gap:6px}
   #pfBadges .bdg{flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
   #feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;overflow:visible!important;position:sticky!important;top:51px!important;z-index:59}
@@ -604,14 +605,13 @@ window.KIL_FILTER_BADGES = function(badges){
 </div>
 <div class="pf-meta">
   <div class="pf-bcrow"><div id="pfAcctType" style="display:none;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)"></div><div id="pfBadges"></div></div>
-  <div class="pf-passport-row"><span id="pfPassport">✔ Passport</span></div>
   <div class="pf-bio" id="pfBio">&nbsp;</div>
   <div id="pfAbout" style="display:none;color:var(--text-soft,#c9cede);font-size:.9rem;line-height:1.6;margin:6px 0"></div>
   <div id="pfLinks" style="display:none;flex-wrap:wrap;gap:8px;margin:6px 0"></div>
   <div class="pf-cta">
     <button class="pf-btn follow" id="pfFollow" onclick="toggleFollow()">+ FOLLOW</button>
     <button class="pf-btn book" id="pfCreate" style="display:none" onclick="toggleCreateMenu(event)">＋ CREATE</button>
-    <span id="pfDashWrap" style="display:none;position:relative"><button class="pf-btn book" id="pfArchive" onclick="toggleDashMenu(event)">DASH</button><div id="pfDashMenu"><button type="button" onclick="location.href='/dashboard.html'">Dashboard</button><button type="button" onclick="try{openEditProfile()}catch(e){location.href='/profile.html?slug='+(PROFILE_SLUG||'')+'&edit=1'}">Edit profile</button><button type="button" onclick="openInsights()">Insights</button><button type="button" onclick="location.href='/settings.html'">Settings</button></div></span>
+    <span id="pfDashWrap" style="display:none"><button class="pf-btn book" id="pfArchive" onclick="location.href='/dashboard.html'">DASH</button></span>
     <a class="pf-btn book" id="pfBook" href="#" style="display:none">MESSAGE</a>
     <a class="pf-btn icon" id="pfIG" href="#" style="display:none" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 3.2A6.6 6.6 0 1012 18.6 6.6 6.6 0 0012 5.4zm0 10.9a4.3 4.3 0 110-8.6 4.3 4.3 0 010 8.6zm6.85-11.2a1.54 1.54 0 11-3.08 0 1.54 1.54 0 013.08 0z"/></svg></a>
     <a class="pf-btn icon" id="pfSC" href="#" style="display:none" target="_blank" rel="noopener" aria-label="SoundCloud"><svg viewBox="0 0 24 24"><path d="M1.5 13.6c-.1 0-.2.1-.2.2l-.2 1.7.2 1.6c0 .1.1.2.2.2s.2-.1.2-.2l.2-1.6-.2-1.7c0-.1-.1-.2-.2-.2zm2 .6c-.1 0-.2.1-.2.2l-.2 1.1.2 1.1c0 .1.1.2.2.2s.2-.1.2-.2l.3-1.1-.3-1.1c0-.1-.1-.2-.2-.2zm12.9-4.9c-.5 0-.9.1-1.3.3-.3-2.9-2.7-5.1-5.7-5.1-.7 0-1.4.1-2 .4-.2.1-.3.2-.3.4v9.1c0 .2.2.4.4.4h8.9c1.7 0 3.1-1.4 3.1-3.1 0-1.5-1.2-2.8-3.1-2.8z"/></svg></a>
@@ -1251,8 +1251,7 @@ function updateOwnerUI(){
   var mb=document.getElementById('pfBook'); if(mb)mb.style.display=CAN_EDIT()?'none':'';
 }
 /* DASH dropdown — houses Dashboard / Edit profile / Settings (Founder 2026-07-20) */
-function toggleDashMenu(e){ if(e){e.stopPropagation();} var m=document.getElementById('pfDashMenu'); if(m)m.classList.toggle('open'); }
-document.addEventListener('click',function(e){ var w=document.getElementById('pfDashWrap'); var m=document.getElementById('pfDashMenu'); if(m&&m.classList.contains('open')&&w&&!w.contains(e.target)) m.classList.remove('open'); });
+/* toggleDashMenu removed 2026-08-26 — DASH opens the dashboard directly, there is no menu. */
 /* ── DIRECT MESSAGE (viewer → this profile) via send_dm RPC ── */
 function openDM(){
   if(!SB||!SESSION){ toast('Sign in to message.'); setTimeout(function(){location.href='/apply.html';},700); return; }
@@ -2320,14 +2319,10 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
     var _bio=document.getElementById('pfBio'); if(_bio && (_bio.textContent||'').replace(/[\s ]/g,'')==='') _bio.style.display='none';
     var _sh=document.querySelector('#pfShare button'); if(_sh && !_sh.querySelector('.pf-share-lbl')){ var _sp=document.createElement('span'); _sp.className='pf-share-lbl'; _sp.textContent='SHARE'; _sp.style.cssText='margin-left:8px;font-weight:700;letter-spacing:.06em'; _sh.appendChild(_sp); }
   }catch(e){}
-  /* Make the passport | category | badges row visible (badges from genre + Member) */
-  /* PASSPORT IS FOR CLAIMED PROFILES ONLY (Founder 2026-08-19: "groove trooper is suppose to be
-     an unclaimed profile"). This line forced the chip visible unconditionally, so an editorial
-     profile with NO row in profile_owners still displayed "✔ Passport" — which reads as a
-     verified member account. Gated on KIL_IS_CLAIMED, which defaults to false until the
-     ownership lookup resolves; the safe default is the one that cannot overclaim. */
-  try{ var pollB=0; var ivB=setInterval(function(){ pollB++; var pp=document.getElementById('pfPassport');
-    if(pp) pp.style.display = window.KIL_IS_CLAIMED ? 'inline-flex' : 'none';
+  /* Badges row (genre + Member). The Passport chip was removed entirely on 2026-08-26
+     (Founder) — markup, styles and the claimed-profile gate that kept it honest all went with
+     it, rather than leaving a hidden element and dead code behind. */
+  try{ var pollB=0; var ivB=setInterval(function(){ pollB++;
     var bg=document.getElementById('pfBadges'); var P=window.PROFILE||{};
     if(bg && !bg.children.length){ var _ac=String(P.account_type||'').toLowerCase().trim(); var _sn={}; var arr=window.KIL_FILTER_BADGES(Array.isArray(P.badges)?P.badges.slice():[]).filter(function(x){var k=String(x).toLowerCase().trim(); if(!k||k===_ac||_sn[k])return false; _sn[k]=1; return true;}); bg.innerHTML=arr.slice(0,6).map(function(x){return '<span class="bdg">'+String(x).replace(/[<>]/g,'').slice(0,16)+'</span>';}).join(''); }
     if(pollB>20 || (bg&&bg.children.length)) clearInterval(ivB); },600); }catch(e){}

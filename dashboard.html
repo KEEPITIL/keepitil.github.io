@@ -138,6 +138,43 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
 .kform textarea{min-height:66px;resize:vertical}
 .kform label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:10px 0 4px;display:block}
 .msg{font-size:.88rem}.msg.ok{color:#22e39b}.msg.err{color:#ff6b6b}
+
+/* ── API PLUGINS / POSTIZ / SETTINGS panels (2026-08-26) ─────────────────────────────── */
+.pg-intro{color:var(--muted,#9aa0b0);font-size:.86rem;line-height:1.6;margin:0 0 14px;max-width:70ch}
+.pg-list{display:flex;flex-direction:column;gap:8px}
+.pg-row{border:1px solid var(--line,#242433);border-radius:12px;background:rgba(255,255,255,.03);
+  overflow:hidden}
+.pg-link{display:block;text-decoration:none;color:inherit;transition:border-color .15s}
+.pg-link:hover{border-color:var(--brand,#00b4ff)}
+.pg-head{display:flex;align-items:center;gap:11px;padding:12px 13px}
+.pg-dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%}
+.pg-nm{flex:1;min-width:0}
+.pg-nm b{display:block;font-size:.92rem;color:#fff}
+.pg-nm small{display:block;color:var(--muted,#9aa0b0);font-size:.76rem;line-height:1.45;margin-top:2px}
+.pg-st{flex:0 0 auto;font:700 .62rem Inter,sans-serif;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted,#9aa0b0);border:1px solid var(--line,#242433);border-radius:999px;padding:3px 9px;
+  white-space:nowrap}
+.pg-go{flex:0 0 auto;font:800 .7rem Inter,sans-serif;color:var(--brand,#00b4ff);white-space:nowrap}
+/* The explainer toggle is a real button with a real hit area — it is the only control in the
+   row, so it must not be a 12px glyph. */
+.pg-i{flex:0 0 auto;width:30px;height:30px;border-radius:50%;cursor:pointer;
+  background:rgba(255,255,255,.06);border:1px solid var(--line,#242433);color:#cfd3df;
+  font:800 .85rem Inter,sans-serif;line-height:1;display:flex;align-items:center;justify-content:center;
+  transition:background .15s,color .15s,border-color .15s}
+.pg-i:hover,.pg-i.on{background:var(--brand,#00b4ff);border-color:var(--brand,#00b4ff);color:#001018}
+.pg-exp{padding:0 13px 13px 34px;border-top:1px solid var(--line,#242433)}
+.pg-exp ol{margin:11px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:7px}
+.pg-exp li{color:var(--muted,#9aa0b0);font-size:.82rem;line-height:1.55}
+.pg-soon{border:1px solid var(--line,#242433);border-radius:12px;background:rgba(255,255,255,.03);
+  padding:14px 15px;max-width:74ch}
+.pg-soon p{color:var(--muted,#9aa0b0);font-size:.86rem;line-height:1.65;margin:0 0 10px}
+.pg-soon p:last-child{margin-bottom:0}
+.pg-soon b{color:#fff}
+@media(max-width:600px){
+  .pg-head{flex-wrap:wrap;gap:9px}
+  .pg-st{order:3}
+  .pg-exp{padding-left:15px}
+}
 </style>
 </head>
 <body>
@@ -155,6 +192,9 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
     <div class="subnav" id="subnav"></div>
     <div class="panel on" id="tab-events"><div class="summary" id="summary"></div><div id="list"></div></div>
     <div class="panel" id="tab-insights"><div id="insightsBody" style="color:var(--muted,#9aa0b0)">Loading…</div></div>
+    <div class="panel" id="tab-plugins"><div id="pluginsBody"></div></div>
+    <div class="panel" id="tab-postiz"><div id="postizBody"></div></div>
+    <div class="panel" id="tab-settings"><div id="settingsBody"></div></div>
     <div class="panel" id="tab-analytics"><div class="astat" id="aStat"></div><div class="head2">Recent questions asked <span class="ct" id="qCt"></span></div><div id="qLog"></div></div>
     <div class="panel" id="tab-posts"><div class="head2">AI Crew — Daily Posts <span class="ct" id="postCt"></span></div><div id="postReview"></div></div>
     <div class="panel" id="tab-social"><div class="head2">Social Command <span class="ct" id="socialCt"></span></div><div id="socialFilters"></div><div id="socialReview"></div></div>
@@ -287,7 +327,12 @@ var AGENTS=[['cho','CHO'],['atlas','ATLAS'],['fable','FABLE'],['pulse','PULSE'],
 var ADMIN_TABS=[['posts','FEED'],['social','Social Command'],['campaigns','Campaigns'],['analytics','Analytics'],['agents','Crew & Brain'],['venues','Venue Bookings'],['chat','Chat'],['access','Access']];
 async function buildAdminTabs(){
   try{ var a=await supa.rpc('is_admin'); IS_ADMIN=!!(a&&a.data); }catch(e){}
-  var nav=$('subnav'); var tabs=[['events','Events'],['insights','Insights']];
+  /* The dashboard is where profile management lives now (Founder 2026-08-26). DASH used to
+     open a dropdown offering Dashboard / Edit profile / Insights / Settings; those are tabs
+     here instead, so there is one destination and one set of filters rather than a menu that
+     duplicates them. Edit profile is folded into Settings. */
+  var nav=$('subnav'); var tabs=[['insights','Insight'],['plugins','API Plugins'],
+                                 ['events','Events'],['postiz','Postiz'],['settings','Settings']];
   if(IS_ADMIN){
     tabs=tabs.concat(ADMIN_TABS);
     /* The page is "Dashboard" for everyone, admin or not (Founder 2026-08-26). This used to
@@ -304,13 +349,157 @@ async function buildAdminTabs(){
 }
 /* combined tabs: FEED = daily posts + social queue; Crew & Brain = agents + knowledge bank + assisted learning */
 var TAB_GROUPS={posts:['posts','social'], agents:['agents','knowledge','learning']};
+/* ── API PLUGINS (Founder 2026-08-26) ─────────────────────────────────────────────────────
+   A row per network that offers a personal-account API, each with an explainer of where to
+   find the credentials.
+
+   ⚠ WHAT THIS DOES AND DOES NOT DO. It does not connect anything yet, and it does not pretend
+   to. public.social_integrations exists and is the right shape — owner_handle, provider,
+   status, and credential_ref rather than the credential itself — but its only RLS policy is
+   admin-only, so a signed-in member cannot read or write their own row, and no OAuth callback
+   exists for any of these networks. A "Connect" button here would be a button that does
+   nothing. The explainers are the part that is real and useful today, so that is what ships;
+   the status reads "Not connected" for everyone until the flow behind it exists.
+
+   The steps are per-network and current as of 2026-08. SoundCloud is listed with the truth
+   rather than an empty form: its app registration has been closed to new applications for
+   years, so there is nothing a member can do there today. */
+var PLUGINS = [
+  { id:'youtube', name:'YouTube', hue:0,
+    what:'Post videos, read views and subscriber counts.',
+    steps:['Go to console.cloud.google.com and create a project.',
+           'APIs &amp; Services → Library → enable "YouTube Data API v3".',
+           'Credentials → Create credentials → OAuth client ID (type: Web application).',
+           'Add https://keepitil.com as an authorised origin.',
+           'Copy the Client ID and Client secret.'] },
+  { id:'tiktok', name:'TikTok', hue:190,
+    what:'Publish clips and read post performance.',
+    steps:['Go to developers.tiktok.com and log in with your TikTok account.',
+           'Manage apps → Create an app, then apply for the "Content Posting API".',
+           'Add https://keepitil.com to Redirect URI.',
+           'Copy the Client key and Client secret from the app page.',
+           'Approval is manual and can take several days.'] },
+  { id:'instagram', name:'Instagram', hue:320,
+    what:'Publish posts and read reach and follower counts.',
+    steps:['Your account must be a Professional (Business or Creator) account.',
+           'Link it to a Facebook Page — Instagram’s API only works through one.',
+           'Go to developers.facebook.com → My Apps → Create App → type "Business".',
+           'Add the "Instagram Graph API" product.',
+           'Generate a Page access token and copy the linked Instagram account ID.'] },
+  { id:'facebook', name:'Facebook', hue:220,
+    what:'Publish to a Page and read Page insights.',
+    steps:['You need a Facebook Page, not just a personal profile.',
+           'developers.facebook.com → My Apps → Create App → "Business".',
+           'Add the "Facebook Login" and "Pages API" products.',
+           'Tools → Graph API Explorer → select your Page → generate a Page access token.',
+           'Copy the token and the Page ID.'] },
+  { id:'x', name:'X', hue:0,
+    what:'Post updates and read impressions.',
+    steps:['Go to developer.x.com and apply for a developer account.',
+           'Create a Project, then an App inside it.',
+           'User authentication settings → enable OAuth 2.0, add https://keepitil.com as the callback.',
+           'Keys and tokens → copy the API key, API secret and Bearer token.',
+           'Posting requires a paid tier; the free tier is read-limited.'] },
+  { id:'spotify', name:'Spotify', hue:140,
+    what:'Read your artist profile, playlists and follower counts.',
+    steps:['Go to developer.spotify.com/dashboard and log in.',
+           'Create app → give it any name.',
+           'Add https://keepitil.com as a Redirect URI.',
+           'Copy the Client ID and Client secret from Settings.'] },
+  { id:'soundcloud', name:'SoundCloud', hue:20,
+    what:'Read tracks and play counts.',
+    steps:['SoundCloud closed new API application registrations and has not reopened them.',
+           'If you already hold a client ID from before it closed, it still works.',
+           'Otherwise there is nothing to set up here yet — the KEEPITIL radio uses public embeds, which need no credentials.'] }
+];
+
+function renderPlugins(){
+  var host=$('pluginsBody'); if(!host) return;
+  host.innerHTML =
+    '<div class="head2">Connect your accounts</div>'
+    + '<p class="pg-intro">Each network below offers an API for personal or creator accounts. '
+    + 'Open the <b>?</b> next to one to see exactly where its credentials live. '
+    + 'Connecting is not switched on yet — these explainers are here so the credentials are '
+    + 'ready when it is.</p>'
+    + '<div class="pg-list">'
+    + PLUGINS.map(function(p){
+        return '<div class="pg-row" data-p="'+p.id+'">'
+          + '<div class="pg-head">'
+          +   '<span class="pg-dot" style="background:hsl('+p.hue+',70%,52%)"></span>'
+          +   '<span class="pg-nm"><b>'+p.name+'</b><small>'+p.what+'</small></span>'
+          +   '<span class="pg-st">Not connected</span>'
+          +   '<button type="button" class="pg-i" aria-label="How to connect '+p.name+'" '
+          +     'aria-expanded="false">?</button>'
+          + '</div>'
+          + '<div class="pg-exp" hidden><ol>'
+          +   p.steps.map(function(st){ return '<li>'+st+'</li>'; }).join('')
+          + '</ol></div></div>';
+      }).join('')
+    + '</div>';
+  host.querySelectorAll('.pg-i').forEach(function(b){
+    b.onclick=function(){
+      var row=b.closest('.pg-row'), exp=row.querySelector('.pg-exp');
+      var open=exp.hasAttribute('hidden');
+      if(open) exp.removeAttribute('hidden'); else exp.setAttribute('hidden','');
+      b.setAttribute('aria-expanded', open?'true':'false');
+      b.classList.toggle('on', open);
+    };
+  });
+}
+
+function renderPostiz(){
+  var host=$('postizBody'); if(!host) return;
+  host.innerHTML =
+    '<div class="head2">Postiz <span class="ct">Coming soon</span></div>'
+    + '<div class="pg-soon">'
+    +   '<p><b>What it is.</b> Postiz is an open-source social scheduling tool. It takes one '
+    +     'post — text, image or video — and publishes it to several networks on a schedule you '
+    +     'set, instead of you opening each app in turn.</p>'
+    +   '<p><b>What it will do here.</b> Once your accounts are connected under API Plugins, '
+    +     'this section will let you write a post once, choose which networks it goes to, and '
+    +     'queue it. Anything you schedule will show its status here — queued, published, or '
+    +     'failed with the reason.</p>'
+    +   '<p><b>Why it is not on yet.</b> It needs the account connections above to exist first. '
+    +     'There is nothing to schedule to until then.</p>'
+    + '</div>';
+}
+
+function renderSettingsTab(){
+  var host=$('settingsBody'); if(!host) return;
+  /* Edit profile and Settings were two separate entries on the profile DASH menu. They are one
+     place now: both are ways of changing the same account, so they belong together. */
+  host.innerHTML =
+    '<div class="head2">Settings</div>'
+    + '<div class="pg-list">'
+    +   '<a class="pg-row pg-link" href="/settings.html"><div class="pg-head">'
+    +     '<span class="pg-dot" style="background:hsl(210,70%,52%)"></span>'
+    +     '<span class="pg-nm"><b>Account settings</b><small>Email, password, notifications and privacy.</small></span>'
+    +     '<span class="pg-go">Open →</span></div></a>'
+    +   '<a class="pg-row pg-link" id="pgEdit" href="/profile.html"><div class="pg-head">'
+    +     '<span class="pg-dot" style="background:hsl(280,70%,58%)"></span>'
+    +     '<span class="pg-nm"><b>Edit profile</b><small>Name, photo, bio, links and genre.</small></span>'
+    +     '<span class="pg-go">Open →</span></div></a>'
+    + '</div>';
+  /* The edit link needs the viewer's own slug; resolve it rather than guessing a path. */
+  try{
+    supa.rpc('my_profile_slug').then(function(r){
+      var a=$('pgEdit'); if(!a) return;
+      var slug = (r && !r.error) ? r.data : null;
+      a.href = slug ? ('/profile.html?slug='+encodeURIComponent(slug)+'&edit=1') : '/profile.html?edit=1';
+    }).catch(function(){});
+  }catch(e){}
+}
+
 function showTab(name){
   var grp=TAB_GROUPS[name]||[name];
   document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('on', grp.indexOf(p.id.replace('tab-',''))>=0);});
   document.querySelectorAll('#subnav button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===name);});
   grp.forEach(function(g){
     if(TAB_LOADED[g]) return; TAB_LOADED[g]=true;
-    if(g==='agents') loadAgents();
+    if(g==='plugins') renderPlugins();
+    else if(g==='postiz') renderPostiz();
+    else if(g==='settings') renderSettingsTab();
+    else if(g==='agents') loadAgents();
     else if(g==='learning') loadLearning();
     else if(g==='analytics') loadAnalytics();
     else if(g==='posts') loadPostReview();
