@@ -59,7 +59,16 @@
   /* Radio: DESKTOP = bar+audio on every page (standards). MOBILE = no bar anywhere;
      background AUDIO only on the homepage. Iframes: never. */
   try{
-    var RADIO_ALLOWED = RULES.radio && !IN_IFRAME && (!IS_MOBILE || PAGE_TYPE==='home');
+    /* A page may DECLARE itself a radio surface with <html data-radio="page">. The mobile rule
+       below exists to stop background audio leaking onto pages nobody asked to hear music on;
+       it is not meant to silence a page whose entire purpose is the radio. /earn styles
+       #kil-radio for mobile and calls it "the one place it must stay visible", while this rule
+       deleted the element — so that mini-player, and now the station carousel, could never play
+       on a phone. Opt-in by attribute rather than a path test, so the shell does not have to
+       learn every future radio surface. */
+    var RADIO_PAGE = false;
+    try{ RADIO_PAGE = document.documentElement.getAttribute('data-radio') === 'page'; }catch(e){}
+    var RADIO_ALLOWED = RULES.radio && !IN_IFRAME && (!IS_MOBILE || PAGE_TYPE==='home' || RADIO_PAGE);
     if(!RADIO_ALLOWED){
       var _rk=document.createElement('style'); _rk.textContent='#kil-radio,#kil-sc{display:none!important}'; document.head.appendChild(_rk);
       /* kill the BAR and the AUDIO ENGINE (#kil-sc soundcloud iframe survives bar removal —
@@ -76,7 +85,7 @@
              tag ran the current one. Two different radio bars on one site, and the stale half
              was invisible to a cache bump because the URL never changed. Bump this WITH the
              page tags whenever keepitil-radio.js changes. */
-          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/assets/js/keepitil-radio.js?v=20260823b'; document.body.appendChild(_rs);
+          var _rs=document.createElement('script'); _rs.defer=true; _rs.src='/assets/js/keepitil-radio.js?v=20260825b'; document.body.appendChild(_rs);
         }
       }catch(e){} });
     }
