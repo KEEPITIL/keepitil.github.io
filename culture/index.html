@@ -561,11 +561,34 @@ function culBlogExpand(cap, slug, ev){
    kind uses and hands it to the one renderer, so editing the template restyles blog posts too.
    caroCard() is NOT a content card — it is a thumbnail tile in the category rail, with no
    author, actions or comments — so it stays as it is. */
+/* ── THE RENDERER RACE (fixed 2026-08-25, Founder §4) ───────────────────────────────────
+   feedCard() lives in the FIRST <script> block; window.kvRenderCard is exported from the
+   EIGHTH. renderFeed() is called at the end of this block, so on every single page load the
+   export had not happened yet, the guard below fired once per post, and each card rendered as
+   an empty string. The console error was accurate and nobody's cards were reaching the page —
+   the blog/article list has simply been empty, with a "Nothing here yet" style outcome that
+   looked like an absence of content rather than a broken renderer.
+   Returning '' and logging is not a recovery: nothing ever re-ran. Now the first miss schedules
+   ONE re-render for the moment the export lands, and the feed paints properly. This is also
+   what lets a genuinely live article appear in Culture the moment one exists — no archived row
+   is republished to achieve it. */
+var __culFeedWaiting = false;
+function __culFeedRetry(){
+  if(__culFeedWaiting) return;          /* one waiter, not one per card */
+  __culFeedWaiting = true;
+  (function wait(n){
+    if(typeof window.kvRenderCard === 'function'){
+      __culFeedWaiting = false;
+      try{ renderFeed(); }catch(e){}
+      return;
+    }
+    if(n < 80){ setTimeout(function(){ wait(n+1); }, 50); return; }   /* ~4s, then give up loudly */
+    __culFeedWaiting = false;
+    console.error('[culture] kvRenderCard never became available — blog cards cannot render');
+  })(0);
+}
 function feedCard(p){
-  if(typeof window.kvRenderCard !== 'function'){
-    console.error('[culture] kvRenderCard not ready — blog cards cannot render');
-    return '';
-  }
+  if(typeof window.kvRenderCard !== 'function'){ __culFeedRetry(); return ''; }
   return window.kvRenderCard({
     pid:'cul:'+p.slug,
     href:'/blog-'+p.slug+'.html',
@@ -1701,7 +1724,19 @@ window.culFetchMedia = culFetchMedia;
     window.__kilSoundOK = true;
     try{ sessionStorage.setItem('kil_sound_ok','1'); }catch(e){}
     var f = current && current.querySelector('iframe');
-    if(f) applyVolume(f);
+    if(f){
+      /* A gesture has JUST happened, which is exactly the moment iOS permits unmuting a player
+         that is already running — so unmute NOW rather than waiting for applyVolume's deferred
+         tick, which would leave ~1s of silence after the tap and read as "the tap did nothing".
+         The deferral in applyVolume() guards frame-LOAD time, a different moment with no
+         gesture behind it; both are needed and they are not the same rule.
+         Order matters: setVolume before unMute, so the first audible instant is already at 50%
+         rather than at the widget's default. */
+      ytCmd(f,'playVideo',[]);
+      ytCmd(f,'setVolume',[VOLUME]);
+      ytCmd(f,'unMute',[]);
+      applyVolume(f);   /* keep the retry loop for a widget that was not listening yet */
+    }
     /* Uploaded clips are plain <video>, not the YouTube widget, so they need unmuting directly. */
     document.querySelectorAll('.fcard video').forEach(function(v){
       v.muted = false; v.volume = VOLUME/100;

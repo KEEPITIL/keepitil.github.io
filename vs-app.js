@@ -854,10 +854,12 @@
        so this view is the top of the document outline. */
     APP.innerHTML = navBar('enter')
       + '<header class="ce-hero"><h1>CREATE</h1>'
+      /* Founder 2026-08-25 §2: no VS, no Artists. The labels name the CREATE ecosystem and
+         are pluralised from the live count, so "1 Entry" never reads as "1 Entries". */
       + '<div class="ce-stats">'
-      +   '<div class="ce-stat a"><b id="ceA">—</b><span>Artist</span></div>'
-      +   '<div class="ce-stat v"><b id="ceV">—</b><span>Vs</span></div>'
-      +   '<div class="ce-stat e"><b id="ceE">—</b><span>Entry</span></div>'
+      +   '<div class="ce-stat v"><b id="ceV">—</b><span id="ceVL">Competitions</span></div>'
+      +   '<div class="ce-stat e"><b id="ceE">—</b><span id="ceEL">Entries</span></div>'
+      +   '<div class="ce-stat a"><b id="ceA">—</b><span id="ceAL">Creators</span></div>'
       + '</div></header>'
       + html;
 
@@ -867,7 +869,16 @@
       var s = (sr && sr.data && (Array.isArray(sr.data) ? sr.data[0] : sr.data)) || null;
       if(!s) return;
       var set = function(id,n){ var el=document.getElementById(id); if(el) el.textContent = fmtN(n); };
-      set('ceA', s.artists); set('ceV', s.vs); set('ceE', s.entries);
+      /* Pluralise off the RAW count, never off fmtN's output — fmtN returns "1.2K" for 1200,
+         and Number("1.2K") is NaN, which would silently pick the singular for every large
+         number. */
+      var label = function(id,n,one,many){
+        var el=document.getElementById(id); if(el) el.textContent = (Number(n)===1) ? one : many;
+      };
+      set('ceV', s.competitions); set('ceE', s.entries); set('ceA', s.creators);
+      label('ceVL', s.competitions, 'Competition', 'Competitions');
+      label('ceEL', s.entries,      'Entry',       'Entries');
+      label('ceAL', s.creators,     'Creator',     'Creators');
     }).catch(function(){});
 
     APP.querySelectorAll('[data-m]').forEach(function(b){
