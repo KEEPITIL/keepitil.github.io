@@ -233,36 +233,44 @@ footer{margin-top:auto}
 .kr-bar .kr-sep{flex:0 0 auto;color:var(--muted,#9aa0b0)}
 /* Horizontal cycling carousel. Scrolling BROWSES ONLY — it never changes station; that is
    deliberate (Founder), so a thumb-flick past the rail cannot silently restart the audio.
-   Only a tap on the artwork selects. scroll-snap keeps a tile centred when browsing stops. */
-.kr-carousel{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
-  padding:2px 0 10px;scroll-padding-left:50%;scroll-padding-right:50%}
+   Only a tap on the artwork selects.
+   ⚠ SIZING IS NOT DEFINED HERE AND MUST NOT BE. The tiles are the page's standard .card, so
+   `.grid>.card{aspect-ratio:2/3}` and `.g-stations>*{flex:0 0 240px}` (160px at <=860px) are
+   the only rules that size them — exactly the same ones every other rail on this page uses.
+   An earlier version carried its own 152px/124px square tiles; that is precisely the parallel
+   rule that drifts away from the rest of the page, and the Founder's instruction is that this
+   never changes again. Add nothing here that sets width, height or aspect-ratio. */
+.kr-carousel{scroll-snap-type:x mandatory;scroll-padding-left:50%;scroll-padding-right:50%;
+  scrollbar-width:none}
 .kr-carousel::-webkit-scrollbar{display:none}
-/* The first and last tiles must be able to reach the CENTRE of the rail, not just its edge.
-   Half the rail minus half a tile, as scroll padding on the flex line. */
-.kr-carousel::before,.kr-carousel::after{content:"";flex:0 0 calc(50% - 84px)}
-.kr-tile{flex:0 0 152px;scroll-snap-align:center;background:none;border:0;padding:0;
-  cursor:pointer;text-align:left;color:inherit;font:inherit;
-  opacity:.55;transform:scale(.94);transition:opacity .22s ease,transform .22s ease}
-.kr-tile.on{opacity:1;transform:scale(1)}
-.kr-tile .kr-art{width:152px;height:152px;border-radius:14px;background:#15131f center/cover no-repeat;
-  display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#fff;
-  border:1px solid var(--line,#242433)}
-.kr-tile.on .kr-art{border-color:var(--accent,#00b4ff);box-shadow:0 0 0 2px rgba(0,180,255,.28)}
-/* display:block is load-bearing, not tidiness. .kr-nm/.kr-st are <span> inside a <button>,
-   so they are inline by default and the station name ran into its status on one line —
-   "EDMNow playing". A button is not a block formatting context for its inline children. */
-.kr-tile .kr-art{display:flex}
-.kr-tile .kr-nm{display:block;margin-top:8px;font:800 .78rem/1.3 Inter,sans-serif;letter-spacing:.04em;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  text-shadow:0 1px 6px rgba(0,0,0,.85)}
-.kr-tile .kr-st{display:block;font:600 .68rem/1.3 Inter,sans-serif;color:var(--muted,#9aa0b0);
-  text-shadow:0 1px 6px rgba(0,0,0,.85)}
-.kr-tile.on .kr-st{color:var(--accent,#00b4ff)}
-@media(max-width:520px){
-  .kr-tile{flex:0 0 124px}
-  .kr-tile .kr-art{width:124px;height:124px}
-  .kr-carousel::before,.kr-carousel::after{flex:0 0 calc(50% - 70px)}
+/* First and last tiles must be able to reach the CENTRE of the rail, not just its edge.
+   Half the rail minus half a card — the card width comes from .g-stations above. */
+.kr-carousel::before,.kr-carousel::after{content:"";flex:0 0 calc(50% - 120px)}
+@media(max-width:860px){ .kr-carousel::before,.kr-carousel::after{flex:0 0 calc(50% - 80px)} }
+/* A <button> resets nothing by itself; .card supplies the frame, this supplies the rest. */
+.kr-tile{font:inherit;text-align:left;color:inherit;cursor:pointer;scroll-snap-align:center;
+  opacity:.55;transform:scale(.96);transition:opacity .22s ease,transform .22s ease,border-color .22s ease}
+.kr-tile.on{opacity:1;transform:scale(1);border-color:var(--brand)}
+/* Full 2:3 poster, the way the station cards looked before the carousel. */
+.kr-tile .card-img{height:auto;aspect-ratio:2/3;background:#15131f center/cover no-repeat;
+  display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#fff}
+/* The state badge sits ON the art. The card is 2:3 and the art fills it, so anything below the
+   image is clipped by .card{overflow:hidden} — which is where the old card's caption went. */
+.kr-tile .kr-state{position:absolute;left:8px;right:8px;bottom:8px;z-index:2;
+  display:flex;align-items:center;gap:6px;justify-content:space-between;
+  font:800 .6rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;
+  color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.9)}
+.kr-tile .kr-state b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kr-tile.on .kr-state em{font-style:normal;color:#06120a;background:var(--brand);
+  padding:2px 7px;border-radius:9px;flex:0 0 auto}
+.kr-tile:not(.on) .kr-state em{font-style:normal;color:var(--ink2);flex:0 0 auto}
+/* Rows 1-3 (title, POWERED BY, live bar) are MOBILE ONLY (Founder 2026-08-25). On desktop the
+   persistent radio bar is docked at the foot of the page and already shows playlist and track,
+   so repeating it mid-page is the same information twice. Mobile keeps them: there the shell
+   bar is pushed off screen, so this is the only place that state is visible. */
+@media(min-width:861px){
+  #stations .sh, #stations .kr-sub, #stations .kr-bar{display:none}
+}
 }
 </style>
 <link rel="canonical" href="https://keepitil.com/earn"/>
@@ -329,7 +337,7 @@ footer{margin-top:auto}
     <span class="kr-sep" aria-hidden="true">&raquo;</span>
     <span class="kr-nxt" id="krNxt">&mdash;</span>
   </div>
-  <div class="kr-carousel" id="stationGrid"></div>
+  <div class="grid g-stations kr-carousel" id="stationGrid"></div>
 </section>
 
 <!-- PLAYLISTS — title only, no explanatory copy (Founder 2026-08-22). -->
@@ -612,14 +620,19 @@ function band(hue,glyph){return '<div class="card-img" style="background:linear-
    Read from platform_config.radio_playlists — the SAME row the radio bar reads — so the page
    and the player can never disagree about which stations exist. */
 function kilStationCard(p, i){
-  var art = p.art
-    ? 'background-image:url(\''+String(p.art).replace(/'/g,"%27")+'\')'
+  /* Back to the page's standard 2:3 card (Founder 2026-08-25). Structure matches the station
+     card this rail used before the carousel — .card + .card-img poster — so it is the same
+     size as every other card on the page, from the same CSS rules. Only the behaviour is new:
+     a button that selects the station on KEEPITIL's own player, not an <a> out to soundcloud. */
+  var cover = p.art
+    ? "background-image:url('" + String(p.art).replace(/'/g, "%27") + "')"
     : '';
-  return '<button class="kr-tile" type="button" data-i="'+i+'" '
-    +      'aria-label="Play '+esc(p.name||'Playlist')+'">'
-    +   '<span class="kr-art" style="'+art+'">'+(p.art?'':'\u266a')+'</span>'
-    +   '<span class="kr-nm">'+esc(p.name||'Playlist')+'</span>'
-    +   '<span class="kr-st" data-st>Tap to play</span>'
+  return '<button class="station card kr-tile" type="button" data-i="' + i + '" '
+    +      'aria-label="Play ' + esc(p.name || 'Playlist') + '">'
+    +   '<div class="card-img" style="' + cover + '">' + (p.art ? '' : '\u266a')
+    +     '<span class="kr-state"><b>' + esc(p.name || 'Playlist') + '</b>'
+    +     '<em data-st>Tap to play</em></span>'
+    +   '</div>'
     + '</button>';
 }
 
