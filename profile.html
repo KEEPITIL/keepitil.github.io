@@ -94,11 +94,6 @@ body::before{content:""!important;position:fixed!important;inset:0!important;z-i
 .hl-c{width:66px;height:66px;border-radius:50%;padding:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));margin:0 auto 6px;}
 .hl-c img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--bg);}
 .hl span{font-size:.66rem;color:var(--text-soft);letter-spacing:.03em;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pf-tabs{position:sticky;top:66px;z-index:60;max-width:940px;margin:20px auto 0;padding:0 8px;display:flex;gap:2px;background:var(--nav);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
-.pf-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:15px 4px;font-family:var(--font-head);font-size:1rem;letter-spacing:.1em;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:color .18s,border-color .18s;user-select:none;}
-.pf-tab svg{width:16px;height:16px;fill:currentColor;}
-.pf-tab:hover{color:var(--text);}
-.pf-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
 .pf-panel{display:none;max-width:940px;margin:0 auto;padding:26px 22px 10px;}
 .pf-panel.active{display:block;animation:fade .3s ease;}
 @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
@@ -282,7 +277,7 @@ footer a{color:var(--accent2);}
   .car-arrow{display:none;}
   .pf-head{margin-top:16px;}.pf-avatar{width:124px;height:124px;}
   .pf-top{gap:14px;}.pf-actions{width:100%;}.pf-btn.follow,.pf-btn.book{flex:1;text-align:center;}
-  .pf-stats{justify-content:space-around;gap:16px;}.hl-row{justify-content:flex-start;gap:16px;}.pf-tab{font-size:0;padding:14px 4px;}.pf-tab svg{width:19px;height:19px;}
+  .pf-stats{justify-content:space-around;gap:16px;}.hl-row{justify-content:flex-start;gap:16px;}
   .gal-grid{gap:6px;}.chat-wrap{height:560px;}.show-tix{padding:8px 14px;font-size:.82rem;}
   #pnav{gap:8px 12px;font-size:.8rem;}
 }
@@ -326,7 +321,39 @@ footer a{color:var(--accent2);}
   .kil-hl .hl-del{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;}
   .kil-addhl{background:var(--accent);color:var(--onacc,#04120c);border:none;border-radius:7px;padding:4px 10px;font-size:.72rem;font-weight:800;letter-spacing:.04em;cursor:pointer;}
   .kil-note{font-size:.75rem;color:var(--muted);line-height:1.4;margin-top:2px;}
-  </style>
+  
+/* ── PROFILE FILTER BAR — two connected rows (Founder 2026-08-26) ─────────────────────────
+   Row 1 categories, row 2 that category's subfilters, one outer border and one width so the
+   pair reads as a single control. Matches the DISCOVER / CONNECT landing pattern. */
+.pf-filterbar{position:sticky;top:66px;z-index:60;max-width:940px;margin:20px auto 0;
+  background:var(--nav,rgba(12,12,20,.92));backdrop-filter:blur(10px);
+  border:1px solid var(--line,#242433);border-radius:14px;overflow:hidden}
+.pf-seg{display:flex;gap:2px;padding:5px}
+.pf-seg button{flex:1 1 0;min-width:0;background:none;border:0;cursor:pointer;
+  font-family:var(--fh,inherit);font-size:.9rem;letter-spacing:.1em;color:var(--muted,#9aa0b0);
+  padding:10px 6px;border-radius:9px;transition:background .16s,color .16s;white-space:nowrap}
+.pf-seg button:hover{color:#fff}
+.pf-seg button.on{background:#fff;color:#0a0a12}
+/* Row 2 is joined to row 1 by a shared divider, not a gap — that is what makes them read as
+   one control rather than two stacked bars. */
+.pf-subs{display:none;gap:7px;align-items:center;padding:9px 10px;
+  border-top:1px solid var(--line,#242433);overflow-x:auto;scrollbar-width:none;
+  -webkit-overflow-scrolling:touch}
+.pf-subs::-webkit-scrollbar{display:none}
+.pf-subs.show{display:flex}
+.pf-subs button{flex:0 0 auto;background:rgba(255,255,255,.05);border:1px solid var(--line,#242433);
+  color:var(--muted,#9aa0b0);border-radius:999px;padding:7px 14px;cursor:pointer;
+  font:800 .68rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  transition:background .16s,color .16s,border-color .16s;white-space:nowrap}
+.pf-subs button:hover{color:#fff}
+.pf-subs button.on{background:var(--accent,#00b4ff);border-color:var(--accent,#00b4ff);color:#001018}
+@media(max-width:860px){
+  .pf-filterbar{top:0;margin:12px 10px 0;border-radius:12px}
+  .pf-seg button{font-size:.78rem;letter-spacing:.06em;padding:9px 4px}
+  .pf-subs{padding:8px}
+  .pf-subs button{padding:6px 12px;font-size:.63rem}
+}
+</style>
 <style id="kil-feedv2">
 /* ===== FEED v2 — 9:16 universal cards, video, IG-style create, legend, events hub ===== */
 /* 9:16 gallery tiles + video */
@@ -490,14 +517,13 @@ footer a{color:var(--accent2);}
 .feed-legend{display:none;position:absolute;top:calc(100% + 8px);left:0;z-index:70;flex-direction:column;gap:10px;min-width:236px;margin:0;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 38px rgba(0,0,0,.5);}
 .feed-legend.open{display:flex;}
 </style>
-<style>.pf-tab[data-tab="gallery"]{display:none!important}
+<style>
 /* EVENTS tab visibility is controlled by applyProfileTabs() (viewer sees FEED+EVENTS; owner sees FEED/SAVED/TAGGED/CHAT) */
 /* Global (both viewports, functional only — no layout change to desktop) */
 #pfBack{display:none;position:sticky;top:0;z-index:70;background:var(--nav,rgba(10,10,15,.92));backdrop-filter:blur(8px);border:none;color:var(--text,#fff);font-family:var(--fh,inherit);font-weight:700;letter-spacing:.08em;font-size:.82rem;padding:11px 16px;width:100%;text-align:left;cursor:pointer;border-bottom:1px solid var(--line,rgba(255,255,255,.08))}
 /* ============ MOBILE ONLY (max-width:768px) — desktop is never touched ============ */
 @media(max-width:768px){
   #pfHandle{display:none!important}
-  .pf-tabs{top:0!important}
   .pf-panel{padding-left:8px!important;padding-right:8px!important;padding-top:6px!important}
   #chat-list{grid-template-columns:1fr!important}
   #chat-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;gap:8px;scrollbar-width:none}
@@ -634,19 +660,22 @@ window.KIL_FILTER_BADGES = function(badges){
 
 <!-- highlights removed (Founder 2026-07-27: not using highlights for now) -->
 
-<div class="pf-tabs" id="pf-tabs">
-  <div class="pf-tab active" data-tab="article" onclick="showTab('article')"><svg viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h16v2H4z"/></svg><span>FEED</span></div>
-  <!-- EVENTS tab: shown to subscribed VIEWERS only (public created events → buy tickets). Hidden for the owner. -->
-  <!-- Renamed EVENTS → SHOWS 2026-08-19: the tickets tab below now owns the word "Events", and
-       two tabs reading EVENTS is unreadable. This one is a different thing anyway — events this
-       profile is PUTTING ON, shown to subscribed viewers so they can buy. -->
-  <div class="pf-tab" data-tab="shows" id="pfTabEvents" style="display:none" onclick="showTab('shows')"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 16H5V10h14v10z"/></svg><span>SHOWS</span></div>
-  <div class="pf-tab" data-tab="saved" onclick="showTab('saved')"><svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 00-2 2v16l7-4 7 4V5a2 2 0 00-2-2z"/></svg><span>SAVED</span></div>
-  <!-- TAGGED → EVENTS (Founder 2026-08-19). The tab id/data-tab stay "tagged" on purpose: the
-       lazy-load switch, the visibility logic at line ~989 and showTab() all key off that string,
-       and renaming it would mean touching four call sites to change one label. Ticket icon. -->
-  <div class="pf-tab" data-tab="tagged" onclick="showTab('tagged')"><svg viewBox="0 0 24 24"><path d="M22 10V6a2 2 0 00-2-2H4a2 2 0 00-2 2v4a2 2 0 010 4v4a2 2 0 002 2h16a2 2 0 002-2v-4a2 2 0 010-4zM9 8h6v2H9zm0 4h6v2H9z"/></svg><span>EVENTS</span></div>
-  <div class="pf-tab" data-tab="chat" onclick="showTab('chat')"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>CHAT</span></div>
+<!-- ── TWO-ROW FILTER BAR (Founder 2026-08-26) ────────────────────────────────────────────
+     Same shape as the DISCOVER / CONNECT landing pages: a row of categories, and a row of
+     that category's subfilters directly beneath it, sharing one border so they read as one
+     connected control of a single width.
+     The panels underneath are unchanged — this bar routes to the ones that already exist
+     rather than introducing a parallel set. CHAT and SAVED are owner-only and are removed
+     from the DOM for a visitor, not merely hidden. -->
+<div class="pf-filterbar" id="pf-filterbar">
+  <div class="pf-seg" id="pfSeg">
+    <button type="button" data-cat="feed"  class="on">FEED</button>
+    <button type="button" data-cat="event">EVENT</button>
+    <button type="button" data-cat="chat"  data-owner="1">CHAT</button>
+    <button type="button" data-cat="saved" data-owner="1">SAVED</button>
+  </div>
+  <div class="pf-subs" id="pfSubs"></div>
+</div>
 </div>
 
 <div class="pf-panel active" id="tab-article">
@@ -869,11 +898,167 @@ function checkOwnership(){
     OWNS = !!(r&&r.data&&r.data.owner_id===SESSION.user.id); return OWNS;
   }).catch(function(){ OWNS=false; return false; });
 }
+/* ── FILTER BAR ROUTING (Founder 2026-08-26) ──────────────────────────────────────────────
+   Categories route to the panels that already exist; subfilters narrow what is shown inside
+   them. Nothing here renders a second copy of any list.
+
+   EVENT is three views of two panels: #pfEntries and the tickets grid both live inside
+   tab-tagged, and the shows a profile is putting on live in tab-shows. Splitting them by
+   subfilter is what lets one category cover Entry / Events / Tickets without a third panel.
+
+   ⚠ WHAT ACTUALLY FILTERS, AND WHAT IS HONEST ABOUT NOT:
+   FEED and EVENT filter real content — feed cards already carry data-kind, and the EVENT
+   sections are separate DOM. CHAT and SAVED filter by rules derived from data the page
+   already loads (see pfChatBucket / the collection chips). Where a rule cannot be evaluated
+   the chip shows everything rather than silently showing nothing. */
+var PF_SUBS = {
+  feed:  [['all','Feed'],['article','Article'],['photo','Photo'],['video','Videos'],['rated','Rated']],
+  event: [['entry','Entry'],['events','Events'],['tickets','Tickets']],
+  chat:  [['primary','Primary'],['general','General'],['request','Request']],
+  saved: [['overall','Overall'],['collection','Collection']]
+};
+var PF_CAT = 'feed', PF_SUB = { feed:'all', event:'entry', chat:'primary', saved:'overall' };
+
+function pfRenderSubs(){
+  var box=document.getElementById('pfSubs'); if(!box) return;
+  var list=PF_SUBS[PF_CAT]||[];
+  box.innerHTML = list.map(function(x){
+    return '<button type="button" data-sub="'+x[0]+'"'+(PF_SUB[PF_CAT]===x[0]?' class="on"':'')+'>'+x[1]+'</button>';
+  }).join('');
+  box.classList.toggle('show', list.length>0);
+}
+
+function pfCat(cat){
+  PF_CAT=cat;
+  document.querySelectorAll('#pfSeg button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-cat')===cat);
+  });
+  pfRenderSubs();
+  pfApply();
+}
+
+function pfSub(v){
+  PF_SUB[PF_CAT]=v;
+  document.querySelectorAll('#pfSubs button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-sub')===v);
+  });
+  pfApply();
+}
+
+function pfShowPanel(id){
+  document.querySelectorAll('.pf-panel').forEach(function(p){ p.classList.toggle('active', p.id===id); });
+}
+
+function pfApply(){
+  var sub=PF_SUB[PF_CAT];
+  if(PF_CAT==='feed'){
+    pfShowPanel('tab-article');
+    /* Feed cards already carry data-kind; 'rated' is content that has received votes, marked
+       with data-rated by whatever renders it. Absent that mark, Rated shows nothing rather
+       than quietly showing everything — an empty Rated is truthful, a full one is not. */
+    document.querySelectorAll('#feed-grid > *').forEach(function(card){
+      var show=true;
+      if(sub==='rated')      show = card.hasAttribute('data-rated');
+      else if(sub!=='all'){
+        var cls=(card.className||'')+' '+(card.getAttribute('data-kind')||'');
+        var pat = sub==='photo' ? '(photo|image|img)' : sub==='video' ? '(video|reel|clip)' : sub;
+        show = new RegExp('\\b'+pat+'\\b','i').test(cls);
+      }
+      card.style.display = show ? '' : 'none';
+    });
+    pfEmpty('feed-grid', sub==='all' ? '' : 'Nothing here yet.');
+  }
+  else if(PF_CAT==='event'){
+    if(sub==='events'){ pfShowPanel('tab-shows'); return; }
+    pfShowPanel('tab-tagged');
+    var ent=document.getElementById('pfEntries');
+    var th =document.getElementById('pfTicketsHead');
+    var tg =document.getElementById('tagged-grid');
+    var te =document.getElementById('tagged-empty');
+    var wantEntry = sub==='entry';
+    if(ent) ent.style.display = wantEntry ? '' : 'none';
+    [th,tg,te].forEach(function(el){ if(el) el.style.display = wantEntry ? 'none' : ''; });
+  }
+  else if(PF_CAT==='chat'){
+    pfShowPanel('tab-chat');
+    if(typeof closeChatGroup==='function') try{ closeChatGroup(); }catch(e){}
+    pfFilterChat(sub);
+  }
+  else if(PF_CAT==='saved'){
+    pfShowPanel('tab-saved');
+    var coll=document.getElementById('saved-coll');
+    /* COLLECTION exposes the collection chips this page already builds; OVERALL is everything
+       saved, so the chips are irrelevant there and are put away rather than left as decoration. */
+    if(coll) coll.style.display = (sub==='collection') ? 'flex' : 'none';
+    document.querySelectorAll('#saved-grid > *').forEach(function(c){
+      c.style.display = (sub==='collection' && !c.hasAttribute('data-collection')) ? 'none' : '';
+    });
+  }
+}
+
+/* Instagram's rule, applied to the data this page already has:
+     REQUEST — a thread you have never replied to. Someone messaged you; you have not accepted.
+     PRIMARY — a thread with someone you follow.
+     GENERAL — accepted, but not someone you follow.
+   The thread rows carry these as data attributes when the chat list renders them; a row that
+   has not been classified is left visible rather than hidden, so a missing attribute can never
+   make a real conversation disappear. */
+function pfFilterChat(bucket){
+  /* The chat list already filters itself by category through setChatFilter/renderChats. Driving
+     that rather than hiding rows afterwards keeps ONE filter in charge — two would eventually
+     disagree, and the visible list would depend on which ran last. */
+  if(typeof setChatFilter==='function'){ try{ setChatFilter(bucket); return; }catch(e){} }
+  document.querySelectorAll('#tab-chat [data-thread]').forEach(function(row){
+    var b=row.getAttribute('data-bucket');
+    row.style.display = (!b || b===bucket) ? '' : 'none';
+  });
+}
+
+function pfEmpty(gridId, msg){
+  var g=document.getElementById(gridId); if(!g) return;
+  var any=[].slice.call(g.children).some(function(c){ return c.style.display!=='none'; });
+  var id=gridId+'-pfempty', ex=document.getElementById(id);
+  if(any || !msg){ if(ex) ex.remove(); return; }
+  if(ex) return;
+  var d=document.createElement('div'); d.id=id;
+  d.style.cssText='color:var(--muted,#9aa0b0);text-align:center;padding:44px 20px';
+  d.textContent=msg; g.parentNode.insertBefore(d, g.nextSibling);
+}
+
+(function pfBindBar(){
+  var seg=document.getElementById('pfSeg'), subs=document.getElementById('pfSubs');
+  if(!seg) return;
+  seg.addEventListener('click', function(e){
+    var b=e.target.closest('button[data-cat]'); if(!b) return; pfCat(b.getAttribute('data-cat'));
+  });
+  if(subs) subs.addEventListener('click', function(e){
+    var b=e.target.closest('button[data-sub]'); if(!b) return; pfSub(b.getAttribute('data-sub'));
+  });
+  pfRenderSubs();
+})();
+
+/* CHAT and SAVED belong to the profile's owner. Removed from the DOM for a visitor rather than
+   hidden, so there is no control to find in the markup and no panel to reach by guessing. */
+function pfApplyOwnerBar(isOwner){
+  document.querySelectorAll('#pfSeg button[data-owner]').forEach(function(b){
+    if(!isOwner) b.remove();
+  });
+  if(!isOwner && (PF_CAT==='chat' || PF_CAT==='saved')) pfCat('feed');
+}
+
+/* showTab survives because deep links (?tab=shows from the event page, ?tab=tagged from CREATE)
+   and several call sites still use it. It now drives the BAR rather than a separate row of
+   tabs, so a deep link leaves the control showing the category it actually landed on instead
+   of disagreeing with the panel. */
 function showTab(name){
-  document.querySelectorAll('.pf-tab').forEach(function(t){t.classList.toggle('active',t.dataset.tab===name);});
-  document.querySelectorAll('.pf-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);});
-  if(name==='chat'){ if(typeof closeChatGroup==='function') closeChatGroup(); }
-  var tabs=document.querySelector('.pf-tabs');if(tabs){window.scrollTo({top:tabs.offsetTop-70,behavior:'smooth'});}
+  var map={ article:['feed','all'], gallery:['feed','photo'], shows:['event','events'],
+            tagged:['event','tickets'], entry:['event','entry'],
+            chat:['chat','primary'], saved:['saved','overall'] };
+  var m=map[name];
+  if(m){ PF_SUB[m[0]]=m[1]; pfCat(m[0]); }
+  else { document.querySelectorAll('.pf-panel').forEach(function(p){p.classList.toggle('active',p.id==='tab-'+name);}); }
+  var bar=document.querySelector('.pf-filterbar');
+  if(bar){ window.scrollTo({top:bar.offsetTop-70,behavior:'smooth'}); }
 }
 /* deep-link: /u.html?slug=x&tab=shows opens the Events tab directly (used by the event-page back button) */
 /* ?tab= allowlist extended to the tabs that actually exist (Founder 2026-08-19). It accepted only
@@ -1043,16 +1228,13 @@ var SEED=null;
 var EVENTS_FEED=[];
 function renderAll(){renderGallery();renderShows();renderArticles();renderChats();try{setTimeout(hydratePosts,0);}catch(e){}try{applyProfileTabs();}catch(e){}}
 /* Subscribed viewer (not the owner) sees only FEED + EVENTS. Owner sees FEED/SAVED/TAGGED/CHAT. */
+/* Rewritten 2026-08-26. This drove a row of .pf-tab elements that no longer exists; the
+   filter bar replaced them. CHAT and SAVED are the owner-only categories, and pfApplyOwnerBar
+   REMOVES them for a visitor rather than hiding them. */
 function applyProfileTabs(){
   var owner=(typeof CAN_EDIT==='function')&&CAN_EDIT();
   if(typeof IS_AGENT!=='undefined' && IS_AGENT) return; /* agent pages keep their own layout */
-  function tab(n){return document.querySelector('.pf-tab[data-tab="'+n+'"]');}
-  var ev=document.getElementById('pfTabEvents'), sv=tab('saved'), tg=tab('tagged'), ch=tab('chat');
-  if(owner){ if(ev)ev.style.display='none'; [sv,tg,ch].forEach(function(t){if(t)t.style.display='';}); }
-  else { if(ev)ev.style.display=''; [sv,tg,ch].forEach(function(t){if(t)t.style.display='none';});
-    /* if the viewer is on a now-hidden tab, snap back to FEED */
-    var act=document.querySelector('.pf-tab.active'); if(act&&['saved','tagged','chat'].indexOf(act.dataset.tab)>-1){ try{showTab('article');}catch(e){} }
-  }
+  try{ pfApplyOwnerBar(owner); }catch(e){}
 }
 function rebuild(rows){
   GT_ARTICLES=SEED.articles.slice();GAL_IMGS=SEED.photos.slice();GT_SHOWS=SEED.shows.slice();GT_CHATS=SEED.chats.slice();EVENTS_FEED=[];
@@ -2189,6 +2371,13 @@ var GT_CHATS=[
   ['groove-cruise','Groove Cruise Fam','Miami 2027 — who is in?','3h','12','https://images.ra.co/0c08978993ce4ba443b61b007d1de45445ddced3.jpg','general'],
   ['oc-techno','OC Techno Heads','Warehouse location drop soon','1d','','https://images.ra.co/1641a2b8fddcee60bb204595abe0a3f20d8a0e51.jpg','general']
 ];
+/* Instagram's rule, as far as this page's data can express it:
+     request — carries an explicit 'request' category, i.e. not yet accepted
+     general — an explicit 'general' category, or a name that reads as a group
+     primary — everything else
+   An explicit category always wins; the name test is only the fallback for seeded rows that
+   predate categories. 'events' is kept as a passthrough so older rows are not silently
+   reclassified into a bucket the visitor is not looking at. */
 function chatCat(c){ if(c[6])return c[6]; return /general/i.test(c[1])?'general':(/@|event/i.test(c[1])?'events':'primary'); }
 function chatRow(av,title,desc,onclick,time,dot,delSlug){
   var menu='';
@@ -2208,9 +2397,11 @@ function renderChats(){
   var list=document.getElementById('chat-list');if(!list)return;
   list.classList.remove('agmode');
   var nb=document.getElementById('dm-new'); if(nb) nb.style.display=CAN_EDIT()?'flex':'none';
-  var chips=[['primary','Primary'],['general','General'],['events','Events']];
+  /* The chat panel used to draw its own Primary/General/Events chips. Row 2 of the filter bar
+     owns those now (Primary/General/Request), so this row is emptied rather than left to
+     render a second, competing set of the same control. */
   var bar=document.getElementById('chat-filter');
-  if(bar)bar.innerHTML=chips.map(function(c){return '<button class="pf-chip'+(CHAT_FILTER===c[0]?' on':'')+'" onclick="setChatFilter(\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+  if(bar){ bar.innerHTML=''; bar.style.display='none'; }
   if(CHAT_FILTER==='events'){ renderEventChats(list); return; }
   var items=GT_CHATS.filter(function(c){return chatCat(c)===CHAT_FILTER;});
   if(!items.length){ list.innerHTML='<div class="pf-empty">'+(CAN_EDIT()?'No chats here yet. Start a group to talk with your community. <button class="pf-chip" style="margin-top:8px" onclick="addContent(\'chat group\')">Start a chat</button>':'No chats here yet.')+'</div>'; return; }
