@@ -52,12 +52,7 @@
    + '#vs-app h1.vs-h,#vs-app h2.vs-h{font-family:var(--fs,inherit);font-size:1.5rem;color:#fff;margin:0 0 4px;font-weight:inherit}'
    + '#vs-app .vs-meta{color:#9aa0b0;font-size:.85rem;margin-bottom:14px}'
    /* the 5-action vote bar — sticky on mobile per §28 */
-   + '#vs-app .vs-votes{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0;padding:12px;border:1px solid var(--vsl);border-radius:14px;background:rgba(12,12,20,.9)}'
-   + '#vs-app .vs-votes button{flex:1 1 0;min-width:92px;display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(255,255,255,.05);border:1px solid var(--vsl);color:#e8e6f2;border-radius:11px;padding:10px 6px;cursor:pointer;font:700 .72rem Inter,sans-serif;letter-spacing:.05em}'
-   + '#vs-app .vs-votes button .em{font-size:1.1rem;line-height:1}'
    /* active state is NOT colour-only (§28): a ✓ is added too */
-   + '#vs-app .vs-votes button.on{border-color:var(--vsb);color:var(--vsb);background:rgba(0,180,255,.12)}'
-   + '#vs-app .vs-votes button[disabled]{opacity:.45;cursor:not-allowed}'
    + '#vs-app .vs-prog{font:800 .78rem Inter,sans-serif;letter-spacing:.06em;color:#fff;margin-bottom:8px}'
    + '#vs-app .vs-prog small{color:#9aa0b0;font-weight:600;letter-spacing:0}'
    + '#vs-app .vs-lb{width:100%;border-collapse:collapse;margin-top:10px}'
@@ -127,6 +122,71 @@
    +   '#vs-app .cd2-sub .cd-left,#vs-app .cd2-sub .cd-right{height:auto;overflow:visible}'
    + '}'
    + '#vs-app .cd-back{margin:0 0 12px;cursor:pointer}'
+   /* ── ENTRY PAGE (Founder 2026-08-26) ────────────────────────────────────────────────────
+      Same two-column shell as the competition page. The left column is a CAROUSEL with a
+      single portrait window — one card at a time, swiped left/right between the submitted work
+      and the cover image, with a dot per slide underneath. */
+   + '#vs-app .eq-car{position:relative;width:100%;aspect-ratio:2/3;border-radius:10px;'
+   +   'border:1px solid var(--vsl);background:#15131f;display:flex;overflow-x:auto;overflow-y:hidden;'
+   +   'scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}'
+   + '#vs-app .eq-car::-webkit-scrollbar{display:none}'
+   + '#vs-app .eq-slide{position:relative;flex:0 0 100%;scroll-snap-align:center;overflow:hidden;'
+   +   'display:flex;align-items:center;justify-content:center}'
+   /* contain, not cover: a submission that is not 2:3 is shown WHOLE, with its own blurred
+      copy filling the window behind it rather than being centre-cropped. */
+   + '#vs-app .eq-slide .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;'
+   +   'filter:blur(16px) brightness(.45) saturate(1.2);transform:scale(1.25)}'
+   + '#vs-app .eq-slide .im{position:relative;z-index:1;max-width:100%;max-height:100%;object-fit:contain}'
+   + '#vs-app .eq-slide .tag{position:absolute;z-index:3;top:8px;left:8px;font:800 .55rem Inter,sans-serif;'
+   +   'letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:11px;'
+   +   'background:rgba(0,0,0,.62);color:#fff;border:1px solid rgba(255,255,255,.22)}'
+   + '#vs-app .eq-slide .none{color:var(--vsm,#9aa0b0);font:700 .8rem Inter,sans-serif}'
+   + '#vs-app .eq-dots{display:flex;gap:7px;justify-content:center;margin:9px 0 0}'
+   + '#vs-app .eq-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.28);'
+   +   'border:0;padding:0;cursor:pointer;transition:background .18s}'
+   + '#vs-app .eq-dot.on{background:var(--vsb)}'
+   /* Two buttons where the competition page has "Enter this competition". */
+   + '#vs-app .eq-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}'
+   + '#vs-app .eq-btn{height:40px;padding:0 14px;border-radius:20px;font:800 .7rem Inter,sans-serif;'
+   +   'letter-spacing:.09em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;'
+   +   'justify-content:center;gap:7px;background:transparent;border:1px solid var(--vsb);color:var(--vsb);'
+   +   'transition:background .18s,color .18s,border-color .18s}'
+   + '#vs-app .eq-btn:disabled{opacity:.45;cursor:not-allowed}'
+   /* VOTED: solid neon, and the word VOTE gives way to the count alone. */
+   + '#vs-app .eq-vote.voted{background:#00ff88;border-color:#00ff88;color:#06120a}'
+   + '#vs-app .eq-vote.voted .lb{display:none}'
+   + '#vs-app .eq-vote .n{font-variant-numeric:tabular-nums}'
+   + '#vs-app .eq-vote.voted .n{font-size:.95rem}'
+   /* Each other submission repeats the same two-column, one-row shell. */
+   + '#vs-app .eq-row{margin-top:22px;padding-top:22px;border-top:1px solid var(--vsl)}'
+   /* ⚠ THE ENTRY PAGE RENDERS SEVERAL .cd2 BLOCKS, AND .cd2 IS HEIGHT-LOCKED ON DESKTOP.
+      @media(min-width:861px) sets .cd2{height:calc(100vh - 216px);overflow:hidden} so the
+      competition page can give its right column an inner scroller. Applied to a stack of rows
+      that is exactly how the submit page lost its second upload slot — clipped, present in the
+      DOM, impossible to reach. Every .cd2 on THIS page is content-height. */
+   + '@media(min-width:861px){'
+   +   '#vs-app .eq-main,#vs-app .eq-row{height:auto;min-height:0;overflow:visible}'
+   +   '#vs-app .eq-main .cd-left,#vs-app .eq-main .cd-right,'
+   +   '#vs-app .eq-row .cd-left,#vs-app .eq-row .cd-right{height:auto;overflow:visible}'
+   + '}'
+   + '#vs-app .eq-feedhead{max-width:1120px;margin:30px auto 0;font-family:var(--fs,inherit);'
+   +   'font-size:1.35rem;letter-spacing:.02em;color:#fff}'
+   /* Leaderboard — the destination the RATED button scrolls to. */
+   + '#vs-app .eq-lb{max-width:1120px;margin:30px auto 0;padding-top:22px;border-top:1px solid var(--vsl)}'
+   + '#vs-app .eq-lb ol{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}'
+   + '#vs-app .eq-lbrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;'
+   +   'border:1px solid var(--vsl);background:rgba(255,255,255,.04)}'
+   + '#vs-app .eq-lbrow.me{border-color:var(--vsb);background:rgba(0,180,255,.10)}'
+   + '#vs-app .eq-lbrow .rk{flex:0 0 26px;text-align:center;font:800 .95rem Inter,sans-serif;color:var(--vsm,#9aa0b0)}'
+   + '#vs-app .eq-lbrow .th{flex:0 0 auto;width:38px;height:57px;border-radius:6px;'
+   +   'background:#15131f center/cover no-repeat;border:1px solid var(--vsl)}'
+   + '#vs-app .eq-lbrow .nm{flex:1;min-width:0}'
+   + '#vs-app .eq-lbrow .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+   + '#vs-app .eq-lbrow .nm a{color:var(--vsb);font:700 .78rem Inter,sans-serif;text-decoration:none}'
+   + '#vs-app .eq-lbrow .vt{flex:0 0 auto;text-align:right;font:800 1.05rem Inter,sans-serif;color:#00ff88;'
+   +   'font-variant-numeric:tabular-nums}'
+   + '#vs-app .eq-lbrow .vt small{display:block;font:700 .56rem Inter,sans-serif;letter-spacing:.1em;'
+   +   'text-transform:uppercase;color:var(--vsm,#9aa0b0)}'
    + '#vs-app .sf-slot{display:flex;flex-direction:column;gap:7px}'
    + '#vs-app .sf-cap{font:800 .7rem Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#9aa0b0}'
    + '#vs-app .sf-cap b{color:#ff6b6b}'
@@ -347,7 +407,7 @@
       permanently invisible layer over the card swallowing taps. The whole card is tappable and
       the DETAILS chip already reads as the action, same as the homepage on mobile. */
    + '@media(hover:none){#vs-app .ce-actions{display:none}}'
-   + '@media(max-width:860px){#vs-app .vs-votes{position:sticky;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:30}}';
+   + '';
   (function(){ var s=document.createElement('style'); s.textContent=CSS; document.head.appendChild(s); })();
 
   /* ── session ───────────────────────────────────────────────────────────────────── */
@@ -410,7 +470,6 @@
   }
 
   /* ── SUBMISSION DETAIL + the 5 vote actions (§9-17, §21) ───────────────────────── */
-  var ACTIONS = [['like','♥','Like'],['comment','💬','Comment'],['repost','🔁','Repost'],['share','➦','Share'],['save','🔖','Save']];
 
   /* BACK GOES TO THE PROFILE'S EVENTS SECTION (Founder 2026-08-19), not to /create/?view=mine —
      that view is being retired because entries and tickets both live on the profile now.
@@ -443,6 +502,58 @@
      Reuses the cd-* classes rather than inventing a parallel set: the locked-column behaviour,
      the scroll container and the mobile single-column collapse are already solved there, and a
      second implementation would drift from it. */
+  /* ── THE ENTRY PAGE (rebuilt 2026-08-26, Founder spec) ────────────────────────────────────
+     Same two-column shell as the competition page. LEFT is a one-window carousel over the
+     entrant's own media; RIGHT is everything they submitted, plus the competition it belongs
+     to. Below that, every other entry repeats the same two-column row, and the page ends in a
+     leaderboard — the place the RATED button scrolls to. */
+
+  /* One card, swiped. Slides are built from what the entry actually has, so an entry with only
+     a work image gets one slide and NO dots rather than a dead second panel. */
+  function eqCarousel(en, idPrefix){
+    var slides = [];
+    if(en.thumb_url) slides.push(['Submitted work', en.thumb_url]);
+    if(en.cover_url) slides.push(['Cover image',    en.cover_url]);
+    var body = slides.length
+      ? slides.map(function(sl){
+          return '<div class="eq-slide">'
+            + '<img class="bg" src="'+h(sl[1])+'" alt="" aria-hidden="true">'
+            + '<img class="im" src="'+h(sl[1])+'" alt="'+h(en.title||'')+'" loading="lazy">'
+            + '<span class="tag">'+h(sl[0])+'</span></div>';
+        }).join('')
+      : '<div class="eq-slide"><span class="none">No media submitted</span></div>';
+    var dots = slides.length > 1
+      ? '<div class="eq-dots" data-dots="'+idPrefix+'">'
+        + slides.map(function(sl,i){
+            return '<button type="button" class="eq-dot'+(i===0?' on':'')+'" data-i="'+i+'" '
+                 + 'aria-label="'+h(sl[0])+'"></button>';
+          }).join('') + '</div>'
+      : '';
+    return '<div class="eq-car" id="'+idPrefix+'">'+body+'</div>'+dots;
+  }
+
+  /* VOTE + RATED. One vote per user: the count shown is unique_voters, which counts PEOPLE, not
+     actions — so it cannot be inflated by one person pressing several things. */
+  function eqVoteBtn(entryId, voted, count, disabled, why){
+    return '<button type="button" class="eq-btn eq-vote'+(voted?' voted':'')+'" data-vote="'+entryId+'"'
+      + (disabled?' disabled title="'+h(why||'')+'"':'')
+      + ' aria-pressed="'+(voted?'true':'false')+'">'
+      + '<span class="lb">Vote</span><span class="n">'+(count||0)+'</span></button>';
+  }
+
+  function eqInfo(en, comp){
+    return ''
+      + '<div class="cd-org"><div class="av"></div><div>'
+      +   '<b>'+h(en.creator_handle?('@'+en.creator_handle):'Entrant')+'</b>'
+      +   '<div class="vs-note" style="margin:0">'+h(comp.title||'')+'</div></div></div>'
+      + '<h1 class="cd-title">'+h(en.title||'Untitled')+'</h1>'
+      + (en.description       ? '<div class="cd-sec"><h3>About this entry</h3><p>'+h(en.description)+'</p></div>' : '')
+      + (en.creator_statement ? '<div class="cd-sec"><h3>Creator statement</h3><p>'+h(en.creator_statement)+'</p></div>' : '')
+      + (en.tools             ? '<div class="cd-sec"><h3>Tools / software</h3><p>'+h(en.tools)+'</p></div>' : '')
+      + (en.ai_disclosure     ? '<div class="cd-sec"><h3>AI disclosure</h3><p>'+h(en.ai_disclosure)+'</p></div>' : '')
+      + (en.collaborators     ? '<div class="cd-sec"><h3>Collaborators</h3><p>'+h(en.collaborators)+'</p></div>' : '');
+  }
+
   function renderEntry(id){
     busy('Loading entry…');
     Promise.all([
@@ -453,159 +564,201 @@
       var e = res[0].data, totals = res[1].data || {}, prog = res[2].data || {};
       if(!e){ empty('Entry not found', 'It may have been withdrawn.'); return; }
 
-      /* UNAPPROVED ENTRIES ARE NOT PUBLIC. The owner sees their own; nobody else does until a
-         human approves it. Kept from the 2026-08-19 fix — this view used to render the full
-         voting UI for any id, including drafts. */
+      /* UNAPPROVED ENTRIES STAY PRIVATE TO EVERYONE BUT THEIR OWNER. That gate is unchanged.
+         What changed: the owner used to get a bare status card with none of their own work or
+         competition on it (Founder 2026-08-26: "does not show my work or any information from
+         the event"). The owner now sees the whole page, with a banner saying it is not public
+         yet — the entry is theirs, so there is nothing to hide from them. */
       var isOwner = !!(ME && e.creator_user_id && ME.id === e.creator_user_id);
-      if(e.status !== 'approved'){
-        if(!isOwner){
-          empty('Not available', 'This entry has not been approved for public voting yet.');
-          return;
-        }
-        APP.innerHTML = navBar('mine')
-          + '<div class="soon"><div class="i">🕓</div><h2>'+h(e.title||'Your entry')+'</h2>'
-          + '<p>Status: <b>'+h(e.status)+'</b>'+(e.entitlement?' · entry paid':'')+'.<br>'
-          + 'It becomes public and votable once the review team approves it.</p>'
-          + (e.admin_message ? '<p class="vs-note">'+h(e.admin_message)+'</p>' : '')
-          + '<p>'+backToProfileBtn()+'</p></div>';
+      var pending = e.status !== 'approved';
+      if(pending && !isOwner){
+        empty('Not available', 'This entry has not been approved for public voting yet.');
         return;
       }
 
       return Promise.all([
-        SB.from('vs_competitions').select('id,title,vote_display_mode,voting_closes_at,status,results_locked_at')
+        SB.from('vs_competitions')
+          .select('id,title,vote_display_mode,voting_closes_at,status,results_locked_at')
           .eq('id', e.competition_id).maybeSingle(),
-        /* The rest of the field. Approved only — the same gate the single entry passes. */
-        SB.from('vs_entries')
-          .select('id,title,thumb_url,creator_handle,status')
-          .eq('competition_id', e.competition_id).eq('status','approved')
-          .order('submitted_at', { ascending:false }).limit(60)
+        /* The rest of the field, and the leaderboard, come from ONE source: vs_feed already
+           returns total_votes per entry and sorts by it, so the ranking below cannot disagree
+           with the counts on the cards above. Approved only — the same gate this entry passes. */
+        SB.rpc('vs_feed', { p_competition: e.competition_id, p_sort: 'top', p_limit: 60 })
       ]).then(function(rs){
-        var c = (rs[0] && rs[0].data) || {};
-        var field = ((rs[1] && rs[1].data) || []).filter(function(x){ return String(x.id) !== String(id); });
+        var c    = (rs[0] && rs[0].data) || {};
+        var rows = ((rs[1] && rs[1].data) || []);
         var open = c.status !== 'closed' && !c.results_locked_at &&
                    (!c.voting_closes_at || new Date(c.voting_closes_at) > new Date());
         var blind = c.vote_display_mode === 'blind' && open;
-        var used = prog.used || 0;
+        var field = rows.filter(function(x){ return String(x.entry_id) !== String(id); });
 
-        /* LEFT — the work itself, locked. Blurred backdrop + contained image so a submission
-           that is not 2:3 is shown whole rather than centre-cropped. */
-        var art = e.thumb_url
-          ? '<img class="cd-flyer-bg" src="'+h(e.thumb_url)+'" alt="" aria-hidden="true">'
-            + '<img class="cd-flyer-im" src="'+h(e.thumb_url)+'" alt="'+h(e.title||'')+'">'
-          : '<div class="cd-flyer-gen"><span class="cat">'+h(c.title||'CREATE')+'</span>'
-            + '<span class="ttl">'+h(e.title||'Untitled')+'</span></div>';
+        /* Why a vote is refused, said once and reused, so the button never just sits dead. */
+        var why = !ME ? 'Sign in to vote'
+                : pending ? 'This entry is not approved for voting yet'
+                : !open ? 'Voting is not open for this competition'
+                : isOwner ? 'You cannot vote on your own entry' : '';
+        var voteDisabled = !!why;
+        var myVote = !!(prog && (prog.like || prog.comment || prog.repost || prog.share || prog.save));
 
         var left = '<div class="cd-stick">'
-          + '<div class="cd-flyer" style="position:relative;overflow:hidden">'+art+'</div>'
-          + '<div class="vs-votes cd-buyrow" id="vsVotes">'
-          +   ACTIONS.map(function(a){
-                var on = !!prog[a[0]];
-                return '<button data-a="'+a[0]+'" class="'+(on?'on':'')+'"'
-                  + (!ME || !open ? ' disabled' : '')
-                  + ' aria-pressed="'+(on?'true':'false')+'">'
-                  + '<span class="em" aria-hidden="true">'+a[1]+'</span>'
-                  + '<span>'+a[2]+(on?' ✓':'')+'</span></button>';
-              }).join('')
+          + eqCarousel(e, 'eqCar')
+          + '<div class="eq-acts">'
+          +   '<button type="button" class="eq-btn" id="eqRated">Rated</button>'
+          +   eqVoteBtn(e.id, myVote, (blind ? '—' : (totals.unique_voters || 0)), voteDisabled, why)
           + '</div>'
-          + '<div class="vs-note" id="vsProg" style="text-align:center">Your votes: '+used+' of 5 · '
-          +   (ME ? 'each action counts once' : 'sign in to vote') + '</div>'
+          + (why ? '<div class="vs-note" style="text-align:center;margin-top:8px">'+h(why)+'</div>' : '')
           + '</div>';
 
-        /* RIGHT — details, then the rest of the field. */
         var right = ''
-          + '<div class="cd-org"><div class="av"></div><div><b>'+h(e.creator_handle?('@'+e.creator_handle):'Entrant')+'</b>'
-          +   '<div class="vs-note" style="margin:0">'+h(c.title||'')+'</div></div></div>'
-          + '<h1 class="cd-title">'+h(e.title||'Untitled')+'</h1>'
+          + (pending
+              ? '<div class="vs-note" style="margin:0 0 12px;padding:10px 12px;border-radius:10px;'
+                + 'background:rgba(255,180,0,.10);border:1px solid rgba(255,180,0,.35);color:#ffd479">'
+                + 'Only you can see this page. Status: <b>'+h(e.status)+'</b> — it becomes public '
+                + 'and votable once the review team approves it.'
+                + (e.admin_message ? '<br>'+h(e.admin_message) : '')
+                + '</div>'
+              : '')
+          + eqInfo(e, c)
           + '<div style="margin:0 0 12px"><span class="vs-pill '+(open?'ok':'')+'">'
-          +   (open?'Voting open':'Voting closed')+'</span></div>'
-          + (e.description ? '<div class="cd-sec"><h3>About this entry</h3><p>'+h(e.description)+'</p></div>' : '')
-          + (e.creator_statement ? '<div class="cd-sec"><h3>Creator statement</h3><p>'+h(e.creator_statement)+'</p></div>' : '')
-          + (e.tools ? '<div class="cd-sec"><h3>Tools</h3><p>'+h(e.tools)+'</p></div>' : '')
-          + (e.ai_disclosure ? '<div class="cd-sec"><h3>AI disclosure</h3><p>'+h(e.ai_disclosure)+'</p></div>' : '')
-          + '<div class="cd-sec"><h3>Votes</h3><p>'
-          +   (blind ? 'Totals are hidden until winners are announced.'
-                     : 'Total <b>'+(totals.total||0)+'</b> — like '+(totals.like||0)
-                       +' · comment '+(totals.comment||0)+' · repost '+(totals.repost||0)
-                       +' · share '+(totals.share||0)+' · save '+(totals.save||0))
-          + '</p></div>'
-          + '<div class="cd-sec"><h3>All submitted work'+(field.length?' ('+field.length+')':'')+'</h3>'
-          +   (field.length
-                ? '<div class="ce-grid">'+field.map(function(x){
-                     return '<div class="ce-fly" data-entry="'+x.id+'">'
-                       + (x.thumb_url
-                           ? '<img class="ce-fly-bg" src="'+h(x.thumb_url)+'" alt="" aria-hidden="true" loading="lazy">'
-                             +'<img class="ce-fly-img" src="'+h(x.thumb_url)+'" alt="'+h(x.title||'')+'" loading="lazy">'
-                           : '')
-                       + '<div class="ce-shade"></div>'
-                       + '<div class="ce-body"><div class="ce-title">'+h(x.title||'Untitled')+'</div>'
-                       +   '<div class="ce-meta">'+h(x.creator_handle?('@'+x.creator_handle):'')+'</div>'
-                       +   '<div class="ce-foot"><span class="ce-price"></span><span class="ce-cta">View</span></div>'
-                       + '</div></div>';
-                   }).join('')+'</div>'
-                : '<p>No other approved entries yet — this is the first.</p>')
+          +   (open?'Voting open':'Voting closed')+'</span></div>';
+
+        /* Every other submission, as its own two-column row — same shell, same carousel, same
+           vote button, so the feed reads as one continuous thing rather than a grid of tiles. */
+        var feed = '';
+        if(field.length){
+          feed += '<h2 class="eq-feedhead">Other submitted work ('+field.length+')</h2>';
+          feed += field.map(function(x){
+            var xEn = { id:x.entry_id, title:x.title, thumb_url:x.thumb_url, cover_url:null,
+                        creator_handle:x.creator_handle };
+            var xWhy = !ME ? 'Sign in to vote' : (!open ? 'Voting is not open for this competition' : '');
+            return '<div class="cd2 eq-row">'
+              + '<div class="cd-left"><div class="cd-stick">'
+              +   eqCarousel(xEn, 'eqCar'+x.entry_id)
+              +   '<div class="eq-acts" style="grid-template-columns:1fr 1fr">'
+              +     '<button type="button" class="eq-btn" data-entry="'+x.entry_id+'">Open</button>'
+              +     eqVoteBtn(x.entry_id, false, (blind ? '—' : (x.total_votes || 0)), !!xWhy, xWhy)
+              +   '</div>'
+              + '</div></div>'
+              + '<div class="cd-right">'
+              +   '<div class="cd-org"><div class="av"></div><div>'
+              +     '<b>'+h(x.creator_handle?('@'+x.creator_handle):'Entrant')+'</b>'
+              +     '<div class="vs-note" style="margin:0">'+h(c.title||'')+'</div></div></div>'
+              +   '<h1 class="cd-title">'+h(x.title||'Untitled')+'</h1>'
+              +   '<div class="cd-sec"><h3>Votes</h3><p>'
+              +     (blind ? 'Totals are hidden until winners are announced.'
+                           : '<b>'+(x.total_votes||0)+'</b> total')
+              +   '</p></div>'
+              + '</div></div>';
+          }).join('');
+        }
+
+        /* LEADERBOARD — the bottom of the feed, and where RATED lands. */
+        var lb = '<div class="eq-lb" id="eqBoard"><h2 class="eq-feedhead" style="margin:0">Leaderboard</h2>'
+          + (blind
+              ? '<p class="vs-note">Totals stay hidden until winners are announced.</p>'
+              : (rows.length
+                  ? '<ol>' + rows.map(function(x,i){
+                      var mine = String(x.entry_id) === String(id);
+                      return '<li class="eq-lbrow'+(mine?' me':'')+'">'
+                        + '<span class="rk">'+(i+1)+'</span>'
+                        + '<span class="th"'+(x.thumb_url?(' style="background-image:url('+h(x.thumb_url)+')"'):'')+'></span>'
+                        + '<span class="nm"><b>'+h(x.title||'Untitled')+'</b>'
+                        +   (x.creator_handle
+                              ? '<a href="/profile.html?slug='+encodeURIComponent(x.creator_handle)+'">@'+h(x.creator_handle)+'</a>'
+                              : '')
+                        + '</span>'
+                        + '<span class="vt">'+(x.total_votes||0)+'<small>votes</small></span>'
+                        + '</li>';
+                    }).join('') + '</ol>'
+                  : '<p class="vs-note">No approved entries yet — the board fills as entries are approved.</p>'))
           + '</div>';
 
         APP.innerHTML = navBar('feed')
           + '<div style="max-width:1120px;margin:0 auto 10px">'+backToProfileBtn()+'</div>'
-          + '<div class="cd2"><div class="cd-left">'+left+'</div>'
-          + '<div class="cd-right">'+right+'</div></div>';
+          + '<div class="cd2 eq-main"><div class="cd-left">'+left+'</div>'
+          + '<div class="cd-right">'+right+'</div></div>'
+          + feed + lb;
 
+        eqBindCarousels();
+        eqBindVotes(blind);
+
+        var rated = document.getElementById('eqRated');
+        if(rated) rated.onclick = function(){
+          /* "no matter when and where pressed on the feed" — always the board, always smooth. */
+          var b = document.getElementById('eqBoard');
+          if(b) b.scrollIntoView({ behavior:'smooth', block:'start' });
+        };
         [].forEach.call(APP.querySelectorAll('[data-entry]'), function(el){
           el.onclick = function(){ go({ view:'entry', e: el.dataset.entry }); };
         });
-        bindVotes(id, open);
       });
     }).catch(err);
   }
 
-  function bindVotes(entryId, open){
-    var box = document.getElementById('vsVotes'); if(!box) return;
-    box.addEventListener('click', function(ev){
-      var b = ev.target.closest('button'); if(!b || b.disabled) return;
-      var action = b.dataset.a;
-      if(!ME){ location.href = '/apply.html'; return; }
-      b.disabled = true;                                   // §29 stop duplicate presses
-      var p;
-      if(action === 'comment'){
-        var txt = window.prompt('Add a comment (this counts as ONE vote no matter how many you leave):');
-        if(!txt){ b.disabled = false; return; }
-        p = SB.rpc('vs_comment_add', { p_entry: Number(entryId), p_body: txt });
-      } else {
-        var turningOff = b.classList.contains('on') && action !== 'share';
-        p = SB.rpc('vs_vote', { p_entry: Number(entryId), p_action: action, p_desired: !turningOff });
+  /* Dots follow the carousel, and the carousel follows the dots. */
+  function eqBindCarousels(){
+    [].forEach.call(document.querySelectorAll('#vs-app .eq-car'), function(car){
+      var dots = document.querySelector('#vs-app .eq-dots[data-dots="'+car.id+'"]');
+      if(!dots) return;
+      var btns = [].slice.call(dots.querySelectorAll('.eq-dot'));
+      function paint(){
+        var i = Math.round(car.scrollLeft / Math.max(1, car.clientWidth));
+        btns.forEach(function(b,n){ b.classList.toggle('on', n===i); });
       }
-      p.then(function(r){
-        if(r.error) throw r.error;
-        return refreshVoteState(entryId);
-      }).catch(function(e){
-        alert(String(e && e.message || e));
-      }).then(function(){ if(open) b.disabled = false; });
+      car.addEventListener('scroll', function(){
+        clearTimeout(car.__t); car.__t = setTimeout(paint, 60);
+      }, { passive:true });
+      btns.forEach(function(b,n){
+        b.onclick = function(){ car.scrollTo({ left: n * car.clientWidth, behavior:'smooth' }); };
+      });
     });
   }
 
-  /* re-read state from the SERVER after every action — the UI never guesses a total */
-  function refreshVoteState(entryId){
-    return Promise.all([
-      SB.rpc('vs_entry_totals', { p_entry: Number(entryId) }),
-      SB.rpc('vs_my_progress', { p_entry: Number(entryId) })
-    ]).then(function(r){
-      var totals = r[0].data || {}, prog = r[1].data || {};
-      var pg = document.getElementById('vsProg');
-      if(pg) pg.innerHTML = 'Your votes: '+(prog.used||0)+' of 5 <small>each action counts once</small>';
-      [].forEach.call(document.querySelectorAll('#vsVotes button'), function(b){
-        var on = !!prog[b.dataset.a];
-        b.classList.toggle('on', on);
-        b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        var lbl = ACTIONS.filter(function(a){ return a[0]===b.dataset.a; })[0];
-        if(lbl) b.querySelector('span:last-child').textContent = lbl[2] + (on ? ' ✓' : '');
-      });
-      var t = document.getElementById('vsTot');
-      if(t && t.textContent.indexOf('hidden') < 0){
-        t.innerHTML = 'Total votes: <b>'+(totals.total||0)+'</b> — like '+(totals.like||0)+' · comment '+(totals.comment||0)
-          + ' · repost '+(totals.repost||0)+' · share '+(totals.share||0)+' · save '+(totals.save||0);
-      }
+  /* One vote per user. The backend is the authority — it refuses an unapproved entry, a closed
+     window, and a creator voting for themselves — so a failure here reports the server's own
+     reason rather than a guess made in the client. */
+  function eqBindVotes(blind){
+    [].forEach.call(document.querySelectorAll('#vs-app .eq-vote'), function(btn){
+      if(btn.disabled) return;
+      btn.onclick = function(){
+        var entryId = Number(btn.getAttribute('data-vote'));
+        var wasVoted = btn.classList.contains('voted');
+        btn.disabled = true;
+        SB.rpc('vs_vote', { p_entry: entryId, p_action: 'like', p_desired: !wasVoted })
+          .then(function(r){
+            if(r.error) throw r.error;
+            return SB.rpc('vs_entry_totals', { p_entry: entryId });
+          })
+          .then(function(t){
+            var tot = (t && t.data) || {};
+            btn.classList.toggle('voted', !wasVoted);
+            btn.setAttribute('aria-pressed', String(!wasVoted));
+            var n = btn.querySelector('.n');
+            if(n) n.textContent = blind ? '—' : (tot.unique_voters || 0);
+            btn.disabled = false;
+          })
+          .catch(function(ex){
+            btn.disabled = false;
+            toastVote(btn, (ex && ex.message) ? ex.message : 'Could not record that vote');
+          });
+      };
     });
   }
+
+  function toastVote(btn, msg){
+    var n = document.createElement('div');
+    n.className = 'vs-note';
+    n.style.cssText = 'text-align:center;margin-top:6px;color:#ff8a8a';
+    n.textContent = msg;
+    var host = btn.closest('.cd-stick') || btn.parentNode;
+    var old = host.querySelector('[data-votemsg]');
+    if(old) old.remove();
+    n.setAttribute('data-votemsg','1');
+    host.appendChild(n);
+    setTimeout(function(){ if(n.parentNode) n.remove(); }, 6000);
+  }
+
+
 
   /* ── MY ENTRIES (§22) / MY VOTES (§23) ─────────────────────────────────────────── */
   function renderMine(){
