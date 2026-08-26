@@ -333,9 +333,16 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
   border-radius:10px;text-decoration:none;margin-top:11px}
 .kv-cta[hidden]{display:none}
 .kv-cta-note{font-size:.68rem;color:var(--ink3,#9aa0b0);text-align:center;margin-top:5px}
+/* !important is not decoration here — it is a specificity loss, verified in the browser.
+   `body.cul-m .fcard .fb-actions .fba{display:flex}` lives in the mobile block and scores
+   (0,4,1); this rule scored (0,4,0), so on a phone — the only place these cards are read —
+   the buttons stayed visible even though the .kv-yt class was correctly applied to all 100
+   video cards. Raising the selector instead would leave the next rule added to that mobile
+   block able to win again silently.
+   .kv-src is deliberately NOT in this list: it is the attribution link, not a reaction. */
 .fcard.kv-yt .kv-acts .fba-like,
 .fcard.kv-yt .kv-acts .fba-share,
-.fcard.kv-yt .kv-acts .fb-save{display:none}
+.fcard.kv-yt .kv-acts .fb-save{display:none!important}
 /* A Short already fills the screen; the stack below it would be off-screen, so the frame is
    the card and the actions overlay it. */
 .kv-short .kv-body{padding:9px 14px 12px}
