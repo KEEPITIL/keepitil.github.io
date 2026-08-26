@@ -677,10 +677,18 @@ var KR_LAST = -1, KR_SETTLE = null;
 function kilCentreActive(smooth){
   var grid = document.getElementById('stationGrid'); if(!grid) return;
   var el = grid.querySelector('.kr-tile.on'); if(!el) return;
-  /* Measure the real card and publish half of it, so the end spacers put the FIRST and LAST
-     cards dead centre too — they cannot be scrolled there without it. */
+  /* Measure the real card AND the rail's gap, then publish the end spacer, so the FIRST and
+     LAST cards can reach dead centre.
+     ⚠ THE GAP IS PART OF THIS. Without it the spacer was half a card too wide by exactly one
+     gap: measured on the deployed page, the first tile sat 10px off centre at scrollLeft 0,
+     and scroll-snap then refused the correction — scrollTo(27) was overridden straight back to
+     0, because 0 is where mandatory snap wanted the card given that geometry. Fighting snap
+     with a scroll is a losing game; making scrollLeft:0 genuinely central means snap and the
+     centring agree instead of arguing. */
+  var cs   = getComputedStyle(grid);
+  var gap  = parseFloat(cs.columnGap || cs.gap) || 0;
   var half = Math.round(el.offsetWidth / 2);
-  if(half) grid.style.setProperty('--kr-pad', 'calc(50% - ' + half + 'px)');
+  if(half) grid.style.setProperty('--kr-pad', 'calc(50% - ' + half + 'px - ' + gap + 'px)');
   var target = el.offsetLeft - (grid.clientWidth - el.offsetWidth) / 2;
   if(Math.abs(grid.scrollLeft - target) < 2) return;      /* already centred — do not fight it */
   try{ grid.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'auto' }); }
