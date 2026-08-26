@@ -80,7 +80,7 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .stats{display:flex;gap:46px;margin-top:22px;flex-wrap:wrap;}
 .stat b{font-family:var(--fh);font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:.02em;line-height:1;display:block;text-shadow:0 2px 18px rgba(0,0,0,.7);color:#C084FC;}
 .stat span{display:block;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:#c9c2e0;margin-top:5px;font-weight:800;text-shadow:0 1px 8px rgba(0,0,0,.7);}
-.stat.videos b{color:#C084FC;}.stat.posts b{color:#A855F7;}.stat.creators b{color:#EBD9FF;}
+.stat.videos b{color:#C084FC;}.stat.creators b{color:#A855F7;}.stat.articles b{color:#EBD9FF;}
 /* MOBILE METRICS — one centred row, matching /connect, /create and /earn.
    ⚠ THIS BLOCK MUST STAY BELOW THE BASE .stats/.stat RULES. A media query adds no
    specificity, so above them the base `gap:46px;flex-wrap:wrap` wins on source order and the
@@ -333,11 +333,9 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
   border-radius:10px;text-decoration:none;margin-top:11px}
 .kv-cta[hidden]{display:none}
 .kv-cta-note{font-size:.68rem;color:var(--ink3,#9aa0b0);text-align:center;margin-top:5px}
-.kv-cmt{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:11px 12px;
-  background:rgba(255,255,255,.04);border:1px solid var(--line,#242433);border-radius:12px;
-  color:#cfd3df;font:700 .84rem Inter,sans-serif;cursor:pointer;text-align:left}
-.kv-cmt .kv-cmt-n{color:var(--ink3,#9aa0b0);font-weight:600}
-.kv-cmt .kv-chev{margin-left:auto;color:var(--ink3,#9aa0b0)}
+.fcard.kv-yt .kv-acts .fba-like,
+.fcard.kv-yt .kv-acts .fba-share,
+.fcard.kv-yt .kv-acts .fb-save{display:none}
 /* A Short already fills the screen; the stack below it would be off-screen, so the frame is
    the card and the actions overlay it. */
 .kv-short .kv-body{padding:9px 14px 12px}
@@ -399,8 +397,8 @@ footer a{color:var(--purple)}
   </div>
   <div class="stats">
     <div class="stat videos"><b id="kV">0</b><span>Videos</span></div>
-    <div class="stat posts"><b id="kP">0</b><span>Posts</span></div>
     <div class="stat creators"><b id="kC">0</b><span>Creators</span></div>
+    <div class="stat articles"><b id="kA">0</b><span>Articles</span></div>
   </div>
 </header>
 
@@ -458,7 +456,7 @@ footer a{color:var(--purple)}
        data-kv="caption"  body text of a written post (removed when there is none)
        data-kv="cta"      Get Tickets / Vote / Buy button (removed when there is none)
        data-kv="act"      the action row — the script wires clicks by BUTTON CLASS:
-                          .fba-like .fba-share .fba-resh .fba-cmt .fb-save
+                          .fba-like .fba-share .fba-resh .fb-save
      A hook you delete is simply skipped, so removing a button here removes it from the site.
      ══════════════════════════════════════════════════════════════════════════════════════ -->
 <template id="kv-video-card">
@@ -487,7 +485,6 @@ footer a{color:var(--purple)}
           <a class="fba kv-src" data-kv="source" target="_blank" rel="noopener" title="Watch at the source"><span data-kv-icon></span></a>
         </div>
       </div>
-      <button class="kv-cmt"><span>Comments</span><span class="kv-cmt-n"></span><span class="kv-chev">&#9662;</span></button>
     </div>
   </div>
 </template>
@@ -830,6 +827,13 @@ renderTypebar();renderDiscover();renderFeed();
     if(n.embed){ card.classList.add('kil-vid'); card.setAttribute('data-embed', n.embed); }
     else       { card.classList.remove('kil-vid'); }
     if(n.isShort) card.classList.add('kv-short');
+    /* YouTube ships its own like/share controls inside the player, so a second KEEPITIL set
+       stacked underneath is duplicate furniture (Founder 2026-08-25). Hidden by CSS on .kv-yt
+       rather than skipped at build time, so the buttons stay wired for every other provider
+       and one class is the whole switch.
+       The source link is NOT part of this: it is attribution, not a reaction, and credit stays
+       on the card. */
+    if(String(n.provider||'').toLowerCase()==='youtube') card.classList.add('kv-yt');
     /* A card with no embed and no inline video is representing a profile/venue/entry, not
        a clip — it takes the 2:3 house frame. */
     if(n.profileCard) card.classList.add('kv-profile');
@@ -924,10 +928,8 @@ renderTypebar();renderDiscover();renderFeed();
     var on = function(sel, fn){ var b = frag.querySelector(sel); if(b) b.setAttribute('onclick', fn); };
     on('.fba-like',  "fbLike('"+pe+"',this)");
     on('.fba-resh',  "fbReshareL('"+pe+"',this)");
-    on('.fba-cmt',   "culComments('"+pe+"',this)");
     on('.fba-share', "fbShare('"+String(n.href||'').replace(/'/g,"\\'")+"')");
     on('.fb-save',   "fbSaveL('"+pe+"',this)");
-    on('.kv-cmt',    "culComments('"+pe+"',this)");
 
     var box = document.createElement('div');
     box.appendChild(frag);
@@ -1357,69 +1359,11 @@ renderTypebar();renderDiscover();renderFeed();
      exactly that much, so a card comes to rest in the same frame the standard describes:
      status layer to nav. KODE 2026-08-24. */
   html:has(body.cul-m){scroll-snap-type:y mandatory;scroll-padding-top:var(--kil-safe-top,0px)}
-  /* R4.2 — opening comments jumped to the next post. .fcard.cmt-open already sets
-     scroll-snap-align:none, but removing a CHILD's alignment does not stop a MANDATORY
-     container re-snapping to the nearest remaining snap point, which is the next card. Snap
-     has to come off the scroller itself for as long as a thread is open. */
-  html:has(body.cul-m .fcard.cmt-open){scroll-snap-type:none}
-  /* R8.1 — same reason, new owner: the sheet replaces the inline .cmt-open panel. */
-  html:has(body.kil-cmt-open){scroll-snap-type:none}
   body.cul-m .hero{scroll-snap-align:start;scroll-snap-stop:always}
   /* #feed is the legacy blog list. On mobile the swipe feed IS the page, and a second stacked
      column can only ever cover it. Hidden here rather than left invisible-but-present, so it
      cannot silently intercept taps. Desktop is untouched — blogs still render there. */
   body.cul-m #feed{display:none!important}
-  /* ── R8.1 — COMMENTS ARE A SHEET, NOT PART OF THE CARD ──────────────────────────────────
-     Founder: "the bottom nav scrolls up because the keyboard pushes it up which never should
-     happen and the comment rows doubles."
-     The inline .cmt-open panel could never win this. A comment thread inside a snap card is
-     fighting a fixed card height and the keyboard at the same time. One reused sheet, mounted
-     once, filled from whichever post was tapped.
-     #kil-bnav is HIDDEN outright while the sheet is open — that is the nav-rides-up complaint,
-     and it is what YouTube does for the same reason. Nothing to push up if it is not there. */
-  #kil-cmt-sheet{position:fixed;left:0;right:0;top:var(--kil-safe-top,0px);bottom:0;
-    z-index:960;background:#0b0b12;display:none;flex-direction:column;overscroll-behavior:contain}
-  body.kil-cmt-open #kil-cmt-sheet{display:flex}
-  body.kil-cmt-open #kil-bnav{display:none!important}
-  #kil-cmt-head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 14px;
-    border-bottom:1px solid rgba(255,255,255,.08)}
-  #kil-cmt-title{flex:1;min-width:0;margin:0;font:700 .95rem/1.3 Inter,sans-serif;color:#fff;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #kil-cmt-x{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:0;
-    background:rgba(255,255,255,.09);color:#fff;font-size:1.25rem;line-height:1;cursor:pointer}
-  /* The sheet owns its scrolling; contain stops the feed moving behind it. */
-  #kil-cmt-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:12px 14px}
-  #kil-cmt-foot{flex:0 0 auto;display:flex;gap:8px;align-items:center;padding:10px 12px;
-    border-top:1px solid rgba(255,255,255,.08);background:#0b0b12}
-  #kil-cmt-foot .cmt-in{flex:1;min-width:0;background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.14);border-radius:20px;color:#fff;padding:10px 14px;
-    font:500 .9rem Inter,sans-serif}
-  #kil-cmt-foot button{flex:0 0 auto;border:0;border-radius:20px;padding:10px 16px;
-    background:#7c3aed;color:#fff;font:700 .85rem Inter,sans-serif;cursor:pointer}
-  #kil-cmt-foot .cmt-signin{flex:1;text-align:center;color:#c9c2e0;font:600 .85rem Inter,sans-serif;
-    text-decoration:none;padding:10px}
-  /* ── R6.2 — COMMENTS DROP OUT OF THE OVERLAY MODEL ──────────────────────────────────────
-     Founder: "the comment sections do not allow me to comment."
-     The R4.1 overlay is what broke this. .kv-body is position:absolute and the well is
-     inset:0, so the card's only in-flow content is nothing at all — and `height:auto` on a box
-     whose children are all absolutely positioned COLLAPSES. The thread and its composer had
-     nowhere to render and ended up clipped or behind the bottom nav.
-     So: keep the overlay for the resting state, and return to normal flow while a thread is
-     open. The well becomes an in-flow band, .kv-body goes back to static (and loses its scrim,
-     which exists to make text legible over media it is no longer sitting on), and the card
-     grows and scrolls.
-     padding-bottom is what keeps the composer ABOVE the fixed nav — without it the input
-     renders but cannot be tapped. No env(safe-area-inset-bottom): --kil-bnav-h contains it.
-     Snap is already off while open via html:has(body.cul-m .fcard.cmt-open). */
-  body.cul-m #community-feed>.fcard.cmt-open{scroll-snap-align:none;
-    justify-content:flex-start;
-    height:auto!important;min-height:100%;overflow:visible!important;
-    padding-bottom:calc(12px + var(--kil-bnav-h,62px))!important}
-  body.cul-m #community-feed>.fcard.cmt-open .kil-vid-well{
-    position:relative!important;inset:auto!important;flex:0 0 auto!important;
-    height:38vh!important;width:auto!important}
-  body.cul-m #community-feed>.fcard.cmt-open .kv-body{
-    position:static!important;background-image:none!important}
 
   /* ── story card: media fills, nothing letterboxed away ──
      ⚠ EVERY RULE BELOW THAT TAKES A CHILD OUT OF NORMAL FLOW IS GATED ON .cul-fs, AND MUST STAY
@@ -1722,7 +1666,20 @@ window.culFetchMedia = culFetchMedia;
          nothing when it is already running. */
       ytCmd(frame,'playVideo',[]);
       ytCmd(frame,'setVolume',[VOLUME]);
-      if(window.__kilSoundOK) ytCmd(frame,'unMute',[]);
+      /* ⚠ unMute MUST NOT travel in the same burst as playVideo, and MUST NOT fire on the
+         first pass. (Founder 2026-08-25 device QA: "Tap once -> audio comes in at ~50%. but
+         does not auto play.")
+         __kilSoundOK is remembered in sessionStorage, so on every card AFTER the visitor's
+         first tap this sent unMute at frame-load time — before the muted autoplay had
+         actually started. An unmuted player with no gesture against THAT frame is refused by
+         iOS, and a refused play does not fall back to muted, it just sits paused on a poster.
+         The visitor's next tap then supplied the gesture, which is why it always "worked"
+         on tap, at 50%, and never on its own.
+         Muted playback first; unmute only once it is genuinely running (tries>=2, ~1s in).
+         Un-muting a video that is ALREADY playing is permitted once the document has been
+         interacted with, so returning-in-session visitors still get sound — just after the
+         picture is moving rather than instead of it. */
+      if(window.__kilSoundOK && tries >= 2) ytCmd(frame,'unMute',[]);
       /* 8 x 500ms rather than 4 x 400ms. The widget ignores every command sent before it has
          finished its own handshake, and a fire-and-forget message is dropped without error —
          on a cold mobile connection the old 1.6s window closed before the player was listening,
@@ -2001,18 +1958,7 @@ function culResolveFilters(){
 .kil-mx{background:none;border:0;color:var(--ink2,#9aa);font-size:1.5rem;cursor:pointer;line-height:1}
 .kil-mb{padding:16px 18px;overflow:auto}
 .kil-mfoot{padding:12px 16px;border-top:1px solid var(--line,#242433);display:flex;gap:8px;align-items:center}
-.cmt-list{display:flex;flex-direction:column;gap:14px}
-.kil-modal.cmt-modal{max-width:520px;height:82vh;height:82dvh;max-height:760px}
-.cmt-modal .kil-mb{flex:1;min-height:0;overflow:auto}
-.cmt-modal .cmt-foot{flex:0 0 auto}
-.cmt-empty{color:var(--ink2,#9aa);text-align:center;padding:18px 0;font-size:.88rem}
-.cmt{display:flex;gap:10px;align-items:flex-start}
-.cmt-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#0a0a0f}
-.cmt-body{flex:1;min-width:0;background:rgba(255,255,255,.05);border-radius:12px;padding:8px 12px}
-.cmt-body b{display:block;font-size:.82rem;margin-bottom:2px}.cmt-body p{margin:0;font-size:.9rem;line-height:1.45;color:var(--ink,#e8e8f0);word-wrap:break-word}
-.cmt-del{background:none;border:0;color:var(--ink2,#9aa);font-size:1.1rem;cursor:pointer;padding:0 4px}.cmt-del:hover{color:#ff4d8d}
-.cmt-in{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--line,#242433);border-radius:22px;padding:10px 15px;color:#fff;font:400 .9rem Inter,sans-serif;outline:none}
-.cmt-send{background:var(--brand,#00b4ff);color:#001018;border:0;border-radius:22px;padding:11px 20px;font:800 .84rem Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.kil-join-btn{background:var(--brand,#00b4ff);color:#001018;border:0;border-radius:22px;padding:11px 20px;font:800 .84rem Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
 .fba b{font-size:.78rem;min-width:6px}
 .fba-resh.on{color:#22c55e}
 /* inline blog article text (text only, images stripped) */
@@ -2023,9 +1969,6 @@ function culResolveFilters(){
 .fx a{color:var(--brand,#00b4ff)}
 .fx ul,.fx ol{margin:0 0 9px 18px}.fx li{margin:0 0 4px}
 /* inline comments inside the post */
-.fb-comments{display:none;border-top:1px solid var(--line,#242433);padding:2px 12px 12px}
-.fb-comments .cmt-list{display:flex;flex-direction:column;gap:12px;max-height:340px;overflow:auto;margin:10px 0}
-.fb-comments .cmt-foot{display:flex;gap:8px;align-items:center;padding-top:4px}
 </style>
 <script>
 /* Culture feed — shared Supabase backend + login-gated interactions (look but can't touch). */
@@ -2039,90 +1982,19 @@ function culResolveFilters(){
   function meAvatar(){var u=SES&&SES.user,m=(u&&u.user_metadata)||{};return m.avatar||m.avatar_url||'';}
   function closeWall(){var w=document.getElementById('kil-loginwall');if(w)w.remove();}
   window.__culCloseWall=closeWall;
-  function wall(){if(document.getElementById('kil-loginwall'))return true;var next=encodeURIComponent(location.pathname+location.search);var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kil-loginwall';ov.innerHTML='<div class="kil-modal" style="max-width:390px"><div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="__culCloseWall()">&times;</button></div><div class="kil-mb" style="padding:26px 22px;text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">&#128274;</div><p style="font-size:1rem;line-height:1.55;color:var(--ink,#e8e8f0);margin:0 0 20px">Create a free account to like, comment, reshare and save. Anyone can look around &mdash; you just need to be signed in to join in.</p><a href="/apply.html?next='+next+'" class="cmt-send" style="padding:12px 28px">Log in / Join &rarr;</a></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeWall();});return true;}
+  function wall(){if(document.getElementById('kil-loginwall'))return true;var next=encodeURIComponent(location.pathname+location.search);var ov=document.createElement('div');ov.className='kil-modal-ov';ov.id='kil-loginwall';ov.innerHTML='<div class="kil-modal" style="max-width:390px"><div class="kil-mh">Join KEEPITIL<button class="kil-mx" onclick="__culCloseWall()">&times;</button></div><div class="kil-mb" style="padding:26px 22px;text-align:center"><div style="font-size:2.5rem;margin-bottom:12px">&#128274;</div><p style="font-size:1rem;line-height:1.55;color:var(--ink,#e8e8f0);margin:0 0 20px">Create a free account to like, reshare and save. Anyone can look around &mdash; you just need to be signed in to join in.</p><a href="/apply.html?next='+next+'" class="kil-join-btn" style="padding:12px 28px">Log in / Join &rarr;</a></div></div>';document.body.appendChild(ov);ov.addEventListener('click',function(e){if(e.target===ov)closeWall();});return true;}
   function gate(){if(signedIn())return false;wall();return true;}
   function keyOf(x){ x=String(x); if(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x)) return x; return x.indexOf('cul:')===0?x:('cul:'+x); }
   function pst(k){return PST[k]||(PST[k]={likes:0,liked:false,resh:0,reshared:false,comments:0});}
   function cq(k){return (window.CSS&&CSS.escape)?CSS.escape(k):k;}
-  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh'),cm=card.querySelector('.fba-cmt'),kc=card.querySelector('.kv-cmt-n');if(kc)kc.textContent=s.comments?String(s.comments):'';if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}if(cm){var b3=cm.querySelector('b');if(b3)b3.textContent=s.comments||'';}});}
+  function paint(k){var s=PST[k];if(!s)return;document.querySelectorAll('.fbcard[data-pid="'+cq(k)+'"]').forEach(function(card){var lk=card.querySelector('.fba-like'),rs=card.querySelector('.fba-resh');if(lk){lk.classList.toggle('on',!!s.liked);var b=lk.querySelector('b');if(b)b.textContent=s.likes||'';}if(rs){rs.classList.toggle('on',!!s.reshared);var b2=rs.querySelector('b');if(b2)b2.textContent=s.resh||'';}});}
   window.fbLike=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.liked){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);SB.from('post_likes').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.liked=true;s.likes++;paint(k);SB.from('post_likes').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.liked=false;s.likes=Math.max(0,s.likes-1);paint(k);}});}};
   window.fbReshareL=function(k,el){k=keyOf(k);if(gate())return;if(!SB)return;var s=pst(k),uid=SES.user.id;if(s.reshared){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);toast('Reshare removed');SB.from('post_reshares').delete().eq('post_key',k).eq('user_id',uid).then(function(){});}else{s.reshared=true;s.resh++;paint(k);toast('Reshared ✓');SB.from('post_reshares').insert({post_key:k,profile_slug:'culture',user_id:uid}).then(function(r){if(r&&r.error){s.reshared=false;s.resh=Math.max(0,s.resh-1);paint(k);}});}};
   window.fbSaveL=function(k,el){if(gate())return;k=keyOf(k);var on=el.classList.toggle('on');try{var m=JSON.parse(localStorage.getItem('kil-saves')||'{}');m[k]=on?1:0;localStorage.setItem('kil-saves',JSON.stringify(m));}catch(e){}toast(on?'Saved ✓':'Removed from saved');};
   window.fbShare=function(u){if(gate())return;try{if(navigator.share){navigator.share({url:u});return;}}catch(e){}try{navigator.clipboard.writeText(u);toast('Link copied ✓');}catch(e){prompt('Copy link:',u);}};
   function closeM(){var m=document.getElementById('culModal');if(m)m.remove();}
   window.__culCloseM=closeM;
-  /* INLINE comments — open inside the post, not a popup */
-  /* ── R8.1 — ONE sheet, reused ───────────────────────────────────────────────────────────
-     Mounted once and refilled, never one per card. That is also the fix for "the comment rows
-     doubles": loadC() targets `.cmt-list[data-cl=<key>]` with querySelector, which returns the
-     FIRST match — so with a per-card panel AND a sheet in the DOM, one of them silently kept a
-     stale copy of the thread. The sheet hosts the only .cmt-list that exists, so loadC() and
-     __culSend() work unchanged and there is nothing to double.
-     The body is emptied before every open, so a reopen cannot stack. */
-  function kilCmtSheet(){
-    var s=document.getElementById('kil-cmt-sheet');
-    if(s) return s;
-    s=document.createElement('div'); s.id='kil-cmt-sheet';
-    s.innerHTML='<div id="kil-cmt-head"><h3 id="kil-cmt-title">Comments</h3>'
-      +'<button id="kil-cmt-x" type="button" aria-label="Close comments">&times;</button></div>'
-      +'<div id="kil-cmt-body"></div><div id="kil-cmt-foot"></div>';
-    document.body.appendChild(s);
-    s.querySelector('#kil-cmt-x').addEventListener('click', kilCmtClose);
-    return s;
-  }
-  function kilCmtClose(){
-    document.body.classList.remove('kil-cmt-open');
-    var s=document.getElementById('kil-cmt-sheet');
-    if(s){ s.querySelector('#kil-cmt-body').innerHTML=''; s.querySelector('#kil-cmt-foot').innerHTML=''; }
-  }
-  window.__kilCmtClose=kilCmtClose;
-  function kilCmtOpen(k, title){
-    var s=kilCmtSheet();
-    s.querySelector('#kil-cmt-title').textContent = title || 'Comments';
-    s.querySelector('#kil-cmt-body').innerHTML =
-      '<div class="cmt-list" data-cl="'+k+'"><div class="cmt-empty">Loading\u2026</div></div>';
-    /* Sign-in gate unchanged — the Founder called that out as already correct. */
-    s.querySelector('#kil-cmt-foot').innerHTML = signedIn()
-      ? '<input class="cmt-in" type="text" placeholder="Write a comment\u2026" maxlength="2000"><button type="button">Post</button>'
-      : '<a class="cmt-signin" href="/apply.html">Sign in to comment</a>';
-    var inp=s.querySelector('.cmt-in'), btn=s.querySelector('#kil-cmt-foot button');
-    if(inp && btn){
-      btn.addEventListener('click', function(){ window.__culSend(k, inp); });
-      inp.addEventListener('keydown', function(e){
-        if(e.key==='Enter'){ e.preventDefault(); window.__culSend(k, inp); }
-      });
-    }
-    document.body.classList.add('kil-cmt-open');
-    loadC(k);
-  }
-  /* Mobile gets the sheet; desktop keeps the inline panel it already had. */
-  window.culComments=function(slug, btn){
-    var k=keyOf(slug);
-    if(!SB){ toast('Loading\u2026'); return; }
-    if(document.body.classList.contains('cul-m')){
-      var card = btn ? btn.closest('.fcard,.fbcard') : null;
-      var t = card ? (card.querySelector('.kv-title,.fb-title,h3,h4') || {}).textContent : '';
-      kilCmtOpen(k, (t||'').trim());
-      return;
-    }
-    return window.__culCommentsInline(slug, btn);
-  };
-  window.__culCommentsInline=function(slug, btn){ var k=keyOf(slug); if(!SB){toast('Loading…');return;}
-    var card=btn?btn.closest('.fbcard'):null; if(!card)return;
-    var box=card.querySelector('.fb-comments'); if(!box){ box=document.createElement('div'); box.className='fb-comments'; card.appendChild(box); }
-    var open=box.style.display!=='block'; box.style.display=open?'block':'none';
-    /* Tell the snap layout this card is now taller than the viewport, so it stops snapping and
-       the bottom of the comment list stays reachable (see body.cul-m .fcard.cmt-open). */
-    card.classList.toggle('cmt-open', open);
-    var chev=card.querySelector('.kv-chev'); if(chev) chev.style.transform=open?'rotate(180deg)':'';
-    if(open && !box.getAttribute('data-mounted')){ box.setAttribute('data-mounted','1');
-      box.innerHTML='<div class="cmt-list" data-cl="'+k+'"><div class="cmt-empty">Loading…</div></div><div class="cmt-foot">'+(signedIn()?'<input class="cmt-in" placeholder="Write a comment…" maxlength="2000" onkeydown="if(event.key===\'Enter\'){event.preventDefault();__culSend(\''+k+'\',this);}"><button class="cmt-send" onclick="__culSend(\''+k+'\',this.previousElementSibling)">Post</button>':'<a href="/apply.html" class="cmt-send" style="width:100%;text-align:center">Log in to comment</a>')+'</div>';
-      loadC(k); }
-  };
-  function loadC(k){var host=document.querySelector('.cmt-list[data-cl="'+cq(k)+'"]');if(!host)return;SB.from('post_comments').select('*').eq('post_key',k).order('created_at',{ascending:true}).then(function(r){var rows=(r&&r.data)||[];var s=pst(k);s.comments=rows.length;paint(k);if(!rows.length){host.innerHTML='<div class="cmt-empty">No comments yet — be the first.</div>';return;}var uid=SES&&SES.user?SES.user.id:null;host.innerHTML=rows.map(function(c){var canDel=uid&&c.user_id===uid;return '<div class="cmt"><img class="cmt-av" src="'+esc(c.author_avatar||'/icon-192.png')+'" onerror="this.src=\'/icon-192.png\'"><div class="cmt-body"><b>'+esc(c.author_name||'User')+'</b><p>'+esc(c.body)+'</p></div>'+(canDel?'<button class="cmt-del" onclick="__culDel(\''+c.id+'\',\''+k+'\')">&times;</button>':'')+'</div>';}).join('');});}
-  window.__culSend=function(k,inp){if(!signedIn()){location.href='/apply.html';return;}if(!inp)return;var body=(inp.value||'').trim();if(!body)return;inp.disabled=true;SB.from('post_comments').insert({post_key:k,profile_slug:'culture',user_id:SES.user.id,author_name:meName(),author_avatar:meAvatar(),body:body}).then(function(r){inp.disabled=false;if(r&&r.error){toast('Could not post');return;}inp.value='';loadC(k);});};
-  window.__culDel=function(id,k){SB.from('post_comments').delete().eq('id',id).then(function(){loadC(k);});};
-  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.likes++;if(uid&&x.user_id===uid)s.liked=true;}});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});SB.from('post_comments').select('post_key').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s)s.comments++;});keys.forEach(paint);}});}
+  function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.likes++;if(uid&&x.user_id===uid)s.liked=true;}});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});}
   window.__culHydrate=hydrate;
   var _rf=window.renderFeed;if(typeof _rf==='function'){window.renderFeed=function(){_rf.apply(this,arguments);setTimeout(hydrate,30);};}
   (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
@@ -2174,7 +2046,7 @@ try{ vrRenderFilters('feed'); }catch(e){}
   function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=fmtN(v); }
   fetch(U+'/rest/v1/rpc/culture_page_stats',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:'{}'})
     .then(function(r){ return r.ok?r.json():null; })
-    .then(function(d){ var s=Array.isArray(d)?d[0]:d; if(!s)return; set('kV',s.videos); set('kP',s.posts); set('kC',s.creators); })
+    .then(function(d){ var s=Array.isArray(d)?d[0]:d; if(!s)return; set('kV',s.videos); set('kC',s.creators); set('kA',s.articles); })
     .catch(function(){});
 })();
 </script>
