@@ -88,7 +88,6 @@
       title: '🌊 CRSSD Festival',
       text: 'CRSSD is a premier San Diego waterfront festival by FNGRS XRSSD. Held twice a year (spring and fall) at Waterfront Park with three stages. Known for deep house, melodic techno, and curated underground lineups. Tickets at crssdfest.com.',
       links: [
-        { url: 'https://keepitil.com/blog-crssd-fall-2026.html', label: 'KEEPITIL CRSSD Guide' },
         { url: 'https://crssdfest.com', label: 'Official Tickets — crssdfest.com' },
       ],
       chips: ['San Diego events', 'Other festivals', 'What to bring'],
@@ -99,7 +98,6 @@
       title: '🔥 HARD Summer',
       text: 'HARD Summer is LA\'s biggest two-day electronic music festival at Exposition Park. Multi-stage with major headliners across EDM, hip-hop, and underground. Expect 65,000+ attendees. Tickets at hardfest.com.',
       links: [
-        { url: 'https://keepitil.com/blog-hard-summer-2026.html', label: 'KEEPITIL HARD Summer Guide' },
         { url: 'https://hardfest.com', label: 'Official Tickets — hardfest.com' },
       ],
       chips: ['Other LA events', 'Festival packing tips', 'What is HARD Summer'],
@@ -110,7 +108,6 @@
       title: '🌙 Nocturnal Wonderland',
       text: 'Nocturnal Wonderland is Insomniac\'s flagship camping festival at Glen Helen Amphitheatre in San Bernardino. Multi-day immersive event over Labor Day weekend. Rich production with multiple themed stages. Tickets at Insomniac.com.',
       links: [
-        { url: 'https://keepitil.com/blog-nocturnal-wonderland-2026.html', label: 'KEEPITIL Nocturnal Guide' },
         { url: 'https://www.insomniac.com/music-festivals/nocturnal-wonderland', label: 'Official Tickets' },
       ],
       chips: ['Camping festivals', 'Insomniac events', 'What to bring to a festival'],
@@ -121,7 +118,6 @@
       title: '🎃 Escape Halloween',
       text: 'Escape: Psycho Circus is Insomniac\'s massive Halloween festival at NOS Events Center, San Bernardino. Two nights of elaborate production, costumes, and haunted house elements across multiple stages. Always sells out. Tickets at Insomniac.com.',
       links: [
-        { url: 'https://keepitil.com/blog-escape-halloween-2026.html', label: 'KEEPITIL Escape Guide' },
         { url: 'https://www.insomniac.com/music-festivals/escape-halloween', label: 'Official Tickets' },
       ],
       chips: ['Halloween costume tips', 'Other Insomniac events', 'What to bring'],
@@ -143,7 +139,6 @@
       text: 'Ready to book a DJ or live act for your event? Here\'s the KEEPITIL approach:\n\n1. Browse the artist directory and find someone who fits your vibe\n2. Hit their profile — every page has booking contact info (email or Instagram)\n3. Reach out with: date, venue, event type, expected crowd size, and your budget\n4. Be upfront about your budget — DJs appreciate directness\n5. Confirm in writing, even just via DM\n\nFor newer artists, rates are often negotiable. Established acts have set fees — ask for a quote.',
       links: [
         { url: 'https://keepitil.com/artist/', label: 'Browse Artist Directory' },
-        { url: 'https://keepitil.com/blog-booking-underground-djs-guide.html', label: 'Full Booking Guide' },
       ],
       chips: ['What info to include', 'DJ rates', 'Work with organizers', 'Market your event'],
     },
@@ -152,9 +147,7 @@
       kw: ['booking info','what to include','booking request','booking email','how to contact','reach out to dj'],
       title: '📝 What to Include in a Booking Request',
       text: 'When reaching out to book an artist, include:\n\n• Event date and time (set time if known)\n• Venue name and location\n• Event type (festival, club night, private, etc.)\n• Expected attendance\n• Your budget or "what\'s your rate?"\n• A link to your past events or Instagram\n\nKeep it short and professional. Artists get a lot of DMs — lead with the date and budget.',
-      links: [
-        { url: 'https://keepitil.com/blog-booking-underground-djs-guide.html', label: 'Underground DJ Booking Guide' },
-      ],
+      links: [],
       chips: ['DJ rates in SoCal', 'How to organize an event', 'Market your event'],
     },
     {
@@ -196,9 +189,7 @@
       title: '🎪 How to Organize an Event in SoCal',
       text: 'Whether it\'s a club night, festival, brand activation, or private event — the fundamentals are the same:\n\n1. Start with your audience: who\'s coming, what do they expect?\n2. Lock your venue first — clubs, warehouses, rooftops, art spaces, outdoor venues\n3. Secure permits or confirm the venue is handling it\n4. Book your artist EARLY — 4–8 weeks minimum, longer for touring or headliner acts\n5. Partner with a brand for sponsorship to offset costs\n6. Build a flyer and launch promotion 3–4 weeks out\n7. Ticket through Eventbrite, RA, or your own page\n8. Use Instagram + KEEPITIL for promotion to reach the right audience\n\nUse KEEPITIL\'s artist directory to find talent and the organizer directory to connect with crews who can help.',
       links: [
-        { url: 'https://keepitil.com/blog-how-to-promote-your-event-oc-la.html', label: 'Event Promotion Guide' },
         { url: 'https://keepitil.com/organizer/', label: 'Organizer Directory' },
-        { url: 'https://keepitil.com/blog-tip-sound-system-guide.html', label: 'Sound System Guide' },
       ],
       chips: ['Sound system guide', 'How to book a DJ', 'Promote your event', 'Event budget tips'],
     },
@@ -208,8 +199,6 @@
       title: '📢 Promoting Your Event',
       text: 'Underground event promotion in 2026:\n\n• Instagram is still king — post the flyer, then reels of past events, then countdown stories\n• Get the artist to repost — their audience is already qualified\n• RA (Resident Advisor) listing is a must for any serious event\n• Local Facebook groups for dance music communities still drive real turnout\n• Flyer in person at other events — people who go out, go out again\n• Reach out to KEEPITIL for potential editorial coverage\n\nTiming: soft announce 4 weeks out, push 1 week before, final story blast day-of.',
       links: [
-        { url: 'https://keepitil.com/blog-how-to-promote-your-event-oc-la.html', label: 'Full Promotion Guide' },
-        { url: 'https://keepitil.com/blog-tip-dj-instagram-brand-2026.html', label: 'DJ Instagram Guide' },
         { url: 'https://keepitil.com/signup.html', label: 'List Your Event on KEEPITIL' },
       ],
       chips: ['Flyer design tips', 'Instagram for DJs', 'Sound system guide', 'Work with organizers'],
@@ -220,9 +209,6 @@
       title: '🎚️ Building a DJ Career',
       text: 'Real talk on building a DJ career in the SoCal underground:\n\n• Learn properly — mixing is a skill, not just pressing play. Practice beatmatching manually before relying on sync\n• Record your sets and post them consistently — even if the crowd is your bedroom\n• Play for free at first: open decks, small house parties, afterparties\n• Build relationships in the scene — promoters book people they like and trust\n• Find your sound. Don\'t try to play everything. Specificity builds a following\n• Network at events genuinely — don\'t just hand out cards, connect as a music person\n• Have a bio, a promo mix, and a social page ready before you ask for bookings',
       links: [
-        { url: 'https://keepitil.com/blog-mixing-techniques-beginners.html', label: 'Mixing Techniques Guide' },
-        { url: 'https://keepitil.com/blog-tip-long-dj-set-guide.html', label: 'Long DJ Set Guide' },
-        { url: 'https://keepitil.com/blog-tip-networking-underground-events.html', label: 'Networking Guide' },
         { url: 'https://keepitil.com/artist/', label: 'Artist Directory' },
       ],
       chips: ['Equipment guide', 'DJ Instagram tips', 'How to get booked', 'Networking guide'],
@@ -232,10 +218,7 @@
       kw: ['equipment','gear','controller','cdj','pioneer','mixer','setup','dj setup','turntable','technics','serato','rekordbox','traktor','laptop dj','hardware','speakers','sound system'],
       title: '🎛️ DJ Equipment',
       text: 'A breakdown of the key equipment decisions for DJs:\n\n• CDJs (Pioneer CDJ-2000NXS2 / CDJ-3000): Club standard. Learn these for serious gigs.\n• Controllers (Pioneer DDJ-400, DDJ-REV7): Great for home and smaller gigs. Not club standard but excellent to learn on.\n• Turntables (Technics 1200): Vinyl DJs still use these. Less common in underground clubs but iconic.\n• Mixer: A good mixer matters. Pioneer DJM-900NXS2 is the club standard.\n• Software: Rekordbox for preparing tracks for CDJs. Serato if you\'re using a controller.\n\nFor production: Ableton Live is the dominant DAW in electronic music. Start with the intro version.',
-      links: [
-        { url: 'https://keepitil.com/blog-dj-equipment-guide-2026.html', label: 'Full Equipment Guide 2026' },
-        { url: 'https://keepitil.com/blog-tip-sound-system-guide.html', label: 'Sound System Guide (for Events)' },
-      ],
+      links: [],
       chips: ['Mixing techniques', 'DJ career tips', 'Bedroom producer guide', 'Equipment for events'],
     },
     {
@@ -243,9 +226,7 @@
       kw: ['produce','producer','music production','ableton','fl studio','logic','daw','make music','make beats','bedroom producer','synthesis','sample','plugin','vst','how to produce','sound design'],
       title: '🎹 Music Production',
       text: 'Getting started with electronic music production:\n\n• Pick one DAW and stick to it. Ableton Live is standard for electronic music. Logic Pro is excellent on Mac. FL Studio has a strong community.\n• Learn music theory basics — you don\'t need to master it, but understanding key and scale will accelerate everything\n• Study tracks you love: load them into your DAW and analyze the structure\n• Finish tracks, even bad ones. Completion teaches more than abandoning 40% of projects\n• SoundCloud and Bandcamp for releasing early work\n• Give yourself 2+ years of serious practice before expecting quality results',
-      links: [
-        { url: 'https://keepitil.com/blog-bedroom-producer-guide-2026.html', label: 'Bedroom Producer Guide 2026' },
-      ],
+      links: [],
       chips: ['DJ career tips', 'Equipment guide', 'Music industry knowledge', 'Submit music to KEEPITIL'],
     },
     {
@@ -253,10 +234,7 @@
       kw: ['tips','going out','rave tips','festival tips','first rave','first festival','what to wear','what to bring','dress code','safety','rave safety','rave culture','etiquette','rave etiquette','behave','how to act'],
       title: '🪩 Party & Rave Tips',
       text: 'New to the underground scene? Here\'s what you need to know:\n\n• Arrive at a reasonable time — the best sets aren\'t always headliners\n• Dress for the music, not the \'gram. Dark clothes, comfortable shoes. You\'ll be on your feet for hours.\n• Know the etiquette: respect the dancefloor, don\'t talk loudly over the music, don\'t block views\n• Take breaks — find a quiet spot, drink water, step outside briefly\n• Look out for your people and those around you. This community takes care of each other.\n• Phones on the dancefloor: keep it minimal. Be present. Record a little, experience a lot.',
-      links: [
-        { url: 'https://keepitil.com/blog-rave-etiquette-guide.html', label: 'Rave Etiquette Guide' },
-        { url: 'https://keepitil.com/blog-tip-festival-packing-guide-socal.html', label: 'Festival Packing Guide' },
-      ],
+      links: [],
       chips: ['Festival packing list', 'Find events near me', 'Rave safety', 'Rave culture history'],
     },
     {
@@ -264,9 +242,7 @@
       kw: ['packing','what to bring','packing list','bag','backpack','festival bag','essentials','what do i need','festival preparation','prepare for festival','gear for festival'],
       title: '🎒 Festival Packing Guide',
       text: 'SoCal festival essentials:\n\n✓ Fanny pack or small bag (keep it light)\n✓ ID + card + some cash\n✓ Water bottle (many festivals have refill stations)\n✓ Portable phone charger\n✓ Earplugs — protect your hearing, you\'ll still hear everything\n✓ Comfortable shoes (you\'ll walk 15,000+ steps)\n✓ Light jacket for late nights — even summer desert nights get cold\n✓ Sunscreen if it\'s a daytime event\n✓ Mints, snacks\n\nLeave at home: heavy bags, laptops, valuables you can\'t replace.',
-      links: [
-        { url: 'https://keepitil.com/blog-tip-festival-packing-guide-socal.html', label: 'Full Festival Packing Guide' },
-      ],
+      links: [],
       chips: ['Rave etiquette', 'Rave tips', 'Find events near me'],
     },
     {
@@ -274,13 +250,7 @@
       kw: ['history','origin','where did','how did','house music history','techno history','rave history','california rave','underground history','electronic music history','genre','garage','drum and bass','dnb','uk garage'],
       title: '📚 Music History',
       text: 'KEEPITIL\'s culture blog covers the history of the genres that built underground electronic music — from Chicago house to Berlin techno, Detroit to Bristol, and the California rave scene.',
-      links: [
-        { url: 'https://keepitil.com/blog-history-of-house-music.html', label: 'History of House Music' },
-        { url: 'https://keepitil.com/blog-history-of-techno.html', label: 'History of Techno' },
-        { url: 'https://keepitil.com/blog-history-of-uk-garage.html', label: 'History of UK Garage' },
-        { url: 'https://keepitil.com/blog-history-of-drum-and-bass.html', label: 'History of Drum & Bass' },
-        { url: 'https://keepitil.com/blog-rave-culture-california-history.html', label: 'California Rave History' },
-      ],
+      links: [],
       chips: ['Techno subgenres', 'House music subgenres', 'UK garage scene', 'SoCal underground scene'],
     },
     {
@@ -288,12 +258,7 @@
       kw: ['socal','southern california','los angeles','la','orange county','oc','san diego','sd','inland empire','ie','local scene','underground scene','local events','local dj'],
       title: '🌴 SoCal Underground Scene',
       text: 'The SoCal underground electronic music scene is one of the most active in the country, spanning:\n\n• Orange County: smaller club nights, house music focus, tight-knit community\n• Los Angeles: massive reach, warehouse raves, major touring acts, every subgenre\n• San Diego: festival culture strong (CRSSD), strong house and tech house scene\n• Inland Empire: growing underground warehouse scene, large outdoor raves\n\nKEEPITIL covers it all.',
-      links: [
-        { url: 'https://keepitil.com/blog-la-underground-music-guide.html', label: 'LA Underground Guide' },
-        { url: 'https://keepitil.com/blog-oc-underground-guide.html', label: 'OC Underground Guide' },
-        { url: 'https://keepitil.com/blog-san-diego-underground-scene.html', label: 'San Diego Scene Guide' },
-        { url: 'https://keepitil.com/blog-inland-empire-underground-scene.html', label: 'Inland Empire Scene' },
-      ],
+      links: [],
       chips: ['Events near me', 'Find underground raves', 'Local DJs', 'Local organizers'],
     },
     {
@@ -335,7 +300,6 @@
       title: '🤝 Networking in the Scene',
       text: 'The SoCal music industry runs on relationships. Whether you\'re an artist, organizer, or brand — here\'s how to build them:\n\n• Show up to events consistently — presence builds recognition faster than anything online\n• Introduce yourself genuinely. Lead with the music, not the pitch.\n• For artists: volunteer at events, support other artists\' nights, share their work\n• For organizers: connect with brands before you need their money — build the relationship first\n• For brands: reach out to artists and organizers who fit your product naturally, not transactionally\n• Use KEEPITIL\'s directories to identify the right people to connect with\n• DM on Instagram with specific, genuine messages — "loved your set at X" beats "let\'s collab"\n\nSoCal is big but the music scene is a community. Your reputation travels.',
       links: [
-        { url: 'https://keepitil.com/blog-tip-networking-underground-events.html', label: 'Networking at Underground Events' },
         { url: 'https://keepitil.com/#events-container', label: 'Find Events to Attend' },
       ],
       chips: ['How to get gigs', 'Work with organizers', 'Find events to attend'],
@@ -345,9 +309,7 @@
       kw: ['instagram','ig','social media','social','content','posts','reels','stories','tiktok','online presence','brand yourself','personal brand','online','social strategy'],
       title: '📱 Building Your Presence Online',
       text: 'For artists, organizers, and brands in electronic music, Instagram is still the primary platform. What works in 2026:\n\n• Post consistently — 3–5x per week\n• Reels get more reach than static posts — use them for event recaps, studio clips, gear content\n• Stories for real-time: announcements, behind the scenes, polls\n• Your bio should say who you are and where you operate (DJ | OC/LA, for example)\n• Tag venues and artists in your posts\n• Your link should go somewhere useful — KEEPITIL profile, SoundCloud, or a link-in-bio\n\nTikTok: growing in the scene, worth being on, but Instagram still books gigs.',
-      links: [
-        { url: 'https://keepitil.com/blog-tip-dj-instagram-brand-2026.html', label: 'DJ Instagram Branding Guide' },
-      ],
+      links: [],
       chips: ['DJ career tips', 'Promote your event', 'Brand partnerships'],
     },
   ];

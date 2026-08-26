@@ -629,7 +629,8 @@ $('form').addEventListener('submit',async function(e){
         await supa.from('discount_codes').insert({owner_handle:MY_HANDLE,event_id:newEventId,event_slug:newSlug,code:dcCode,percent_off:dcPct,active:true});
       }
     }catch(e){}
-    var mk=$('mktg-link'); if(mk) mk.href='/campaigns.html?e='+encodeURIComponent(newSlug);
+    /* Marketing link removed 2026-08-26: /campaigns.html does not exist. */
+    var mk=$('mktg-link'); if(mk) mk.remove();
     $('form').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'});
   }catch(err){
     b.disabled=false; b.textContent=EDIT_SLUG?'Save changes':'Create Event';

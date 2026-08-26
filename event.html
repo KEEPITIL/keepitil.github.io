@@ -249,7 +249,6 @@
           </div>
           <div class="tix-terms" id="tix-terms" style="display:none">By purchasing you agree to the <a href="/ticket-terms.html">Ticket Terms</a> &amp; <a href="/refund.html">Refund Policy</a>.</div>
         </div>
-        <a class="chatbar" id="ev-chatbar" href="/event-chat.html">💬 Join Event Chat</a>
       </div>
     </div>
   </div>
@@ -435,10 +434,12 @@
     if(ev.vip && ev.ticket) c+='<a class="cta cta-vip" data-kt="vip_click" data-event-slug="'+esc(ev.slug)+'" href="'+esc(ev.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>';
     /* 3rd-party (external) events are listings only — NO scene room / event chat */
     var _isExt = (ev.is_external===true) || (ev.is_external===undefined && /^https?:\/\//.test(ev.ticket||'') && !/\/v31\/event\.html/.test(ev.ticket||''));
-    if(!_isExt) c+='<a class="cta cta-chat" data-kt="chat_join" data-event-slug="'+esc(ev.slug)+'" href="event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)+'">💬 Join Scene Room</a>';
+      /* Join Scene Room removed 2026-08-26: /event-chat.html was a v31 page and no
+         longer exists, so this CTA led to a 404 from every event page. There is no
+         replacement route to point it at. */
     $('ev-ctas').innerHTML=c;
     /* chat = single bar at the bottom of the card (links to the event chat room); hidden for 3rd-party events */
-    var _cb=$('ev-chatbar'); if(_cb){ if(_isExt){ _cb.style.display='none'; } else { _cb.style.display=''; _cb.setAttribute('href','/event-chat.html?e='+encodeURIComponent(ev.slug)+'&t='+encodeURIComponent(ev.title)); } }
+      /* ev-chatbar removed with the CTA above. */
     /* EVENTS back → return to the exact flyer they came from (same-origin), else the homepage */
     var _bk=$('ev-back2'); if(_bk && !_bk._wired){ _bk._wired=1; var _so=false; try{ var _u=new URL(document.referrer); _so=(_u.origin===location.origin && _u.pathname!==location.pathname); }catch(_e){} if(_so){ _bk.addEventListener('click',function(e2){ e2.preventDefault(); history.back(); }); } else { _bk.setAttribute('href','/'); } }
     // JSON-LD
@@ -654,7 +655,7 @@
         var who=esc(m.author_handle||'guest');
         var ini=esc((m.author_handle||'?').charAt(0).toUpperCase());
         var when=timeAgo(m.created_at);
-        var whoLink=m.author_handle?('<a href="/agent.html?a='+esc(m.author_handle)+'">@'+who+'</a>'):('@'+who);
+        var whoLink=m.author_handle?('<a href="/profile.html?slug='+esc(m.author_handle)+'">@'+who+'</a>'):('@'+who);
         var media='';
         if(m.media_url && m.kind==='image') media='<div class="fp-media"><img src="'+esc(m.media_url)+'" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></div>';
         else if(m.media_url && m.kind==='video') media='<div class="fp-media"><video src="'+esc(m.media_url)+'" controls preload="metadata"></video></div>';

@@ -1188,7 +1188,7 @@ function openTicket(i){
     +'<h3 style="margin:0 0 4px">'+esc(t.title||'Event')+'</h3>'
     +'<p class="note" style="margin:0 0 12px">'+esc(fmtTixDate(t.starts_at))+(t.venue?' · '+esc(t.venue):'')+(t.city?' · '+esc(t.city):'')+'</p>'
     +'<div style="display:flex;gap:14px;align-items:center;margin:0 0 14px"><img src="'+qr+'" alt="Ticket QR" style="width:110px;height:110px;border-radius:10px;background:#fff;padding:6px"><div><div style="font-weight:800;font-size:.9rem">General Admission</div><div class="note">Qty: '+(t.qty||1)+'</div><div class="note" style="word-break:break-all;font-size:.66rem">Ref: '+esc(String(t.qr_token||'').slice(0,12))+'</div><div style="color:var(--accent);font-weight:800;font-size:.8rem;margin-top:4px">✓ PAID</div></div></div>'
-    +'<a class="kil-msave" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="/ticket.html?t='+encodeURIComponent(t.qr_token||'')+'">View / share full ticket →</a>'
+    +'<a class="kil-msave" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px" href="/tickets.html?t='+encodeURIComponent(t.qr_token||'')+'">View / share full ticket →</a>'
     +'<a class="kil-mcancel" style="display:block;text-align:center;text-decoration:none" href="/event.html?e='+encodeURIComponent(t.slug||'')+'">Open event page &amp; chat →</a>'
     +'</div></div>';
   document.body.appendChild(ov);
@@ -2487,7 +2487,11 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
       if(sessionStorage.getItem('kil_ob_gated')==='1') return; /* safety valve: at most one forced redirect per session */
       SB.from('user_onboarding').select('completed_at').eq('user_id',SESSION.user.id).maybeSingle().then(function(o){
         if(o&&o.error) return;
-        if(!(o&&o.data&&o.data.completed_at)){ try{ sessionStorage.setItem('kil_ob_gated','1'); }catch(e){} location.href='/onboarding.html?required=1'; }
+        /* ONBOARDING GATE REMOVED 2026-08-26. /onboarding.html does not exist — this did not
+           merely render a dead link, it REDIRECTED any member without a completed_at row
+           straight to a 404 and out of their own profile. A gate with no page behind it is
+           worse than no gate, so the check stands down until an onboarding flow exists. */
+        if(!(o&&o.data&&o.data.completed_at)){ try{ sessionStorage.setItem('kil_ob_gated','1'); }catch(e){} }
       });
     }catch(e){}
   }
