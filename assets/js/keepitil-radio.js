@@ -249,6 +249,45 @@
   }
   window.__kilPaintPlaylistNames = kilPaintPlaylistNames;
 
+  /* ── STATE BROADCAST (EARN radio row + playlist carousel, Founder 2026-08-25) ───────────
+     The EARN page needs the SAME state this bar already computes — playlist name, current
+     song, next song — and must not start a second player to get it. A widget is bound to one
+     playlist for its lifetime and there is only ever one #kil-sc frame, so anything that wants
+     to display radio state listens instead of polling or re-fetching.
+     Fired on every title repaint and on every playlist change, so a listener that mounts late
+     can also just ask for a repaint. */
+  function kilBroadcast(cur, nxt){
+    try{
+      document.dispatchEvent(new CustomEvent('kil-radio-state', {detail:{
+        index: KIL_PL_I,
+        count: KIL_PL.length,
+        playlist: kilPlName(0),
+        current: cur || '',
+        next: nxt || ''
+      }}));
+    }catch(e){}
+  }
+  window.__kilRadioState = kilBroadcast;
+
+  /* Absolute playlist selection. The arrows are relative (dir -1/+1) because that is all a
+     two-arrow bar needs; tapping a specific tile in the EARN carousel is not expressible that
+     way without the caller doing modulo arithmetic against internal state it cannot see. */
+  window.__kilRadioSelect = function(i){
+    if(!KIL_PL.length) return;
+    i = (((i|0) % KIL_PL.length) + KIL_PL.length) % KIL_PL.length;
+    if(i === KIL_PL_I){
+      /* Already on this station: restart it at track 1 rather than doing nothing, which is
+         what a tap on the artwork means. */
+      if(widget && widgetReady){ widget.skip(0); widget.play(); }
+      kilBroadcast();
+      return;
+    }
+    kilLoadPlaylist(i - KIL_PL_I);
+  };
+  window.__kilRadioPlaylists = function(){
+    return { list: KIL_PL.slice(), index: KIL_PL_I };
+  };
+
   function kilPaintTitles(){
     if(!widget || !widgetReady) return;
     widget.getSounds(function(list){
@@ -265,11 +304,13 @@
         if(prevEl) prevEl.textContent = (p && p.title) ? p.title : here;
         if(nextEl) nextEl.textContent = (n && n.title) ? n.title : here;
         /* Current reads "PLAYLIST: SONG" — e.g. "EDM: VHS TAPES". */
+        var cur = list[i];
+        var t = (cur && cur.title) ? cur.title : '';
         if(nowEl){
-          var cur = list[i];
-          var t = (cur && cur.title) ? cur.title : '';
           nowEl.textContent = here ? (here + (t ? ': ' + t : '')) : t;
         }
+        /* Same values the bar just painted — no second source of truth. */
+        kilBroadcast(t, (n && n.title) ? n.title : '');
       });
     });
     kilPaintPlaylistNames();
@@ -295,6 +336,7 @@
     document.body.appendChild(sc);
     if(trackEl) trackEl.textContent = (KIL_PL[KIL_PL_I].name || 'Loading') + '\u2026';
     kilPaintPlaylistNames();
+    kilBroadcast();
     if(window.__kilRadioAttach) window.__kilRadioAttach(sc);
   }
 

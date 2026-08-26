@@ -127,6 +127,34 @@
    +   'justify-content:center;border-style:dashed;transition:border-color .15s,background .15s}'
    + '#vs-app .sf-drop:hover{border-color:var(--vsb);background:rgba(0,180,255,.06)}'
    + '#vs-app .sf-drop.has{border-style:solid;background:#0a0a0f}'
+   /* ── ENTRY FORM, MOBILE (Founder 2026-08-25) ────────────────────────────────────────────
+      "Entry/signup image area becomes 2 columns side-by-side on mobile."
+      cd-stick is a flex COLUMN, so the two upload slots stacked and the form below them was
+      pushed a full extra slot down the page. Two explicit columns rather than auto-fill: at
+      360px an auto-fill track with any sensible minimum collapses back to one, which is the
+      layout being replaced. minmax(0,1fr) — not 1fr — because a grid track's automatic minimum
+      is min-content, and the slot captions would otherwise refuse to shrink and overflow.
+      Everything BELOW this is untouched, as instructed. */
+   + '@media(max-width:860px){'
+   +   '#vs-app .cd2-sub .cd-stick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));'
+   +     'gap:10px;align-items:start}'
+   +   '#vs-app .cd2-sub .sf-drop{min-height:0;aspect-ratio:2/3}'
+   +   '#vs-app .cd2-sub .sf-ph small{display:none}'
+   + '}'
+   /* ── ENTRY TEXT LEGIBILITY (Founder 2026-08-25) ─────────────────────────────────────────
+      "Add a light, transparent white background behind the entry text so it stays readable
+      over the page background."
+      The right column — title, pills, every field label — sits directly on the page's photo
+      backdrop, so contrast depended entirely on which part of the image was behind it. A
+      translucent white panel lifts the whole block off the backdrop without introducing a
+      solid card that would fight the rest of the page.
+      backdrop-filter is the part that actually does the work on a busy image; the background
+      alone is only a wash. Both are declared, so a browser without backdrop-filter still gets
+      the lift. */
+   + '#vs-app .cd2-sub .cd-right{background:rgba(255,255,255,.07);'
+   +   '-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);'
+   +   'border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px 16px 18px}'
+   + '@media(max-width:860px){#vs-app .cd2-sub .cd-right{padding:14px 13px 16px;border-radius:14px}}'
    + '#vs-app .sf-ph{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;padding:18px;color:#9aa0b0;font:600 .84rem Inter,sans-serif}'
    + '#vs-app .sf-ph .ic{font-size:1.7rem;line-height:1;color:var(--vsb)}'
    + '#vs-app .sf-ph small{font-weight:500;font-size:.72rem;color:#6f7686;line-height:1.35}'
