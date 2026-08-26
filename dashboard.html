@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no.0,viewport-fit=cover"/>
 <meta name="robots" content="noindex,nofollow"/>
 <link rel="icon" type="image/png" href="/assets/images/logo-blue-nav.png"/>
-<title>Organizer Dashboard — KEEPITIL</title>
+<title>Dashboard — KEEPITIL</title>
 <meta name="description" content="Manage your KEEPITIL events — sales, check-ins, revenue, promotion."/>
 <link rel="stylesheet" href="/assets/css/tokens.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet"/>
@@ -143,7 +143,7 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
 <body>
 <div class="wrap">
   <div class="head">
-    <h1>Organizer <b>Dashboard</b></h1>
+    <h1><b>Dashboard</b></h1>
     <a class="btn prim" href="/create-event.html">+ Create Event</a>
   </div>
   <div id="gate" class="gate" style="display:none">
@@ -290,7 +290,10 @@ async function buildAdminTabs(){
   var nav=$('subnav'); var tabs=[['events','Events'],['insights','Insights']];
   if(IS_ADMIN){
     tabs=tabs.concat(ADMIN_TABS);
-    try{ var h1=document.querySelector('.head h1'); if(h1) h1.innerHTML='Website <b>Brain</b>'; document.title='Website Brain — KEEPITIL'; }catch(e){}
+    /* The page is "Dashboard" for everyone, admin or not (Founder 2026-08-26). This used to
+       rename the heading and the tab to "Website Brain" for admins only, so the same URL
+       introduced itself by two different names depending on who opened it. The admin TABS are
+       still added below — the extra capability is what differs, not what the page is called. */
     try{ var c=await supa.from('platform_config').select('value').eq('key','zapier_hook_url').maybeSingle(); if(c&&c.data&&c.data.value) ZAP_HOOK=String(c.data.value); }catch(e){}
     var opt=AGENTS.map(function(a){return '<option value="'+a[0]+'">'+a[1]+'</option>';}).join('');
     if($('agentPick')) $('agentPick').innerHTML=opt;
@@ -1050,8 +1053,8 @@ async function init(){
 }
 init();
 </script>
-<script src="/assets/js/keepitil-radio.js?v=20260825b" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260826a" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
-<script src="/keepitil-shell.js?v=20260825c" defer></script>
+<script src="/keepitil-shell.js?v=20260826a" defer></script>
 </body>
 </html>

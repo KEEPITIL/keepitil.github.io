@@ -288,6 +288,20 @@
     return { list: KIL_PL.slice(), index: KIL_PL_I };
   };
 
+  /* Song transport, exposed for surfaces that draw their own controls (the EARN radio row).
+     Those pages hide the shell bar, so proxying a .click() at its buttons would depend on a
+     hidden element still existing — this is the same two lines the bar's own arrows run. */
+  window.__kilRadioSong = function(dir){
+    if(!widget || !widgetReady) return false;
+    try{
+      if(dir < 0) widget.prev(); else widget.next();
+      widget.play();
+      /* The widget reports the new track asynchronously; repaint once it has. */
+      setTimeout(function(){ try{ kilPaintTitles(); }catch(e){} }, 400);
+      return true;
+    }catch(e){ return false; }
+  };
+
   function kilPaintTitles(){
     if(!widget || !widgetReady) return;
     widget.getSounds(function(list){

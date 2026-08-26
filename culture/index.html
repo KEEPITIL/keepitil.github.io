@@ -333,16 +333,19 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
   border-radius:10px;text-decoration:none;margin-top:11px}
 .kv-cta[hidden]{display:none}
 .kv-cta-note{font-size:.68rem;color:var(--ink3,#9aa0b0);text-align:center;margin-top:5px}
-/* !important is not decoration here — it is a specificity loss, verified in the browser.
-   `body.cul-m .fcard .fb-actions .fba{display:flex}` lives in the mobile block and scores
-   (0,4,1); this rule scored (0,4,0), so on a phone — the only place these cards are read —
-   the buttons stayed visible even though the .kv-yt class was correctly applied to all 100
-   video cards. Raising the selector instead would leave the next rule added to that mobile
-   block able to win again silently.
-   .kv-src is deliberately NOT in this list: it is the attribution link, not a reaction. */
-.fcard.kv-yt .kv-acts .fba-like,
-.fcard.kv-yt .kv-acts .fba-share,
-.fcard.kv-yt .kv-acts .fb-save{display:none!important}
+/* A YOUTUBE CARD IS THE YOUTUBE PLAYER, NOTHING ELSE (Founder 2026-08-26: "is the reaction bar
+   ours? profile avatar, date, youtube icon, '...'. if so than remove it. only have the youtube
+   video structure as is").
+   All of it was ours. .kv-body holds the duplicated title, .kv-who (avatar, channel name,
+   date), the like/share/save row, the source icon and the "..." menu. The player already shows
+   the title, the channel and a link to the source, so every one of those was a second copy of
+   something YouTube renders inside the frame — and on a full-screen card they sat on top of the
+   video.
+   The whole overlay goes on .kv-yt cards. Other providers keep theirs untouched.
+   !important because `body.cul-m .fcard .fb-actions .fba{display:flex}` in the mobile block
+   scores (0,4,1) and beat the earlier (0,4,0) attempt — verified in the browser at the time.
+   Attribution is NOT lost: the embed itself carries the channel name and links to the video. */
+.fcard.kv-yt .kv-body{display:none!important}
 /* A Short already fills the screen; the stack below it would be off-screen, so the frame is
    the card and the actions overlay it. */
 .kv-short .kv-body{padding:9px 14px 12px}
@@ -821,7 +824,7 @@ renderTypebar();renderDiscover();renderFeed();
 </script>
 <script src="/assets/js/vendor/supabase-js.min.js" defer></script>
 <script src="/kil-seasons.js?v=20260809a"></script>
-<script src="/assets/js/keepitil-radio.js?v=20260825b" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260826a" defer></script>
 <script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
 <script>
@@ -1992,7 +1995,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260825c" defer></script>
+<script src="/keepitil-shell.js?v=20260826a" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}

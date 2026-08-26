@@ -227,10 +227,20 @@ footer{margin-top:auto}
   background:rgba(255,255,255,.04);border:1px solid var(--line,#242433);border-radius:12px;
   font:700 .8rem/1.25 Inter,sans-serif;overflow:hidden}
 .kr-bar span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.kr-bar .kr-pl{flex:0 1 auto;color:var(--accent,#00b4ff);letter-spacing:.06em}
-.kr-bar .kr-cur{flex:1 1 auto;color:#fff}
-.kr-bar .kr-nxt{flex:0 1 auto;color:var(--muted,#9aa0b0);font-weight:600}
-.kr-bar .kr-sep{flex:0 0 auto;color:var(--muted,#9aa0b0)}
+/* Three buttons, text centred in each. Prev and Next are the SAME width as one another and
+   both shorter than the song title, which takes the remaining room — flex-basis 0 with equal
+   grow on the outer two, and grow:2.6 on the title, so the ratio holds at any width instead of
+   depending on how long the words happen to be. min-width:0 is what actually lets the title
+   ellipsis rather than push the row wider than the phone. */
+.kr-bar .kr-btn{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;
+  height:38px;padding:0 10px;border-radius:10px;cursor:pointer;
+  background:rgba(255,255,255,.05);border:1px solid var(--line,#242433);color:#cfd3df;
+  font:800 .7rem/1 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .15s,border-color .15s}
+.kr-bar .kr-btn:active{background:rgba(255,255,255,.12)}
+.kr-bar .kr-btn:disabled{opacity:.45;cursor:default}
+.kr-bar .kr-nowb{flex:2.6 1 0;color:#fff;text-transform:none;letter-spacing:.02em;
+  border-color:var(--accent,#00b4ff)}
 /* Horizontal cycling carousel. Scrolling BROWSES ONLY — it never changes station; that is
    deliberate (Founder), so a thumb-flick past the rail cannot silently restart the audio.
    Only a tap on the artwork selects.
@@ -243,10 +253,13 @@ footer{margin-top:auto}
 .kr-carousel{scroll-snap-type:x mandatory;scroll-padding-left:50%;scroll-padding-right:50%;
   scrollbar-width:none}
 .kr-carousel::-webkit-scrollbar{display:none}
-/* First and last tiles must be able to reach the CENTRE of the rail, not just its edge.
-   Half the rail minus half a card — the card width comes from .g-stations above. */
-.kr-carousel::before,.kr-carousel::after{content:"";flex:0 0 calc(50% - 120px)}
-@media(max-width:860px){ .kr-carousel::before,.kr-carousel::after{flex:0 0 calc(50% - 80px)} }
+/* First and last tiles must reach the CENTRE of the rail, not just its edge.
+   ⚠ The half-card figure is MEASURED, not written down. It was calc(50% - 120px) desktop /
+   calc(50% - 80px) mobile, which assumed 240/160px cards — but the mobile rail enhancer forces
+   flex:0 0 170px, so the first card sat 15px off centre (measured on the deployed page). Any
+   constant here is a second copy of a width that is defined elsewhere and will drift again.
+   kilCentreActive() sets --kr-pad from the tile's own offsetWidth. */
+.kr-carousel::before,.kr-carousel::after{content:"";flex:0 0 var(--kr-pad,calc(50% - 85px))}
 /* A <button> resets nothing by itself; .card supplies the frame, this supplies the rest. */
 .kr-tile{font:inherit;text-align:left;color:inherit;cursor:pointer;scroll-snap-align:center;
   opacity:.55;transition:opacity .22s ease,border-color .22s ease}
@@ -337,11 +350,11 @@ footer{margin-top:auto}
   <div class="sh"><h2>KEEPITIL RADIO</h2></div>
   <div class="kr-sub">POWERED BY SOUNDCLOUD <span id="krCount"></span></div>
   <div class="kr-bar" id="krBar" aria-live="polite">
-    <span class="kr-pl"  id="krPl">&mdash;</span>
-    <span class="kr-sep" aria-hidden="true">&laquo;</span>
-    <span class="kr-cur" id="krCur">&mdash;</span>
-    <span class="kr-sep" aria-hidden="true">&raquo;</span>
-    <span class="kr-nxt" id="krNxt">&mdash;</span>
+    <button type="button" class="kr-btn kr-prevb" id="krPrev" aria-label="Previous song">&laquo; Prev</button>
+    <button type="button" class="kr-btn kr-nowb"  id="krCur"  aria-label="Current song">&mdash;</button>
+    <button type="button" class="kr-btn kr-nextb" id="krNext" aria-label="Next song">Next &raquo;</button>
+    <span class="kr-pl" id="krPl" hidden>&mdash;</span>
+    <span class="kr-nxt" id="krNxt" hidden>&mdash;</span>
   </div>
   <div class="grid g-stations kr-carousel" id="stationGrid"></div>
 </section>
@@ -507,11 +520,14 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
      the page, wider than the screen. */
   body.rad-m section .grid > *{flex:0 0 170px!important;scroll-snap-align:start}
   body.rad-m #radNoHits{flex:0 0 auto!important;max-width:80vw}
-  /* persistent mini-player docked above the bottom nav (the shared shell hides it on mobile;
-     this page is the one place it must stay visible) */
-  body.rad-m #kil-radio{transform:none!important;pointer-events:auto!important;
-    position:fixed!important;left:8px;right:8px;bottom:calc(56px + 8px + env(safe-area-inset-bottom,0px))!important;
-    z-index:60;border-radius:12px}
+  /* NO DOCKED BAR ON MOBILE (Founder 2026-08-26). This page used to force the shell's
+     mini-player back on screen here — it was the only page that did. Row 3 of the radio
+     section now carries the transport, so the docked bar was a second set of the same
+     controls competing for the bottom of a phone screen.
+     ⚠ THIS HIDES THE BAR, NOT THE RADIO. The audio engine is #kil-sc, a separate element kept
+     alive by <html data-radio="page">; display:none on the bar does not touch it, so playback
+     continues and the section's own row keeps working. */
+  body.rad-m #kil-radio{display:none!important}
   /* ── FOOTER MATCHES /connect AND /create (Founder 2026-08-24) ────────────────────────────
      "footer has extra space at the bottom of the footer followed by a gap after the footer.
       connect and create do not and have the best examples."
@@ -601,11 +617,11 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260825c" defer></script>
+<script src="/keepitil-shell.js?v=20260826a" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/assets/js/keepitil-radio.js?v=20260825b" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260826a" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
 <script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
 <script>
@@ -653,9 +669,23 @@ document.addEventListener('click', function(e){
          kilMarkActive(i); }
 });
 
-/* Centre the active tile. Only when the active index actually CHANGES: re-centring on every
-   title repaint would yank the rail out from under someone browsing it. */
-var KR_LAST = -1;
+/* The playing card is ALWAYS centred (Founder 2026-08-26) — on load, on change, on resize, and
+   again once the visitor stops browsing. Browsing itself is never interrupted: the re-centre is
+   debounced behind scroll, so it only runs after the rail has been still for a moment, and a
+   thumb-flick still moves freely while it is in the hand. */
+var KR_LAST = -1, KR_SETTLE = null;
+function kilCentreActive(smooth){
+  var grid = document.getElementById('stationGrid'); if(!grid) return;
+  var el = grid.querySelector('.kr-tile.on'); if(!el) return;
+  /* Measure the real card and publish half of it, so the end spacers put the FIRST and LAST
+     cards dead centre too — they cannot be scrolled there without it. */
+  var half = Math.round(el.offsetWidth / 2);
+  if(half) grid.style.setProperty('--kr-pad', 'calc(50% - ' + half + 'px)');
+  var target = el.offsetLeft - (grid.clientWidth - el.offsetWidth) / 2;
+  if(Math.abs(grid.scrollLeft - target) < 2) return;      /* already centred — do not fight it */
+  try{ grid.scrollTo({ left: target, behavior: smooth ? 'smooth' : 'auto' }); }
+  catch(e){ grid.scrollLeft = target; }
+}
 function kilMarkActive(i){
   var grid = document.getElementById('stationGrid'); if(!grid) return;
   var tiles = grid.querySelectorAll('.kr-tile');
@@ -665,15 +695,30 @@ function kilMarkActive(i){
     var st = t.querySelector('[data-st]');
     if(st) st.textContent = on ? 'Now playing' : 'Tap to play';
   });
-  if(i !== KR_LAST){
-    KR_LAST = i;
-    var el = tiles[i];
-    if(el && el.scrollIntoView){
-      try{ el.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); }
-      catch(err){ el.scrollIntoView(); }
-    }
+  kilCentreActive(i !== KR_LAST);
+  KR_LAST = i;
+  if(!grid.__krBound){
+    grid.__krBound = 1;
+    grid.addEventListener('scroll', function(){
+      clearTimeout(KR_SETTLE);
+      KR_SETTLE = setTimeout(function(){ kilCentreActive(true); }, 900);
+    }, { passive:true });
+    window.addEventListener('resize', function(){
+      clearTimeout(KR_SETTLE);
+      KR_SETTLE = setTimeout(function(){ kilCentreActive(false); }, 200);
+    });
   }
 }
+
+/* Row 3's transport. The shell bar is hidden on mobile, so these drive the player directly
+   through __kilRadioSong() rather than proxying a click at an element that is not on screen. */
+document.addEventListener('click', function(e){
+  var b = e.target.closest && e.target.closest('#krPrev,#krNext,#krCur');
+  if(!b) return;
+  if(b.id === 'krCur') return;                 /* the title is a label, not a transport button */
+  if(typeof window.__kilRadioSong !== 'function') return;
+  window.__kilRadioSong(b.id === 'krPrev' ? -1 : 1);
+});
 
 /* Row 3 mirrors the shell player. The bar is the only place these values are computed, so this
    listens rather than reading the SoundCloud widget a second time. */
