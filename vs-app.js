@@ -1086,9 +1086,12 @@
       if(goBtn) goBtn.onclick=function(){ go({view:'submit', c:compId}); };
       var backBtn=document.getElementById('cdBack');
       if(backBtn) backBtn.onclick=function(){
-        /* history.back() keeps the visitor's place in a filtered list. A shared link has no
-           history to return to, so fall through to the competition list itself. */
-        if(history.length > 1){ history.back(); return; }
+        /* ALWAYS the CREATE list — deliberately NOT history.back(). The control says "Back to
+           CREATE", so it has to land on CREATE. Tested with history.back() first and it walked
+           to whatever happened to be the previous page, which for competition-to-competition
+           navigation is another competition — a back button that does not go where it says.
+           renderEnter with no `c` is the list, so this is one hop and it is the same whether
+           the visitor browsed here or opened a shared link. */
         go({ view:'enter' });
       };
     }).catch(err);
