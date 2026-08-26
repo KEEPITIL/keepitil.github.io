@@ -1238,6 +1238,11 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        The short legal labels and the split address are markup that already exists on both
        breakpoints; only which half is shown changes, so there is no second copy of the
        footer to keep in sync. */
+    /* Desktop default: long labels only. ⚠ THIS MUST PRECEDE THE MEDIA BLOCK. It was written
+       after it, and with equal specificity the later rule wins at EVERY width — so .lg-s stayed
+       display:none on mobile too and TICKETS and RULES rendered as empty links. Verified on the
+       deployed page: legal labels read ["TERMS","PRIVACY","REFUNDS","",""]. */
+    +'#v3-footer .lg-s{display:none}'
     +'@media(max-width:860px){'
     +  '#v3-footer .v3-foot-inner{flex-direction:column;align-items:center;gap:14px;text-align:center}'
     +  '#v3-footer .v3-foot-about{max-width:none;flex:0 0 auto;text-align:center}'
@@ -1271,8 +1276,6 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        have somewhere to sit that is not on top of a link. */
     +  '#v3-footer{padding-bottom:calc(84px + var(--kil-bnav-h,62px))!important}'
     +'}'
-    /* desktop keeps the long labels */
-    +'#v3-footer .lg-s{display:none}'
     +'#v3-theme{position:fixed;left:16px;bottom:124px;z-index:600;display:flex;flex-direction:column-reverse;align-items:center;gap:8px}'
     +'#v3-theme .v3t-btn{width:44px;height:44px;border-radius:50%;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));color:var(--text,#f0f0f0);font-size:1.15rem;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.4);line-height:1}'
     +'#v3-theme .v3t-pop{display:none;flex-direction:column;gap:9px;background:var(--surface,#15151f);border:1px solid var(--line,rgba(255,255,255,.14));border-radius:26px;padding:10px;box-shadow:0 12px 30px rgba(0,0,0,.5)}'
