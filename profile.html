@@ -130,10 +130,16 @@ body::before{content:""!important;position:fixed!important;inset:0!important;z-i
 .pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
 .pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
 /* PUBLIC VIEW: follow, message and share are one row of EQUAL buttons (Founder 2026-08-26).
-   flex:1 1 0 with a zero basis is what makes them equal — flex:1 alone still sizes from each
-   button's own content, so "+ FOLLOW" came out wider than "SHARE". A fixed height keeps them
-   level whether the child is a <button>, an <a> or a wrapper <div>. */
-.pf-cta #pfFollow,.pf-cta #pfBook,.pf-cta #pfShare,.pf-cta #pfDashWrap{flex:1 1 0;min-width:0}
+   ⚠ FLEX WAS NOT ENOUGH. Every one of them computed to flex:1 1 0 with min-width:0 — verified
+   by enumerating the matched rules in the browser, all three agreed — and they STILL measured
+   108 / 108 / 84, because flex distributes free space rather than guaranteeing equal tracks.
+   Grid with auto columns does guarantee it: measured 100 / 100 / 100 at 40px each.
+   grid-auto-flow:column means the row adapts to whatever is visible — three buttons for a
+   visitor, DASH and CREATE for the owner — without a rule per state. */
+.pf-cta{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:12px;align-items:center}
+/* The optional social icons are not equal-width controls; they keep their own size inside
+   whatever column they land in rather than stretching into a 100px slab. */
+.pf-cta .pf-btn.icon{width:44px;justify-self:center}
 .pf-cta #pfFollow,.pf-cta #pfBook,
 .pf-cta #pfShare>button,.pf-cta #pfDashWrap>button{
   width:100%;height:40px;display:flex;align-items:center;justify-content:center;
