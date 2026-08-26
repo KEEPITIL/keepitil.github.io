@@ -181,7 +181,6 @@ body::before{display:none!important} /* organizer tool page — no decorative ba
       <div class="head2">In the bank <span class="ct" id="kCt"></span></div>
       <div id="kList"></div>
     </div>
-    <div class="panel" id="tab-golive"><iframe src="/v3/golive.html" title="Go-Live Verification" loading="lazy" style="width:100%;height:680px;border:1px solid var(--line,#242433);border-radius:14px;background:var(--bg,#0a0a0f)"></iframe></div>
     <div class="panel" id="tab-staging">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px">
         <span style="color:var(--muted,#9aa0b0);font-size:.85rem">STAGING = an <b>exact duplicate</b> of a live page you edit directly, full screen. <b style="color:#ffb43c">The live site never changes</b> until Publish is enabled (Founder go).</span>
@@ -1042,7 +1041,7 @@ async function dismissSuggestion(id,btn){
 
 async function init(){
   if(!supa){ $('gate').style.display='block'; return; }
-  var b=$('loginBtn'); if(b) b.href='/v3/apply.html?stay=1&next='+encodeURIComponent(location.pathname);
+  var b=$('loginBtn'); if(b) b.href='/apply.html?stay=1&next='+encodeURIComponent(location.pathname);
   var r=await supa.auth.getSession().catch(function(){return null;});
   if(!(r&&r.data&&r.data.session)){ $('gate').style.display='block'; return; }
   $('app').style.display='block';

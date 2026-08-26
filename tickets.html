@@ -136,7 +136,7 @@ function fmtDate(iso,tz){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))re
 function fmtTime(iso,tz){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleTimeString('en-US',{timeZone:tz||EVTZ,hour:'numeric',minute:'2-digit'}); }
 function shortDate(iso,tz){ if(!iso)return ''; var d=new Date(iso); if(isNaN(d))return ''; return d.toLocaleDateString('en-US',{timeZone:tz||EVTZ,month:'short',day:'numeric'}); }
 
-var TIX=[], ACTIVE=0, BACK='/v3/', EXPANDED=false;
+var TIX=[], ACTIVE=0, BACK='/', EXPANDED=false;
 function toggleTix(){ EXPANDED=!EXPANDED; var el=document.getElementById('tixlist'); var cv=document.getElementById('tixchev'); if(el) el.style.display=EXPANDED?'flex':'none'; if(cv) cv.textContent=EXPANDED?'▴':'▾'; }
 
 function render(){

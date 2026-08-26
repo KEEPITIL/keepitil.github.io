@@ -595,7 +595,7 @@
     /* RETIRED AS A DESTINATION (Founder 2026-08-19: "page is not needed since everything will be
        on the users profile page under events"). It REDIRECTS rather than 404s, because this is
        still Stripe's success_url — a buyer returning from checkout must never land on a dead page,
-       and that exact failure already happened once today with /v31/vs.html.
+       and that exact failure already happened once today with the retired v31 VS page.
        If the slug cannot be resolved we fall through and render the list rather than stranding
        a paid entrant on a blank page. */
     if(!window.__vsMineRedirected){

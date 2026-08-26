@@ -12,15 +12,15 @@ const SETTLE = 2600; // ms to wait out async auth redirects after load
 
 // stay = final URL must still contain this (must NOT bounce away). img = a cover image must decode.
 const ROUTES = [
-  { label: 'Homepage',            url: '/v3/index.html',              stay: 'index.html' },
-  { label: 'Culture',             url: '/v3/culture.html',            stay: 'culture' },
-  { label: 'Scene',               url: '/v3/scene.html',              stay: 'scene' },
-  { label: 'Crew index',          url: '/v3/crew.html',               stay: 'crew.html', text: 'CREW' },
-  { label: 'Events',              url: '/v3/events.html',             stay: 'events' },
-  { label: 'Discover',            url: '/v3/discover.html',           stay: 'discover' },
-  { label: 'Connect',             url: '/v3/connect.html',            stay: 'connect' },
-  { label: 'Blog: Groove Trooper',url: '/v3/blog-groove-trooper.html',stay: 'blog-groove-trooper' },
-  { label: 'Agent blog: Nova',    url: '/v3/blog-agent-nova.html',    stay: 'blog-agent-nova', img: true },
+  { label: 'Homepage',            url: '/',              stay: 'index.html' },
+  { label: 'Culture',             url: '/culture',            stay: 'culture' },
+  { label: 'Scene',               url: '/connect',              stay: 'scene' },
+  { label: 'Crew index',          url: '/connect',               stay: 'crew.html', text: 'CREW' },
+  { label: 'Events',              url: '/',             stay: 'events' },
+  { label: 'Discover',            url: '/',           stay: 'discover' },
+  { label: 'Connect',             url: '/connect',            stay: 'connect' },
+  { label: 'Blog: Groove Trooper',url: '/blog-groove-trooper.html',stay: 'blog-groove-trooper' },
+  { label: 'Agent blog: Nova',    url: '/blog-agent-nova.html',    stay: 'blog-agent-nova', img: true },
 ];
 
 async function finalUrl(page, url) {
@@ -48,7 +48,7 @@ async function finalUrl(page, url) {
 
   // Regression test: every crew profile must open its own agent page (not bounce to a user/login page)
   try {
-    await finalUrl(page, '/v3/crew.html');
+    await finalUrl(page, '/connect');
     const hrefs = await page.$$eval('a.card', els => els.map(e => e.getAttribute('href')));
     const bad = [];
     for (const h of hrefs) {

@@ -176,7 +176,7 @@
         .then(function (r) { if (r && r.data) { r.data.forEach(function (x) { mine[x.kind] = true; }); paintMine(); } }).catch(function () {});
     }
     function toggle(kind) {
-      if (!sb || !session) { location.href = "/v3/apply.html"; return; }
+      if (!sb || !session) { location.href = "/apply.html"; return; }
       var on = mine[kind]; mine[kind] = !on; paintMine();
       var cel = q(kind) && q(kind).querySelector("b");
       if (cel) cel.textContent = Math.max(0, (parseInt(cel.textContent, 10) || 0) + (on ? -1 : 1));
@@ -190,7 +190,7 @@
           var list = (r && r.data) || [];
           var html = session
             ? '<div class="kil-cmt-new"><input class="kil-cmt-in" maxlength="2000" placeholder="Add a comment…"/><button class="kil-cmt-post">Post</button></div>'
-            : '<div class="kil-cmt-login"><a href="/v3/apply.html">Log in</a> to comment.</div>';
+            : '<div class="kil-cmt-login"><a href="/apply.html">Log in</a> to comment.</div>';
           html += list.length
             ? list.map(function (x) { return '<div class="kil-cmt"><b>@' + (x.author_handle || "member") + "</b> " + String(x.body).replace(/</g, "&lt;") + "</div>"; }).join("")
             : '<div class="kil-cmt-empty">Be the first to comment.</div>';

@@ -1,7 +1,7 @@
 /* ==========================================================================
    KEEPITIL — Seasonal Background Rotation (page-agnostic, self-injecting)
    Shows the right holiday/season background per date: desktop 16:9 or mobile 9:16.
-   Images live in /v3/seasons/<slug>-desktop.jpg and /v3/seasons/<slug>-mobile.jpg
+   Images live in /assets/images/seasons/<slug>-desktop.jpg and -mobile.jpg
    Invisible until the image exists (404 → hidden). No layout impact.
    Per-page neon accent: set <html data-accent="blue|purple|green"> (home/culture/scene).
    ========================================================================== */
@@ -85,7 +85,7 @@
   // paint a given season slug (desktop/mobile variant chosen live) — only if the image exists
   function paintSeason(slug){
     var isMobile=Math.min(window.innerWidth,window.innerHeight)<=640 || window.innerHeight>window.innerWidth;
-    var url='/v3/seasons/'+slug+'-'+(isMobile?'mobile':'desktop')+'.jpg';
+    var url='/assets/images/seasons/'+slug+'-'+(isMobile?'mobile':'desktop')+'.jpg';
     var img=new Image();
     img.onload=function(){
       var layer=document.getElementById('kil-season-bg');

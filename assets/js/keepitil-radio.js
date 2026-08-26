@@ -226,8 +226,8 @@
     radio.addEventListener('click',function(e){
       /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
       if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,.kr-shuttle')){return;}
-      if(location.pathname.indexOf('/v31/radio')===0)return; /* already on Radio */
-      location.href='/v31/earn';
+      if(location.pathname.indexOf('/earn')===0)return; /* already on the radio surface */
+      location.href='/earn';
     });
   }
 
