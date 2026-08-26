@@ -151,10 +151,20 @@
       backdrop-filter is the part that actually does the work on a busy image; the background
       alone is only a wash. Both are declared, so a browser without backdrop-filter still gets
       the lift. */
-   + '#vs-app .cd2-sub .cd-right{background:rgba(255,255,255,.07);'
+   /* EVERY information column, not just the entry form (Founder 2026-08-25:
+      "all event pages to view event information needs to have a white transparent background
+      to easily read the text").
+      This was scoped to .cd2-sub, which is the SUBMIT view only — so the competition/event
+      detail view at ?view=enter, which is the page you actually read the event information on,
+      still had a fully transparent column sitting straight on create-hero-m.jpg. Verified on
+      the deployed page: .cd-right computed background was rgba(0,0,0,0).
+      .cd-right covers both, because .cd2-sub is also a .cd2.
+      backdrop-filter is the part that does the work over a photo; the background alone is only
+      a wash. Both are declared so a browser without backdrop-filter still gets the lift. */
+   + '#vs-app .cd-right{background:rgba(255,255,255,.07);'
    +   '-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);'
    +   'border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:16px 16px 18px}'
-   + '@media(max-width:860px){#vs-app .cd2-sub .cd-right{padding:14px 13px 16px;border-radius:14px}}'
+   + '@media(max-width:860px){#vs-app .cd-right{padding:14px 13px 16px;border-radius:14px}}'
    + '#vs-app .sf-ph{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;padding:18px;color:#9aa0b0;font:600 .84rem Inter,sans-serif}'
    + '#vs-app .sf-ph .ic{font-size:1.7rem;line-height:1;color:var(--vsb)}'
    + '#vs-app .sf-ph small{font-weight:500;font-size:.72rem;color:#6f7686;line-height:1.35}'
