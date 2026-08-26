@@ -368,6 +368,12 @@
         ['kr-prevpl','kr-nextpl'].forEach(function(id){ var b=document.getElementById(id); if(b) b.style.display='none'; });
       }
       kilPaintPlaylistNames();
+      /* Config lands AFTER first paint, so anything listening for radio state (the EARN rows
+         and carousel) has until now been looking at the one-entry seed playlist and showing
+         its placeholder name. Re-broadcast so those surfaces correct themselves the moment the
+         real station list exists, instead of waiting for the SoundCloud widget to report a
+         track — which never happens at all if the visitor has not yet interacted. */
+      kilBroadcast();
       kilLoadMine();
     })
     .catch(function(){});

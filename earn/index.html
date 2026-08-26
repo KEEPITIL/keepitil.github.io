@@ -584,7 +584,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260809a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/assets/js/keepitil-radio.js?v=20260825a" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260825b" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
 <script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
 <script>
@@ -698,7 +698,11 @@ function renderStations(){
           var e = document.getElementById(id);
           if(e && (!e.textContent || e.textContent === '\u2014')) e.textContent = nm || '\u2014';
         });
-        return;
+        /* Do NOT return on the seed. keepitil-radio.js starts with a one-entry placeholder
+           playlist and replaces it when platform_config arrives; stopping here pinned the row
+           to that placeholder name. Keep polling until the real list (more than the seed) is
+           in, and the config broadcast will overwrite this anyway. */
+        if(st.list.length > 1) return;
       }
       if(n < 24) setTimeout(function(){ sync(n+1); }, 250);
     })(0);
