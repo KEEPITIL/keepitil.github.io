@@ -625,6 +625,26 @@
       if(window.__kilMountRadio) window.__kilMountRadio();
       else if(window.__kilRadioAttach) window.__kilRadioAttach(null);
     }
+    /* ⚠ AUTOPLAY (Founder 2026-08-27: "RADIO IS NOT AUTO PLAYING").
+       This used to mount ONLY on a gesture, so a visitor who never clicked got silence and
+       an empty bar for the whole visit — measured: window.SC undefined, no #kil-sc iframe,
+       button 4 stuck on "Loading…" until the first click, then everything worked at once.
+       The gesture rule was never about autoplay policy; it was to stop a third-party iframe
+       competing with page load, which is what hung /create. That intent is kept exactly by
+       mounting AFTER the page has finished loading and the main thread is idle — nothing is
+       pulled forward into the load, and the radio no longer waits to be asked.
+       Muted autoplay is what browsers permit, and that is what the READY handler already
+       does: setVolume(0) then play. reListenGesture()/unmute() then bring the sound in on the
+       visitor's first gesture, unchanged.
+       The gesture listeners STAY as a fallback: if requestIdleCallback never fires (a tab
+       opened in the background stays throttled), the first gesture still boots it. `boot`
+       is idempotent — __kilMountRadio returns early when #kil-sc already exists. */
+    function bootWhenIdle(){
+      if(window.requestIdleCallback) window.requestIdleCallback(boot, { timeout: 3000 });
+      else setTimeout(boot, 1200);
+    }
+    if(document.readyState === 'complete') bootWhenIdle();
+    else window.addEventListener('load', bootWhenIdle, { once:true });
     ['pointerdown','touchstart','keydown'].forEach(function(ev){
       document.addEventListener(ev, boot, { once:true, capture:true, passive:true });
     });

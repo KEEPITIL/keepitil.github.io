@@ -252,31 +252,14 @@ footer{margin-top:auto}
    An earlier version carried its own 152px/124px square tiles; that is precisely the parallel
    rule that drifts away from the rest of the page, and the Founder's instruction is that this
    never changes again. Add nothing here that sets width, height or aspect-ratio. */
-/* No scroll-padding here. It was 50% on both sides, which insets the snapport to zero width —
-   the end spacers are what let the first and last cards reach the centre, and they do it
-   without breaking the snapport. */
-.kr-carousel{scroll-snap-type:x mandatory;scrollbar-width:none}
-.kr-carousel::-webkit-scrollbar{display:none}
-/* ⚠ SPECIFICITY, NOT REDUNDANCY. The generic CREATE-rail pin above lists #stationGrid and
-   sets scroll-snap-type:x proximity + scroll-snap-align:start on its children. Those are
-   (1,0,0) and (1,0,1); the .kr-carousel / .kr-tile rules here are (0,1,0), so the plain class
-   rules LOSE and every tile computed scroll-snap-align:start on the deployed page (measured).
-   With 3 tiles the start position coincides with the centre and the bug is invisible; with a
-   long playlist list the rail snaps the active tile's LEFT EDGE to the rail's left edge and
-   the playing card is never centred. These two id-qualified rules restore centre snapping.
-   Do not "simplify" them back to bare classes, and do not delete #stationGrid from the pin
-   above — the pin's display/flex-wrap !important is what stops the section-expand toggle
-   turning this rail back into a wrapping grid. */
-.kr-carousel#stationGrid{scroll-snap-type:x mandatory}
-.kr-carousel#stationGrid>.kr-tile{scroll-snap-align:center}
-/* First and last tiles must reach the CENTRE of the rail, not just its edge.
-   ⚠ The half-card figure is MEASURED, not written down. It was calc(50% - 120px) desktop /
-   calc(50% - 80px) mobile, which assumed 240/160px cards — but the mobile rail enhancer forces
-   flex:0 0 170px, so the first card sat 15px off centre (measured on the deployed page). Any
-   constant here is a second copy of a width that is defined elsewhere and will drift again.
-   kilCentreActive() sets --kr-pad from the tile's own offsetWidth. */
-.kr-carousel::before,.kr-carousel::after{content:"";flex:0 0 var(--kr-pad,calc(50% - 85px))}
-/* A <button> resets nothing by itself; .card supplies the frame, this supplies the rest. */
+/* ⚠ PLAIN CAROUSEL — NO AUTO-CENTRING (Founder 2026-08-27: "revert back to the original
+   setup. normal carousel of playlist cards"). What was here: mandatory centre-snap, two
+   flex end-spacers sized from a --kr-pad custom property, and a debounced kilCentreActive()
+   that re-scrolled the rail after every scroll and resize so the playing card sat dead
+   centre. It is all deleted, not disabled — a rail that quietly re-scrolls itself is the
+   thing being reverted, and half of it left behind would just fight the other half.
+   The rail is now the page's ordinary .grid: free horizontal browse, proximity snap on the
+   card edge. Selection is still tap-only; scrolling never changes station. */
 .kr-tile{font:inherit;text-align:left;color:inherit;cursor:pointer;scroll-snap-align:center;
   opacity:.55;transition:opacity .22s ease,border-color .22s ease}
 /* ⚠ NO transform:scale() here. It was scale(.96) on inactive tiles, which renders them 4%
@@ -372,7 +355,7 @@ footer{margin-top:auto}
     <span class="kr-pl" id="krPl" hidden>&mdash;</span>
     <span class="kr-nxt" id="krNxt" hidden>&mdash;</span>
   </div>
-  <div class="grid g-stations kr-carousel" id="stationGrid"></div>
+  <div class="grid g-stations" id="stationGrid"></div>
 </section>
 
 <!-- PLAYLISTS — title only, no explanatory copy (Founder 2026-08-22). -->
@@ -637,9 +620,9 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260826a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/assets/js/keepitil-radio.js?v=20260827a" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260827b" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
-<script src="/assets/js/keepitil-ai.js?v=20260827a" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260827b" defer></script>
 <script>
 /* One anon key for this page's two public reads (playlists + competitions). Same publishable
    key every other page already ships in its HTML. */
@@ -685,57 +668,7 @@ document.addEventListener('click', function(e){
          kilMarkActive(i); }
 });
 
-/* The playing card is ALWAYS centred (Founder 2026-08-26) — on load, on change, on resize, and
-   again once the visitor stops browsing. Browsing itself is never interrupted: the re-centre is
-   debounced behind scroll, so it only runs after the rail has been still for a moment, and a
-   thumb-flick still moves freely while it is in the hand. */
-var KR_LAST = -1, KR_SETTLE = null;
-function kilCentreActive(smooth){
-  var grid = document.getElementById('stationGrid'); if(!grid) return;
-  var el = grid.querySelector('.kr-tile.on'); if(!el) return;
-  /* Measure the real card AND the rail's gap, then publish the end spacer, so the FIRST and
-     LAST cards can reach dead centre.
-     ⚠ THE GAP IS PART OF THIS. Without it the spacer was half a card too wide by exactly one
-     gap: measured on the deployed page, the first tile sat 10px off centre at scrollLeft 0,
-     and scroll-snap then refused the correction — scrollTo(27) was overridden straight back to
-     0, because 0 is where mandatory snap wanted the card given that geometry. Fighting snap
-     with a scroll is a losing game; making scrollLeft:0 genuinely central means snap and the
-     centring agree instead of arguing. */
-  var cs   = getComputedStyle(grid);
-  var gap  = parseFloat(cs.columnGap || cs.gap) || 0;
-  var half = Math.round(el.offsetWidth / 2);
-  if(half) grid.style.setProperty('--kr-pad', 'calc(50% - ' + half + 'px - ' + gap + 'px)');
-  /* ⚠ NOT offsetLeft. offsetLeft is measured from the nearest POSITIONED ancestor, and this
-     rail is not positioned — so it returned a coordinate in some outer box and the target was
-     wrong for every card except the one that happened to sit at zero. Measured after a tap:
-     the correct card was marked active and the row updated, but it sat 360px off screen.
-     Rects are relative to the viewport and always comparable, whatever the offsetParent is. */
-  var er = el.getBoundingClientRect(), gr2 = grid.getBoundingClientRect();
-  var target = grid.scrollLeft + (er.left - gr2.left) - (gr2.width - er.width) / 2;
-  if(Math.abs(grid.scrollLeft - target) < 2) return;      /* already centred — do not fight it */
-  /* ⚠ .grid carries CSS `scroll-behavior:smooth`, which applies to scrollLeft ASSIGNMENTS and
-     to scrollTo({behavior:'auto'}) alike — the CSS value wins. Every centring attempt was
-     therefore an animation, and reading scrollLeft straight after returned the old value,
-     which is what made this look like "the rail cannot scroll": a direct assignment of 180
-     read back as 0. Proved it by calling scrollTo({behavior:'instant'}), which landed on 180
-     immediately.
-     Animations here also lose races — the scroll listener fires during them and re-enters this
-     function. Centring is a correction, not a journey: suspend the CSS behaviour, set the
-     position outright, put it back. Deterministic in every browser, no half-finished states. */
-  var prevBehavior = grid.style.scrollBehavior;
-  var prevSnap     = grid.style.scrollSnapType;
-  grid.style.scrollBehavior = 'auto';
-  /* Snap is suspended for the assignment too. With `x mandatory` the browser re-resolves the
-     position immediately afterwards, and for the FIRST card it settled half a card off —
-     measured -86px on a 170px card, while cards 2 and 3 landed exactly. Restoring snap after
-     the position is already on a snap point leaves it where it is, so nothing is given up. */
-  grid.style.scrollSnapType = 'none';
-  grid.scrollLeft = target;
-  /* Read back forces layout, so snap cannot fold the assignment into the same frame. */
-  void grid.scrollLeft;
-  grid.style.scrollSnapType = prevSnap;
-  grid.style.scrollBehavior = prevBehavior;
-}
+/* Selection is tap-only; the rail is never re-scrolled by script. See the CSS note above. */
 function kilMarkActive(i){
   var grid = document.getElementById('stationGrid'); if(!grid) return;
   var tiles = grid.querySelectorAll('.kr-tile');
@@ -745,19 +678,6 @@ function kilMarkActive(i){
     var st = t.querySelector('[data-st]');
     if(st) st.textContent = on ? 'Now playing' : 'Tap to play';
   });
-  kilCentreActive(i !== KR_LAST);
-  KR_LAST = i;
-  if(!grid.__krBound){
-    grid.__krBound = 1;
-    grid.addEventListener('scroll', function(){
-      clearTimeout(KR_SETTLE);
-      KR_SETTLE = setTimeout(function(){ kilCentreActive(true); }, 900);
-    }, { passive:true });
-    window.addEventListener('resize', function(){
-      clearTimeout(KR_SETTLE);
-      KR_SETTLE = setTimeout(function(){ kilCentreActive(false); }, 200);
-    });
-  }
 }
 
 /* Row 3's transport. The shell bar is hidden on mobile, so these drive the player directly

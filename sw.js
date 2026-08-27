@@ -13,17 +13,17 @@
    /keepitil-radio.js, /v3/*). Navigations and JS/CSS are network-first so the shell itself was
    never stale, but MEDIA is stale-while-revalidate, and bumping evicts those on activate via
    the KEEP list rather than leaving them to age out.
-   Previous: kil-pwa-v43-20260826a */
+   Previous: kil-pwa-v44-20260827a */
 /* Earlier note, 2026-08-22 (Founder: "update the mobile version. its showing the old
    version"). The strategy was already network-first for HTML and JS/CSS, so this is not a fix to
    the rules — it is an eviction. Renaming every cache makes `activate` delete the old ones and
    clients.claim() take over immediately, which clears anything a phone or an installed PWA was
    still holding from before. Bump these four names whenever a release must reach returning
    users regardless of what they have cached. */
-var VERSION = 'kil-pwa-v44-20260827a';
+var VERSION = 'kil-pwa-v45-20260827b';
 var PAGES = 'kil-pages-v41';
 var ASSETS = 'kil-assets-v40';
-var CODE = 'kil-code-v42';
+var CODE = 'kil-code-v43';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [
