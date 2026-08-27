@@ -2023,34 +2023,19 @@ function culResolveFilters(){
 </script>
 <script>
 /* Vertical sidebar: subpages (top) + the selected subpage's subfilters below (Founder 2026-08-04) */
-var VR_SUBS={
-  /* 'Blog' removed 2026-08-26 (Founder: "there will be no blogs. just articles"). One content
-     type for written work, fed from blog_articles. */
-  feed:[['article','📄','Articles'],['image','📷','Photos'],['video','🎬','Videos']],
-  radio:[['channel','📡','Channel'],['playlist','🎧','Playlist'],['schedule','🗓️','Schedule'],['vs','⚔️','VS'],['apps','📱','Apps'],['games','🎮','Games']],
-  vs:[['battles','🥊','Battles'],['vote','🗳️','Vote'],['board','🏆','Leaderboard']]
-};
-function vrRenderFilters(sp){
-  var box=document.getElementById('vrFilters'); if(!box) return;
-  box.innerHTML=(VR_SUBS[sp]||[]).map(function(f,i){
-    return '<button class="cvr sf'+(i===0?' on':'')+'" data-k="'+f[0]+'" onclick="vrSF(\''+sp+'\',\''+f[0]+'\',this)"><span class="ic" aria-hidden="true">'+f[1]+'</span><span class="tx">'+f[2]+'</span></button>';
-  }).join('');
-}
-function vrToggleSub(e){ if(e){try{e.stopPropagation();}catch(x){}} var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.toggle('open'); }
-function vrGoSub(sp){
-  var dd=document.getElementById('vrSubDD'); if(dd)dd.classList.remove('open');
-  if(sp==='radio'){ location.href='/culture/radio'; return; }  /* subpages have their own clean URLs (Founder 2026-08-04) */
-  if(sp==='vs'){ location.href='/culture/vs'; return; }
-  var lbl=document.getElementById('vrSubLbl'); if(lbl)lbl.textContent='Feed ▾';
-  if(typeof culSection==='function'){ try{ culSection('feed'); }catch(e){} }
-  vrRenderFilters('feed');
-}
-document.addEventListener('click',function(e){ var dd=document.getElementById('vrSubDD'),b=document.getElementById('vrSubBtn'); if(dd&&dd.classList.contains('open')&&!dd.contains(e.target)&&b&&!b.contains(e.target))dd.classList.remove('open'); });
-function vrSF(sp,k,el){
-  if(el&&el.parentNode){ [].forEach.call(el.parentNode.querySelectorAll('.cvr.sf'),function(b){b.classList.remove('on');}); el.classList.add('on'); }
-  if(sp==='feed' && typeof setCulContentType==='function'){ try{ setCulContentType(k); }catch(e){} }
-}
-try{ vrRenderFilters('feed'); }catch(e){}
+/* ⚠ vr* BLOCK REMOVED 2026-08-27 — it was the ONLY source of two 404s.
+   VR_SUBS / vrRenderFilters / vrToggleSub / vrGoSub / vrSF drove #vrFilters and the
+   #vrSubDD dropdown. That markup was deleted on 2026-08-18 (see the CONTENT-TYPE FILTERS
+   note above), so every one of these functions had been unreachable since — nothing in the
+   page called vrGoSub, and no element with those ids existed to bind to.
+   It still mattered because vrGoSub carried a SECOND, stale router:
+       radio -> '/culture/radio'   (404 on production, verified)
+       vs    -> '/culture/vs'      (404 on production, verified)
+   while the live router, culSection(), sends radio -> '/earn' (200). Two routers disagreeing
+   about the same destination is exactly the drift the closeout is meant to remove, and those
+   two paths were the only references to those URLs anywhere in the site.
+   Deleted rather than hidden: dead code that still names a dead route is how the wrong one
+   gets revived later. culSection() is the one router. */
 </script>
 
 <!-- LANDING METRICS (Founder 2026-08-24) ─────────────────────────────────────────────────

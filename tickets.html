@@ -186,8 +186,16 @@ function render(){
           '<div class="tixhead" onclick="toggleTix()"><span class="th-k">Your tickets</span><span class="th-v">'+totQty+' ticket'+(totQty===1?'':'s')+' · '+totPrice+'</span><span class="chev" id="tixchev">'+(EXPANDED?'▴':'▾')+'</span></div>'+
           '<div class="tixlist" id="tixlist" style="display:'+(EXPANDED?'flex':'none')+'">'+tixItems+'</div>'+
         '</div>'+
-        '<div class="chatcard"><iframe src="'+chatUrl+'" loading="lazy" title="Event chat"></iframe></div>'+
-        '<button class="open-chat" onclick="openChat()">Open Event Chat</button>'+
+        /* ⚠ EVENT CHAT SURFACES REMOVED 2026-08-27 — both loaded a page that does not exist.
+           They pointed at /event-chat.html, which returns 404 on production (verified) and
+           has NEVER existed in this repo — `git log --diff-filter=D` finds no deletion, so
+           it was never built, not lost. The inline .chatcard iframe loaded that 404 on every
+           ticket card, and "Open Event Chat" loaded it again into the overlay.
+           Removed rather than repaired: building an event chat page is a new feature, and the
+           closeout rule is fix, do not expand. The overlay markup, openChat/closeChat and the
+           chatUrl builder are all left intact below, so restoring these two lines restores the
+           feature the moment /event-chat.html exists. FOUNDER DECISION NEEDED: build it, or
+           point it at an existing chat surface. */
       '</div>'+
     '</div>'+
   '</div>';
