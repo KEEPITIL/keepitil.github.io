@@ -278,9 +278,13 @@ body>*{min-width:0}
 <footer>KEEPITIL <a href="/">keepitil.com</a></footer>
 <script>
 // roster reset 2026-07-21 — rebuild from Google Sheet + web research. Seeded with the 2 gold standards.
-const ART=[
-  {name:'Groove Trooper',city:'Garden Grove',county:'Orange County',genre:'Latin House / Tech House',ig:'Groove_Trooper',img:'https://i1.sndcdn.com/avatars-gHooPmNJyPSwqZfD-MwCeOQ-t500x500.jpg',color:'var(--brand)',blog:'/profile.html?slug=groove-trooper',keepitil:true,type:'DJ'}
-],BRND=[],ORG=[],VEN=[
+/* ARTISTS COME FROM ARTICLES (Founder 2026-08-26: "public view profiles will not be on the
+   connected page. just article artist template").
+   The seed used to hardcode Groove Trooper with a SoundCloud avatar and a link to
+   /profile.html. Both are gone: the roster is now whatever has an artist article, the
+   picture is his current profile picture, and the card opens the article. Empty here so
+   there is exactly one source of truth — see the blog_articles fetch below. */
+const ART=[],BRND=[],ORG=[],VEN=[
   /* BLEU — corrected 2026-08-20. Was hardcoded here with an image from bleuxo.net named
      BleuDailyMeals.jpg: a MEAL-PREP graphic, not the event space, and the wrong city
      (Santa Ana; BLEU is in Westminster). This seed overrode the venues table, which has held
@@ -398,7 +402,7 @@ renderSubs();render();
   function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
   function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue'); renderSubs();render(); }
   // claimed artist/brand/organizer profiles from profile_meta
-  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(artist,brand,organizer)&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
+  fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(brand,organizer)&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
     .then(function(r){return r.json();}).then(function(rows){
       if(!Array.isArray(rows)||!rows.length) return;
       var have=_dedupe();
@@ -409,6 +413,29 @@ renderSubs();render();
       });
       _refresh();
     }).catch(function(){});
+  /* ARTIST CARDS = ARTIST ARTICLES. One fetch, no join: a featured artist may have no
+     profile_meta row at all (RAB3L does not), and joining would have silently dropped them.
+     The card opens /article/artist/<slug>, never a public profile. */
+  fetch(U+'/rest/v1/blog_articles?select=artist_slug,artist_name,artist_avatar,artist_city,artist_genre,image_url,url,title&artist_slug=not.is.null&status=eq.published&published=is.true&order=published_at.desc',{headers:{apikey:K,Authorization:'Bearer '+K}})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(!Array.isArray(rows)||!rows.length) return;
+      var have=_dedupe();
+      rows.forEach(function(a){
+        var href = a.url || ('/article/artist/'+a.artist_slug);
+        if(have[href.toLowerCase()]) return;
+        DATA.push({
+          name: a.artist_name || a.title,
+          city: a.artist_city || '', county:'',
+          genre: a.artist_genre || '',
+          ig:'',
+          img: a.artist_avatar || a.image_url || '',
+          blog: href,
+          type:'DJ', kinds:['artist'], keepitil:true
+        });
+      });
+      _refresh();
+    }).catch(function(){});
+
   // venues (incl. auto-created from events) from the venues table -> venue.html
   fetch(U+'/rest/v1/venues?select=slug,name,city,cover_url,logo_url&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
     .then(function(r){return r.json();}).then(function(rows){
