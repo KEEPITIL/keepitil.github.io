@@ -957,7 +957,9 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
            with the ranked feed and sort by date so a video sits in the timeline rather than in a
            separate tab nobody opens. */
         function paint(){
-          var merged = (window.__culAllRows||[]).concat(window.__culMediaRows||[])
+          var merged = (window.__culAllRows||[])
+            .concat(window.__culMediaRows||[])
+            .concat(window.__culArticleRows||[])
             .filter(function(x){ return !x.archived; })
             .sort(function(a,b){ return Date.parse(b.created_at||0) - Date.parse(a.created_at||0); });
           window.__culMerged = merged;
@@ -997,6 +999,20 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
           }
           culLoadMedia().then(paint).catch(function(e){
             console.error('[culture] media load failed', e);
+          });
+        })(0);
+        /* Articles load on the same pattern and for the same reason: declared in a later script
+           block, so wait for the function rather than swallowing a ReferenceError. A failure
+           here must be LOUD — a silently empty article feed is exactly how the eleven live
+           article pages stayed invisible for weeks. */
+        (function waitForArticles(n){
+          if(typeof culLoadArticles !== 'function'){
+            if(n < 40) return setTimeout(function(){ waitForArticles(n+1); }, 250);
+            console.error('[culture] culLoadArticles never became available — article feed cannot load');
+            return;
+          }
+          culLoadArticles().then(paint).catch(function(e){
+            console.error('[culture] article load failed', e);
           });
         })(0);
       }).catch(function(e){ console.error('[culture] feed boot failed', e); });
@@ -1466,6 +1482,73 @@ function culLoadMedia(){
 window.culAwaitSB    = culAwaitSB;
 window.culLoadMedia  = culLoadMedia;
 window.culMediaToRow = culMediaToRow;
+
+/* ── ARTICLES IN THE FEED (Founder 2026-08-26) ────────────────────────────────────────────────
+   "article/<title> auto populate to culture article feed. article/artist/<artistname> auto
+   populate to culture article feed AND connect artist feed."
+
+   Culture already had an 'article' filter and an 'article' kind in its type list — but NOTHING
+   ever produced a row of that kind, so the filter matched zero and the eleven live article
+   pages were unreachable from the site. blog_articles was empty for the same reason: the pages
+   were written as files and never registered as data.
+
+   Rows are normalised into exactly the shape culMediaToRow emits, so the universal card
+   renderer draws an article with no changes at all.
+
+   TWO TEMPLATES, ONE TABLE — artist_slug is what tells them apart:
+     null      -> editorial,      /article/<slug>
+     not null  -> artist feature, /article/artist/<artist_slug>
+   `url` is stored per row rather than derived here, so moving a page is a row edit and the two
+   URL shapes cannot drift out of sync with the files. */
+window.__culArticleRows = window.__culArticleRows || [];
+
+function culArticleToRow(a){
+  return {
+    id: 'article-' + a.slug,
+    kind: 'article',
+    title: a.title,
+    created_at: a.published_at || a.created_at,
+    archived: false,
+    profile_slug: a.artist_slug || null,
+    author_name: a.author || 'KEEPITIL',
+    own_content: true,
+    source_platform: 'KEEPITIL',
+    artist_slug: a.artist_slug || null,
+    data: {
+      img:   a.image_url || a.hero_image || '/assets/images/logo-bg.jpg',
+      cover: a.image_url || a.hero_image || '/assets/images/logo-bg.jpg',
+      source_url: a.url,
+      caption: a.excerpt || '',
+      category: a.category || ''
+    }
+  };
+}
+
+function culFetchArticles(sb){
+  window.__culArticlesLoaded = true;
+  return sb.from('blog_articles')
+    .select('slug,title,excerpt,image_url,hero_image,category,author,artist_slug,url,published_at,created_at')
+    .eq('status','published').eq('published', true)
+    .order('published_at',{ascending:false}).limit(60)
+    .then(function(r){
+      if(r.error || !r.data) return window.__culArticleRows;
+      window.__culArticleRows = r.data.filter(function(a){ return a.url; }).map(culArticleToRow);
+      return window.__culArticleRows;
+    })
+    .catch(function(){ return window.__culArticleRows; });
+}
+
+function culLoadArticles(){
+  if(window.__culArticlesLoaded) return Promise.resolve(window.__culArticleRows);
+  return culAwaitSB().then(function(sb){
+    /* Same rule as the media loader: do NOT latch the loaded flag when the client never
+       arrived, or an empty result becomes permanent. */
+    if(!sb) return window.__culArticleRows;
+    return culFetchArticles(sb);
+  });
+}
+window.culLoadArticles  = culLoadArticles;
+window.culArticleToRow  = culArticleToRow;
 
 function culFetchMedia(sb){
   window.__culMediaLoaded = true;
