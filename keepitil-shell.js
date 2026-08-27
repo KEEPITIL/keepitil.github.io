@@ -125,16 +125,16 @@
   }catch(e){ __kilMountAnalytics(); }
   /* Customer feedback widget — V3 only (floating "Feedback" pill -> Supabase feedback table). Added 2026-07-10. */
   try{ if(!window.__kilFeedbackLoad){ window.__kilFeedbackLoad=1;
-    var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/assets/js/keepitil-feedback.js'; document.head.appendChild(_fb);
+    var _fb=document.createElement('script'); _fb.defer=true; _fb.src='/assets/js/keepitil-feedback.js?v=20260826a'; document.head.appendChild(_fb);
   } }catch(e){}
   /* Universal social: share-to-any-platform + save, site-wide on V3. Added 2026-07-11. */
   try{ if(!window.__kilSocialLoad){ window.__kilSocialLoad=1;
-    var _so=document.createElement('script'); _so.defer=true; _so.src='/assets/js/keepitil-social.js'; document.head.appendChild(_so);
+    var _so=document.createElement('script'); _so.defer=true; _so.src='/assets/js/keepitil-social.js?v=20260826a'; document.head.appendChild(_so);
   } }catch(e){}
   /* In-app notification center (bell + panel + opt-in) — logged-in members only.
      Standards-driven (page_standards.bell_visibility): bell loads only where the page type allows. */
   try{ if(!window.__kilNotifyLoad && RULES.bell==='signed_in'){ window.__kilNotifyLoad=1;
-    var _no=document.createElement('script'); _no.defer=true; _no.src='/assets/js/keepitil-notify.js'; document.head.appendChild(_no);
+    var _no=document.createElement('script'); _no.defer=true; _no.src='/assets/js/keepitil-notify.js?v=20260826a'; document.head.appendChild(_no);
   } }catch(e){}
   /* ── PWA: manifest + iOS install meta + service worker + install hint. Added 2026-07-16.
      SW is conservative: never caches page HTML or Supabase — see /sw.js. ── */
