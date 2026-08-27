@@ -37,25 +37,12 @@
   var IN_IFRAME=false; try{ IN_IFRAME=(window.self!==window.top); }catch(e){ IN_IFRAME=true; }
   var IS_MOBILE=false; try{ IS_MOBILE=window.matchMedia('(max-width:860px)').matches; }catch(e){}
   try{ window.KIL=window.KIL||{}; window.KIL.pageType=PAGE_TYPE; window.KIL.pageRules=RULES; window.KIL.isMobile=IS_MOBILE; }catch(e){}
-  /* ══ BRAND URLS (Founder 2026-07-31): the address bar must always read keepitil.com/<clean> —
-     never /v3 or /v31. PAGE_TYPE above is already resolved from the real path, and page inline
-     scripts have already captured their query params, so cleaning the bar here is safe.
-     The full query string is PRESERVED so nothing that reads location.search later breaks. ══ */
-  try{
-    var _p=location.pathname, _s=location.search||'', _h=location.hash||'';
-    function _qp(k){ try{ return new URLSearchParams(_s).get(k); }catch(e){ return null; } }
-    var _clean=null;
-    if(/^\/v31\/profile\.html$/.test(_p)){ var _sl=_qp('slug'); if(_sl) _clean=(_qp('view')==='public'?'/public/profile/':'/profile/')+encodeURIComponent(_sl); }
-    else if(/^\/v31\/venue\.html$/.test(_p)){ var _v=_qp('v'); if(_v) _clean='/venue/'+encodeURIComponent(_v); }
-    else if(/^\/v31\/event\.html$/.test(_p)){ var _e=_qp('e'); if(_e) _clean='/event/'+encodeURIComponent(_e); }
-    else if(/^\/v31\/(index\.html)?$/.test(_p)){ _clean='/'; }
-    else if(/^\/v31\/[a-z0-9\-]+\.html$/.test(_p)){ _clean='/'+_p.replace(/^\/v31\//,'').replace(/\.html$/,''); }
-    else if(/^\/v3\/article-[a-z0-9\-]+\.html$/.test(_p)){ _clean='/article/'+_p.replace(/^\/v3\/article-/,'').replace(/\.html$/,''); } /* AI articles → /article/<slug> */
-    else if(/^\/v3\/blog-[a-z0-9\-]+\.html$/.test(_p)){ _clean='/blog/'+_p.replace(/^\/v3\/blog-/,'').replace(/\.html$/,''); } /* blogs → /blog/<slug> */
-    else if(/^\/v3\/shop\.html$/.test(_p)){ _clean='/shop'; }
-    else if(/^\/profile-groove-trooper\.html$/.test(_p)){ _clean='/unclaimed/profile/groove-trooper'; }
-    if(_clean){ var _target=_clean+_s+_h; if(_target!==(_p+_s+_h)) history.replaceState(null,'',_target); }
-  }catch(e){}
+  /* LEGACY URL PRETTIFIER REMOVED 2026-08-26. This ran history.replaceState() to rewrite
+     /v3/... and /v31/... paths into clean forms. Both namespaces were deleted on
+     2026-08-25, so not one of its branches could ever match again — and the clean forms
+     it produced (/article/<slug>, /blog/<slug>) are exactly the 404-rescue routes the
+     Founder's direct-route rule forbids. Dead code that manufactured redirect
+     dependencies. */
   /* Radio: DESKTOP = bar+audio on every page (standards). MOBILE = no bar anywhere;
      background AUDIO only on the homepage. Iframes: never. */
   try{

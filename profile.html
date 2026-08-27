@@ -2477,31 +2477,20 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 /* ── INIT: snapshot seeds, then load owner content from Supabase (fallback: local) ── */
 (function(){
   SEED={articles:GT_ARTICLES.slice(),photos:GAL_IMGS.slice(),shows:GT_SHOWS.slice(),chats:GT_CHATS.slice()};
-  /* REQUIREMENT (Founder 2026-07-31): every first-time / new user MUST complete onboarding
-     before they can view their profile. Gate on completed_at — a row without it (skipped mid-way)
-     does NOT satisfy the gate. A per-session guard prevents a hard loop if the save ever fails. */
-  function checkOnboarding(){
-    try{
-      if(!SESSION||!SESSION.user) return;
-      if(!((typeof CAN_EDIT==='function')&&CAN_EDIT())) return;
-      if(sessionStorage.getItem('kil_ob_gated')==='1') return; /* safety valve: at most one forced redirect per session */
-      SB.from('user_onboarding').select('completed_at').eq('user_id',SESSION.user.id).maybeSingle().then(function(o){
-        if(o&&o.error) return;
-        /* ONBOARDING GATE REMOVED 2026-08-26. /onboarding.html does not exist — this did not
-           merely render a dead link, it REDIRECTED any member without a completed_at row
-           straight to a 404 and out of their own profile. A gate with no page behind it is
-           worse than no gate, so the check stands down until an onboarding flow exists. */
-        if(!(o&&o.data&&o.data.completed_at)){ try{ sessionStorage.setItem('kil_ob_gated','1'); }catch(e){} }
-      });
-    }catch(e){}
-  }
+  /* ONBOARDING GATE REMOVED 2026-08-26 (Founder §31). It redirected any member without a
+     completed_at row to /onboarding.html?required=1 — a page that does not exist — throwing
+     them out of their own profile into a 404. With the redirect gone the rest was a no-op
+     that still cost a user_onboarding query on every profile load and wrote a session flag
+     whose only purpose was rate-limiting that redirect, so the whole check goes.
+     index.html still READS user_onboarding as a personalisation signal; that is fine — it
+     uses the data when present and renders nothing when absent. It does not need the page. */
   applyProfile(); renderAll();
   if(!PROFILE_SLUG){
     /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
     if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/profile.html?slug='+encodeURIComponent(rr.data)); /* OWNER view, not /public/ (Founder 2026-08-05) */ } else { location.replace('/create-profile.html'); } }).catch(function(){ location.replace('/create-profile.html'); }); }); }
     else { location.replace('/apply.html'); }
   } else if(SB){
-    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); checkOnboarding(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
+    SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
     SB.auth.onAuthStateChange(function(_e,s){ SESSION=s; checkOwnership().then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }); });
   } else { loadProfileMeta(); loadFromDB(); }
 })();
@@ -2544,7 +2533,7 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
 })();
 </script>
 <script src="/assets/js/keepitil-radio.js?v=20260826a" defer></script>
-<script src="/assets/js/keepitil-ai.js?v=20260822b" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260826a" defer></script>
 
 <script>
 /* ══ IG-PARITY ENHANCEMENTS (Founder 2026-07-18) ══ */
@@ -2892,6 +2881,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/keepitil-shell.js?v=20260826c" defer></script>
+<script src="/keepitil-shell.js?v=20260826d" defer></script>
 </body>
 </html>

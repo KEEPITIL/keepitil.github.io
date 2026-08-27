@@ -1,10 +1,10 @@
 /*!
- * Cho — KEEPITIL AI Assistant  v2.0
+ * Echo — KEEPITIL AI Assistant  v2.0
  * Floating chat widget | keepitil.com
  * Self-contained, zero dependencies.
  */
 // Auto-load KEEPITIL Radio Bar on every page
-(function(){if(!window.__kilRadioInit){var s=document.createElement('script');s.src='/keepitil-radio.js';document.head.appendChild(s);}})();
+(function(){if(!window.__kilRadioInit){var s=document.createElement('script');s.src='/assets/js/keepitil-radio.js';document.head.appendChild(s);}})();
 // Swap nav logo PNGs to extracted transparent X marks + resize (keepitil-radio.js handles this on load; this is a fallback)
 (function(){
   function swapNavLogos(){
@@ -368,20 +368,24 @@
   // ── CSS injection ────────────────────────────────────────────────────────────
   function injectStyles() {
     var css = [
-      '#kilo-btn{position:fixed;bottom:132px;right:24px;z-index:99998;width:58px;height:58px;border-radius:50%;',
+      /* Resized 2026-08-22 (Founder, floating-button editor): 40px button, 20px glyph, matched to
+         keepitil-shell.js so the button does not paint at one size and then jump to another.
+         This existed ONLY in the root copy of this script; carried over in the 2026-08-26
+         consolidation so the newer sizing is not lost along with the file it came from. */
+      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:40px;height:40px;border-radius:50%;',
       'background:linear-gradient(135deg,#00b4ff,#00ff88);border:none;cursor:pointer;',
       'box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);',
       'display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;',
       'animation:kilo-pulse 3s ease-in-out infinite;}',
       '#kilo-btn:hover{transform:scale(1.08);box-shadow:0 6px 32px rgba(0,180,255,.5);}',
-      '#kilo-btn svg{width:26px;height:26px;fill:#0f0f1a;}',
+      '#kilo-btn svg{width:20px;height:20px;fill:#0f0f1a;}',
       '#kilo-badge{position:absolute;top:-3px;right:-3px;background:#00ff88;color:#0f0f1a;',
       'font-size:10px;font-weight:800;width:18px;height:18px;border-radius:50%;',
       "font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;}",
       '@keyframes kilo-pulse{0%,100%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);}',
       '50%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 8px rgba(0,180,255,0);}}',
 
-      '#kilo-panel{position:fixed;bottom:200px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
+      '#kilo-panel{position:fixed;bottom:134px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
       'height:520px;max-height:calc(100vh - 150px);',
       'background:#0f0f1a;border:1px solid rgba(0,180,255,.18);border-radius:16px;',
       'display:flex;flex-direction:column;overflow:hidden;',
@@ -468,6 +472,9 @@
       'flex-shrink:0;transition:opacity .18s,transform .15s;}',
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
+      /* Phone placement — also root-only before consolidation. */
+      '@media(max-width:480px){#kilo-panel{bottom:134px;right:12px;width:calc(100vw - 24px);}',
+      '#kilo-btn{bottom:66px;right:16px;}}',
       /* M1 — the ECHO panel goes full-screen here (inset:0), and viewport-fit=cover means
          the viewport now starts UNDER the status bar. Without a top inset the header sits
          on the clock: on the owner's iPhone "ECHO" overlapped 11:52 and the greeting ran
@@ -505,14 +512,14 @@
     var panel = document.createElement('div');
     panel.id = 'kilo-panel';
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'Cho — KEEPITIL AI Assistant');
+    panel.setAttribute('aria-label', 'Echo — KEEPITIL AI Assistant');
     panel.innerHTML = [
       '<div id="kilo-header">',
         '<div id="kilo-avatar">',
           '<svg viewBox="0 0 24 24"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.49 1.36 4.73 3.5 6.25V21l3.5-2.25c.96.26 1.97.4 3 .4 5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/></svg>',
         '</div>',
         '<div id="kilo-hinfo">',
-          '<div id="kilo-hname">CHO</div>',
+          '<div id="kilo-hname">Echo</div>',
           '<div id="kilo-hsub" style="display:none"></div>',
         '</div>',
         '<button id="kilo-fb" aria-label="Send feedback" title="Send feedback">',
@@ -647,7 +654,7 @@
     // Drop the hedge — "I'm moderately sure, confirm with the team" reads as broken,
     // not humble. Low confidence should fall through to a better source instead.
     txt = txt.replace(/\(?I'?m moderately sure[^)]*\)?\s*/gi, '').trim();
-    var title = '💡 Cho';
+    var title = '💡 Echo';
     if (d.from_agent && String(d.from_agent).toLowerCase() !== 'cho') {
       title = '💡 ' + kilCap(d.from_agent) + (d.genre_lane ? ' · ' + d.genre_lane : '');
     }
@@ -675,7 +682,7 @@
   }
   function echoCard(d) {
     if (!d || !d.ok || !d.answer) return null;
-    var card = { title: '💡 Cho', text: d.answer };
+    var card = { title: '💡 Echo', text: d.answer };
     if (d.sources && d.sources.length) card.links = d.sources;
     return card;
   }
@@ -765,7 +772,7 @@
     // what differed between the two producers. `d.ok && d.answer` is true only when something
     // composed real prose for this turn, which is the only condition that should end the chain.
     if (d.ok && typeof d.answer === 'string' && d.answer.trim()) {
-      return { title: '💡 Cho', text: d.answer };
+      return { title: '💡 Echo', text: d.answer };
     }
 
     // Escalated with nothing to show = the model failed or found no route. That is an explicit
@@ -925,7 +932,7 @@
       // Welcome message on first open
       if (!msgs.hasChildNodes()) {
         addMessage('bot', {
-          title: 'Hey 👋 I\'m Cho',
+          title: 'Hey 👋 I\'m Echo',
           text: 'Your KEEPITIL guide to the SoCal music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
           chips: WELCOME_CHIPS,
         });
