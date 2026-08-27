@@ -67,7 +67,12 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
    middle of the screen and the title and metrics read as centred, while /connect, /create and
    /earn (whose bodies are NOT flex) sit correctly on the left. width:100% restores the
    stretch; max-width:1360px still caps it. Founder 2026-08-24. */
-.hero{position:relative;padding:6px 30px 40px;max-width:1360px;margin:0 auto;width:100%;overflow:hidden;
+/* LEFT EDGE IS /create's (Founder 2026-08-26: "title row, metric row, measurement space
+   from the left of the screen" must match). Every landing panel now shares ONE measure —
+   1120px with 16px side padding, which is what /create's .wrap gives .ce-hero. The pages
+   had drifted to four different insets: create 1120/16, earn 1120/16, connect and culture
+   1360/30, discovery 1180/24. Same-looking titles, four different left edges. */
+.hero{position:relative;padding:6px 16px 40px;max-width:1120px;margin:0 auto;width:100%;overflow:hidden;
   min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px);
   display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;}
 .hero::before{content:"";position:absolute;top:-160px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.32),transparent 62%);filter:blur(20px);z-index:-1;}
