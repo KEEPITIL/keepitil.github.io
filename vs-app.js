@@ -1027,10 +1027,13 @@
       + '<header class="ce-hero"><h1>CREATE</h1>'
       /* Founder 2026-08-25 §2: no VS, no Artists. The labels name the CREATE ecosystem and
          are pluralised from the live count, so "1 Entry" never reads as "1 Entries". */
+      /* Order and labels per Founder 2026-08-26: creator, entry, event.
+         Was competitions / entries / creators. "Competitions" is now EVENT — the figure counts
+         rows in `events`, so the old label named the programme rather than the thing counted. */
       + '<div class="ce-stats">'
-      +   '<div class="ce-stat v"><b id="ceV">—</b><span id="ceVL">Competitions</span></div>'
-      +   '<div class="ce-stat e"><b id="ceE">—</b><span id="ceEL">Entries</span></div>'
       +   '<div class="ce-stat a"><b id="ceA">—</b><span id="ceAL">Creators</span></div>'
+      +   '<div class="ce-stat e"><b id="ceE">—</b><span id="ceEL">Entries</span></div>'
+      +   '<div class="ce-stat v"><b id="ceV">—</b><span id="ceVL">Events</span></div>'
       + '</div></header>'
       + html;
 
@@ -1047,7 +1050,7 @@
         var el=document.getElementById(id); if(el) el.textContent = (Number(n)===1) ? one : many;
       };
       set('ceV', s.competitions); set('ceE', s.entries); set('ceA', s.creators);
-      label('ceVL', s.competitions, 'Competition', 'Competitions');
+      label('ceVL', s.competitions, 'Event',      'Events');       /* Founder 2026-08-26: was Competition/Competitions */
       label('ceEL', s.entries,      'Entry',       'Entries');
       label('ceAL', s.creators,     'Creator',     'Creators');
     }).catch(function(){});
