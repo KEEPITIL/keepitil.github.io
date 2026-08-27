@@ -363,6 +363,17 @@ function render(){
     if(ql){const h=((x.name||'')+' '+(x.city||'')+' '+desc(x)).toLowerCase();if(!h.includes(ql))return false;}
     return true;
   });
+  /* ARTISTS LEAD (Founder 2026-08-26: "by default all artist profile at the top of the connect
+     page"). Applies to the default All view; once a specific category is selected the list is
+     already single-kind and this is a no-op. Stable sort — within artists, and within everything
+     else, the existing order (articles newest-first, then venues) is preserved. */
+  if(kind==='all'){
+    list.sort(function(a,b){
+      var aa=(a.kinds||[]).indexOf('artist')>-1?0:1;
+      var bb=(b.kinds||[]).indexOf('artist')>-1?0:1;
+      return aa-bb;
+    });
+  }
   const g=document.getElementById('grid');
   g.innerHTML=list.length?list.map(card).join(''):'<div class="empty"><div class="big">No matches</div><div>Try another search or filter.</div></div>';
   document.getElementById('count').textContent=list.length+' of '+DATA.length;
