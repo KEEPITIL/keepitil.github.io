@@ -67,7 +67,7 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
    middle of the screen and the title and metrics read as centred, while /connect, /create and
    /earn (whose bodies are NOT flex) sit correctly on the left. width:100% restores the
    stretch; max-width:1360px still caps it. Founder 2026-08-24. */
-.hero{position:relative;padding:58px 30px 46px;max-width:1360px;margin:0 auto;width:100%;overflow:hidden;
+.hero{position:relative;padding:6px 30px 40px;max-width:1360px;margin:0 auto;width:100%;overflow:hidden;
   min-height:calc(100svh - 130px);min-height:calc(100dvh - 130px);
   display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;}
 .hero::before{content:"";position:absolute;top:-160px;left:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.32),transparent 62%);filter:blur(20px);z-index:-1;}
@@ -80,7 +80,7 @@ html.has-season body::before{display:none!important} /* seasonal image takes ove
 .stats{display:flex;gap:46px;margin-top:22px;flex-wrap:wrap;}
 .stat b{font-family:var(--fh);font-size:clamp(2.4rem,6vw,3.6rem);letter-spacing:.02em;line-height:1;display:block;text-shadow:0 2px 18px rgba(0,0,0,.7);color:#C084FC;}
 .stat span{display:block;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:#c9c2e0;margin-top:5px;font-weight:800;text-shadow:0 1px 8px rgba(0,0,0,.7);}
-.stat.videos b{color:#C084FC;}.stat.creators b{color:#A855F7;}.stat.articles b{color:#EBD9FF;}
+.stat.articles b{color:#EBD9FF;}.stat.photos b{color:#C084FC;}.stat.videos b{color:#A855F7;}
 /* MOBILE METRICS — one centred row, matching /connect, /create and /earn.
    ⚠ THIS BLOCK MUST STAY BELOW THE BASE .stats/.stat RULES. A media query adds no
    specificity, so above them the base `gap:46px;flex-wrap:wrap` wins on source order and the
@@ -405,10 +405,12 @@ footer a{color:var(--purple)}
   <div class="hero-head">
     <h1>CULTURE</h1>
   </div>
+  <!-- Order mirrors the filter row exactly: article, photo, video. Metrics that list in a
+       different order than the filters beneath them read as two unrelated lists. -->
   <div class="stats">
-    <div class="stat videos"><b id="kV">0</b><span>Videos</span></div>
-    <div class="stat creators"><b id="kC">0</b><span>Creators</span></div>
     <div class="stat articles"><b id="kA">0</b><span>Articles</span></div>
+    <div class="stat photos"><b id="kP">0</b><span>Photos</span></div>
+    <div class="stat videos"><b id="kV">0</b><span>Videos</span></div>
   </div>
 </header>
 
@@ -576,7 +578,10 @@ function culSection(sec){
   }
 }
 /* ── logged-in gear: Type (all/following/followers/circle) + Filter (feed/articles/user) + content-type (Filter A) ── */
-var culType='all', culFilter='feed', culContentType='all';
+/* culContentType defaults to 'video' — the Founder's default feed (2026-08-26). It was
+   'all'; with articles now in the merge that meant the page opened on a mixed list
+   rather than the video feed people come here for. */
+var culType='all', culFilter='feed', culContentType='video';
 var CUL_AGENTS={cho:1,atlas:1,pulse:1,xus:1,sentinel:1,oracle:1,fable:1,nova:1,luna:1,lyric:1,vibe:1,scout:1,merch:1,beacon:1};
 function toggleCulGear(e){if(e){e.stopPropagation();}var m=document.getElementById('culGearMenu');if(m)m.classList.toggle('open');}
 function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearMenu button['+attr+']'),function(b){b.classList.toggle('on',b.getAttribute(attr)===val);});}
@@ -2016,7 +2021,7 @@ function culResolveFilters(){
 var VR_SUBS={
   /* 'Blog' removed 2026-08-26 (Founder: "there will be no blogs. just articles"). One content
      type for written work, fed from blog_articles. */
-  feed:[['all','📰','Feed'],['article','📄','Articles'],['video','🎬','Vid'],['image','📷','Pix'],['vs','⚔️','VS']],
+  feed:[['article','📄','Articles'],['image','📷','Photos'],['video','🎬','Videos']],
   radio:[['channel','📡','Channel'],['playlist','🎧','Playlist'],['schedule','🗓️','Schedule'],['vs','⚔️','VS'],['apps','📱','Apps'],['games','🎮','Games']],
   vs:[['battles','🥊','Battles'],['vote','🗳️','Vote'],['board','🏆','Leaderboard']]
 };
@@ -2059,7 +2064,7 @@ try{ vrRenderFilters('feed'); }catch(e){}
   function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=fmtN(v); }
   fetch(U+'/rest/v1/rpc/culture_page_stats',{method:'POST',headers:{apikey:K,Authorization:'Bearer '+K,'Content-Type':'application/json'},body:'{}'})
     .then(function(r){ return r.ok?r.json():null; })
-    .then(function(d){ var s=Array.isArray(d)?d[0]:d; if(!s)return; set('kV',s.videos); set('kC',s.creators); set('kA',s.articles); })
+    .then(function(d){ var s=Array.isArray(d)?d[0]:d; if(!s)return; set('kA',s.articles); set('kP',s.photos); set('kV',s.videos); })
     .catch(function(){});
 })();
 </script>
