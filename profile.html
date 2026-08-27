@@ -548,7 +548,6 @@ footer a{color:var(--accent2);}
   #pfAcctType{display:inline-block!important;margin-bottom:0!important;background:rgba(139,92,255,.18);color:var(--accent,#8b5cff);padding:4px 10px;border-radius:999px;font-size:.6rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
   #pfBadges{display:flex!important;gap:6px}
   #pfBadges .bdg{flex:0 0 auto;font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(139,92,255,.16);color:var(--accent,#8b5cff);white-space:nowrap}
-  #feed-cat.pf-filter{background:transparent!important;border:none!important;box-shadow:none!important;padding:4px 8px!important;margin:0!important;width:auto!important;min-height:0!important;display:inline-flex!important;overflow:visible!important;position:sticky!important;top:51px!important;z-index:59}
   #fcatMenu{z-index:200!important}
   .pf-cta #pfDashWrap{flex:1}.pf-cta #pfDashWrap>button{width:100%}
   .pf-cta #pfShare{flex:1}.pf-cta #pfShare>button{width:100%;justify-content:center}
@@ -685,7 +684,11 @@ window.KIL_FILTER_BADGES = function(badges){
 </div>
 
 <div class="pf-panel active" id="tab-article">
-  <div class="pf-filter" id="feed-cat" style="display:flex;gap:8px;justify-content:space-around;flex-wrap:nowrap;margin:0 0 12px;position:sticky;top:118px;z-index:55;background:var(--bg,#0a0a0f);padding:8px 0"></div>
+  <!-- #feed-cat REMOVED 2026-08-27 (Founder: "still shows an extra subfilter bar").
+       It was the old per-panel feed filter — all/blog/article/video/image/reshare — and it
+       rendered a SECOND control directly beneath the filter bar's subfilter row, which now
+       owns FEED filtering. Its ＋Create chip was already an empty string, so it carried
+       nothing the bar does not. -->
   <div id="collab-pending"></div>
   <div class="pf-grid" id="feed-grid"></div>
 </div>
@@ -1455,7 +1458,7 @@ function renderCategories(){ var box=document.getElementById('pfCats'); if(!box)
 function updateOwnerUI(){
   ['pfDashWrap'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display=CAN_EDIT()?'':'none'; });
   var _pc=document.getElementById('pfCreate'); if(_pc)_pc.style.display='none';
-  try{ if(window.__feedCatPaint) window.__feedCatPaint(); }catch(e){}  /* re-add ＋Create chip to the feed filter now that CAN_EDIT is known */
+  /* __feedCatPaint call removed with #feed-cat, 2026-08-27. */
   try{ syncNavCta(); }catch(e){}  /* own profile = hamburger menu; someone else's = PROFILE button back to mine */
   try{ if(CAN_EDIT() && !window.__epOpened && new URLSearchParams(location.search).get('edit')==='1'){ window.__epOpened=1; setTimeout(openEditProfile,250); } }catch(e){}
   try{ if(CAN_EDIT() && !window.__cfOpened && new URLSearchParams(location.search).get('create')==='feed'){ window.__cfOpened=1; setTimeout(function(){openCreatePost('feed');},250); } }catch(e){}
@@ -2647,43 +2650,6 @@ function toggleArchived(id,val){
   });
 }
 /* FEED category filter — FEED (all) default, collapsible to icons on mobile */
-(function(){
-  var CATS=[['all','FEED','▦'],['blog','Blog','📰'],['article','Article','📝'],['video','Video','🎬'],['image','Image','🖼'],['reshare','Reshared','🔁']];
-  var CREATE_CHIP='';
-  var box=document.getElementById('feed-cat'); if(!box)return;
-  var cur='all';
-  function paint(){
-    var mobile=window.matchMedia('(max-width:768px)').matches;
-    var createChip=((typeof CAN_EDIT==='function'&&CAN_EDIT())?CREATE_CHIP:'');
-    if(mobile){
-      var curc=CATS.filter(function(c){return c[0]===cur;})[0]||CATS[0];
-      box.innerHTML='<div class="fcatdd" style="position:relative;display:inline-block">'
-        +'<button class="evsub-b" data-dd="1" title="Filter">'+curc[2]+' ▾</button>'
-        +'<div id="fcatMenu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:80;background:#15151f;border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:6px;min-width:180px;box-shadow:0 14px 34px rgba(0,0,0,.5)">'
-        +CATS.map(function(c){return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" style="display:block;width:100%;text-align:left;border:0;border-radius:8px;margin:2px 0">'+c[1]+'</button>';}).join('')
-        +'</div></div>'+createChip;
-    } else {
-      box.innerHTML=CATS.map(function(c){
-        return '<button class="evsub-b'+(cur===c[0]?' on':'')+'" data-c="'+c[0]+'" title="'+c[1]+'">'+c[1]+'</button>';
-      }).join('')+createChip;
-    }
-  }
-  box.addEventListener('click',function(e){
-    var dd=e.target.closest('[data-dd]');
-    if(dd){ var mm=document.getElementById('fcatMenu'); if(mm)mm.style.display=(mm.style.display==='none'?'block':'none'); e.stopPropagation(); return; }
-    var b=e.target.closest('button[data-c]'); if(!b)return;
-    cur=b.dataset.c; paint();
-    document.querySelectorAll('#feed-grid > *').forEach(function(card){
-      if(cur==='all'){ card.style.display=''; return; }
-      var cls=(card.className||'')+' '+(card.getAttribute('data-kind')||'');
-      card.style.display=new RegExp('\\b'+cur+'\\b','i').test(cls)?'':'none';
-    });
-  });
-  window.addEventListener('resize',paint);
-  document.addEventListener('click',function(){ var mm=document.getElementById('fcatMenu'); if(mm)mm.style.display='none'; });
-  window.__feedCatPaint=paint;  /* exposed so updateOwnerUI can re-add the ＋Create chip once auth is ready */
-  paint();
-})();
 /* header stats + about + links(≤5) + account type */
 (function(){
   function boot(){
