@@ -257,6 +257,18 @@ footer{margin-top:auto}
    without breaking the snapport. */
 .kr-carousel{scroll-snap-type:x mandatory;scrollbar-width:none}
 .kr-carousel::-webkit-scrollbar{display:none}
+/* ⚠ SPECIFICITY, NOT REDUNDANCY. The generic CREATE-rail pin above lists #stationGrid and
+   sets scroll-snap-type:x proximity + scroll-snap-align:start on its children. Those are
+   (1,0,0) and (1,0,1); the .kr-carousel / .kr-tile rules here are (0,1,0), so the plain class
+   rules LOSE and every tile computed scroll-snap-align:start on the deployed page (measured).
+   With 3 tiles the start position coincides with the centre and the bug is invisible; with a
+   long playlist list the rail snaps the active tile's LEFT EDGE to the rail's left edge and
+   the playing card is never centred. These two id-qualified rules restore centre snapping.
+   Do not "simplify" them back to bare classes, and do not delete #stationGrid from the pin
+   above — the pin's display/flex-wrap !important is what stops the section-expand toggle
+   turning this rail back into a wrapping grid. */
+.kr-carousel#stationGrid{scroll-snap-type:x mandatory}
+.kr-carousel#stationGrid>.kr-tile{scroll-snap-align:center}
 /* First and last tiles must reach the CENTRE of the rail, not just its edge.
    ⚠ The half-card figure is MEASURED, not written down. It was calc(50% - 120px) desktop /
    calc(50% - 80px) mobile, which assumed 240/160px cards — but the mobile rail enhancer forces
@@ -625,9 +637,9 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260826a"></script>
 <!-- persistent synchronized radio bar -->
-<script src="/assets/js/keepitil-radio.js?v=20260826a" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260827a" defer></script>
 <!-- floating AI chat bubble (#kilo-btn) — same as Culture/home for uniformity -->
-<script src="/assets/js/keepitil-ai.js?v=20260826a" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260827a" defer></script>
 <script>
 /* One anon key for this page's two public reads (playlists + competitions). Same publishable
    key every other page already ships in its HTML. */

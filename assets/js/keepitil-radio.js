@@ -10,20 +10,16 @@
   var css=document.createElement('style');
   css.setAttribute('data-kil','player');
   css.textContent=
-    '#kil-radio{position:fixed;bottom:0;left:0;right:0;height:56px;z-index:9998;background:rgba(6,6,6,.97);border-top:1px solid rgba(0,255,136,.2);box-shadow:0 -2px 24px rgba(0,0,0,.7);backdrop-filter:blur(18px);font-family:\'Space Grotesk\',\'Inter\',sans-serif;display:flex;align-items:center;padding:0 16px;gap:12px;overflow:hidden;transition:bottom .3s,left .3s,right .3s,width .3s,height .3s,border-radius .3s,border .3s,padding .3s,box-shadow .3s;}'+
+    '#kil-radio{position:fixed;bottom:0;left:0;right:0;height:40px;z-index:9998;background:rgba(6,6,6,.97);border-top:1px solid rgba(0,255,136,.2);box-shadow:0 -2px 24px rgba(0,0,0,.7);backdrop-filter:blur(18px);font-family:\'Space Grotesk\',\'Inter\',sans-serif;display:flex;align-items:center;padding:0 5px;gap:5px;overflow:hidden;transition:bottom .3s,left .3s,right .3s,width .3s,height .3s,border-radius .3s,border .3s,padding .3s,box-shadow .3s;}'+
     '#kil-radio.kil-mini{bottom:20px!important;left:auto!important;right:24px!important;width:58px!important;height:58px!important;border-radius:50%!important;border:2px solid rgba(0,255,136,.3)!important;border-top:2px solid rgba(0,255,136,.3)!important;box-shadow:0 4px 24px rgba(0,0,0,.7),0 0 20px rgba(0,255,136,.08)!important;cursor:pointer!important;padding:0!important;justify-content:center!important;gap:0!important;}'+
     '#kil-mini-dot{display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.5rem;color:#00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '#kil-radio.kil-mini #kil-mini-dot{display:flex!important;}'+
-    '#kil-radio.kil-mini .kil-live,#kil-radio.kil-mini .kil-brand,#kil-radio.kil-mini .kil-divider,#kil-radio.kil-mini #kil-track,#kil-radio.kil-mini .kr-controls{display:none!important;}'+
+    '#kil-radio.kil-mini .krb{display:none!important;}'+
     '.kil-live{width:7px;height:7px;border-radius:50%;background:#00ff88;flex-shrink:0;box-shadow:0 0 6px #00ff88;animation:kil-blink 2s ease-in-out infinite;}'+
     '.kil-live.off{background:#444;box-shadow:none;animation:none;}'+
     '@keyframes kil-blink{0%,100%{opacity:1;}50%{opacity:.35;}}'+
-    '.kil-brand{display:flex;align-items:center;gap:6px;flex-shrink:0;}'+
-    '.kil-brand-live{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
     '.kil-brand-logo{height:28px;width:auto;filter:drop-shadow(0 0 4px rgba(255,80,120,.7));}'+
     '.kil-brand-radio{font-size:.55rem;font-weight:900;letter-spacing:.18em;color:#00ff88;text-transform:uppercase;}'+
-    '#kil-track{font-size:.66rem;color:rgba(255,255,255,.5);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}'+
-    '.kil-hasad #kil-track{flex:0 1 auto;max-width:210px;}'+
     /* ── SHUTTLE (Founder 2026-08-22) ────────────────────────────────────────────────
        << playlist · < song · NOW PLAYING · song > · playlist >>
        The neighbouring titles are a convenience, not the control: they truncate hard and
@@ -33,56 +29,77 @@
        dragged both side columns — and therefore every arrow — sideways on each song change.
        A fixed centre width means the three columns never re-measure: the arrows sit at the same
        pixel all night and the title truncates inside its slot instead of pushing the layout. */
-    '.kr-shuttle{flex:1;display:grid;align-items:center;gap:6px;min-width:0;'+
-      'grid-template-columns:minmax(0,1fr) clamp(150px,26vw,300px) minmax(0,1fr);}'+
-    '.kr-grp{display:flex;align-items:center;gap:6px;min-width:0;}'+
-    '.kr-grp-l{justify-content:flex-end;}'+
-    '.kr-grp-r{justify-content:flex-start;}'+
-    '.kr-nav{background:rgba(255,255,255,.06);border:1px solid rgba(0,255,136,.28);color:#00ff88;'+
-      'border-radius:8px;cursor:pointer;line-height:1;padding:0;flex:0 0 auto;'+
-      'display:flex;align-items:center;justify-content:center;transition:background .15s;}'+
-    '.kr-nav:hover{background:rgba(0,255,136,.16);}'+
-    '.kr-nav.kr-pl{width:30px;height:26px;font-size:1rem;font-weight:800;}'+
-    '.kr-nav.kr-sd{width:24px;height:26px;font-size:1.05rem;font-weight:800;}'+
-    '.kr-side{font-size:.72rem;color:rgba(255,255,255,.42);white-space:nowrap;overflow:hidden;'+
-      'text-overflow:ellipsis;flex:1 1 0;min-width:0;}'+
-    /* Outer playlist labels: brand green so a station name never reads as a song title. */
-    '.kr-plname{font:800 .68rem Inter,sans-serif;letter-spacing:.06em;color:rgba(0,255,136,.72);'+
-      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;flex:0 1 auto;}'+
-    /* Five text slots do not fit a laptop, let alone a phone. Drop them outside-in: the playlist
-       names go first, then the neighbouring song titles, leaving the arrows and NOW PLAYING —
-       which is the part that has to survive at every width. */
+    /* ── 7-BUTTON BAR (Founder 2026-08-27) ─────────────────────────────────────────
+       The bar is SEVEN buttons on one flex line, each independently weighted:
+         1 brand .9 | 2 prev-playlist 1.8 | 3 prev-song 2 | 4 now 4.1 | 5 next-song 2
+         | 6 next-playlist 1.8 | 7 mute 1
+       Weights, not pixels: the bar always spans the viewport, so the ratio is what holds
+       the proportions at every width. Button 4 is the longest by design.
+       The old .kr-shuttle grid + .kr-grp wrappers are GONE — they nested the controls two
+       levels deep and made per-button width impossible. Every element ID survived the
+       move, so every handler below still binds. */
+    '.krb{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;'+
+      'height:35px;border-radius:5px;padding:0 8px;background:rgba(255,255,255,.05);'+
+      'border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.72);'+
+      'font-family:inherit;font-size:.7rem;letter-spacing:.05em;white-space:nowrap;'+
+      'overflow:hidden;transition:background .18s,border-color .18s;}'+
+    'button.krb{cursor:pointer;}'+
+    'button.krb:hover{background:rgba(0,255,136,.14);border-color:rgba(0,255,136,.3);}'+
+    '.krb-brand{flex:0.9 1 0;}'+
+    '#kr-prevpl{flex:1.8 1 0;}'+
+    '#kr-prev{flex:2 1 0;}'+
+    '.krb-now{flex:4.1 1 0;position:relative;background:rgba(0,255,136,.09);'+
+      'border-color:rgba(0,255,136,.28);}'+
+    '#kr-next{flex:2 1 0;}'+
+    '#kr-nextpl{flex:1.8 1 0;}'+
+    '#kr-mute{flex:1 1 0;}'+
+    '.krb-g{flex:0 0 auto;color:#00ff88;font-weight:800;font-size:1rem;line-height:1;}'+
+    '.kr-side{font-size:.7rem;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;'+
+      'text-overflow:ellipsis;min-width:0;}'+
+    '.kr-plname{font-weight:800;font-size:.68rem;letter-spacing:.06em;color:rgba(0,255,136,.8);'+
+      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}'+
+    /* Button 4 shows the SONG and the PLAYLIST alternately, 5s each with a half-second
+       cross-fade. Both spans are stacked in the same box so neither reflows the bar when
+       the other is showing; the whole cycle is CSS, so there is no timer to leak. */
+    '.krb-now .kr-now{position:absolute;left:8px;right:8px;text-align:center;'+
+      'font-size:.72rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;'+
+      'text-overflow:ellipsis;animation:kil-swap 10s ease-in-out infinite;}'+
+    '.krb-now #kr-nowpl{color:rgba(0,255,136,.9);letter-spacing:.06em;animation-delay:5s;}'+
+    '@keyframes kil-swap{0%,45%{opacity:1;}50%,95%{opacity:0;}100%{opacity:1;}}'+
+    '@media(prefers-reduced-motion:reduce){.krb-now .kr-now{animation-duration:20s;}}'+
     '@media(max-width:1100px){.kr-plname{display:none;}}'+
-    '.kr-now{font-size:.9rem;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;'+
-      'text-overflow:ellipsis;padding:0 4px;text-align:center;width:100%;'+
-      'justify-self:stretch;}'+
     '@media(max-width:900px){.kr-side{display:none;}}'+
-    '#kil-radio.kil-mini .kr-shuttle{display:none!important;}'+
-    '.kil-divider{color:rgba(255,255,255,.2);flex-shrink:0;}'+
-    '.kr-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}'+
     '.kr-btn{background:none;border:none;cursor:pointer;color:#00ff88;font-size:.85rem;line-height:1;padding:2px 4px;transition:opacity .2s;flex-shrink:0;}'+
     '.kr-btn:hover{opacity:.6;}'+
     '#kr-vol{width:60px;accent-color:#00ff88;cursor:pointer;opacity:.75;vertical-align:middle;}'+
     '#kil-sc{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;}'+
     /* The #kilo-btn overrides that lived here are GONE — the shell owns the chat
        button's position now. The PANEL still needs to clear the radio bar. */
-    '#kilo-panel{bottom:134px!important;}'+
+    '#kilo-panel{bottom:118px!important;}'+
     '.radio-mini #kilo-panel{bottom:156px!important;right:24px!important;}'+
     // Body padding so content clears the fixed bar
-    'body{padding-bottom:56px;}'+
+    'body{padding-bottom:40px;}'+
     // Scroll-to-top button: lift above radio bar, move to left to avoid Echo on right
-    '#scroll-top{bottom:70px!important;left:24px!important;right:auto!important;}'+
+    '#scroll-top{bottom:54px!important;left:24px!important;right:auto!important;}'+
     '.radio-mini #scroll-top{bottom:92px!important;}'+
     // Nav logo: bigger across all pages (overrides inline height:30px)
     'a.nav-logo img,#main-nav img,nav img[src*="keepitil-x-"]{height:44px!important;width:auto!important;}'+
     '@media(max-width:600px){'+
-      '.kil-live,.kil-brand-live,.kil-divider{display:none!important;}'+   /* far left = logo + RADIO only */
-      '#kil-track{display:block!important;flex:1 1 auto;min-width:0;text-align:center;font-size:.62rem;padding:0 6px;color:rgba(255,255,255,.7);}'+  /* center: song title + artist */
+      /* ⚠ MOBILE IS UNCHANGED BY THE 7-BUTTON REBUILD (Founder 2026-08-27: "do not change
+         the mobile bar"). The desktop layout stacks the song and playlist absolutely inside
+         button 4 and gives every button a flex weight; both are undone here so the small bar
+         keeps the shape it already had — logo + RADIO, one centred track line, controls. */
+      '.kil-live,.kil-divider{display:none!important;}'+
+      '.krb{flex:0 0 auto!important;height:28px;padding:0 6px;gap:4px;}'+
+      '.krb-now{flex:1 1 auto!important;position:static;background:none;border-color:transparent;}'+
+      '.krb-now .kr-now{position:static;left:auto;right:auto;animation:none;'+
+        'font-size:.62rem;font-weight:400;color:rgba(255,255,255,.7);}'+
+      '#kr-nowpl{display:none!important;}'+
       '.kr-side,.kr-plname{display:none!important;}'+
-      '.kil-brand{gap:5px;}'+
-      '.kr-controls{gap:9px;margin-left:auto;flex-shrink:0;}'+
+      '.kil-brand-logo{height:22px;}'+
+      '#kr-mute{margin-left:auto;}'+
       '#kr-vol{width:74px;height:20px;}'+
-      '#kil-radio{gap:8px;padding:0 12px;}'+
+      '#kil-radio{gap:6px;padding:0 8px;}'+
     '}'+
     '@media(max-width:480px){.radio-mini #kilo-panel{bottom:156px!important;right:12px!important;}}';
   document.head.appendChild(css);
@@ -98,38 +115,30 @@
        link beside it. The bar is now controls only. */
     bar.innerHTML=
       '<div id="kil-mini-dot">\u266c</div>'+
-      '<div class="kil-live off" id="kil-led"></div>'+
-      '<div class="kil-brand">'+
-        '<span class="kil-brand-live">LIVE</span>'+
+      /* SEVEN buttons, one flex line. IDs are unchanged from the shuttle layout so every
+         handler below still binds; only the nesting and the widths changed. */
+      '<div class="krb krb-brand">'+
+        '<div class="kil-live off" id="kil-led"></div>'+
         '<img src="/keepitil-x-logo.png" class="kil-brand-logo" alt="KEEPITIL"/>'+
         '<span class="kil-brand-radio">RADIO</span>'+
       '</div>'+
-      /* Founder-specified order 2026-08-22:
-         PREV PLAYLIST << | PREV SONG < | PLAYLIST: NOW PLAYING | > NEXT SONG | >> NEXT PLAYLIST
-         The label sits OUTSIDE its arrow on each side, so the arrow always points at the thing
-         named next to it. */
-      /* Three groups, not one flat row (Founder 2026-08-22: "center the title of the current
-         song playing"). The side groups are equal-width grid tracks, so NOW PLAYING lands on the
-         true centre of the bar no matter how long the neighbouring titles are — in a flat flex
-         row it drifted with them. */
-      '<div class="kr-shuttle">'+
-        '<div class="kr-grp kr-grp-l">'+
-          '<span class="kr-plname" id="kr-prevpl-t"></span>'+
-          '<button class="kr-nav kr-pl" id="kr-prevpl" title="Previous playlist" aria-label="Previous playlist">&#171;</button>'+
-          '<span class="kr-side" id="kr-prevt"></span>'+
-          '<button class="kr-nav kr-sd" id="kr-prev" title="Previous song" aria-label="Previous song">&#8249;</button>'+
-        '</div>'+
-        '<span id="kil-track" class="kr-now">Loading\u2026</span>'+
-        '<div class="kr-grp kr-grp-r">'+
-          '<button class="kr-nav kr-sd" id="kr-next" title="Next song" aria-label="Next song">&#8250;</button>'+
-          '<span class="kr-side" id="kr-nextt"></span>'+
-          '<button class="kr-nav kr-pl" id="kr-nextpl" title="Next playlist" aria-label="Next playlist">&#187;</button>'+
-          '<span class="kr-plname" id="kr-nextpl-t"></span>'+
-        '</div>'+
+      '<button class="krb" id="kr-prevpl" title="Previous playlist" aria-label="Previous playlist">'+
+        '<span class="kr-plname" id="kr-prevpl-t"></span><span class="krb-g">\u00ab</span>'+
+      '</button>'+
+      '<button class="krb" id="kr-prev" title="Previous song" aria-label="Previous song">'+
+        '<span class="kr-side" id="kr-prevt"></span><span class="krb-g">\u2039</span>'+
+      '</button>'+
+      '<div class="krb krb-now">'+
+        '<span class="kr-now" id="kil-track">Loading\u2026</span>'+
+        '<span class="kr-now" id="kr-nowpl"></span>'+
       '</div>'+
-      '<div class="kr-controls">'+
-        '<button class="kr-btn" id="kr-mute" title="Mute / Unmute">\ud83d\udd0a</button>'+
-      '</div>'+
+      '<button class="krb" id="kr-next" title="Next song" aria-label="Next song">'+
+        '<span class="krb-g">\u203a</span><span class="kr-side" id="kr-nextt"></span>'+
+      '</button>'+
+      '<button class="krb" id="kr-nextpl" title="Next playlist" aria-label="Next playlist">'+
+        '<span class="krb-g">\u00bb</span><span class="kr-plname" id="kr-nextpl-t"></span>'+
+      '</button>'+
+      '<button class="krb" id="kr-mute" title="Mute / Unmute" aria-label="Mute">\ud83d\udd0a</button>'+
       '';   /* the minimise button is gone — see setMini() */
     document.body.appendChild(bar);
     /* The rotating referral ad that lived here was removed 2026-08-22 (Founder).
@@ -225,7 +234,7 @@
     radio.style.cursor='pointer';
     radio.addEventListener('click',function(e){
       /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
-      if(e.target&&e.target.closest&&e.target.closest('#kr-mute,#kr-vol,.kr-shuttle')){return;}
+      if(e.target&&e.target.closest&&e.target.closest('.krb')){return;}
       if(location.pathname.indexOf('/earn')===0)return; /* already on the radio surface */
       location.href='/earn';
     });
@@ -320,9 +329,11 @@
         /* Current reads "PLAYLIST: SONG" — e.g. "EDM: VHS TAPES". */
         var cur = list[i];
         var t = (cur && cur.title) ? cur.title : '';
-        if(nowEl){
-          nowEl.textContent = here ? (here + (t ? ': ' + t : '')) : t;
-        }
+        /* Button 4 alternates, so the two values must stay apart — a combined
+           "PLAYLIST: SONG" string would show the playlist in both halves of the cycle. */
+        var plEl = document.getElementById('kr-nowpl');
+        if(nowEl) nowEl.textContent = t || here;
+        if(plEl)  plEl.textContent  = here || t;
         /* Same values the bar just painted — no second source of truth. */
         kilBroadcast(t, (n && n.title) ? n.title : '');
       });
