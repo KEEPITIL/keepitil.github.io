@@ -2020,34 +2020,48 @@ function openNewChat(){ ncCSS(); NC_SEL={}; NC_NAMES={}; NC_STATE={post:'everyon
   ncSearch('');
 }
 /* ── ARTICLE CAROUSEL + VIEWER ── */
-var GT_ARTICLES=[
-  {t:'KEEPITIL Presents: Groove Trooper', d:'Feature · Jun 19', img:'https://images.ra.co/06c4bb3109109df1dad229582219f4ded15b11d4.jpg', html:`<div class="kil-tag">★ KEEPITIL PRESENTS</div>
-<div class="listen-section"><div class="listen-label">🎵 Listen to Groove Trooper</div>
-<iframe height="300" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/groove-trooper/el-recuerdo&color=%2300ff88&auto_play=false&visual=true"></iframe></div>
-<p class="intro-text">Emilio Orrego started with a controller and an iPod nano in 2007. Two years later he was playing his first rave in Antigua, Guatemala — Atomic Pulse 2009. The moment that changed everything came in 2013, when Paul Van Dyk played his first rave and Emilio felt something lock into place. Since then, Groove Trooper has never stopped moving: from Garden Grove to Groove Cruise Miami, from military service to Avalon Memorial Day with 2,500 people on the floor. High energy. All smiles. Latin grooves.</p>
-<div class="pull-quote">"Stage presence. The tracks drive the set, but my energy up there is unmatched."</div>
-<div class="qa-section"><div class="qa-section-title">THE STORY</div>
-<div class="qa-item"><div class="qa-q">When did you start and what inspired you?</div><div class="qa-a">2007 — started with a controller and iPod nano. First gig was Atomic Pulse 2009 in Antigua Guatemala. The moment that made it real was the first rave I ever attended in 2013, when Paul Van Dyk played.</div></div>
-<div class="qa-item"><div class="qa-q">Who influenced your sound the most?</div><div class="qa-a">Roger Sanchez, Eric Morillo, Scotty Boy, Armin Van Buuren, Paul Van Dyk. The architects of house music who never forgot where the groove came from.</div></div></div>
-<div class="qa-section"><div class="qa-section-title">THE CRAFT</div>
-<div class="qa-item"><div class="qa-q">What makes your sets different?</div><div class="qa-a">I play drops and breakdowns, combine build-ups, and push as many tracks as possible — creating a crescendo feel from open to close. Every set builds. Every set peaks.</div></div>
-<div class="qa-item"><div class="qa-q">What can someone expect when they book you?</div><div class="qa-a">High energy, all smiles, Latin grooves. And stage presence that makes the tracks hit harder than they would from anyone else.</div></div></div>
-<div class="qa-section"><div class="qa-section-title">OFF THE DECKS</div>
-<div class="qa-item"><div class="qa-q">Pre-set ritual?</div><div class="qa-a">Get a Modelo, kiss the wife, backstage, light stretch, jump three times, drink the Modelo. Every. Single. Time.</div></div></div>`},
-  {t:'New Afro House Release', d:'Post · Aug', img:'https://images.ra.co/1bfc214a7b4917efac1afad318fd4dafa631a480.jpg', html:`<div class="kil-tag">★ NEW RELEASE</div>
-<p class="intro-text">Fresh out of the studio — a four-track warehouse EP leaning into Afro house textures and Latin percussion. Slower, heavier, more human. Out now on all platforms.</p>
-<div class="pull-quote">"Art is never finished, it's abandoned. This one felt ready."</div>
-<p class="intro-text"><a href="https://soundcloud.com/groove-trooper" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Listen on SoundCloud →</a></p>`},
-  {t:'Kingdom @ Catch One — Recap', d:'Post · Aug', img:'https://images.ra.co/233912b5340b79213e16e58647ecd297165d0a52.jpg', html:`<div class="kil-tag">★ RECAP</div>
-<p class="intro-text">Kingdom at Catch One in LA was a moment. Two hours of rolling Latin house into afro-tech, a room that never sat down, and a closing 20 minutes I'll be chasing for a while. Photos in the Gallery, full set coming to the radio.</p>
-<p class="intro-text"><a href="#" onclick="showTab('gallery');return false;" style="color:var(--accent);font-weight:700;">See the photos →</a></p>`},
-  {t:'Rhythm & Villainy Radio', d:'Series · Ongoing', img:'https://images.ra.co/234c570dd0c0ce4c93d62945d502ef1952b2cf31.jpg', html:`<div class="kil-tag">★ RADIO</div>
-<p class="intro-text">Rhythm &amp; Villainy Radio is my monthly show — unreleased edits, Guatemala roots, and guests from the SoCal scene. New episodes drop first in the scene rooms.</p>
-<p class="intro-text"><a href="#" onclick="showTab('chat');return false;" style="color:var(--accent);font-weight:700;">Join the chat for first listen →</a></p>`},
-  {t:'Shared: History of House Music', d:'Shared · KEEPITIL Blog', img:'https://images.ra.co/0eb69717593e6bb32225fec905e93762454a7894.jpg', html:`<div class="kil-tag">★ SHARED</div>
-<p class="intro-text">Groove Trooper shared this from the KEEPITIL culture blog — a deep dive on where house music came from and why the groove still matters.</p>
-<p class="intro-text"><a href="/culture" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;">Read on KEEPITIL Culture →</a></p>`}
-];
+/* ── ARTICLES COME FROM THE DATABASE (Founder 2026-08-26) ─────────────────────────────────────
+   "there will be no blogs. just articles fed into the connect page and culture page for
+   articles only."
+
+   This array used to hold a full Groove Trooper feature inline — headline, SoundCloud embed,
+   pull quotes, the lot — duplicated in page markup. That content now lives at
+   /article/artist/groove-trooper as a real page, so keeping a second copy here would guarantee
+   the two drift apart the first time either is edited.
+
+   Articles are loaded from blog_articles filtered by artist_slug, which is the same row the
+   Culture feed reads. One record, two surfaces. An artist's profile therefore shows their
+   feature automatically the moment the row exists — nothing to wire per artist. */
+var GT_ARTICLES=[];
+
+function loadProfileArticles(){
+  if(!window.SB || !PROFILE_SLUG) return;
+  SB.from('blog_articles')
+    .select('slug,title,excerpt,image_url,hero_image,url,published_at')
+    .eq('artist_slug', PROFILE_SLUG).eq('status','published').eq('published', true)
+    .order('published_at',{ascending:false})
+    .then(function(r){
+      if(r.error || !r.data || !r.data.length) return;
+      /* Newest first, and prepended so a freshly published feature leads the profile. */
+      r.data.slice().reverse().forEach(function(a){
+        var when=''; try{ var d=new Date(a.published_at); if(!isNaN(d))
+          when=d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }catch(e){}
+        GT_ARTICLES.unshift({
+          t: a.title,
+          d: 'Feature' + (when ? ' \u00b7 ' + when : ''),
+          img: a.image_url || a.hero_image || '/assets/images/logo-bg.jpg',
+          /* `url` makes openPost() navigate to the real article instead of rendering an inline
+             copy — see the branch in openPost. html stays empty on purpose. */
+          url: a.url,
+          html: ''
+        });
+      });
+      try{ if(typeof renderFeed==='function') renderFeed(); }catch(e){}
+      try{ if(typeof renderArticles==='function') renderArticles(); }catch(e){}
+    })
+    .catch(function(){});
+}
+try{ loadProfileArticles(); }catch(e){}
 /* ── Unified post model (blog / article / image / video) shared by FEED + GALLERY ── */
 function postType(a){ if((a.mtype||'')==='video')return 'video'; if(/blog|shared/i.test(a.d||''))return 'blog'; return 'article'; }
 /* owner can hide a post from the FEED (still shows in the GALLERY). Stored as an override map keyed by post signature so it works for seed/local/DB posts alike. */
@@ -2267,7 +2281,12 @@ function postCard(p){
 function openPost(src,idx){
   var html='';
   if(src==='collab'){ var c=COLLAB_POSTS[idx]; if(!c)return; html='<div class="kil-tag">✦ COLLAB · @'+esc(c.source_slug)+'</div>'+((c.payload&&c.payload.html)||('<p class="intro-text">'+esc(c.title||'')+'</p>')); }
-  else if(src==='article'){ var a=GT_ARTICLES[idx]; if(!a)return; html=a.html; }
+  else if(src==='article'){ var a=GT_ARTICLES[idx]; if(!a)return;
+    /* An article with a url IS a page — open it rather than rendering a second copy of it
+       inside a modal. Only legacy inline entries still carry html (Founder 2026-08-26:
+       "no blogs. just articles"). */
+    if(a.url){ location.href=a.url; return; }
+    html=a.html; }
   else { var t=GAL_IMGS[idx]; if(!t)return; var mt=t[3]||'image'; var m=(mt==='video')
       ?'<video src="'+galSrc(t[0])+'" controls playsinline autoplay style="width:100%;border-radius:12px;background:#000"></video>'
       :'<img src="'+galSrc(t[0])+'" alt="'+esc(t[1])+'" style="width:100%;border-radius:12px">';
