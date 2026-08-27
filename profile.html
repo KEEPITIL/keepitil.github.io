@@ -917,17 +917,28 @@ function checkOwnership(){
    sections are separate DOM. CHAT and SAVED filter by rules derived from data the page
    already loads (see pfChatBucket / the collection chips). Where a rule cannot be evaluated
    the chip shows everything rather than silently showing nothing. */
-var PF_SUBS = {
-  feed:  [['all','Feed'],['article','Article'],['photo','Photo'],['video','Videos'],['rated','Rated']],
-  event: [['entry','Entry'],['events','Events'],['tickets','Tickets']],
-  chat:  [['primary','Primary'],['general','General'],['request','Request']],
-  saved: [['overall','Overall'],['collection','Collection']]
-};
-var PF_CAT = 'feed', PF_SUB = { feed:'all', event:'entry', chat:'primary', saved:'overall' };
+var PF_OWNER = false;
+/* Four categories for the owner, two for a visitor — deliberately different surfaces.
+   FEED is the one row that differs in CONTENT too: a visitor gets an "all" chip, the owner does
+   not, because their feed already IS everything they have posted. */
+function pfSubsFor(cat){
+  if(cat === 'feed'){
+    var base = [['article','Article'],['photo','Photo'],['video','Videos'],['rated','Rated']];
+    return PF_OWNER ? base : [['all','Feed']].concat(base);
+  }
+  if(cat === 'event') return [['entry','Entry'],['events','Events'],['tickets','Tickets']];
+  if(cat === 'chat')  return [['primary','Primary'],['general','General'],['request','Request']];
+  if(cat === 'saved') return [['collection','Collection'],['overall','Overall']];
+  return [];
+}
+var PF_CAT = 'feed', PF_SUB = { feed:'all', event:'entry', chat:'primary', saved:'collection' };
 
 function pfRenderSubs(){
   var box=document.getElementById('pfSubs'); if(!box) return;
-  var list=PF_SUBS[PF_CAT]||[];
+  var list=pfSubsFor(PF_CAT);
+  /* The owner has no 'all' chip, so a stored 'all' would leave nothing selected. */
+  if(PF_CAT==='feed' && PF_OWNER && PF_SUB.feed==='all') PF_SUB.feed='article';
+  if(PF_CAT==='feed' && !PF_OWNER && !list.some(function(x){return x[0]===PF_SUB.feed;})) PF_SUB.feed='all';
   box.innerHTML = list.map(function(x){
     return '<button type="button" data-sub="'+x[0]+'"'+(PF_SUB[PF_CAT]===x[0]?' class="on"':'')+'>'+x[1]+'</button>';
   }).join('');
@@ -1046,10 +1057,23 @@ function pfEmpty(gridId, msg){
 /* CHAT and SAVED belong to the profile's owner. Removed from the DOM for a visitor rather than
    hidden, so there is no control to find in the markup and no panel to reach by guessing. */
 function pfApplyOwnerBar(isOwner){
+  /* ⚠ HIDE, DO NOT REMOVE. This used to call b.remove(), and renderAll() calls
+     applyProfileTabs() BEFORE checkOwnership() has resolved — so on the owner's own profile the
+     gate ran first with isOwner=false, destroyed CHAT and SAVED, and when ownership resolved a
+     moment later there was nothing left to restore. The owner was left with two categories on
+     a page that is supposed to show four. Hiding is idempotent and survives being called in
+     either order, however many times.
+     The buttons are not a security boundary and never were: the chat and saved panels load
+     their own data under RLS, so a hidden control grants nothing. */
   document.querySelectorAll('#pfSeg button[data-owner]').forEach(function(b){
-    if(!isOwner) b.remove();
+    b.style.display = isOwner ? '' : 'none';
   });
-  if(!isOwner && (PF_CAT==='chat' || PF_CAT==='saved')) pfCat('feed');
+  /* The FEED subfilters differ by view (Founder 2026-08-26): the owner's feed IS their profile,
+     so an "all" chip is redundant there; a visitor gets one. Rebuild the row when the answer
+     changes, not just on first paint. */
+  PF_OWNER = !!isOwner;
+  if(!isOwner && (PF_CAT==='chat' || PF_CAT==='saved')) { pfCat('feed'); return; }
+  pfRenderSubs();
 }
 
 /* showTab survives because deep links (?tab=shows from the event page, ?tab=tagged from CREATE)
@@ -2900,6 +2924,6 @@ function loadTagged(){
 (function(){ var iv=setInterval(function(){ var n=0; document.querySelectorAll('#feed-grid [data-status]').forEach(function(c){ if(!/published|live/i.test(c.getAttribute('data-status')||'published')) { c.style.display='none'; n++; } }); },1200); setTimeout(function(){clearInterval(iv);},12000); })();
 </script>
 
-<script src="/keepitil-shell.js?v=20260826d" defer></script>
+<script src="/keepitil-shell.js?v=20260826e" defer></script>
 </body>
 </html>

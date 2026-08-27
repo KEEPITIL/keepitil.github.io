@@ -334,7 +334,13 @@ async function buildAdminTabs(){
   var nav=$('subnav'); var tabs=[['insights','Insight'],['plugins','API Plugins'],
                                  ['events','Events'],['postiz','Postiz'],['settings','Settings']];
   if(IS_ADMIN){
-    tabs=tabs.concat(ADMIN_TABS);
+    /* ADMIN TABS NO LONGER JOIN THE FILTER ROW (Founder 2026-08-26: "remove any other remaining
+       features other than the ones described below"). The dashboard filter is exactly five:
+       Insight · API Plugins · Events · Postiz · Settings — the same row for everyone.
+       The admin PANELS and their loaders are untouched and still reachable by ?tab=<name>, so
+       nothing is deleted and the Website Brain work is not lost; it simply stops being part of
+       the customer-facing filter. ADMIN_TABS remains defined as the list of those panel keys. */
+    if(/[?&]admin=1\b/.test(location.search)) tabs = tabs.concat(ADMIN_TABS);
     /* The page is "Dashboard" for everyone, admin or not (Founder 2026-08-26). This used to
        rename the heading and the tab to "Website Brain" for admins only, so the same URL
        introduced itself by two different names depending on who opened it. The admin TABS are
@@ -1244,6 +1250,6 @@ init();
 </script>
 <script src="/assets/js/keepitil-radio.js?v=20260826a" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260826a" defer></script>
-<script src="/keepitil-shell.js?v=20260826d" defer></script>
+<script src="/keepitil-shell.js?v=20260826e" defer></script>
 </body>
 </html>
