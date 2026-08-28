@@ -1071,11 +1071,26 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
              data sits in memory — 120 rows loaded, 0 shown. An empty feed with rows available is
              ALWAYS a bug, never a legitimate state, so render them directly rather than leave a
              visitor staring at nothing. */
+          /* ⚠ THE GUARD MUST RESPECT THE FILTER (Founder 2026-08-28).
+             Its premise — "an empty feed with rows available is ALWAYS a bug" — was true when
+             no content-type filter actually worked. It is false now: Photos legitimately
+             matches 0 of 133 rows, and the first paint runs before the videos have loaded, so
+             the video feed is briefly empty too. In both cases this fired and re-rendered the
+             WHOLE merged list unfiltered, which put articles and posts straight back into the
+             video feed and reset the video player to the first card. Observed on production
+             three times in one session: "[culture] feed rendered empty with 20 rows — forcing
+             direct render".
+             The real invariant is narrower: never blank the feed when rows PASS THE CURRENT
+             FILTER. If nothing passes, an empty feed is the correct answer, not a fault. */
           try{
             var box=document.getElementById('community-feed');
-            if(merged.length && box && box.children.length===0){
-              console.warn('[culture] feed rendered empty with '+merged.length+' rows — forcing direct render');
-              window.__culRenderRows(merged);
+            var passing = merged.filter(function(x){
+              try{ return !x.archived && _culTypeMatch(x); }catch(e){ return false; }
+            });
+            if(passing.length && box && box.children.length===0){
+              console.warn('[culture] feed rendered empty with '+passing.length+
+                           ' rows passing the '+culContentType+' filter — forcing direct render');
+              window.__culRenderRows(passing);   /* the FILTERED list, never the raw merge */
             }
           }catch(e){ console.error('[culture] repaint guard failed', e); }
         }
