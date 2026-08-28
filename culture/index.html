@@ -691,15 +691,27 @@ function setCulContentType(t){
    above the noise. */
 (function(){
   var HIDE_MS = 1800;   /* Founder: "roughly 1.5-2 seconds ... intentional rather than flickering" */
-  var THRESH  = 6;
+  /* ⚠ THE TWO THRESHOLDS ARE DELIBERATELY ASYMMETRIC.
+     Hiding is cheap and should be instant, so any real downward movement triggers it.
+     REVEALING must survive a snap settle. This feed is scroll-snap-type:y mandatory with
+     full-viewport cards, so every forward swipe ENDS in the browser animating the card into
+     place — and that settle can overshoot and correct UPWARD by a few pixels. Under one
+     symmetric threshold that upward correction reads as "the user reversed" and the bar would
+     flash at the end of every single swipe forward, which is precisely the flicker this is
+     meant to avoid. So a reveal needs sustained upward travel, accumulated across events,
+     not one upward frame. A deliberate reverse swipe moves hundreds of pixels; a settle
+     correction moves tens at most. */
+  var DOWN_HIDE  = 6;    /* any real forward movement hides at once */
+  var UP_REVEAL  = 28;   /* cumulative upward travel required to reveal */
   function mob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
 
-  var bar = null, timer = null;
+  var bar = null, timer = null, upAcc = 0;
   var lastY = window.pageYOffset || document.documentElement.scrollTop || 0;
 
   function el(){ return bar && document.contains(bar) ? bar : (bar = document.getElementById('culTypeBar')); }
   function hide(){
     if(timer){ clearTimeout(timer); timer = null; }
+    upAcc = 0;                   /* a new reveal must earn its travel again */
     document.body.classList.remove('cul-fbar');
   }
   function arm(){ if(timer) clearTimeout(timer); timer = setTimeout(hide, HIDE_MS); }
@@ -713,10 +725,13 @@ function setCulContentType(t){
     if(!mob()) return;
     var y = window.pageYOffset || document.documentElement.scrollTop || 0;
     var d = y - lastY;
-    if(Math.abs(d) < THRESH) return;      /* ignore momentum jitter */
     lastY = y;
-    if(d > 0) hide();                     /* moving forward through the feed */
-    else      show();                     /* reversed, heading back up */
+    if(d > DOWN_HIDE){                    /* moving forward through the feed */
+      hide();                             /* (hide() also clears upAcc) */
+    } else if(d < 0){                     /* heading back up */
+      upAcc += -d;
+      if(upAcc >= UP_REVEAL){ upAcc = 0; show(); }
+    }
   }, {passive:true});
 
   /* Touching the bar means the visitor is using it — do not pull it away mid-decision.
