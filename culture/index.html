@@ -1050,9 +1050,20 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
             .filter(function(x){ return !x.archived; })
             .sort(function(a,b){ return Date.parse(b.created_at||0) - Date.parse(a.created_at||0); });
           window.__culMerged = merged;
-          if(typeof applyCulFilters==='function' && (window.__culSignedIn)){
+          /* ⚠ THE FILTER APPLIES TO EVERYONE, SIGNED IN OR NOT (Founder 2026-08-28).
+             This was gated on __culSignedIn: a signed-out visitor went straight to
+             __culRenderRows(merged) and the content-type filter was never applied at all.
+             Measured on production right after the exclusive-feed fix shipped: culContentType
+             was 'video' and the feed still rendered 20 cards, every one of them a non-video —
+             because nothing on the signed-out path ever consulted the filter. Fixing
+             _culTypeMatch alone could not have shown up here; the function was not being called.
+             loadCulRelations() stays signed-in-only (it needs a viewer); the RENDER does not. */
+          if(window.__culSignedIn){
             try{ if(typeof loadCulRelations==='function') loadCulRelations(); }catch(e){}
-            try{ applyCulFilters(); }catch(e){ console.error('[culture] applyCulFilters threw', e); }
+          }
+          if(typeof applyCulFilters==='function'){
+            try{ applyCulFilters(); }
+            catch(e){ console.error('[culture] applyCulFilters threw', e); window.__culRenderRows(merged); }
           } else { window.__culRenderRows(merged); }
           /* SELF-HEAL — Founder 2026-08-20: "the culture page has no content. its empty."
              The signed-in path routes through applyCulFilters(), and if any filter in that chain
