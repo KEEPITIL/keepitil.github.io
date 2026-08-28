@@ -351,6 +351,23 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
    scores (0,4,1) and beat the earlier (0,4,0) attempt — verified in the browser at the time.
    Attribution is NOT lost: the embed itself carries the channel name and links to the video. */
 .fcard.kv-yt .kv-body{display:none!important}
+/* Sticky feed switcher. position:sticky (not fixed) so it occupies real layout space and the
+   first card is never hidden underneath it — the page uses scroll-snap, and a fixed bar over a
+   snapped card would cover the top of every card it lands on. */
+#culTypeBar{position:sticky;top:0;z-index:40;display:grid;grid-auto-flow:column;
+  grid-auto-columns:minmax(0,1fr);gap:8px;padding:10px 0;margin:0 0 10px;
+  background:rgba(10,10,15,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.08)}
+#culTypeBar button{min-width:0;height:38px;border-radius:9px;cursor:pointer;
+  font:800 .68rem/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  color:#c9c2e0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  transition:background .15s,border-color .15s,color .15s}
+#culTypeBar button:hover{background:rgba(192,132,252,.14)}
+#culTypeBar button.on{background:rgba(192,132,252,.18);border-color:#C084FC;color:#fff}
+/* The metrics are the other way in (Founder: "pressing on the metric at the top"). Same three
+   destinations, same order — they drive setCulContentType, they are not a second filter. */
+.stats .stat{cursor:pointer}
+.stats .stat.on b{text-shadow:0 0 18px currentColor}
 /* A Short already fills the screen; the stack below it would be off-screen, so the frame is
    the card and the actions overlay it. */
 .kv-short .kv-body{padding:9px 14px 12px}
@@ -413,9 +430,9 @@ footer a{color:var(--purple)}
   <!-- Order mirrors the filter row exactly: article, photo, video. Metrics that list in a
        different order than the filters beneath them read as two unrelated lists. -->
   <div class="stats">
-    <div class="stat articles"><b id="kA">0</b><span>Articles</span></div>
-    <div class="stat photos"><b id="kP">0</b><span>Photos</span></div>
-    <div class="stat videos"><b id="kV">0</b><span>Videos</span></div>
+    <div class="stat articles" role="button" tabindex="0" onclick="setCulContentType('article')"><b id="kA">0</b><span>Articles</span></div>
+    <div class="stat photos" role="button" tabindex="0" onclick="setCulContentType('image')"><b id="kP">0</b><span>Photos</span></div>
+    <div class="stat videos" role="button" tabindex="0" onclick="setCulContentType('video')"><b id="kV">0</b><span>Videos</span></div>
   </div>
 </header>
 
@@ -443,7 +460,21 @@ footer a{color:var(--purple)}
          feed, which is not a choice worth a control.
          setCulContentType() is kept and still works; it simply has no buttons calling it, so
          restoring this markup restores the feature with no JS change. -->
-    <!-- (no filter bar) -->
+    <!-- ⚠ THE FILTER BAR IS BACK, AND IT STICKS (Founder 2026-08-28: "the only way to access
+         the filters is pressing on the metric at the top of the screen. the filter never locks
+         at the top of the screen").
+         It was removed on 2026-08-18 when it read "Feed | Articles" — two options over one
+         feed. The three feeds are real and distinct now (articles 13 / photos 0 / videos 181,
+         from culture_page_stats), so the control has something to do again.
+         setCulContentType() already targets #culTypeBar button[data-tp] — it was kept live
+         with nothing calling it, exactly so this markup could come back with no JS change.
+         data-tp values are the culContentType vocabulary: article | image | video. The order
+         matches the metric row above it; two lists in different orders read as unrelated. -->
+    <div id="culTypeBar" role="tablist" aria-label="Culture feed">
+      <button type="button" role="tab" data-tp="article" onclick="setCulContentType('article')">Articles</button>
+      <button type="button" role="tab" data-tp="image"   onclick="setCulContentType('image')">Photos</button>
+      <button type="button" role="tab" data-tp="video" class="on" aria-selected="true" onclick="setCulContentType('video')">Videos</button>
+    </div>
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
 
 <!-- ══════════════════════════════════════════════════════════════════════════════════════
@@ -592,7 +623,27 @@ function toggleCulGear(e){if(e){e.stopPropagation();}var m=document.getElementBy
 function _culMark(attr,val){[].forEach.call(document.querySelectorAll('#culGearMenu button['+attr+']'),function(b){b.classList.toggle('on',b.getAttribute(attr)===val);});}
 function setCulType(t){ culType=t; _culMark('data-ct',t); applyCulFilters(); }
 function setCulFilter(f){ culFilter=f; _culMark('data-cf',f); applyCulFilters(); }
-function setCulContentType(t){ culContentType=t; [].forEach.call(document.querySelectorAll('#culTypeBar button'),function(b){b.classList.toggle('on',b.getAttribute('data-tp')===t);}); applyCulFilters(); }
+function setCulContentType(t){
+  culContentType=t;
+  /* ONE setter drives BOTH surfaces. The bar and the metric row are two doors into the same
+     state, not two filters — marking only the bar was how they would drift. */
+  [].forEach.call(document.querySelectorAll('#culTypeBar button'),function(b){
+    var on=b.getAttribute('data-tp')===t;
+    b.classList.toggle('on',on);
+    b.setAttribute('aria-selected',on?'true':'false');
+  });
+  var METRIC={article:'articles',image:'photos',video:'videos'};
+  [].forEach.call(document.querySelectorAll('.stats .stat'),function(el){
+    el.classList.toggle('on', el.classList.contains(METRIC[t]||''));
+  });
+  applyCulFilters();
+}
+/* Keyboard parity for the metric row: it is role="button", so it must answer Enter and Space. */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter' && e.key!==' ') return;
+  var st=e.target && e.target.closest && e.target.closest('.stats .stat'); if(!st) return;
+  e.preventDefault(); if(st.onclick) st.onclick();
+});
 /* K5 — PIX matched nothing.
    It tested kind==='photo'||'image', and profile_content has no such kind: the values are
    post, event and article. So the Pix tab was live in the nav and returned an empty feed,
@@ -600,20 +651,46 @@ function setCulContentType(t){ culContentType=t; [].forEach.call(document.queryS
    lists PIX at 201 while the tab showed zero.
    Takes the whole row now, because "has a picture" is a property of the row, not of its kind. */
 function _culTypeMatch(row){
-  if(culContentType==='all') return true;
-  var k=String((row&&row.kind)||'').toLowerCase();
-  if(culContentType==='article') return k==='article';
-  if(culContentType==='image'){
-    /* data.img ONLY, deliberately. Falling back to data.cover as well matched 252 rows — the
-       201 posts plus 51 events whose cover art happens to be an image. That turns Pix from
-       "pictures people posted" into "anything with a picture attached", which fills a photo
-       feed with event promos. Measured against all 628 live rows: img alone = 201, exactly
-       the figure in the directive. */
-    var d=(row&&row.data)||{};
-    var img=d.img;
-    return typeof img==='string' && img.trim()!=='';
+  /* ⚠ THE THREE FEEDS ARE MUTUALLY EXCLUSIVE (Founder 2026-08-28: "articles needs to only be
+     in the article filter feed / photos only stay on the photo filter feed / videos should be
+     the default feed").
+     THE BUG THIS REPLACES: there was no 'video' branch at all. The function ended in
+     `return true`, so ANY filter other than all/article/image matched every row — and since
+     culContentType defaults to 'video', the default feed was silently "everything". Measured
+     on production at 375px: culContentType==='video' with 133 cards rendered, of which 33 were
+     not videos. Articles and posts were sitting in the video feed for exactly this reason.
+     The tail is now `return false`: an unrecognised filter shows NOTHING rather than
+     everything, so the next filter added here fails loudly instead of leaking every row. */
+  var k  = String((row && row.kind) || '').toLowerCase();
+  var mk = String((row && row.media_kind) || '').toLowerCase();
+  var d  = (row && row.data) || {};
+
+  if(culContentType === 'all') return true;
+
+  if(culContentType === 'article') return k === 'article';
+
+  if(culContentType === 'video'){
+    /* culMediaToRow() maps media_kind 'photo' -> kind 'pixle' and everything else -> 'video',
+       so kind alone separates the two media feeds. embed_url is required as well: a video row
+       with no embed cannot play, and a card that cannot play does not belong in a video feed. */
+    if(k !== 'video') return false;
+    var em = d.embed_url;
+    return typeof em === 'string' && em.trim() !== '';
   }
-  return true;
+
+  if(culContentType === 'image'){
+    /* Exclusivity first — this is the half that was missing. An article or a video row can
+       carry data.img (they all have thumbnails), so the old img-only test pulled both into
+       the photo feed. */
+    if(k === 'article' || k === 'video') return false;
+    /* data.img ONLY, deliberately. Falling back to data.cover as well matched 252 rows — the
+       201 posts plus 51 events whose cover art happens to be an image. That turns the photo
+       feed into "anything with a picture attached", which fills it with event promos. */
+    var img = d.img;
+    return k === 'pixle' || mk === 'photo' || (typeof img === 'string' && img.trim() !== '');
+  }
+
+  return false;
 }
 function applyCulFilters(){
   var box=document.getElementById('community-feed'); if(!box||!window.__culRenderRows) return;
@@ -1594,7 +1671,18 @@ window.culFetchMedia = culFetchMedia;
   function stop(card){
     if(!card) return;
     var well = card.querySelector('.kil-vid-well'); if(!well) return;
-    var f = well.querySelector('iframe'); if(f) f.remove();
+    var f = well.querySelector('iframe');
+    if(f){
+      /* PAUSE FIRST, THEN REMOVE (Founder 2026-08-28: "Pause the prior card when the next
+         becomes active"). Removing the node alone does stop the sound, but on iOS tearing down
+         a playing cross-origin player and mounting the next one in the same frame leaves the
+         new player fighting for the audio session, which is one way it comes up paused on its
+         poster. Telling the outgoing widget to stop first is the orderly handover. */
+      ytCmd(f,'pauseVideo',[]);
+      if(f.__kilReadyTimer){ clearTimeout(f.__kilReadyTimer); f.__kilReadyTimer=null; }
+      f.__kilDead = 1;
+      f.remove();
+    }
     var img = well.querySelector('img'); if(img) img.style.display='block';
     var ov = well.querySelector('.kil-vid-play'); if(ov) ov.style.display='';
   }
@@ -1621,7 +1709,7 @@ window.culFetchMedia = culFetchMedia;
        autoplay does not fall back to muted, it simply never starts. So on any phone where the
        visitor had already tapped once, every video silently failed to play.
        Muted autoplay is always permitted. Start muted, then unMute + setVolume(50) over the
-       postMessage API once the frame is up — see applyVolume(). That is the only sequence that
+       postMessage API once the frame is up — see onReady(). That is the only sequence that
        yields both autoplay AND sound on iOS. */
     var muteFlag = '1';
     f.src = url + (url.indexOf('?')>-1?'&':'?')
@@ -1649,10 +1737,14 @@ window.culFetchMedia = culFetchMedia;
         if(t && t.src){ var pre = new Image(); pre.src = t.src; }
       }
     }catch(e){}
-    /* YouTube ignores commands sent before the player is ready, so wait for load and then
-       retry a couple of times — a single fire-and-forget postMessage is silently dropped
-       often enough that the volume would appear not to work at all. */
-    f.addEventListener('load', function(){ applyVolume(f); });
+    /* ⚠ WAIT FOR PLAYER-READY, NOT FOR iframe 'load' (Founder 2026-08-28: "only after
+       player-ready"). 'load' fires when the document inside the frame has loaded, which is
+       strictly EARLIER than the widget finishing its own handshake — every command sent in
+       that gap is dropped without error. The old code fired playVideo on 'load' and then
+       hoped one of eight retries would land after the widget woke up.
+       The widget announces itself: post {event:'listening'} and it replies with onReady, then
+       infoDelivery messages. beginWhenReady() below drives commands from THAT signal. */
+    f.addEventListener('load', function(){ beginWhenReady(f); });
   }
 
   var VOLUME = 50;
@@ -1660,61 +1752,98 @@ window.culFetchMedia = culFetchMedia;
      videos muted"). Once the visitor has interacted anywhere on the site, every player after
      that mounts UNMUTED from the start rather than mounting muted and being un-muted a beat
      later — which is both faster and more reliable than a postMessage race. */
-  try{ if(sessionStorage.getItem('kil_sound_ok') === '1') window.__kilSoundOK = true; }catch(e){}
+  /* ⚠ DO NOT PRE-ARM SOUND FROM sessionStorage (Founder 2026-08-28: "never call unmute before
+     a user gesture" / "the website mobile version use to auto play the videos but now it
+     doesnt ... but it auto plays on my desktop").
+     THIS LINE WAS THE REGRESSION. It read kil_sound_ok back at load and set __kilSoundOK=true
+     before the visitor had touched THIS document. applyVolume() then fired unMute ~1s into
+     every player. WebKit grants autoplay to a muted player only; un-muting one that has no
+     gesture in its own document revokes that grant and PAUSES it — and a revoked play does not
+     fall back to muted, it just stops. So the first visit of a session worked, and every visit
+     after it (kil_sound_ok now '1') died on a poster frame. Desktop never showed it because
+     Chrome grants autoplay-with-sound on media-engagement rather than per-gesture.
+     A remembered gesture from an earlier page load is NOT a gesture in this one. __kilSoundOK
+     is now set only by armSound(), from a real event in this document. The key is still
+     WRITTEN so other surfaces can read it; it is deliberately never read back to gate unMute. */
   function ytCmd(frame, func, args){
     try{
       frame.contentWindow.postMessage(JSON.stringify({event:'command', func:func, args:args||[]}), '*');
     }catch(e){}
   }
-  function applyVolume(frame){
-    if(!frame) return;
-    var tries = 0;
-    (function push(){
-      /* playVideo too: the frame now always loads muted (see mountVid), and on iOS the widget
-         occasionally comes up paused when it is mounted mid-scroll. Re-asserting play costs
-         nothing when it is already running. */
-      ytCmd(frame,'playVideo',[]);
-      ytCmd(frame,'setVolume',[VOLUME]);
-      /* ⚠ unMute MUST NOT travel in the same burst as playVideo, and MUST NOT fire on the
-         first pass. (Founder 2026-08-25 device QA: "Tap once -> audio comes in at ~50%. but
-         does not auto play.")
-         __kilSoundOK is remembered in sessionStorage, so on every card AFTER the visitor's
-         first tap this sent unMute at frame-load time — before the muted autoplay had
-         actually started. An unmuted player with no gesture against THAT frame is refused by
-         iOS, and a refused play does not fall back to muted, it just sits paused on a poster.
-         The visitor's next tap then supplied the gesture, which is why it always "worked"
-         on tap, at 50%, and never on its own.
-         Muted playback first; unmute only once it is genuinely running (tries>=2, ~1s in).
-         Un-muting a video that is ALREADY playing is permitted once the document has been
-         interacted with, so returning-in-session visitors still get sound — just after the
-         picture is moving rather than instead of it. */
-      if(window.__kilSoundOK && tries >= 2) ytCmd(frame,'unMute',[]);
-      /* 8 x 500ms rather than 4 x 400ms. The widget ignores every command sent before it has
-         finished its own handshake, and a fire-and-forget message is dropped without error —
-         on a cold mobile connection the old 1.6s window closed before the player was listening,
-         so the video played on at the default volume, muted. ~4s covers it. */
-      if(++tries < 8) setTimeout(push, 500);
+  /* ── PLAYER-READY HANDSHAKE ────────────────────────────────────────────────────────────
+     The YouTube widget answers {event:'listening'} with an onReady message on its own origin.
+     We keep poking 'listening' until it replies, because the very first poke often lands
+     before the widget has attached its message handler. Once ready, commands are honoured
+     the first time and the shotgun retry loop is no longer needed. */
+  var READY = [];   /* frames that have answered */
+  window.addEventListener('message', function(ev){
+    if(!/^https?:\/\/(www\.)?youtube(-nocookie)?\.com$/.test(ev.origin)) return;
+    var d = ev.data;
+    if(typeof d === 'string'){ try{ d = JSON.parse(d); }catch(e){ return; } }
+    if(!d || (d.event !== 'onReady' && d.event !== 'infoDelivery' && d.event !== 'initialDelivery')) return;
+    for(var i=0;i<READY.length;i++){
+      var r = READY[i];
+      if(r.frame.contentWindow === ev.source && !r.done){
+        r.done = 1;
+        if(r.frame.__kilReadyTimer){ clearTimeout(r.frame.__kilReadyTimer); r.frame.__kilReadyTimer=null; }
+        if(!r.frame.__kilDead) onReady(r.frame);
+      }
+    }
+  }, false);
+
+  function beginWhenReady(frame){
+    if(!frame || frame.__kilDead) return;
+    var rec = { frame: frame, done: 0 };
+    READY.push(rec);
+    if(READY.length > 8) READY.splice(0, READY.length - 8);   /* one player at a time; bound it */
+    var n = 0;
+    (function poke(){
+      if(rec.done || frame.__kilDead || !document.contains(frame)) return;
+      ytCmd(frame, 'listening', []);
+      /* ~6s of polling. A cold mobile connection can take several seconds to build the widget,
+         and giving up early is what leaves a live card sitting on its poster. */
+      if(++n < 24) frame.__kilReadyTimer = setTimeout(poke, 250);
     })();
   }
+
+  /* The player is genuinely up. Start it MUTED — that is the only state WebKit will autoplay
+     in a cross-origin iframe — and set the volume so the level is already right if and when a
+     gesture later makes sound legal. NO unMute here, ever: at this moment there has been no
+     gesture in this document, and un-muting would revoke the autoplay grant we just used. */
+  function onReady(frame){
+    ytCmd(frame,'mute',[]);
+    ytCmd(frame,'playVideo',[]);
+    ytCmd(frame,'setVolume',[VOLUME]);
+    /* If a gesture ALREADY happened earlier in this page load, sound is legal now — and
+       un-muting a player that is already running is permitted once the document has been
+       interacted with. Deferred one tick so the muted play is genuinely under way first. */
+    if(window.__kilSoundOK){
+      setTimeout(function(){
+        if(frame.__kilDead || !document.contains(frame)) return;
+        ytCmd(frame,'setVolume',[VOLUME]);
+        ytCmd(frame,'unMute',[]);
+      }, 600);
+    }
+  }
+
   /* Sound becomes legal on the first real gesture. Record it, unmute whatever is playing, and
      stop listening — this must not re-run on every tap for the life of the page. */
   function armSound(){
     if(window.__kilSoundOK) return;
     window.__kilSoundOK = true;
+    /* Still written for other surfaces; deliberately never read back to gate unMute — see the
+       DO-NOT-PRE-ARM note above. */
     try{ sessionStorage.setItem('kil_sound_ok','1'); }catch(e){}
     var f = current && current.querySelector('iframe');
-    if(f){
-      /* A gesture has JUST happened, which is exactly the moment iOS permits unmuting a player
-         that is already running — so unmute NOW rather than waiting for applyVolume's deferred
-         tick, which would leave ~1s of silence after the tap and read as "the tap did nothing".
-         The deferral in applyVolume() guards frame-LOAD time, a different moment with no
-         gesture behind it; both are needed and they are not the same rule.
-         Order matters: setVolume before unMute, so the first audible instant is already at 50%
-         rather than at the widget's default. */
+    if(f && !f.__kilDead){
+      /* A gesture has JUST happened, which is exactly the moment WebKit permits un-muting a
+         player that is already running. Order matters: setVolume before unMute, so the first
+         audible instant is already at 50% rather than at the widget's default.
+         playVideo is re-asserted because a player that was paused by an earlier failed attempt
+         will not resume on unMute alone. */
       ytCmd(f,'playVideo',[]);
       ytCmd(f,'setVolume',[VOLUME]);
       ytCmd(f,'unMute',[]);
-      applyVolume(f);   /* keep the retry loop for a widget that was not listening yet */
     }
     /* Uploaded clips are plain <video>, not the YouTube widget, so they need unmuting directly. */
     document.querySelectorAll('.fcard video').forEach(function(v){
