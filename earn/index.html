@@ -103,8 +103,45 @@ a{color:inherit;text-decoration:none}
 .search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:12px;padding:10px 16px}
 .search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--fb);font-size:.95rem;outline:none}
 .search input::placeholder{color:#6b6588}
+/* Search <-> Radio swap. The WRAPPER carries the flex sizing that .search used to carry, so the
+   row's geometry is fixed regardless of which face is showing. */
+.ctl-swap{flex:1;min-width:200px;position:relative}
+.ctl-swap .search{width:100%;min-width:0;transition:opacity .22s ease}
+.ctl-radio{position:absolute;inset:0;display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:12px;padding:0 12px;
+  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility 0s linear .22s}
+body.earn-radiobar .ctl-radio{opacity:1;visibility:visible;pointer-events:auto;
+  transition:opacity .22s ease,visibility 0s}
+body.earn-radiobar .ctl-swap .search{opacity:0;pointer-events:none}
+.ctl-dot{width:8px;height:8px;border-radius:50%;background:#444;flex:0 0 auto;transition:background .2s}
+body.earn-live .ctl-dot{background:var(--brand);box-shadow:0 0 10px var(--brand)}
+.ctl-nav{flex:0 0 auto;width:26px;height:26px;border-radius:8px;cursor:pointer;
+  background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--brand);
+  font:800 1rem/1 Inter,sans-serif}
+.ctl-nav:hover{background:rgba(0,255,136,.16)}
+.ctl-now{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:.82rem;font-weight:700;color:var(--ink);text-align:center}
+@media(prefers-reduced-motion:reduce){
+  .ctl-radio,.ctl-swap .search{transition:opacity .01s linear}
+}
 .count{font-size:.76rem;color:#6b6588;white-space:nowrap}
 @media(max-width:768px){#radCount{display:none!important}}
+/* HOW YOU EARN — four comparable panels. auto-fit so it is 4 / 2 / 1 across without a
+   breakpoint per column count. minmax(0,...) because a long <dd> would otherwise push the
+   track wider than its share and break the grid. */
+.pl-note{color:#8c86a8;font-size:.8rem;line-height:1.5;margin:8px 0 14px;max-width:640px}
+.hye-lead{max-width:820px;color:#cfd6c9;font-size:1rem;line-height:1.6;margin:0 0 20px}
+.hye-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:14px}
+.hye{background:var(--panel);border:1px solid var(--brd);border-radius:14px;padding:18px;
+  backdrop-filter:blur(10px);min-width:0}
+.hye h3{font-family:var(--fh);font-size:1.25rem;letter-spacing:.08em;color:var(--brand);margin:0 0 12px}
+.hye dl{margin:0}
+.hye dt{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#8c86a8;
+  font-weight:800;margin-top:12px}
+.hye dt:first-of-type{margin-top:0}
+.hye dd{margin:4px 0 0;font-size:.9rem;line-height:1.5;color:var(--ink)}
+.hye-foot{max-width:820px;color:#8c86a8;font-size:.82rem;line-height:1.55;margin:18px 0 0}
+@media(max-width:600px){.hye{padding:15px}.hye dd{font-size:.86rem}}
 /* ── PARTNER TILES ─────────────────────────────────────────────────────────────────────
    Same 2:3 shape as every other card on the site, but the art is the card rather than a strip
    inside it. The glyph is oversized and low-contrast so it reads as artwork, not an icon. */
@@ -329,15 +366,111 @@ footer{margin-top:auto}
       <button data-k="create">Create</button>
       <button data-k="earn">Earn</button>
     </div>
-    <div class="search">
-      <span aria-hidden="true">&#128269;</span>
-      <input id="radQ" type="search" placeholder="Search stations by genre…" autocomplete="off">
+    <!-- ⚠ ONE BOX, TWO FACES (Founder 2026-08-28: "Replace only the Search bar with the compact
+         KEEPITIL Radio bar ... Do not shift the rest of the page/header").
+         Both faces live inside #ctlSwap, which keeps the flex slot the search bar already
+         occupied. The radio face is absolutely positioned INSIDE that box, so swapping cannot
+         change the box's width or height and nothing beside it moves. Cross-fade only.
+         The radio face drives the ONE shell player — it listens to `kil-radio-state` and calls
+         __kilRadioSong(). It never constructs a SoundCloud widget: a widget is bound to one
+         playlist for its lifetime, so a second player would immediately disagree with the bar
+         the visitor carries between pages. -->
+    <div id="ctlSwap" class="ctl-swap">
+      <div class="search" id="ctlSearch">
+        <span aria-hidden="true">&#128269;</span>
+        <input id="radQ" type="search" placeholder="Search stations by genre…" autocomplete="off">
+      </div>
+      <div class="ctl-radio" id="ctlRadio" aria-hidden="true">
+        <span class="ctl-dot" id="ctlDot" aria-hidden="true"></span>
+        <button type="button" class="ctl-nav" id="ctlPrev" aria-label="Previous song">&#8249;</button>
+        <span class="ctl-now" id="ctlNow">KEEPITIL RADIO</span>
+        <button type="button" class="ctl-nav" id="ctlNext" aria-label="Next song">&#8250;</button>
+      </div>
     </div>
     <span class="count" id="radCount"></span>
   </div>
 </div>
 
 <main class="wrap">
+
+<!-- ── HOW YOU EARN (Founder 2026-08-28, §4/§29) ────────────────────────────────────────────
+     EARN was a directory of features; this is the layer that explains the system around them.
+     Four paths, each answering the same four questions in the same order, so they can be
+     compared rather than read.
+
+     ⚠ LANGUAGE RULE (§28). Every promise here is KEEPITIL-CONTROLLED INVENTORY: placement,
+     rotation, an article, a feature. Nothing claims outside traffic, virality, followers,
+     sales or third-party collaboration. "Guaranteed KEEPITIL exposure" — never "guaranteed
+     traffic". §30's unset business terms are deliberately ABSENT: no play counts, no partner
+     capacity, no percentages, no dollar figures. Those are Founder decisions and putting a
+     placeholder in customer-facing copy is how a placeholder becomes a promise. -->
+<section id="howyouearn">
+  <div class="sh"><h2>HOW YOU EARN</h2></div>
+  <p class="hye-lead">Submit your work. KEEPITIL puts it in front of people through radio,
+     playlists, articles and features. What the platform earns from partners and royalties
+     funds creator rewards — and more creators bring more audience.</p>
+
+  <div class="hye-grid">
+    <article class="hye">
+      <h3>RADIO</h3>
+      <dl>
+        <dt>What you submit</dt><dd>Your music, with a link to the track.</dd>
+        <dt>How it works</dt><dd>Accepted tracks enter KEEPITIL Radio rotation. There are two
+          levels: standard rotation, and a royalty-partner tier with more scheduled placement.</dd>
+        <dt>What you give</dt><dd>Standard rotation asks nothing. The royalty tier is a
+          participation arrangement — a share of the track's royalties through your existing
+          distribution, agreed in writing.</dd>
+        <dt>What you receive</dt><dd>Guaranteed monthly airtime on KEEPITIL Radio. Royalty
+          partners also receive recurring scheduled rotation, genre playlist placement, chart
+          and leaderboard participation, editorial and review opportunities, artist highlights
+          and promotional assets — for as long as the arrangement is active.</dd>
+      </dl>
+    </article>
+
+    <article class="hye">
+      <h3>PLAYLISTS</h3>
+      <dl>
+        <dt>What you submit</dt><dd>One curated SoundCloud playlist, with a portrait (2:3) cover.</dd>
+        <dt>How it works</dt><dd>SoundCloud stays the source. Edit the playlist there and
+          KEEPITIL plays the change — you never resubmit tracks.</dd>
+        <dt>What you give</dt><dd>Nothing. One playlist per person keeps the wall curated.</dd>
+        <dt>What you receive</dt><dd>Your playlist listed on KEEPITIL and inside the radio
+          playlist ecosystem, where listeners can find and play it. Rotation is offered where
+          scheduling allows; royalty-partner placement comes first.</dd>
+      </dl>
+    </article>
+
+    <article class="hye">
+      <h3>CREATE</h3>
+      <dl>
+        <dt>What you submit</dt><dd>Creative work entered into a KEEPITIL competition.</dd>
+        <dt>How it works</dt><dd>Every valid entry gets exposure — you do not have to win first.</dd>
+        <dt>What you give</dt><dd>Your entry, and accurate credit for who made it.</dd>
+        <dt>What you receive</dt><dd>Placement in Culture, an editorial article built around your
+          work, and discovery through the feed. Winners receive the residency package: continued
+          coverage, featured placement, a winner badge, a permanent record, and participation in
+          the creator reward programme for the residency period.</dd>
+      </dl>
+    </article>
+
+    <article class="hye">
+      <h3>PARTNERS</h3>
+      <dl>
+        <dt>What you submit</dt><dd>Nothing to submit — you take part by referring and sharing.</dd>
+        <dt>How it works</dt><dd>Two separate things, deliberately not mixed. You may earn
+          directly from an eligible referral or affiliate programme. Separately, KEEPITIL puts a
+          share of what it earns from partners into the creator reward pool.</dd>
+        <dt>What you give</dt><dd>Nothing beyond taking part.</dd>
+        <dt>What you receive</dt><dd>Your own referral earnings where a programme applies, and —
+          as a resident or winner — a share of the creator reward pool for your period.</dd>
+      </dl>
+    </article>
+  </div>
+
+  <p class="hye-foot">KEEPITIL guarantees what KEEPITIL controls: placement, rotation, articles
+     and features. How many people listen, watch or follow is down to the audience, and nobody
+     honest promises that.</p>
+</section>
 
 <!-- STATIONS -->
 <!-- KEEPITIL RADIO — four rows (Founder 2026-08-25): name, attribution, live bar, carousel.
@@ -361,11 +494,18 @@ footer{margin-top:auto}
 <!-- PLAYLISTS — title only, no explanatory copy (Founder 2026-08-22). -->
 <section id="playlists">
   <div class="sh"><h2>ADD SOUNDCLOUD PLAYLIST</h2></div>
+  <!-- §14: ONE playlist per user, 2:3 cover, SoundCloud URL, editable. The one-per-user rule is
+       enforced by a unique index on user_playlists(user_id), not by this form — a client-side
+       rule is a suggestion that two tabs or a retried request will walk straight past. The form
+       simply switches between Save and Update depending on what the database already holds. -->
   <div class="pl-form" id="plForm">
     <input id="plName" type="text" placeholder="Playlist name" maxlength="60"/>
     <input id="plUrl" type="url" placeholder="Public SoundCloud URL"/>
-    <button class="btn" onclick="addPlaylist()">&#65291; Save</button>
+    <input id="plArt" type="url" placeholder="Cover image URL (portrait 2:3)"/>
+    <button class="btn" id="plSave" onclick="addPlaylist()">&#65291; Save</button>
   </div>
+  <p class="pl-note" id="plNote">One playlist each. Edit it on SoundCloud and KEEPITIL plays the
+     change — you only come back here to change the link, cover or name.</p>
   <div id="plGate" style="display:none"><a class="btn" href="/apply.html">Sign in to add a playlist</a></div>
   <div class="grid g-cards" id="plList"></div>
 </section>
@@ -680,6 +820,57 @@ function kilMarkActive(i){
   });
 }
 
+/* ── HEADER: SEARCH <-> RADIO (Founder 2026-08-28) ────────────────────────────────────────
+   Near the top   -> Search
+   Scrolled into EARN -> compact Radio bar
+   Back near the top  -> Search again
+
+   The threshold is hysteretic ON PURPOSE. A single switch point makes the bar flip back and
+   forth every frame while the visitor rests near it — the same flicker class as the Culture
+   filter bar. Showing the radio needs 260px; restoring search needs to come back above 180px.
+   The 80px dead band is wider than any momentum wobble. */
+(function(){
+  var SHOW_AT = 260, HIDE_AT = 180;
+  var swap = document.getElementById('ctlSwap'); if(!swap) return;
+  var radio = document.getElementById('ctlRadio');
+  var input = document.getElementById('radQ');
+  var on = false;
+
+  function apply(next){
+    if(next === on) return;
+    on = next;
+    document.body.classList.toggle('earn-radiobar', on);
+    if(radio) radio.setAttribute('aria-hidden', on ? 'false' : 'true');
+    /* A hidden search box must not stay focusable — tabbing into an invisible field is how a
+       keyboard user gets stranded. */
+    if(input) input.tabIndex = on ? -1 : 0;
+  }
+  function check(){
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if(!on && y > SHOW_AT) apply(true);
+    else if(on && y < HIDE_AT) apply(false);
+  }
+  /* While the visitor is actually typing a search, the bar must not be pulled out from under
+     them mid-query no matter how far they scroll. */
+  if(input){
+    input.addEventListener('focus', function(){ swap.dataset.typing = '1'; });
+    input.addEventListener('blur',  function(){ delete swap.dataset.typing; check(); });
+  }
+  window.addEventListener('scroll', function(){
+    if(swap.dataset.typing) return;
+    check();
+  }, {passive:true});
+  check();
+
+  /* Transport drives the ONE shell player. */
+  document.addEventListener('click', function(e){
+    var b = e.target.closest && e.target.closest('#ctlPrev,#ctlNext');
+    if(!b) return;
+    if(typeof window.__kilRadioSong !== 'function') return;
+    window.__kilRadioSong(b.id === 'ctlPrev' ? -1 : 1);
+  });
+})();
+
 /* Row 3's transport. The shell bar is hidden on mobile, so these drive the player directly
    through __kilRadioSong() rather than proxying a click at an element that is not on screen. */
 document.addEventListener('click', function(e){
@@ -704,6 +895,9 @@ document.addEventListener('kil-radio-state', function(e){
   put('krPl',  pl,        '\u2014');
   put('krCur', d.current, pl || '\u2014');
   put('krNxt', d.next,    pl || '\u2014');
+  /* The header radio face reads the SAME broadcast — one player, two displays. */
+  put('ctlNow', d.current ? (pl ? pl + ' \u00b7 ' + d.current : d.current) : pl, 'KEEPITIL RADIO');
+  if(d.current) document.body.classList.add('earn-live');
   if(typeof d.index === 'number') kilMarkActive(d.index);
 });
 
@@ -843,36 +1037,27 @@ function plGate(){
   return signedIn;
 }
 
+/* §14/§15. One row per user, so this is an UPSERT: a second save edits the existing playlist
+   rather than failing against the unique index or creating a duplicate the user cannot see.
+   Tracks are never copied — the SoundCloud URL stays authoritative (§15). */
 function addPlaylist(){
   var h=kilAuthHeaders();
   if(!h){ location.href='/apply.html'; return; }
-  var n=(document.getElementById('plName')||{}).value, u=(document.getElementById('plUrl')||{}).value;
-  n=(n||'').trim(); u=(u||'').trim();
+  var n=((document.getElementById('plName')||{}).value||'').trim();
+  var u=((document.getElementById('plUrl')||{}).value||'').trim();
+  var a=((document.getElementById('plArt')||{}).value||'').trim();
   if(!scValid2(u)){ alert('Paste a public SoundCloud URL.'); return; }
-  /* user_id is NOT sent from the client — the RLS check ties the row to the caller's token, and
-     a client-supplied id would just be a value the policy has to reject anyway. */
-  fetch(PL_API, {method:'POST', headers:h, body:JSON.stringify({name:n||'My playlist', url:u,
-        user_id:(function(){ try{ return JSON.parse(atob(kilTok().split('.')[1])).sub; }catch(e){ return null; } })()})})
+  if(a && !/^https?:\/\//i.test(a)){ alert('The cover must be a full image URL.'); return; }
+  var uid=(function(){ try{ return JSON.parse(atob(kilTok().split('.')[1])).sub; }catch(e){ return null; } })();
+  /* Prefer-resolution merge-duplicates turns the unique index from an error into an update,
+     which is exactly the "user may update their submitted playlist entry" rule. */
+  var hh={}; for(var k in h) hh[k]=h[k];
+  hh['Prefer']='resolution=merge-duplicates,return=representation';
+  fetch(PL_API+'?on_conflict=user_id', {method:'POST', headers:hh,
+        body:JSON.stringify({user_id:uid, name:n||'My playlist', url:u, art:a||null})})
     .then(function(r){ if(!r.ok) throw new Error('save failed '+r.status); return r.json(); })
-    .then(function(){ document.getElementById('plName').value=''; document.getElementById('plUrl').value=''; renderPls(); })
+    .then(function(){ renderPls(); })
     .catch(function(e){ console.error('[earn] playlist save failed', e); alert('Could not save that playlist.'); });
-}
-
-function rmPlaylist(id){
-  var h=kilAuthHeaders(); if(!h) return;
-  fetch(PL_API+'?id=eq.'+encodeURIComponent(id), {method:'DELETE', headers:h})
-    .then(function(){ renderPls(); })
-    .catch(function(e){ console.error('[earn] playlist delete failed', e); });
-}
-
-function setDefaultPlaylist(id){
-  var h=kilAuthHeaders(); if(!h) return;
-  /* One default per user is enforced by a partial unique index, so the old one must be cleared
-     before the new one is set — otherwise the second write is rejected by the database. */
-  fetch(PL_API+'?is_default=eq.true', {method:'PATCH', headers:h, body:JSON.stringify({is_default:false})})
-    .then(function(){ return fetch(PL_API+'?id=eq.'+encodeURIComponent(id), {method:'PATCH', headers:h, body:JSON.stringify({is_default:true})}); })
-    .then(function(){ renderPls(); })
-    .catch(function(e){ console.error('[earn] default failed', e); });
 }
 
 function renderPls(){
@@ -882,6 +1067,17 @@ function renderPls(){
   fetch(PL_API+'?select=id,name,url,art,is_default&order=created_at.asc', {headers:h})
     .then(function(r){ return r.ok?r.json():[]; })
     .then(function(rows){
+      /* Reflect what is already saved: the fields prefill and the button says Update, so a
+         returning user edits their playlist instead of wondering why Save does nothing new. */
+      var have=!!(rows && rows.length);
+      var btn=document.getElementById('plSave'); if(btn) btn.innerHTML=have?'\u2713 Update':'\uFF0B Save';
+      if(have){
+        var r0=rows[0];
+        var fN=document.getElementById('plName'), fU=document.getElementById('plUrl'), fA=document.getElementById('plArt');
+        if(fN && !fN.value) fN.value=r0.name||'';
+        if(fU && !fU.value) fU.value=r0.url||'';
+        if(fA && !fA.value) fA.value=r0.art||'';
+      }
       if(!rows.length){ el.innerHTML=''; return; }
       el.innerHTML=rows.map(function(p,i){
         var hue=[280,200,35,140,320,90][i%6];
