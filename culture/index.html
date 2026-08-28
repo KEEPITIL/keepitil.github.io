@@ -364,6 +364,44 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
   transition:background .15s,border-color .15s,color .15s}
 #culTypeBar button:hover{background:rgba(192,132,252,.14)}
 #culTypeBar button.on{background:rgba(192,132,252,.18);border-color:#C084FC;color:#fff}
+/* ── MOBILE: A TEMPORARY OVERLAY, NOT A STICKY BAR (Founder 2026-08-28) ───────────────────
+   "the filter bar must be fully hidden ... think of it as a temporary navigation overlay".
+
+   position:FIXED, not sticky, and that is the whole point. A sticky bar is IN FLOW: it
+   reserves its own height in the column, so revealing or hiding it would push #community-feed
+   and change where each snap point lands — the card would resize, the media would reflow and
+   the snap would fight the correction. Fixed takes it out of flow entirely, so the bar can
+   come and go without the feed knowing it exists. Card geometry, media size, blank space and
+   scroll-snapping are all untouched by definition, not by careful arithmetic.
+
+   Offsets are the SHELL's measured variables (--kil-safe-top), the same ones the card frame
+   uses — env() reports three different answers for one phone across Safari, the Home Screen
+   PWA and the native wrapper, and this has to sit in the same place in all three.
+
+   Hidden state translates the bar UP by its own height plus the inset, so nothing of it is
+   ever parked on screen. visibility:hidden joins the transition so a hidden bar cannot take
+   a tap; pointer-events alone leaves it hit-testable in some engines mid-transition. */
+@media(max-width:860px){
+  #culTypeBar{
+    position:fixed;top:calc(var(--kil-safe-top,0px) + 8px);left:2%;right:2%;
+    margin:0;padding:8px;border-bottom:0;border-radius:12px;z-index:70;
+    background:rgba(10,10,15,.94);border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 8px 28px rgba(0,0,0,.55);
+    transform:translateY(calc(-100% - var(--kil-safe-top,0px) - 16px));
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:transform .24s ease,opacity .24s ease,visibility 0s linear .24s;
+    will-change:transform}
+  body.cul-fbar #culTypeBar{
+    transform:translateY(0);opacity:1;visibility:visible;pointer-events:auto;
+    transition:transform .24s ease,opacity .24s ease,visibility 0s}
+  #culTypeBar button{height:34px}
+  /* No motion for anyone who asked for none — the bar still appears and hides, it just does
+     not slide. */
+  @media(prefers-reduced-motion:reduce){
+    #culTypeBar{transition:opacity .01s linear,visibility 0s linear .01s;transform:none}
+    body.cul-fbar #culTypeBar{transform:none;transition:opacity .01s linear,visibility 0s}
+  }
+}
 /* The metrics are the other way in (Founder: "pressing on the metric at the top"). Same three
    destinations, same order — they drive setCulContentType, they are not a second filter. */
 .stats .stat{cursor:pointer}
@@ -638,6 +676,67 @@ function setCulContentType(t){
   });
   applyCulFilters();
 }
+/* ── FILTER BAR: DIRECTIONAL OVERLAY, MOBILE ONLY (Founder 2026-08-28) ────────────────────
+   Forward through the feed (finger up, content moves up, scrollTop RISING) -> hide at once.
+   Reversing back toward the top (finger down, scrollTop FALLING)           -> reveal briefly.
+   No interaction within HIDE_MS -> it leaves on its own.
+
+   Desktop is deliberately untouched: the CSS overlay rules live inside @media(max-width:860px)
+   and this controller returns early above that width, so the desktop bar stays the sticky
+   in-flow control it already was.
+
+   The threshold is not decoration. iOS reports sub-pixel scroll deltas during momentum and at
+   the rubber-band limits, and without it a single flick toggles the bar several times — which
+   is the flicker the Founder asked to avoid. 6px is below the smallest deliberate drag and
+   above the noise. */
+(function(){
+  var HIDE_MS = 1800;   /* Founder: "roughly 1.5-2 seconds ... intentional rather than flickering" */
+  var THRESH  = 6;
+  function mob(){ try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; } }
+
+  var bar = null, timer = null;
+  var lastY = window.pageYOffset || document.documentElement.scrollTop || 0;
+
+  function el(){ return bar && document.contains(bar) ? bar : (bar = document.getElementById('culTypeBar')); }
+  function hide(){
+    if(timer){ clearTimeout(timer); timer = null; }
+    document.body.classList.remove('cul-fbar');
+  }
+  function arm(){ if(timer) clearTimeout(timer); timer = setTimeout(hide, HIDE_MS); }
+  function show(){
+    if(!el()) return;
+    document.body.classList.add('cul-fbar');
+    arm();                       /* every reveal restarts the clock */
+  }
+
+  window.addEventListener('scroll', function(){
+    if(!mob()) return;
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    var d = y - lastY;
+    if(Math.abs(d) < THRESH) return;      /* ignore momentum jitter */
+    lastY = y;
+    if(d > 0) hide();                     /* moving forward through the feed */
+    else      show();                     /* reversed, heading back up */
+  }, {passive:true});
+
+  /* Touching the bar means the visitor is using it — do not pull it away mid-decision.
+     Choosing a filter dismisses it, because the choice is made and the feed underneath is
+     what they want to see. */
+  document.addEventListener('pointerdown', function(e){
+    var b = el(); if(!b || !document.body.classList.contains('cul-fbar')) return;
+    if(b.contains(e.target)) arm();
+  }, {passive:true, capture:true});
+  document.addEventListener('click', function(e){
+    var b = el(); if(!b || !b.contains(e.target)) return;
+    if(e.target.closest('button')) setTimeout(hide, 260);   /* let the .on state paint first */
+    else arm();
+  }, true);
+
+  /* A filter chosen from the METRIC row (the other door) happens while the overlay is hidden;
+     nothing to reveal, and nothing to keep open. */
+  window.addEventListener('resize', function(){ if(!mob()) hide(); });
+})();
+
 /* Keyboard parity for the metric row: it is role="button", so it must answer Enter and Space. */
 document.addEventListener('keydown',function(e){
   if(e.key!=='Enter' && e.key!==' ') return;
@@ -747,7 +846,12 @@ function loadCulRelations(){
     var tt=e.changedTouches[0]; var dx=tt.clientX-x0, dy=tt.clientY-y0, dt=Date.now()-t0; x0=null;
     if(dt>700) return; if(Math.abs(dx)<55 || Math.abs(dx)<Math.abs(dy)*1.7) return;
     var bar=document.getElementById('culTypeBar');
-    var vis=bar && getComputedStyle(bar).display!=='none' && bar.offsetParent!==null;
+    /* ⚠ offsetParent IS ALWAYS null FOR A position:fixed ELEMENT, so this test alone reported
+       the mobile overlay as hidden even while it was on screen, and a horizontal swipe fell
+       through to page navigation instead of changing filter. The overlay's own state is the
+       body class; the desktop bar is still in flow and keeps the offsetParent test. */
+    var vis=bar && getComputedStyle(bar).display!=='none' &&
+            (document.body.classList.contains('cul-fbar') || bar.offsetParent!==null);
     if(vis){
       var btns=[].slice.call(bar.querySelectorAll('button')); if(!btns.length) return;
       var ci=0; for(var k=0;k<btns.length;k++){ if(btns[k].classList.contains('on')){ ci=k; break; } }
