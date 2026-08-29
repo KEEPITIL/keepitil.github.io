@@ -6,6 +6,41 @@
   if(window.__kilRadioInit)return;
   window.__kilRadioInit=true;
 
+  /* ── CULTURE OWNS ITS OWN AUDIO (Founder 2026-08-28 §12/§13/§14) ────────────────────────
+     "The only primary surface that should not use the Radio bar or Radio autoplay is CULTURE.
+      Culture VIDEO already owns the active media/audio experience. Do not allow Radio and
+      Culture video to play simultaneously."
+
+     This returns BEFORE the CSS, the bar and the player exist, so on Culture there is no bar,
+     no #kil-sc iframe and no SoundCloud request at all — not a hidden bar or a muted player.
+     Two things that are NOT sufficient on their own and are deliberately not what this does:
+       · hiding the bar with CSS   — the player would still be mounted and audible
+       · pausing after mount       — the audio can be heard before the pause lands, which is
+                                     exactly the collision the Founder is describing
+
+     Matching is on PATH, not on a body class: the class is applied by script that runs later
+     than this file, so a class test would race and lose on a cold load. Covers /culture,
+     /culture/ and /culture/index.html, and the app bundle's own copy of the same page. */
+  var KIL_NO_RADIO = /(^|\/)culture(\/|\/index\.html)?$/i.test(location.pathname.replace(/\/+$/, '/') );
+  if(!KIL_NO_RADIO){
+    /* Belt and braces for the bundled app, where the path can be a file URL. */
+    KIL_NO_RADIO = /\/culture(\/|$)/i.test(location.pathname);
+  }
+  if(KIL_NO_RADIO){
+    window.__kilRadioSuppressed = true;
+    /* Anything already playing from the previous page stops as Culture opens. In the bundled
+       app and on a PJAX navigation the shell survives the page change, so a player mounted on
+       EARN would otherwise keep going underneath a Culture video. */
+    try{
+      var prior = document.getElementById('kil-sc');
+      if(prior) prior.remove();
+      var priorBar = document.getElementById('kil-radio');
+      if(priorBar) priorBar.remove();
+      document.querySelectorAll('body').forEach(function(b){ b.style.paddingBottom=''; });
+    }catch(e){}
+    return;
+  }
+
   // ── Inject CSS ────────────────────────────────────────────────────────────
   var css=document.createElement('style');
   css.setAttribute('data-kil','player');
