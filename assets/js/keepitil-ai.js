@@ -944,7 +944,10 @@
      No second engine, and Culture's no-Radio rule is respected rather than worked around. */
   function choRadio(t) {
     var onCulture = /\/culture(\/|$)/i.test(location.pathname) || window.__kilRadioSuppressed === true;
-    var wantsRadio = /\b(radio|play|playlist|station|song|track|music)\b/i.test(t);
+    /* \bplay\b FAILS against "playing" — the boundary is mid-word — and this gate sits in
+       front of every radio branch, so "what is playing?" was rejected before it could be
+       recognised as a now-playing question at all. */
+    var wantsRadio = /\b(radio|play(s|ing|ed)?|playlist|station|song|track|music)\b/i.test(t);
     if (!wantsRadio) return null;
 
     /* "what is playing" and "what song is on" are as common as "what's playing", and none
@@ -1074,9 +1077,24 @@
     if (r) return Promise.resolve(r);
     return choCompetitions(t).then(function (c) {
       if (c) return c;
+      /* ⚠ SECTION NAMES WIN WHEN THE SUBJECT *IS* THE SECTION.
+         "take me to Culture" was resolving to an EVENT called "Orchestra Noir - Culture 2000
+         Tour II", because the named lookup ran first and an ilike match on the title found it.
+         A bare section name is an unambiguous destination and must not be beaten by a title
+         that merely contains the word. A longer phrase ("open the Culture 2000 article") still
+         falls through to the named lookup, because the subject is then more than the section. */
+      var bare = t.replace(/\b(open|go to|take me to|show me|please|the|to)\b/gi, ' ')
+                  .replace(/[^a-z0-9 ]/gi, ' ').replace(/\s+/g, ' ').trim();
+      if (bare) {
+        for (var b = 0; b < CHO_SECTIONS.length; b++) {
+          if (CHO_SECTIONS[b].re.test(bare) && bare.split(' ').length <= 2) {
+            return choGo(CHO_SECTIONS[b].href, CHO_SECTIONS[b].label);
+          }
+        }
+      }
       return choOpenNamed(t).then(function (o) {
         if (o) return o;
-        /* Plain section navigation, last so it cannot shadow a named lookup. */
+        /* Longer navigation phrases, after the named lookup has had its chance. */
         if (/\b(open|go to|take me to|show me)\b/i.test(t)) {
           for (var i = 0; i < CHO_SECTIONS.length; i++) {
             if (CHO_SECTIONS[i].re.test(t)) return choGo(CHO_SECTIONS[i].href, CHO_SECTIONS[i].label);
