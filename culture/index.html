@@ -292,6 +292,28 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
    a profile card does not, so it takes the house format. */
 .fcard.kv-profile .kil-vid-well{aspect-ratio:2/3!important;max-height:none!important}
 .kv-body{padding:11px 14px 14px}
+/* CREATE stream card. Geometry is the approved Culture card — this only adds the ABOUT block
+   and the interaction row beneath the media, and never touches .kil-vid-well sizing. */
+.kv-create{padding:10px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.kvc-about{margin:0;font-size:.92rem;line-height:1.5;color:#cfd3df;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kvc-more{align-self:flex-start;font-size:.82rem;font-weight:700;color:var(--brand,#00b4ff);
+  text-decoration:none}
+.kvc-more:hover{text-decoration:underline}
+.kvc-acts{display:flex;gap:8px;align-items:center}
+.kvc-vote{flex:1 1 auto;display:flex;align-items:center;justify-content:center;gap:8px;
+  height:40px;border-radius:10px;cursor:pointer;font:800 .8rem Inter,system-ui,sans-serif;
+  letter-spacing:.08em;text-transform:uppercase;color:#cfd3df;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  transition:background .15s,border-color .15s,color .15s}
+.kvc-vote:hover:not(:disabled){background:rgba(192,132,252,.16)}
+.kvc-vote[aria-pressed="true"]{background:#C084FC;border-color:#C084FC;color:#1a0b2e}
+.kvc-vote:disabled{opacity:.55;cursor:not-allowed}
+.kvc-rated{flex:0 0 auto;display:flex;align-items:center;justify-content:center;height:40px;
+  padding:0 14px;border-radius:10px;text-decoration:none;
+  font:800 .8rem Inter,system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;
+  color:#cfd3df;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14)}
+.kvc-rated:hover{background:rgba(255,255,255,.1)}
 .kv-title{display:block;font-family:var(--fs,Inter),sans-serif;font-weight:800;font-size:1.05rem;
   color:#fff;line-height:1.25;text-decoration:none}
 /* ONE ROW: creator on the left, all actions on the right (Founder 2026-08-21 — the icons
@@ -558,6 +580,23 @@ footer a{color:var(--purple)}
            caption = the body text of a written post.  cta = Get Tickets / Vote / Buy. -->
       <div class="kv-caption" data-kv="caption" hidden></div>
       <a class="kv-cta" data-kv="cta" hidden></a>
+      <!-- CREATE stream only (Founder 2026-08-28 §6/§7). Hidden on every other card.
+           ABOUT is an EXTRACT: ~2-3 sentences of the entry description. MORE opens the
+           canonical CREATE entry rather than rendering a second copy of the submission here —
+           the entry page is the source of truth and must not be duplicated into Culture.
+           The vote button is the SAME backend as the CREATE entry experience: it calls the
+           vs_vote RPC and reads vs_entry_totals, so the Culture count, the CREATE count and
+           the leaderboard are one number by construction, not by synchronisation. -->
+      <div class="kv-create" data-kv="createbar" hidden>
+        <p class="kvc-about" data-kv="cabout"></p>
+        <a class="kvc-more" data-kv="cmore" href="#">… More</a>
+        <div class="kvc-acts">
+          <button type="button" class="kvc-vote" data-kv="cvote" aria-pressed="false">
+            <span class="lb">Vote</span><span class="n">0</span>
+          </button>
+          <a class="kvc-rated" data-kv="crated" href="#">Rated</a>
+        </div>
+      </div>
       <!-- ONE ROW: avatar + name on the left, every action on the right. -->
       <div class="kv-row">
         <a class="kv-who" data-kv="creator" target="_blank" rel="noopener">
@@ -1006,6 +1045,24 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
     if((el = q('caption'))){
       if(n.caption){ el.innerHTML = n.caption; el.hidden = false; } else el.remove();
     }
+    /* ── CREATE BAR (§6/§7) ─────────────────────────────────────────────────────────────── */
+    if((el = q('createbar'))){
+      if(n.vsEntryId){
+        el.hidden = false;
+        var ab = el.querySelector('[data-kv="cabout"]');
+        if(ab) ab.textContent = n.about || '';
+        var mo = el.querySelector('[data-kv="cmore"]');
+        /* MORE goes to the CANONICAL entry. Culture shows an extract; it does not hold a
+           second copy of the submission (§6). */
+        if(mo) mo.setAttribute('href', '/create/?view=entry&e=' + n.vsEntryId);
+        var ra = el.querySelector('[data-kv="crated"]');
+        if(ra) ra.setAttribute('href', '/create/?view=entry&e=' + n.vsEntryId + '#leaderboard');
+        var vb = el.querySelector('[data-kv="cvote"]');
+        if(vb) vb.setAttribute('data-entry', n.vsEntryId);
+      } else {
+        el.remove();
+      }
+    }
     if((el = q('cta'))){
       if(n.cta){
         el.hidden = false;
@@ -1099,6 +1156,28 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
             meta:[cd.competition||'CREATE', cd.division, closes?((votingOpen?'Voting closes ':'Closes ')+closes):''].filter(Boolean).join(' \u00b7 '),
             cta:{label:(votingOpen?'\ud83d\uddf3 Vote on this entry':'View entry'), href:cd.vote_url||'/create/',
                  bg:(votingOpen?'#ff5c8a':'rgba(255,255,255,.08)'), fg:(votingOpen?'#1a0410':'#9aa')} };
+
+    } else if(r.kind==='create'){
+      /* CREATE STREAM CARD (Founder 2026-08-28 §5/§6). Same approved Culture geometry — this
+         branch only chooses what fills it. The media is the submitted work; ABOUT is an
+         extract; the full submission stays on the canonical entry page. */
+      var cd=r.data||{}, cmeta=r.vs_meta||{};
+      var cwhen=''; try{var ct=new Date(r.created_at); if(!isNaN(ct)) cwhen=ct.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
+      /* ~2-3 sentences. Split on sentence ends rather than a character count so the extract
+         never stops mid-word or mid-clause; the CSS line-clamp is the visual backstop. */
+      var full = String(r.vs_description || cd.description || '').trim();
+      var sent = full.match(/[^.!?]+[.!?]+(\s|$)/g);
+      var about = sent ? sent.slice(0,3).join('').trim() : full.slice(0,240);
+      n = { pid:r.id, href:'/create/?view=entry&e='+r.vs_entry_id, external:false,
+            thumb:cd.img||cd.cover||'/assets/images/blog-default.jpg',
+            aspect:'2/3', maxH:'',
+            badge:'CREATE',
+            title:r.title||'Untitled',
+            name:r.author_name||'Unknown creator', avatar:cd.avatar||r.author_avatar,
+            creatorHref:'/create/?view=entry&e='+r.vs_entry_id,
+            meta:(cmeta.competition_slug ? String(cmeta.competition_slug).replace(/-/g,' ').toUpperCase() : 'KEEPITIL CREATE')+(cwhen?' \u00b7 '+cwhen:''),
+            provider:'', embed:'', isShort:false,
+            vsEntryId:r.vs_entry_id, about:about };
 
     } else if(r.kind==='video' || r.kind==='pixle'){
       var vd=r.data||{};
@@ -1655,6 +1734,10 @@ function culMediaToRow(v){
     kind: v.related_vs_entry_id ? 'create' : (v.media_kind === 'photo' ? 'pixle' : 'video'),
     media_kind: v.media_kind,
     vs_entry_id: v.related_vs_entry_id || null,
+    /* Kept so the card can show the ABOUT extract. The FULL submission is NOT copied here —
+       MORE opens the canonical entry page, which stays the single source of truth (§6). */
+    vs_description: v.description || '',
+    vs_meta: v.metadata || {},
     title: v.title,
     created_at: v.published_at,
     archived: false,
@@ -2295,7 +2378,69 @@ function culResolveFilters(){
   function closeM(){var m=document.getElementById('culModal');if(m)m.remove();}
   window.__culCloseM=closeM;
   function hydrate(){if(!SB)return;var cards=[].slice.call(document.querySelectorAll('.fbcard[data-pid]'));var keys=cards.map(function(c){return c.getAttribute('data-pid');}).filter(function(v,i,a){return v&&a.indexOf(v)===i;});if(!keys.length)return;var uid=SES&&SES.user?SES.user.id:null;keys.forEach(function(k){var s=pst(k);s.likes=0;s.liked=false;s.resh=0;s.reshared=false;s.comments=0;});SB.from('post_likes').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.likes++;if(uid&&x.user_id===uid)s.liked=true;}});keys.forEach(paint);}});SB.from('post_reshares').select('post_key,user_id').in('post_key',keys).then(function(r){if(r&&r.data){r.data.forEach(function(x){var s=PST[x.post_key];if(s){s.resh++;if(uid&&x.user_id===uid)s.reshared=true;}});keys.forEach(paint);}});}
-  window.__culHydrate=hydrate;
+  /* ── CREATE VOTING IN CULTURE (Founder 2026-08-28 §7) ──────────────────────────────────
+     "Reuse the current CREATE vote source. Do not create Culture-specific vote records."
+
+     This calls the SAME two RPCs the CREATE entry page calls — vs_vote to record and
+     vs_entry_totals to read back — so the Culture count, the CREATE count and the leaderboard
+     are ONE number by construction. There is no Culture vote table, no local tally and no
+     optimistic count that could drift from the backend.
+
+     Every rule stays server-side: authentication, one vote per person, the voting window, the
+     competition state and the no-self-vote rule are all enforced by vs_vote. The client shows
+     the server's own refusal reason rather than guessing, because a client that predicts the
+     rule will eventually predict it wrong.
+
+     unique_voters is the number rendered — it counts PEOPLE, so pressing several things cannot
+     inflate it. */
+  function culBindCreateVotes(){
+    [].forEach.call(document.querySelectorAll('.kvc-vote[data-entry]:not([data-bound])'), function(btn){
+      btn.setAttribute('data-bound','1');
+      var entryId = Number(btn.getAttribute('data-entry'));
+      if(!entryId) return;
+
+      /* Paint the real total on arrival so the card never shows a placeholder count. */
+      if(SB){
+        SB.rpc('vs_entry_totals', { p_entry: entryId }).then(function(t){
+          var tot=(t&&t.data)||{}; var nEl=btn.querySelector('.n');
+          if(nEl) nEl.textContent = tot.unique_voters || 0;
+        }).catch(function(){});
+      }
+
+      btn.onclick = function(){
+        if(!SB) return;
+        if(!SES){
+          /* Voting requires a real account; say so rather than failing silently. */
+          location.href = '/apply.html?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        var wasVoted = btn.getAttribute('aria-pressed') === 'true';
+        btn.disabled = true;
+        SB.rpc('vs_vote', { p_entry: entryId, p_action: 'like', p_desired: !wasVoted })
+          .then(function(r){ if(r.error) throw r.error;
+                             return SB.rpc('vs_entry_totals', { p_entry: entryId }); })
+          .then(function(t){
+            var tot=(t&&t.data)||{};
+            btn.setAttribute('aria-pressed', String(!wasVoted));
+            var nEl=btn.querySelector('.n');
+            if(nEl) nEl.textContent = tot.unique_voters || 0;
+            btn.disabled = false;
+          })
+          .catch(function(ex){
+            btn.disabled = false;
+            /* The server's reason, not ours. */
+            try{ console.warn('[culture] vote refused:', ex && ex.message); }catch(e){}
+            var lb = btn.querySelector('.lb'); if(!lb) return;
+            var prev = lb.textContent;
+            lb.textContent = (ex && ex.message) ? String(ex.message).slice(0,28) : 'Not allowed';
+            setTimeout(function(){ lb.textContent = prev; }, 2600);
+          });
+      };
+    });
+  }
+  window.__culBindCreateVotes = culBindCreateVotes;
+
+  window.__culHydrate=function(){ try{ hydrate(); }catch(e){} try{ culBindCreateVotes(); }catch(e){} };
   var _rf=window.renderFeed;if(typeof _rf==='function'){window.renderFeed=function(){_rf.apply(this,arguments);setTimeout(hydrate,30);};}
   (function boot(n){if(!window.supabase){if(n<40)setTimeout(function(){boot(n+1);},350);return;}try{SB=window.__culSB||(window.__culSB=window.supabase.createClient('https://ovmqtzjfpzrbzrlkxwgw.supabase.co',ANON));SB.auth.getSession().then(function(r){SES=(r&&r.data)?r.data.session:null;hydrate();});SB.auth.onAuthStateChange(function(_e,s){SES=s;hydrate();});}catch(e){}})(0);
 })();
