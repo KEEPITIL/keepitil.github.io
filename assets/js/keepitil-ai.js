@@ -1061,8 +1061,13 @@
     window.__kiloApplyAuthRows = kiloApplyAuthRows;
     close.addEventListener('click', closePanel);
 
-    // Close on outside click
+    // Close on outside click.
+    // ⚠ THE OPTIONS MENU COUNTS AS INSIDE. Chat is launched FROM that menu, which lives outside
+    // the panel — so without this test the same click opened the panel and then immediately
+    // closed it again, and Chat appeared not to work at all. Measured: chatOpen=false right
+    // after clicking Chat.
     document.addEventListener('click', function(e) {
+      if (optMenu && optMenu.contains(e.target)) return;
       if (isOpen && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
         closePanel();
       }
