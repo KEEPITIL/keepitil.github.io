@@ -947,7 +947,11 @@
     var wantsRadio = /\b(radio|play|playlist|station|song|track|music)\b/i.test(t);
     if (!wantsRadio) return null;
 
-    if (/\b(what'?s|which|current(ly)?)\b.*\b(play|song|track|on)\b/i.test(t) || /\bnow playing\b/i.test(t)) {
+    /* "what is playing" and "what song is on" are as common as "what's playing", and none
+       of them matched: the leading term required the contraction, and \bplay\b fails
+       mid-word against "playing". All nine phrasings are asserted in the commit. */
+    if (/\b(what'?s?|which|current(ly)?)\b[\s\S]*\b(play(s|ing|ed)?|song|track|on)\b/i.test(t)
+        || /\bnow playing\b/i.test(t)) {
       if (onCulture) return { title: 'Radio is off on Culture', text: 'Culture video owns the sound here, so the radio is not running. Ask me on EARN and I will tell you what is playing.' };
       var trackEl = document.getElementById('kil-track');
       var plEl = document.getElementById('kr-nowpl');
