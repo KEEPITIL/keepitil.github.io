@@ -465,11 +465,11 @@ footer a{color:var(--purple)}
   <div class="hero-head">
     <h1>CULTURE</h1>
   </div>
-  <!-- Order mirrors the filter row exactly: article, photo, video. Metrics that list in a
+  <!-- Order mirrors the filter row exactly: article, create, video. Metrics that list in a
        different order than the filters beneath them read as two unrelated lists. -->
   <div class="stats">
     <div class="stat articles" role="button" tabindex="0" onclick="setCulContentType('article')"><b id="kA">0</b><span>Articles</span></div>
-    <div class="stat photos" role="button" tabindex="0" onclick="setCulContentType('image')"><b id="kP">0</b><span>Photos</span></div>
+    <div class="stat photos" role="button" tabindex="0" onclick="setCulContentType('create')"><b id="kP">0</b><span>Create</span></div>
     <div class="stat videos" role="button" tabindex="0" onclick="setCulContentType('video')"><b id="kV">0</b><span>Videos</span></div>
   </div>
 </header>
@@ -510,7 +510,7 @@ footer a{color:var(--purple)}
          matches the metric row above it; two lists in different orders read as unrelated. -->
     <div id="culTypeBar" role="tablist" aria-label="Culture feed">
       <button type="button" role="tab" data-tp="article" onclick="setCulContentType('article')">Articles</button>
-      <button type="button" role="tab" data-tp="image"   onclick="setCulContentType('image')">Photos</button>
+      <button type="button" role="tab" data-tp="create"  onclick="setCulContentType('create')">Create</button>
       <button type="button" role="tab" data-tp="video" class="on" aria-selected="true" onclick="setCulContentType('video')">Videos</button>
     </div>
     <div class="feed" id="community-feed" style="margin-bottom:12px"></div>
@@ -670,7 +670,8 @@ function setCulContentType(t){
     b.classList.toggle('on',on);
     b.setAttribute('aria-selected',on?'true':'false');
   });
-  var METRIC={article:'articles',image:'photos',video:'videos'};
+  /* .stat.photos keeps its CLASS (it is a colour hook) but now means CREATE. */
+  var METRIC={article:'articles',create:'photos',video:'videos'};
   [].forEach.call(document.querySelectorAll('.stats .stat'),function(el){
     el.classList.toggle('on', el.classList.contains(METRIC[t]||''));
   });
@@ -785,23 +786,22 @@ function _culTypeMatch(row){
 
   if(culContentType === 'video'){
     /* culMediaToRow() maps media_kind 'photo' -> kind 'pixle' and everything else -> 'video',
-       so kind alone separates the two media feeds. embed_url is required as well: a video row
-       with no embed cannot play, and a card that cannot play does not belong in a video feed. */
+       so kind alone separates the media feeds. embed_url is required as well: a video row with
+       no embed cannot play, and a card that cannot play does not belong in a video feed.
+       CREATE work is excluded even when it is a video — it has its own stream now. */
     if(k !== 'video') return false;
     var em = d.embed_url;
     return typeof em === 'string' && em.trim() !== '';
   }
 
-  if(culContentType === 'image'){
-    /* Exclusivity first — this is the half that was missing. An article or a video row can
-       carry data.img (they all have thumbnails), so the old img-only test pulled both into
-       the photo feed. */
-    if(k === 'article' || k === 'video') return false;
-    /* data.img ONLY, deliberately. Falling back to data.cover as well matched 252 rows — the
-       201 posts plus 51 events whose cover art happens to be an image. That turns the photo
-       feed into "anything with a picture attached", which fills it with event promos. */
-    var img = d.img;
-    return k === 'pixle' || mk === 'photo' || (typeof img === 'string' && img.trim() !== '');
+  if(culContentType === 'create'){
+    /* ⚠ CREATE REPLACED PHOTO (Founder 2026-08-28 §2/§5): "Culture now has exactly three
+       content filters: ARTICLE · CREATE · VIDEO. Remove PHOTO."
+       A CREATE item is submitted creative work tied to a valid CREATE entry — identified by
+       the entry relationship, never by "it happens to be an image". That distinction is the
+       whole point: ordinary profile photos and stray Culture images must not appear here.
+       Legacy photo rows are NOT deleted (§2) — they simply no longer have a surface. */
+    return k === 'create' && !!row.vs_entry_id;
   }
 
   return false;
@@ -1650,8 +1650,11 @@ window.__culMediaRows = window.__culMediaRows || [];
 function culMediaToRow(v){
   return {
     id: 'media-' + v.id,
-    kind: v.media_kind === 'photo' ? 'pixle' : 'video',
+    /* A row carrying a CREATE entry is create-work regardless of its media_kind — the
+       submission may be an image or a video and it belongs in CREATE either way. */
+    kind: v.related_vs_entry_id ? 'create' : (v.media_kind === 'photo' ? 'pixle' : 'video'),
     media_kind: v.media_kind,
+    vs_entry_id: v.related_vs_entry_id || null,
     title: v.title,
     created_at: v.published_at,
     archived: false,
@@ -1788,7 +1791,9 @@ function culFetchMedia(sb){
      than the only gate — but an unapproved or dead embed must never reach a surface even if a
      policy is later loosened. */
   return sb.from('videos')
-    .select('id,provider,media_kind,title,creator_name,creator_profile_url,source_url,embed_url,thumbnail_url,published_at,own_content,is_short')
+    /* related_vs_entry_id is what makes a row CREATE work (Founder 2026-08-28 §5). It is the
+       existing relationship — no second CREATE->Culture model, no duplicated submission. */
+    .select('id,provider,media_kind,title,creator_name,creator_profile_url,source_url,embed_url,thumbnail_url,published_at,own_content,is_short,related_vs_entry_id,description,metadata')
     .eq('review_status','approved').eq('embed_status','active')
     .order('published_at',{ascending:false}).limit(100)
     .then(function(r){
