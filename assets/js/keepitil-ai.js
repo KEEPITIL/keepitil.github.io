@@ -405,6 +405,34 @@
       '#kilo-hname{font-size:.78rem;font-weight:800;letter-spacing:.12em;',
       "color:#e8e8f0;font-family:'Bebas Neue','Inter',sans-serif;font-size:1rem;line-height:1;}",
       '#kilo-hsub{font-size:.68rem;color:#00b4ff;letter-spacing:.06em;margin-top:1px;}',
+      /* ── CHO SHELL (§24/§46/§47/§48) ───────────────────────────────────────────────────
+         Two locked rows, a scrolling conversation, a pinned composer. The panel is a flex
+         column and ONLY #kilo-msgs is allowed to scroll — that is what keeps the header from
+         drifting and the composer from being pushed off-screen when the keyboard opens. */
+      '#kilo-panel{display:flex;flex-direction:column;}',
+      '#kilo-header{flex:0 0 auto;}',
+      '#kilo-msgs{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}',
+      '#kilo-input-row{flex:0 0 auto;}',
+      '#kilo-row1{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 6px;}',
+      '#kilo-hname{font:800 .95rem/1 Inter,system-ui,sans-serif;letter-spacing:.14em;color:#fff;}',
+      '#kilo-row2{display:flex;gap:8px;padding:0 12px 10px;}',
+      '.kilo-r2{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;',
+        'height:34px;border-radius:9px;text-decoration:none;',
+        'font:800 .68rem Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;',
+        'color:#cfd3df;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);}',
+      '.kilo-r2:hover{background:rgba(0,180,255,.16);color:#fff;}',
+      /* ── OPTIONS MENU (§25) ─────────────────────────────────────────────────────────────
+         Anchored to the launcher, above it, so it never covers the bottom navigation. */
+      '#kilo-options{position:fixed;bottom:112px;right:24px;z-index:99999;display:flex;',
+        'flex-direction:column;gap:6px;padding:8px;border-radius:12px;min-width:150px;',
+        'background:rgba(16,16,26,.98);border:1px solid rgba(255,255,255,.12);',
+        'box-shadow:0 10px 34px rgba(0,0,0,.6);backdrop-filter:blur(12px);}',
+      '#kilo-options a,#kilo-options button{display:flex;align-items:center;justify-content:center;',
+        'height:38px;border-radius:9px;cursor:pointer;text-decoration:none;',
+        'font:800 .7rem Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;',
+        'color:#cfd3df;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);}',
+      '#kilo-options a:hover,#kilo-options button:hover{background:rgba(0,180,255,.18);color:#fff;}',
+      '@media(max-width:480px){#kilo-options{right:16px;bottom:112px;}}',
       '#kilo-close{background:none;border:none;cursor:pointer;color:#666;',
       'width:28px;height:28px;display:flex;align-items:center;justify-content:center;',
       'border-radius:50%;transition:background .15s,color .15s;padding:0;}',
@@ -499,11 +527,17 @@
     // Button
     var btn = document.createElement('button');
     btn.id = 'kilo-btn';
-    btn.setAttribute('aria-label', 'Open KEEPITIL AI Assistant');
+    /* §42: the global launcher is no longer a Chat-only button. It opens OPTIONS, of which
+       Chat is one entry — so a speech bubble would misdescribe what it does. Three bars is the
+       conventional menu glyph and needs no explanation. */
+    btn.setAttribute('aria-label', 'Options');
+    btn.setAttribute('aria-haspopup', 'menu');
+    btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = [
       '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">',
-        '<path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>',
-        '<circle cx="8.5" cy="11" r="1.5"/><circle cx="12" cy="11" r="1.5"/><circle cx="15.5" cy="11" r="1.5"/>',
+        '<rect x="3" y="5"  width="18" height="2" rx="1"/>',
+        '<rect x="3" y="11" width="18" height="2" rx="1"/>',
+        '<rect x="3" y="17" width="18" height="2" rx="1"/>',
       '</svg>',
       '<span id="kilo-badge" style="display:none">1</span>',
     ].join('');
@@ -514,20 +548,21 @@
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Echo — KEEPITIL AI Assistant');
     panel.innerHTML = [
+      /* §24/§45/§46/§47/§49 — TWO LOCKED ROWS, NO AGENT LANDING HEADER.
+         ROW 1  CHO far left, X far right.
+         ROW 2  LOGIN when signed out; PROFILE + CREATE when signed in.
+         The oversized avatar and the sub-title are gone: on a phone they consumed the top of
+         the screen for decoration while the conversation — the actual content — was pushed
+         below the fold. Row 2's buttons are rebuilt by kiloApplyAuthRows() rather than being
+         chosen here, so the shell is identical in both states and only its contents change. */
       '<div id="kilo-header">',
-        '<div id="kilo-avatar">',
-          '<svg viewBox="0 0 24 24"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.49 1.36 4.73 3.5 6.25V21l3.5-2.25c.96.26 1.97.4 3 .4 5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/></svg>',
+        '<div id="kilo-row1">',
+          '<span id="kilo-hname">CHO</span>',
+          '<button id="kilo-close" aria-label="Close chat">',
+            '<svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+          '</button>',
         '</div>',
-        '<div id="kilo-hinfo">',
-          '<div id="kilo-hname">Echo</div>',
-          '<div id="kilo-hsub" style="display:none"></div>',
-        '</div>',
-        '<button id="kilo-fb" aria-label="Send feedback" title="Send feedback">',
-          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-        '</button>',
-        '<button id="kilo-close" aria-label="Close">',
-          '<svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-        '</button>',
+        '<div id="kilo-row2"></div>',
       '</div>',
       '<div id="kilo-msgs"></div>',
       '<div id="kilo-input-row">',
@@ -925,15 +960,19 @@
 
     function openPanel() {
       isOpen = true;
+      kiloApplyAuthRows();
       panel.classList.add('open');
       document.body.classList.add('kilo-open');
       badge.style.display = 'none';
       input.focus();
       // Welcome message on first open
       if (!msgs.hasChildNodes()) {
+        /* §50: the old greeting described KEEPITIL as a SoCal music guide. The product is an
+           events + creators + competitions + culture + radio ecosystem and the data no longer
+           supports that framing, so the copy stops claiming it. */
         addMessage('bot', {
-          title: 'Hey 👋 I\'m Echo',
-          text: 'Your KEEPITIL guide to the SoCal music scene. Ask me about events, booking artists, organizing, brand partnerships, DJ tips, music history — whatever you need.',
+          title: 'CHO',
+          text: 'I can find events, open creator profiles and articles, show you what you can enter on CREATE, play KEEPITIL Radio and help you submit work. What do you need?',
           chips: WELCOME_CHIPS,
         });
         renderWelcomeActions();
@@ -975,9 +1014,51 @@
       document.body.classList.remove('kilo-open');
     }
 
-    btn.addEventListener('click', function() {
-      if (isOpen) closePanel(); else openPanel();
+    /* ── OPTIONS MENU (§25/§43/§44) ────────────────────────────────────────────────────────
+       Signed out: LOGIN · CHAT      Signed in: PROFILE · CHAT
+       Built on every open, not once at boot: a visitor can sign in without a reload, and a
+       menu cached at boot would keep offering LOGIN to someone who is already signed in. */
+    var optMenu = null;
+    function closeOptions(){
+      if(optMenu){ optMenu.remove(); optMenu = null; }
+      btn.setAttribute('aria-expanded','false');
+    }
+    function openOptions(){
+      closeOptions();
+      var signed = kilSignedIn();
+      optMenu = document.createElement('div');
+      optMenu.id = 'kilo-options';
+      optMenu.setAttribute('role','menu');
+      var first = signed
+        ? '<a role="menuitem" href="/profile.html">Profile</a>'
+        : '<a role="menuitem" href="/apply.html">Login</a>';
+      optMenu.innerHTML = first + '<button role="menuitem" type="button" data-opt="chat">Chat</button>';
+      document.body.appendChild(optMenu);
+      btn.setAttribute('aria-expanded','true');
+      optMenu.querySelector('[data-opt="chat"]').addEventListener('click', function(){
+        closeOptions(); openPanel();
+      });
+    }
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (isOpen) { closePanel(); return; }
+      if (optMenu) closeOptions(); else openOptions();
     });
+    document.addEventListener('click', function(e){
+      if (optMenu && !optMenu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) closeOptions();
+    }, true);
+
+    /* ── ROW 2 (§46/§47) ───────────────────────────────────────────────────────────────────
+       Rebuilt every time the panel opens, for the same reason the menu is. */
+    function kiloApplyAuthRows(){
+      var row = document.getElementById('kilo-row2');
+      if(!row) return;
+      row.innerHTML = kilSignedIn()
+        ? '<a class="kilo-r2" href="/profile.html">Profile</a>'
+          + '<a class="kilo-r2" href="/create/">Create</a>'
+        : '<a class="kilo-r2" href="/apply.html">Login</a>';
+    }
+    window.__kiloApplyAuthRows = kiloApplyAuthRows;
     close.addEventListener('click', closePanel);
 
     // Close on outside click
