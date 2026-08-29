@@ -222,6 +222,43 @@
       + '&hide_related=true&continuous_play=true&single_active=false';
   };
 
+  /* ── MOBILE: PLAYBACK EVERYWHERE ELIGIBLE, VISIBLE BAR ONLY ON EARN (Founder §5) ─────────
+     DISCOVER / CONNECT / CREATE may play but must not show a persistent bar; EARN shows one;
+     CULTURE has neither (handled by the KIL_NO_RADIO gate at the top of this file).
+
+     The docked bar is therefore hidden on EVERY mobile page. That is not a shortcut — EARN's
+     visible control on mobile is its own in-section bar (#krBar), and earn/index.html already
+     hides the docked bar there for exactly that reason. So "hide the docked bar on mobile"
+     produces precisely the required matrix without a per-page allowlist that would have to be
+     maintained every time a page is added.
+
+     HIDING THE BAR MUST NOT STOP THE AUDIO. The player is #kil-sc, a separate element; the bar
+     is only its display. Hiding one does not touch the other — which is the whole reason
+     playback can continue on a page with no bar.
+     body padding-bottom is released too, or every mobile page would reserve 40px for a bar that
+     is not there. */
+  (function(){
+    function isMobileRadio(){
+      try{ return window.matchMedia('(max-width:860px)').matches; }catch(e){ return false; }
+    }
+    function applyBarVisibility(){
+      var bar = document.getElementById('kil-radio');
+      if(!bar) return;
+      var mob = isMobileRadio();
+      bar.style.display = mob ? 'none' : '';
+      document.body.style.paddingBottom = mob ? '' : '';
+      /* The 40px reservation comes from the injected `body{padding-bottom:40px}` rule. On
+         mobile that rule is neutralised by an inline override rather than by editing the
+         stylesheet, so desktop is untouched. */
+      if(mob) document.body.style.setProperty('padding-bottom','0px','important');
+      else    document.body.style.removeProperty('padding-bottom');
+    }
+    window.__kilApplyRadioBarVisibility = applyBarVisibility;
+    if(document.readyState !== 'loading') setTimeout(applyBarVisibility, 0);
+    else document.addEventListener('DOMContentLoaded', applyBarVisibility);
+    window.addEventListener('resize', applyBarVisibility);
+  })();
+
   // ── Radio init ────────────────────────────────────────────────────────────
   var radio=document.getElementById('kil-radio');
   var frame=document.getElementById('kil-sc');
