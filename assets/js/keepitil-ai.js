@@ -906,11 +906,194 @@
   }
 
   // ── Handle a query: agent first for members, then brain, Gemini, canned ─────
+  /* ══ CHO AGENT TOOLS ══════════════════════════════════════════════════════════════════════
+     Founder 2026-08-28 §1/§2/§7: CHO turns intent into real KEEPITIL actions.
+
+     THESE RUN BEFORE THE MODEL, DELIBERATELY. Navigation and Radio are DETERMINISTIC — "play
+     EDM" has exactly one correct outcome, and routing it through a language model adds latency,
+     cost and a chance of a wrong answer to a question that has a right one. It also means these
+     tools keep working when NEXUS is unavailable, which it currently is, and for signed-out
+     visitors, who have no session to invoke agent-tool-invoke with.
+     Anything this layer does not recognise falls through untouched to the existing agent/brain
+     chain, so nothing that worked before stops working.
+
+     SAFETY CLASSES (§7): everything here is DIRECT — navigate, open, report, play. Not one of
+     these functions writes. Consequential writes live behind explicit confirmation elsewhere. */
+  var CHO_SECTIONS = [
+    { re: /\b(culture)\b/i,                       href: '/culture/',      label: 'Culture' },
+    { re: /\b(earn|radio page|royalt|playlist page)\b/i, href: '/earn/',   label: 'EARN' },
+    { re: /\b(connect|creators?|directory|artists?)\b/i, href: '/connect/', label: 'CONNECT' },
+    { re: /\b(create|competition|contest|compete|enter|submit)\b/i, href: '/create/', label: 'CREATE' },
+    { re: /\b(discover|home ?page|events?)\b/i,   href: '/',              label: 'DISCOVER' }
+  ];
+
+  function choGo(href, label, why) {
+    /* Navigation is a DIRECT action (§7) — no confirmation for simply moving the user. */
+    setTimeout(function(){ try{ location.href = href; }catch(e){} }, 450);
+    return { title: 'Opening ' + label, text: why || ('Taking you to ' + label + '…') };
+  }
+
+  function choRest(path) {
+    return fetch(KIL_SUPA_URL + '/rest/v1/' + path, {
+      headers: { apikey: KIL_SUPA_ANON, Authorization: 'Bearer ' + KIL_SUPA_ANON }
+    }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  }
+
+  /* ── RADIO (§2) ─────────────────────────────────────────────────────────────────────────
+     Drives the ONE existing player through the functions keepitil-radio.js already exposes.
+     No second engine, and Culture's no-Radio rule is respected rather than worked around. */
+  function choRadio(t) {
+    var onCulture = /\/culture(\/|$)/i.test(location.pathname) || window.__kilRadioSuppressed === true;
+    var wantsRadio = /\b(radio|play|playlist|station|song|track|music)\b/i.test(t);
+    if (!wantsRadio) return null;
+
+    if (/\b(what'?s|which|current(ly)?)\b.*\b(play|song|track|on)\b/i.test(t) || /\bnow playing\b/i.test(t)) {
+      if (onCulture) return { title: 'Radio is off on Culture', text: 'Culture video owns the sound here, so the radio is not running. Ask me on EARN and I will tell you what is playing.' };
+      var trackEl = document.getElementById('kil-track');
+      var plEl = document.getElementById('kr-nowpl');
+      var track = trackEl ? (trackEl.textContent || '').trim() : '';
+      var pl = plEl ? (plEl.textContent || '').trim() : '';
+      if (!track || /loading/i.test(track)) return { title: 'Radio', text: 'The player is still starting up. Give it a moment and ask again.' };
+      return { title: '♫ Now playing', text: track + (pl ? '  ·  ' + pl : '') };
+    }
+
+    if (/\b(stop|pause|mute|turn (it )?off|silence)\b/i.test(t)) {
+      var mute = document.getElementById('kr-mute');
+      if (onCulture) return { title: 'Radio is already off here', text: 'Culture does not run the radio.' };
+      if (mute) { mute.click(); return { title: 'Radio muted', text: 'Tap the speaker in the radio bar to bring it back.' }; }
+      return null;
+    }
+
+    /* §2: asking for radio ON Culture explains the rule and offers the eligible surface rather
+       than silently doing nothing or breaking the Culture audio rule. */
+    if (onCulture) {
+      return choGo('/earn/', 'EARN', 'Culture keeps its own video audio, so the radio does not run here. Taking you to EARN, where it does.');
+    }
+
+    var pls = (typeof window.__kilRadioPlaylists === 'function') ? window.__kilRadioPlaylists() : null;
+    var list = (pls && pls.list) || [];
+
+    if (/\b(next|skip)\b/i.test(t) && typeof window.__kilRadioSong === 'function') {
+      window.__kilRadioSong(1); return { title: 'Skipped', text: 'Playing the next track.' };
+    }
+    if (/\b(previous|back|last)\b/i.test(t) && typeof window.__kilRadioSong === 'function') {
+      window.__kilRadioSong(-1); return { title: 'Back', text: 'Playing the previous track.' };
+    }
+
+    /* Name a station and CHO switches to it. Matched against the REAL configured playlists, so
+       a station that does not exist gets an honest list rather than an invented switch. */
+    if (list.length && typeof window.__kilRadioSelect === 'function') {
+      for (var i = 0; i < list.length; i++) {
+        var nm = String(list[i].name || '');
+        if (!nm) continue;
+        var loose = nm.replace(/[^a-z0-9]/gi, '');
+        if (new RegExp('\\b' + nm.replace(/[^a-z0-9]/gi, '.?') + '\\b', 'i').test(t) ||
+            (loose && new RegExp(loose, 'i').test(t.replace(/[^a-z0-9]/gi, '')))) {
+          window.__kilRadioSelect(i);
+          return { title: '♫ ' + nm, text: 'Switched the radio to ' + nm + '.' };
+        }
+      }
+    }
+
+    if (/\b(play|start|put on)\b/i.test(t)) {
+      var names = list.map(function (p) { return p.name; }).filter(Boolean);
+      return { title: '♫ KEEPITIL Radio',
+               text: 'The radio is running at the bottom of the page.' +
+                     (names.length ? ' Stations: ' + names.join(' · ') + '. Name one and I will switch to it.' : '') };
+    }
+    return null;
+  }
+
+  /* ── OPEN AN ARTICLE / PROFILE / EVENT (§1) ─────────────────────────────────────────────
+     Resolved against LIVE data, not a hard-coded list, and only published rows. If nothing
+     matches, this returns null so the model still gets a chance rather than CHO asserting
+     something that does not exist. */
+  function choOpenNamed(t) {
+    var m = t.match(/\b(?:open|show|read|go to|take me to|find)\b\s+(.+)$/i);
+    if (!m) return Promise.resolve(null);
+    var subject = m[1].replace(/\b(the|a|an|please|for me|profile|page|article|event)\b/gi, ' ')
+                      .replace(/[?.!'"]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (subject.length < 2) return Promise.resolve(null);
+    var enc = encodeURIComponent(subject);
+    var wantsArticle = /\barticle|read\b/i.test(t);
+    var wantsEvent   = /\bevent|show|gig|party\b/i.test(t);
+
+    var lookups = [];
+    if (!wantsEvent) {
+      lookups.push(choRest('blog_articles?select=slug,title,artist_slug&status=eq.published&published=is.true&title=ilike.*' + enc + '*&limit=1')
+        .then(function (r) { return (r && r[0]) ? { kind: 'article', href: '/article/' + (r[0].artist_slug || r[0].slug) + '/', label: r[0].title } : null; }));
+    }
+    if (!wantsArticle) {
+      lookups.push(choRest('events?select=slug,title&status=eq.published&title=ilike.*' + enc + '*&limit=1')
+        .then(function (r) { return (r && r[0]) ? { kind: 'event', href: '/event.html?e=' + encodeURIComponent(r[0].slug), label: r[0].title } : null; }));
+    }
+    lookups.push(choRest('profile_meta?select=slug,display_name&slug=ilike.*' + enc.replace(/%20/g, '-') + '*&limit=1')
+      .then(function (r) { return (r && r[0]) ? { kind: 'profile', href: '/profile.html?slug=' + encodeURIComponent(r[0].slug), label: r[0].display_name || r[0].slug } : null; }));
+
+    return Promise.all(lookups).then(function (res) {
+      var order = wantsArticle ? ['article', 'profile', 'event']
+                : wantsEvent   ? ['event', 'profile', 'article']
+                :                ['article', 'profile', 'event'];
+      for (var k = 0; k < order.length; k++) {
+        for (var j = 0; j < res.length; j++) {
+          if (res[j] && res[j].kind === order[k]) return choGo(res[j].href, res[j].label);
+        }
+      }
+      return null;
+    }).catch(function () { return null; });
+  }
+
+  /* ── WHAT CAN I ENTER RIGHT NOW (§1) ────────────────────────────────────────────────────
+     Reads the real competition table and reports only what is genuinely open. */
+  function choCompetitions(t) {
+    if (!/\b(competition|contest|compete|enter|submit|create)\b/i.test(t)) return Promise.resolve(null);
+    if (!/\b(what|which|any|show|list|current|open|this month|can i)\b/i.test(t)) return Promise.resolve(null);
+    var nowIso = new Date().toISOString();
+    return choRest('vs_competitions?select=slug,title,cadence,submissions_close_at&status=eq.published&order=submissions_close_at.asc&limit=8')
+      .then(function (rows) {
+        if (!rows || !rows.length) return null;
+        var open = rows.filter(function (c) { return !c.submissions_close_at || c.submissions_close_at > nowIso; });
+        if (!open.length) return { title: 'Nothing open right now', text: 'No competitions are accepting entries at the moment. New rounds open on a schedule — check CREATE.' };
+        return {
+          title: '🏆 ' + open.length + ' competition' + (open.length === 1 ? '' : 's') + ' open',
+          text: open.map(function (c) {
+            return '• ' + c.title + (c.cadence ? ' (' + c.cadence + ')' : '');
+          }).join('\n') + '\n\nSay "open ' + open[0].title + '" and I will take you there.'
+        };
+      }).catch(function () { return null; });
+  }
+
+  /* The single entry point. Returns a card, or null to fall through to the existing chain. */
+  function choAct(text) {
+    var t = String(text || '');
+    var r = choRadio(t);
+    if (r) return Promise.resolve(r);
+    return choCompetitions(t).then(function (c) {
+      if (c) return c;
+      return choOpenNamed(t).then(function (o) {
+        if (o) return o;
+        /* Plain section navigation, last so it cannot shadow a named lookup. */
+        if (/\b(open|go to|take me to|show me)\b/i.test(t)) {
+          for (var i = 0; i < CHO_SECTIONS.length; i++) {
+            if (CHO_SECTIONS[i].re.test(t)) return choGo(CHO_SECTIONS[i].href, CHO_SECTIONS[i].label);
+          }
+        }
+        return null;
+      });
+    });
+  }
+  window.__choAct = choAct;
+
   function handleQuery(text) {
     addMessage('user', text);
     showTyping();
 
-    askAgent(text).then(function (a) {
+    /* Deterministic tools first (§1/§2). They answer navigation and Radio without a round trip,
+       work signed-out, and work while NEXUS is unavailable. Null means "not mine" and the
+       existing agent/brain chain runs exactly as before. */
+    choAct(text).then(function (choCard) {
+      if (choCard) { hideTyping(); addMessage('bot', choCard); return null; }
+      return askAgent(text).then(function (a) {
       var acard = agentCard(a);
       if (acard) { hideTyping(); addMessage('bot', acard); return; }
 
@@ -929,6 +1112,7 @@
           });
         });
       });
+      });          /* close askAgent().then */
     }).catch(function () {
       hideTyping();
       addMessage('bot', fallbackCard(text));
