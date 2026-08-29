@@ -1220,9 +1220,67 @@
           });
       }
 
-      /* Events go through the SAME community submission path as /submit-event.html, so they
-         enter review exactly like any other submitted event. CHO does not publish directly. */
-      return rpc('submit_community_event', { p: {
+      /* ── PERMISSION-AWARE EVENT ROUTING (Founder 2026-08-29) ────────────────────────────
+         An authenticated user who may already publish events uses the AUTHORIZED path; everyone
+         else keeps the community review path. CHO picks the route; it never grants access.
+
+         The authorized route is create_event_with_tiers — the exact RPC /create-event.html
+         calls. It is SECURITY DEFINER and refuses non-admins itself with errcode 42501
+         ("Only KEEPITIL can create ticketed events"), so even if this client-side check were
+         wrong or bypassed, the database still decides. That is the point: the permission test
+         below chooses which door to knock on and sets the user's expectation, it is NOT the
+         lock.
+
+         ⚠ AND IT DOES NOT PUBLISH PUBLICLY. create_event_with_tiers HARD-CODES status='review'
+         in its insert and ignores whatever status the caller sends — the admin form itself
+         sends status:'review' and gets review. So the authorized route produces a review-state
+         event, same as the community route; what differs is which RPC validates it, that it
+         carries ticket tiers, and that it is admin-only. Making CHO publish straight to public
+         would require either a new publish step or a status the canonical RPC refuses to honour
+         — i.e. exactly the second architecture and elevated permission this directive forbids.
+         Reported rather than worked around. */
+      return rpc('is_admin', {}).then(function (adm) {
+        var canPublishDirect = adm && adm.ok && adm.body === true;
+        if (canPublishDirect) {
+          return rpc('create_event_with_tiers', {
+            ev: {
+              title: d.title, venue: d.venue, city: d.city,
+              starts_at: (function () {
+                try { return new Date(d.local_date + 'T' + (d.local_time || '21:00')).toISOString(); }
+                catch (e) { return null; }
+              })(),
+              cover_url: d.flyer_url || null,
+              description: 'Added via CHO from ' + (d.provider || 'an external link')
+                         + (d.ticket_link ? ('\nTickets: ' + d.ticket_link) : ''),
+              show_lineup: true, show_gallery: true, show_feed: true
+            },
+            tiers: []
+          }).then(function (r) {
+            var b = r.body || {};
+            if (!r.ok || b.error) throw new Error(b.error || b.message || 'the event was refused');
+            var slug = b.slug || '';
+            return rpc('cho_log_action', { p_action: 'create_event_authorized', p_object_type: 'event',
+                         p_object_id: String(b.id || ''),
+                         p_payload: { route: 'create_event_with_tiers', provider: d.provider,
+                                      source_url: d.ticket_link, title: d.title, venue: d.venue,
+                                      city: d.city, date: d.local_date, time: d.local_time,
+                                      flyer: d.flyer_url },
+                         p_ok: true, p_error: null })
+              .then(function () {
+                choClearFlow();
+                if (slug) setTimeout(function () { location.href = '/event.html?e=' + encodeURIComponent(slug); }, 1400);
+                return { title: 'Event created ✓',
+                         text: 'Created through the authorized event path with your permissions. '
+                             + 'It lands in REVIEW state — that is what that path does for everyone, '
+                             + 'including the admin form — and goes live from there. '
+                             + 'Your ticket link still points at ' + (d.provider || 'the original site') + '.' };
+              });
+          }).catch(function (e) {
+            return { title: 'Could not create the event', text: String(e.message || e) + '\n\nNothing was sent.' };
+          });
+        }
+        /* Not authorized to publish directly: the normal community review workflow, unchanged. */
+        return rpc('submit_community_event', { p: {
                    title: d.title, venue: d.venue, city: d.city,
                    local_date: d.local_date, local_time: d.local_time, days: 1,
                    headliners: [], ticket_link: d.ticket_link || '',
@@ -1247,6 +1305,7 @@
         .catch(function (e) {
           return { title: 'Could not submit the event', text: String(e.message || e) + '\n\nNothing was sent.' };
         });
+      });   /* close is_admin().then */
     });
   }
 
