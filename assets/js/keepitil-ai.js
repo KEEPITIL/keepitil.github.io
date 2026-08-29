@@ -1231,14 +1231,11 @@
          below chooses which door to knock on and sets the user's expectation, it is NOT the
          lock.
 
-         ⚠ AND IT DOES NOT PUBLISH PUBLICLY. create_event_with_tiers HARD-CODES status='review'
-         in its insert and ignores whatever status the caller sends — the admin form itself
-         sends status:'review' and gets review. So the authorized route produces a review-state
-         event, same as the community route; what differs is which RPC validates it, that it
-         carries ticket tiers, and that it is admin-only. Making CHO publish straight to public
-         would require either a new publish step or a status the canonical RPC refuses to honour
-         — i.e. exactly the second architecture and elevated permission this directive forbids.
-         Reported rather than worked around. */
+         DIRECT PUBLISH (approved 2026-08-29): the RPC now honours status='published', but ONLY
+         on an explicit request from a caller that passes is_admin(). Its default is still
+         'review', so every existing caller — including /create-event.html, which sends
+         status:'review' — is unchanged. CHO asks for 'published' on this route and reports the
+         status the RPC actually persisted, never the one it requested. */
       return rpc('is_admin', {}).then(function (adm) {
         var canPublishDirect = adm && adm.ok && adm.body === true;
         if (canPublishDirect) {
@@ -1252,16 +1249,29 @@
               cover_url: d.flyer_url || null,
               description: 'Added via CHO from ' + (d.provider || 'an external link')
                          + (d.ticket_link ? ('\nTickets: ' + d.ticket_link) : ''),
-              show_lineup: true, show_gallery: true, show_feed: true
+              show_lineup: true, show_gallery: true, show_feed: true,
+              /* Explicit publish request (Founder 2026-08-29). The RPC honours this ONLY for a
+                 caller that passes is_admin(); for anyone else it silently falls back to
+                 review. CHO asks — the database decides. */
+              status: 'published'
             },
             tiers: []
           }).then(function (r) {
             var b = r.body || {};
             if (!r.ok || b.error) throw new Error(b.error || b.message || 'the event was refused');
             var slug = b.slug || '';
+            /* The RPC returns what was PERSISTED, not what was asked for. Reporting the
+               persisted value is the point: if the publish request was declined the user must
+               be told the event is in review, not congratulated on a publication that did not
+               happen. */
+            var persisted = b.status || 'review';
+            var wentLive = persisted === 'published';
             return rpc('cho_log_action', { p_action: 'create_event_authorized', p_object_type: 'event',
                          p_object_id: String(b.id || ''),
-                         p_payload: { route: 'create_event_with_tiers', provider: d.provider,
+                         p_payload: { route: 'create_event_with_tiers',
+                                      requested_status: b.requested_status || 'published',
+                                      persisted_status: persisted,
+                                      provider: d.provider,
                                       source_url: d.ticket_link, title: d.title, venue: d.venue,
                                       city: d.city, date: d.local_date, time: d.local_time,
                                       flyer: d.flyer_url },
@@ -1269,11 +1279,11 @@
               .then(function () {
                 choClearFlow();
                 if (slug) setTimeout(function () { location.href = '/event.html?e=' + encodeURIComponent(slug); }, 1400);
-                return { title: 'Event created ✓',
-                         text: 'Created through the authorized event path with your permissions. '
-                             + 'It lands in REVIEW state — that is what that path does for everyone, '
-                             + 'including the admin form — and goes live from there. '
-                             + 'Your ticket link still points at ' + (d.provider || 'the original site') + '.' };
+                return { title: wentLive ? 'Event published ✓' : 'Event created ✓',
+                         text: (wentLive
+                                 ? 'Published through the authorized event path with your permissions — it is live in DISCOVER now.'
+                                 : 'Created through the authorized event path, and it is in REVIEW — the publish request was not granted for this account.')
+                             + ' Your ticket link still points at ' + (d.provider || 'the original site') + '. Opening it…' };
               });
           }).catch(function (e) {
             return { title: 'Could not create the event', text: String(e.message || e) + '\n\nNothing was sent.' };
