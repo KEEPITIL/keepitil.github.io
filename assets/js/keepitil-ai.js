@@ -1070,11 +1070,288 @@
       }).catch(function () { return null; });
   }
 
+  /* ══ CHO GUIDED FLOWS: CREATE SUBMISSION + EVENT PUBLISHING ═══════════════════════════════
+     Founder §1/§2/§3.
+
+     ONE conversational state machine drives both. A flow holds the target operation, the fields
+     still needed, and what has been collected. CHO asks for exactly one missing field at a time,
+     builds a preview, and submits ONLY after an explicit confirmation.
+
+     ⚠ NOTHING HERE IS A NEW DATA PATH. CREATE goes through vs_create_entry ->
+     vs_add_entry_media -> vs_submit_entry, and events through submit_community_event — the
+     same RPCs the /create and /submit-event pages call. So competition rules, validation,
+     ownership and review all apply exactly as they do to a human filling the form. There is no
+     CHO-only table and no way for this to bypass a rule the form would have enforced.
+
+     ⚠ FACTS ARE NEVER INVENTED (§2.6). A browser cannot read posh.vip or eventbrite.com — they
+     are cross-origin and send no CORS headers, so any "parsed" title or date would be a guess
+     wearing a fact's clothing. CHO therefore takes the URL as the ticket link and provider, and
+     ASKS for what it cannot know. That is the honest version of "resolve the external event". */
+
+  var CHO_FLOW = null;
+  var CHO_FLOW_KEY = 'kil_cho_pending';
+
+  /* AUTH CONTINUITY (§3). The operation is stored before we send anyone to login, and resumed
+     after. Files are deliberately NOT persisted: a File object cannot be serialised, and
+     stashing bytes in sessionStorage would silently blow the quota on a real upload. The rest
+     of the operation survives and CHO asks for the attachment again — which is the documented
+     fallback, not a shortcut. */
+  function choPersistFlow() {
+    try {
+      if (!CHO_FLOW) { sessionStorage.removeItem(CHO_FLOW_KEY); return; }
+      var copy = { kind: CHO_FLOW.kind, data: CHO_FLOW.data, need: CHO_FLOW.need,
+                   step: CHO_FLOW.step, compId: CHO_FLOW.compId, compTitle: CHO_FLOW.compTitle,
+                   ts: Date.now() };
+      sessionStorage.setItem(CHO_FLOW_KEY, JSON.stringify(copy));
+    } catch (e) {}
+  }
+  function choRestoreFlow() {
+    try {
+      var raw = sessionStorage.getItem(CHO_FLOW_KEY);
+      if (!raw) return null;
+      var f = JSON.parse(raw);
+      /* An hour is long enough to sign in, short enough that a stale intent from yesterday
+         does not ambush someone. */
+      if (!f || (Date.now() - (f.ts || 0)) > 3600000) { sessionStorage.removeItem(CHO_FLOW_KEY); return null; }
+      return f;
+    } catch (e) { return null; }
+  }
+  function choClearFlow() { CHO_FLOW = null; try { sessionStorage.removeItem(CHO_FLOW_KEY); } catch (e) {} }
+
+  var CHO_CREATE_FIELDS = [
+    { k: 'title',       q: 'What is the title of your entry?' },
+    { k: 'description', q: 'Give me a short description of the work.' },
+    { k: 'media_url',   q: 'Paste a public URL for your file (image, audio or video). If you would rather upload directly, say "open the form" and I will take you there.' }
+  ];
+  var CHO_EVENT_FIELDS = [
+    { k: 'title',      q: 'What is the event called?' },
+    { k: 'venue',      q: 'Which venue?' },
+    { k: 'city',       q: 'Which city?' },
+    { k: 'local_date', q: 'What date? Use YYYY-MM-DD.' },
+    { k: 'local_time', q: 'What start time? Use HH:MM (24-hour).' },
+    { k: 'flyer_url',  q: 'Paste the URL of your 2:3 portrait flyer.' }
+  ];
+
+  function choNextMissing() {
+    var fields = CHO_FLOW.kind === 'create' ? CHO_CREATE_FIELDS : CHO_EVENT_FIELDS;
+    for (var i = 0; i < fields.length; i++) {
+      if (!CHO_FLOW.data[fields[i].k]) return fields[i];
+    }
+    return null;
+  }
+
+  function choPreviewCard() {
+    var d = CHO_FLOW.data;
+    var lines = CHO_FLOW.kind === 'create'
+      ? ['Competition: ' + CHO_FLOW.compTitle, 'Title: ' + d.title,
+         'Description: ' + d.description, 'Media: ' + d.media_url]
+      : ['Event: ' + d.title, 'Venue: ' + d.venue + ', ' + d.city,
+         'When: ' + d.local_date + ' at ' + d.local_time,
+         'Tickets: ' + (d.ticket_link || '—'), 'Source: ' + (d.provider || 'link'),
+         'Flyer: ' + d.flyer_url];
+    CHO_FLOW.step = 'confirm';
+    choPersistFlow();
+    return { title: 'Check this before I send it',
+             text: lines.join('\n') + '\n\nReply YES to submit, or tell me what to change.' };
+  }
+
+  /* Ask for the next field, or show the preview when nothing is missing. */
+  function choAdvance() {
+    if (!kilSignedIn()) {
+      /* §3: hold the operation, then send them to login. */
+      CHO_FLOW.step = 'await_auth';
+      choPersistFlow();
+      setTimeout(function () {
+        try { location.href = '/apply.html?next=' + encodeURIComponent(location.pathname + location.search); } catch (e) {}
+      }, 900);
+      return { title: 'Sign in to continue',
+               text: 'I have kept everything you have given me so far. Signing you in now — we will pick up exactly here.' };
+    }
+    var miss = choNextMissing();
+    if (miss) {
+      CHO_FLOW.step = 'collect';
+      choPersistFlow();
+      return { title: CHO_FLOW.kind === 'create' ? 'CREATE entry' : 'New event', text: miss.q };
+    }
+    return choPreviewCard();
+  }
+
+  /* ── SUBMIT (§1.11 / §2.10) — the real RPCs, nothing else ─────────────────────────────── */
+  function choSubmitFlow() {
+    return kilSession().then(function (session) {
+      if (!session) { return { title: 'Sign in first', text: 'I could not confirm your account. Sign in and say "submit" again.' }; }
+      var H = { 'Content-Type': 'application/json', apikey: KIL_SUPA_ANON,
+                Authorization: 'Bearer ' + session.access_token };
+      var rpc = function (fn, body) {
+        return fetch(KIL_SUPA_URL + '/rest/v1/rpc/' + fn, { method: 'POST', headers: H, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); });
+      };
+      var d = CHO_FLOW.data;
+
+      if (CHO_FLOW.kind === 'create') {
+        return rpc('vs_create_entry', { p_comp: CHO_FLOW.compId,
+                     p: { title: d.title, description: d.description } })
+          .then(function (r) {
+            if (!r.ok) throw new Error((r.body && r.body.message) || 'entry could not be created');
+            var entryId = (r.body && (r.body.entry_id || r.body.id)) || r.body;
+            if (!entryId || typeof entryId === 'object') throw new Error('entry id not returned');
+            return rpc('vs_add_entry_media', { p_entry: entryId, p_url: d.media_url,
+                                               p_mtype: /\.(mp3|wav|m4a|aac)$/i.test(d.media_url) ? 'audio'
+                                                      : /\.(mp4|mov|webm)$/i.test(d.media_url) ? 'video' : 'image',
+                                               p_thumb: null })
+              .then(function () { return rpc('vs_submit_entry', { p_entry: entryId, p_terms_version: 'cho-v1' }); })
+              .then(function (sub) {
+                if (!sub.ok) throw new Error((sub.body && sub.body.message) || 'submission refused');
+                return rpc('cho_log_action', { p_action: 'submit_create_entry', p_object_type: 'vs_entry',
+                             p_object_id: String(entryId),
+                             p_payload: { competition_id: CHO_FLOW.compId, title: d.title, media: d.media_url },
+                             p_ok: true, p_error: null })
+                  .then(function () {
+                    choClearFlow();
+                    setTimeout(function () { location.href = '/create/?view=entry&e=' + entryId; }, 1200);
+                    return { title: 'Submitted ✓',
+                             text: 'Your entry is in. It now goes through moderation before it appears publicly — '
+                                 + 'that is automatic and nothing is public until it passes. Opening your entry…' };
+                  });
+              });
+          })
+          .catch(function (e) {
+            return { title: 'Could not submit', text: String(e.message || e) + '\n\nNothing was sent. Tell me what to fix.' };
+          });
+      }
+
+      /* Events go through the SAME community submission path as /submit-event.html, so they
+         enter review exactly like any other submitted event. CHO does not publish directly. */
+      return rpc('submit_community_event', { p: {
+                   title: d.title, venue: d.venue, city: d.city,
+                   local_date: d.local_date, local_time: d.local_time, days: 1,
+                   headliners: [], ticket_link: d.ticket_link || '',
+                   extra_links: d.flyer_url ? [{ label: 'Flyer', url: d.flyer_url }] : [],
+                   note: 'Submitted via CHO from ' + (d.provider || 'an external link'), genres: [] } })
+        .then(function (r) {
+          var b = r.body || {};
+          if (!r.ok || b.ok === false) throw new Error(b.error || (b.message) || 'the event was refused');
+          return rpc('cho_log_action', { p_action: 'submit_event', p_object_type: 'event',
+                       p_object_id: String(b.id || b.event_id || ''),
+                       p_payload: { provider: d.provider, source_url: d.ticket_link, title: d.title,
+                                    venue: d.venue, city: d.city, date: d.local_date,
+                                    time: d.local_time, flyer: d.flyer_url },
+                       p_ok: true, p_error: null })
+            .then(function () {
+              choClearFlow();
+              return { title: 'Event submitted ✓',
+                       text: 'It is in the review queue and appears on the calendar once approved — '
+                           + 'the same route every submitted event takes. Your ticket link stays pointing at the original site.' };
+            });
+        })
+        .catch(function (e) {
+          return { title: 'Could not submit the event', text: String(e.message || e) + '\n\nNothing was sent.' };
+        });
+    });
+  }
+
+  /* ── STARTERS ───────────────────────────────────────────────────────────────────────── */
+  function choStartCreate(t) {
+    if (!/\b(enter|submit|compete|entry|competition)\b/i.test(t)) return Promise.resolve(null);
+    if (/\b(what|which|list|show me)\b/i.test(t)) return Promise.resolve(null);   /* that is a query */
+    var nowIso = new Date().toISOString();
+    return choRest('vs_competitions?select=id,title,slug,status,submissions_close_at&status=eq.published&limit=25')
+      .then(function (rows) {
+        if (!rows || !rows.length) return null;
+        var open = rows.filter(function (c) { return !c.submissions_close_at || c.submissions_close_at > nowIso; });
+        if (!open.length) return { title: 'Nothing open', text: 'No competition is accepting entries right now.' };
+        /* Match the named competition. If the user named none, ask rather than choosing for them. */
+        var hit = null;
+        for (var i = 0; i < open.length; i++) {
+          var name = String(open[i].title || '');
+          if (name && new RegExp(name.replace(/[^a-z0-9]/gi, '.?'), 'i').test(t)) { hit = open[i]; break; }
+        }
+        if (!hit) {
+          return { title: 'Which competition?',
+                   text: 'These are open right now:\n' + open.map(function (c) { return '• ' + c.title; }).join('\n')
+                       + '\n\nSay "enter <name>" and I will start it.' };
+        }
+        CHO_FLOW = { kind: 'create', compId: hit.id, compTitle: hit.title, data: {}, need: [], step: 'collect' };
+        choPersistFlow();
+        return choAdvance();
+      }).catch(function () { return null; });
+  }
+
+  function choStartEvent(t) {
+    var url = (t.match(/https?:\/\/[^\s]+/i) || [])[0];
+    var wantsEvent = /\b(event|publish|add this|posh|eventbrite)\b/i.test(t);
+    if (!url || !wantsEvent) return Promise.resolve(null);
+    var host = '';
+    try { host = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {}
+    var provider = /posh/i.test(host) ? 'Posh' : /eventbrite/i.test(host) ? 'Eventbrite' : host || 'external link';
+    CHO_FLOW = { kind: 'event', compId: null, compTitle: null,
+                 data: { ticket_link: url, provider: provider }, need: [], step: 'collect' };
+    choPersistFlow();
+    var first = choAdvance();
+    /* Say plainly why the details are being asked for rather than implying a failed scrape. */
+    if (first && first.text && CHO_FLOW && CHO_FLOW.step === 'collect') {
+      first.text = 'Got the ' + provider + ' link — I will keep it as the ticket link. '
+                 + 'I cannot read that site from your browser, so I will not guess the details.\n\n' + first.text;
+    }
+    return Promise.resolve(first);
+  }
+
+  /* ── IN-FLOW INPUT ──────────────────────────────────────────────────────────────────── */
+  function choFlowInput(t) {
+    if (!CHO_FLOW) return null;
+    if (/^\s*(cancel|stop|forget it|never ?mind)\s*$/i.test(t)) {
+      choClearFlow();
+      return { title: 'Cancelled', text: 'Dropped it. Nothing was sent.' };
+    }
+    if (CHO_FLOW.step === 'confirm') {
+      if (/^\s*(yes|yep|yeah|confirm|send it|submit|do it|go)\b/i.test(t)) return choSubmitFlow();
+      /* Anything else in confirm state is a correction: re-open the field they named. */
+      var fields = CHO_FLOW.kind === 'create' ? CHO_CREATE_FIELDS : CHO_EVENT_FIELDS;
+      for (var i = 0; i < fields.length; i++) {
+        if (new RegExp('\\b' + fields[i].k.replace('_', '[ _]?') + '\\b', 'i').test(t)) {
+          delete CHO_FLOW.data[fields[i].k];
+          return choAdvance();
+        }
+      }
+      return { title: 'Not sent', text: 'Say YES to submit, name the field you want to change, or say CANCEL.' };
+    }
+    var miss = choNextMissing();
+    if (miss) { CHO_FLOW.data[miss.k] = t.trim(); return choAdvance(); }
+    return choPreviewCard();
+  }
+
+  /* Resume after login (§3). */
+  (function () {
+    var pending = choRestoreFlow();
+    if (pending && kilSignedIn()) {
+      CHO_FLOW = pending;
+      window.__choResumed = true;
+    } else if (pending && !kilSignedIn()) {
+      CHO_FLOW = pending;   /* still held; choAdvance will route to login again when used */
+    }
+  })();
+
   /* The single entry point. Returns a card, or null to fall through to the existing chain. */
   function choAct(text) {
     var t = String(text || '');
+    /* An active flow owns the next message — otherwise "Drawing" would be read as a navigation
+       request instead of the answer to "which competition?". */
+    if (CHO_FLOW) {
+      var fin = choFlowInput(t);
+      if (fin) return Promise.resolve(fin);
+    }
     var r = choRadio(t);
     if (r) return Promise.resolve(r);
+    return choStartEvent(t).then(function (ev) {
+      if (ev) return ev;
+      return choStartCreate(t).then(function (cr) {
+        if (cr) return cr;
+        return choActRest(t);
+      });
+    });
+  }
+
+  function choActRest(t) {
     return choCompetitions(t).then(function (c) {
       if (c) return c;
       /* ⚠ SECTION NAMES WIN WHEN THE SUBJECT *IS* THE SECTION.
