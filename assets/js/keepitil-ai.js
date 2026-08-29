@@ -410,7 +410,11 @@
          column and ONLY #kilo-msgs is allowed to scroll — that is what keeps the header from
          drifting and the composer from being pushed off-screen when the keyboard opens. */
       '#kilo-panel{display:flex;flex-direction:column;}',
-      '#kilo-header{flex:0 0 auto;}',
+      /* ⚠ COLUMN, NOT ROW. The original #kilo-header rule above is display:flex with the
+         default row direction, from when the header held avatar + name + buttons on ONE
+         line. With two row elements inside it that laid ROW 2 beside ROW 1 — measured:
+         both rows reported top:51, and LOGIN rendered next to the close X. */
+      '#kilo-header{flex:0 0 auto;display:block;padding:0;}',
       '#kilo-msgs{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}',
       '#kilo-input-row{flex:0 0 auto;}',
       '#kilo-row1{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 6px;}',
@@ -975,7 +979,11 @@
           text: 'I can find events, open creator profiles and articles, show you what you can enter on CREATE, play KEEPITIL Radio and help you submit work. What do you need?',
           chips: WELCOME_CHIPS,
         });
-        renderWelcomeActions();
+        /* §49: renderWelcomeActions() drew LOG IN / CREATE inside the conversation. Row 2
+           is now those exact destinations, permanently visible and outside the scroll —
+           so the in-message pair was the same two buttons twice, costing the first
+           screen of conversation. The function is kept (nothing else calls it) so the
+           chips can come back if the shell ever changes. */
       }
     }
 
