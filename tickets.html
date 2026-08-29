@@ -59,8 +59,6 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
 .tixpick .tp-q{font-size:.76rem;color:var(--muted)}
 .tixpick .tp-p{font-weight:800;font-size:.84rem;color:var(--brand-2,#22e39b);min-width:44px;text-align:right}
 .tixpick .tp-e{flex-basis:100%;font-size:.68rem;color:var(--muted)}
-.chatcard{flex:1 1 0;min-height:340px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0a0a12;display:flex}
-.chatcard iframe{flex:1;width:100%;border:0;display:block}
 .open-chat{display:none;width:100%;padding:15px;border-radius:14px;border:1px solid rgba(0,180,255,.4);background:rgba(0,180,255,.12);color:var(--brand-2,#22e39b);font-weight:800;font-size:.95rem;cursor:pointer;align-items:center;justify-content:center;gap:9px}
 .tp-foot{margin-top:12px}
 .tp-foot .pill{display:inline-flex}
@@ -86,19 +84,11 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
   .tp-body{grid-template-columns:1fr}
   .flyer{aspect-ratio:2/3;flex:0 0 auto;max-width:340px;margin:0 auto;width:100%}
   .qrcard{flex:0 0 auto}
-  .chatcard{display:none}
   .open-chat{display:flex}
   .tp-head{grid-template-columns:1fr}
   .car.scrollable .car-arrow{display:none}
 }
-.chat-ov{position:fixed;inset:0;z-index:3000;background:#0a0a12;display:none;flex-direction:column}
-.chat-ov.open{display:flex}
-.chat-ov .ovh{flex:0 0 auto;display:flex;align-items:center;gap:10px;height:54px;padding:0 12px;background:rgba(9,9,16,.98);border-bottom:1px solid rgba(255,255,255,.1)}
-.chat-ov .ovh .bk{font-size:1.7rem;color:#fff;background:none;border:0;cursor:pointer;padding:2px 10px 6px}
-.chat-ov .ovh .ovt{font-weight:800;font-size:.95rem}
-.chat-ov iframe{flex:1;width:100%;border:0}
 /* mobile chat containment (Founder 2026-07-16): chat fits the screen, scrolls internally */
-@media(max-width:860px){.chatcard{height:calc(100dvh - 160px);min-height:0;max-height:calc(100dvh - 160px)}.chatcard iframe{height:100%}}
 </style>
 </head>
 <body>
@@ -117,10 +107,12 @@ body{background:var(--bg,#0a0a0f);color:var(--text);font-family:var(--font,Inter
 </div>
 <div class="carwrap" id="carwrap" style="display:none"></div>
 
-<div class="chat-ov" id="chatOv">
-  <div class="ovh"><button class="bk" aria-label="Back" onclick="closeChat()">&larr;</button><span class="ovt" id="ovTitle">Event Chat</span></div>
-  <iframe id="ovFrame" title="Event chat" src="about:blank"></iframe>
-</div>
+<!-- Event Chat overlay REMOVED 2026-08-28 (§57). It loaded /event-chat.html, a page that
+     has never existed in this repo — no deletion appears in git history, so it was never
+     built. Its two surfaces were removed on 2026-08-27 and the machinery was kept in case
+     the page arrived; it has not, and dormant code that names a dead route is how the
+     dead route gets revived by accident. Building Event Chat is a new feature and a
+     Founder decision, not a closeout fix. -->
 
 <script src="/assets/js/vendor/supabase-js.min.js"></script>
 <script>
@@ -146,7 +138,6 @@ function render(){
   var used=!!e.checked_in_at;
   var price=e.price_cents!=null?('$'+(e.price_cents/100).toFixed(2).replace(/\.00$/,'')):'';
   var qr='https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data='+enc('KIL-'+(e.qr_token||e.order_id));
-  var chatUrl='/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title);
   var loc=[e.venue,e.city].filter(Boolean).join(', ');
   var maps=loc?('<a href="https://www.google.com/maps/search/?api=1&query='+enc(loc)+'" target="_blank" rel="noopener">'+esc(loc)+' ↗</a>'):'—';
   var dt=fmtDate(e.starts_at,e.tz)+(fmtTime(e.starts_at,e.tz)?(' · '+fmtTime(e.starts_at,e.tz)):'');
@@ -186,16 +177,6 @@ function render(){
           '<div class="tixhead" onclick="toggleTix()"><span class="th-k">Your tickets</span><span class="th-v">'+totQty+' ticket'+(totQty===1?'':'s')+' · '+totPrice+'</span><span class="chev" id="tixchev">'+(EXPANDED?'▴':'▾')+'</span></div>'+
           '<div class="tixlist" id="tixlist" style="display:'+(EXPANDED?'flex':'none')+'">'+tixItems+'</div>'+
         '</div>'+
-        /* ⚠ EVENT CHAT SURFACES REMOVED 2026-08-27 — both loaded a page that does not exist.
-           They pointed at /event-chat.html, which returns 404 on production (verified) and
-           has NEVER existed in this repo — `git log --diff-filter=D` finds no deletion, so
-           it was never built, not lost. The inline .chatcard iframe loaded that 404 on every
-           ticket card, and "Open Event Chat" loaded it again into the overlay.
-           Removed rather than repaired: building an event chat page is a new feature, and the
-           closeout rule is fix, do not expand. The overlay markup, openChat/closeChat and the
-           chatUrl builder are all left intact below, so restoring these two lines restores the
-           feature the moment /event-chat.html exists. FOUNDER DECISION NEEDED: build it, or
-           point it at an existing chat surface. */
       '</div>'+
     '</div>'+
   '</div>';
@@ -214,9 +195,7 @@ function render(){
 }
 function carScroll(d){ var row=$('car-row'); if(!row)return; var c=row.querySelector('.car-card'); var w=c?(c.offsetWidth+14)*Math.max(1,Math.floor(row.clientWidth/(c.offsetWidth+14))):320; row.scrollBy({left:d*w,behavior:'smooth'}); }
 function carMark(){ var car=$('car'),row=$('car-row'); if(!car||!row)return; function u(){ var sc=row.scrollWidth-row.clientWidth>4; car.classList.toggle('scrollable',sc); var p=car.querySelector('.prev'),n=car.querySelector('.next'); if(p)p.disabled=row.scrollLeft<=2; if(n)n.disabled=row.scrollLeft>=row.scrollWidth-row.clientWidth-2; } u(); row.onscroll=u; }
-function setActive(i){ if(i<0||i>=TIX.length)return; ACTIVE=i; render(); window.scrollTo({top:0,behavior:'smooth'}); if($('chatOv').classList.contains('open')) openChat(); }
-function openChat(){ var x=TIX[ACTIVE]; if(!x)return; $('ovTitle').textContent=x.title||'Event Chat'; $('ovFrame').src='/event-chat.html?embed=1&e='+enc(x.slug)+'&t='+enc(x.title); $('chatOv').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeChat(){ $('chatOv').classList.remove('open'); $('ovFrame').src='about:blank'; document.body.style.overflow=''; }
+function setActive(i){ if(i<0||i>=TIX.length)return; ACTIVE=i; render(); window.scrollTo({top:0,behavior:'smooth'}); }
 
 async function init(){
   if(!supa){ $('loading').style.display='none'; $('gate').style.display='block'; return; }
