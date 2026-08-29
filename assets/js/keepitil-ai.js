@@ -1035,7 +1035,14 @@
       optMenu.innerHTML = first + '<button role="menuitem" type="button" data-opt="chat">Chat</button>';
       document.body.appendChild(optMenu);
       btn.setAttribute('aria-expanded','true');
-      optMenu.querySelector('[data-opt="chat"]').addEventListener('click', function(){
+      optMenu.querySelector('[data-opt="chat"]').addEventListener('click', function(e){
+        /* ⚠ STOP THE EVENT HERE. The document-level outside-click handler runs on the SAME
+           click, and by the time it does, closeOptions() has already removed the menu — so a
+           guard that tests `optMenu.contains(target)` is testing a node that no longer exists
+           and the panel is closed the instant it opens. Measured twice: chatOpen=false with the
+           greeting fully rendered. Not letting the click reach the document is the fix that
+           does not depend on ordering. */
+        e.stopPropagation();
         closeOptions(); openPanel();
       });
     }
