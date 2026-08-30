@@ -1400,6 +1400,66 @@
     }
   })();
 
+  /* ── KEEPITIL APP BRAIN (Founder §3) ──────────────────────────────────────────────────────
+     Operational knowledge read LIVE from cho_app_brain(), so CHO cannot confidently describe a
+     product that has moved on — the specific failure being avoided is telling someone a
+     competition is open three weeks after it closed. Cached for the page's lifetime only.
+     It carries counts and public configuration; no identities, entries, votes, orders, payouts
+     or moderation results (asserted server-side: no email, uuid, @handle or key shape appears
+     in the payload). */
+  var CHO_BRAIN = null;
+  function choBrain() {
+    if (CHO_BRAIN) return Promise.resolve(CHO_BRAIN);
+    return fetch(KIL_SUPA_URL + '/rest/v1/rpc/cho_app_brain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: KIL_SUPA_ANON,
+                 Authorization: 'Bearer ' + KIL_SUPA_ANON },
+      body: '{}'
+    }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (b) { CHO_BRAIN = b; return b; })
+      .catch(function () { return null; });
+  }
+  window.__choBrain = choBrain;
+
+  function choKnowledge(t) {
+    var asksHow = /\b(how|what|can i|do i|explain|rules?|requirements?|works?)\b/i.test(t);
+    if (!asksHow) return Promise.resolve(null);
+    var wantsEarn   = /\b(earn|royalt|reward|playlist|partner)\b/i.test(t);
+    var wantsCreate = /\b(create|competition|contest|enter|submit|vote|voting|winner)\b/i.test(t);
+    var wantsEvent  = /\b(event|ticket|flyer|venue|publish)\b/i.test(t);
+    if (!wantsEarn && !wantsCreate && !wantsEvent) return Promise.resolve(null);
+
+    return choBrain().then(function (b) {
+      if (!b) return null;
+      if (wantsCreate && b.create) {
+        var open = b.create.open_now || [];
+        return { title: 'CREATE',
+                 text: 'Entry is ' + (b.create.entry_model || 'free') + '. '
+                     + open.length + ' competition' + (open.length === 1 ? '' : 's') + ' open right now'
+                     + (open.length ? ': ' + open.slice(0, 6).map(function (c) { return c.title; }).join(', ') : '')
+                     + '.\n\n' + (b.create.publication_flow || '')
+                     + '\n\nVoting: ' + (b.create.voting || '') };
+      }
+      if (wantsEvent && b.events) {
+        return { title: 'Events',
+                 text: (b.events.published_upcoming || 0) + ' published upcoming events. '
+                     + 'Flyer: ' + (b.events.flyer || '') + '. '
+                     + (b.events.account_required_to_buy ? 'A free account is required to buy tickets. ' : '')
+                     + (b.events.external_tickets || '') };
+      }
+      if (!b.earn) return null;
+      var g = b.guarantees || {};
+      return { title: 'EARN',
+               text: 'Four paths: ' + ((b.earn.paths || []).join(' · ')) + '.\n'
+                   + 'Playlists: ' + (b.earn.playlists ? b.earn.playlists.per_user : 1) + ' per person, '
+                   + (b.earn.playlists ? b.earn.playlists.source : '') + '.\n'
+                   + 'Charts: ' + ((b.earn.royalty_charts || []).join(', ')) + ', from '
+                   + (b.earn.royalty_source || '') + '.\n\n'
+                   + 'KEEPITIL guarantees ' + ((g.keepitil_guarantees || []).join(', '))
+                   + ' — not ' + ((g.keepitil_does_not_guarantee || []).join(', ')) + '.' };
+    }).catch(function () { return null; });
+  }
+
   /* The single entry point. Returns a card, or null to fall through to the existing chain. */
   function choAct(text) {
     var t = String(text || '');
@@ -1415,7 +1475,10 @@
       if (ev) return ev;
       return choStartCreate(t).then(function (cr) {
         if (cr) return cr;
-        return choActRest(t);
+        return choKnowledge(t).then(function (kn) {
+          if (kn) return kn;
+          return choActRest(t);
+        });
       });
     });
   }
