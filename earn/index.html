@@ -164,6 +164,33 @@ body.earn-live .ctl-dot{background:var(--brand);box-shadow:0 0 10px var(--brand)
 /* section */
 section{padding:30px 0;border-top:1px solid var(--brd)}
 .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+/* ── SECTION ABOUT (Founder 2026-08-31, §5-§7) ───────────────────────────────────────────
+   ALL shows the sections themselves, with each section's explanation folded behind a small
+   eye. Choosing a single category is choosing to read about it, so there the About opens
+   by itself. Same copy either way — only the presentation differs. */
+.sh .hye-eye{margin-left:auto;flex:0 0 auto;width:34px;height:34px;display:inline-flex;
+  align-items:center;justify-content:center;border-radius:999px;cursor:pointer;
+  border:1px solid var(--brd);background:rgba(255,255,255,.05);color:#cfe6df;font-size:1rem;
+  line-height:1;transition:background .15s,border-color .15s,color .15s}
+.sh .hye-eye:hover{background:rgba(0,224,164,.14);border-color:rgba(0,224,164,.45);color:#eafff7}
+.sec-about{border:1px solid var(--brd);background:rgba(255,255,255,.035);border-radius:14px;
+  padding:16px 18px;margin:0 0 18px}
+.sec-about h3{font-family:var(--fh);font-size:1.05rem;letter-spacing:.08em;margin:0 0 8px;color:#eafff7}
+.sec-about p{margin:0 0 8px}
+.sec-about :last-child{margin-bottom:0}
+/* Overlay. position:fixed so opening it cannot scroll or reflow the page underneath — the
+   visitor must come back to the exact row they left. */
+#hyeOv{position:fixed;inset:0;z-index:1200;display:none;background:rgba(4,8,7,.82);
+  backdrop-filter:blur(6px);padding:calc(var(--kil-safe-top,0px) + 16px) 16px 16px}
+#hyeOv.on{display:flex;align-items:flex-start;justify-content:center}
+#hyeOv .hye-panel{width:min(560px,100%);max-height:calc(100dvh - var(--kil-safe-top,0px) - 32px);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0d1613;border:1px solid var(--brd);
+  border-radius:16px;padding:18px 18px 22px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+#hyeOv .hye-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+#hyeOv .hye-head h2{font-family:var(--fh);font-size:1.35rem;letter-spacing:.06em;flex:1;min-width:0}
+#hyeOv .hye-x{flex:0 0 auto;width:38px;height:38px;border-radius:999px;border:1px solid var(--brd);
+  background:rgba(255,255,255,.06);color:#eafff7;font-size:1.15rem;line-height:1;cursor:pointer}
+#hyeOv .hye-x:hover{background:rgba(255,255,255,.12)}
 .sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em;text-shadow:0 2px 14px rgba(0,0,0,.5)}
 .sh .sub{color:#d5d9e6;font-size:.88rem;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 /* grids */
@@ -339,7 +366,13 @@ footer{margin-top:auto}
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="KEEPITIL"/>
 </head>
-<body>
+<!-- No social engagement controls on the EARN landing page (Founder 2026-08-31). EARN is a
+     landing surface, not a post: like/repost/save/comment/share belong on things a person can
+     respond to. keepitil-social.js auto-injects its bar on any page containing <article>, and
+     this page uses <article class="hye"> for the four HOW-YOU-EARN cards, so it qualified by
+     accident. The opt-out is a declaration on this page rather than a change to the injector,
+     so no other surface loses its controls. -->
+<body data-kil-social="off">
 
 <!-- Founder 2026-08-21: the paragraph listed what the page already shows underneath it, and the
      "LIVE NOW" chip announced a player that is visible at the bottom of every page anyway.
@@ -830,11 +863,34 @@ function kilMarkActive(i){
    filter bar. Showing the radio needs 260px; restoring search needs to come back above 180px.
    The 80px dead band is wider than any momentum wobble. */
 (function(){
-  var SHOW_AT = 260, HIDE_AT = 180;
+  /* ANCHORED TO THE RADIO SECTION, NOT TO A PIXEL COUNT (Founder 2026-08-31, §3).
+     The swap used a fixed 260px, which is only coincidentally where the radio section is: any
+     change above it - the hero, a new rail - moved the section without moving the trigger, so
+     the bar would appear before or after the thing it belongs to. It now fires when the
+     section's own mini bar actually reaches the locked header, which is what was asked for
+     and what stays true when the page above it changes.
+
+     Hysteresis is kept and still measured in pixels: a single switch point makes the bar flip
+     back and forth every frame while the visitor rests near it. The radio face needs the bar
+     to have travelled 24px PAST the header; search comes back 56px below it. The 80px dead
+     band is wider than any momentum wobble. */
+  var PAST = 24, BACK = 56;
   var swap = document.getElementById('ctlSwap'); if(!swap) return;
   var radio = document.getElementById('ctlRadio');
   var input = document.getElementById('radQ');
+  var controls = document.getElementById('radControls');
   var on = false;
+
+  /* Distance from the header's underside down to the section bar. Negative once the bar has
+     scrolled up behind the header. */
+  function gap(){
+    var bar = document.getElementById('krBar');
+    if(!bar || !controls) return null;
+    var sec = document.getElementById('stations');
+    /* A hidden section (a category filter is active) has no position worth reading. */
+    if(sec && sec.style.display === 'none') return null;
+    return bar.getBoundingClientRect().top - controls.getBoundingClientRect().bottom;
+  }
 
   function apply(next){
     if(next === on) return;
@@ -846,9 +902,11 @@ function kilMarkActive(i){
     if(input) input.tabIndex = on ? -1 : 0;
   }
   function check(){
-    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-    if(!on && y > SHOW_AT) apply(true);
-    else if(on && y < HIDE_AT) apply(false);
+    var g = gap();
+    /* No radio section on screen to hand over to - stay on search. */
+    if(g === null){ apply(false); return; }
+    if(!on && g < -PAST) apply(true);
+    else if(on && g > BACK) apply(false);
   }
   /* While the visitor is actually typing a search, the bar must not be pulled out from under
      them mid-query no matter how far they scroll. */
@@ -860,6 +918,10 @@ function kilMarkActive(i){
     if(swap.dataset.typing) return;
     check();
   }, {passive:true});
+  /* The filter can hide or reveal the radio section without any scrolling at all. */
+  window.addEventListener('resize', check);
+  var seg0 = document.getElementById('radSeg');
+  if(seg0) seg0.addEventListener('click', function(){ setTimeout(check, 0); });
   check();
 
   /* Transport drives the ONE shell player. */
@@ -1282,6 +1344,135 @@ radStats();
   if(q) q.addEventListener('input',apply);
   apply();
 })();
+/* ── SECTION ABOUT: EYE ON "ALL", OPEN ON A CATEGORY (Founder 2026-08-31, §5-§8) ─────────
+   The ALL page is the whole of EARN, so leading every section with a block of explanation
+   pushed the actual content off the first screen. On ALL the explanation folds behind a small
+   eye next to each section title. Choosing one category IS choosing to read about it, so
+   there the same copy opens by itself above that section's content.
+
+   The copy is MOVED, never rewritten: each panel is the existing <article class="hye"> node
+   from HOW YOU EARN, reparented. There is one copy of each explanation in the document, so
+   the two presentations cannot drift apart.
+
+   ⚠ The overlay is position:fixed and never scrolls the document. Closing it therefore lands
+   the visitor on the exact row they opened it from, which is what X has to do (§6). */
+(function(){
+  var MAP = [
+    ['stations',  'RADIO'],
+    ['playlists', 'PLAYLISTS'],
+    ['create',    'CREATE'],
+    ['earn',      'PARTNERS']
+  ];
+  var hye = document.getElementById('howyouearn');
+  if(!hye) return;
+
+  /* Pull the four explanations out of HOW YOU EARN and key them by section id. */
+  var arts = [].slice.call(hye.querySelectorAll('article.hye'));
+  var about = {};
+  MAP.forEach(function(pair, i){
+    var art = arts[i];
+    if(!art) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'sec-about';
+    wrap.id = 'about-' + pair[0];
+    wrap.appendChild(art);            /* MOVES the node - copy is never duplicated */
+    about[pair[0]] = { node: wrap, label: pair[1] };
+  });
+
+  /* HOW YOU EARN keeps its heading, lead and footer - five lines that frame the whole page and
+     are not specific to any one category, so there is no eye they could sensibly hide behind.
+     What made this block "a large expanded explanation before each section" was the four
+     cards, and those have just been moved out. Removing the remaining copy would be deleting
+     it, and the instruction was to change presentation, not content. */
+  var grid = hye.querySelector('.hye-grid');
+  if(grid) grid.style.display = 'none';
+
+  /* One overlay, reused. */
+  var ov = document.createElement('div');
+  ov.id = 'hyeOv';
+  ov.innerHTML = '<div class="hye-panel" role="dialog" aria-modal="true" aria-labelledby="hyeOvTitle">' +
+    '<div class="hye-head"><h2 id="hyeOvTitle"></h2>' +
+    '<button type="button" class="hye-x" aria-label="Close">&#10005;</button></div>' +
+    '<div class="hye-body"></div></div>';
+  document.body.appendChild(ov);
+  var ovTitle = ov.querySelector('#hyeOvTitle'),
+      ovBody  = ov.querySelector('.hye-body'),
+      ovX     = ov.querySelector('.hye-x');
+  var openFor = null, lastFocus = null;
+
+  function closeOv(){
+    if(!openFor) return;
+    /* Put the panel back where it lives so the category view can still show it inline. */
+    var slot = document.getElementById('aboutSlot-' + openFor);
+    if(slot) slot.appendChild(about[openFor].node);
+    else if(ovBody.firstChild) ovBody.removeChild(ovBody.firstChild);
+    ov.classList.remove('on');
+    openFor = null;
+    /* No scrollTo of any kind. The document never moved. */
+    if(lastFocus && lastFocus.focus) { try{ lastFocus.focus(); }catch(e){} }
+  }
+  function openOv(k, from){
+    if(!about[k]) return;
+    lastFocus = from || null;
+    openFor = k;
+    ovTitle.textContent = about[k].label;
+    ovBody.appendChild(about[k].node);
+    ov.classList.add('on');
+    ovX.focus();
+  }
+  ovX.addEventListener('click', closeOv);
+  ov.addEventListener('click', function(e){ if(e.target === ov) closeOv(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeOv(); });
+
+  /* Eye button + an inline slot, per section. */
+  MAP.forEach(function(pair){
+    var id = pair[0];
+    var sec = document.getElementById(id); if(!sec || !about[id]) return;
+    var sh = sec.querySelector('.sh'); if(!sh) return;
+
+    var eye = document.createElement('button');
+    eye.type = 'button';
+    eye.className = 'hye-eye';
+    eye.setAttribute('aria-label', 'About ' + about[id].label);
+    eye.title = 'About ' + about[id].label;
+    eye.innerHTML = '&#128065;';
+    eye.addEventListener('click', function(){ openOv(id, eye); });
+    sh.appendChild(eye);
+
+    var slot = document.createElement('div');
+    slot.id = 'aboutSlot-' + id;
+    slot.style.display = 'none';
+    sh.parentNode.insertBefore(slot, sh.nextSibling);
+    slot.appendChild(about[id].node);
+  });
+
+  /* ALL -> eye only. A single category -> that category's About open above its content. */
+  function paint(){
+    var onBtn = document.querySelector('#radSeg button.on');
+    var key = (onBtn && onBtn.dataset.k) || 'all';
+    MAP.forEach(function(pair){
+      var id = pair[0];
+      var slot = document.getElementById('aboutSlot-' + id);
+      var sec = document.getElementById(id);
+      if(!slot || !sec) return;
+      var expanded = (key === id);
+      slot.style.display = expanded ? '' : 'none';
+      /* On a category view the copy is already on screen; a control that opens a duplicate of
+         what you are reading is noise. */
+      var eye = sec.querySelector('.sh .hye-eye');
+      if(eye) eye.style.display = expanded ? 'none' : '';
+    });
+    /* If the overlay is open when the filter changes, the panel it holds may belong to a
+       section that now shows it inline. Close first so the node has one home. */
+    if(openFor) closeOv();
+  }
+  var seg = document.getElementById('radSeg');
+  if(seg) seg.addEventListener('click', function(e){
+    if(e.target.closest('button[data-k]')) setTimeout(paint, 0);
+  });
+  paint();
+})();
+
 /* The per-section expand toggle is REMOVED (Founder 2026-08-22: "remove the drop down buttons in
    each sections. they do not work"). It toggled section.open, which was meant to turn a rail into
    a full grid — but the rails are now pinned to a single nowrap row at both breakpoints, so the

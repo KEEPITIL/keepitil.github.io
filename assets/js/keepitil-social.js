@@ -231,7 +231,20 @@
 
   /* blog <article> pages get the full social bar (which already includes Share);
      other pages just get the click-delegated [data-kil-share] behavior above. */
-  function init() { if (document.querySelector("article")) autoSocial(); else autoInject(); }
+  /* A page may decline the auto-injected bar with data-kil-social="off" on <html> or <body>.
+     autoSocial() fires on ANY page containing <article>, which is right for blog posts and
+     wrong for a landing page that happens to use <article> for layout cards (/earn). An
+     opt-out on the page keeps every other surface exactly as it was. */
+  function socialOptedOut() {
+    try {
+      return document.documentElement.getAttribute("data-kil-social") === "off" ||
+             (document.body && document.body.getAttribute("data-kil-social") === "off");
+    } catch (e) { return false; }
+  }
+  function init() {
+    if (socialOptedOut()) return;
+    if (document.querySelector("article")) autoSocial(); else autoInject();
+  }
   if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
 })();

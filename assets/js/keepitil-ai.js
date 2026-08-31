@@ -512,12 +512,27 @@
          on the clock: on the owner's iPhone "ECHO" overlapped 11:52 and the greeting ran
          under the status icons. Scoped to this block so the floating desktop panel, which
          is nowhere near the status bar, is unchanged. */
-      '@media(max-width:768px){#kilo-panel{inset:0;left:0;right:0;top:0;bottom:0;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;border-radius:0;}',
+      /* ⚠ THE KEYBOARD DOES NOT SHRINK dvh (Founder 2026-08-31, §11/§12).
+         iOS Safari keeps 100dvh at its full height when the software keyboard opens; the
+         keyboard is painted OVER the page. A full-height panel therefore keeps its composer
+         at y=100dvh, underneath the keyboard, and the visitor types into a box they cannot
+         see. The panel is sized from visualViewport instead - the box that actually excludes
+         the keyboard - via --kilo-vh/--kilo-vtop, which kiloSyncViewport() keeps current.
+         Falls back to 100dvh wherever visualViewport is unavailable. */
+      '@media(max-width:768px){#kilo-panel{position:fixed;left:0;right:0;width:100vw;max-width:100vw;',
+      'top:var(--kilo-vtop,0px);height:var(--kilo-vh,100dvh);max-height:var(--kilo-vh,100dvh);bottom:auto;border-radius:0;}',
       '#kilo-header{padding-top:max(14px,env(safe-area-inset-top,0px));}',
       '#kilo-msgs{scroll-padding-top:env(safe-area-inset-top,0px);}',
       '#kilo-panel.open{transform:none;}',
       '#kilo-msgs{flex:1 1 auto;min-height:0;}',
-      '#kilo-btn{bottom:132px;right:16px;}body.kilo-open{overflow:hidden;}}',
+      '#kilo-btn{bottom:132px;right:16px;}body.kilo-open{overflow:hidden;}',
+      /* The shell's bottom nav is fixed at z-index 950 and would cross the composer. Chat is
+         a full-screen context; the nav underneath it is unreachable anyway. */
+      'body.kilo-open #kil-bnav{display:none!important;}',
+      /* No safe-area padding under the composer: visualViewport already excludes both the
+         keyboard and the home indicator, so adding the inset again lifts the composer off the
+         keyboard by the height of the indicator and leaves a gap. */
+      '#kilo-input-row{padding-bottom:12px;}}',
     ].join('');
 
     var s = document.createElement('style');
@@ -1637,13 +1652,48 @@
       if (!isOpen) { badge.style.display = 'flex'; }
     }, 4000);
 
+    /* ── KEYBOARD-AWARE SIZING (§11/§12) ──────────────────────────────────────────────────
+       visualViewport is the only viewport that shrinks when the software keyboard opens.
+       Mirroring it onto the panel keeps ROW 1 and ROW 2 pinned at the top, the composer
+       directly above the keyboard, and #kilo-msgs - the only scrolling element - taking
+       whatever is left. offsetTop matters on iOS: the page can be scrolled up behind the
+       keyboard, and without it the panel is pinned to a viewport origin that has moved.
+
+       Everything here is a no-op where visualViewport is missing; the CSS falls back to
+       100dvh, which is the behaviour this replaces. */
+    var vv = window.visualViewport || null;
+    function kiloSyncViewport(){
+      if(!vv || !isOpen) return;
+      var r = document.documentElement.style;
+      r.setProperty('--kilo-vh',  Math.round(vv.height) + 'px');
+      r.setProperty('--kilo-vtop', Math.round(vv.offsetTop) + 'px');
+    }
+    function kiloClearViewport(){
+      var r = document.documentElement.style;
+      r.removeProperty('--kilo-vh'); r.removeProperty('--kilo-vtop');
+    }
+    if(vv){
+      vv.addEventListener('resize', kiloSyncViewport);
+      vv.addEventListener('scroll', kiloSyncViewport);
+    }
+    /* The conversation should stay pinned to the newest message as the keyboard takes space,
+       otherwise opening it hides whatever the visitor was just reading. */
+    function kiloStickBottom(){
+      if(!isOpen) return;
+      try{ msgs.scrollTop = msgs.scrollHeight; }catch(e){}
+    }
+
     function openPanel() {
       isOpen = true;
       kiloApplyAuthRows();
       panel.classList.add('open');
       document.body.classList.add('kilo-open');
       badge.style.display = 'none';
-      input.focus();
+      kiloSyncViewport();
+      /* Focus AFTER the panel is laid out, or iOS opens the keyboard against the old
+         geometry and the first resize arrives before the panel has a height to shrink. */
+      setTimeout(function(){ try{ input.focus(); }catch(e){} kiloSyncViewport(); kiloStickBottom(); }, 0);
+      input.addEventListener('focus', function(){ setTimeout(function(){ kiloSyncViewport(); kiloStickBottom(); }, 120); });
       // Welcome message on first open
       if (!msgs.hasChildNodes()) {
         /* §50: the old greeting described KEEPITIL as a SoCal music guide. The product is an
@@ -1692,51 +1742,22 @@
     }
 
     function closePanel() {
+      kiloClearViewport();
       isOpen = false;
       panel.classList.remove('open');
       document.body.classList.remove('kilo-open');
     }
 
-    /* ── OPTIONS MENU (§25/§43/§44) ────────────────────────────────────────────────────────
-       Signed out: LOGIN · CHAT      Signed in: PROFILE · CHAT
-       Built on every open, not once at boot: a visitor can sign in without a reload, and a
-       menu cached at boot would keep offering LOGIN to someone who is already signed in. */
-    var optMenu = null;
-    function closeOptions(){
-      if(optMenu){ optMenu.remove(); optMenu = null; }
-      btn.setAttribute('aria-expanded','false');
-    }
-    function openOptions(){
-      closeOptions();
-      var signed = kilSignedIn();
-      optMenu = document.createElement('div');
-      optMenu.id = 'kilo-options';
-      optMenu.setAttribute('role','menu');
-      var first = signed
-        ? '<a role="menuitem" href="/profile.html">Profile</a>'
-        : '<a role="menuitem" href="/apply.html">Login</a>';
-      optMenu.innerHTML = first + '<button role="menuitem" type="button" data-opt="chat">Chat</button>';
-      document.body.appendChild(optMenu);
-      btn.setAttribute('aria-expanded','true');
-      optMenu.querySelector('[data-opt="chat"]').addEventListener('click', function(e){
-        /* ⚠ STOP THE EVENT HERE. The document-level outside-click handler runs on the SAME
-           click, and by the time it does, closeOptions() has already removed the menu — so a
-           guard that tests `optMenu.contains(target)` is testing a node that no longer exists
-           and the panel is closed the instant it opens. Measured twice: chatOpen=false with the
-           greeting fully rendered. Not letting the click reach the document is the fix that
-           does not depend on ordering. */
-        e.stopPropagation();
-        closeOptions(); openPanel();
-      });
-    }
+    /* ── THE BUTTON IS THE CHAT BUTTON (Founder 2026-08-31, §9) ───────────────────────────
+       It used to open a two-item menu - LOGIN/PROFILE and CHAT - so reaching CHO always cost
+       two taps, and the first tap offered a destination that already exists inside CHO as
+       ROW 2. The menu is gone. One tap opens the panel; authentication stays where it was,
+       on row 2 of the panel itself. */
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (isOpen) { closePanel(); return; }
-      if (optMenu) closeOptions(); else openOptions();
+      openPanel();
     });
-    document.addEventListener('click', function(e){
-      if (optMenu && !optMenu.contains(e.target) && e.target !== btn && !btn.contains(e.target)) closeOptions();
-    }, true);
 
     /* ── ROW 2 (§46/§47) ───────────────────────────────────────────────────────────────────
        Rebuilt every time the panel opens, for the same reason the menu is. */
@@ -1757,7 +1778,6 @@
     // closed it again, and Chat appeared not to work at all. Measured: chatOpen=false right
     // after clicking Chat.
     document.addEventListener('click', function(e) {
-      if (optMenu && optMenu.contains(e.target)) return;
       if (isOpen && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
         closePanel();
       }
