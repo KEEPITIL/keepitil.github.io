@@ -1683,8 +1683,14 @@
       try{ msgs.scrollTop = msgs.scrollHeight; }catch(e){}
     }
 
+    /* X must land the visitor exactly where they opened chat from (§13). Two things move the
+       page underneath an open panel: body.kilo-open sets overflow:hidden, and focusing the
+       composer scrolls the document toward the input. Measured on the live page: scrollY
+       differed before and after a close. Recorded on open, restored on close. */
+    var kiloScrollY = 0;
     function openPanel() {
       isOpen = true;
+      kiloScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
       kiloApplyAuthRows();
       panel.classList.add('open');
       document.body.classList.add('kilo-open');
@@ -1746,6 +1752,9 @@
       isOpen = false;
       panel.classList.remove('open');
       document.body.classList.remove('kilo-open');
+      /* After overflow is released, not before: while body is overflow:hidden the scroll
+         position cannot be set. */
+      try { window.scrollTo(0, kiloScrollY); } catch (e) {}
     }
 
     /* ── THE BUTTON IS THE CHAT BUTTON (Founder 2026-08-31, §9) ───────────────────────────
