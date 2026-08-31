@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install TUITEA</title>
+<meta name="description" content="TUITEA is a private family app for iPhone. Install the beta through TestFlight.">
+<meta name="theme-color" content="#3F7658">
+<link rel="canonical" href="https://keepitil.com/app/tuitea">
+<meta property="og:title" content="Install TUITEA">
+<meta property="og:description" content="A private family app for iPhone. Install the beta through TestFlight.">
+<meta property="og:url" content="https://keepitil.com/app/tuitea">
+<meta property="og:site_name" content="TUITEA">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+
+<!--
+  ============================================================================
+  TUITEA — CANONICAL INSTALL PAGE
+  https://keepitil.com/app/tuitea
+
+  THIS URL IS PERMANENT. It is the address given to testers, printed in
+  messages, and pasted into chats. Apple's TestFlight link underneath it may be
+  regenerated, revoked or replaced at any time WITHOUT this address changing —
+  that indirection is the whole reason this page exists.
+
+  TO OPEN THE BETA: set TESTFLIGHT_URL below to the public TestFlight link
+  (https://testflight.apple.com/join/XXXXXXXX). Nothing else changes.
+
+  Leave it empty and the page says the beta is being prepared. That is the
+  deliberate default: a button that goes nowhere wastes a tester's time and
+  makes a working product look broken.
+
+  The .ipa is NEVER hosted here. Distribution is TestFlight only.
+  ============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Karla:wght@400;500;600;700&display=swap">
+
+<style>
+  /* Palette taken from the app itself, so page and product agree. */
+  :root{
+    --bg:#FBF7EF; --surface:#FFFDF8; --sunken:#F2EBDD; --line:#E2D9C6;
+    --ink:#20261F; --muted:#6E7566;
+    --forest:#3F7658; --forest-deep:#2F5B41;
+    --gold:#B5872F; --coral:#C4614C; --ocean:#33777D;
+    --radius:16px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14170F; --surface:#1C201A; --sunken:#23281F; --line:#333A2D;
+      --ink:#ECE7DA; --muted:#9BA391;
+      --forest:#7FB894; --forest-deep:#9FCFB0;
+      --gold:#E3BC6B; --coral:#E9967F; --ocean:#6FBFC5;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14170F; --surface:#1C201A; --sunken:#23281F; --line:#333A2D;
+    --ink:#ECE7DA; --muted:#9BA391;
+    --forest:#7FB894; --forest-deep:#9FCFB0;
+    --gold:#E3BC6B; --coral:#E9967F; --ocean:#6FBFC5;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Karla',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    font-size:17px;line-height:1.55;-webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:38rem;margin:0 auto;padding:0 1.25rem 4.5rem}
+
+  header{padding:3.5rem 0 0}
+  .mark{
+    font-family:'Fraunces',Georgia,serif;font-weight:600;
+    font-size:clamp(2.4rem,9vw,3.4rem);letter-spacing:-.02em;line-height:1;
+    margin:0 0 .1rem;
+  }
+  .tag{margin:0;color:var(--muted);font-size:1.05rem}
+  .lede{margin:1.9rem 0 0;font-size:1.1rem;max-width:32rem;text-wrap:pretty}
+
+  .card{
+    margin-top:2.1rem;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:1.4rem 1.35rem;
+  }
+  .card h2{
+    font-family:'Karla',sans-serif;font-size:.72rem;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--muted);margin:0 0 .9rem;font-weight:700;
+  }
+
+  .cta{
+    display:block;text-align:center;text-decoration:none;
+    background:var(--forest);color:var(--bg);font-weight:700;font-size:1.08rem;
+    padding:1.05rem 1.2rem;border-radius:12px;
+  }
+  .cta:hover{background:var(--forest-deep)}
+  .cta:focus-visible{outline:3px solid var(--ocean);outline-offset:3px}
+  .cta-sub{margin:.85rem 0 0;color:var(--muted);font-size:.92rem;text-align:center}
+
+  .closed{background:var(--sunken);border-radius:12px;padding:1.05rem 1.15rem}
+  .closed b{display:block;margin-bottom:.3rem}
+
+  details{
+    margin-top:1.1rem;border-top:1px solid var(--line);padding-top:1rem;
+  }
+  summary{
+    cursor:pointer;font-weight:600;font-size:.97rem;list-style:none;
+    display:flex;align-items:center;gap:.45rem;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"›";transform:rotate(90deg);color:var(--muted);font-size:1.2rem;line-height:1}
+  details[open] summary::after{transform:rotate(-90deg)}
+  summary:focus-visible{outline:2px solid var(--ocean);outline-offset:3px;border-radius:4px}
+  .details-body{margin-top:.85rem}
+  .details-body ol{margin:0;padding-left:1.15rem}
+  .details-body li{margin-bottom:.6rem}
+  .details-body li:last-child{margin-bottom:0}
+
+  .secondary{
+    display:inline-block;text-decoration:none;margin-top:.2rem;
+    border:1px solid var(--line);border-radius:10px;
+    padding:.6rem .9rem;font-weight:600;font-size:.95rem;color:var(--ink);
+  }
+  .secondary:hover{border-color:var(--muted)}
+  .secondary:focus-visible{outline:2px solid var(--ocean);outline-offset:3px}
+
+  .back{
+    margin-top:.9rem;padding:.7rem .85rem;background:var(--sunken);
+    border-radius:10px;font-size:.93rem;
+  }
+  .back code{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;
+    background:transparent;font-weight:600;
+  }
+
+  .facts{display:grid;gap:.5rem;margin-top:2.1rem}
+  .fact{display:flex;gap:.8rem;align-items:baseline;font-size:.96rem}
+  .fact .k{
+    flex:0 0 8.5rem;color:var(--muted);font-size:.79rem;
+    letter-spacing:.06em;text-transform:uppercase;font-weight:600;
+  }
+
+  .note{
+    margin-top:2rem;border-left:3px solid var(--gold);
+    padding:.15rem 0 .15rem 1rem;font-size:1rem;
+  }
+  .note.privacy{border-left-color:var(--coral)}
+  .note b{font-weight:600}
+
+  footer{
+    margin-top:3rem;padding-top:1.3rem;border-top:1px solid var(--line);
+    color:var(--muted);font-size:.87rem;
+  }
+  footer a{color:var(--ocean)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1 class="mark">TUITEA</h1>
+    <p class="tag">A private app for one family.</p>
+  </header>
+
+  <p class="lede">
+    Everything a family wants to keep — who everyone is and how they are
+    related, the photographs and the stories behind them, the health and the
+    everyday running of a household — in one place that belongs to you.
+  </p>
+
+  <div class="card">
+    <h2>Install</h2>
+    <div id="installSlot"></div>
+  </div>
+
+  <div class="facts">
+    <div class="fact"><span class="k">Device</span><span>iPhone</span></div>
+    <div class="fact"><span class="k">Requires</span><span>iOS 13 or later</span></div>
+    <div class="fact"><span class="k">Installed via</span><span>TestFlight</span></div>
+    <div class="fact"><span class="k">Cost</span><span>Free during the beta</span></div>
+  </div>
+
+  <p class="note">
+    <b>This is a beta.</b> Things will be rough in places, and we would rather
+    hear about it than not. Use <b>Report a problem</b> inside the app — it
+    reaches us with the screen you were on, and it is the fastest way to get
+    something fixed.
+  </p>
+
+  <p class="note privacy">
+    <b>Your family's records stay yours.</b> A household is visible only to
+    people in it who have been approved. Health sharing is each person's own
+    choice, and nobody else — not even whoever set the household up — can see or
+    change it.
+  </p>
+
+  <footer>
+    <p>TUITEA is part of <a href="https://keepitil.com">KEEPITIL</a>.</p>
+  </footer>
+
+</div>
+
+<script>
+  /* ------------------------------------------------------------------
+     THE ONE THING TO EDIT.
+     Set to the public TestFlight link to open the beta:
+       var TESTFLIGHT_URL = "https://testflight.apple.com/join/XXXXXXXX";
+     Empty = the beta is being prepared. No broken button either way.
+     ------------------------------------------------------------------ */
+  var TESTFLIGHT_URL = "";
+
+  /* Apple's own TestFlight app. Fixed by Apple; not ours to change. */
+  var TESTFLIGHT_APP_STORE = "https://apps.apple.com/app/testflight/id899247664";
+
+  (function () {
+    var slot = document.getElementById('installSlot');
+    var url = (TESTFLIGHT_URL || "").trim();
+    var open = /^https:\/\/testflight\.apple\.com\/join\/\S+/.test(url);
+
+    if (!open) {
+      /* ---- STATE 1: not approved / not open yet ---- */
+      var d = document.createElement('div');
+      d.className = 'closed';
+      d.innerHTML =
+        '<b>The beta is being prepared.</b>' +
+        'TUITEA is going through Apple’s TestFlight review. When it is ready, ' +
+        'the install button appears on this page — the address stays the same, ' +
+        'so this link is worth keeping.';
+      slot.appendChild(d);
+      return;
+    }
+
+    /* ---- STATE 2: open. Primary action goes straight to TestFlight. ---- */
+    var a = document.createElement('a');
+    a.className = 'cta';
+    a.href = url;
+    a.rel = 'noopener';
+    a.textContent = 'Install TUITEA';
+    slot.appendChild(a);
+
+    var sub = document.createElement('p');
+    sub.className = 'cta-sub';
+    sub.textContent = 'Opens TestFlight, where you install TUITEA.';
+    slot.appendChild(sub);
+
+    /*
+     * The fallback that decides whether somebody gets in.
+     *
+     * Tapping the link with TestFlight installed goes straight to the TUITEA
+     * install screen. Without it, the tester lands on an Apple page that talks
+     * about TestFlight and never mentions TUITEA again — so they install
+     * TestFlight, and then have nothing telling them where to go back to.
+     * This names the return address explicitly.
+     */
+    var det = document.createElement('details');
+    det.innerHTML =
+      '<summary>Don’t have TestFlight yet?</summary>' +
+      '<div class="details-body">' +
+        '<ol>' +
+          '<li>Install <b>TestFlight</b> — Apple’s free app for trying beta software.' +
+            '<br><a class="secondary" href="' + TESTFLIGHT_APP_STORE + '" rel="noopener">Get TestFlight from the App Store</a></li>' +
+          '<li>Come back to this page and tap <b>Install TUITEA</b>.' +
+            '<div class="back">This page: <code>keepitil.com/app/tuitea</code></div></li>' +
+        '</ol>' +
+      '</div>';
+    slot.appendChild(det);
+  })();
+</script>
+</body>
+</html>
