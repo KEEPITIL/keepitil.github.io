@@ -1365,6 +1365,13 @@ radStats();
   ];
   var hye = document.getElementById('howyouearn');
   if(!hye) return;
+  /* MOBILE ONLY. The brief is a mobile correction and says not to change desktop unless shared
+     code forces it — it does not here. On a wide screen the four HOW-YOU-EARN cards sit in a
+     grid beside each other and cost nothing, so desktop keeps exactly the page it had.
+     Matched to the same 860px breakpoint as body.rad-m so the two cannot disagree. A resize
+     across the breakpoint keeps whichever layout the page loaded with, which is the behaviour
+     the existing mobile enhancer above already has. */
+  try { if(!window.matchMedia('(max-width:860px)').matches) return; } catch(e) { return; }
 
   /* Pull the four explanations out of HOW YOU EARN and key them by section id. */
   var arts = [].slice.call(hye.querySelectorAll('article.hye'));
