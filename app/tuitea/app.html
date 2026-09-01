@@ -2,161 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TUITEA</title>
 <meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#3F7658">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="TUITEA">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" href="icon-192.png" type="image/png">
-
+<link rel="canonical" href="https://keepitil.com/app/tuitea/app/">
 <!--
-  TUITEA WEB SHELL
-  ============================================================================
-  This is the installed web client of TUITEA. It is NOT a second app: there is
-  one TUITEA experience and one authoritative backend. The native iPhone build
-  exists for the bridges only a native app can hold (HealthKit, voice/audio);
-  everything else is delivered here, live, so the owner gets changes without
-  reinstalling anything.
+  LEGACY ENTRY POINT.
+  ==========================================================================
+  This path used to hold a hand-written demonstration shell. It now holds the
+  real, compiled TUITEA at /app/tuitea/app/ instead.
 
-  Sections below are rendered ONLY when flags.json turns them on. Nothing here
-  invents data — an enabled section that has no backend wired yet says so
-  plainly rather than showing a fake.
-  ============================================================================
+  It survives as a redirect rather than being deleted because an already
+  installed home-screen icon may have this URL in its history, and the service
+  worker of a previous install has it precached. A 404 there would look like
+  the app had broken. The redirect is meta + script + link so it works with or
+  without JavaScript.
 -->
-
-<style>
-  :root{
-    --bg:#FBF7EF; --surface:#FFFDF8; --line:#E2D9C6;
-    --ink:#20261F; --muted:#6E7566; --forest:#3F7658; --forest-deep:#2F5B41;
-    --radius:16px;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#14170F; --surface:#1C201A; --line:#333A2D;
-      --ink:#ECE7DA; --muted:#9BA391; --forest:#7FB894; --forest-deep:#9FCFB0;
-    }
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font:17px/1.55 ui-sans-serif,system-ui,-apple-system,'Karla',sans-serif;
-    -webkit-text-size-adjust:100%;
-    padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
-  .wrap{max-width:38rem;margin:0 auto;padding:1.5rem 1.25rem 5rem}
-  h1{font-size:1.5rem;letter-spacing:.14em;margin:.5rem 0 .15rem}
-  .tag{color:var(--muted);margin:0 0 1.5rem}
-  .card{background:var(--surface);border:1px solid var(--line);
-    border-radius:var(--radius);padding:1.1rem 1.15rem;margin:0 0 1rem}
-  .card h2{font-size:1.05rem;margin:0 0 .35rem}
-  .card p{margin:.3rem 0;color:var(--muted)}
-  .pending{font-size:.85rem;color:var(--muted);opacity:.85;margin-top:.5rem}
-  .meta{font-size:.8rem;color:var(--muted);margin-top:2rem;line-height:1.9}
-  .meta code{background:rgba(127,127,127,.14);padding:.1em .35em;border-radius:4px}
-  .banner{background:var(--forest);color:#fff;border-radius:var(--radius);
-    padding:.9rem 1rem;margin:0 0 1rem}
-  .banner p{color:#fff;margin:0}
-  a{color:var(--forest-deep)}
-  .off{opacity:.6}
-</style>
+<meta http-equiv="refresh" content="0; url=./app/">
+<script>location.replace('./app/' + location.search + location.hash);</script>
+<style>body{margin:0;background:#FBF7EF;color:#20261F;
+  font:17px/1.5 ui-sans-serif,system-ui,-apple-system,sans-serif;padding:2rem}
+  @media (prefers-color-scheme:dark){body{background:#14170F;color:#ECE7DA}}
+  a{color:#3F7658}</style>
 </head>
-<body>
-<div class="wrap">
-  <h1>TUITEA</h1>
-  <p class="tag">A private app for one family.</p>
-
-  <div id="notice"></div>
-  <div id="sections"></div>
-
-  <div class="meta" id="meta"></div>
-</div>
-
-<script src="pwa.js"></script>
-<script>
-(function () {
-  'use strict';
-
-  /* Every section the shell knows how to present, in order. `ready` says
-     whether the live surface behind it exists yet — an owner-enabled flag on a
-     surface that is not wired shows an honest "not connected yet" line rather
-     than a placeholder that looks like real family data. */
-  var SECTIONS = [
-    { flag:'people',    title:'People',    blurb:'Who everyone is, and how they are related.', ready:false },
-    { flag:'stories',   title:'Stories',   blurb:'Photographs and the stories behind them.',   ready:false },
-    { flag:'health',    title:'Health',    blurb:'Each person’s own record. Sharing is their choice alone.', ready:false },
-    { flag:'household', title:'Household', blurb:'The everyday running of the house.',         ready:false }
-  ];
-
-  var sections = document.getElementById('sections');
-  var notice   = document.getElementById('notice');
-  var meta     = document.getElementById('meta');
-
-  function card(html, cls) {
-    var d = document.createElement('div');
-    d.className = 'card' + (cls ? ' ' + cls : '');
-    d.innerHTML = html;
-    return d;
-  }
-
-  window.TUITEA.flags().then(function (f) {
-    if (f.message) {
-      var b = document.createElement('div');
-      b.className = 'banner';
-      b.appendChild(document.createElement('p')).textContent = f.message;
-      notice.appendChild(b);
-    }
-
-    if (f.stale) {
-      notice.appendChild(card(
-        '<h2>Update waiting</h2><p>A newer version of TUITEA is available. ' +
-        'Close and reopen the app to pick it up.</p>'));
-    }
-
-    var shown = 0;
-    SECTIONS.forEach(function (s) {
-      if (!f.on(s.flag)) return;     // hidden server-side; roll back by flag
-      shown++;
-      sections.appendChild(card(
-        '<h2>' + s.title + '</h2><p>' + s.blurb + '</p>' +
-        (s.ready ? '' : '<p class="pending">Not connected to your household yet ' +
-                        'on the web. It is live in the iPhone app.</p>')));
-    });
-
-    if (!shown) {
-      sections.appendChild(card(
-        '<h2>Nothing switched on yet</h2>' +
-        '<p>TUITEA is installed and updating itself. Sections appear here as ' +
-        'they are turned on — you will not need to reinstall.</p>'));
-    }
-
-    if (f.on('nativeBridgeNotice')) {
-      sections.appendChild(card(
-        '<h2>On your iPhone</h2>' +
-        '<p>Apple Health and voice notes need the iPhone app — iOS does not ' +
-        'give a website access to them. Same account, same household, same data.</p>' +
-        '<p style="margin-top:.6rem"><a href="./">Get the iPhone app</a></p>', 'off'));
-    }
-
-    if (f.on('reportProblem')) {
-      sections.appendChild(card(
-        '<h2>Report a problem</h2>' +
-        '<p>Something wrong on this screen? Tell whoever set TUITEA up — it is ' +
-        'the fastest way to get it fixed.</p>'));
-    }
-
-    var e = window.TUITEA.env;
-    meta.innerHTML =
-      'Shell <code>v' + e.shellVersion + '</code> &middot; ' +
-      'flags <code>v' + (f.raw.version != null ? f.raw.version : '?') + '</code> ' +
-      '(' + (f.raw.updated || 'unknown') + ')<br>' +
-      'Cohort <code>' + f.cohort + '</code> &middot; ' +
-      (e.standalone ? 'installed' : 'in browser') + '<br>' +
-      'Updates apply on the next launch. Reinstalling is never required.';
-  });
-})();
-</script>
-</body>
+<body><p>Opening TUITEA… <a href="./app/">Continue</a></p></body>
 </html>

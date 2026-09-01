@@ -15,7 +15,7 @@
   'use strict';
 
   var SCOPE = '/app/tuitea/';
-  var SHELL_VERSION = 1;          // bump with sw.js CACHE_VERSION on each deploy
+  var SHELL_VERSION = 2;          // bump with sw.js CACHE_VERSION on each deploy
 
   /* ---------------------------------------------------------------- env --- */
   var ua = navigator.userAgent || '';
@@ -243,9 +243,9 @@
     var onInstallPage = /\/app\/tuitea\/(index\.html)?$/.test(location.pathname);
 
     // Launched from the home screen icon: start_url is /app/tuitea/, so hand
-    // straight over to the shell rather than showing the TestFlight page.
+    // straight over to the compiled app rather than the TestFlight page.
     if (onInstallPage && isStandalone) {
-      location.replace(SCOPE + 'app.html' + location.search);
+      location.replace(SCOPE + 'app/' + location.search);
       return;
     }
 

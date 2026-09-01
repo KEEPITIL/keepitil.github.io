@@ -10,14 +10,17 @@
     "  1. cohorts[<the viewer's cohort>][<flag>]",
     "  2. flags[<flag>]",
     "  3. false",
+    "webBuildStamp selects WHICH COMPILED TUITEA the installed web app boots:",
+    "off -> main.dart.js (GIT_SHA unset), on -> main.stamped.dart.js (stamped).",
+    "Both are real release builds of the same commit; a viewer downloads one.",
     "A viewer's cohort is whatever they hold in localStorage 'tuitea.cohort'.",
     "'owner' and 'test' are set by opening /app/tuitea/?cohort=owner once.",
     "Everyone else is 'public'. This is a PRESENTATION gate, not a security",
     "boundary — real authorisation lives in the backend, never in this file."
   ],
-  "version": 1,
+  "version": 2,
   "updated": "2026-09-01",
-  "minShellVersion": 1,
+  "minShellVersion": 2,
   "message": null,
   "flags": {
     "shell": true,
@@ -26,10 +29,12 @@
     "health": false,
     "household": false,
     "reportProblem": true,
+    "webBuildStamp": false,
     "nativeBridgeNotice": true
   },
   "cohorts": {
     "owner": {
+      "webBuildStamp": false,
       "people": true,
       "stories": true,
       "health": true,
