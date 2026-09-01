@@ -1029,9 +1029,23 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        A 30px glyph in a 40px circle leaves 5px of padding — deliberate, but it means the icon
        must not carry its own box: width/height are forced to the glyph size so a 26px default
        can't quietly re-inflate the button. */
-    +'#kilo-btn{right:5px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:40px!important;height:40px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;background:linear-gradient(135deg,#00b4ff,#22e39b)!important;display:flex!important;align-items:center;justify-content:center;overflow:hidden}'
+    /* Founder-tuned 2026-08-15 at 40px / 5px. Adjusted 2026-08-31 for the KEEPITIL mark and the
+       count badge: 44px is the accessible tap minimum, and the badge sits 6px outside the
+       circle, so at right:5px its own right edge landed 1px PAST the viewport — measured 376
+       against a 375 viewport. 8px puts the whole badge on screen with room to spare.
+       ⚠ overflow MUST be visible. It was hidden, which clipped the badge against the button's
+       own border-radius, and that is the clipping the badge fix is about. */
+    +'#kilo-btn{right:8px!important;left:auto!important;top:auto!important;bottom:calc(var(--kil-bnav-h,56px) + 5px)!important;width:44px!important;height:44px!important;min-width:0!important;min-height:0!important;padding:0!important;border-radius:50%!important;background:linear-gradient(135deg,#00b4ff,#22e39b)!important;display:flex!important;align-items:center;justify-content:center;overflow:visible!important}'
 /* Founder-tuned 2026-08-22 in the floating-button editor: 40px button, 20px glyph. */
+    /* .kilo-mark added 2026-08-31: the glyph is the KEEPITIL mark now, painted through a
+       CSS mask on a span rather than an <svg>. It belongs in the same rule so the shell
+       stays the single owner of the glyph size. 22px in a 44px circle keeps the 11px ring
+       of padding the 20px-in-40px original had. */
     +'#kilo-btn svg,#kilo-btn img,#kilo-btn i{width:20px!important;height:20px!important;font-size:20px!important;line-height:1!important;display:block}'
+    +'#kilo-btn .kilo-mark{width:22px!important;height:24px!important;display:block}'
+    /* The badge is positioned OUTSIDE the circle on purpose; nothing in the shell may
+       clip it, and it must not be forced to the glyph size by the rule above. */
+    +'#kilo-btn #kilo-badge{overflow:visible!important;width:auto!important;height:18px!important}'
     /* Chat visibility is now driven by KIL_FLOATING, not a single hardcoded page rule.
        The class is applied to <html> at mount. NOTE: the owner turned chat ON for profile
        (reversing §C) and OFF for Culture and VS on 2026-08-15. */

@@ -183,7 +183,7 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
    Not a dropdown and not an accordion: on a phone either one pushes the section you were
    reading off the screen. position:fixed means the page underneath never scrolls or reflows,
    which is also what makes X land you back on the exact row you left. */
-#hyeOv{position:fixed;inset:0;z-index:1200;display:none;background:#0a0f0e}
+#hyeOv{position:fixed;inset:0;z-index:1200;display:none;background:#0a0f0e;overscroll-behavior:contain;touch-action:none}
 #hyeOv.on{display:flex;flex-direction:column}
 #hyeOv .hye-panel{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
   padding:calc(var(--kil-safe-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
@@ -195,7 +195,10 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
   background:rgba(255,255,255,.06);color:#eafff7;font-size:1.2rem;line-height:1;cursor:pointer}
 #hyeOv .hye-x:active{background:rgba(255,255,255,.14)}
 /* Only the CONTENT scrolls — the title row and X stay put however long the copy is. */
-#hyeOv .hye-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* contain + pan-y: the panel scrolls its own content and a drag that runs past the end
+   stops there instead of chaining to the page behind it. */
+#hyeOv .hye-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;touch-action:pan-y}
 #hyeOv .hye-body .sec-about{border:0;background:none;padding:0;margin:0}
 @media(min-width:861px){
   #hyeOv{background:rgba(4,8,7,.82);backdrop-filter:blur(6px);padding:24px}
@@ -1530,10 +1533,14 @@ radStats();
     if(slot) slot.appendChild(about[openFor].node);
     else if(ovBody.firstChild) ovBody.removeChild(ovBody.firstChild);
     ov.classList.remove('on');
-    document.body.style.overflow = '';
     openFor = null;
     /* No scrollTo of any kind. The document never moved. */
-    if(lastFocus && lastFocus.focus) { try{ lastFocus.focus(); }catch(e){} }
+    /* ⚠ preventScroll IS THE WHOLE FIX. Returning focus to the INFO button made the browser
+       scroll that button into view, which is what moved the page: measured 600 -> 1222 on
+       PLAYLISTS, 600 -> 1699 on EARN, and no movement at all on RADIO only because its button
+       happened to already be on screen. Focus belongs back on the control; the scroll does not
+       come with it. */
+    if(lastFocus && lastFocus.focus) { try{ lastFocus.focus({preventScroll:true}); }catch(e){ try{ lastFocus.focus(); }catch(e2){} } }
   }
   function openOv(k, from){
     if(!about[k]) return;
@@ -1542,10 +1549,13 @@ radStats();
     ovTitle.textContent = about[k].label;
     ovBody.appendChild(about[k].node);
     ov.classList.add('on');
-    /* The page behind a full-screen modal must not scroll. position:fixed already stops it
-       reflowing; this stops a touch-drag over the overlay moving the page underneath. */
-    document.body.style.overflow = 'hidden';
-    ovX.focus();
+    /* ⚠ DO NOT SET body{overflow:hidden} HERE. Measured: it moved the document from scrollY
+       700 to 1222, so X returned the visitor 522px away from the section they opened. This
+       page's body is overflow-x:clip, and toggling overflow re-resolves that and reflows the
+       scroller. The overlay is position:fixed and covers the viewport, and .hye-body carries
+       overscroll-behavior:contain, which is what actually stops a drag reaching the page
+       behind it. Leaving the document alone is what makes the scroll position exact. */
+    try{ ovX.focus({preventScroll:true}); }catch(e){ ovX.focus(); }
   }
   ovX.addEventListener('click', closeOv);
   ov.addEventListener('click', function(e){ if(e.target === ov) closeOv(); });
