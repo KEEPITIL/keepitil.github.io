@@ -675,7 +675,12 @@ renderSubs();render();
   function loadCommunities(){
     var p='communities?select=id,slug,name,description,topic_key,tags,icon_url,member_count,visibility'
          +'&archived=is.false&order=member_count.desc,name.asc&limit=100';
-    return rest(p).then(function(r){ S.list=(r.data||[]); });
+    return rest(p).then(function(r){
+      S.list=(r.data||[]);
+      /* The hero COMMUNITY stat counts the communities TABLE. cnt('community') reads the
+         directory array, which has no community rows in it and always reported 0. */
+      var el=document.getElementById('cO'); if(el) el.textContent=String(S.list.length);
+    });
   }
   /* Membership comes from the DATABASE every time. A local "joined" flag would be a lie the
      moment the same account opened another device. */
