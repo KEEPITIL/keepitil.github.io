@@ -325,13 +325,12 @@ function splitv(s){return (s||'').split('/').map(t=>t.trim()).filter(Boolean);}
 function bucketOf(g){g=g.toLowerCase();for(const[b,l]of BUCKETS){if(l.includes(g))return b;}return 'Other';}
 function artistBuckets(){const items=DATA.filter(x=>x.kinds.includes('artist'));const present=new Set();items.forEach(x=>splitv(x.genre).forEach(g=>present.add(bucketOf(g))));return BUCKETS.map(b=>b[0]).concat(['Other']).filter(b=>present.has(b));}
 function typeValues(kind){const items=DATA.filter(x=>matchesKind(x,kind));return [...new Set(items.flatMap(x=>splitv(x.category||x.type)))].sort();}
-/* DEFAULT IS COMMUNITY (Founder 2026-08-31) — but only once Community has something to show.
-   Community's data and UI land in a later phase; until then, opening CONNECT straight onto an
-   empty tab would be a worse landing than the one it replaces. defaultKind() flips to
-   'community' by itself the moment a community exists, so no follow-up edit is needed here. */
-function hasCommunities(){ return DATA.some(x=>(x.kinds||[]).includes('community')); }
-function defaultKind(){ return hasCommunities() ? 'community' : 'artist'; }
-let kind=defaultKind(),q='',sub=null; // sub={facet:'genre'|'type',val}
+/* DEFAULT IS COMMUNITY, ALWAYS (Founder 2026-08-31, confirmed after review).
+   An earlier version fell back to 'artist' while the Community dataset was empty. That was
+   overruled: the default category is a product decision, not a function of how much data
+   happens to exist today. An empty Community shows a building state — it does not hand the
+   landing slot to another category and then silently take it back later. */
+let kind='community',q='',sub=null; // sub={facet:'genre'|'type',val}
 function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 function desc(x){return x.genre||x.category||x.type||'';}
 function card(x){
@@ -386,7 +385,7 @@ function render(){
   const g=document.getElementById('grid');
   /* BROKEN != EMPTY. Community has no rows until its own phase ships; saying "No matches"
      there would read as a search failure rather than a section that has not opened yet. */
-  var emptyHtml = (kind==='community' && !q && !sub)
+  var emptyHtml = (kind==='community' && cnt('community')===0)
     ? '<div class="empty"><div class="big">Community is opening soon</div>'
       + '<div>Learn, ask and share with other creators — communities for DJing, production, '
       + 'writing, art, events and more.</div></div>'
