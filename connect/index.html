@@ -1042,8 +1042,7 @@ renderSubs();render();
       openCommunity(card.getAttribute('data-slug'));
       return;
     }
-    if(t.closest && t.closest('#commGate .g-not, #commGate .g-x')){ closeGate(); return; }
-    if(t.id==='commGate'){ closeGate(); return; }
+
     if(t.id==='cmore'){ var first=pane.querySelector('.cmsg'); loadChat(first?first.getAttribute('data-at'):null); return; }
 
     var rb=t.closest&&t.closest('[data-reply]');
@@ -1120,6 +1119,12 @@ renderSubs();render();
       gate=document.createElement('div');
       gate.id='commGate';
       document.body.appendChild(gate);
+      /* ⚠ ITS OWN LISTENER. The delegated handler is bound to #commPane and the gate lives on
+         document.body, outside it — so Not now and X were unreachable and the gate could not be
+         dismissed at all. Backdrop click closes it too. */
+      gate.addEventListener('click', function(ev){
+        if(ev.target===gate || (ev.target.closest && ev.target.closest('.g-not, .g-x'))) closeGate();
+      });
     }
     gate.innerHTML='<div class="g-panel" role="dialog" aria-modal="true">'
       +'<button class="g-x" aria-label="Close">&#10005;</button>'
