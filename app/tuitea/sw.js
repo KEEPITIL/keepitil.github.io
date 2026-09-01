@@ -9,7 +9,7 @@
    caches are how PWAs end up serving a 2-month-old HTML file forever.
    ========================================================================== */
 
-const CACHE_VERSION = 'tuitea-v5';
+const CACHE_VERSION = 'tuitea-v6';
 const CACHE = CACHE_VERSION;
 const SCOPE = '/app/tuitea/';
 
