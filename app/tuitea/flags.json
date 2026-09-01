@@ -1,0 +1,43 @@
+{
+  "_comment": [
+    "SERVER-SIDE FEATURE FLAGS for the TUITEA web shell.",
+    "This file is fetched fresh on every launch (network-first, never cached by",
+    "the service worker) so a section can be hidden or restored WITHOUT",
+    "redeploying the app shell and WITHOUT anybody reinstalling.",
+    "Rollback = edit this file, commit. Live in under a minute.",
+    "",
+    "Resolution order for each flag, first match wins:",
+    "  1. cohorts[<the viewer's cohort>][<flag>]",
+    "  2. flags[<flag>]",
+    "  3. false",
+    "A viewer's cohort is whatever they hold in localStorage 'tuitea.cohort'.",
+    "'owner' and 'test' are set by opening /app/tuitea/?cohort=owner once.",
+    "Everyone else is 'public'. This is a PRESENTATION gate, not a security",
+    "boundary — real authorisation lives in the backend, never in this file."
+  ],
+  "version": 1,
+  "updated": "2026-09-01",
+  "minShellVersion": 1,
+  "message": null,
+  "flags": {
+    "shell": true,
+    "people": false,
+    "stories": false,
+    "health": false,
+    "household": false,
+    "reportProblem": true,
+    "nativeBridgeNotice": true
+  },
+  "cohorts": {
+    "owner": {
+      "people": true,
+      "stories": true,
+      "health": true,
+      "household": true
+    },
+    "test": {
+      "people": true,
+      "household": true
+    }
+  }
+}
