@@ -35205,7 +35205,7 @@ r.n(0,"occurred_at",q.dY())
 r.n(0,"client_kind",A.bFF().c)
 r.n(0,"app_version","1.0.0")
 r.n(0,"build_number","47")
-r.n(0,"git_commit","47.e6667dd.stamped")
+r.n(0,"git_commit","47.73c6cfb.stamped")
 r.n(0,"event",a.c)
 r.n(0,"anonymous_origin",b.c)
 r.n(0,"result",c.c)
@@ -141867,7 +141867,7 @@ p=A.au(14)
 o=A.b([A.ax(A.b([B.a_I,A.bN1(n,B.H,n,n,!1,B.t,n,n,n,n,n,n,new A.aER(k,a),n,n,n,n,n,n,n,n,k.a)],q),B.j,B.f,B.h,0,n),B.aG,A.t("A single free, local reminder each day \u2014 no AI, nothing sent anywhere. Currently set for "+B.c.c2(B.e.j(k.b),2,"0")+":"+B.c.c2(B.e.j(k.c),2,"0")+".",n,n,n,n,n,B.cR,n,n,n)],q)
 if(k.a)B.b.D(o,A.b([B.a8,A.cj(B.ayd,n,n,n,new A.aES(a,k),n,n)],q))
 p=A.aF(n,A.af(o,B.q,B.f,B.h,0,B.i),B.k,n,n,new A.aN(B.ai,n,n,p,n,n,B.y),n,n,n,n,B.bS,n,n,n)
-return A.cV(j,B.a2,A.db(!0,A.cT(A.b([B.aGx,new A.p5(B.i6,"Sign-in & recovery",s,new A.aET(a),n),new A.p5(B.C9,"Your profile","What Tupu knows about you so far",new A.aEU(a),n),B.aGz,new A.p5(B.to,"Tone, voice & speech rate","How Tupu sounds and how it talks to you",new A.aEV(a),n),B.agw,new A.S(B.z0,r,n),B.aha,new A.S(B.z0,p,n),B.agV,new A.p5(B.a1w,"Report a problem","Tell us what went wrong and it goes to the team",new A.aEW(a),n),B.aGy,new A.p5(B.a1J,"Privacy Policy",m,new A.aEX(a),n),new A.p5(B.a1A,"Terms of Use",m,new A.aEY(a),n),new A.p5(B.a1N,"Storage","Cloud, this device, and what Tupu remembers",new A.aEZ(a),n),new A.S(B.Z,A.t("Tupu v1.0.0 (47) \xb7 47.e6667dd.stamped",n,n,n,n,n,B.bZ,n,n,n),n)],q),n,B.YJ,n,B.C,!1),!0,B.I,!0,!0),n,n)}}
+return A.cV(j,B.a2,A.db(!0,A.cT(A.b([B.aGx,new A.p5(B.i6,"Sign-in & recovery",s,new A.aET(a),n),new A.p5(B.C9,"Your profile","What Tupu knows about you so far",new A.aEU(a),n),B.aGz,new A.p5(B.to,"Tone, voice & speech rate","How Tupu sounds and how it talks to you",new A.aEV(a),n),B.agw,new A.S(B.z0,r,n),B.aha,new A.S(B.z0,p,n),B.agV,new A.p5(B.a1w,"Report a problem","Tell us what went wrong and it goes to the team",new A.aEW(a),n),B.aGy,new A.p5(B.a1J,"Privacy Policy",m,new A.aEX(a),n),new A.p5(B.a1A,"Terms of Use",m,new A.aEY(a),n),new A.p5(B.a1N,"Storage","Cloud, this device, and what Tupu remembers",new A.aEZ(a),n),new A.S(B.Z,A.t("Tupu v1.0.0 (47) \xb7 47.73c6cfb.stamped",n,n,n,n,n,B.bZ,n,n,n),n)],q),n,B.YJ,n,B.C,!1),!0,B.I,!0,!0),n,n)}}
 A.aET.prototype={
 $0(){return A.am(this.a,!1).bD(A.ce(new A.aEQ(),!1,null,t.z))},
 $S:0}
@@ -143011,7 +143011,7 @@ t(a){var s=null
 return A.a_B(A.cV(A.dm(s,s,s,B.aqx,s,s,s,s,s,s,B.aAo,s),s,B.aqr,s,s),0,2)}}
 A.zy.prototype={
 X(){var s=$.a2()
-return new A.Vb(new A.bU(B.ap,s),new A.bU(B.ap,s),"1.0.0 (47) \xb7 47.e6667dd.stamped")}}
+return new A.Vb(new A.bU(B.ap,s),new A.bU(B.ap,s),"1.0.0 (47) \xb7 47.73c6cfb.stamped")}}
 A.Vb.prototype={
 ga9D(){var s,r,q=this,p=q.x
 if(p===$){s=q.a.c
