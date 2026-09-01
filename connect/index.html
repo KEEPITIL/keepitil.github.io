@@ -250,6 +250,30 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
 .cres span{font:400 .8rem/1.4 Inter,sans-serif;color:#a9b3c4}
 .cres a{color:#7ff5d0;text-decoration:none;font:700 .78rem Inter,sans-serif}
 .comm-note{font:400 .82rem/1.45 Inter,sans-serif;color:#a9b3c4;padding:14px;text-align:center}
+/* ── ACCOUNT GATE (Founder 2026-09-01) ──────────────────────────────────────────────────
+   Community discovery is public; entering one is not. A signed-out tap explains that and
+   offers the two ways forward, rather than failing or bouncing the visitor somewhere generic.
+   position:fixed so the directory underneath keeps its search, topic and scroll position —
+   closing returns to exactly where they were. */
+#commGate{position:fixed;inset:0;z-index:1300;display:none;background:rgba(4,8,7,.86);
+  backdrop-filter:blur(6px);align-items:center;justify-content:center;
+  padding:calc(var(--kil-safe-top,0px) + 18px) 18px 18px}
+#commGate.on{display:flex}
+#commGate .g-panel{width:min(420px,100%);background:#0d1613;border:1px solid var(--line,#242433);
+  border-radius:16px;padding:22px 20px;box-shadow:0 18px 50px rgba(0,0,0,.6);position:relative}
+#commGate h3{font:900 1.15rem/1.2 var(--fh,Inter),sans-serif;letter-spacing:.03em;color:#fff;margin:0 0 8px}
+#commGate p{font:400 .88rem/1.45 Inter,sans-serif;color:#a9b3c4;margin:0 0 16px}
+#commGate .g-act{display:flex;flex-direction:column;gap:9px}
+#commGate a.g-primary{display:flex;align-items:center;justify-content:center;height:44px;border-radius:11px;
+  text-decoration:none;background:linear-gradient(90deg,#0f6e56,#00e0a4);color:#04120a;
+  font:800 .72rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+#commGate a.g-secondary{display:flex;align-items:center;justify-content:center;height:44px;border-radius:11px;
+  text-decoration:none;border:1px solid var(--line,#242433);background:rgba(255,255,255,.05);
+  color:#cfd3df;font:800 .72rem Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+#commGate button.g-not{background:none;border:0;color:#7d8b9c;cursor:pointer;margin-top:4px;
+  font:700 .72rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;padding:8px}
+#commGate .g-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:999px;
+  border:1px solid var(--line,#242433);background:rgba(255,255,255,.06);color:#eafff7;cursor:pointer}
 /* CREATE opportunities surfaced inside a community. Only competitions whose submissions are
    still open — community_active_competitions() filters on the date, so a closed competition
    cannot appear here even if the mapping still exists. */
@@ -1011,7 +1035,15 @@ renderSubs();render();
     var tab=t.closest&&t.closest('#commTabs button');
     if(tab){ S.tab=tab.getAttribute('data-tab'); renderDetail(); return; }
     var card=t.closest&&t.closest('.comm-card');
-    if(card && S.view==='list'){ openCommunity(card.getAttribute('data-slug')); return; }
+    if(card && S.view==='list'){
+      /* Discovery is public; entry is not. The database refuses the interior content to a
+         signed-out caller regardless — this is the explanation, not the enforcement. */
+      if(!SES){ openGate(card.getAttribute('data-slug')); return; }
+      openCommunity(card.getAttribute('data-slug'));
+      return;
+    }
+    if(t.closest && t.closest('#commGate .g-not, #commGate .g-x')){ closeGate(); return; }
+    if(t.id==='commGate'){ closeGate(); return; }
     if(t.id==='cmore'){ var first=pane.querySelector('.cmsg'); loadChat(first?first.getAttribute('data-at'):null); return; }
 
     var rb=t.closest&&t.closest('[data-reply]');
@@ -1076,6 +1108,38 @@ renderSubs();render();
       .then(function(r){ if(refuse(r,'resource')) renderResources(); });
   }
 
+  /* ── the account gate ───────────────────────────────────────────────────────────────── */
+  var gate=null;
+  function openGate(slug){
+    var c=S.list.filter(function(x){ return x.slug===slug; })[0];
+    if(!c) return;
+    /* The destination the visitor actually asked for, carried through signup and login so they
+       come back HERE rather than being dropped on a profile page. */
+    var next=encodeURIComponent('/connect/?c='+slug);
+    if(!gate){
+      gate=document.createElement('div');
+      gate.id='commGate';
+      document.body.appendChild(gate);
+    }
+    gate.innerHTML='<div class="g-panel" role="dialog" aria-modal="true">'
+      +'<button class="g-x" aria-label="Close">&#10005;</button>'
+      +'<h3>Join the community</h3>'
+      +'<p>Create a KEEPITIL account or sign in to enter '+esc(c.name)+' and take part.</p>'
+      +'<div class="g-act">'
+        +'<a class="g-primary" href="/signup.html?next='+next+'">Create account</a>'
+        +'<a class="g-secondary" href="/apply.html?next='+next+'">Log in</a>'
+        +'<button type="button" class="g-not">Not now</button>'
+      +'</div></div>';
+    gate.classList.add('on');
+    document.body.style.overflow='hidden';
+  }
+  function closeGate(){
+    if(gate) gate.classList.remove('on');
+    document.body.style.overflow='';
+    /* Nothing is re-rendered and nothing scrolls: the directory was never touched, so the
+       search text, the selected topic and the scroll position are exactly as they were. */
+  }
+
   /* ── back preserves search, topic and scroll ────────────────────────────────────────── */
   function backToList(){
     S.view='list'; S.slug=null; S.cur=null; S.role=null;
@@ -1104,6 +1168,17 @@ renderSubs();render();
          so without it both would land on the list and leave the visitor to find it again. */
       var want='';
       try{ want=(new URLSearchParams(location.search).get('c')||'').trim(); }catch(e){}
+      if(want && S.list.some(function(c){ return c.slug===want; }) && !SES){
+        /* Arriving at /connect/?c=<slug> signed out shows the directory with the gate over it,
+           so a shared community link still explains itself instead of failing silently. */
+        document.body.classList.add('comm-on');
+        var seg0=document.getElementById('seg');
+        if(seg0){ [].forEach.call(seg0.querySelectorAll('button'),function(b){
+          b.classList.toggle('on', b.dataset.k==='community'); }); }
+        renderList();
+        openGate(want);
+        return;
+      }
       if(want && S.list.some(function(c){ return c.slug===want; })){
         document.body.classList.add('comm-on');
         var seg=document.getElementById('seg');

@@ -225,11 +225,28 @@ function signIn(){
         else if(m==='Invalid login credentials') $('err').textContent='Wrong username/email or password. Try “Forgot password?”.';
         else $('err').textContent=m;
         b.disabled=false; b.textContent='LOG IN';
-      } else { location.replace('/profile.html'); }
+      } else {
+        /* INTENT SURVIVES AUTH. A visitor who tapped a community and was asked to sign in
+           should land back on that community, not on their profile with the thing they wanted
+           forgotten. Same-origin PATHS only — an open redirect here would let any link send a
+           freshly authenticated user anywhere. */
+        location.replace(kilNext() || '/profile.html');
+      }
     });
   }).catch(function(){ $('err').textContent='Could not log in — try again.'; b.disabled=false; b.textContent='LOG IN'; });
 }
 
+/* Returns a safe same-origin path from ?next=, or '' when there isn't one. Rejects anything
+   that is not a single-slash-rooted path, which is what blocks //evil.com and absolute URLs. */
+function kilNext(){
+  try{
+    var n = new URLSearchParams(location.search).get('next') || '';
+    if(!n) return '';
+    n = decodeURIComponent(n);
+    if(n.charAt(0) !== '/' || n.charAt(1) === '/') return '';
+    return n;
+  }catch(e){ return ''; }
+}
 $('login-btn').addEventListener('click',signIn);
 /* Social sign-in (Google / Apple). Works once the provider is enabled in Supabase Auth.
    Until then it shows a friendly message instead of a raw error. */
