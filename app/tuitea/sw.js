@@ -49,7 +49,7 @@
    Generated. The compiled Dart in this same release reports
    `<build>.<commit>.<variant>` — same build number, same commit — so a
    telemetry row, this cache name and the deployed files can be lined up. */
-const RELEASE = '47.c7734ba';
+const RELEASE = '47.86a5910';
 const CACHE = 'tuitea-release-' + RELEASE;
 const SCOPE = '/app/tuitea/';
 
@@ -114,19 +114,33 @@ function isFallbackFont(pathname) {
   return pathname.startsWith(SCOPE + 'app/fallback-fonts/');
 }
 
+/* Bring this release's cache up to complete, fetching only what is absent.
+   ALL-OR-NOTHING, ON PURPOSE: addAll rejects as a unit. During install a
+   rejection is the feature — it aborts the install and leaves the user on the
+   last release that was whole, where the previous worker caught each add()
+   individually and could therefore activate a release with pieces missing.
+   `cache: 'reload'` bypasses the HTTP cache so the release is assembled from
+   the deploy, not from whatever the browser happened to keep.
+
+   WHY IT ALSO RUNS AFTER INSTALL. A worker's cache is not owned by the worker:
+   the browser can evict it under storage pressure, and clearing site data
+   removes it while leaving the worker installed and running. Because a
+   byte-identical sw.js never installs again, nothing would ever refill it —
+   observed live, a controlling worker serving an empty release. The app keeps
+   working from the network in that state, but it is no longer offline-capable
+   and no longer atomic, which is the whole guarantee. So completeness is
+   re-established on activation and re-checked at each launch. */
+async function ensureComplete() {
+  const cache = await caches.open(CACHE);
+  const have = new Set((await cache.keys()).map((r) => new URL(r.url).pathname));
+  const missing = RELEASE_FILES.filter((p) => !have.has(p));
+  if (missing.length === 0) return { complete: true, refilled: 0 };
+  await cache.addAll(missing.map((url) => new Request(url, { cache: 'reload' })));
+  return { complete: true, refilled: missing.length };
+}
+
 self.addEventListener('install', (event) => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    /* ALL-OR-NOTHING, ON PURPOSE. The previous worker caught each add()
-       individually so one 404 could not abort the install — which meant a
-       release could activate with pieces missing. Here a rejection is the
-       feature: it aborts the install and leaves the user on the last release
-       that was whole. `cache: 'reload'` bypasses the HTTP cache so the release
-       is assembled from the deploy, not from whatever the browser kept. */
-    await cache.addAll(
-      RELEASE_FILES.map((url) => new Request(url, { cache: 'reload' }))
-    );
-  })());
+  event.waitUntil(ensureComplete());
   // No skipWaiting(): the page offers "a new version is ready" and the person
   // decides when the app is swapped out from under them.
 });
@@ -143,6 +157,9 @@ self.addEventListener('activate', (event) => {
       try { await self.registration.navigationPreload.enable(); } catch (e) {}
     }
     await self.clients.claim();
+    // After claiming, not before: a repair that fails must not stop this worker
+    // taking over, or an evicted cache would strand the client on nothing.
+    try { await ensureComplete(); } catch (e) {}
   })());
 });
 
@@ -155,6 +172,11 @@ self.addEventListener('message', (event) => {
     // reaches the asker directly instead of every handler on the client.
     if (event.ports && event.ports[0]) event.ports[0].postMessage(reply);
     else if (event.source) event.source.postMessage(reply);
+  }
+  if (data.type === 'VERIFY') {
+    // Asked by the shell on every launch. Cheap when nothing is missing: one
+    // cache.keys() and a set difference, no network.
+    event.waitUntil(ensureComplete().catch(() => {}));
   }
   if (data.type === 'CLEAR_CACHES') {
     event.waitUntil(caches.keys().then((ns) =>

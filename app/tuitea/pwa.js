@@ -25,8 +25,8 @@
      drifted, because that is what two hand-maintained numbers do. RELEASE is
      the same identity the service worker and the compiled Dart carry, so all
      three answer the same question with the same string. */
-  var SHELL_VERSION = 10;
-  var RELEASE = '47.c7734ba';
+  var SHELL_VERSION = 11;
+  var RELEASE = '47.86a5910';
 
   /* Readable from the DOM without a debugger, and before any Dart has run.
      This is the shell's own claim about which release it is; the worker's claim
@@ -279,7 +279,18 @@
       .catch(function () { /* SW unavailable (private mode, http) — app still works */ });
 
     // A first launch is uncontrolled until the worker claims it.
-    navigator.serviceWorker.ready.then(askWorkerWhoItIs).catch(function () {});
+    navigator.serviceWorker.ready.then(function () {
+      askWorkerWhoItIs();
+      // And have it confirm it still holds a complete release. A cache the
+      // browser evicted, or that clearing site data removed, leaves a running
+      // worker serving nothing — and a byte-identical sw.js never reinstalls,
+      // so without this nothing would ever refill it.
+      try {
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'VERIFY' });
+        }
+      } catch (e) {}
+    }).catch(function () {});
 
     var reloading = false;
     navigator.serviceWorker.addEventListener('controllerchange', function () {
