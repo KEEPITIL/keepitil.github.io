@@ -15,7 +15,7 @@
   'use strict';
 
   var SCOPE = '/app/tuitea/';
-  var SHELL_VERSION = 3;          // bump with sw.js CACHE_VERSION on each deploy
+  var SHELL_VERSION = 4;          // bump with sw.js CACHE_VERSION on each deploy
 
   /* ---------------------------------------------------------------- env --- */
   var ua = navigator.userAgent || '';

@@ -9,7 +9,7 @@
    caches are how PWAs end up serving a 2-month-old HTML file forever.
    ========================================================================== */
 
-const CACHE_VERSION = 'tuitea-v4';
+const CACHE_VERSION = 'tuitea-v5';
 const CACHE = CACHE_VERSION;
 const SCOPE = '/app/tuitea/';
 
@@ -70,6 +70,16 @@ self.addEventListener('message', (event) => {
   }
 });
 
+/* Cache keys are PATHS, never full URLs.
+   Requests arrive with query strings that mean nothing to the stored bytes:
+   Flutter appends ?cachebuster=<timestamp> to version.json on every single
+   launch, and the shell passes ?cohort=... through to the app. Keyed by URL
+   those produce a brand new cache entry per launch and the cache grows without
+   limit. Keyed by path there is exactly one entry per file. */
+function cacheKey(request) {
+  return new URL(request.url).pathname;
+}
+
 function isDocument(request) {
   return request.mode === 'navigate' ||
          (request.headers.get('accept') || '').includes('text/html');
@@ -99,11 +109,11 @@ self.addEventListener('fetch', (event) => {
         const fresh = await fetch(new Request(req.url, { cache: 'no-store' }));
         if (fresh && fresh.ok) {
           const cache = await caches.open(CACHE);
-          cache.put(req, fresh.clone());
+          cache.put(cacheKey(req), fresh.clone());
         }
         return fresh;
       } catch (e) {
-        const cached = await caches.match(req);
+        const cached = await caches.match(cacheKey(req));
         return cached || new Response('{}', { headers: { 'Content-Type': 'application/json' } });
       }
     })());
@@ -120,11 +130,11 @@ self.addEventListener('fetch', (event) => {
         const res = preloaded || await fetch(req);
         if (res && res.ok) {
           const cache = await caches.open(CACHE);
-          cache.put(req, res.clone());
+          cache.put(cacheKey(req), res.clone());
         }
         return res;
       } catch (e) {
-        const cached = await caches.match(req) || await caches.match(SCOPE + 'app/');
+        const cached = await caches.match(cacheKey(req)) || await caches.match(SCOPE + 'app/');
         return cached || new Response(
           '<!doctype html><meta charset=utf-8><title>TUITEA offline</title>' +
           '<body style="font:17px system-ui;background:#FBF7EF;color:#20261F;padding:2rem">' +
@@ -140,11 +150,11 @@ self.addEventListener('fetch', (event) => {
      background refresh. Cheap and instant; correctness comes from the fact
      that a deploy bumps CACHE_VERSION and empties the old cache entirely. */
   event.respondWith((async () => {
-    const cached = await caches.match(req);
+    const cached = await caches.match(cacheKey(req));
     const network = fetch(req).then(async (res) => {
       if (res && res.ok) {
         const cache = await caches.open(CACHE);
-        cache.put(req, res.clone());
+        cache.put(cacheKey(req), res.clone());
       }
       return res;
     }).catch(() => null);
