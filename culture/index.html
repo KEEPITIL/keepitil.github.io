@@ -642,7 +642,7 @@ function toggleFeedDD(e){if(e){e.stopPropagation();}var m=document.getElementByI
 /* ── Culture EXPLORE dropdown: radio / battles / games / apps / services ── */
 function culNav(section){
   var m=document.getElementById('feedDDMenu'); if(m)m.classList.remove('open');
-  if(section==='radio'){ location.href='/earn'; return; }
+  if(section==='radio'){ location.href='/earn/'; return; }
   var s=SOON[section]; if(!s) return;
   var cf=document.getElementById('community-feed'); if(cf)cf.style.display='none';
   var f=document.getElementById('feed'); if(f)f.innerHTML='<div class="gate"><div class="i">'+s.i+'</div><h3>'+s.t+'</h3><p>'+s.d+'</p><a href="'+(s.cta||'/apply.html#plans')+'">'+(s.ctaT||'Join to get early access →')+'</a></div>';
@@ -654,12 +654,12 @@ function culSection(sec){
   var feedEls=[document.getElementById('culTypeBar'),document.getElementById('community-feed'),document.getElementById('feed')];
   var panel=document.getElementById('cul-section-panel');
   var now=document.getElementById('feedNow');
-  if(sec==='radio'){ location.href='/earn'; return; }
+  if(sec==='radio'){ location.href='/earn/'; return; }
   /* K5: VS is a destination now (K1), and /create is the real product with 36 published
      competitions. The panel below is static promo copy that predates it and never showed
      a single competition, so Culture routed people to a worse copy of a page that exists.
      Same treatment Radio already had. Nothing new is built here. */
-  if(sec==='vs'){ location.href='/create'; return; }
+  if(sec==='vs'){ location.href='/create/'; return; }
   if(sec==='feed'){
     feedEls.forEach(function(e){ if(e)e.style.display=''; });
     if(panel){ panel.style.display='none'; panel.innerHTML=''; }
@@ -867,7 +867,7 @@ function applyCulFilters(){
   else if(culType==='circle'){ rows=rows.filter(function(x){ var s=String(x.profile_slug||'').toLowerCase(); return fg[s]&&fr[s]; }); }
   window.__culRenderRows(rows);
   if(culType!=='all' && !rows.length){
-    box.innerHTML='<div class="gate"><div class="i">👥</div><h3>Nothing here yet</h3><p>No posts in your '+culType+' yet — follow more of the scene.</p><a href="/connect">Browse the directory →</a></div>';
+    box.innerHTML='<div class="gate"><div class="i">👥</div><h3>Nothing here yet</h3><p>No posts in your '+culType+' yet — follow more of the scene.</p><a href="/connect/">Browse the directory →</a></div>';
   }
 }
 function loadCulRelations(){
@@ -2455,7 +2455,7 @@ function culResolveFilters(){
    It still mattered because vrGoSub carried a SECOND, stale router:
        radio -> '/culture/radio'   (404 on production, verified)
        vs    -> '/culture/vs'      (404 on production, verified)
-   while the live router, culSection(), sends radio -> '/earn' (200). Two routers disagreeing
+   while the live router, culSection(), sends radio -> '/earn/' (200). Two routers disagreeing
    about the same destination is exactly the drift the closeout is meant to remove, and those
    two paths were the only references to those URLs anywhere in the site.
    Deleted rather than hidden: dead code that still names a dead route is how the wrong one

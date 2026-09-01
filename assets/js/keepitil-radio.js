@@ -307,8 +307,8 @@
     radio.addEventListener('click',function(e){
       /* clicking the bar opens the Radio page — except the mute button, volume, minimize, or the advertisement */
       if(e.target&&e.target.closest&&e.target.closest('.krb')){return;}
-      if(location.pathname.indexOf('/earn')===0)return; /* already on the radio surface */
-      location.href='/earn';
+      if(location.pathname.indexOf('/earn/')===0)return; /* already on the radio surface */
+      location.href='/earn/';
     });
   }
 

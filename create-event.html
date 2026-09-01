@@ -289,7 +289,7 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
     <p style="color:var(--muted);margin-bottom:20px">Your event is in review. Once approved it appears in the Scene, on your profile, and in the radio-bar "List Your Event" slot — and our crew can whip up a flyer + promo.</p>
     <a class="btn primary" id="mktg-link" href="/dashboard.html" style="margin-bottom:10px">📣 Set up marketing</a>
     <br/>
-    <a class="btn ghost" href="/connect">Back to the Scene</a>
+    <a class="btn ghost" href="/connect/">Back to the Scene</a>
   </div>
 </div>
 
@@ -532,7 +532,7 @@ async function seriesAction(act, slug, btn){
     var r=await supa.rpc(act==='delete'?'delete_event':'archive_event',{p_slug:slug});
     var d=(r&&r.data)||{}; if(r.error) throw r.error;
     if(d.error){ alert(d.message||d.error); btn.disabled=false; btn.textContent=old; return; }
-    if(act==='delete' && slug===EDIT_SLUG){ location.href='/connect'; return; }
+    if(act==='delete' && slug===EDIT_SLUG){ location.href='/connect/'; return; }
     SERIES=SERIES.filter(function(s){ return !(act==='delete' && s.slug===slug); }).map(function(s){ if(act==='archive'&&s.slug===slug) s.status='archived'; return s; });
     renderSeries();
   }catch(e){ alert('Could not complete: '+(e.message||e)); btn.disabled=false; btn.textContent=old; }

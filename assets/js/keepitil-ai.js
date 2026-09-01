@@ -1866,13 +1866,13 @@
       organizer:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 9h16M8 3v4M16 3v4"/>',
       link:'<path d="M9 15l6-6"/><path d="M10 6l1-1a4 4 0 0 1 6 6l-1 1"/><path d="M14 18l-1 1a4 4 0 0 1-6-6l1-1"/>'
     };
-    var map=[['/connect','scene'],['/culture','culture'],['amazon','shop'],['/apply.html','login'],['/signup','login'],['/grow','grow'],['/artist','artist'],['/brand','brand'],['/organizer','organizer']];
+    var map=[['/connect/','scene'],['/culture/','culture'],['amazon','shop'],['/apply.html','login'],['/signup','login'],['/grow','grow'],['/artist','artist'],['/brand','brand'],['/organizer','organizer']];
     function iconName(href){ href=(href||'').toLowerCase(); for(var i=0;i<map.length;i++){ if(href.indexOf(map[i][0])>-1) return map[i][1]; } return 'link'; }
     function makeIco(name){ var s=document.createElement('span'); s.className='kil-nav-ico'; s.setAttribute('aria-hidden','true'); s.innerHTML='<svg viewBox="0 0 24 24">'+(ICON[name]||ICON.link)+'</svg>'; return s; }
     /* Build ONE canonical mobile header on EVERY page: Culture · Scene · Login (logo = home) */
     if(ul.getAttribute('data-kil-mnav')) return;
     ul.setAttribute('data-kil-mnav','1');
-    var CANON=[['/culture','CULTURE','culture'],['/connect','CONNECT','connect'],['/apply.html','LOGIN','login']];
+    var CANON=[['/culture/','CULTURE','culture'],['/connect/','CONNECT','connect'],['/apply.html','LOGIN','login']];
     ul.innerHTML='';
     CANON.forEach(function(it){
       var li=document.createElement('li');

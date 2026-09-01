@@ -382,13 +382,13 @@ var DESTINATIONS=[
      .html one, because the old files still exist as redirect stubs and an installed app bundle
      may still request them. A nav that fails to highlight on the legacy path would look broken
      for exactly the users on the oldest build. */
-  {href:'/connect', label:'Connect', pill:'CONNECT',  icon:'scene',   match:/(^|\/)(connect|scene)(\.html)?\/?$/,
+  {href:'/connect/', label:'Connect', pill:'CONNECT',  icon:'scene',   match:/(^|\/)(connect|scene)(\.html)?\/?$/,
    tint:'#22e07a', glow:'rgba(34,224,122,.75)'},
-  {href:'/create',  label:'Create',  pill:'CREATE',   icon:'vs',      match:/(^|\/)(create|vs)(\.html)?\/?$/,
+  {href:'/create/',  label:'Create',  pill:'CREATE',   icon:'vs',      match:/(^|\/)(create|vs)(\.html)?\/?$/,
    tint:'#ff5c8a', glow:'rgba(255,92,138,.75)'},
-  {href:'/culture', label:'Culture', pill:'CULTURE',  icon:'culture', match:/(^|\/)culture(\.html)?\/?$/,
+  {href:'/culture/', label:'Culture', pill:'CULTURE',  icon:'culture', match:/(^|\/)culture(\.html)?\/?$/,
    tint:'#a06bff', glow:'rgba(160,107,255,.75)'},
-  {href:'/earn',    label:'Earn',    pill:'EARN',     icon:'radio',   match:/(^|\/)(earn|radio)(\.html)?\/?$/,
+  {href:'/earn/',    label:'Earn',    pill:'EARN',     icon:'radio',   match:/(^|\/)(earn|radio)(\.html)?\/?$/,
    tint:'#ff9f43', glow:'rgba(255,159,67,.75)'}
 ];
 /* ── K4: the destination rail, for pages that want to surface the map in their own body ────
@@ -454,7 +454,7 @@ window.KIL_NOT_FOUND = function(opts){
     + (opts.heading || ('That ' + what + ' isn’t here')) + '</h1>'
     + '<p style="color:rgba(255,255,255,.7);line-height:1.6;margin:0 0 22px">'
     + (opts.body || ('It may have been removed, or the link may be wrong.')) + '</p>'
-    + (opts.links || [['/', 'Discover'], ['/culture','Culture'], ['/connect','Connect']])
+    + (opts.links || [['/', 'Discover'], ['/culture/','Culture'], ['/connect/','Connect']])
         .map(function(l){ return '<a href="'+l[0]+'" style="display:inline-block;margin:0 7px 10px;padding:12px 20px;'
           + 'border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#fff;min-height:44px;line-height:20px">'+l[1]+'</a>'; })
         .join('')
