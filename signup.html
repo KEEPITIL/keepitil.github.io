@@ -90,7 +90,9 @@ function $(id){return document.getElementById(id);}
 var MSG=$('msg');
 function say(t,ok){ MSG.textContent=t; MSG.className='msg '+(ok?'ok':'err'); }
 
-if(supa){ supa.auth.getSession().then(function(r){ if(r&&r.data&&r.data.session) location.replace('/u.html'); }).catch(function(){}); }
+/* ⚠ WAS /u.html (route cleanup 2026-08-31) — a page that does not exist. An already
+   signed-in visitor who opened the signup page was thrown straight to a 404. */
+if(supa){ supa.auth.getSession().then(function(r){ if(r&&r.data&&r.data.session) location.replace('/dashboard.html'); }).catch(function(){}); }
 
 function signUp(){
   if(!supa){ say('Loading — try again in a moment.'); return; }
@@ -108,7 +110,10 @@ function signUp(){
       b.disabled=false; b.textContent='SIGN UP';
       return;
     }
-    if(r&&r.data&&r.data.session){ location.replace('/create-profile.html'); }
+    /* ⚠ WAS /create-profile.html — a page that does not exist. Signing up SUCCEEDED and then
+       dropped the brand-new account on a 404: the single worst place on the site to send
+       someone. The dashboard is the signed-in home and carries the profile edit link. */
+    if(r&&r.data&&r.data.session){ location.replace('/dashboard.html'); }
     else { say('Account created! Check your email to confirm, then log in.', true); b.disabled=false; b.textContent='SIGN UP'; }
   }).catch(function(){ say('Could not sign up — try again.'); b.disabled=false; b.textContent='SIGN UP'; });
 }

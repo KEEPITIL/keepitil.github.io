@@ -2532,8 +2532,12 @@ if(!IS_DEMO){ PROFILE={name:'',handle:PROFILE_SLUG,location:'',bio:'',tagline:''
      uses the data when present and renders nothing when absent. It does not need the page. */
   applyProfile(); renderAll();
   if(!PROFILE_SLUG){
-    /* No slug: send a logged-in user to THEIR profile, or to create one; else to login. */
-    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/profile.html?slug='+encodeURIComponent(rr.data)); /* OWNER view, not /public/ (Founder 2026-08-05) */ } else { location.replace('/create-profile.html'); } }).catch(function(){ location.replace('/create-profile.html'); }); }); }
+    /* No slug: send a logged-in user to THEIR profile, else to login.
+       ⚠ The no-profile destination was /create-profile.html, which does not exist. It is the
+       DASHBOARD now, not /profile.html?edit=1: this whole branch is guarded by !PROFILE_SLUG,
+       so sending them back to a slugless profile.html would run this same code again and
+       loop. */
+    if(SB){ SB.auth.getSession().then(function(r){ var s=r&&r.data?r.data.session:null; if(!s){ location.replace('/apply.html'); return; } SB.rpc('my_profile_slug').then(function(rr){ if(rr&&!rr.error&&rr.data){ location.replace('/profile.html?slug='+encodeURIComponent(rr.data)); /* OWNER view, not /public/ (Founder 2026-08-05) */ } else { location.replace('/dashboard.html'); } }).catch(function(){ location.replace('/dashboard.html'); }); }); }
     else { location.replace('/apply.html'); }
   } else if(SB){
     SB.auth.getSession().then(function(r){ SESSION=(r&&r.data)?r.data.session:null; return checkOwnership(); }).then(function(){ updateOwnerUI(); try{applyProfileTabs();}catch(e){} loadProfileMeta(); loadFromDB(); loadFollow(); loadCollab(); loadMyTickets(); loadMyEvents(); }).catch(function(){ loadProfileMeta(); loadFromDB(); loadFollow(); loadMyEvents(); });
