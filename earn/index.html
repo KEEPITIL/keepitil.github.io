@@ -168,29 +168,42 @@ section{padding:30px 0;border-top:1px solid var(--brd)}
    ALL shows the sections themselves, with each section's explanation folded behind a small
    eye. Choosing a single category is choosing to read about it, so there the About opens
    by itself. Same copy either way — only the presentation differs. */
-.sh .hye-eye{margin-left:auto;flex:0 0 auto;width:34px;height:34px;display:inline-flex;
-  align-items:center;justify-content:center;border-radius:999px;cursor:pointer;
-  border:1px solid var(--brd);background:rgba(255,255,255,.05);color:#cfe6df;font-size:1rem;
-  line-height:1;transition:background .15s,border-color .15s,color .15s}
-.sh .hye-eye:hover{background:rgba(0,224,164,.14);border-color:rgba(0,224,164,.45);color:#eafff7}
+.sh .hye-info{margin-left:auto;flex:0 0 auto;height:28px;padding:0 12px;display:inline-flex;
+  align-items:center;justify-content:center;border-radius:8px;cursor:pointer;
+  border:1px solid rgba(0,224,164,.38);background:rgba(0,224,164,.10);color:#7ff5d0;
+  font:800 .66rem/1 var(--fh,Inter),sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  transition:background .15s,border-color .15s,color .15s;white-space:nowrap}
+.sh .hye-info:hover,.sh .hye-info:active{background:rgba(0,224,164,.2);border-color:rgba(0,224,164,.65);color:#eafff7}
 .sec-about{border:1px solid var(--brd);background:rgba(255,255,255,.035);border-radius:14px;
   padding:16px 18px;margin:0 0 18px}
 .sec-about h3{font-family:var(--fh);font-size:1.05rem;letter-spacing:.08em;margin:0 0 8px;color:#eafff7}
 .sec-about p{margin:0 0 8px}
 .sec-about :last-child{margin-bottom:0}
-/* Overlay. position:fixed so opening it cannot scroll or reflow the page underneath — the
-   visitor must come back to the exact row they left. */
-#hyeOv{position:fixed;inset:0;z-index:1200;display:none;background:rgba(4,8,7,.82);
-  backdrop-filter:blur(6px);padding:calc(var(--kil-safe-top,0px) + 16px) 16px 16px}
-#hyeOv.on{display:flex;align-items:flex-start;justify-content:center}
-#hyeOv .hye-panel{width:min(560px,100%);max-height:calc(100dvh - var(--kil-safe-top,0px) - 32px);
-  overflow-y:auto;-webkit-overflow-scrolling:touch;background:#0d1613;border:1px solid var(--brd);
-  border-radius:16px;padding:18px 18px 22px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
-#hyeOv .hye-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-#hyeOv .hye-head h2{font-family:var(--fh);font-size:1.35rem;letter-spacing:.06em;flex:1;min-width:0}
-#hyeOv .hye-x{flex:0 0 auto;width:38px;height:38px;border-radius:999px;border:1px solid var(--brd);
-  background:rgba(255,255,255,.06);color:#eafff7;font-size:1.15rem;line-height:1;cursor:pointer}
-#hyeOv .hye-x:hover{background:rgba(255,255,255,.12)}
+/* ── FULL-SCREEN INFO MODAL (Founder 2026-08-31) ────────────────────────────────────────
+   Not a dropdown and not an accordion: on a phone either one pushes the section you were
+   reading off the screen. position:fixed means the page underneath never scrolls or reflows,
+   which is also what makes X land you back on the exact row you left. */
+#hyeOv{position:fixed;inset:0;z-index:1200;display:none;background:#0a0f0e}
+#hyeOv.on{display:flex;flex-direction:column}
+#hyeOv .hye-panel{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
+  padding:calc(var(--kil-safe-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 18px)}
+#hyeOv .hye-head{flex:0 0 auto;display:flex;align-items:center;gap:12px;
+  padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid var(--brd)}
+#hyeOv .hye-head h2{font-family:var(--fh);font-size:1.5rem;letter-spacing:.06em;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hyeOv .hye-x{flex:0 0 auto;width:44px;height:44px;border-radius:999px;border:1px solid var(--brd);
+  background:rgba(255,255,255,.06);color:#eafff7;font-size:1.2rem;line-height:1;cursor:pointer}
+#hyeOv .hye-x:active{background:rgba(255,255,255,.14)}
+/* Only the CONTENT scrolls — the title row and X stay put however long the copy is. */
+#hyeOv .hye-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#hyeOv .hye-body .sec-about{border:0;background:none;padding:0;margin:0}
+@media(min-width:861px){
+  #hyeOv{background:rgba(4,8,7,.82);backdrop-filter:blur(6px);padding:24px}
+  #hyeOv.on{align-items:center;justify-content:center}
+  #hyeOv .hye-panel{flex:0 1 auto;width:min(600px,100%);max-height:calc(100dvh - 48px);
+    background:#0d1613;border:1px solid var(--brd);border-radius:16px;padding:20px 22px 24px;
+    box-shadow:0 18px 50px rgba(0,0,0,.6)}
+}
 .sh h2{font-family:var(--fh);font-size:1.9rem;letter-spacing:.04em;text-shadow:0 2px 14px rgba(0,0,0,.5)}
 .sh .sub{color:#d5d9e6;font-size:.88rem;text-shadow:0 1px 8px rgba(0,0,0,.5)}
 /* grids */
@@ -289,24 +302,44 @@ footer{margin-top:auto}
 /* The bar is one line that must survive three variable-length titles on a 360px phone.
    min-width:0 on the flex children is what actually permits the ellipsis — without it a flex
    item refuses to shrink below its max-content width and the row overflows instead. */
-.kr-bar{display:flex;align-items:center;gap:8px;margin:0 0 18px;padding:11px 13px;
+/* ── THE RADIO BAR: PREV | DISPLAY | NEXT (Founder 2026-08-31) ──────────────────────────
+   Three parts that read as one control. The old version was three text buttons of unequal
+   weight with the song crammed beside the transport; PREV/NEXT are now equal-sized targets and
+   the middle is a display, not a button. */
+.kr-bar{display:flex;align-items:stretch;gap:0;margin:0 0 18px;
   background:rgba(255,255,255,.04);border:1px solid var(--line,#242433);border-radius:12px;
   font:700 .8rem/1.25 Inter,sans-serif;overflow:hidden}
-.kr-bar span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* Three buttons, text centred in each. Prev and Next are the SAME width as one another and
-   both shorter than the song title, which takes the remaining room — flex-basis 0 with equal
-   grow on the outer two, and grow:2.6 on the title, so the ratio holds at any width instead of
-   depending on how long the words happen to be. min-width:0 is what actually lets the title
-   ellipsis rather than push the row wider than the phone. */
-.kr-bar .kr-btn{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;
-  height:38px;padding:0 10px;border-radius:10px;cursor:pointer;
-  background:rgba(255,255,255,.05);border:1px solid var(--line,#242433);color:#cfd3df;
-  font:800 .7rem/1 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:background .15s,border-color .15s}
-.kr-bar .kr-btn:active{background:rgba(255,255,255,.12)}
-.kr-bar .kr-btn:disabled{opacity:.45;cursor:default}
-.kr-bar .kr-nowb{flex:2.6 1 0;color:#fff;text-transform:none;letter-spacing:.02em;
-  border-color:var(--accent,#00b4ff)}
+/* 48px is the accessible minimum for a thumb; the old buttons were 38px and shrank further
+   when the title grew. flex:0 0 64px means they never trade width with the display. */
+.kr-bar .kr-nav{flex:0 0 64px;min-width:0;display:flex;align-items:center;justify-content:center;
+  height:52px;border:0;cursor:pointer;background:rgba(255,255,255,.05);color:#cfd3df;
+  font:400 1.5rem/1 Inter,sans-serif;transition:background .15s,color .15s}
+.kr-bar .kr-nav:active{background:rgba(0,224,164,.18);color:#eafff7}
+.kr-bar .kr-nav:disabled{opacity:.4;cursor:default}
+.kr-bar .kr-prevb{border-right:1px solid var(--line,#242433)}
+.kr-bar .kr-nextb{border-left:1px solid var(--line,#242433)}
+/* The display takes every pixel the two controls do not. */
+.kr-disp{flex:1 1 auto;min-width:0;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;padding:0 12px;height:52px}
+.kr-txt{display:block;max-width:100%;white-space:nowrap;color:#fff;
+  font:700 .84rem/1 Inter,sans-serif;letter-spacing:.02em;
+  overflow:hidden;text-overflow:ellipsis;
+  opacity:1;transition:opacity .45s ease}
+.kr-txt.fading{opacity:0}
+/* A label that fits is centred and still. Only text that genuinely overflows moves, and only
+   then — constant motion on a short track name is noise. */
+.kr-txt.marquee{text-overflow:clip;animation:kr-scroll 12s linear infinite}
+@keyframes kr-scroll{
+  0%,8%   {transform:translateX(0)}
+  92%,100%{transform:translateX(var(--kr-shift,0px))}
+}
+.kr-sub{position:absolute;left:12px;right:12px;bottom:5px;text-align:center;
+  font:800 .54rem/1 var(--fh,Inter),sans-serif;letter-spacing:.16em;text-transform:uppercase;
+  color:#6f8f84;pointer-events:none}
+@media(prefers-reduced-motion:reduce){
+  .kr-txt{transition:none}
+  .kr-txt.marquee{animation:none;text-overflow:ellipsis}
+}
 /* Horizontal cycling carousel. Scrolling BROWSES ONLY — it never changes station; that is
    deliberate (Founder), so a thumb-flick past the rail cannot silently restart the audio.
    Only a tap on the artwork selects.
@@ -518,11 +551,18 @@ footer{margin-top:auto}
 <section id="stations">
   <div class="sh"><h2>KEEPITIL RADIO</h2></div>
   <div class="kr-sub">POWERED BY SOUNDCLOUD <span id="krCount"></span></div>
-  <div class="kr-bar" id="krBar" aria-live="polite">
-    <button type="button" class="kr-btn kr-prevb" id="krPrev" aria-label="Previous song">&laquo; Prev</button>
-    <button type="button" class="kr-btn kr-nowb"  id="krCur"  aria-label="Current song">&mdash;</button>
-    <button type="button" class="kr-btn kr-nextb" id="krNext" aria-label="Next song">Next &raquo;</button>
+  <!-- PREV | DISPLAY | NEXT. #krPl / #krCur / #krNxt are kept as hidden data holders: the
+       kil-radio-state listener writes them and the cycler reads them, so the broadcast contract
+       is untouched and no second player is involved. -->
+  <div class="kr-bar" id="krBar">
+    <button type="button" class="kr-nav kr-prevb" id="krPrev" aria-label="Previous song">&#8249;</button>
+    <div class="kr-disp" id="krDisp" aria-live="polite">
+      <span class="kr-txt" id="krTxt">&mdash;</span>
+      <span class="kr-sub" id="krSub"></span>
+    </div>
+    <button type="button" class="kr-nav kr-nextb" id="krNext" aria-label="Next song">&#8250;</button>
     <span class="kr-pl" id="krPl" hidden>&mdash;</span>
+    <span class="kr-cur" id="krCur" hidden>&mdash;</span>
     <span class="kr-nxt" id="krNxt" hidden>&mdash;</span>
   </div>
   <div class="grid g-stations" id="stationGrid"></div>
@@ -530,7 +570,10 @@ footer{margin-top:auto}
 
 <!-- PLAYLISTS — title only, no explanatory copy (Founder 2026-08-22). -->
 <section id="playlists">
-  <div class="sh"><h2>ADD SOUNDCLOUD PLAYLIST</h2></div>
+  <!-- 'ADD PLAYLIST' (Founder 2026-08-31): the shorter title leaves room for INFO on the same
+       row. SoundCloud is still the authoritative provider — this is a label change, not a
+       change of provider. -->
+  <div class="sh"><h2>ADD PLAYLIST</h2></div>
   <!-- §14: ONE playlist per user, 2:3 cover, SoundCloud URL, editable. The one-per-user rule is
        enforced by a unique index on user_playlists(user_id), not by this form — a client-side
        rule is a suggestion that two tabs or a retried request will walk straight past. The form
@@ -541,8 +584,10 @@ footer{margin-top:auto}
     <input id="plArt" type="url" placeholder="Cover image URL (portrait 2:3)"/>
     <button class="btn" id="plSave" onclick="addPlaylist()">&#65291; Save</button>
   </div>
-  <p class="pl-note" id="plNote">One playlist each. Edit it on SoundCloud and KEEPITIL plays the
-     change — you only come back here to change the link, cover or name.</p>
+  <!-- The standing instruction copy moved into ADD PLAYLIST > INFO (Founder 2026-08-31): it is
+       read once and then occupies the section forever, which is exactly what INFO is for.
+       Nothing in JS referenced #plNote, so the element goes with the copy rather than being
+       left behind as an empty paragraph. -->
   <div id="plGate" style="display:none"><a class="btn" href="/apply.html">Sign in to add a playlist</a></div>
   <div class="grid g-cards" id="plList"></div>
 </section>
@@ -940,9 +985,9 @@ function kilMarkActive(i){
 /* Row 3's transport. The shell bar is hidden on mobile, so these drive the player directly
    through __kilRadioSong() rather than proxying a click at an element that is not on screen. */
 document.addEventListener('click', function(e){
-  var b = e.target.closest && e.target.closest('#krPrev,#krNext,#krCur');
+  var b = e.target.closest && e.target.closest('#krPrev,#krNext');
   if(!b) return;
-  if(b.id === 'krCur') return;                 /* the title is a label, not a transport button */
+  /* #krCur is a hidden data holder now, not a control — the centre is a display. */
   if(typeof window.__kilRadioSong !== 'function') return;
   window.__kilRadioSong(b.id === 'krPrev' ? -1 : 1);
 });
@@ -966,6 +1011,65 @@ document.addEventListener('kil-radio-state', function(e){
   if(d.current) document.body.classList.add('earn-live');
   if(typeof d.index === 'number') kilMarkActive(d.index);
 });
+
+/* ── RADIO DISPLAY CYCLE (Founder 2026-08-31, §10) ──────────────────────────────────────
+   The centre alternates between the station/playlist name and the current track rather than
+   showing "Playlist — Track" as one cramped string. Fade out, swap, fade in, hold ~2.6s.
+
+   ⚠ PRESENTATION ONLY. This reads #krPl and #krCur, which the kil-radio-state listener above
+   already writes. It never touches the SoundCloud widget, never constructs a player and never
+   calls a transport, so a text change cannot restart or reseek playback.
+
+   Marquee is conditional: a label that fits is centred and still. Only text wider than the
+   display scrolls, and the distance it travels is measured per label rather than guessed. */
+(function(){
+  var HOLD = 2600, FADE = 450;
+  var txt = document.getElementById('krTxt'), sub = document.getElementById('krSub');
+  if(!txt) return;
+  var state = 0, timer = null;
+  function read(id){
+    var el = document.getElementById(id);
+    var v = el ? (el.textContent || '').trim() : '';
+    return (v && v !== '\u2014') ? v : '';
+  }
+  function paint(label, caption){
+    txt.classList.remove('marquee');
+    txt.style.removeProperty('--kr-shift');
+    txt.textContent = label || '\u2014';
+    if(sub) sub.textContent = caption || '';
+    /* Measure AFTER the text is in the DOM; scrollWidth is the only honest answer. */
+    var over = txt.scrollWidth - txt.clientWidth;
+    if(over > 4){
+      txt.style.setProperty('--kr-shift', (-over - 8) + 'px');
+      txt.classList.add('marquee');
+    }
+  }
+  function tick(){
+    var pl = read('krPl'), cur = read('krCur');
+    /* With only one of the two known there is nothing to alternate between. */
+    if(!pl && !cur){ paint('KEEPITIL RADIO', ''); schedule(); return; }
+    if(!cur){ paint(pl, 'STATION'); schedule(); return; }
+    if(!pl){ paint(cur, 'NOW PLAYING'); schedule(); return; }
+    txt.classList.add('fading');
+    setTimeout(function(){
+      state = state ? 0 : 1;
+      if(state) paint(cur, 'NOW PLAYING'); else paint(pl, 'STATION');
+      txt.classList.remove('fading');
+    }, FADE);
+    schedule();
+  }
+  function schedule(){ clearTimeout(timer); timer = setTimeout(tick, HOLD); }
+  /* Repaint immediately when the broadcast changes, so a station switch is not held back by
+     the cycle timer. */
+  document.addEventListener('kil-radio-state', function(){
+    setTimeout(function(){
+      var pl = read('krPl'), cur = read('krCur');
+      if(state && cur) paint(cur, 'NOW PLAYING'); else if(pl) paint(pl, 'STATION');
+    }, 0);
+  });
+  paint(read('krPl') || 'KEEPITIL RADIO', read('krPl') ? 'STATION' : '');
+  schedule();
+})();
 
 /* esc() already exists further down this file — not redefined here. */
 
@@ -1387,6 +1491,14 @@ radStats();
     wrap.className = 'sec-about';
     wrap.id = 'about-' + pair[0];
     wrap.appendChild(art);            /* MOVES the node - copy is never duplicated */
+    /* The playlist section's standing instructions used to sit permanently under the form.
+       They belong with the rest of that section's explanation. */
+    if(pair[0] === 'playlists'){
+      var note = document.createElement('p');
+      note.textContent = 'One playlist each. Edit it on SoundCloud and KEEPITIL plays the '
+        + 'change \u2014 you only come back here to change the link, cover or name.';
+      wrap.appendChild(note);
+    }
     about[pair[0]] = { node: wrap, label: pair[1] };
   });
 
@@ -1418,6 +1530,7 @@ radStats();
     if(slot) slot.appendChild(about[openFor].node);
     else if(ovBody.firstChild) ovBody.removeChild(ovBody.firstChild);
     ov.classList.remove('on');
+    document.body.style.overflow = '';
     openFor = null;
     /* No scrollTo of any kind. The document never moved. */
     if(lastFocus && lastFocus.focus) { try{ lastFocus.focus(); }catch(e){} }
@@ -1429,6 +1542,9 @@ radStats();
     ovTitle.textContent = about[k].label;
     ovBody.appendChild(about[k].node);
     ov.classList.add('on');
+    /* The page behind a full-screen modal must not scroll. position:fixed already stops it
+       reflowing; this stops a touch-drag over the overlay moving the page underneath. */
+    document.body.style.overflow = 'hidden';
     ovX.focus();
   }
   ovX.addEventListener('click', closeOv);
@@ -1441,12 +1557,15 @@ radStats();
     var sec = document.getElementById(id); if(!sec || !about[id]) return;
     var sh = sec.querySelector('.sh'); if(!sh) return;
 
+    /* A REAL CONTROL, NOT AN EMOJI (Founder 2026-08-31). The eye glyph rendered differently on
+       every platform and read as decoration rather than something to press. INFO sits on the
+       same row as the section title, which is why ADD SOUNDCLOUD PLAYLIST became ADD PLAYLIST. */
     var eye = document.createElement('button');
     eye.type = 'button';
-    eye.className = 'hye-eye';
+    eye.className = 'hye-info';
     eye.setAttribute('aria-label', 'About ' + about[id].label);
     eye.title = 'About ' + about[id].label;
-    eye.innerHTML = '&#128065;';
+    eye.textContent = 'INFO';
     eye.addEventListener('click', function(){ openOv(id, eye); });
     sh.appendChild(eye);
 
@@ -1470,7 +1589,7 @@ radStats();
       slot.style.display = expanded ? '' : 'none';
       /* On a category view the copy is already on screen; a control that opens a duplicate of
          what you are reading is noise. */
-      var eye = sec.querySelector('.sh .hye-eye');
+      var eye = sec.querySelector('.sh .hye-info');
       if(eye) eye.style.display = expanded ? 'none' : '';
     });
     /* If the overlay is open when the filter changes, the panel it holds may belong to a

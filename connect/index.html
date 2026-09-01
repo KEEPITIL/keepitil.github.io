@@ -124,10 +124,10 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:4px;flex-wrap:wrap;}
 .seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s;}
 .seg button:hover{color:#fff;}
-.seg button[data-k=all].on{background:#fff;color:var(--bg);}
+/* [data-k=all] removed with the ALL tab (2026-08-31). */
 .seg button[data-k=artist].on{background:var(--artist);color:#fff;}
 .seg button[data-k=brand].on{background:var(--brand);color:#053a2c;}
-.seg button[data-k=organizer].on{background:var(--organizer);color:#3a1e08;}
+.seg button[data-k=community].on{background:var(--organizer);color:#3a1e08;}
 .seg button[data-k=venue].on{background:var(--venue);color:#052436;}
 .search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--panel-brd);border-radius:12px;padding:10px 16px;}
 .search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--fb);font-size:.95rem;outline:none;}
@@ -262,11 +262,15 @@ body>*{min-width:0}
 </header>
 <div class="controls">
   <div class="controls-row">
+    <!-- FOUR FILTERS, ALPHABETICAL (Founder 2026-08-31). ALL is gone: with four categories a
+         fifth "everything" tab is a filter that filters nothing. ORGANIZERS is gone as a
+         SEPARATE tab, not as data - the brand filter matches both kinds, so every organizer
+         profile is reachable under BRANDS from the moment this ships. The data migration is a
+         later phase; nothing is orphaned in the meantime. -->
     <div class="seg" id="seg">
-      <button data-k="all" class="on">All</button>
       <button data-k="artist">Artists</button>
       <button data-k="brand">Brands</button>
-      <button data-k="organizer">Organizers</button>
+      <button data-k="community">Community</button>
       <button data-k="venue">Venues</button>
     </div>
     <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="q" type="text" placeholder="Search by name, city, or genre…"/></label>
@@ -302,8 +306,12 @@ let DATA=[].concat(
   VEN.map(x=>Object.assign({},x,{kinds:['venue']}))
 );
 const KL={artist:'Artist',brand:'Brand',organizer:'Organizer',venue:'Venue'};
-const cnt=k=>DATA.filter(x=>x.kinds.includes(k)).length;
-cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue');
+/* BRANDS ABSORBS ORGANIZERS at the filter level (Founder 2026-08-31). One place decides what
+   a tab matches, so the count in the header and the list in the grid can never disagree. */
+const KIND_MATCH={artist:['artist'],brand:['brand','organizer'],venue:['venue'],community:['community']};
+const matchesKind=(x,k)=>(KIND_MATCH[k]||[k]).some(kk=>(x.kinds||[]).includes(kk));
+const cnt=k=>DATA.filter(x=>matchesKind(x,k)).length;
+cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('brand');cV.textContent=cnt('venue');
 // ---- genre buckets (tightened) ----
 const BUCKETS=[['House',['house','tech house','deep house','bass house','latin house','jackin house','soulful house','organic house','disco tech','afro house','afro','disco']],
 ['Techno',['techno','hard techno','minimal techno','deep techno','dark techno','acid techno','ambient techno','melodic techno','peak-time','hypnotic','industrial','minimal','deep tech','psychedelic industrial techno','acid']],
@@ -316,8 +324,14 @@ const BUCKETS=[['House',['house','tech house','deep house','bass house','latin h
 function splitv(s){return (s||'').split('/').map(t=>t.trim()).filter(Boolean);}
 function bucketOf(g){g=g.toLowerCase();for(const[b,l]of BUCKETS){if(l.includes(g))return b;}return 'Other';}
 function artistBuckets(){const items=DATA.filter(x=>x.kinds.includes('artist'));const present=new Set();items.forEach(x=>splitv(x.genre).forEach(g=>present.add(bucketOf(g))));return BUCKETS.map(b=>b[0]).concat(['Other']).filter(b=>present.has(b));}
-function typeValues(kind){const items=DATA.filter(x=>x.kinds.includes(kind));return [...new Set(items.flatMap(x=>splitv(x.category||x.type)))].sort();}
-let kind='all',q='',sub=null; // sub={facet:'genre'|'type',val}
+function typeValues(kind){const items=DATA.filter(x=>matchesKind(x,kind));return [...new Set(items.flatMap(x=>splitv(x.category||x.type)))].sort();}
+/* DEFAULT IS COMMUNITY (Founder 2026-08-31) — but only once Community has something to show.
+   Community's data and UI land in a later phase; until then, opening CONNECT straight onto an
+   empty tab would be a worse landing than the one it replaces. defaultKind() flips to
+   'community' by itself the moment a community exists, so no follow-up edit is needed here. */
+function hasCommunities(){ return DATA.some(x=>(x.kinds||[]).includes('community')); }
+function defaultKind(){ return hasCommunities() ? 'community' : 'artist'; }
+let kind=defaultKind(),q='',sub=null; // sub={facet:'genre'|'type',val}
 function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 function desc(x){return x.genre||x.category||x.type||'';}
 function card(x){
@@ -339,7 +353,7 @@ function card(x){
 }
 function renderSubs(){
   const box=document.getElementById('subs');
-  if(kind==='all'){box.classList.remove('show');box.innerHTML='';return;}
+  if(!kind){box.classList.remove('show');box.innerHTML='';return;}
   const parts=[];
   if(kind==='artist'){
     const gb=artistBuckets();
@@ -358,7 +372,7 @@ function matchSub(x){
 function render(){
   const ql=q.trim().toLowerCase();
   const list=DATA.filter(x=>{
-    if(kind!=='all'&&!x.kinds.includes(kind))return false;
+    if(!matchesKind(x,kind))return false;
     if(!matchSub(x))return false;
     if(ql){const h=((x.name||'')+' '+(x.city||'')+' '+desc(x)).toLowerCase();if(!h.includes(ql))return false;}
     return true;
@@ -367,18 +381,23 @@ function render(){
      page"). Applies to the default All view; once a specific category is selected the list is
      already single-kind and this is a no-op. Stable sort — within artists, and within everything
      else, the existing order (articles newest-first, then venues) is preserved. */
-  if(kind==='all'){
-    list.sort(function(a,b){
-      var aa=(a.kinds||[]).indexOf('artist')>-1?0:1;
-      var bb=(b.kinds||[]).indexOf('artist')>-1?0:1;
-      return aa-bb;
-    });
-  }
+  /* The artists-lead sort applied to the ALL view, which no longer exists: every view is now
+     single-category, so there is nothing left to lead with. */
   const g=document.getElementById('grid');
-  g.innerHTML=list.length?list.map(card).join(''):'<div class="empty"><div class="big">No matches</div><div>Try another search or filter.</div></div>';
+  /* BROKEN != EMPTY. Community has no rows until its own phase ships; saying "No matches"
+     there would read as a search failure rather than a section that has not opened yet. */
+  var emptyHtml = (kind==='community' && !q && !sub)
+    ? '<div class="empty"><div class="big">Community is opening soon</div>'
+      + '<div>Learn, ask and share with other creators — communities for DJing, production, '
+      + 'writing, art, events and more.</div></div>'
+    : '<div class="empty"><div class="big">No matches</div><div>Try another search or filter.</div></div>';
+  g.innerHTML=list.length?list.map(card).join(''):emptyHtml;
   document.getElementById('count').textContent=list.length+' of '+DATA.length;
 }
 document.getElementById('seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;kind=b.dataset.k;sub=null;[...e.currentTarget.children].forEach(c=>c.classList.toggle('on',c===b));renderSubs();render();});
+/* Paint the initial selection from defaultKind() rather than hard-coding class="on" in the
+   markup, so the two cannot drift apart. */
+[...document.getElementById('seg').children].forEach(c=>c.classList.toggle('on',c.dataset.k===kind));
 document.getElementById('subs').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const f=c.dataset.f,v=c.dataset.v;sub=(sub&&sub.facet===f&&sub.val===v)?null:{facet:f,val:v};renderSubs();render();});
 document.getElementById('q').addEventListener('input',e=>{q=e.target.value;render();});
 renderSubs();render();
@@ -402,7 +421,7 @@ renderSubs();render();
     if(!live.length) throw 0;
     live.sort(function(a,b){return a._order-b._order;});
     DATA=live;
-    cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue');
+    cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('brand');cV.textContent=cnt('venue');
     renderSubs();render();
   }).catch(function(){/* sheet not shared/unreachable -> keep built-in roster */});
 })();
@@ -411,7 +430,7 @@ renderSubs();render();
   var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
   var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
   function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
-  function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('organizer');cV.textContent=cnt('venue'); renderSubs();render(); }
+  function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('brand');cV.textContent=cnt('venue'); renderSubs();render(); }
   // claimed artist/brand/organizer profiles from profile_meta
   fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(brand,organizer)&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
     .then(function(r){return r.json();}).then(function(rows){

@@ -300,7 +300,13 @@
    point, and "it is only an icon" is exactly how that gets missed. */
 var ICON_GEOMETRY = {
   home: '<circle cx="10.8" cy="10.8" r="6.2"/><path d="M15.4 15.4L20 20"/><path d="M6.2 12.4c1.6-1.5 3.1-2.2 4.6-2.2s3 .7 4.6 2.2"/>',
-  culture: '<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z"/>',
+  /* CULTURE (Founder 2026-08-31): was a compass, which said 'explore' — that is DISCOVER's
+     job. Culture is the living content feed: stacked layers of published work with a
+     creative pulse running through the front one. Deliberately not the KEEPITIL mark
+     (that is the CHO button) and not a people glyph (COMMUNITY lives under CONNECT). */
+  culture: '<path d="M6.5 4.8h11"/><path d="M4.6 7.6h14.8"/>'
+         + '<rect x="3" y="10.4" width="18" height="9.8" rx="2.2"/>'
+         + '<path d="M6.6 16.6l2.3-2.9 2.2 2.6 2.1-3.6 2.4 3.9"/>',
   radio: '<circle cx="12" cy="12" r="1.6"/><path d="M7.8 7.8a5.9 5.9 0 0 0 0 8.4M16.2 7.8a5.9 5.9 0 0 1 0 8.4"/><path d="M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>',
   scene: '<path d="M8 8l3 6M16 8l-3 6M8.4 6.6h7.2"/><circle cx="6" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="12" cy="17" r="2.1"/>',
   vs: '<path d="M4 6l3.4 12L10.8 6"/><path d="M13.6 18h5l-4.6-6h5"/>',

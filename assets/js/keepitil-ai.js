@@ -372,15 +372,35 @@
          keepitil-shell.js so the button does not paint at one size and then jump to another.
          This existed ONLY in the root copy of this script; carried over in the 2026-08-26
          consolidation so the newer sizing is not lost along with the file it came from. */
-      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:40px;height:40px;border-radius:50%;',
-      'background:linear-gradient(135deg,#00b4ff,#00ff88);border:none;cursor:pointer;',
+      /* 44px, up from 40: the accessible minimum, and it gives the badge room to sit on the
+         rim instead of over the mark. overflow:visible is explicit because the badge is
+         deliberately outside the circle and a stray overflow rule would clip it. */
+      '#kilo-btn{position:fixed;bottom:66px;right:24px;z-index:99998;width:44px;height:44px;border-radius:50%;',
+      'background:linear-gradient(135deg,#00b4ff,#00ff88);border:none;cursor:pointer;overflow:visible;',
       'box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);',
       'display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;',
       'animation:kilo-pulse 3s ease-in-out infinite;}',
       '#kilo-btn:hover{transform:scale(1.08);box-shadow:0 6px 32px rgba(0,180,255,.5);}',
-      '#kilo-btn svg{width:20px;height:20px;fill:#0f0f1a;}',
-      '#kilo-badge{position:absolute;top:-3px;right:-3px;background:#00ff88;color:#0f0f1a;',
-      'font-size:10px;font-weight:800;width:18px;height:18px;border-radius:50%;',
+      /* ── THE KEEPITIL MARK (Founder 2026-08-31) ──────────────────────────────────────
+         Three bars described a menu that no longer exists. Tapping the KEEPITIL mark is the
+         gesture for reaching KEEPITIL. The mark is MASKED rather than drawn: the artwork is
+         a pink outline, and painting it through a mask puts it in the button's ink colour so
+         the existing cyan-to-green treatment is untouched. Background-image first as the
+         fallback for anything without mask support. */
+      '#kilo-btn .kilo-mark{width:22px;height:24px;flex:0 0 auto;pointer-events:none;',
+      'background:url(/keepitil-x-logo.png) center/contain no-repeat;}',
+      '@supports ((-webkit-mask-image:url(a)) or (mask-image:url(a))){',
+      '#kilo-btn .kilo-mark{background:#0f0f1a;',
+      '-webkit-mask:url(/keepitil-x-logo.png) center/contain no-repeat;',
+      'mask:url(/keepitil-x-logo.png) center/contain no-repeat;}}',
+      /* ── BADGE (Founder 2026-08-31) ──────────────────────────────────────────────────
+         Was a fixed 18px circle, so anything past a single digit was cut off. It is a pill
+         now: min-width holds the circle shape at "1", padding lets it grow through "99+",
+         and box-sizing keeps the padding inside the measurement. */
+      '#kilo-badge{position:absolute;top:-4px;right:-6px;background:#00ff88;color:#0f0f1a;',
+      'font-size:10px;font-weight:800;min-width:18px;height:18px;padding:0 5px;border-radius:9px;',
+      'box-sizing:border-box;white-space:nowrap;line-height:1;pointer-events:none;',
+      'box-shadow:0 0 0 2px rgba(15,15,26,.55);',
       "font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;}",
       '@keyframes kilo-pulse{0%,100%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);}',
       '50%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 8px rgba(0,180,255,0);}}',
@@ -506,7 +526,7 @@
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
       /* Phone placement — also root-only before consolidation. */
       '@media(max-width:480px){#kilo-panel{bottom:134px;right:12px;width:calc(100vw - 24px);}',
-      '#kilo-btn{bottom:66px;right:16px;}}',
+      '#kilo-btn{bottom:66px;right:18px;}}',
       /* M1 — the ECHO panel goes full-screen here (inset:0), and viewport-fit=cover means
          the viewport now starts UNDER the status bar. Without a top inset the header sits
          on the clock: on the owner's iPhone "ECHO" overlapped 11:52 and the greeting ran
@@ -525,7 +545,7 @@
       '#kilo-msgs{scroll-padding-top:env(safe-area-inset-top,0px);}',
       '#kilo-panel.open{transform:none;}',
       '#kilo-msgs{flex:1 1 auto;min-height:0;}',
-      '#kilo-btn{bottom:132px;right:16px;}body.kilo-open{overflow:hidden;}',
+      '#kilo-btn{bottom:132px;right:18px;}body.kilo-open{overflow:hidden;}',
       /* The shell's bottom nav is fixed at z-index 950 and would cross the composer. Chat is
          a full-screen context; the nav underneath it is unreachable anyway. */
       'body.kilo-open #kil-bnav{display:none!important;}',
@@ -546,18 +566,12 @@
     // Button
     var btn = document.createElement('button');
     btn.id = 'kilo-btn';
-    /* §42: the global launcher is no longer a Chat-only button. It opens OPTIONS, of which
-       Chat is one entry — so a speech bubble would misdescribe what it does. Three bars is the
-       conventional menu glyph and needs no explanation. */
-    btn.setAttribute('aria-label', 'Options');
-    btn.setAttribute('aria-haspopup', 'menu');
-    btn.setAttribute('aria-expanded', 'false');
+    /* The three-bar menu glyph described an OPTIONS menu that was removed on 2026-08-31; the
+       button opens CHO directly now, so the menu semantics go with it. The KEEPITIL mark is
+       the symbol for reaching KEEPITIL. */
+    btn.setAttribute('aria-label', 'Ask KEEPITIL');
     btn.innerHTML = [
-      '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">',
-        '<rect x="3" y="5"  width="18" height="2" rx="1"/>',
-        '<rect x="3" y="11" width="18" height="2" rx="1"/>',
-        '<rect x="3" y="17" width="18" height="2" rx="1"/>',
-      '</svg>',
+      '<span class="kilo-mark" aria-hidden="true"></span>',
       '<span id="kilo-badge" style="display:none">1</span>',
     ].join('');
 
