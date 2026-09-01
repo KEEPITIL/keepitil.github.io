@@ -26,7 +26,7 @@
      the same identity the service worker and the compiled Dart carry, so all
      three answer the same question with the same string. */
   var SHELL_VERSION = 9;
-  var RELEASE = '47.73c6cfb';
+  var RELEASE = '47.0014a71';
 
   /* Readable from the DOM without a debugger, and before any Dart has run.
      This is the shell's own claim about which release it is; the worker's claim
@@ -212,6 +212,31 @@
     document.body.appendChild(bar);
   }
 
+  /* What the ACTIVE worker says it is serving. Asked rather than assumed:
+     between a new shell being deployed and the person accepting the update,
+     this document and the worker are legitimately different releases, and the
+     app should be able to say so. Recorded as its own attribute next to the
+     document's own claim, because if the two ever disagree that disagreement is
+     the finding — one merged attribute would hide it.
+
+     Asked on the controller and again when the controller arrives: a first
+     launch has no controller at registration time, and that timing gap is
+     exactly when the attribute was silently absent. */
+  function askWorkerWhoItIs() {
+    try {
+      var sw = navigator.serviceWorker.controller;
+      if (!sw) return;
+      var ch = new MessageChannel();
+      ch.port1.onmessage = function (e) {
+        var d = e.data || {};
+        if (d.type !== 'VERSION') return;
+        document.documentElement.setAttribute('data-tuitea-sw-release', d.release || '');
+        if (window.TUITEA && window.TUITEA.env) window.TUITEA.env.swRelease = d.release || null;
+      };
+      sw.postMessage({ type: 'GET_VERSION' }, [ch.port2]);
+    } catch (e) {}
+  }
+
   function registerSW() {
     if (!('serviceWorker' in navigator)) return;
     /* updateViaCache:'none' — the browser must fetch sw.js past its HTTP cache.
@@ -224,18 +249,7 @@
            during the window between a new shell being deployed and the user
            accepting the update, this document and the worker are legitimately
            different releases, and the app should be able to say so. */
-        try {
-          if (navigator.serviceWorker.controller) {
-            var ch = new MessageChannel();
-            ch.port1.onmessage = function (e) {
-              var d = e.data || {};
-              if (d.type !== 'VERSION') return;
-              document.documentElement.setAttribute('data-tuitea-sw-release', d.release || '');
-              window.TUITEA.env.swRelease = d.release || null;
-            };
-            navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [ch.port2]);
-          }
-        } catch (e) {}
+        askWorkerWhoItIs();
         // Already-waiting worker: an update downloaded on a previous visit.
         if (reg.waiting && navigator.serviceWorker.controller) {
           showUpdateBanner(reg.waiting);
@@ -263,6 +277,9 @@
         setInterval(check, 60 * 60 * 1000);
       })
       .catch(function () { /* SW unavailable (private mode, http) — app still works */ });
+
+    // A first launch is uncontrolled until the worker claims it.
+    navigator.serviceWorker.ready.then(askWorkerWhoItIs).catch(function () {});
 
     var reloading = false;
     navigator.serviceWorker.addEventListener('controllerchange', function () {
