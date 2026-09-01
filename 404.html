@@ -3,7 +3,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="robots" content="noindex,nofollow"/>
-<title>KEEPITIL — URL Router (not an error page)</title>
+<title>Page not found — KEEPITIL</title>
 <!-- ============================================================================
      THIS IS THE KEEPITIL URL ROUTER.  It is NOT an error page.
 
@@ -120,17 +120,31 @@ a{color:#5cc8ff}</style>
     return go('/culture/');
   }
   // /culture/<sub> — Radio & VS live as Culture subpages (Founder 2026-08-04)
+  /* /culture/radio and /culture/vs are RETIRED subpaths from the era when Radio and VS lived
+     under Culture. Same reasoning as the section aliases above: a retired URL must not render
+     the current product. /culture/feed stays because Culture's feed is current. */
   if(seg.length===2 && seg[0]==='culture'){
-    if(seg[1]==='radio') return go('/earn/'+q);
-    if(seg[1]==='vs') return go('/create/'+q);
     if(seg[1]==='feed') return go('/culture/'+q);
   }
   /* TRAILING SLASHES ARE DELIBERATE. GitHub Pages 301s /culture to /culture/, so sending a
      visitor to the slashless form made every alias a two-hop journey: 404 → /culture →
      301 → /culture/. */
-  // single-segment section aliases + every core page (clean URL)
-  var SECTION={culture:'/culture/',scene:'/connect/',radio:'/earn/',
-               apps:'/games/',games:'/games/',events:'/',home:'/'};
+  /* ⚠ RETIRED ROUTES ARE NOT ALIASED (2026-08-31, second cleanup pass).
+     scene -> /connect/, radio -> /earn/ and events -> / were removed. Those are RETIRED
+     product surfaces, and mapping them here meant an obsolete URL still rendered a current
+     KEEPITIL experience: a 404 status carrying branded HTML that then JS-redirects into the
+     live app. That is a soft 404. A crawler sees a page, a visitor sees the product, and the
+     old URL never dies.
+
+     Scene->Connect, Radio->Earn and Events->Home ARE genuine 1:1 renames and deserve real
+     301s. GitHub Pages cannot serve one. keepitil.com already resolves through Cloudflare
+     nameservers but the records are DNS-only, so no rule can run. Enabling the proxy and
+     adding three Redirect Rules is the correct fix and needs Founder action — see the report.
+     Until then these are deliberate hard 404s rather than fake current pages.
+
+     What remains below are CLEAN URLS FOR PAGES THAT EXIST, not legacy aliases. */
+  // single-segment clean URLs for current destinations
+  var SECTION={culture:'/culture/',apps:'/games/',games:'/games/',home:'/'};
   /* about, contact and onboarding were removed: no such page exists, so those entries could
      only ever send a visitor from one 404 to another. */
   var V31PAGES=['apply','audit','community-guidelines','create-event','dashboard',
