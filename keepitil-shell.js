@@ -1312,3 +1312,54 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
     setInterval(_heal, 2500);
   }catch(e){}
 })();
+
+/* ══ CULTURE → COMMUNITY (Founder 2026-08-31) ═══════════════════════════════════════════════
+   A "DISCUSS IN COMMUNITY" call to action at the foot of an article, and ONLY where an explicit
+   mapping exists in community_culture_links.
+
+   Deliberately not on every Culture item: a CTA that appears everywhere stops meaning anything,
+   and Culture is an editorial feed rather than a discussion feed. No mapping, no CTA — the
+   lookup returns nothing and this adds no markup at all.
+
+   Lives in the shell because every article page already loads it; the alternative was pasting a
+   script tag into thirteen pages and then into every future one. */
+(function(){
+  try{
+    var m = location.pathname.match(/^\/article\/(?:artist\/)?([a-z0-9-]+)\/?$/i);
+    if(!m) return;
+    var slug = m[1];
+    var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+    var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+    fetch(U+'/rest/v1/community_culture_links?select=community_slug,communities(name,description,member_count)'
+          +'&article_slug=eq.'+encodeURIComponent(slug)+'&limit=1',
+          {headers:{apikey:K,Authorization:'Bearer '+K}})
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .then(function(rows){
+        if(!rows || !rows.length) return;                 /* no mapping -> nothing rendered */
+        var c = rows[0].communities || {};
+        if(!c.name) return;                               /* archived or missing -> nothing */
+        var host = document.querySelector('article') || document.querySelector('main') || document.body;
+        if(!host) return;
+        var box = document.createElement('aside');
+        box.className = 'kil-culture-comm';
+        box.setAttribute('style',
+          'display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin:26px auto 8px;max-width:760px;'
+        + 'padding:15px 17px;border-radius:14px;border:1px solid rgba(0,224,164,.35);'
+        + 'background:rgba(0,224,164,.08)');
+        box.innerHTML =
+            '<div style="flex:1;min-width:180px">'
+          +   '<div style="font:800 .62rem/1 Inter,system-ui,sans-serif;letter-spacing:.14em;'
+          +     'text-transform:uppercase;color:#7ff5d0;margin-bottom:5px">Keep the conversation going</div>'
+          +   '<div style="font:800 1rem/1.25 Inter,system-ui,sans-serif;color:#eafff7">'
+          +     String(c.name).replace(/[&<>"]/g,'') + '</div>'
+          + '</div>'
+          + '<a href="/connect/?c=' + encodeURIComponent(rows[0].community_slug) + '" '
+          +   'style="flex:0 0 auto;display:inline-flex;align-items:center;height:38px;padding:0 16px;'
+          +   'border-radius:10px;text-decoration:none;background:linear-gradient(90deg,#0f6e56,#00e0a4);'
+          +   'color:#04120a;font:800 .68rem/1 Inter,system-ui,sans-serif;letter-spacing:.1em;'
+          +   'text-transform:uppercase">Discuss in Community</a>';
+        host.appendChild(box);
+      })
+      .catch(function(){});   /* a missing CTA must never break an article */
+  }catch(e){}
+})();

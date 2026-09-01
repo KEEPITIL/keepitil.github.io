@@ -1093,6 +1093,19 @@ renderSubs();render();
   }
   function start(){
     Promise.all([loadTopics(),loadCommunities()]).then(loadMine).then(function(){
+      /* DEEP LINK: /connect/?c=<slug> opens that community directly. This is what CREATE's
+         "Communities for this CREATE" strip and Culture's DISCUSS IN COMMUNITY link point at,
+         so without it both would land on the list and leave the visitor to find it again. */
+      var want='';
+      try{ want=(new URLSearchParams(location.search).get('c')||'').trim(); }catch(e){}
+      if(want && S.list.some(function(c){ return c.slug===want; })){
+        document.body.classList.add('comm-on');
+        var seg=document.getElementById('seg');
+        if(seg){ [].forEach.call(seg.querySelectorAll('button'),function(b){
+          b.classList.toggle('on', b.dataset.k==='community'); }); }
+        openCommunity(want);
+        return;
+      }
       if(document.body.classList.contains('comm-on')) renderList();
     });
   }

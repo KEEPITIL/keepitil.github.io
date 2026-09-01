@@ -46,6 +46,17 @@
    + '#vs-app .vs-card h3{font-size:1rem;font-weight:600;color:#fff;margin:0 0 3px;line-height:1.25}'
    + '#vs-app .vs-card .by{color:#9aa0b0;font-size:.78rem}'
    + '#vs-app .vs-card .vt{margin-top:8px;font:800 .74rem Inter,sans-serif;letter-spacing:.08em;color:var(--vsb)}'
+   /* COMMUNITIES FOR THIS CREATE — a compact strip on the competition detail. Suggestion
+      only: it opens the community, it never joins and it never posts the entry anywhere. */
+   + '#vs-app .cd-comm{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 6px}'
+   + '#vs-app .cd-comm::-webkit-scrollbar{display:none}'
+   + '#vs-app .cd-comm a{flex:0 0 auto;min-width:0;max-width:230px;display:flex;align-items:center;gap:9px;'
+   +   'padding:9px 12px;border-radius:11px;text-decoration:none;border:1px solid rgba(0,224,164,.35);'
+   +   'background:rgba(0,224,164,.09);color:#eafff7}'
+   + '#vs-app .cd-comm .ic{flex:0 0 28px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;'
+   +   'justify-content:center;background:linear-gradient(135deg,#0f6e56,#00e0a4);color:#04120a;font:900 .8rem Inter,sans-serif}'
+   + '#vs-app .cd-comm b{display:block;font:800 .78rem/1.2 Inter,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+   + '#vs-app .cd-comm span.mc{display:block;font:700 .58rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#7ff5d0;margin-top:2px}'
    + '#vs-app .vs-detail{max-width:760px;margin:0 auto}'
    + '#vs-app .vs-detail .big{width:100%;border-radius:16px;background:#0a0a0f center/cover no-repeat;aspect-ratio:16/10;margin-bottom:14px}'
    + '#vs-app .vs-detail .big.nomedia{aspect-ratio:auto;height:74px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--vsl);color:#66727e;font:700 .75rem Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase}'
@@ -1224,6 +1235,37 @@
       right += '</div>';
 
       APP.innerHTML = '<div class="cd2">'+left+right+'</div>';
+
+      /* COMMUNITIES FOR THIS CREATE.
+         The mapping lives in community_create_links and is read through
+         community_for_competition(); there is deliberately no copy of it in this file, because
+         a mapping duplicated in two places drifts the first time one of them is edited.
+         Rendered only when the server returns something, so a competition with no mapping shows
+         nothing rather than an empty heading. */
+      Promise.resolve(SB.rpc('community_for_competition',{p_competition_slug:c.slug}))
+        .catch(function(){ return {data:[]}; })
+        .then(function(cr){
+          var rows=(cr&&cr.data)||[];
+          if(!rows.length) return;
+          var host=document.querySelector('#vs-app .cd-right');
+          if(!host) return;
+          var box=document.createElement('div');
+          box.className='cd-sec';
+          box.innerHTML='<h3>Communities for this CREATE</h3><div class="cd-comm">'
+            + rows.map(function(x){
+                return '<a href="/connect/?c='+encodeURIComponent(x.slug)+'">'
+                  +'<span class="ic">'+h(String(x.name||'?').trim().charAt(0).toUpperCase())+'</span>'
+                  +'<span style="min-width:0"><b>'+h(x.name)+'</b>'
+                  +'<span class="mc">'+(x.member_count||0)+' member'+((x.member_count===1)?'':'s')+'</span></span></a>';
+              }).join('')
+            + '</div>';
+          /* Placed before "Submitted work" when that section exists, so the suggestion sits with
+             the reading material rather than after the entry list. */
+          var subs=[].slice.call(host.querySelectorAll('.cd-sec')).filter(function(el){
+            var hh=el.querySelector('h3'); return hh && /Submitted work/i.test(hh.textContent);
+          })[0];
+          if(subs) host.insertBefore(box, subs); else host.appendChild(box);
+        });
 
       /* voters row: profile images of people who have voted in this competition */
       SB.rpc('vs_competition_voters',{p_comp:compId}).then(function(vr){
