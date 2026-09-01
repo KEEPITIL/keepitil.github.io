@@ -19,8 +19,13 @@ const ROUTES = [
   { label: 'Events',              url: '/',             stay: 'events' },
   { label: 'Discover',            url: '/',           stay: 'discover' },
   { label: 'Connect',             url: '/connect/',            stay: 'connect' },
-  { label: 'Blog: Groove Trooper',url: '/blog-groove-trooper.html',stay: 'blog-groove-trooper' },
-  { label: 'Agent blog: Nova',    url: '/blog-agent-nova.html',    stay: 'blog-agent-nova', img: true },
+  /* ⚠ REPOINTED 2026-09-01. These were /blog-groove-trooper.html and /blog-agent-nova.html,
+     both retired with the blog-*.html set. An audit script that checks deleted URLs reports
+     failures for pages that are supposed to be gone, which is how a QA tool stops being
+     believed. Articles live at /article/<slug>/ and artist features at
+     /article/artist/<slug>/; blog-agent-nova has no successor and is simply dropped. */
+  { label: 'Article: Groove Trooper', url: '/article/artist/groove-trooper/', stay: 'groove-trooper' },
+  { label: 'Article: California Love', url: '/article/california-love-history/', stay: 'california-love-history' },
 ];
 
 async function finalUrl(page, url) {

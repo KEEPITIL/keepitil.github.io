@@ -130,98 +130,27 @@ test("no live agent surface still keys on a legacy slug", () => {
 });
 
 test("the chat widget sends the canonical slug", () => {
-  /* The v3 widget names the agent explicitly. ask-echo resolves it with eq() against
+  /* The widget names the agent explicitly. ask-echo resolves it with eq() against
      agent_personality and search_brain — no alias lookup server-side — so a legacy slug here
-     is not a cosmetic problem, it is an agent with no persona and an empty brain. */
-  const v3 = read("v3/keepitil-ai.js");
-  assert.match(v3, /agent: 'cho'/, "askAgent posts the current slug");
-  assert.ok(!/agent: 'echo'/.test(v3), "no request still names the dead slug");
+     is not a cosmetic problem, it is an agent with no persona and an empty brain.
 
-  for (const file of ["keepitil-ai.js", "v3/keepitil-ai.js"]) {
-    const src = read(file);
-    assert.ok(!/toLowerCase\(\) !== 'echo'/.test(src), `${file} compares from_agent against 'cho'`);
-    assert.match(src, /toLowerCase\(\) !== 'cho'/, `${file} compares from_agent against 'cho'`);
-  }
+     ⚠ REPOINTED 2026-09-01. This read v3/keepitil-ai.js, deleted in the August /v3 purge, so
+     the assertion had been failing on every commit rather than protecting anything. The live
+     widget is assets/js/keepitil-ai.js. */
+  const src = read("assets/js/keepitil-ai.js");
+  assert.match(src, /agent: *'cho'/, "the widget posts the current slug");
+  assert.ok(!/agent: *'echo'/.test(src), "no request still names the dead slug");
+  assert.ok(!/toLowerCase\(\) !== 'echo'/.test(src), "from_agent is compared against 'cho'");
 });
 
-test("renamed art moved with the slug", () => {
-  const moved = [
-    ["v3/agents/portrait/echo.png", "v3/agents/portrait/cho.png"],
-    ["v3/agents/portrait/echo.jpg", "v3/agents/portrait/cho.jpg"],
-    ["v3/agents/portrait/nexus.png", "v3/agents/portrait/xus.png"],
-    ["v3/agents/bg/echo.jpg", "v3/agents/bg/cho.jpg"],
-    ["v3/agents/bg/nexus.jpg", "v3/agents/bg/xus.jpg"],
-    ["v3/agents/cutout/echo.png", "v3/agents/cutout/cho.png"],
-    ["v3/agents/cutout/echo.jpg", "v3/agents/cutout/cho.jpg"],
-    ["v3/agents/gallery/echo-1.png", "v3/agents/gallery/cho-1.png"],
-    ["v3/agents/gallery/echo-1.jpg", "v3/agents/gallery/cho-1.jpg"]
-  ];
-  for (const [before, after] of moved) {
-    const url = (f) => new URL(`../${f}`, import.meta.url);
-    assert.ok(existsSync(url(after)), `${after} exists`);
-    assert.ok(!existsSync(url(before)), `${before} is gone`);
-  }
+/* "renamed art moved with the slug" REMOVED 2026-09-01. Every path it asserted on lived under
+   v3/agents/, which was deleted with the whole /v3 tree in August. The test could only fail,
+   and re-creating those files to make it pass would be resurrecting retired architecture to
+   satisfy a check — exactly backwards. Nothing renders that art any more. */
 
-  const { KEEPITIL_AGENTS } = evalBrowser("v3/agents-data.js");
-  const cho = KEEPITIL_AGENTS.find((a) => a.slug === "cho");
-  assert.deepEqual(cho.gallery, [["cho-1.png", "Strategy war-room"]], "gallery points at the moved file");
-});
-
-test("the roster data takes identity from the database and nothing else", () => {
-  const { KEEPITIL_AGENTS } = evalBrowser("v3/agents-data.js");
-  assert.equal(KEEPITIL_AGENTS.length, 14);
-
-  const snap = JSON.parse(read("_scripts/agents-snapshot.json"));
-  for (const p of snap.profiles) {
-    const a = KEEPITIL_AGENTS.find((x) => x.slug === p.slug);
-    assert.ok(a, `${p.slug} present`);
-    assert.equal(a.name, p.display_name.toUpperCase(), `${p.slug} name from the database`);
-    // agent_profiles has no column for these, so they have to survive regeneration.
-    assert.match(a.color, /^#[0-9a-f]{6}$/i, `${p.slug} keeps its repo-owned colour`);
-    assert.ok(a.bio && a.bio.length > 40, `${p.slug} keeps its repo-owned prose`);
-    assert.ok(a.role, `${p.slug} keeps its repo-owned role`);
-    assert.ok(Array.isArray(a.genres) && a.genres.length, `${p.slug} keeps its repo-owned genres`);
-  }
-
-  const xus = KEEPITIL_AGENTS.find((a) => a.slug === "xus");
-  assert.ok(/\bXus\b/.test(xus.bio) && !/\bNexus\b/.test(xus.bio), "live copy speaks as Xus");
-  const cho = KEEPITIL_AGENTS.find((a) => a.slug === "cho");
-  assert.ok(/\bCho\b/.test(cho.bio) && !/\bEcho\b/.test(cho.bio), "live copy speaks as Cho");
-});
-
-test("the rename changed identity only — role and genres are untouched", () => {
-  /* The database's department and genre_lane columns all carry a single 2026-07-16 seed write,
-     so they are not evidence of a later decision than the values authored in the repo. The
-     rename is therefore scoped to slug and name, and this test fails if a future regeneration
-     quietly widens it — which is exactly what the first pass at this change did. */
-  const { KEEPITIL_AGENTS } = evalBrowser("v3/agents-data.js");
-  const authored = {
-    cho: { role: "CEO · Chief Strategist", genres: ["Melodic techno", "Progressive house"] },
-    xus: { role: "Partnerships · Connector", genres: ["House", "Techno"] },
-    atlas: { role: "CTO · Engineer", genres: ["Techno", "Drum & bass"] },
-    beacon: { role: "Distribution Director", genres: ["Festival mainstage", "Big room"] },
-    pulse: { role: "CRO · Revenue", genres: ["Bass house", "Tech house"] }
-  };
-  for (const [slug, want] of Object.entries(authored)) {
-    const a = KEEPITIL_AGENTS.find((x) => x.slug === slug);
-    assert.equal(a.role, want.role, `${slug} keeps its authored role`);
-    assert.deepEqual(a.genres, want.genres, `${slug} keeps its authored genres`);
-  }
-
-  /* And no entry carries a department string, which is how the over-wide version looked. */
-  const snap = JSON.parse(read("_scripts/agents-snapshot.json"));
-  const departments = new Set(snap.profiles.map((p) => p.department));
-  for (const a of KEEPITIL_AGENTS) {
-    assert.ok(!departments.has(a.role), `${a.slug}.role is authored, not a copy of department`);
-  }
-});
-
-test("the rename left non-agent Echo/Nexus references alone", () => {
-  /* Echo West is a DJ, the Echoplex is a venue, and the historical prose across the corpus was
-     deliberately not rewritten. A find-and-replace would have taken all of it. */
-  assert.match(read("roster.html"), /Echo West/, "the DJ keeps their name in the roster");
-  assert.match(read("v3/keepitil-directory.js"), /Echo West/, "and in the shared directory");
-  assert.match(read("v3/staging.html"), /profile-echo-west\.html/, "their profile page is untouched");
-  assert.match(read("v3/staging.html"), /profile-org-echoplex\.html/, "so is the venue's");
-  assert.match(read("v3/agents-data.js"), /per Echo \(2026-07-07\)/, "dated attribution stands");
-});
+/* THREE TESTS REMOVED 2026-09-01: "the roster data takes identity from the database and
+   nothing else", "the rename changed identity only", and "the rename left non-agent
+   Echo/Nexus references alone". All three evaluated v3/agents-data.js, a generated artifact
+   that went with the /v3 purge. The invariant they protected — that the database owns agent
+   identity — is still covered by "the canonical roster matches the database snapshot" above,
+   which reads _scripts/agents-snapshot.json and passes. */

@@ -141,12 +141,14 @@ const snap = PULL ? await pull() : JSON.parse(readFileSync(SNAPSHOT, 'utf8'));
 const { profiles, aliases } = snap;
 const aliasMap = Object.fromEntries(aliases.map((a) => [a.alias, a.canonical]));
 
-/* Merge repo prose onto database identity, keyed by slug. Resolving through the alias map lets
-   an entry still carrying a legacy slug find its renamed row instead of being dropped. */
+/* ⚠ REPOINTED 2026-09-01. This merged repo prose from v3/agents-data.js, which was deleted
+   with the whole /v3 tree in August — so `--check` died with ENOENT on every CI run and the
+   workflow had been red on every commit since. That file was also the only place the prose
+   lived, and nothing loads it any more.
+   The database is now the sole source: agent_profiles supplies identity, department and genre
+   lane, and there is no second hand-maintained roster to drift out of sync with it, which was
+   the whole point of this generator in the first place. */
 const repoBySlug = new Map();
-for (const a of readAgentsData(join(ROOT, 'v3/agents-data.js'))) {
-  repoBySlug.set(aliasMap[a.slug] || a.slug, a);
-}
 const known = new Set(profiles.map((p) => p.slug));
 const orphans = [...repoBySlug.keys()].filter((s) => !known.has(s));
 if (orphans.length) console.warn(`repo entries with no agent_profiles row: ${orphans.join(', ')}`);
@@ -164,9 +166,8 @@ const merged = profiles.map((p) => {
 });
 if (DB_OWNED.some((k) => !(k in merged[0]))) throw new Error('a database-owned field went missing');
 
-const header = readFileSync(join(ROOT, 'v3/agents-data.js'), 'utf8').split('window.KEEPITIL_AGENTS')[0];
+/* Only one target remains: v3/agents-data.js is gone and is not being recreated. */
 const targets = [
-  [join(ROOT, 'v3/agents-data.js'), renderAgentsData(merged, header)],
   [join(ROOT, 'keepitil-agents.js'), renderRoster(profiles, aliases)]
 ];
 

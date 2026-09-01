@@ -11,7 +11,7 @@ import { readFileSync, readdirSync } from "node:fs";
  * of a site redeploy.
  */
 
-const widget = readFileSync("v3/keepitil-ai.js", "utf8");
+const widget = readFileSync("assets/js/keepitil-ai.js", "utf8");
 
 test("askAgent posts to nexus-relay", () => {
   const fn = widget.slice(widget.indexOf("function askAgent"), widget.indexOf("function agentCard"));
@@ -107,6 +107,11 @@ function runTurn(relayResponse) {
     askEcho() { calls.push("askEcho"); return Promise.resolve(null); },
     echoCard() { return null; },
     fallbackCard() { calls.push("fallbackCard"); return { title: "canned", text: "canned" }; },
+    /* ⚠ ADDED 2026-09-01. handleQuery now consults CHO before the relay; without a stub the
+       sandbox threw ReferenceError: choAct is not defined and five real invariants below were
+       reported as failures when nothing was actually wrong with the routing. Returning null is
+       "CHO had no answer", which is the path these tests are about. */
+    choAct() { calls.push("choAct"); return Promise.resolve(null); },
     done: null
   };
   return new Promise((resolve, reject) => {

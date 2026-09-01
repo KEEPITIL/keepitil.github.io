@@ -43,11 +43,13 @@ test("supabase-js is self-hosted, not fetched from a CDN", () => {
     !/cdn\.jsdelivr\.net\/npm\/@supabase/.test(html),
     "a CDN round-trip at cold start defeats the point of bundling the site"
   );
-  assert.match(html, /src="\/v3\/vendor\/supabase-js\.min\.js"/);
+  /* ⚠ REPOINTED 2026-09-01: the vendored library moved to /assets/js/vendor/ in the asset
+     migration; this still asserted the /v3 path deleted in the August purge. */
+  assert.match(html, /src="\/assets\/js\/vendor\/supabase-js\.min\.js"/);
 });
 
 test("the vendored library is actually present and is the UMD build", () => {
-  const lib = new URL("v3/vendor/supabase-js.min.js", root);
+  const lib = new URL("assets/js/vendor/supabase-js.min.js", root);
   assert.ok(existsSync(lib), "the script tag points at a file that does not exist");
   const src = readFileSync(lib, "utf8");
   assert.ok(src.length > 100_000, "suspiciously small — probably an error page, not the library");

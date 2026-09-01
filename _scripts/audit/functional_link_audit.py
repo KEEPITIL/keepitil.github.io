@@ -46,7 +46,7 @@ def resolve(ref, from_file):
     return os.path.normpath(os.path.join(os.path.dirname(from_file), ref))
 
 def exists_gh(path):
-    """GitHub-Pages-aware existence: '/v3/culture' also resolves to culture.html or culture/index.html."""
+    """GitHub-Pages-aware existence: '/culture' also resolves to culture.html or culture/index.html."""
     if os.path.exists(path): return True
     if os.path.exists(path + '.html'): return True
     if os.path.isdir(path) and os.path.exists(os.path.join(path, 'index.html')): return True
