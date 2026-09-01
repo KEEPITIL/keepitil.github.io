@@ -201,7 +201,27 @@ function signIn(){
     return supa.auth.signInWithPassword({email:email,password:pw}).then(function(r){
       if(r&&r.error){
         var m=r.error.message||'';
-        if(/email not confirmed|not confirmed/i.test(m)) $('err').textContent='Your email isn’t confirmed yet — check your inbox (and spam), or use Forgot password.';
+        /* VERIFICATION IS REQUIRED NOW (2026-08-31). mailer_autoconfirm was on, so every
+           signup got a live session immediately and this branch never fired. It fires now,
+           and a dead end is not good enough: offer to send the email again. */
+        if(/email not confirmed|not confirmed/i.test(m)){
+          $('err').innerHTML='Verify your email to join communities, post, or chat. '
+            + 'Check your inbox and spam. <button type="button" id="resend-verify" '
+            + 'style="background:none;border:0;color:var(--blue);cursor:pointer;'
+            + 'font:inherit;text-decoration:underline;padding:0">Send it again</button>';
+          var rb=document.getElementById('resend-verify');
+          if(rb) rb.addEventListener('click', function(){
+            rb.disabled=true; rb.textContent='Sending…';
+            supa.auth.resend({type:'signup', email:email,
+              options:{emailRedirectTo:'https://keepitil.com/apply.html'}})
+              .then(function(rr){
+                $('err').textContent = (rr && rr.error)
+                  ? 'Could not send it just now — try again in a minute.'
+                  : 'Sent. Check your inbox and spam for the verification link.';
+              })
+              .catch(function(){ $('err').textContent='Could not send it just now — try again in a minute.'; });
+          });
+        }
         else if(m==='Invalid login credentials') $('err').textContent='Wrong username/email or password. Try “Forgot password?”.';
         else $('err').textContent=m;
         b.disabled=false; b.textContent='LOG IN';

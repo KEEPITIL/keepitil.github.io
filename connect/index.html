@@ -250,6 +250,17 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
 .cres span{font:400 .8rem/1.4 Inter,sans-serif;color:#a9b3c4}
 .cres a{color:#7ff5d0;text-decoration:none;font:700 .78rem Inter,sans-serif}
 .comm-note{font:400 .82rem/1.45 Inter,sans-serif;color:#a9b3c4;padding:14px;text-align:center}
+/* CREATE opportunities surfaced inside a community. Only competitions whose submissions are
+   still open — community_active_competitions() filters on the date, so a closed competition
+   cannot appear here even if the mapping still exists. */
+.copps{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  padding:0 0 4px;margin:0 0 14px}
+.copps::-webkit-scrollbar{display:none}
+.copp{flex:0 0 auto;display:flex;align-items:center;gap:9px;max-width:250px;min-width:0;padding:9px 12px;
+  border-radius:11px;text-decoration:none;border:1px solid rgba(0,224,164,.35);
+  background:rgba(0,224,164,.09);color:#eafff7}
+.copp b{display:block;font:800 .78rem/1.2 Inter,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copp span{display:block;font:700 .58rem/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#7ff5d0;margin-bottom:2px}
 
 .seg button[data-k=artist].on{background:var(--artist);color:#fff;}
 .seg button[data-k=brand].on{background:var(--brand);color:#053a2c;}
@@ -793,6 +804,10 @@ renderSubs();render();
         S.cur=(r.data||[])[0]||null;
         if(!S.cur){ pane.innerHTML='<div class="comm-empty"><b>Community not found</b><span>It may have been archived.</span></div>'; return; }
         S.role=S.mine[S.cur.id]||null;
+        /* Fetched once per community rather than on every tab switch. */
+        S.opps='';
+        rest('rpc/community_active_competitions?p_community_slug='+encodeURIComponent(slug))
+          .then(function(o){ S.opps=oppsHtml(o.data||[]); if(S.tab==='feed') renderFeed(); });
         /* instant, not smooth: html{scroll-behavior:smooth} animates this, and the visitor
            lands on a community header that is still sliding. Measured: opening from
            scrollY 260 left the page at 260. */
@@ -829,6 +844,15 @@ renderSubs();render();
   var canWrite=function(){ return !!S.role; };
 
   /* ── FEED ───────────────────────────────────────────────────────────────────────────── */
+  /* COMMUNITY -> CREATE. Shown above the feed so a live opportunity is visible without
+     hunting for it, and only when there is one. */
+  function oppsHtml(rows){
+    if(!rows||!rows.length) return '';
+    return '<div class="copps">'+rows.map(function(o){
+      return '<a class="copp" href="/create/?c='+encodeURIComponent(o.slug)+'">'
+        +'<div style="min-width:0"><span>Open on CREATE</span><b>'+esc(o.title)+'</b></div></a>';
+    }).join('')+'</div>';
+  }
   function renderFeed(){
     var box=document.getElementById('commTabBody'); if(!box) return;
     Promise.all([
@@ -841,7 +865,7 @@ renderSubs();render();
         ? '<div class="ccomp"><textarea id="cpBody" rows="2" placeholder="Ask a question or share something…"></textarea>'
           +'<button id="cpSend">Post</button></div>'
         : '<div class="comm-note">'+(SES?'Join this community to post.':'Sign in and join to post.')+'</div>';
-      box.innerHTML = comp + (posts.length
+      box.innerHTML = (S.opps||'') + comp + (posts.length
         ? posts.map(function(p){ return postHtml(p,byPost[p.id]||[]); }).join('')
         : '<div class="comm-empty"><b>No posts yet</b><span>Be the first to start a discussion here.</span></div>');
     });

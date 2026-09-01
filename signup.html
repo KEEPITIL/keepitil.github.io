@@ -114,7 +114,27 @@ function signUp(){
        dropped the brand-new account on a 404: the single worst place on the site to send
        someone. The dashboard is the signed-in home and carries the profile edit link. */
     if(r&&r.data&&r.data.session){ location.replace('/dashboard.html'); }
-    else { say('Account created! Check your email to confirm, then log in.', true); b.disabled=false; b.textContent='SIGN UP'; }
+    else {
+      /* No session means verification is required, which is the intended production flow.
+         Say what happens next in the customer's terms, and give them a way to re-send rather
+         than leaving them waiting on an email that may not have arrived. */
+      MSG.innerHTML='<b>Account created.</b> Check your email for a verification link, then log in. '
+        + 'You will need to verify before you can join communities, post or chat. '
+        + '<button type="button" id="resend-verify" style="background:none;border:0;color:var(--blue);'
+        + 'cursor:pointer;font:inherit;text-decoration:underline;padding:0">Send it again</button>';
+      MSG.className='msg ok';
+      var rb=document.getElementById('resend-verify');
+      if(rb) rb.addEventListener('click', function(){
+        rb.disabled=true; rb.textContent='Sending…';
+        supa.auth.resend({type:'signup', email:email,
+          options:{emailRedirectTo:'https://keepitil.com/apply.html'}})
+          .then(function(rr){ say(rr && rr.error
+              ? 'Could not send it just now — try again in a minute.'
+              : 'Sent. Check your inbox and spam.', !(rr&&rr.error)); })
+          .catch(function(){ say('Could not send it just now — try again in a minute.'); });
+      });
+      b.disabled=false; b.textContent='SIGN UP';
+    }
   }).catch(function(){ say('Could not sign up — try again.'); b.disabled=false; b.textContent='SIGN UP'; });
 }
 $('signup-btn').addEventListener('click',signUp);
