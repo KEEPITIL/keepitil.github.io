@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="/assets/css/tokens.css?v=20260826a"/><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
   <meta name="description" content="The KEEPITIL Scene — discover creators, artists, brands, venues and organizers across every genre. Southern California first.">
-<title>Connect — Artists, Brands, Organizers & Venues | KEEPITIL</title>
+<title>Connect — Artists, Brands, Community & Venues | KEEPITIL</title>
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
 <link rel="icon" type="image/png" href="/assets/images/logo-purple-nav.png"/>
@@ -256,7 +256,9 @@ body>*{min-width:0}
   <div class="stats">
     <div class="stat artist"><b id="cA">0</b><span>Artists</span></div>
     <div class="stat brand"><b id="cB">0</b><span>Brands</span></div>
-    <div class="stat organizer"><b id="cO">0</b><span>Organizers</span></div>
+    <!-- The stat row mirrors the four filters. #cO keeps its id so nothing that writes to it
+         breaks; only what it counts and what it is called change. -->
+    <div class="stat organizer"><b id="cO">0</b><span>Community</span></div>
     <div class="stat venue"><b id="cV">0</b><span>Venues</span></div>
   </div>
 </header>
@@ -311,7 +313,7 @@ const KL={artist:'Artist',brand:'Brand',organizer:'Organizer',venue:'Venue'};
 const KIND_MATCH={artist:['artist'],brand:['brand','organizer'],venue:['venue'],community:['community']};
 const matchesKind=(x,k)=>(KIND_MATCH[k]||[k]).some(kk=>(x.kinds||[]).includes(kk));
 const cnt=k=>DATA.filter(x=>matchesKind(x,k)).length;
-cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('brand');cV.textContent=cnt('venue');
+cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('community');cV.textContent=cnt('venue');
 // ---- genre buckets (tightened) ----
 const BUCKETS=[['House',['house','tech house','deep house','bass house','latin house','jackin house','soulful house','organic house','disco tech','afro house','afro','disco']],
 ['Techno',['techno','hard techno','minimal techno','deep techno','dark techno','acid techno','ambient techno','melodic techno','peak-time','hypnotic','industrial','minimal','deep tech','psychedelic industrial techno','acid']],
@@ -420,7 +422,7 @@ renderSubs();render();
     if(!live.length) throw 0;
     live.sort(function(a,b){return a._order-b._order;});
     DATA=live;
-    cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('brand');cV.textContent=cnt('venue');
+    cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('community');cV.textContent=cnt('venue');
     renderSubs();render();
   }).catch(function(){/* sheet not shared/unreachable -> keep built-in roster */});
 })();
@@ -429,7 +431,7 @@ renderSubs();render();
   var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
   var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
   function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
-  function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('brand');cV.textContent=cnt('venue'); renderSubs();render(); }
+  function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('community');cV.textContent=cnt('venue'); renderSubs();render(); }
   // claimed artist/brand/organizer profiles from profile_meta
   fetch(U+'/rest/v1/profile_meta?select=slug,display_name,account_type,location,cover_url,avatar_url&account_type=in.(brand,organizer)&status=eq.published',{headers:{apikey:K,Authorization:'Bearer '+K}})
     .then(function(r){return r.json();}).then(function(rows){
