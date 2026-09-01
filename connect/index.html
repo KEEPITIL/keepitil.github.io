@@ -125,6 +125,124 @@ nav#main-nav{position:sticky;top:0;z-index:200;background:rgba(11,11,11,.95);bac
 .seg button{font-family:var(--fh);font-size:.98rem;letter-spacing:.09em;color:var(--ink2);background:none;border:0;cursor:pointer;padding:8px 16px;border-radius:9px;transition:all .18s;}
 .seg button:hover{color:#fff;}
 /* [data-k=all] removed with the ALL tab (2026-08-31). */
+/* ══ COMMUNITY (Founder 2026-08-31) ══════════════════════════════════════════════════════
+   Community is a filter inside CONNECT, not a sixth destination. It replaces the directory
+   grid when its tab is selected and hands the grid back when another tab is. Mobile-first;
+   desktop widens the same components rather than running a second code path. */
+#commPane{display:none}
+body.comm-on #grid{display:none}
+body.comm-on #commPane{display:block}
+body.comm-on .subfilters{display:none}
+/* ⚠ body ON THIS PAGE IS display:flex, so a bare max-width leaves the pane sized by its
+   CONTENT as a flex item — measured 722px inside a 375px viewport, which is horizontal
+   overflow on every phone. width:100% and min-width:0 are what actually bind it to the
+   viewport; max-width still centres it on desktop. */
+#commPane{width:100%;min-width:0;flex:0 1 auto;max-width:1120px;margin:0 auto;padding:0 16px 40px;box-sizing:border-box}
+/* search */
+.comm-search{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:11px 14px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line,#242433);border-radius:12px}
+.comm-search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink,#f4f2fb);
+  font:500 .95rem Inter,system-ui,sans-serif}
+.comm-search input::placeholder{color:#6b6588}
+/* topic chips — horizontal scroll, never a wrapped block that pushes cards off screen */
+.comm-chips{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding:0 0 4px;margin:0 0 16px}
+.comm-chips::-webkit-scrollbar{display:none}
+.comm-chips button{flex:0 0 auto;height:32px;padding:0 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line,#242433);background:rgba(255,255,255,.05);color:#cfd3df;
+  font:800 .68rem/1 Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.comm-chips button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+/* cards */
+.comm-cards{display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:700px){.comm-cards{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1000px){.comm-cards{grid-template-columns:repeat(3,1fr)}}
+.comm-card{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;
+  background:var(--panel,rgba(18,18,28,.7));border:1px solid var(--line,#242433);cursor:pointer;
+  transition:border-color .15s,transform .15s;text-align:left;width:100%;color:inherit;font:inherit}
+.comm-card:hover{border-color:rgba(0,224,164,.45);transform:translateY(-1px)}
+.comm-ic{flex:0 0 52px;width:52px;height:52px;border-radius:12px;overflow:hidden;
+  background:linear-gradient(135deg,#0f6e56,#00e0a4);display:flex;align-items:center;
+  justify-content:center;color:#04120a;font:900 1.1rem Inter,sans-serif}
+.comm-ic img{width:100%;height:100%;object-fit:cover}
+.comm-body{flex:1;min-width:0}
+.comm-name{font:800 .98rem/1.2 Inter,system-ui,sans-serif;color:#fff;margin:0 0 3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.comm-desc{font:400 .82rem/1.35 Inter,system-ui,sans-serif;color:#a9b3c4;margin:0 0 7px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.comm-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font:800 .6rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#7d8b9c}
+.comm-topic{padding:3px 8px;border-radius:999px;background:rgba(0,224,164,.12);color:#7ff5d0}
+.comm-join{flex:0 0 auto;align-self:center;height:32px;padding:0 14px;border-radius:9px;cursor:pointer;
+  border:1px solid rgba(0,224,164,.45);background:rgba(0,224,164,.12);color:#7ff5d0;
+  font:800 .64rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.comm-join.joined{background:rgba(255,255,255,.06);border-color:var(--line,#242433);color:#9aa6b6}
+.comm-join:disabled{opacity:.5;cursor:default}
+/* empty states — an empty PLATFORM and an empty SEARCH are different sentences */
+.comm-empty{padding:40px 18px;text-align:center;border:1px dashed var(--line,#242433);border-radius:14px}
+.comm-empty b{display:block;font:800 1.05rem Inter,sans-serif;color:#eafff7;margin-bottom:6px}
+.comm-empty span{font:400 .88rem/1.45 Inter,sans-serif;color:#a9b3c4}
+/* ── DETAIL ─────────────────────────────────────────────────────────────────────────── */
+.comm-back{display:inline-flex;align-items:center;gap:7px;margin:0 0 12px;padding:7px 12px;
+  border-radius:9px;border:1px solid var(--line,#242433);background:rgba(255,255,255,.05);
+  color:#cfd3df;font:800 .66rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.comm-head{display:flex;gap:13px;align-items:center;padding:14px;border-radius:14px;margin:0 0 14px;
+  background:var(--panel,rgba(18,18,28,.7));border:1px solid var(--line,#242433)}
+.comm-head .comm-ic{flex:0 0 56px;width:56px;height:56px}
+.comm-head h2{font:900 1.15rem/1.15 var(--fh,Inter),sans-serif;letter-spacing:.03em;color:#fff;margin:0 0 3px}
+.comm-tabs{display:flex;gap:6px;margin:0 0 16px}
+.comm-tabs button{flex:1 1 0;height:38px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--line,#242433);background:rgba(255,255,255,.05);color:#cfd3df;
+  font:800 .68rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.comm-tabs button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
+/* feed */
+.cpost{padding:13px 14px;border-radius:13px;margin:0 0 10px;
+  background:var(--panel,rgba(18,18,28,.7));border:1px solid var(--line,#242433)}
+.cpost.removed{opacity:.55;border-style:dashed}
+.cpost h4{font:800 .92rem/1.25 Inter,sans-serif;color:#fff;margin:0 0 5px}
+.cpost p{font:400 .87rem/1.45 Inter,sans-serif;color:#c8d1de;margin:0 0 8px;white-space:pre-wrap}
+.cpost img.cmedia{width:100%;border-radius:10px;margin:0 0 8px;display:block}
+.cmeta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  font:700 .64rem/1 Inter,sans-serif;letter-spacing:.06em;color:#7d8b9c}
+.cmeta button{background:none;border:0;color:#7ff5d0;cursor:pointer;font:inherit;padding:0}
+.cmeta .danger{color:#ff8f8f}
+.creply{margin:8px 0 0 14px;padding:9px 11px;border-left:2px solid rgba(0,224,164,.3);
+  background:rgba(255,255,255,.03);border-radius:0 9px 9px 0}
+/* Two levels of visual depth and no more: a phone cannot show a deep tree without the text
+   column collapsing to nothing. */
+.creply .creply{margin-left:12px}
+.creply .creply .creply{margin-left:0}
+.creply p{font:400 .84rem/1.4 Inter,sans-serif;color:#c8d1de;margin:0 0 5px;white-space:pre-wrap}
+.ccomp{display:flex;gap:8px;margin:0 0 14px}
+.ccomp textarea,.ccomp input[type=text]{flex:1;min-width:0;background:rgba(255,255,255,.05);
+  border:1px solid var(--line,#242433);border-radius:10px;padding:10px 12px;color:var(--ink,#f4f2fb);
+  font:400 .88rem Inter,sans-serif;outline:none;resize:vertical}
+.ccomp button{flex:0 0 auto;padding:0 16px;border-radius:10px;border:0;cursor:pointer;
+  background:linear-gradient(90deg,#0f6e56,#00e0a4);color:#04120a;font:800 .68rem Inter,sans-serif;
+  letter-spacing:.1em;text-transform:uppercase}
+.ccomp button:disabled{opacity:.5;cursor:default}
+/* chat */
+#cchat{max-height:52vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:4px 2px;margin:0 0 12px}
+.cmsg{display:flex;gap:9px;margin:0 0 10px}
+.cav{flex:0 0 30px;width:30px;height:30px;border-radius:50%;overflow:hidden;
+  background:linear-gradient(135deg,#0f6e56,#00e0a4);display:flex;align-items:center;
+  justify-content:center;color:#04120a;font:900 .72rem Inter,sans-serif}
+.cav img{width:100%;height:100%;object-fit:cover}
+.cmsg-b{flex:1;min-width:0}
+.cmsg-h{font:800 .66rem/1 Inter,sans-serif;color:#7ff5d0;margin-bottom:3px}
+.cmsg-h time{color:#6b7787;font-weight:600;margin-left:7px}
+.cmsg-t{font:400 .87rem/1.4 Inter,sans-serif;color:#c8d1de;white-space:pre-wrap;word-break:break-word}
+/* resources */
+.cres{display:flex;gap:11px;align-items:flex-start;padding:12px 13px;border-radius:12px;margin:0 0 9px;
+  background:var(--panel,rgba(18,18,28,.7));border:1px solid var(--line,#242433)}
+.cres-k{flex:0 0 auto;padding:4px 9px;border-radius:999px;background:rgba(0,224,164,.12);color:#7ff5d0;
+  font:800 .58rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.cres b{display:block;font:800 .89rem/1.25 Inter,sans-serif;color:#fff;margin-bottom:3px}
+.cres span{font:400 .8rem/1.4 Inter,sans-serif;color:#a9b3c4}
+.cres a{color:#7ff5d0;text-decoration:none;font:700 .78rem Inter,sans-serif}
+.comm-note{font:400 .82rem/1.45 Inter,sans-serif;color:#a9b3c4;padding:14px;text-align:center}
+
 .seg button[data-k=artist].on{background:var(--artist);color:#fff;}
 .seg button[data-k=brand].on{background:var(--brand);color:#053a2c;}
 .seg button[data-k=community].on{background:var(--organizer);color:#3a1e08;}
@@ -281,7 +399,9 @@ body>*{min-width:0}
   <div class="subfilters" id="subs"></div>
 </div>
 <main class="grid" id="grid"></main>
+<section id="commPane" aria-label="Community"></section>
 <footer>KEEPITIL <a href="/">keepitil.com</a></footer>
+<script src="/assets/js/vendor/supabase-js.min.js" defer></script>
 <script>
 // roster reset 2026-07-21 — rebuild from Google Sheet + web research. Seeded with the 2 gold standards.
 /* ARTISTS COME FROM ARTICLES (Founder 2026-08-26: "public view profiles will not be on the
@@ -371,6 +491,14 @@ function matchSub(x){
   return ((x.type||'')+' '+(x.category||'')).toLowerCase().includes(sub.val.toLowerCase());
 }
 function render(){
+  /* COMMUNITY takes over the main area; the directory grid is not a fit for it and the two
+     must not both be on screen. body.comm-on is the single switch. */
+  document.body.classList.toggle('comm-on', kind==='community');
+  if(kind==='community'){
+    document.getElementById('count').textContent='';
+    if(window.__commActivate) window.__commActivate();
+    return;
+  }
   const ql=q.trim().toLowerCase();
   const list=DATA.filter(x=>{
     if(!matchesKind(x,kind))return false;
@@ -430,6 +558,9 @@ renderSubs();render();
 (function(){
   var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
   var K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+  /* One anon key for the page. The Community module reads it from here rather than
+     carrying a second copy that could drift from this one. */
+  window.__KIL_ANON = K;
   function _dedupe(){ var h={}; DATA.forEach(function(x){ h[String(x.blog||'').toLowerCase()]=1; h[String(x.name||'').toLowerCase()]=1; }); return h; }
   function _refresh(){ cA.textContent=cnt('artist');cB.textContent=cnt('brand');cO.textContent=cnt('community');cV.textContent=cnt('venue'); renderSubs();render(); }
   // claimed artist/brand/organizer profiles from profile_meta
@@ -485,5 +616,454 @@ renderSubs();render();
 <script src="/assets/js/keepitil-radio.js?v=20260829a" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260829e" defer></script>
 <script src="/keepitil-shell.js?v=20260826e" defer></script>
+<!-- COMMUNITY: its own tag. The module was briefly placed INSIDE the shell's
+     <script src> element, where inline content is ignored by the browser, so it
+     silently never ran. -->
+<script>
+/* ── COMMUNITY ── */
+/* ══ COMMUNITY MODULE ════════════════════════════════════════════════════════════════════
+   Landing (search + topics + cards) and detail (FEED / CHAT / RESOURCES) for the COMMUNITY
+   filter inside CONNECT.
+
+   ⚠ THE SERVER IS THE AUTHORITY, NOT THIS FILE. Every control below is drawn from a role the
+   database reported, and every write is a plain PostgREST call that RLS accepts or rejects on
+   its own. Hiding a button is a courtesy to the reader; it is never the check. The Phase 4
+   tests proved the policies hold with the UI removed entirely.
+
+   State lives in one object so backing out of a community can restore the search text, the
+   selected topic and the scroll position rather than dumping the visitor at the top. */
+(function(){
+  var U='https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+  var K=window.__KIL_ANON||'';
+  var SB=null, SES=null, ME=null;
+  var pane=document.getElementById('commPane');
+  if(!pane) return;
+
+  var S={ q:'', topic:'', scroll:0, view:'list', slug:null, tab:'feed',
+          list:[], topics:[], mine:{}, cur:null, role:null };
+
+  /* ── plumbing ───────────────────────────────────────────────────────────────────────── */
+  function hdrs(){
+    var h={apikey:K,'Content-Type':'application/json'};
+    h.Authorization='Bearer '+((SES&&SES.access_token)||K);
+    return h;
+  }
+  function rest(path,opt){
+    opt=opt||{};
+    return fetch(U+'/rest/v1/'+path,{method:opt.method||'GET',headers:Object.assign(hdrs(),opt.headers||{}),
+      body:opt.body?JSON.stringify(opt.body):undefined})
+      .then(function(r){ return r.text().then(function(t){
+        var j=null; try{ j=t?JSON.parse(t):null; }catch(e){}
+        return {ok:r.ok,status:r.status,data:j};
+      });});
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function when(t){
+    try{ var d=new Date(t), m=Math.floor((Date.now()-d)/60000);
+      if(m<1) return 'now'; if(m<60) return m+'m'; if(m<1440) return Math.floor(m/60)+'h';
+      return d.toLocaleDateString([], {month:'short',day:'numeric'});
+    }catch(e){ return ''; }
+  }
+  function initial(n){ return (String(n||'?').trim()[0]||'?').toUpperCase(); }
+
+  /* ── data ───────────────────────────────────────────────────────────────────────────── */
+  function loadTopics(){
+    return rest('community_topics?select=key,label&enabled=is.true&order=sort_order')
+      .then(function(r){ S.topics=(r.data||[]); });
+  }
+  function loadCommunities(){
+    var p='communities?select=id,slug,name,description,topic_key,tags,icon_url,member_count,visibility'
+         +'&archived=is.false&order=member_count.desc,name.asc&limit=100';
+    return rest(p).then(function(r){ S.list=(r.data||[]); });
+  }
+  /* Membership comes from the DATABASE every time. A local "joined" flag would be a lie the
+     moment the same account opened another device. */
+  function loadMine(){
+    S.mine={};
+    if(!SES) return Promise.resolve();
+    return rest('community_members?select=community_id,role&user_id=eq.'+SES.user.id)
+      .then(function(r){ (r.data||[]).forEach(function(m){ S.mine[m.community_id]=m.role; }); });
+  }
+
+  /* ── landing ────────────────────────────────────────────────────────────────────────── */
+  function visible(){
+    var q=S.q.trim().toLowerCase();
+    return S.list.filter(function(c){
+      if(S.topic && c.topic_key!==S.topic) return false;
+      if(!q) return true;
+      var hay=[c.name,c.description,c.topic_key].concat(c.tags||[]).join(' ').toLowerCase();
+      return hay.indexOf(q)>-1;
+    });
+  }
+  function renderList(){
+    var rows=visible();
+    var chips='<div class="comm-chips" id="commChips">'
+      +'<button data-t="" class="'+(S.topic?'':'on')+'">All</button>'
+      +S.topics.map(function(t){
+         return '<button data-t="'+esc(t.key)+'" class="'+(S.topic===t.key?'on':'')+'">'+esc(t.label)+'</button>';
+       }).join('')+'</div>';
+    var body;
+    if(!rows.length){
+      /* An empty PLATFORM and an empty SEARCH are different sentences. Saying "no matches"
+         when nothing has been created yet reads as a broken search. */
+      body = S.list.length===0
+        ? '<div class="comm-empty"><b>Communities are opening soon</b><span>Learn, ask and share with other creators — communities for DJing, production, writing, art, events and more.</span></div>'
+        : '<div class="comm-empty"><b>No communities match your search</b><span>Try a different word, or clear the topic filter.</span></div>';
+    } else {
+      body='<div class="comm-cards">'+rows.map(cardHtml).join('')+'</div>';
+    }
+    pane.innerHTML=
+      '<div class="comm-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
+      +'<input id="commQ" type="text" placeholder="Search communities…" value="'+esc(S.q)+'"/></div>'
+      +chips+body;
+    var qi=document.getElementById('commQ');
+    if(qi) qi.addEventListener('input',function(){ S.q=this.value; var at=this.selectionStart; renderList();
+      var n=document.getElementById('commQ'); if(n){ n.focus(); try{n.setSelectionRange(at,at);}catch(e){} } });
+  }
+  function cardHtml(c){
+    var joined=!!S.mine[c.id];
+    var topic=(S.topics.filter(function(t){return t.key===c.topic_key;})[0]||{}).label||'';
+    return '<div class="comm-card" data-slug="'+esc(c.slug)+'">'
+      +'<div class="comm-ic">'+(c.icon_url?'<img src="'+esc(c.icon_url)+'" alt=""/>':esc(initial(c.name)))+'</div>'
+      +'<div class="comm-body">'
+        +'<div class="comm-name">'+esc(c.name)+'</div>'
+        +(c.description?'<div class="comm-desc">'+esc(c.description)+'</div>':'')
+        +'<div class="comm-meta">'
+          +(topic?'<span class="comm-topic">'+esc(topic)+'</span>':'')
+          /* member_count is a database counter maintained by a trigger. No invented
+             "active now" or "trending" number appears anywhere in this UI. */
+          +'<span>'+(c.member_count||0)+' member'+((c.member_count===1)?'':'s')+'</span>'
+          +(c.visibility!=='public'?'<span>'+esc(c.visibility)+'</span>':'')
+        +'</div>'
+      +'</div>'
+      +'<button class="comm-join'+(joined?' joined':'')+'" data-join="'+esc(c.id)+'">'+(joined?'Joined':'Join')+'</button>'
+      +'</div>';
+  }
+  window.__commRenderList=renderList;
+
+  /* ── join / leave ───────────────────────────────────────────────────────────────────── */
+  function needAuth(){
+    if(SES) return false;
+    location.href='/apply.html?next='+encodeURIComponent(location.pathname+location.search);
+    return true;
+  }
+  function toggleJoin(cid,btn){
+    if(needAuth()) return;
+    var joined=!!S.mine[cid];
+    btn.disabled=true;
+    var p = joined
+      ? rest('community_members?community_id=eq.'+cid+'&user_id=eq.'+SES.user.id,{method:'DELETE'})
+      : rest('community_members',{method:'POST',body:{community_id:cid,user_id:SES.user.id,role:'member'},
+              headers:{Prefer:'return=minimal'}});
+    p.then(function(r){
+      /* The server decides. On refusal the button goes back to what the DATABASE says it is,
+         so a denied join can never leave the UI claiming membership. */
+      if(!r.ok) throw new Error('denied '+r.status);
+      return loadMine().then(loadCommunities);
+    }).then(function(){
+      if(S.view==='detail') renderDetail(); else renderList();
+    }).catch(function(){
+      btn.disabled=false;
+      btn.textContent=S.mine[cid]?'Joined':'Join';
+      alert(joined?'Could not leave — please try again.':'Could not join. This community may be invite-only.');
+    });
+  }
+
+  /* ── detail ─────────────────────────────────────────────────────────────────────────── */
+  function openCommunity(slug){
+    S.scroll=window.pageYOffset||0;      /* remembered for the back button */
+    S.view='detail'; S.slug=slug; S.tab='feed';
+    pane.innerHTML='<div class="comm-note">Loading…</div>';
+    rest('communities?select=id,slug,name,description,topic_key,icon_url,cover_url,member_count,visibility,owner_id&slug=eq.'+encodeURIComponent(slug))
+      .then(function(r){
+        S.cur=(r.data||[])[0]||null;
+        if(!S.cur){ pane.innerHTML='<div class="comm-empty"><b>Community not found</b><span>It may have been archived.</span></div>'; return; }
+        S.role=S.mine[S.cur.id]||null;
+        /* instant, not smooth: html{scroll-behavior:smooth} animates this, and the visitor
+           lands on a community header that is still sliding. Measured: opening from
+           scrollY 260 left the page at 260. */
+        try{ window.scrollTo({top:0,behavior:'instant'}); }catch(e){ window.scrollTo(0,0); }
+        renderDetail();
+      });
+  }
+  function headHtml(){
+    var c=S.cur, joined=!!S.mine[c.id];
+    return '<button class="comm-back" id="commBack">&#8249; Community</button>'
+      +'<div class="comm-head">'
+        +'<div class="comm-ic">'+(c.icon_url?'<img src="'+esc(c.icon_url)+'" alt=""/>':esc(initial(c.name)))+'</div>'
+        +'<div class="comm-body"><h2>'+esc(c.name)+'</h2>'
+          +(c.description?'<div class="comm-desc">'+esc(c.description)+'</div>':'')
+          +'<div class="comm-meta"><span>'+(c.member_count||0)+' member'+((c.member_count===1)?'':'s')+'</span>'
+          +(S.role?'<span class="comm-topic">'+esc(S.role)+'</span>':'')+'</div>'
+        +'</div>'
+        +'<button class="comm-join'+(joined?' joined':'')+'" data-join="'+esc(c.id)+'">'+(joined?'Joined':'Join')+'</button>'
+      +'</div>'
+      +'<div class="comm-tabs" id="commTabs">'
+        +['feed','chat','resources'].map(function(t){
+            return '<button data-tab="'+t+'" class="'+(S.tab===t?'on':'')+'">'+t.toUpperCase()+'</button>';
+          }).join('')
+      +'</div>';
+  }
+  function renderDetail(){
+    if(!S.cur) return;
+    pane.innerHTML=headHtml()+'<div id="commTabBody"><div class="comm-note">Loading…</div></div>';
+    if(S.tab==='feed') renderFeed();
+    else if(S.tab==='chat') renderChat();
+    else renderResources();
+  }
+  var isMod=function(){ return S.role==='owner'||S.role==='moderator'; };
+  var canWrite=function(){ return !!S.role; };
+
+  /* ── FEED ───────────────────────────────────────────────────────────────────────────── */
+  function renderFeed(){
+    var box=document.getElementById('commTabBody'); if(!box) return;
+    Promise.all([
+      rest('community_posts?select=id,author_id,title,body,kind,media_url,link_url,pinned,locked,removed,reply_count,created_at&community_id=eq.'+S.cur.id+'&order=pinned.desc,created_at.desc&limit=50'),
+      rest('community_replies?select=id,post_id,parent_id,author_id,body,removed,created_at&community_id=eq.'+S.cur.id+'&order=created_at.asc&limit=300')
+    ]).then(function(res){
+      var posts=res[0].data||[], reps=res[1].data||[];
+      var byPost={}; reps.forEach(function(r){ (byPost[r.post_id]=byPost[r.post_id]||[]).push(r); });
+      var comp = canWrite()
+        ? '<div class="ccomp"><textarea id="cpBody" rows="2" placeholder="Ask a question or share something…"></textarea>'
+          +'<button id="cpSend">Post</button></div>'
+        : '<div class="comm-note">'+(SES?'Join this community to post.':'Sign in and join to post.')+'</div>';
+      box.innerHTML = comp + (posts.length
+        ? posts.map(function(p){ return postHtml(p,byPost[p.id]||[]); }).join('')
+        : '<div class="comm-empty"><b>No posts yet</b><span>Be the first to start a discussion here.</span></div>');
+    });
+  }
+  function postHtml(p,reps){
+    var mine=SES&&p.author_id===SES.user.id;
+    var ctl=[];
+    /* Controls are drawn from the role the DATABASE reported. The server rejects the write
+       regardless of what is drawn — proven by the Phase 4 negative tests. */
+    if(canWrite() && !p.locked) ctl.push('<button data-reply="'+esc(p.id)+'">Reply</button>');
+    if(mine||isMod()) ctl.push('<button class="danger" data-rm="'+esc(p.id)+'">'+(p.removed?'Restore':'Remove')+'</button>');
+    if(isMod()) ctl.push('<button data-lock="'+esc(p.id)+'">'+(p.locked?'Unlock':'Lock')+'</button>',
+                         '<button data-pin="'+esc(p.id)+'">'+(p.pinned?'Unpin':'Pin')+'</button>');
+    var top=reps.filter(function(r){ return !r.parent_id; });
+    return '<div class="cpost'+(p.removed?' removed':'')+'" data-post="'+esc(p.id)+'">'
+      +(p.pinned?'<div class="comm-meta"><span class="comm-topic">Pinned</span></div>':'')
+      +(p.title?'<h4>'+esc(p.title)+'</h4>':'')
+      +(p.body?'<p>'+esc(p.body)+'</p>':'')
+      +(p.kind==='image'&&p.media_url?'<img class="cmedia" src="'+esc(p.media_url)+'" alt="" loading="lazy"/>':'')
+      +(p.kind==='link'&&p.link_url?'<div class="cmeta"><a href="'+esc(p.link_url)+'" target="_blank" rel="noopener">'+esc(p.link_url)+'</a></div>':'')
+      +'<div class="cmeta"><time>'+when(p.created_at)+'</time><span>'+(p.reply_count||0)+' repl'+((p.reply_count===1)?'y':'ies')+'</span>'
+        +(p.locked?'<span>Locked</span>':'')+(p.removed?'<span>Removed</span>':'')+ctl.join('')+'</div>'
+      +top.map(function(r){ return replyHtml(r,reps,1); }).join('')
+      +'<div class="ccomp" data-rbox="'+esc(p.id)+'" style="display:none;margin-top:9px">'
+        +'<input type="text" placeholder="Write a reply…"/><button data-rsend="'+esc(p.id)+'">Send</button></div>'
+      +'</div>';
+  }
+  function replyHtml(r,all,depth){
+    var kids=all.filter(function(x){ return x.parent_id===r.id; });
+    var mine=SES&&r.author_id===SES.user.id;
+    var ctl='';
+    if(mine||isMod()) ctl='<button class="danger" data-rrm="'+esc(r.id)+'">'+(r.removed?'Restore':'Remove')+'</button>';
+    /* Depth is capped at two visually. Deeper replies still exist and still render, they just
+       stop indenting — an infinitely nested thread on a 320px screen ends with a column two
+       words wide. */
+    return '<div class="creply">'
+      +'<p>'+esc(r.body)+'</p>'
+      +'<div class="cmeta"><time>'+when(r.created_at)+'</time>'
+      +(canWrite()?'<button data-reply2="'+esc(r.id)+'" data-post="'+esc(r.post_id)+'">Reply</button>':'')+ctl+'</div>'
+      +(depth<2?kids.map(function(k){ return replyHtml(k,all,depth+1); }).join(''):'')
+      +'</div>';
+  }
+
+  /* ── CHAT ───────────────────────────────────────────────────────────────────────────── */
+  /* Members only, even when the community is public. Enforced by the RLS SELECT policy — this
+     branch only decides what to draw for someone the server will refuse anyway. */
+  function renderChat(){
+    var box=document.getElementById('commTabBody'); if(!box) return;
+    if(!S.role){
+      box.innerHTML='<div class="comm-empty"><b>Chat is for members</b><span>'
+        +(SES?'Join this community to read and take part in the chat.':'Sign in and join this community to take part in the chat.')
+        +'</span></div>';
+      return;
+    }
+    loadChat(null);
+  }
+  function loadChat(before){
+    var box=document.getElementById('commTabBody'); if(!box) return;
+    var p='community_chat_messages?select=id,user_id,handle,body,image_url,removed,created_at'
+         +'&community_id=eq.'+S.cur.id+'&order=created_at.desc&limit=30';
+    if(before) p+='&created_at=lt.'+encodeURIComponent(before);
+    rest(p).then(function(r){
+      var rows=(r.data||[]).slice().reverse();
+      var older = rows.length===30
+        ? '<div style="text-align:center;margin:0 0 10px"><button class="comm-back" id="cmore">Load older</button></div>' : '';
+      var list = rows.length ? rows.map(msgHtml).join('')
+        : '<div class="comm-note">No messages yet. Say hello.</div>';
+      if(before){
+        var cur=document.getElementById('cchat');
+        if(cur){ var h0=cur.scrollHeight; cur.insertAdjacentHTML('afterbegin',older+list);
+                 cur.scrollTop=cur.scrollHeight-h0; wire(); return; }
+      }
+      box.innerHTML='<div id="cchat">'+older+list+'</div>'
+        +'<div class="ccomp"><input id="cmBody" type="text" placeholder="Message…" maxlength="1000"/>'
+        +'<button id="cmSend">Send</button></div>';
+      var c=document.getElementById('cchat'); if(c) c.scrollTop=c.scrollHeight;
+      wire();
+    });
+  }
+  function msgHtml(m){
+    var mine=SES&&m.user_id===SES.user.id;
+    var ctl=(mine||isMod())?'<button class="danger" data-mrm="'+esc(m.id)+'">Remove</button>':'';
+    return '<div class="cmsg" data-msg="'+esc(m.id)+'" data-at="'+esc(m.created_at)+'">'
+      +'<div class="cav">'+esc(initial(m.handle))+'</div>'
+      +'<div class="cmsg-b"><div class="cmsg-h">'+esc(m.handle||'member')+'<time>'+when(m.created_at)+'</time>'+ctl+'</div>'
+      +'<div class="cmsg-t">'+(m.removed?'<em style="color:#7d8b9c">message removed</em>':esc(m.body))+'</div></div></div>';
+  }
+
+  /* ── RESOURCES ──────────────────────────────────────────────────────────────────────── */
+  function renderResources(){
+    var box=document.getElementById('commTabBody'); if(!box) return;
+    rest('community_resources?select=id,title,description,kind,url,body,added_by,removed,sort_order,created_at'
+        +'&community_id=eq.'+S.cur.id+'&order=sort_order.asc,created_at.desc&limit=100')
+      .then(function(r){
+        var rows=r.data||[];
+        /* Publishing is owner/moderator only — the RLS INSERT policy requires it, and a plain
+           member's attempt was refused in testing. The form is only drawn for those roles. */
+        var form = isMod()
+          ? '<div class="ccomp"><input id="crTitle" type="text" placeholder="Resource title"/>'
+            +'<input id="crUrl" type="text" placeholder="https://…"/><button id="crAdd">Add</button></div>'
+          : '';
+        box.innerHTML = form + (rows.length
+          ? rows.map(function(x){
+              return '<div class="cres'+(x.removed?' removed':'')+'" data-res="'+esc(x.id)+'">'
+                +'<span class="cres-k">'+esc(x.kind)+'</span><div style="flex:1;min-width:0">'
+                +'<b>'+esc(x.title)+'</b>'
+                +(x.description?'<span>'+esc(x.description)+'</span>':'')
+                +(x.url?'<div><a href="'+esc(x.url)+'" target="_blank" rel="noopener">Open &#8599;</a></div>':'')
+                +(isMod()?'<div class="cmeta"><button class="danger" data-resrm="'+esc(x.id)+'">'+(x.removed?'Restore':'Remove')+'</button></div>':'')
+                +'</div></div>';
+            }).join('')
+          : '<div class="comm-empty"><b>No resources yet</b><span>'
+            +(isMod()?'Add a guide, link or template to get this started.':'Guides and links pinned by the moderators will appear here.')
+            +'</span></div>');
+      });
+  }
+
+  /* ── writes ─────────────────────────────────────────────────────────────────────────── */
+  function post(body){ return rest('community_posts',{method:'POST',body:body,headers:{Prefer:'return=minimal'}}); }
+  function refuse(r,what){
+    if(r.ok) return true;
+    /* An RLS refusal is reported, not swallowed. Silently doing nothing is how a permission
+       bug looks exactly like a broken button. */
+    alert('That was not permitted'+(what?' ('+what+')':'')+'. You may need to join, or you may not have that role.');
+    return false;
+  }
+
+  /* ── one delegated handler ──────────────────────────────────────────────────────────── */
+  function wire(){}
+  pane.addEventListener('click', function(e){
+    var t=e.target;
+    var j=t.closest&&t.closest('[data-join]');
+    if(j){ e.stopPropagation(); toggleJoin(j.getAttribute('data-join'),j); return; }
+    if(t.closest&&t.closest('#commBack')){ backToList(); return; }
+    var chip=t.closest&&t.closest('#commChips button');
+    if(chip){ S.topic=chip.getAttribute('data-t')||''; renderList(); return; }
+    var tab=t.closest&&t.closest('#commTabs button');
+    if(tab){ S.tab=tab.getAttribute('data-tab'); renderDetail(); return; }
+    var card=t.closest&&t.closest('.comm-card');
+    if(card && S.view==='list'){ openCommunity(card.getAttribute('data-slug')); return; }
+    if(t.id==='cmore'){ var first=pane.querySelector('.cmsg'); loadChat(first?first.getAttribute('data-at'):null); return; }
+
+    var rb=t.closest&&t.closest('[data-reply]');
+    if(rb){ var box=pane.querySelector('[data-rbox="'+rb.getAttribute('data-reply')+'"]');
+            if(box){ box.style.display='flex'; box.querySelector('input').focus(); } return; }
+    var rb2=t.closest&&t.closest('[data-reply2]');
+    if(rb2){ var pid=rb2.getAttribute('data-post');
+             var b2=pane.querySelector('[data-rbox="'+pid+'"]');
+             if(b2){ b2.style.display='flex'; b2.dataset.parent=rb2.getAttribute('data-reply2'); b2.querySelector('input').focus(); } return; }
+
+    if(t.id==='cpSend'){ sendPost(); return; }
+    var rs=t.closest&&t.closest('[data-rsend]');
+    if(rs){ sendReply(rs.getAttribute('data-rsend')); return; }
+    if(t.id==='cmSend'){ sendChat(); return; }
+    if(t.id==='crAdd'){ addResource(); return; }
+
+    var rm=t.closest&&t.closest('[data-rm]');
+    if(rm){ modSet('community_posts',rm.getAttribute('data-rm'),{removed:rm.textContent==='Remove'},renderFeed); return; }
+    var lk=t.closest&&t.closest('[data-lock]');
+    if(lk){ modSet('community_posts',lk.getAttribute('data-lock'),{locked:lk.textContent==='Lock'},renderFeed); return; }
+    var pn=t.closest&&t.closest('[data-pin]');
+    if(pn){ modSet('community_posts',pn.getAttribute('data-pin'),{pinned:pn.textContent==='Pin'},renderFeed); return; }
+    var rr=t.closest&&t.closest('[data-rrm]');
+    if(rr){ modSet('community_replies',rr.getAttribute('data-rrm'),{removed:rr.textContent==='Remove'},renderFeed); return; }
+    var mr=t.closest&&t.closest('[data-mrm]');
+    if(mr){ modSet('community_chat_messages',mr.getAttribute('data-mrm'),{removed:true},function(){loadChat(null);}); return; }
+    var xr=t.closest&&t.closest('[data-resrm]');
+    if(xr){ modSet('community_resources',xr.getAttribute('data-resrm'),{removed:xr.textContent==='Remove'},renderResources); return; }
+  });
+  function modSet(table,id,patch,after){
+    rest(table+'?id=eq.'+id,{method:'PATCH',body:patch,headers:{Prefer:'return=minimal'}})
+      .then(function(r){ if(refuse(r,'moderation')) after(); });
+  }
+  function sendPost(){
+    var ta=document.getElementById('cpBody'); if(!ta) return;
+    var v=(ta.value||'').trim(); if(!v) return;
+    var btn=document.getElementById('cpSend'); if(btn) btn.disabled=true;
+    post({community_id:S.cur.id,author_id:SES.user.id,body:v,kind:'text'})
+      .then(function(r){ if(btn) btn.disabled=false; if(refuse(r,'post')) renderFeed(); });
+  }
+  function sendReply(postId){
+    var box=pane.querySelector('[data-rbox="'+postId+'"]'); if(!box) return;
+    var inp=box.querySelector('input'), v=(inp.value||'').trim(); if(!v) return;
+    var parent=box.dataset.parent||null;
+    rest('community_replies',{method:'POST',headers:{Prefer:'return=minimal'},
+      body:{post_id:postId,community_id:S.cur.id,author_id:SES.user.id,body:v,parent_id:parent}})
+      .then(function(r){ delete box.dataset.parent; if(refuse(r,'reply')) renderFeed(); });
+  }
+  function sendChat(){
+    var inp=document.getElementById('cmBody'); if(!inp) return;
+    var v=(inp.value||'').trim(); if(!v) return;
+    inp.value='';
+    rest('community_chat_messages',{method:'POST',headers:{Prefer:'return=minimal'},
+      body:{community_id:S.cur.id,user_id:SES.user.id,handle:(ME&&ME.handle)||null,body:v}})
+      .then(function(r){ if(refuse(r,'chat')) loadChat(null); });
+  }
+  function addResource(){
+    var t=document.getElementById('crTitle'), u=document.getElementById('crUrl');
+    var tv=(t.value||'').trim(); if(!tv) return;
+    rest('community_resources',{method:'POST',headers:{Prefer:'return=minimal'},
+      body:{community_id:S.cur.id,added_by:SES.user.id,title:tv,url:(u.value||'').trim()||null,kind:'link'}})
+      .then(function(r){ if(refuse(r,'resource')) renderResources(); });
+  }
+
+  /* ── back preserves search, topic and scroll ────────────────────────────────────────── */
+  function backToList(){
+    S.view='list'; S.slug=null; S.cur=null; S.role=null;
+    renderList();
+    /* Restore AFTER paint, or the document is not yet tall enough to scroll to. */
+    requestAnimationFrame(function(){ try{ window.scrollTo({top:S.scroll||0,behavior:'instant'}); }catch(e){ window.scrollTo(0,S.scroll||0); } });
+  }
+
+  /* ── boot ───────────────────────────────────────────────────────────────────────────── */
+  function boot(n){
+    if(!window.supabase){ if(n<40) setTimeout(function(){ boot(n+1); },300); else start(); return; }
+    try{
+      SB=window.__kilSB||(window.__kilSB=window.supabase.createClient(U,K));
+      SB.auth.getSession().then(function(r){
+        SES=(r&&r.data)?r.data.session:null;
+        return SES ? rest('app_users?select=handle&id=eq.'+SES.user.id).then(function(x){ ME=(x.data||[])[0]||null; }) : null;
+      }).then(start);
+      SB.auth.onAuthStateChange(function(_e,s){ SES=s; loadMine().then(function(){
+        if(S.view==='detail'&&S.cur){ S.role=S.mine[S.cur.id]||null; renderDetail(); } else renderList(); }); });
+    }catch(e){ start(); }
+  }
+  function start(){
+    Promise.all([loadTopics(),loadCommunities()]).then(loadMine).then(function(){
+      if(document.body.classList.contains('comm-on')) renderList();
+    });
+  }
+  window.__commActivate=function(){
+    if(S.view==='detail') renderDetail(); else renderList();
+  };
+  boot(0);
+})();
+</script>
 </body>
 </html>
