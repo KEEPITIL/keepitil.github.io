@@ -5,7 +5,7 @@
   <!-- Password-recovery guard: forward Supabase recovery tokens to the reset page; forward expired/invalid links to the portal's "get a fresh link" screen instead of dead-ending here -->
   <script>(function(){try{var h=location.hash||'';
     if(h.indexOf('type=recovery')>-1||(h.indexOf('access_token=')>-1&&h.indexOf('recovery')>-1)){location.replace('/reset-password.html'+h);}
-    else if(h.indexOf('otp_expired')>-1||h.indexOf('error_code=access_denied')>-1||(h.indexOf('error')>-1&&h.indexOf('expired')>-1)){location.replace('/portal.html'+h);}
+    else if(h.indexOf('otp_expired')>-1||h.indexOf('error_code=access_denied')>-1||(h.indexOf('error')>-1&&h.indexOf('expired')>-1)){location.replace('/apply.html'+h);}
   }catch(e){}})();</script>
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no.0,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
   <title>KEEPITIL — Events, Creators & Culture | The Creator Ecosystem</title>
@@ -2312,7 +2312,6 @@ function flyer(e,showPick){
   var slug=e.slug||slugify(e);
   var vip=/club|lounge|nightclub|rooftop|exchange|avalon|catch one|time nightclub|\bsound\b/i.test(e.venue||'');
   var saved=(window.KIL_SAVED&&window.KIL_SAVED.has(slug))?' on':'';
-  var chat='event-chat.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title);
   var epage='/event.html?e='+encodeURIComponent(slug)+'&t='+encodeURIComponent(e.title)+'&v='+encodeURIComponent(e.venue||'')+'&c='+encodeURIComponent(e.city||'')+'&d='+encodeURIComponent(e.date||'')+'&g='+encodeURIComponent(e.genre||'')+'&img='+encodeURIComponent(e.img||'')+'&tix='+encodeURIComponent(e.ticket||'')+(vip?'&vip=1':'');
   return '<div class="evx-flyer'+(pk?' pick':'')+'" data-slug="'+slug+'" data-title="'+h(e.title)+'">'
     +im+'<div class="evx-shade"></div>'+ribbon
@@ -2325,7 +2324,10 @@ function flyer(e,showPick){
     +'<div class="evx-actions">'
       +((e.ticket&&e.ticket!=='#')?'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🎟 Buy Tickets</a>':'<a class="evx-act evx-act-tix" data-kt="ticket_click" data-event-slug="'+slug+'" href="'+epage+'">🎟 Buy Tickets</a>')
       +((vip&&e.ticket&&e.ticket!=='#')?'<a class="evx-act evx-act-vip" data-kt="vip_click" data-event-slug="'+slug+'" href="'+h(e.ticket)+'" target="_blank" rel="noopener">🍾 Book VIP Table</a>':'')
-      +(e.keepitil?('<a class="evx-act evx-act-chat" data-kt="chat_join" data-event-slug="'+slug+'" href="'+chat+'">💬 Join Event Chat</a>'):'')
+      /* JOIN EVENT CHAT REMOVED 2026-08-31 (route cleanup). It linked to event-chat.html,
+         a page that has never existed in this repo — the same dead route that was taken out
+         of tickets.html on 2026-08-28. Every KEEPITIL event card on the homepage carried it,
+         so this was a visible button that could only ever produce a 404. */
       /* internal Event Details/Chat only for KEEPITIL events; 3rd-party events go straight to the external ticket link above */
       +(e.keepitil?('<a class="evx-act evx-act-page" data-kt="event_view" data-event-slug="'+slug+'" href="'+epage+'">ℹ️ Event Details</a>'):'')
     +'</div></div>';
