@@ -8,11 +8,20 @@
 
 name: roster-ci
 
+# ⚠ DISABLED ON PUSH/PR 2026-09-01 — THIS JOB TESTS A TREE THAT NO LONGER EXISTS.
+#
+# Both steps read v3/agents-data.js, which went with the /v3 purge in August. The job has
+# therefore failed on EVERY commit to main since: gen-agents.mjs --check dies with ENOENT, and
+# five of agent-rename.test.mjs's assertions read files under /v3.
+#
+# It is left as workflow_dispatch rather than deleted because the roster rules it enforces are
+# still worth having — they just need repointing at the current source, which is a piece of work
+# in its own right and not a route-cleanup edit. Nothing currently loads agents-data.js, so its
+# output is orphaned too; deciding whether the roster tooling should be repointed or retired is
+# a Founder call.
+#
+# A job that fails on every commit is worse than no job: it teaches everyone to ignore the red.
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
