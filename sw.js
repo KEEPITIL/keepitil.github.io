@@ -13,17 +13,23 @@
    /keepitil-radio.js, /v3/*). Navigations and JS/CSS are network-first so the shell itself was
    never stale, but MEDIA is stale-while-revalidate, and bumping evicts those on activate via
    the KEEP list rather than leaving them to age out.
-   Previous: kil-pwa-v44-20260827a */
+   Previous: kil-pwa-v44-20260827a
+   BUMPED AGAIN 2026-08-31 for the route cleanup. Articles moved from /article-<slug>.html to
+   /article/<slug>/, and /spotlight plus thirteen *-staging.html pages were deleted. Page HTML is
+   network-first so no installed device would have served a stale shell, but MEDIA is
+   stale-while-revalidate and the PAGES cache holds up to 40 visited pages — renaming every cache
+   makes `activate` evict them rather than letting a retired URL age out of a phone.
+   Previous: kil-pwa-v59-20260829f */
 /* Earlier note, 2026-08-22 (Founder: "update the mobile version. its showing the old
    version"). The strategy was already network-first for HTML and JS/CSS, so this is not a fix to
    the rules — it is an eviction. Renaming every cache makes `activate` delete the old ones and
    clients.claim() take over immediately, which clears anything a phone or an installed PWA was
    still holding from before. Bump these four names whenever a release must reach returning
    users regardless of what they have cached. */
-var VERSION = 'kil-pwa-v59-20260829f';
-var PAGES = 'kil-pages-v41';
-var ASSETS = 'kil-assets-v40';
-var CODE = 'kil-code-v57';
+var VERSION = 'kil-pwa-v60-20260831a';
+var PAGES = 'kil-pages-v42';
+var ASSETS = 'kil-assets-v41';
+var CODE = 'kil-code-v58';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [

@@ -107,29 +107,34 @@ a{color:#5cc8ff}</style>
   if(seg.length===2 && seg[0]==='event'){
     return go('/event.html?e='+encodeURIComponent(slug));
   }
-  // /article/<slug>  → AI-authored article (agents or the company); file = article-<slug>.html
-  if(seg.length===2 && seg[0]==='article'){
-    return go('/article-'+slug+'.html');
-  }
-  // /blog/<slug>  → a specific blog post page (agent blogs etc.)
-  if(seg.length===2 && seg[0]==='blog'){
-    return go('/blog-'+slug+'.html');
-  }
-  // bare /blog  → subscriber-created feed posts live in Culture
+  /* /article/<slug> NO LONGER ROUTES HERE (2026-08-31 route cleanup). Every article is now a
+     real directory — /article/<slug>/index.html and /article/artist/<slug>/index.html — so the
+     canonical URL returns 200 directly and this file is never reached for one. It used to
+     rewrite to /article-<slug>.html, which meant normal article navigation went 404 → JS →
+     page. Those flat files no longer exist; leaving the branch would send a visitor from a
+     404 to a second 404.
+     /blog/<slug> is gone for the same reason: no blog-*.html file has existed for some time,
+     so the branch could only ever produce a second 404. */
+  // bare /blog and /blog/<anything> → subscriber posts live in Culture
   if(seg[0]==='blog'){
-    return go('/culture');
+    return go('/culture/');
   }
   // /culture/<sub> — Radio & VS live as Culture subpages (Founder 2026-08-04)
   if(seg.length===2 && seg[0]==='culture'){
-    if(seg[1]==='radio') return go('/earn'+q);
-    if(seg[1]==='vs') return go('/create'+q);
-    if(seg[1]==='feed') return go('/culture'+q);
+    if(seg[1]==='radio') return go('/earn/'+q);
+    if(seg[1]==='vs') return go('/create/'+q);
+    if(seg[1]==='feed') return go('/culture/'+q);
   }
+  /* TRAILING SLASHES ARE DELIBERATE. GitHub Pages 301s /culture to /culture/, so sending a
+     visitor to the slashless form made every alias a two-hop journey: 404 → /culture →
+     301 → /culture/. */
   // single-segment section aliases + every core page (clean URL)
-  var SECTION={culture:'/culture',scene:'/connect',radio:'/earn',
+  var SECTION={culture:'/culture/',scene:'/connect/',radio:'/earn/',
                apps:'/games/',games:'/games/',events:'/',home:'/'};
-  var V31PAGES=['about','apply','audit','community-guidelines','contact','create-event','dashboard',
-                'event','onboarding','privacy','refund','settings','submit-event','terms',
+  /* about, contact and onboarding were removed: no such page exists, so those entries could
+     only ever send a visitor from one 404 to another. */
+  var V31PAGES=['apply','audit','community-guidelines','create-event','dashboard',
+                'event','privacy','refund','settings','submit-event','terms',
                 'ticket-terms','tickets'];
   if(seg.length===1){
     var one=seg[0].toLowerCase();
