@@ -231,7 +231,12 @@ $('reset-btn').addEventListener('click',function(){
   if(!supa) return;
   var email=($('reset-email').value||'').trim(), msg=$('reset-msg');
   if(!email){ msg.style.color='#ff5c5c'; msg.textContent='Enter your email.'; return; }
-  supa.auth.resetPasswordForEmail(email,{redirectTo:'https://keepitil.com/portal.html'}).then(function(r){
+  /* ⚠ WAS /portal.html (route cleanup 2026-08-31) — a page that does not exist and returns
+     404. Anyone who asked to reset their password got the email, clicked the link, and landed
+     on an error page with the recovery token in the URL and no form to use it, so password
+     reset was broken end to end from this page. /reset-password.html is the real handler and
+     already sets this same redirectTo for its own re-send. */
+  supa.auth.resetPasswordForEmail(email,{redirectTo:'https://keepitil.com/reset-password.html'}).then(function(r){
     if(r&&r.error){ msg.style.color='#ff5c5c'; msg.textContent=r.error.message; }
     else { msg.style.color='var(--blue)'; msg.textContent='Check your email (and spam) for the reset link.'; }
   }).catch(function(){ msg.style.color='#ff5c5c'; msg.textContent='Could not send — try again.'; });
