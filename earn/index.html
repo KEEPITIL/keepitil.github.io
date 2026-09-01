@@ -103,27 +103,6 @@ a{color:inherit;text-decoration:none}
 .search{flex:1;min-width:200px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:12px;padding:10px 16px}
 .search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--fb);font-size:.95rem;outline:none}
 .search input::placeholder{color:#6b6588}
-/* Search <-> Radio swap. The WRAPPER carries the flex sizing that .search used to carry, so the
-   row's geometry is fixed regardless of which face is showing. */
-.ctl-swap{flex:1;min-width:200px;position:relative}
-.ctl-swap .search{width:100%;min-width:0;transition:opacity .22s ease}
-.ctl-radio{position:absolute;inset:0;display:flex;align-items:center;gap:10px;
-  background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:12px;padding:0 12px;
-  opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility 0s linear .22s}
-body.earn-radiobar .ctl-radio{opacity:1;visibility:visible;pointer-events:auto;
-  transition:opacity .22s ease,visibility 0s}
-body.earn-radiobar .ctl-swap .search{opacity:0;pointer-events:none}
-.ctl-dot{width:8px;height:8px;border-radius:50%;background:#444;flex:0 0 auto;transition:background .2s}
-body.earn-live .ctl-dot{background:var(--brand);box-shadow:0 0 10px var(--brand)}
-.ctl-nav{flex:0 0 auto;width:26px;height:26px;border-radius:8px;cursor:pointer;
-  background:rgba(255,255,255,.06);border:1px solid var(--brd);color:var(--brand);
-  font:800 1rem/1 Inter,sans-serif}
-.ctl-nav:hover{background:rgba(0,255,136,.16)}
-.ctl-now{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  font-size:.82rem;font-weight:700;color:var(--ink);text-align:center}
-@media(prefers-reduced-motion:reduce){
-  .ctl-radio,.ctl-swap .search{transition:opacity .01s linear}
-}
 .count{font-size:.76rem;color:#6b6588;white-space:nowrap}
 @media(max-width:768px){#radCount{display:none!important}}
 /* HOW YOU EARN — four comparable panels. auto-fit so it is 4 / 2 / 1 across without a
@@ -164,10 +143,10 @@ body.earn-live .ctl-dot{background:var(--brand);box-shadow:0 0 10px var(--brand)
 /* section */
 section{padding:30px 0;border-top:1px solid var(--brd)}
 .sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-/* ── SECTION ABOUT (Founder 2026-08-31, §5-§7) ───────────────────────────────────────────
-   ALL shows the sections themselves, with each section's explanation folded behind a small
-   eye. Choosing a single category is choosing to read about it, so there the About opens
-   by itself. Same copy either way — only the presentation differs. */
+/* ── SECTION ABOUT (Founder 2026-08-31 §5-§7; corrected 2026-09-01) ──────────────────────
+   Every section's explanation is folded behind that section's INFO button, at EVERY width and
+   under every filter. There is no state in which the copy sits open on the page: INFO is the
+   only way to read it, so it is never on screen twice. */
 .sh .hye-info{margin-left:auto;flex:0 0 auto;height:28px;padding:0 12px;display:inline-flex;
   align-items:center;justify-content:center;border-radius:8px;cursor:pointer;
   border:1px solid rgba(0,224,164,.38);background:rgba(0,224,164,.10);color:#7ff5d0;
@@ -389,7 +368,6 @@ footer{margin-top:auto}
 @media(min-width:861px){
   #stations .kr-bar{display:none}
 }
-}
 </style>
 <link rel="canonical" href="https://keepitil.com/earn/"/>
   <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
@@ -435,26 +413,9 @@ footer{margin-top:auto}
       <button data-k="create">Create</button>
       <button data-k="earn">Earn</button>
     </div>
-    <!-- ⚠ ONE BOX, TWO FACES (Founder 2026-08-28: "Replace only the Search bar with the compact
-         KEEPITIL Radio bar ... Do not shift the rest of the page/header").
-         Both faces live inside #ctlSwap, which keeps the flex slot the search bar already
-         occupied. The radio face is absolutely positioned INSIDE that box, so swapping cannot
-         change the box's width or height and nothing beside it moves. Cross-fade only.
-         The radio face drives the ONE shell player — it listens to `kil-radio-state` and calls
-         __kilRadioSong(). It never constructs a SoundCloud widget: a widget is bound to one
-         playlist for its lifetime, so a second player would immediately disagree with the bar
-         the visitor carries between pages. -->
-    <div id="ctlSwap" class="ctl-swap">
-      <div class="search" id="ctlSearch">
-        <span aria-hidden="true">&#128269;</span>
-        <input id="radQ" type="search" placeholder="Search stations by genre…" autocomplete="off">
-      </div>
-      <div class="ctl-radio" id="ctlRadio" aria-hidden="true">
-        <span class="ctl-dot" id="ctlDot" aria-hidden="true"></span>
-        <button type="button" class="ctl-nav" id="ctlPrev" aria-label="Previous song">&#8249;</button>
-        <span class="ctl-now" id="ctlNow">KEEPITIL RADIO</span>
-        <button type="button" class="ctl-nav" id="ctlNext" aria-label="Next song">&#8250;</button>
-      </div>
+    <div class="search" id="ctlSearch">
+      <span aria-hidden="true">&#128269;</span>
+      <input id="radQ" type="search" placeholder="Search stations by genre…" autocomplete="off">
     </div>
     <span class="count" id="radCount"></span>
   </div>
@@ -905,85 +866,9 @@ function kilMarkActive(i){
   });
 }
 
-/* ── HEADER: SEARCH <-> RADIO (Founder 2026-08-28) ────────────────────────────────────────
-   Near the top   -> Search
-   Scrolled into EARN -> compact Radio bar
-   Back near the top  -> Search again
-
-   The threshold is hysteretic ON PURPOSE. A single switch point makes the bar flip back and
-   forth every frame while the visitor rests near it — the same flicker class as the Culture
-   filter bar. Showing the radio needs 260px; restoring search needs to come back above 180px.
-   The 80px dead band is wider than any momentum wobble. */
-(function(){
-  /* ANCHORED TO THE RADIO SECTION, NOT TO A PIXEL COUNT (Founder 2026-08-31, §3).
-     The swap used a fixed 260px, which is only coincidentally where the radio section is: any
-     change above it - the hero, a new rail - moved the section without moving the trigger, so
-     the bar would appear before or after the thing it belongs to. It now fires when the
-     section's own mini bar actually reaches the locked header, which is what was asked for
-     and what stays true when the page above it changes.
-
-     Hysteresis is kept and still measured in pixels: a single switch point makes the bar flip
-     back and forth every frame while the visitor rests near it. The radio face needs the bar
-     to have travelled 24px PAST the header; search comes back 56px below it. The 80px dead
-     band is wider than any momentum wobble. */
-  var PAST = 24, BACK = 56;
-  var swap = document.getElementById('ctlSwap'); if(!swap) return;
-  var radio = document.getElementById('ctlRadio');
-  var input = document.getElementById('radQ');
-  var controls = document.getElementById('radControls');
-  var on = false;
-
-  /* Distance from the header's underside down to the section bar. Negative once the bar has
-     scrolled up behind the header. */
-  function gap(){
-    var bar = document.getElementById('krBar');
-    if(!bar || !controls) return null;
-    var sec = document.getElementById('stations');
-    /* A hidden section (a category filter is active) has no position worth reading. */
-    if(sec && sec.style.display === 'none') return null;
-    return bar.getBoundingClientRect().top - controls.getBoundingClientRect().bottom;
-  }
-
-  function apply(next){
-    if(next === on) return;
-    on = next;
-    document.body.classList.toggle('earn-radiobar', on);
-    if(radio) radio.setAttribute('aria-hidden', on ? 'false' : 'true');
-    /* A hidden search box must not stay focusable — tabbing into an invisible field is how a
-       keyboard user gets stranded. */
-    if(input) input.tabIndex = on ? -1 : 0;
-  }
-  function check(){
-    var g = gap();
-    /* No radio section on screen to hand over to - stay on search. */
-    if(g === null){ apply(false); return; }
-    if(!on && g < -PAST) apply(true);
-    else if(on && g > BACK) apply(false);
-  }
-  /* While the visitor is actually typing a search, the bar must not be pulled out from under
-     them mid-query no matter how far they scroll. */
-  if(input){
-    input.addEventListener('focus', function(){ swap.dataset.typing = '1'; });
-    input.addEventListener('blur',  function(){ delete swap.dataset.typing; check(); });
-  }
-  window.addEventListener('scroll', function(){
-    if(swap.dataset.typing) return;
-    check();
-  }, {passive:true});
-  /* The filter can hide or reveal the radio section without any scrolling at all. */
-  window.addEventListener('resize', check);
-  var seg0 = document.getElementById('radSeg');
-  if(seg0) seg0.addEventListener('click', function(){ setTimeout(check, 0); });
-  check();
-
-  /* Transport drives the ONE shell player. */
-  document.addEventListener('click', function(e){
-    var b = e.target.closest && e.target.closest('#ctlPrev,#ctlNext');
-    if(!b) return;
-    if(typeof window.__kilRadioSong !== 'function') return;
-    window.__kilRadioSong(b.id === 'ctlPrev' ? -1 : 1);
-  });
-})();
+/* HEADER SEARCH BAR (Founder 2026-09-01). The search<->radio swap was removed: the desktop
+   controls row is a SEARCH/FILTER bar and must stay one. The page's only Radio bar is the
+   global player docked at the foot of the shell. Search/filter is not Radio. */
 
 /* Row 3's transport. The shell bar is hidden on mobile, so these drive the player directly
    through __kilRadioSong() rather than proxying a click at an element that is not on screen. */
@@ -1009,9 +894,6 @@ document.addEventListener('kil-radio-state', function(e){
   put('krPl',  pl,        '\u2014');
   put('krCur', d.current, pl || '\u2014');
   put('krNxt', d.next,    pl || '\u2014');
-  /* The header radio face reads the SAME broadcast — one player, two displays. */
-  put('ctlNow', d.current ? (pl ? pl + ' \u00b7 ' + d.current : d.current) : pl, 'KEEPITIL RADIO');
-  if(d.current) document.body.classList.add('earn-live');
   if(typeof d.index === 'number') kilMarkActive(d.index);
 });
 
@@ -1476,13 +1358,9 @@ radStats();
   ];
   var hye = document.getElementById('howyouearn');
   if(!hye) return;
-  /* MOBILE ONLY. The brief is a mobile correction and says not to change desktop unless shared
-     code forces it — it does not here. On a wide screen the four HOW-YOU-EARN cards sit in a
-     grid beside each other and cost nothing, so desktop keeps exactly the page it had.
-     Matched to the same 860px breakpoint as body.rad-m so the two cannot disagree. A resize
-     across the breakpoint keeps whichever layout the page loaded with, which is the behaviour
-     the existing mobile enhancer above already has. */
-  try { if(!window.matchMedia('(max-width:860px)').matches) return; } catch(e) { return; }
+  /* ALL WIDTHS (Founder 2026-09-01). This was mobile-only; the correction is that desktop must
+     behave the same way. No permanently expanded ABOUT copy at any width — every section's
+     explanation lives behind that section's INFO button and nowhere else. */
 
   /* Pull the four explanations out of HOW YOU EARN and key them by section id. */
   var arts = [].slice.call(hye.querySelectorAll('article.hye'));
@@ -1586,31 +1464,17 @@ radStats();
     slot.appendChild(about[id].node);
   });
 
-  /* ALL -> eye only. A single category -> that category's About open above its content. */
-  function paint(){
-    var onBtn = document.querySelector('#radSeg button.on');
-    var key = (onBtn && onBtn.dataset.k) || 'all';
-    MAP.forEach(function(pair){
-      var id = pair[0];
-      var slot = document.getElementById('aboutSlot-' + id);
-      var sec = document.getElementById(id);
-      if(!slot || !sec) return;
-      var expanded = (key === id);
-      slot.style.display = expanded ? '' : 'none';
-      /* On a category view the copy is already on screen; a control that opens a duplicate of
-         what you are reading is noise. */
-      var eye = sec.querySelector('.sh .hye-info');
-      if(eye) eye.style.display = expanded ? 'none' : '';
-    });
-    /* If the overlay is open when the filter changes, the panel it holds may belong to a
-       section that now shows it inline. Close first so the node has one home. */
-    if(openFor) closeOv();
-  }
-  var seg = document.getElementById('radSeg');
-  if(seg) seg.addEventListener('click', function(e){
-    if(e.target.closest('button[data-k]')) setTimeout(paint, 0);
+  /* INFO IS THE ONLY DOOR (Founder 2026-09-01). The slots stay closed at every width and on
+     every filter; INFO stays available on every section. The previous rule opened a category's
+     About inline when that category was filtered to, which is exactly the "permanently visible
+     ABOUT copy" being removed — and it also duplicated copy that INFO already shows. */
+  MAP.forEach(function(pair){
+    var slot = document.getElementById('aboutSlot-' + pair[0]);
+    var sec  = document.getElementById(pair[0]);
+    if(slot) slot.style.display = 'none';
+    var eye = sec && sec.querySelector('.sh .hye-info');
+    if(eye) eye.style.display = '';
   });
-  paint();
 })();
 
 /* The per-section expand toggle is REMOVED (Founder 2026-08-22: "remove the drop down buttons in
