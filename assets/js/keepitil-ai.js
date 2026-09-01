@@ -1042,8 +1042,19 @@
 
     var lookups = [];
     if (!wantsEvent) {
-      lookups.push(choRest('blog_articles?select=slug,title,artist_slug&status=eq.published&published=is.true&title=ilike.*' + enc + '*&limit=1')
-        .then(function (r) { return (r && r[0]) ? { kind: 'article', href: '/article/' + (r[0].artist_slug || r[0].slug) + '/', label: r[0].title } : null; }));
+      /* ⚠ READ THE CANONICAL URL, DO NOT REBUILD IT (route cleanup 2026-08-31).
+         This built '/article/' + (artist_slug || slug) + '/', which is right for an editorial
+         piece and WRONG for an artist feature: those live at /article/artist/<slug>/, so CHO
+         was handing out /article/rab3l/ — a 404 — for every artist article it found. The row
+         carries the canonical url; using it means the two article shapes cannot diverge from
+         whatever CHO believes about them. */
+      lookups.push(choRest('blog_articles?select=slug,title,artist_slug,url&status=eq.published&published=is.true&title=ilike.*' + enc + '*&limit=1')
+        .then(function (r) {
+          if (!(r && r[0])) return null;
+          var a = r[0];
+          var href = a.url || (a.artist_slug ? '/article/artist/' + a.artist_slug + '/' : '/article/' + a.slug + '/');
+          return { kind: 'article', href: href, label: a.title };
+        }));
     }
     if (!wantsArticle) {
       lookups.push(choRest('events?select=slug,title&status=eq.published&title=ilike.*' + enc + '*&limit=1')

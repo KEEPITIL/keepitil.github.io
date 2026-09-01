@@ -1942,7 +1942,9 @@
       bio: (row.bio || '').slice(0,120) || fallbackBio,
       /* Canonical public profile URL (Founder 2026-08-04). The artist widget used to build
          '/scene' + slug — no separator, and the wrong route. */
-      link: '/profile/' + (row.slug || ''),
+      /* /profile/<slug> is served by 404.html rewriting to the real page — a 404 status and a
+         JS hop for what is ordinary navigation. The query-string form IS the page. */
+      link: '/profile.html?slug=' + encodeURIComponent(row.slug || ''),
       img: row.avatar_url || null,
       type: 'Profile'
     };
