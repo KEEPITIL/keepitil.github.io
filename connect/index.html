@@ -786,6 +786,12 @@ renderSubs();render();
       if(!r.ok) throw new Error('denied '+r.status);
       return loadMine().then(loadCommunities);
     }).then(function(){
+      /* ⚠ REFRESH THE ROLE, NOT JUST THE BUTTON. S.role is set when a community is opened and
+         was never updated after a join, so joining from the detail header flipped the label to
+         "Joined" while the feed composer and chat stayed locked until a page reload — the user
+         is a member and the page still treats them as a visitor. Found with a real verified
+         session; the API call had always succeeded. */
+      if(S.cur) S.role = S.mine[S.cur.id] || null;
       if(S.view==='detail') renderDetail(); else renderList();
     }).catch(function(){
       btn.disabled=false;
