@@ -13,10 +13,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="TUITEA">
 
-<!-- The manifest deliberately lives one level up. Scope and start_url stay
-     /app/tuitea/ so the canonical URL, the installed identity and the icons the
-     owner already has on their home screen never change, no matter where the
-     compiled Flutter bundle happens to sit. -->
+<!-- The manifest deliberately lives one level up, and this page is inside its
+     scope (/app/tuitea/) rather than being its start_url's neighbour. The
+     manifest's id stays /app/tuitea/ forever — that is the installed identity
+     the owner's existing home-screen icon is matched against — while start_url
+     now points here, at /app/tuitea/app/, so the icon opens the real app
+     instead of the page that explains how to install it. -->
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="icon" type="image/png" href="../icon-192.png">
@@ -165,6 +167,46 @@ _flutter.buildConfig = {"engineRevision":"a10d8ac38de835021c8d2f920dbf50a920ccc0
      });
   }
 
+  /* Engine configuration. Declared once and passed BOTH to
+     _flutter.loader.load (where flutter.js reads canvasKitBaseUrl) and to
+     initializeEngine (where the engine itself reads everything else). */
+  var ENGINE_CONFIG = {
+    /* Pin CanvasKit to the copy deployed alongside this page. Left to
+       itself the loader fetched it from www.gstatic.com, which means a
+       private family app phoning a third party on every cold start, no
+       offline launch, and 13 MB of deployed CanvasKit nobody ever used. */
+    canvasKitBaseUrl: 'canvaskit/',
+
+    /* The SECOND third party the engine talks to, and the one that was
+       still live: fonts.gstatic.com.
+
+       CanvasKit has no access to the operating system's fonts. It draws
+       only what has been registered with it, and it fills the two gaps it
+       always has by fetching over the network:
+
+         - Roboto. TUITEA's theme asks for '.SF Pro Text' (real on iOS,
+           non-existent on the web), so CanvasKit falls through to its
+           built-in default and downloads Roboto. Every character of
+           TUITEA on the web is drawn with a file from Google.
+
+         - Noto Color Emoji. TUITEA's UI text contains literal emoji —
+           the onboarding seedling and goal chips, habit rows, the pet and
+           health screens. No registered font covers them, so the engine
+           downloads the shard that does. When that download does not
+           happen the glyph is a tofu box, which is exactly what was being
+           seen on onboarding.
+
+       Both are the same knob. fontFallbackBaseUrl is prefixed to every
+       font path the engine resolves for itself, so pointing it at a
+       directory we deploy moves both fetches onto our own origin — inside
+       the service worker's scope, so they are cached with the rest of the
+       shell and a second launch is offline-clean.
+
+       web/fallback-fonts/README.md records where the mirrored files came
+       from and what has deliberately NOT been mirrored. */
+    fontFallbackBaseUrl: 'fallback-fonts/'
+  };
+
   pickEntrypoint().then(function (mainJs) {
     try {
       var builds = (_flutter.buildConfig && _flutter.buildConfig.builds) || [];
@@ -174,13 +216,19 @@ _flutter.buildConfig = {"engineRevision":"a10d8ac38de835021c8d2f920dbf50a920ccc0
     } catch (e) { /* fall through to whatever the build config already says */ }
 
     return _flutter.loader.load({
-      /* Pin CanvasKit to the copy deployed alongside this page. Left to
-         itself the loader fetched it from www.gstatic.com, which means a
-         private family app phoning a third party on every cold start, no
-         offline launch, and 13 MB of deployed CanvasKit nobody ever used. */
-      config: { canvasKitBaseUrl: 'canvaskit/' },
+      config: ENGINE_CONFIG,
       onEntrypointLoaded: function (engineInitializer) {
-        return engineInitializer.initializeEngine().then(function (appRunner) {
+        /* PASS THE CONFIG IN AGAIN, DELIBERATELY.
+           `config:` above is read by flutter.js, which only ever looks at
+           canvasKitBaseUrl and hands the rest to its own default
+           onEntrypointLoaded. Supplying our own callback replaces that
+           default — so an argument-less initializeEngine() silently starts
+           the engine with NO configuration at all. canvasKitBaseUrl kept
+           working through that bug because flutter.js consumes it itself;
+           fontFallbackBaseUrl is read by the engine and was being dropped on
+           the floor, which is why the app still fetched Roboto from
+           fonts.gstatic.com with the setting apparently in place. */
+        return engineInitializer.initializeEngine(ENGINE_CONFIG).then(function (appRunner) {
           var boot = document.getElementById('boot');
           if (boot) { boot.classList.add('gone'); setTimeout(function () { boot.remove(); }, 400); }
           return appRunner.runApp();

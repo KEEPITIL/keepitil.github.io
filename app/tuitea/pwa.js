@@ -15,7 +15,7 @@
   'use strict';
 
   var SCOPE = '/app/tuitea/';
-  var SHELL_VERSION = 5;          // bump with sw.js CACHE_VERSION on each deploy
+  var SHELL_VERSION = 6;          // bump with sw.js CACHE_VERSION on each deploy
 
   /* ---------------------------------------------------------------- env --- */
   var ua = navigator.userAgent || '';
@@ -240,12 +240,20 @@
     cohort();
     registerSW();
 
-    var onInstallPage = /\/app\/tuitea\/(index\.html)?$/.test(location.pathname);
+    // The trailing slash is optional: GitHub Pages will redirect /app/tuitea
+    // to /app/tuitea/, but a home-screen icon can be launched at either.
+    var onInstallPage = /\/app\/tuitea\/?(index\.html)?$/.test(location.pathname);
 
-    // Launched from the home screen icon: start_url is /app/tuitea/, so hand
-    // straight over to the compiled app rather than the TestFlight page.
+    /* STANDALONE LAUNCHES NEVER SEE THE INSTALL PAGE.
+       The manifest's start_url is now /app/tuitea/app/, so a fresh install
+       opens the compiled app directly and never reaches this branch. It stays
+       because it is the only thing that rescues the installs made BEFORE that
+       change: iOS bakes start_url in at Add-to-Home-Screen time and never
+       re-reads the manifest, so those icons still open /app/tuitea/. Without
+       this, the owner's existing icon would open a page explaining how to
+       install an app they already have. */
     if (onInstallPage && isStandalone) {
-      location.replace(SCOPE + 'app/' + location.search);
+      location.replace(SCOPE + 'app/' + location.search + location.hash);
       return;
     }
 

@@ -2,8 +2,13 @@
   "name": "TUITEA",
   "short_name": "TUITEA",
   "description": "A private family app — people, stories, health and the everyday running of a household.",
+  "_id_note": "id is the INSTALLED IDENTITY and must never change: it is what tells a browser that a new manifest describes the app already on the home screen rather than a second one. It stays /app/tuitea/ even though start_url no longer does.",
   "id": "/app/tuitea/",
-  "start_url": "/app/tuitea/",
+
+  "_start_url_note": "The home-screen icon opens the REAL app, not the page that explains how to install it. /app/tuitea/ is the human address a first-time visitor is given and it must keep serving the install page; the installed app has no use for those instructions and should never see them. Those are two different jobs, so they are two different URLs, and start_url is the one the icon uses. pwa.js still redirects standalone launches that land on /app/tuitea/ — installs made before this change baked the old start_url in, and iOS never revisits it.",
+  "start_url": "/app/tuitea/app/",
+
+  "_scope_note": "Scope stays at the PARENT of both, so the install page, the compiled app, flags.json and the fallback fonts are all one app as far as the browser is concerned, and navigation between them never breaks out to a browser tab.",
   "scope": "/app/tuitea/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui", "browser"],
