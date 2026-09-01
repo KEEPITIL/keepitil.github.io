@@ -95,7 +95,7 @@ addEventListener("message", eventListener);
 <script>if (!window._flutter) {
   window._flutter = {};
 }
-_flutter.buildConfig = {"engineRevision":"a10d8ac38de835021c8d2f920dbf50a920ccc030","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"}]};
+_flutter.buildConfig = {"engineRevision":"a10d8ac38de835021c8d2f920dbf50a920ccc030","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}]};
 </script>
 
 <script>
@@ -130,9 +130,15 @@ _flutter.buildConfig = {"engineRevision":"a10d8ac38de835021c8d2f920dbf50a920ccc0
      flags.json decides, on every single launch, which real binary boots.
      A viewer downloads exactly one of them. */
   var VARIANTS = {
-    off: 'main.dart.js',        // GIT_SHA unset  -> More screen reads "unstamped"
-    on:  'main.stamped.dart.js' // GIT_SHA set    -> More screen names the commit
+    off: 'main.dart.js',        // RELEASE_CHANNEL=base    -> release id ...".base"
+    on:  'main.stamped.dart.js' // RELEASE_CHANNEL=stamped -> release id ...".stamped"
   };
+  /* BOTH ARE STAMPED. The off variant used to be compiled with GIT_SHA unset,
+     so it reported "unstamped" — which made the flag observable, but at the
+     price of a production build that could not say what it was. Every row it
+     ever filed is unattributable. Both variants now carry the full release
+     identity and differ in the last segment, so the flag is still visible in
+     one glance and neither build is anonymous. */
 
   function cohort() {
     try {
@@ -163,6 +169,11 @@ _flutter.buildConfig = {"engineRevision":"a10d8ac38de835021c8d2f920dbf50a920ccc0
        // Readable from the console, and from the DOM, without a debugger.
        document.documentElement.setAttribute('data-tuitea-buildstamp', on ? 'on' : 'off');
        window.TUITEA_BUILD = { flag: on, entrypoint: on ? VARIANTS.on : VARIANTS.off };
+       // Which binary this load actually downloaded, readable from the DOM.
+       // The compiled Dart names the same variant in its release id, so the two
+       // can be checked against each other from outside the app.
+       document.documentElement.setAttribute('data-tuitea-entrypoint',
+                                             window.TUITEA_BUILD.entrypoint);
        return window.TUITEA_BUILD.entrypoint;
      });
   }

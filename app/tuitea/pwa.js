@@ -4,6 +4,10 @@
    (the shell). It is the only place that knows about service workers,
    installation, update prompts and feature flags.
 
+   ⚠ THIS FILE IS A TEMPLATE. The deployed /app/tuitea/pwa.js is GENERATED
+   from it by thrive/tool/build_web.sh, which fills in the placeholders below.
+   Edit this file, not the deployed one.
+
    Design notes worth keeping:
    - There is ONE TUITEA experience and one backend. This file delivers the web
      client of it. It contains no business logic and no second data model.
@@ -15,7 +19,21 @@
   'use strict';
 
   var SCOPE = '/app/tuitea/';
-  var SHELL_VERSION = 6;          // bump with sw.js CACHE_VERSION on each deploy
+
+  /* Generated, both of them. SHELL_VERSION used to be a number a human was
+     asked to remember to bump alongside the worker's cache version; the two
+     drifted, because that is what two hand-maintained numbers do. RELEASE is
+     the same identity the service worker and the compiled Dart carry, so all
+     three answer the same question with the same string. */
+  var SHELL_VERSION = 7;
+  var RELEASE = '47.76aaf52';
+
+  /* Readable from the DOM without a debugger, and before any Dart has run.
+     This is the shell's own claim about which release it is; the worker's claim
+     (data-tuitea-sw-release, below) is recorded separately and on purpose — if
+     they ever disagree, that disagreement is the bug, and a single merged
+     attribute would hide it. */
+  try { document.documentElement.setAttribute('data-tuitea-release', RELEASE); } catch (e) {}
 
   /* ---------------------------------------------------------------- env --- */
   var ua = navigator.userAgent || '';
@@ -196,8 +214,28 @@
 
   function registerSW() {
     if (!('serviceWorker' in navigator)) return;
-    navigator.serviceWorker.register(SCOPE + 'sw.js', { scope: SCOPE })
+    /* updateViaCache:'none' — the browser must fetch sw.js past its HTTP cache.
+       The worker script is the ONLY thing that can pull the app forward now
+       that release files are served cache-only, so an update check that gets a
+       cached copy of sw.js is an update check that cannot ever succeed. */
+    navigator.serviceWorker.register(SCOPE + 'sw.js', { scope: SCOPE, updateViaCache: 'none' })
       .then(function (reg) {
+        /* What the ACTIVE worker says it is serving. Asked rather than assumed:
+           during the window between a new shell being deployed and the user
+           accepting the update, this document and the worker are legitimately
+           different releases, and the app should be able to say so. */
+        try {
+          if (navigator.serviceWorker.controller) {
+            var ch = new MessageChannel();
+            ch.port1.onmessage = function (e) {
+              var d = e.data || {};
+              if (d.type !== 'VERSION') return;
+              document.documentElement.setAttribute('data-tuitea-sw-release', d.release || '');
+              window.TUITEA.env.swRelease = d.release || null;
+            };
+            navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' }, [ch.port2]);
+          }
+        } catch (e) {}
         // Already-waiting worker: an update downloaded on a previous visit.
         if (reg.waiting && navigator.serviceWorker.controller) {
           showUpdateBanner(reg.waiting);
@@ -276,5 +314,5 @@
   window.TUITEA.flags = loadFlags;
   window.TUITEA.cohort = cohort;
   window.TUITEA.env = { isIOS: isIOS, isIOSSafari: isIOSSafari, standalone: isStandalone,
-                        shellVersion: SHELL_VERSION };
+                        shellVersion: SHELL_VERSION, release: RELEASE, swRelease: null };
 })();
