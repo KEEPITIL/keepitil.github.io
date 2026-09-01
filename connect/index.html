@@ -158,10 +158,14 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
   white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
 .comm-chips button.on{background:linear-gradient(90deg,#0f6e56,#00e0a4);border-color:transparent;color:#04120a}
 /* cards */
-.comm-cards{display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:700px){.comm-cards{grid-template-columns:repeat(2,1fr)}}
-@media(min-width:1000px){.comm-cards{grid-template-columns:repeat(3,1fr)}}
-.comm-card{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:14px;
+/* ⚠ minmax(0,1fr) NOT 1fr. A grid item's min-width defaults to auto, so a card carrying a long
+   community name forces its track to min-content and the whole page scrolls sideways. Measured
+   at 320px: body scrollWidth 740 with the card grid present, 320 with it hidden. 375px happened
+   to survive it, which is why it was not caught the first time. */
+.comm-cards{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:700px){.comm-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1000px){.comm-cards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.comm-card{display:flex;gap:12px;align-items:flex-start;min-width:0;padding:14px;border-radius:14px;
   background:var(--panel,rgba(18,18,28,.7));border:1px solid var(--line,#242433);cursor:pointer;
   transition:border-color .15s,transform .15s;text-align:left;width:100%;color:inherit;font:inherit}
 .comm-card:hover{border-color:rgba(0,224,164,.45);transform:translateY(-1px)}
@@ -172,7 +176,7 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
 .comm-body{flex:1;min-width:0}
 .comm-name{font:800 .98rem/1.2 Inter,system-ui,sans-serif;color:#fff;margin:0 0 3px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.comm-desc{font:400 .82rem/1.35 Inter,system-ui,sans-serif;color:#a9b3c4;margin:0 0 7px;
+.comm-desc{font:400 .82rem/1.35 Inter,system-ui,sans-serif;color:#a9b3c4;margin:0 0 7px;overflow-wrap:anywhere;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .comm-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   font:800 .6rem/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#7d8b9c}
