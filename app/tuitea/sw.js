@@ -49,7 +49,7 @@
    Generated. The compiled Dart in this same release reports
    `<build>.<commit>.<variant>` — same build number, same commit — so a
    telemetry row, this cache name and the deployed files can be lined up. */
-const RELEASE = '47.0014a71';
+const RELEASE = '47.c7734ba';
 const CACHE = 'tuitea-release-' + RELEASE;
 const SCOPE = '/app/tuitea/';
 
@@ -172,6 +172,20 @@ function cacheKey(request) {
   return new URL(request.url).pathname;
 }
 
+/* ALWAYS THIS RELEASE'S CACHE, NEVER "a cache".
+   The multi-cache match helper searches EVERY cache on the origin, in creation
+   order. So while a successor release sits installed and waiting — which is
+   most of the time between a deploy and someone accepting the update — it lets
+   the ACTIVE worker serve the WAITING release's bytes. Observed live: a page
+   controlled by one release was handed the next release's main.dart.js. That is
+   the exact mixture this worker exists to prevent, reintroduced by a
+   convenience API that quietly looks somewhere else. Every lookup below goes
+   through here, against this release's cache by name. */
+async function fromThisRelease(key) {
+  const cache = await caches.open(CACHE);
+  return cache.match(key);
+}
+
 function isDocument(request) {
   return request.mode === 'navigate' ||
          (request.headers.get('accept') || '').includes('text/html');
@@ -216,7 +230,7 @@ self.addEventListener('fetch', (event) => {
         }
         return fresh;
       } catch (e) {
-        const cached = await caches.match(key);
+        const cached = await fromThisRelease(key);
         return cached || new Response('{}', { headers: { 'Content-Type': 'application/json' } });
       }
     })());
@@ -235,7 +249,7 @@ self.addEventListener('fetch', (event) => {
      than a blank screen, and it never overwrites the release. */
   if (RELEASE_SET.has(key)) {
     event.respondWith((async () => {
-      const cached = await caches.match(key);
+      const cached = await fromThisRelease(key);
       if (cached) return cached;
       try {
         return await fetch(req);
@@ -250,7 +264,7 @@ self.addEventListener('fetch', (event) => {
   /* Fallback fonts: lazily filled into THIS release's cache. */
   if (isFallbackFont(url.pathname)) {
     event.respondWith((async () => {
-      const cached = await caches.match(key);
+      const cached = await fromThisRelease(key);
       if (cached) return cached;
       try {
         const res = await fetch(req);
@@ -276,7 +290,7 @@ self.addEventListener('fetch', (event) => {
       const preloaded = await event.preloadResponse;
       return preloaded || await fetch(req);
     } catch (e) {
-      const cached = await caches.match(key);
+      const cached = await fromThisRelease(key);
       if (cached) return cached;
       return isDocument(req) ? offlineDocument()
                              : new Response('', { status: 504, statusText: 'Offline' });
