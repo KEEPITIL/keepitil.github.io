@@ -49,7 +49,7 @@
    Generated. The compiled Dart in this same release reports
    `<build>.<commit>.<variant>` — same build number, same commit — so a
    telemetry row, this cache name and the deployed files can be lined up. */
-const RELEASE = '47.eb4ae90';
+const RELEASE = '47.7fbb5a2';
 const CACHE = 'tuitea-release-' + RELEASE;
 const SCOPE = '/app/tuitea/';
 
@@ -242,7 +242,12 @@ self.addEventListener('fetch', (event) => {
 
   /* flags.json: network-only, with a last-known-good fallback purely so a
      flight-mode launch is not a blank screen. */
-  if (url.pathname.endsWith('/flags.json')) {
+  /* release.json is written by the build and names the release being served.
+     It is the document a NATIVE install reads to discover it is frozen, so a
+     cached copy would let a stale answer outlive the release that produced it
+     — the precise failure this file exists to detect. Network-only, same as
+     the flag lever beside it. */
+  if (url.pathname.endsWith('/flags.json') || url.pathname.endsWith('/release.json')) {
     event.respondWith((async () => {
       try {
         const fresh = await fetch(new Request(req.url, { cache: 'no-store' }));
