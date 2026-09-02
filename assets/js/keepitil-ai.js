@@ -940,7 +940,7 @@
         return '• ' + (p.display_name || p.name || p.slug) + (p.city ? ' · ' + p.city : '');
       }).join('\n'),
       links: ps.slice(0, 5).filter(function (p) { return p.slug; }).map(function (p) {
-        return { label: p.display_name || p.slug, url: 'https://keepitil.com/public/profile/' + p.slug };
+        return { label: p.display_name || p.slug, url: 'https://keepitil.com/profile.html?slug=' + encodeURIComponent(p.slug) };
       })
     };
   }

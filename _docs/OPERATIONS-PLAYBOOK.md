@@ -25,9 +25,9 @@
 **Steps:**
 1. Confirm which type: artist / brand / organizer. Get slug (lowercase, hyphenated, matches existing slug patterns in KEEPITIL-context.md).
 2. Copy the correct template:
-   - Artist → `_templates/blog-artist-template.html` → `blog-[slug].html`
-   - Organizer → `_templates/blog-organizer-template.html` → `blog-org-[slug].html`
-   - Brand → `_templates/blog-brand-template.html` → `blog-brand-[slug].html`
+   - Artist → `.templates/blog-artist-template.html` → `blog-[slug].html`
+   - Organizer → `.templates/blog-organizer-template.html` → `blog-org-[slug].html`
+   - Brand → `.templates/blog-brand-template.html` → `blog-brand-[slug].html`
 3. Fill required fields per type:
    - **Artist:** name, bio, IG URL, SoundCloud embed, genres, city. Book/Contact button → artist's IG (not `#subscribe`).
    - **Organizer:** org name, circular profile image (110px), Q&A (2–4 questions), IG, Schema.org Organization JSON-LD.

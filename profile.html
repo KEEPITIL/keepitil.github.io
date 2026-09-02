@@ -15,7 +15,7 @@
 <title>Profile | KEEPITIL</title>
 <link rel="preconnect" href="https://ovmqtzjfpzrbzrlkxwgw.supabase.co"/>
 <link rel="preconnect" href="https://cdn.jsdelivr.net"/>
-<meta name="description" content="A KEEPITIL member profile — music, shows, links and more from the OC & LA scene."/>
+<meta name="description" content="KEEPITIL is a culture platform built to discover, connect, create, share and earn through people, events, media and community."/>
   <link rel="icon" type="image/png" href="/assets/images/logo-green-nav.png"/>
   <script>(function(){try{var t=localStorage.getItem('kil-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -606,7 +606,7 @@ window.KIL_FILTER_BADGES = function(badges){
 <nav id="main-nav">
   <div class="nav-inner">
     <a class="nav-logo" href="/"><img src="/assets/images/logo-blue-nav.png" alt="KEEPITIL" style="height:44px;width:auto;filter:drop-shadow(0 0 6px var(--brand));mix-blend-mode:screen;"><span class="nav-brand">KEEPITIL</span></a>
-    <ul class="nav-links"><li><a href="/culture/">CULTURE</a></li><li><a href="/connect/">SCENE</a></li></ul>
+    <ul class="nav-links"><li><a href="/culture/">CULTURE</a></li><li><a href="/connect/">CONNECT</a></li></ul>
     <a href="/apply.html" class="nav-cta">LOGIN</a>
     <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Open menu"><span></span><span></span><span></span></button>
   </div>
@@ -835,8 +835,13 @@ var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 var AGENT_ALIASES = { echo: 'cho', nexus: 'xus' };
 var PROFILE_SLUG=(function(){try{var q=new URLSearchParams(location.search).get('slug');if(q){var s=q.toLowerCase().replace(/[^a-z0-9-]/g,'');return Object.prototype.hasOwnProperty.call(AGENT_ALIASES,s)?AGENT_ALIASES[s]:s;}}catch(e){}return '';})();
 var IS_DEMO=false;/* Founder 2026-08-04: unclaimed profiles (incl. groove-trooper) show identity from profile_meta but NO demo posts/events — a fresh unclaimed profile is empty until claimed. */
-/* Canonical public URL = /public/profile/<slug> (Founder 2026-08-04) */
-try{ if(PROFILE_SLUG){ var _pu='https://keepitil.com/public/profile/'+PROFILE_SLUG; var _c=document.querySelector('link[rel="canonical"]'); if(_c)_c.href=_pu; var _ou=document.querySelector('meta[property="og:url"]'); if(_ou)_ou.setAttribute('content',_pu); } }catch(e){}
+/* Canonical public URL (corrected 2026-09-02). The 2026-08-04 decision named
+       /public/profile/<slug> as canonical, but that route was never built: it returns 404
+       live. Every profile was therefore self-canonicalising to a dead URL, which tells search
+       engines the real page is not the one to index. Canonical now points at the URL that
+       actually serves 200. If the pretty route is wanted, it needs an edge rewrite first -
+       GitHub Pages cannot serve it - and this line should follow, not lead. */
+try{ if(PROFILE_SLUG){ var _pu='https://keepitil.com/profile.html?slug='+encodeURIComponent(PROFILE_SLUG); var _c=document.querySelector('link[rel="canonical"]'); if(_c)_c.href=_pu; var _ou=document.querySelector('meta[property="og:url"]'); if(_ou)_ou.setAttribute('content',_pu); } }catch(e){}
 /* the 14 KEEPITIL agents answer live via the ask-echo edge fn (agent-scoped brain + personality);
    their CHAT tab becomes a real "ask this agent" chat — normal profiles keep scene-room chats */
 var AGENT_INFO={ /* mirrors public.agent_profiles (name, genre lane, department) — fallback identity when profile_meta has no row */
@@ -2286,7 +2291,7 @@ function postCard(p){
     : '<img src="'+esc(p.media||authorAv||'/icon-192.png')+'" alt="'+esc(p.title)+'" loading="lazy" onerror="this.src=\'/icon-192.png\'">';  /* every post shows an image — fall back to the author avatar */
   var col=(p.collab&&p.collab.length)?' <span style="color:var(--accent)">✦ @'+p.collab.map(esc).join(', @')+'</span>':'';
   var hid=(CAN_EDIT()&&isHiddenFromFeed(p))?'<span class="pc-hidden">Gallery only</span>':'';
-  var plink='/public/profile/'+encodeURIComponent(authorSlug);
+  var plink='/profile.html?slug='+encodeURIComponent(authorSlug);
   return '<div class="pf-card fbcard" data-kind="'+p.type+'" data-pid="'+esc(pid)+'">'
     +'<div class="fb-head">'
       +'<a class="fb-avlink" href="'+plink+'"><img class="fb-av" src="'+esc(authorAv)+'" alt="" onerror="this.src=\'/icon-192.png\'"></a>'
