@@ -405,14 +405,26 @@
       '@keyframes kilo-pulse{0%,100%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 0 rgba(0,180,255,.4);}',
       '50%{box-shadow:0 4px 24px rgba(0,180,255,.35),0 0 0 8px rgba(0,180,255,0);}}',
 
-      '#kilo-panel{position:fixed;bottom:134px;right:24px;z-index:99999;width:360px;max-width:calc(100vw - 32px);',
-      'height:520px;max-height:calc(100vh - 150px);',
-      'background:#0f0f1a;border:1px solid rgba(0,180,255,.18);border-radius:16px;',
+      /* ── ONE CONTINUOUS PAGE (Founder 2026-09-01) ─────────────────────────────────────
+         CHO was a 360x520 card floating above the bottom-right corner, which is what made it
+         read as a detached module with an oversized empty region inside it. It is now a
+         full-viewport conversation at EVERY width: top bar, conversation, composer. The
+         geometry that mobile already used is now simply the geometry.
+         ⚠ THE KEYBOARD DOES NOT SHRINK dvh. iOS Safari keeps 100dvh at full height and paints
+         the keyboard OVER the page, so a 100dvh panel puts its composer underneath the
+         keyboard. Sized from visualViewport instead — the only box that excludes the keyboard
+         — via --kilo-vh/--kilo-vtop, which kiloSyncViewport() keeps current. Falls back to
+         100dvh where visualViewport is unavailable. */
+      '#kilo-panel{position:fixed;left:0;right:0;width:100vw;max-width:100vw;z-index:99999;',
+      'top:var(--kilo-vtop,0px);height:var(--kilo-vh,100dvh);max-height:var(--kilo-vh,100dvh);bottom:auto;',
+      'background:#0f0f1a;border:0;border-radius:0;',
       'display:flex;flex-direction:column;overflow:hidden;',
-      'box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px rgba(0,180,255,.08);',
-      'transform:translateY(20px) scale(.96);opacity:0;pointer-events:none;',
-      'transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .2s;}',
-      '#kilo-panel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}',
+      'opacity:0;pointer-events:none;transition:opacity .18s ease;}',
+      '#kilo-panel.open{opacity:1;pointer-events:all;}',
+      'body.kilo-open{overflow:hidden;}',
+      /* The shell's bottom nav is fixed at z-index 950 and would cross the composer. Chat is a
+         full-screen context; the nav underneath it is unreachable anyway. */
+      'body.kilo-open #kil-bnav{display:none!important;}',
 
       '#kilo-header{display:flex;align-items:center;gap:10px;padding:14px 16px;',
       'background:linear-gradient(90deg,rgba(0,180,255,.08),rgba(0,255,136,.05));',
@@ -437,14 +449,34 @@
       '#kilo-header{flex:0 0 auto;display:block;padding:0;}',
       '#kilo-msgs{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}',
       '#kilo-input-row{flex:0 0 auto;}',
-      '#kilo-row1{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px 6px;}',
-      '#kilo-hname{font:800 .95rem/1 Inter,system-ui,sans-serif;letter-spacing:.14em;color:#fff;}',
-      '#kilo-row2{display:flex;gap:8px;padding:0 12px 10px;}',
-      '.kilo-r2{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;',
-        'height:34px;border-radius:9px;text-decoration:none;',
+      /* ONE ROW, THREE SLOTS (Founder 2026-09-01): name left, auth centre, X right. A grid of
+         1fr auto 1fr keeps the centre button optically centred no matter how wide the name or
+         the close button are — space-between would push it off-centre. CREATE is gone from
+         here: creating is a conversation now, not a permanent header shortcut. */
+      '#kilo-row1{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;',
+        'padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top,0px));}',
+      '#kilo-hname{justify-self:start;font:800 .95rem/1 Inter,system-ui,sans-serif;letter-spacing:.14em;color:#fff;}',
+      '#kilo-close{justify-self:end;}',
+      '.kilo-r2{justify-self:center;display:inline-flex;align-items:center;justify-content:center;',
+        'height:32px;padding:0 18px;border-radius:9px;text-decoration:none;',
         'font:800 .68rem Inter,system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;',
         'color:#cfd3df;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);}',
       '.kilo-r2:hover{background:rgba(0,180,255,.16);color:#fff;}',
+      /* ── SIGNED-OUT GATE (Founder 2026-09-01) ──────────────────────────────────────────
+         The conversation is account-only. Signed out there is no interactive thread at all —
+         the composer is removed from the DOM flow, not merely dimmed, so there is nothing to
+         type into and nothing to submit. */
+      '#kilo-gate{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;',
+        'justify-content:center;gap:14px;padding:32px 24px;text-align:center;}',
+      '#kilo-gate h3{font:800 1.15rem Inter,system-ui,sans-serif;letter-spacing:.06em;color:#fff;margin:0;}',
+      '#kilo-gate p{margin:0;color:#9aa3b2;font-size:.9rem;line-height:1.5;max-width:32ch;}',
+      '#kilo-gate .kilo-gbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px;}',
+      '#kilo-gate a{display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 20px;',
+        'border-radius:10px;text-decoration:none;font:800 .72rem Inter,system-ui,sans-serif;',
+        'letter-spacing:.1em;text-transform:uppercase;}',
+      '#kilo-gate a.pri{background:linear-gradient(135deg,#00b4ff,#00ff88);color:#0f0f1a;}',
+      '#kilo-gate a.sec{color:#cfd3df;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);}',
+      'body.kilo-noauth #kilo-input-row{display:none;}',
       /* ── OPTIONS MENU (§25) ─────────────────────────────────────────────────────────────
          Anchored to the launcher, above it, so it never covers the bottom navigation. */
       '#kilo-options{position:fixed;bottom:112px;right:24px;z-index:99999;display:flex;',
@@ -525,30 +557,9 @@
       '#kilo-send:hover{opacity:.85;transform:scale(1.05);}',
       '#kilo-send svg{width:16px;height:16px;fill:#0f0f1a;}',
       /* Phone placement — also root-only before consolidation. */
-      '@media(max-width:480px){#kilo-panel{bottom:134px;right:12px;width:calc(100vw - 24px);}',
-      '#kilo-btn{bottom:66px;right:18px;}}',
-      /* M1 — the ECHO panel goes full-screen here (inset:0), and viewport-fit=cover means
-         the viewport now starts UNDER the status bar. Without a top inset the header sits
-         on the clock: on the owner's iPhone "ECHO" overlapped 11:52 and the greeting ran
-         under the status icons. Scoped to this block so the floating desktop panel, which
-         is nowhere near the status bar, is unchanged. */
-      /* ⚠ THE KEYBOARD DOES NOT SHRINK dvh (Founder 2026-08-31, §11/§12).
-         iOS Safari keeps 100dvh at its full height when the software keyboard opens; the
-         keyboard is painted OVER the page. A full-height panel therefore keeps its composer
-         at y=100dvh, underneath the keyboard, and the visitor types into a box they cannot
-         see. The panel is sized from visualViewport instead - the box that actually excludes
-         the keyboard - via --kilo-vh/--kilo-vtop, which kiloSyncViewport() keeps current.
-         Falls back to 100dvh wherever visualViewport is unavailable. */
-      '@media(max-width:768px){#kilo-panel{position:fixed;left:0;right:0;width:100vw;max-width:100vw;',
-      'top:var(--kilo-vtop,0px);height:var(--kilo-vh,100dvh);max-height:var(--kilo-vh,100dvh);bottom:auto;border-radius:0;}',
-      '#kilo-header{padding-top:max(14px,env(safe-area-inset-top,0px));}',
+      '@media(max-width:480px){#kilo-btn{bottom:66px;right:18px;}}',
+      '@media(max-width:768px){#kilo-btn{bottom:132px;right:18px;}',
       '#kilo-msgs{scroll-padding-top:env(safe-area-inset-top,0px);}',
-      '#kilo-panel.open{transform:none;}',
-      '#kilo-msgs{flex:1 1 auto;min-height:0;}',
-      '#kilo-btn{bottom:132px;right:18px;}body.kilo-open{overflow:hidden;}',
-      /* The shell's bottom nav is fixed at z-index 950 and would cross the composer. Chat is
-         a full-screen context; the nav underneath it is unreachable anyway. */
-      'body.kilo-open #kil-bnav{display:none!important;}',
       /* No safe-area padding under the composer: visualViewport already excludes both the
          keyboard and the home indicator, so adding the inset again lifts the composer off the
          keyboard by the height of the indicator and leaves a gap. */
@@ -591,11 +602,11 @@
       '<div id="kilo-header">',
         '<div id="kilo-row1">',
           '<span id="kilo-hname">CHO</span>',
+          '<span id="kilo-auth"></span>',
           '<button id="kilo-close" aria-label="Close chat">',
             '<svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
           '</button>',
         '</div>',
-        '<div id="kilo-row2"></div>',
       '</div>',
       '<div id="kilo-msgs"></div>',
       '<div id="kilo-input-row">',
@@ -1414,6 +1425,26 @@
   function choStartEvent(t) {
     var url = (t.match(/https?:\/\/[^\s]+/i) || [])[0];
     var wantsEvent = /\b(event|publish|add this|posh|eventbrite)\b/i.test(t);
+    /* ── "CREATE AN EVENT" WITH NO LINK (Founder 2026-09-01) ──────────────────────────────
+       CREATE left the header, so the conversation has to be able to start it. Previously the
+       flow only began when the visitor pasted a ticket URL, which meant asking CHO plainly
+       for an event produced nothing. An intent with no link now opens the SAME guided flow —
+       same fields, same RPCs, same audit logging — with ticket_link simply left empty, which
+       choPreviewCard() already renders as "—". The canonical form is offered alongside it so
+       the visitor can switch to the full page at any point. */
+    if (!url && wantsEvent && /\b(create|add|publish|submit|post|list|new)\b/i.test(t)
+        && !/\b(what|which|when|where|show|find|list me|any)\b/i.test(t)) {
+      CHO_FLOW = { kind: 'event', compId: null, compTitle: null,
+                   data: {}, need: [], step: 'collect' };
+      choPersistFlow();
+      var startCard = choAdvance();
+      if (startCard && CHO_FLOW && CHO_FLOW.step === 'collect') {
+        startCard.text = 'I can take the details here and publish it for you. '
+          + 'You can also use the full form at any point.\n\n' + startCard.text;
+        startCard.links = [{ label: 'Open the event form', url: KIL_CREATE_URL }];
+      }
+      return Promise.resolve(startCard);
+    }
     if (!url || !wantsEvent) return Promise.resolve(null);
     var host = '';
     try { host = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {}
@@ -1725,6 +1756,14 @@
          geometry and the first resize arrives before the panel has a height to shrink. */
       setTimeout(function(){ try{ input.focus(); }catch(e){} kiloSyncViewport(); kiloStickBottom(); }, 0);
       input.addEventListener('focus', function(){ setTimeout(function(){ kiloSyncViewport(); kiloStickBottom(); }, 120); });
+      /* ── ACCOUNT-ONLY (Founder 2026-09-01) ──────────────────────────────────────────
+         Signed out there is no conversation to interact with. This is not UI hiding: the
+         thread is never rendered, the composer is removed by body.kilo-noauth, and no query
+         is accepted — kiloGate() returns true and sendQuery() refuses before handleQuery()
+         is ever reached. */
+      if (!kilSignedIn()) { kiloRenderGate(); return; }
+      kiloClearGate();
+
       // Welcome message on first open
       if (!msgs.hasChildNodes()) {
         /* §50: the old greeting described KEEPITIL as a SoCal music guide. The product is an
@@ -1741,6 +1780,30 @@
            screen of conversation. The function is kept (nothing else calls it) so the
            chips can come back if the shell ever changes. */
       }
+    }
+
+    /* The gate replaces the conversation entirely rather than sitting on top of it. */
+    function kiloRenderGate(){
+      kiloClearGate();
+      var next = encodeURIComponent(location.pathname + location.search);
+      var g = document.createElement('div');
+      g.id = 'kilo-gate';
+      g.innerHTML = '<h3>CHO is for members</h3>'
+        + '<p>Sign in to talk to CHO. She can find events, open profiles and articles, '
+        + 'play KEEPITIL Radio, and walk you through creating an event or entering CREATE.</p>'
+        + '<div class="kilo-gbtns">'
+        + '<a class="pri" href="/apply.html?next=' + next + '">Log in</a>'
+        + '<a class="sec" href="/signup.html?next=' + next + '">Create account</a>'
+        + '</div>';
+      var pnl = document.getElementById('kilo-panel');
+      var row = document.getElementById('kilo-input-row');
+      if (pnl) pnl.insertBefore(g, row || null);
+      if (msgs) msgs.style.display = 'none';
+    }
+    function kiloClearGate(){
+      var g = document.getElementById('kilo-gate');
+      if (g && g.parentNode) g.parentNode.removeChild(g);
+      if (msgs) msgs.style.display = '';
     }
 
     /* §C — the two options, rendered as real links.
@@ -1796,12 +1859,14 @@
     /* ── ROW 2 (§46/§47) ───────────────────────────────────────────────────────────────────
        Rebuilt every time the panel opens, for the same reason the menu is. */
     function kiloApplyAuthRows(){
-      var row = document.getElementById('kilo-row2');
+      var row = document.getElementById('kilo-auth');
       if(!row) return;
+      /* CREATE is deliberately absent (Founder 2026-09-01). Creating starts by asking CHO for
+         it in the conversation, which is where the guided flow already lives. */
       row.innerHTML = kilSignedIn()
         ? '<a class="kilo-r2" href="/profile.html">Profile</a>'
-          + '<a class="kilo-r2" href="/create/">Create</a>'
-        : '<a class="kilo-r2" href="/apply.html">Login</a>';
+        : '<a class="kilo-r2" href="/apply.html?next=' + encodeURIComponent(location.pathname + location.search) + '">Login</a>';
+      document.body.classList.toggle('kilo-noauth', !kilSignedIn());
     }
     window.__kiloApplyAuthRows = kiloApplyAuthRows;
     close.addEventListener('click', closePanel);
@@ -1819,6 +1884,9 @@
 
     // Send
     function sendQuery() {
+      /* Server-side authorization is unchanged; this is the client refusing to open a thread
+         it is not entitled to, so a signed-out visitor cannot reach handleQuery() at all. */
+      if (!kilSignedIn()) { kiloRenderGate(); return; }
       var text = input.value.trim();
       if (!text) return;
       input.value = '';
