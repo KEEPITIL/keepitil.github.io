@@ -26,10 +26,10 @@
    clients.claim() take over immediately, which clears anything a phone or an installed PWA was
    still holding from before. Bump these four names whenever a release must reach returning
    users regardless of what they have cached. */
-var VERSION = 'kil-pwa-v61-20260901a';
+var VERSION = 'kil-pwa-v62-20260902a';
 var PAGES = 'kil-pages-v42';
 var ASSETS = 'kil-assets-v41';
-var CODE = 'kil-code-v59';
+var CODE = 'kil-code-v60';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [
