@@ -54,7 +54,7 @@
       id: 'events',
       kw: ['event','show','concert','festival','upcoming','tonight','weekend','week','calendar','schedule','rave','party','find event','what\'s on','whats on','where to go','going out','nightlife'],
       title: '🎉 Events',
-      text: 'KEEPITIL curates music events across Southern California — concerts, club nights, festivals, raves, pop-ups, and more. Our KEEPITIL PICK badges highlight events we personally recommend. New events are added weekly.',
+      text: 'KEEPITIL curates events — concerts, club nights, festivals, raves, pop-ups, and more. Our KEEPITIL PICK badges highlight events we personally recommend. New events are added weekly.',
       links: [
         { url: 'https://keepitil.com/#events-container', label: 'Browse Upcoming Events' },
         { url: 'https://keepitil.com/culture', label: 'Culture Blog' },
@@ -126,7 +126,7 @@
       id: 'artists',
       kw: ['artist','dj','producer','who is','find artist','artist profile','music','mix','set','performer','discover','underground dj'],
       title: '🎧 Artists & DJs',
-      text: 'KEEPITIL profiles artists across the SoCal music scene — DJs, producers, live acts, bands, and performers of all genres. Each profile includes bio, music samples, social links, and direct booking info. Artists get exposure to organizers and brands actively looking to book talent.',
+      text: 'KEEPITIL profiles creators of every kind — DJs, producers, live acts, bands, and performers across every genre. Each profile includes bio, music samples, social links, and direct booking info. Artists get exposure to organizers and brands actively looking to book talent.',
       links: [
         { url: 'https://keepitil.com/artist/', label: 'Browse All Artists' },
       ],
@@ -154,7 +154,7 @@
       id: 'brands',
       kw: ['brand','sponsor','sponsorship','brand deal','brand collab','brand partnership','brand profile','clothing','apparel','merch','label','record label'],
       title: '🏷️ Brand Partnerships',
-      text: 'KEEPITIL connects brands with the SoCal music community. Whether you\'re a clothing brand, beverage company, gear manufacturer, record label, or lifestyle brand looking to reach event-goers, artists, and organizers — this is your direct lane into the scene.\n\nBrands get profiled alongside the artists and events their audience is already following.',
+      text: 'KEEPITIL connects brands with the community. Whether you\'re a clothing brand, beverage company, gear manufacturer, record label, or lifestyle brand looking to reach event-goers, artists, and organizers — this is your direct lane into the scene.\n\nBrands get profiled alongside the artists and events their audience is already following.',
       links: [
         { url: 'https://keepitil.com/brand/', label: 'Browse Brand Directory' },
         { url: 'https://keepitil.com/signup.html', label: 'Get Listed on KEEPITIL' },
@@ -176,7 +176,7 @@
       id: 'organizers',
       kw: ['organizer','promoter','event organizer','event promoter','put on event','throw a party','throw a rave','produce event','organizer directory','find promoter'],
       title: '🗂️ Organizers & Promoters',
-      text: 'KEEPITIL features event organizers and promoters across Southern California — from club nights and warehouse crews to festival producers and corporate event planners. The directory connects organizers with artists to book and brands to partner with.',
+      text: 'KEEPITIL features event organizers and promoters — from club nights and warehouse crews to festival producers and corporate event planners. The directory connects organizers with artists to book and brands to partner with.',
       links: [
         { url: 'https://keepitil.com/organizer/', label: 'Organizer Directory' },
         { url: 'https://keepitil.com/organizers-directory.html', label: 'Full Organizer List' },
@@ -275,7 +275,7 @@
       id: 'about',
       kw: ['about','what is keepitil','who runs','who are you','what do you do','keepitil','platform','mission','community','underground'],
       title: '🔊 About KEEPITIL',
-      text: 'KEEPITIL is a music marketing and management platform for Southern California — built to promote artists, connect organizers with talent, and match brands with events that reach their audience.\n\nThink of it as a SoCal-focused marketplace: artists get exposure and bookings, organizers find talent and brand partners, and brands activate inside the music community.\n\nFounded in the underground, we cover the full SoCal scene — electronic, hip-hop, R&B, live music, and everything in between. As the community grows, KEEPITIL expands — our goal is to eventually cover every region in the US, starting right here.',
+      text: 'KEEPITIL is a culture platform built to discover, connect, create, share and earn through people, events, media and community.\n\nCreators get discovered and get seen, organizers find talent and partners, and communities form around the work.\n\nEvery genre and every craft — electronic, hip-hop, R&B, live music, visual work, and everything in between. As the community grows, KEEPITIL expands — our goal is to eventually cover every region in the US, starting right here.',
       links: [
         { url: 'https://keepitil.com', label: 'KEEPITIL Home' },
         { url: 'https://keepitil.com/culture', label: 'Culture Blog' },
@@ -287,7 +287,7 @@
       id: 'get-listed',
       kw: ['get listed','submit','list my event','add my event','feature','profile','artist profile','brand profile','organizer profile','submit event','apply','partnership','collab','collaborate'],
       title: '✅ Get Listed on KEEPITIL',
-      text: 'Want to be on KEEPITIL? Here\'s how each type gets listed:\n\n• Artists & DJs: Get profiled — we feature artists active in the SoCal scene. Your profile includes bio, music, booking info, and social links so organizers and brands can find you.\n• Organizers & Promoters: Join the directory — connect with artists to book and brands looking to sponsor.\n• Brands: Partner with the community — get listed alongside the events and artists your audience already follows.\n• Events: Submit for consideration and KEEPITIL PICK review.\n\nReach out via Instagram or the subscribe page to get started.',
+      text: 'Want to be on KEEPITIL? Here\'s how each type gets listed:\n\n• Artists & DJs: Get profiled — we feature artists active in the community. Your profile includes bio, music, booking info, and social links so organizers and brands can find you.\n• Organizers & Promoters: Join the directory — connect with artists to book and brands looking to sponsor.\n• Brands: Partner with the community — get listed alongside the events and artists your audience already follows.\n• Events: Submit for consideration and KEEPITIL PICK review.\n\nReach out via Instagram or the subscribe page to get started.',
       links: [
         { url: 'https://keepitil.com/signup.html', label: 'Contact & Subscribe' },
         { url: 'https://www.instagram.com/keepitil', label: 'DM Us on Instagram' },
