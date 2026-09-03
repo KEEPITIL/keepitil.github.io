@@ -49,7 +49,7 @@
    Generated. The compiled Dart in this same release reports
    `<build>.<commit>.<variant>` — same build number, same commit — so a
    telemetry row, this cache name and the deployed files can be lined up. */
-const RELEASE = '49.a4967f0';
+const RELEASE = '49.209135a';
 const CACHE = 'tuitea-release-' + RELEASE;
 const SCOPE = '/app/tuitea/';
 
@@ -261,6 +261,38 @@ self.addEventListener('fetch', (event) => {
         const cached = await fromThisRelease(key);
         return cached || new Response('{}', { headers: { 'Content-Type': 'application/json' } });
       }
+    })());
+    return;
+  }
+
+  /* ── THE INSTALL PAGE IS NOT PART OF THE RELEASE ────────────────────────
+     The landing page at the scope root exists to tell somebody what to install
+     and hand them the button that installs it. Serving it from cache means it
+     can advertise a build that is gone — or, as happened on 2026-09-02, fail to
+     advertise one that is there: a new index.html was deployed with the Update
+     button, curl saw it, and every browser with this worker registered kept
+     being handed the previous copy with no button on it. The owner would have
+     opened the address, found nothing to tap, and had no way to know why.
+
+     There is no skipWaiting() here, deliberately, so a new worker waits — which
+     means the stale page would have survived their first visit regardless.
+
+     This is not a hole in the atomicity rule below. That rule protects the APP,
+     which lives under SCOPE + 'app/' and must never mix bytes across releases.
+     This page is a document about the app, not part of it. Network-first, with
+     the cached copy as the offline fallback. */
+  if (url.pathname === SCOPE || url.pathname === SCOPE + 'index.html') {
+    event.respondWith((async () => {
+      try {
+        const fresh = await fetch(new Request(req.url, { cache: 'no-store' }));
+        if (fresh && fresh.ok) {
+          const cache = await caches.open(CACHE);
+          cache.put(key, fresh.clone());
+          return fresh;
+        }
+      } catch (e) { /* offline — fall through to whatever we have */ }
+      const cached = await fromThisRelease(key);
+      return cached || offlineDocument();
     })());
     return;
   }
