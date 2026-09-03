@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Finish signing in to TUITEA</title>
+<!--
+  WHERE A TUITEA SIGN-IN LINK LANDS WHEN THE APP DID NOT CATCH IT.
+
+  On an iPhone with TUITEA installed, iOS opens the APP for https://keepitil.com/join/*
+  (apple-app-site-association) and this page is never seen. It exists for the
+  other cases: the app is not installed, the link was opened on a computer, or
+  a mail client forced it into a browser tab.
+
+  It deliberately does NOTHING with the fragment. The session material in the
+  URL belongs to the app that asked for it (PKCE), and a web page using it would
+  sign in a browser tab the person is not looking for while the app stays
+  signed out. Say what happened, offer the two honest ways forward, stop.
+-->
+<style>
+  :root{--bg:#FBF7EF;--ink:#20261F;--muted:#6E7566;--ocean:#33777D;--line:#E2D9C6;--surface:#FFFDF8}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14170F;--ink:#ECE7DA;--muted:#9BA391;--ocean:#6FBFC5;--line:#333A2D;--surface:#1C201A}}
+  :root[data-theme="dark"]{--bg:#14170F;--ink:#ECE7DA;--muted:#9BA391;--ocean:#6FBFC5;--line:#333A2D;--surface:#1C201A}
+  body{margin:0;min-height:100dvh;display:grid;place-items:center;background:var(--bg);color:var(--ink);
+       font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55;padding:24px}
+  .card{max-width:34rem;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.5rem 1.4rem}
+  h1{font-size:1.35rem;margin:0 0 .5rem}
+  p{margin:0 0 .8rem;color:var(--muted)}
+  a.btn{display:inline-block;background:var(--ocean);color:#fff;text-decoration:none;font-weight:600;padding:.7rem 1.1rem;border-radius:999px}
+  a{color:var(--ocean)}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Almost there</h1>
+    <p id="msg">This link signs you in to the TUITEA app. If TUITEA is installed on this iPhone, open the same link from the Mail app and it will open TUITEA directly.</p>
+    <p>If TUITEA is not installed yet:</p>
+    <p><a class="btn" href="https://keepitil.com/app/tuitea">Get TUITEA</a></p>
+    <p style="margin-top:1rem;font-size:.9rem">Nothing has been changed on your account. The link can be used once, from the app.</p>
+  </div>
+  <script>
+    // Only wording changes here, never the session. If the fragment carries an
+    // error from Supabase (expired or already-used link), say so plainly.
+    try {
+      var h = new URLSearchParams(location.hash.replace(/^#/, ''));
+      var err = h.get('error_description') || h.get('error');
+      if (err) document.getElementById('msg').textContent =
+        'That sign-in link could not be used: ' + decodeURIComponent(err.replace(/\+/g,' ')) +
+        '. Open TUITEA and ask for a new one.';
+    } catch (e) {}
+  </script>
+</body>
+</html>
