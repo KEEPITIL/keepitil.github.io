@@ -198,6 +198,19 @@
     everyday running of a household — in one place that belongs to you.
   </p>
 
+  <!-- INSTALL / UPDATE — the one action during the Shorebird base migration.
+       Deliberately first and deliberately alone: the owner opens this page to
+       do one thing, and the previous layout made them scroll past two other
+       cards to find it. The build number is read from fastbeta/build.json,
+       written by tool/publish_ota.sh from the IPA it just verified, so this
+       button can never advertise a build that is not the one being served. -->
+  <div class="card" id="updateCard" hidden>
+    <h2 id="updateTitle">Update TUITEA</h2>
+    <p class="blurb" id="updateBlurb">Installs over the TUITEA already on this
+      iPhone. Nothing is deleted and your family's data stays exactly as it is.</p>
+    <div id="updateSlot"></div>
+  </div>
+
   <!-- PUBLIC BETA — the normal route, for everybody -->
   <div class="card">
     <h2>Public beta</h2>
@@ -280,6 +293,46 @@ var TESTFLIGHT_APP_STORE = "https://apps.apple.com/app/testflight/id899247664";
 
 (function () {
   "use strict";
+
+  /* ---------------- INSTALL / UPDATE (iPhone only) ----------------
+     Shown only on iPhone/iPad: itms-services does nothing anywhere else, and a
+     button that silently does nothing is worse than no button. What it offers
+     is named from the build actually staged on the server, never from a number
+     typed into this page. */
+  (function primaryInstall() {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!isIOS) return;
+
+    var card = document.getElementById('updateCard');
+    var slot = document.getElementById('updateSlot');
+    if (!card || !slot) return;
+
+    fetch('fastbeta/build.json', { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (b) {
+        if (!b || !b.build) return;            /* nothing staged: stay hidden */
+
+        var a = document.createElement('a');
+        a.className = 'tuitea-btn';
+        /* itms-services is how iOS installs an over-the-air build: it reads the
+           manifest, then fetches the IPA named inside it. */
+        a.href = 'itms-services://?action=download-manifest&url=' +
+                 encodeURIComponent('https://keepitil.com/app/tuitea/fastbeta/manifest.plist');
+        a.textContent = 'Update TUITEA';
+        slot.appendChild(a);
+
+        var v = document.createElement('p');
+        v.className = 'sub';
+        v.style.margin = '.7rem 0 0';
+        v.textContent = 'Version ' + b.version + ' (' + b.build + ')' +
+          (b.shorebird ? ' — after this one, updates arrive on their own.' : '');
+        slot.appendChild(v);
+
+        card.hidden = false;
+      })
+      .catch(function () { /* offline: the rest of the page still works */ });
+  })();
 
   /* ---------------- PUBLIC BETA ---------------- */
   var slot = document.getElementById('installSlot');
