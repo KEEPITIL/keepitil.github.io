@@ -308,7 +308,7 @@
       id: 'instagram',
       kw: ['instagram','ig','social media','social','content','posts','reels','stories','tiktok','online presence','brand yourself','personal brand','online','social strategy'],
       title: '📱 Building Your Presence Online',
-      text: 'For artists, organizers, and brands in electronic music, Instagram is still the primary platform. What works in 2026:\n\n• Post consistently — 3–5x per week\n• Reels get more reach than static posts — use them for event recaps, studio clips, gear content\n• Stories for real-time: announcements, behind the scenes, polls\n• Your bio should say who you are and where you operate (DJ | OC/LA, for example)\n• Tag venues and artists in your posts\n• Your link should go somewhere useful — KEEPITIL profile, SoundCloud, or a link-in-bio\n\nTikTok: growing in the scene, worth being on, but Instagram still books gigs.',
+      text: 'For artists, organizers, and brands, Instagram is still a primary platform. What works in 2026:\n\n• Post consistently — 3–5x per week\n• Reels get more reach than static posts — use them for event recaps, studio clips, gear content\n• Stories for real-time: announcements, behind the scenes, polls\n• Your bio should say who you are and where you operate\n• Tag venues and artists in your posts\n• Your link should go somewhere useful — a KEEPITIL profile or a link-in-bio\n\nTikTok is worth using too, especially when short-form video fits your work.',
       links: [],
       chips: ['DJ career tips', 'Promote your event', 'Brand partnerships'],
     },

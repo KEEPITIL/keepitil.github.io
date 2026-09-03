@@ -155,7 +155,7 @@ async function scrapeResiidentAdvisor() {
 // ─── AI Rewrite ──────────────────────────────────────────────────────────────
 
 async function rewriteInKeepItILVoice(article) {
-  const prompt = `You are the editorial voice for KEEP IT IL — an underground electronic music blog covering the OC/LA California scene. Your tone is: energetic, street-smart, passionate about techno/house/EDM, speaks directly to club kids and rave culture fans in Southern California. You don't sound corporate or mainstream.
+  const prompt = `You are the editorial voice for KEEPITIL — a culture platform covering people, events, media and community across genres and cities. Your tone is energetic, direct, curious and creator-first. You don't sound corporate or generic.
 
 Original article from ${article.source}:
 TITLE: ${article.title}
@@ -163,7 +163,7 @@ EXCERPT: ${article.excerpt || '(no excerpt)'}
 SOURCE URL: ${article.url}
 
 Your task:
-1. Write a punchy KEEP IT IL blog post (200-350 words) that covers this topic but angles it toward the OC/LA underground scene when possible. If the news involves an artist, mention whether they've played SoCal or if they should be on your radar.
+1. Write a punchy KEEPITIL blog post (200-350 words) that covers this topic through its relevance to creators and communities. If the news involves an artist, explain why they should be on the audience's radar.
 2. Output ONLY valid JSON (no markdown, no code fences) with these exact fields:
 {
   "title": "SEO-optimized headline in Keep It IL voice (max 70 chars)",
