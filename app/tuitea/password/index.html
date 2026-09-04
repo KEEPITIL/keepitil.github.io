@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Set your TUITEA password</title>
+<!--
+  THE PASSWORD PAGE. IT HAS EXACTLY ONE JOB.
+
+  Prove control of an email address and set a password on the EXISTING Supabase
+  user. Then get out of the way.
+
+  ── WHAT THIS PAGE DELIBERATELY DOES NOT DO ──────────────────────────────────
+  It does not hand a session back to the app. That chain — Supabase email →
+  redirect → AASA → universal link → in-app listener → OTP exchange → household
+  resolution — is what cost this project weeks and never worked on the owner's
+  phone. There is nothing to hand over: TUITEA signs in with the password
+  afterwards, like any normal application.
+
+  It is not a web version of TUITEA. The owner does not want Safari to be an
+  alternate way into the family's records, so this page shows two fields and a
+  sentence, and nothing else. There is no link from here into the app shell.
+
+  It signs itself OUT the moment the password is saved, so a recovery link
+  opened on a borrowed or shared device does not leave a live session behind in
+  that browser.
+-->
+<style>
+  :root{
+    --bg:#FBF7EF; --ink:#20261F; --muted:#6E7566; --ocean:#33777D;
+    --line:#E2D9C6; --surface:#FFFDF8; --warn:#B4472F;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#14170F; --ink:#ECE7DA; --muted:#9BA391; --ocean:#6FBFC5;
+    --line:#333A2D; --surface:#1C201A; --warn:#E38B72;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#14170F; --ink:#ECE7DA; --muted:#9BA391; --ocean:#6FBFC5;
+    --line:#333A2D; --surface:#1C201A; --warn:#E38B72;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100dvh;display:grid;place-items:center;background:var(--bg);
+       color:var(--ink);font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       padding:24px}
+  main{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);
+       border-radius:16px;padding:26px}
+  h1{margin:0 0 4px;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ocean)}
+  h2{margin:0 0 18px;font-size:21px;line-height:1.25}
+  label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+  input{width:100%;padding:13px 14px;font-size:16px;border:1px solid var(--line);
+        border-radius:10px;background:var(--bg);color:var(--ink);min-height:48px}
+  input:focus-visible{outline:2px solid var(--ocean);outline-offset:1px}
+  button{width:100%;margin-top:20px;padding:14px;min-height:48px;font-size:16px;font-weight:600;
+         border:0;border-radius:10px;background:var(--ocean);color:#fff;cursor:pointer}
+  button[disabled]{opacity:.5;cursor:default}
+  p{color:var(--muted);font-size:13.5px}
+  .msg{margin-top:14px;font-size:13.5px}
+  .err{color:var(--warn)}
+  .done h2{margin-bottom:10px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <h1>TUITEA</h1>
+
+  <div id="form-view">
+    <h2>Set your password</h2>
+    <p id="intro">Checking your link…</p>
+    <div id="fields" hidden>
+      <!-- autocomplete="new-password" is what makes iOS offer to generate and
+           save a strong password here, rather than trying to fill an old one. -->
+      <label for="pw">New password</label>
+      <input id="pw" type="password" autocomplete="new-password" minlength="8"
+             placeholder="At least 8 characters">
+      <label for="pw2">Confirm password</label>
+      <input id="pw2" type="password" autocomplete="new-password" minlength="8">
+      <button id="save" disabled>Save password</button>
+    </div>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="done-view" class="done" hidden>
+    <h2>Your password has been updated.</h2>
+    <p>Open TUITEA and sign in with your email and this password.</p>
+  </div>
+</main>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+const SUPABASE_URL = 'https://ovmqtzjfpzrbzrlkxwgw.supabase.co';
+// The publishable (anon) key. Public by design: it grants nothing on its own,
+// and row-level security decides everything. The recovery token in the URL is
+// what authorises the password change, and it is single-use and short-lived.
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92bXF0empmcHpyYnpybGt4d2d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDM5OTEsImV4cCI6MjA5Njc3OTk5MX0.rqFG5illhiePFOnqkKaA7nVSv_LWtJ95HHW1NVIo6CQ';
+
+// persistSession:false is the important one. A recovery link may be opened on a
+// borrowed phone or a shared computer; nothing about it should survive the tab.
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+});
+
+const $ = (id) => document.getElementById(id);
+const intro = $('intro'), fields = $('fields'), msg = $('msg');
+const pw = $('pw'), pw2 = $('pw2'), save = $('save');
+
+const fail = (text) => { intro.textContent = ''; msg.className = 'msg err'; msg.textContent = text; };
+
+async function begin() {
+  const url = new URL(location.href);
+  const params = url.searchParams;
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+
+  const problem = params.get('error_description') || hash.get('error_description');
+  if (problem) {
+    return fail(/expired/i.test(problem)
+      ? 'That link has expired. Open TUITEA, tap Forgot password, and ask for a new one. Nothing on your account has changed.'
+      : 'That link did not work. Open TUITEA and ask for a new one.');
+  }
+
+  // Two shapes reach this page: the current token_hash form, and the older
+  // fragment form still sitting in inboxes. Both are accepted; neither is
+  // preferred, because a person cannot tell which one they were sent.
+  const tokenHash = params.get('token_hash');
+  const type = params.get('type') || 'recovery';
+  const accessToken = hash.get('access_token');
+  const refreshToken = hash.get('refresh_token');
+
+  try {
+    if (tokenHash) {
+      const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type });
+      if (error) throw error;
+    } else if (accessToken && refreshToken) {
+      const { error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+      if (error) throw error;
+    } else {
+      return fail('This page needs a link from a TUITEA password email. Open TUITEA and tap Forgot password.');
+    }
+  } catch (e) {
+    return fail('That link has expired or has already been used. Open TUITEA and ask for a new one — nothing on your account has changed.');
+  }
+
+  // The token is spent. Take it out of the address bar so it is not left in
+  // history, or in a screenshot, or in a shared URL.
+  history.replaceState(null, '', location.pathname);
+
+  intro.textContent = 'Choose a password for your TUITEA account.';
+  fields.hidden = false;
+  pw.focus();
+}
+
+const check = () => {
+  const ok = pw.value.length >= 8 && pw.value === pw2.value;
+  save.disabled = !ok;
+  msg.className = 'msg err';
+  msg.textContent = (pw2.value && pw.value !== pw2.value) ? 'Those passwords do not match.' : '';
+};
+pw.addEventListener('input', check);
+pw2.addEventListener('input', check);
+
+save.addEventListener('click', async () => {
+  save.disabled = true;
+  save.textContent = 'Saving…';
+  const { error } = await sb.auth.updateUser({ password: pw.value });
+  if (error) {
+    save.disabled = false;
+    save.textContent = 'Save password';
+    msg.className = 'msg err';
+    msg.textContent = error.message || 'Could not save that password. Try again.';
+    return;
+  }
+  // End the recovery session immediately. This browser is not a way into
+  // TUITEA and must not be left holding a key to the family's records.
+  try { await sb.auth.signOut(); } catch {}
+  $('form-view').hidden = true;
+  $('done-view').hidden = false;
+});
+
+begin();
+</script>
+</body>
+</html>
