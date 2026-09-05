@@ -46,23 +46,6 @@
    + '#vs-app .vs-card h3{font-size:1rem;font-weight:600;color:#fff;margin:0 0 3px;line-height:1.25}'
    + '#vs-app .vs-card .by{color:#9aa0b0;font-size:.78rem}'
    + '#vs-app .vs-card .vt{margin-top:8px;font:800 .74rem Inter,sans-serif;letter-spacing:.08em;color:var(--vsb)}'
-   /* ── MOBILE: DISCOVER'S RAIL, NOT A GRID (Founder 2026-09-03) ────────────────────────
-      .vs-grid is auto-fill minmax(230px,1fr), which collapses to a single column below
-      ~500px and stacks full-width cards with 4:3 covers - dense, and nothing like the
-      horizontal event rails the rest of KEEPITIL uses. Below 860px it becomes the same
-      component as DISCOVER: a one-row carousel of 220px 2:3 cards with a 10px gap, which
-      is ~1.5 cards at 375px. Desktop keeps its grid. */
-   + '@media(max-width:860px){'
-   +   '#vs-app .vs-grid{display:flex;grid-template-columns:none;gap:10px;overflow-x:auto;'
-   +     'overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;'
-   +     'scrollbar-width:none;-ms-overflow-style:none;padding:2px 0 8px;touch-action:pan-x;'
-   +     'overscroll-behavior-x:contain}'
-   +   '#vs-app .vs-grid::-webkit-scrollbar{display:none}'
-   +   '#vs-app .vs-card{flex:0 0 220px;scroll-snap-align:start}'
-   +   '#vs-app .vs-card .cov{aspect-ratio:2/3}'
-   +   '#vs-app .vs-card .bd{padding:9px 11px 11px}'
-   +   '#vs-app .vs-card h3{font-size:15px;line-height:1.05}'
-   + '}'
    /* COMMUNITIES FOR THIS CREATE — a compact strip on the competition detail. Suggestion
       only: it opens the community, it never joins and it never posts the entry anywhere. */
    + '#vs-app .cd-comm{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 6px}'
@@ -392,7 +375,20 @@
       1px white-8% border, lift-on-hover, and the same four-stop bottom shade. Mobile drops
       to 220px / radius 15 exactly as #evx does at 860px. Kept in sync by hand — see ceCard(). */
    + '#vs-app .ce-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:15px}'
-   + '@media(max-width:860px){#vs-app .ce-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}}'
+   /* ── MOBILE: DISCOVER'S RAIL (Founder 2026-09-03) ────────────────────────────────────
+      .ce-grid is what CREATE actually renders. It was auto-fill minmax(160px,1fr), which at
+      375-402px gives a TWO-COLUMN grid of 180px cards - the dense multi-column stack the
+      brief rules out. Below 860px it becomes the same one-row carousel as DISCOVER: 220px
+      2:3 cards, 10px gap, ~1.5 visible. Desktop keeps its grid.
+      (An earlier attempt styled .vs-grid, which this view does not use - dead code, removed.) */
+   + '@media(max-width:860px){'
+   +   '#vs-app .ce-grid{display:flex;grid-template-columns:none;gap:10px;overflow-x:auto;'
+   +     'overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;'
+   +     'scrollbar-width:none;-ms-overflow-style:none;padding:2px 0 8px;'
+   +     'touch-action:pan-x;overscroll-behavior-x:contain}'
+   +   '#vs-app .ce-grid::-webkit-scrollbar{display:none}'
+   +   '#vs-app .ce-grid > .ce-fly{flex:0 0 220px;scroll-snap-align:start}'
+   + '}'
    + '#vs-app .ce-fly{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;cursor:pointer;'
    +   'background:#15131f center/cover no-repeat;border:1px solid rgba(255,255,255,.08);'
    +   'transition:transform .25s,border-color .25s,box-shadow .25s}'

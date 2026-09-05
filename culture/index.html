@@ -1223,7 +1223,7 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
       var ahref = ad.url || (ad.slug?('/article/'+ad.slug+'/'):(ad.event_slug?('/event.html?e='+encodeURIComponent(ad.event_slug)):url));
       n = { pid:r.id, href:ahref, external:false,
             thumb:ad.cover||ad.img||'/assets/images/blog-default.jpg',
-            aspect:'2/3', fit:'cover',
+            aspect:'2/3', fit:'cover', profileCard:true,
             badge:'ARTICLE', badgeBg:'rgba(160,107,255,.95)', badgeFg:'#150a24',
             title:ad.t||r.title||'Untitled',
             name:r.author_name||r.profile_slug, avatar:r.author_avatar, creatorHref:url,
@@ -1556,6 +1556,18 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
   body.cul-m #community-feed>.fcard{position:relative}
   body.cul-m #community-feed>.fcard .kil-vid-well{
     position:absolute!important;inset:0!important;flex:none!important;width:auto!important;height:auto!important}
+  /* ── ARTICLES KEEP THE 2:3 HOUSE FRAME ON MOBILE (Founder 2026-09-03) ──────────────
+     The rules above turn the well into the full-bleed player frame, which is right for a clip
+     and wrong for an article cover - it forced articles to the card's own ratio (measured
+     0.493) instead of 2:3. .kv-profile already means "not a clip, take the house frame"; the
+     plain .fcard.kv-profile rule loses to this body.cul-m chain, so it is restated with the
+     specificity to win. Video and Short cards are untouched. */
+  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well{
+    position:relative!important;inset:auto!important;aspect-ratio:2/3!important;
+    width:100%!important;height:auto!important;max-height:none!important;flex:0 0 auto!important}
+  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well>img{
+    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    object-fit:cover!important}
   body.cul-m #community-feed>.fcard .kv-body{
     position:absolute;left:0;right:0;bottom:0;z-index:3;background:none;
     background-image:linear-gradient(to top,rgba(0,0,0,.94) 0%,rgba(0,0,0,.74) 52%,rgba(0,0,0,0) 100%);

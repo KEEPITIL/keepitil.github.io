@@ -675,7 +675,10 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   /* Every section renders and the page simply scrolls. With the filter bar gone, hiding
      non-active sections would strand a mobile visitor on the first one with no way to reach
      the others — removing the control means removing what the control was hiding. */
-  body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 20px}
+  /* Tightened bottom padding (Founder 2026-09-03): 20px under every rail plus the rail's own
+     bottom padding was the wide background band between categories. 10px keeps the seam
+     visible without the page reading as mostly gaps. */
+  body.rad-m main.wrap>section{display:block;border-top:0;padding:6px 0 10px}
   /* The hero used to be hidden on mobile because it was a wall of prose. It is now the stat row,
      which is the point of the header — so it stays, compacted (Founder 2026-08-21). */
   /* EXACTLY the homepage pattern (#evx .evx-nav, index.html): top:0 and GROW into the
@@ -727,7 +730,10 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
     scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;max-width:100%}
   /* Nothing inside a rail may claim a full-width basis — that is what pushes the rail, and then
      the page, wider than the screen. */
-  body.rad-m section .grid > *{flex:0 0 170px!important;scroll-snap-align:start}
+  /* 220px, matching DISCOVER (Founder 2026-09-03). This !important rule is the one actually
+     in force on a phone - body.rad-m is the mobile radio layout - so the earlier change to the
+     plain .grid rules had no effect here. ~1.5 cards at 375-402px, same as every other rail. */
+  body.rad-m section .grid > *{flex:0 0 220px!important;scroll-snap-align:start}
   body.rad-m #radNoHits{flex:0 0 auto!important;max-width:80vw}
   /* NO DOCKED BAR ON MOBILE (Founder 2026-08-26). This page used to force the shell's
      mini-player back on screen here — it was the only page that did. Row 3 of the radio
