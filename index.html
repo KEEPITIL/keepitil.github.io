@@ -2983,7 +2983,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   if(document.readyState!=='loading')run(); document.addEventListener('DOMContentLoaded',run); setTimeout(run,1200);
 })();
 </script>
-<script src="/assets/js/keepitil-ai.js?v=20260902a" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260905a" defer></script>
 
 <style>
 .kil-tabs{display:flex;gap:6px;margin:6px 0 14px;}
@@ -3204,7 +3204,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260902a" defer></script>
+<script src="/keepitil-shell.js?v=20260905a" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to a retired v3 create page (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->
@@ -3267,10 +3267,28 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
    The chips also stop being flex:1 1 0 — distributing them across the width is what made a
    short list read as centred. */
 @media(max-width:860px){
-  #evx .evx-locrow{flex-direction:column;align-items:stretch;gap:6px;overflow:visible;}
-  #evx .evx-locrow > .evx-catdd{align-self:flex-start;}
-  #evx .evx-monthwrap{width:100%;margin-left:0;padding-left:0;justify-content:flex-start;}
+  /* ⚠ TWO ROWS, NEVER THREE (Founder 2026-09-05). A previous pass made .evx-locrow a column so
+     the month rail would start at the left edge. It did — and it also split row 1 into two
+     lines, so the filter area became three rows. The row is a row again. The rail cannot start
+     further left than the control beside it, and that is correct: row 1 is "location + month
+     rail" by design. What was actually misaligned is the DATE heading below, fixed further
+     down. */
+  #evx .evx-locrow{flex-direction:row;align-items:center;gap:8px;}
+  #evx .evx-monthwrap{margin-left:0;padding-left:0;justify-content:flex-start;}
   #evx #evx-months .evx-mo{flex:0 0 auto;min-width:0;}
+
+  /* ── THE DATE READS AS ONE HEADING (Founder 2026-09-05) ────────────────────────────
+     Measured: day "04" at 32px starting at x=24, while "FRI" and "SEP" sat at 15.2px — the
+     month read as small secondary text, and the whole group was indented 14px past the
+     section headings and rails, which sit at x=10. Same left edge, same heading family. */
+  #evx .evx-datecol{padding-left:0;margin-left:0;gap:10px;}
+  /* .evx-days already carries 24px; adding padding to .evx-day stacked on top of it and pushed
+     the date group to x=34. The container owns the inset, and it matches the 10px the section
+     headings and rails use. */
+  #evx .evx-days{padding-left:10px;padding-right:10px;}
+  #evx .evx-day{padding-left:0;padding-right:0;}
+  #evx .evx-daydow,#evx .evx-daymo{font-size:1.35rem;font-weight:800;letter-spacing:.1em;
+    color:var(--green);opacity:.95;}
 
   /* ── TIGHTER AGAIN (Founder 2026-09-04): day groups were still showing too much backdrop. */
   #evx .evx-day{margin-top:16px;}

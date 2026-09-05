@@ -546,8 +546,10 @@
       '@keyframes kilo-dot{0%,80%,100%{transform:scale(0.7);opacity:.4;}40%{transform:scale(1);opacity:1;}}',
 
       '#kilo-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid rgba(0,180,255,.1);}',
+      /* 16px, not 0.82rem: WebKit zooms the whole page when a focused field is under 16px,
+         and CHO is reachable from every surface (Founder 2026-09-05). */
       '#kilo-input{flex:1;background:#151520;border:1px solid rgba(0,180,255,.18);border-radius:8px;',
-      'padding:9px 12px;font-size:.82rem;color:#e8e8f0;outline:none;',
+      'padding:9px 12px;font-size:16px;color:#e8e8f0;outline:none;',
       "font-family:'Inter',sans-serif;transition:border-color .2s;}",
       '#kilo-input::placeholder{color:#555;}',
       '#kilo-input:focus{border-color:rgba(0,180,255,.45);}',

@@ -53,6 +53,32 @@
        deleted the element — so that mini-player, and now the station carousel, could never play
        on a phone. Opt-in by attribute rather than a path test, so the shell does not have to
        learn every future radio surface. */
+  /* ── ONE MOBILE VIEWPORT RULE FOR EVERY PAGE (Founder 2026-09-05) ─────────────────────
+     Two defects were being fixed page by page and kept coming back somewhere else, so they are
+     stated once, in the shell every page loads.
+
+     1. THE PAGE NEVER SCROLLS SIDEWAYS. Intentional rails still do: they opt in with their own
+        overflow-x, and this only clamps the document. overflow-x:clip rather than hidden, so a
+        sticky filter bar keeps working — hidden on the root creates a scroll container and
+        breaks position:sticky, which is how the CONNECT bar was broken once before.
+     2. NO iOS AUTO-ZOOM. WebKit zooms the page when a focused control is under 16px. Measured
+        offenders: .search input 15.2px, #kilo-input 13.1px, .pl-form input 14.4px,
+        .subscribe-form input 14px, .filter-select 12px, .ev-nav-select 11.2px. 16px is the
+        threshold, so 16px is the floor — mobile only, desktop typography untouched.
+        The !important is deliberate and is the ONLY one here: page stylesheets load after the
+        shell and set their own sizes (.search input 0.95rem, .pl-form input 0.9rem …), so a
+        plain rule loses on source order every time. One authoritative declaration replaces the
+        seven scattered per-page fixes it would otherwise take, and it encodes a platform
+        constraint rather than a preference. */
+  (function(){
+    var v=document.createElement('style');
+    v.id='kil-mobile-viewport-rules';
+    v.textContent='@media(max-width:860px){'
+      +'html,body{max-width:100%;overflow-x:clip}'
+      +'input,select,textarea{font-size:16px!important}'
+      +'}';
+    document.head.appendChild(v);
+  })();
     var RADIO_PAGE = false;
     try{ RADIO_PAGE = document.documentElement.getAttribute('data-radio') === 'page'; }catch(e){}
     var RADIO_ALLOWED = RULES.radio && !IN_IFRAME && (!IS_MOBILE || PAGE_TYPE==='home' || RADIO_PAGE);

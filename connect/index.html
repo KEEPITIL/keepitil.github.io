@@ -422,6 +422,27 @@ body>*{min-width:0}
   .subfilters{margin:6px 0;}
   #commPane{margin-top:10px;}
 }
+
+/* ── EXACTLY TWO CONTROL ROWS ON MOBILE (Founder 2026-09-05) ───────────────────────────
+   Measured at 402px: .controls-row wrapped to 93px (seg on one line, search on the next) and
+   .subfilters added a third band. Required is row 1 = the four categories, row 2 = search plus
+   the contextual chips.
+   .controls becomes the grid and .controls-row uses display:contents, so seg, search and the
+   subfilter rail are laid out as siblings instead of being nested in a wrapper that wraps on
+   its own. No !important, and one rule owns the structure. When #subs is empty its column
+   collapses and search takes the full width. */
+@media(max-width:860px){
+  .controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;
+    padding:8px 10px;}
+  .controls-row{display:contents;}
+  .seg{grid-column:1 / -1;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
+  .seg::-webkit-scrollbar{display:none}
+  .seg button{flex:0 0 auto;}
+  .controls-row .search{grid-column:1;min-width:0;}
+  .subfilters{grid-column:2;margin:0;max-width:52vw;overflow-x:auto;scrollbar-width:none;}
+  .subfilters::-webkit-scrollbar{display:none}
+  .controls-row .count,#count{display:none;}
+}
 </style>
 <link rel="canonical" href="https://keepitil.com/connect/"/>
   <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
@@ -700,8 +721,8 @@ renderSubs();render();
 </script>
 <script src="/kil-seasons.js?v=20260826a"></script>
 <script src="/assets/js/keepitil-radio.js?v=20260904a" defer></script>
-<script src="/assets/js/keepitil-ai.js?v=20260902a" defer></script>
-<script src="/keepitil-shell.js?v=20260902a" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260905a" defer></script>
+<script src="/keepitil-shell.js?v=20260905a" defer></script>
 <!-- COMMUNITY: its own tag. The module was briefly placed INSIDE the shell's
      <script src> element, where inline content is ignored by the browser, so it
      silently never ran. -->

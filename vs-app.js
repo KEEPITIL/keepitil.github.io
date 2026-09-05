@@ -392,6 +392,21 @@
    +   '#vs-app .ce-hero{padding-bottom:8px}'
    +   '#vs-app .ce-bar{margin:0 0 8px}'
    +   '#vs-app .ce-stats{margin:6px 0}'
+   /* FULL USABLE WIDTH (Founder 2026-09-05). The bar inherited a narrower centred container,
+      so it read as inset against the rails beside it. Full width with ordinary mobile side
+      padding; the chip rails keep their own horizontal scroll inside it, and nothing is
+      allowed to push the page wider than the device. */
+   +   '#vs-app .ce-bar{width:100%;max-width:none;margin-left:0;margin-right:0;'
+   +     'padding-left:10px;padding-right:10px;box-sizing:border-box}'
+   +   '#vs-app .ce-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;min-width:0}'
+   +   '#vs-app .ce-row::-webkit-scrollbar{display:none}'
+   +   '#vs-app .ce-chip{flex:0 0 auto}'
+   /* .wrap carries 16px side padding, so a width:100% bar only ever filled 370 of 402. The bar
+      breaks out of that inset to the full viewport and re-applies its own 10px, matching the
+      rails; the page itself is still clamped by the shell rule. */
+   +   '#vs-app{max-width:100vw;overflow-x:clip}'
+   +   '#vs-app .ce-bar{width:100vw;margin-left:-16px;margin-right:-16px;'
+   +     'padding-left:10px;padding-right:10px;box-sizing:border-box}'
    + '}'
    + '#vs-app .ce-fly{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;cursor:pointer;'
    +   'background:#15131f center/cover no-repeat;border:1px solid rgba(255,255,255,.08);'

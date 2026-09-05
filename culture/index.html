@@ -969,7 +969,7 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
 <script src="/kil-seasons.js?v=20260826a"></script>
 <script src="/assets/js/keepitil-radio.js?v=20260904a" defer></script>
 <script src="/keepitil-pager.js?v=20260820e" defer></script>
-<script src="/assets/js/keepitil-ai.js?v=20260902a" defer></script>
+<script src="/assets/js/keepitil-ai.js?v=20260905a" defer></script>
 <script>
 /* COMMUNITY FEED (Founder doc step 4 + daily auto-post): profile_content posts — agents AND
    users — render at the top of Culture with the same FB card chrome. Zero-token, DB-driven. */
@@ -1562,6 +1562,18 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
      0.493) instead of 2:3. .kv-profile already means "not a clip, take the house frame"; the
      plain .fcard.kv-profile rule loses to this body.cul-m chain, so it is restated with the
      specificity to win. Video and Short cards are untouched. */
+  /* ── AN ARTICLE CARD IS THE COVER, NOT A SCREEN WITH A COVER IN IT ────────────────
+     The defect the phone kept showing and the DOM kept hiding. .fcard on mobile is
+     height:calc(100dvh - …) — a full-screen snap card, correct for a clip. Giving the article
+     a 2:3 WELL inside that card left roughly 200px of black beneath it at 402x800, which is
+     the "image occupies only part of the frame / empty side region". Measuring the well said
+     2:3 and passed; the card was the thing with the hole in it.
+     An article card is now sized BY its cover, exactly like a CONNECT artist tile: the card is
+     2:3, the image fills the card, and there is nothing left over to be empty. Clips keep the
+     full-screen frame untouched. */
+  body.cul-m #community-feed>.fcard.kv-profile.kv-profile{
+    height:auto!important;min-height:0!important;justify-content:flex-start!important;
+    scroll-snap-align:center;background:#0b0b12!important}
   body.cul-m #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well{
     position:relative!important;inset:auto!important;aspect-ratio:2/3!important;
     width:100%!important;height:auto!important;max-height:none!important;flex:0 0 auto!important}
@@ -1732,7 +1744,7 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
     background:linear-gradient(90deg,var(--brand,#00b4ff),var(--brand-2,#5cc8ff));color:#04121b;
     font:800 .9rem/1 var(--fh,Inter),sans-serif;letter-spacing:.06em}
   /* The floating AI bubble lands exactly on the rail's Save/More icons. The real id is
-     #kilo-btn (keepitil-ai.js?v=20260902a) — my first attempt guessed #kilo-fab and did nothing.
+     #kilo-btn (keepitil-ai.js?v=20260905a) — my first attempt guessed #kilo-fab and did nothing.
      Move it LEFT of the rail rather than up, so it never collides at any rail length. */
     /* section-name pop that fades (~0.9s) */
   #culSwToast{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:90;
@@ -2421,7 +2433,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260902a" defer></script>
+<script src="/keepitil-shell.js?v=20260905a" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
