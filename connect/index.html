@@ -316,16 +316,17 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
 }
 .grid{max-width:1360px;margin:24px auto 60px;padding:0 30px;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;}
 @media(max-width:680px){
-.grid{grid-template-columns:repeat(3,minmax(0,1fr));padding:0 10px;gap:5px;margin:16px auto 48px;}
+/* 2-UP, not 3-UP (Founder 2026-09-03 requires the label to stay readable). At 375px a
+   3-column grid gives a ~118px card, which is why the name had been shrunk to 8px — below
+   legible. Two columns give ~175px and a 12px name. */
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 10px;gap:8px;margin:16px auto 48px;}
 /* Founder-tuned 2026-08-15: 3-up, card 1:1, gap 5, radius 5, name 8px. The IMAGE was already
    1/1 but the card was image + name strip, so the tile itself was taller than square. The card
    now owns the ratio and the image flexes into whatever the name strip leaves. */
 /* 2:3 ONLY (Founder 2026-08-20) — matches the homepage, CREATE and profile event cards.
    Was 1/1. */
-.card{border-radius:5px;aspect-ratio:2/3;display:flex;flex-direction:column;}
-.card .imgw{flex:1 1 auto;aspect-ratio:auto;min-height:0;}
-.card .body{flex:0 0 auto;}
-.card .nm{font-size:8px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card{border-radius:9px;aspect-ratio:2/3;display:flex;flex-direction:column;}
+.card .nm{font-size:12px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .card .desc{display:none;}
 .hero{padding:42px 18px 18px;}
 }
@@ -350,10 +351,23 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
 .card .nm{font-family:var(--fh);font-size:1.32rem;letter-spacing:.02em;line-height:1;margin-bottom:0;}
 /* Scene cards: image + name only (Founder 2026-07-20) */
 .card .desc,.card .loc,.card .ig,.card .kinds{display:none!important}
-.card .body{padding:10px 12px 12px!important}
+.card .body{padding:24px 11px 9px!important}
 .card .desc-orig{font-size:.76rem;color:var(--ink2);line-height:1.4;min-height:2.1em;}
 .card .loc{font-size:.7rem;color:var(--ink3);margin-top:7px;}
 .card .ig{margin-top:8px;font-size:.7rem;color:var(--cyan);}
+
+/* ── FULL-BLEED 2:3 CARDS (Founder 2026-09-03) ────────────────────────────────────────
+   The card was image + a name strip below it, so the media only ever filled the part of the
+   tile the strip left over — a partial-image layout with an empty band under it whenever the
+   image was short. The media now fills the ENTIRE card and the name sits on top of it,
+   anchored to the bottom over a scrim that guarantees contrast against any photograph.
+   Identical for Artists, Brands, Community and Venues: one card system, four filters. */
+.card .imgw{position:absolute;inset:0;flex:none;min-height:0;z-index:0;}
+.card .imgw img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.card .body{position:absolute;left:0;right:0;bottom:0;z-index:2;flex:none;
+  padding:26px 12px 10px;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.72) 55%,rgba(0,0,0,.92));}
+.card .nm{color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.85);}
 .empty{grid-column:1/-1;text-align:center;color:var(--ink3);padding:56px 0;}
 .empty .big{font-family:var(--fh);font-size:1.7rem;letter-spacing:.06em;color:var(--ink2);}
 footer{border-top:1px solid rgba(255,255,255,.06);padding:32px 30px;text-align:center;color:var(--ink3);font-size:.82rem;
@@ -502,11 +516,11 @@ function bucketOf(g){g=g.toLowerCase();for(const[b,l]of BUCKETS){if(l.includes(g
 function artistBuckets(){const items=DATA.filter(x=>x.kinds.includes('artist'));const present=new Set();items.forEach(x=>splitv(x.genre).forEach(g=>present.add(bucketOf(g))));return BUCKETS.map(b=>b[0]).concat(['Other']).filter(b=>present.has(b));}
 function typeValues(kind){const items=DATA.filter(x=>matchesKind(x,kind));return [...new Set(items.flatMap(x=>splitv(x.category||x.type)))].sort();}
 /* DEFAULT IS COMMUNITY, ALWAYS (Founder 2026-08-31, confirmed after review).
-   An earlier version fell back to 'artist' while the Community dataset was empty. That was
-   overruled: the default category is a product decision, not a function of how much data
-   happens to exist today. An empty Community shows a building state — it does not hand the
-   landing slot to another category and then silently take it back later. */
-let kind='community',q='',sub=null; // sub={facet:'genre'|'type',val}
+   2026-09-03: the landing category is ARTISTS (Founder). This reverses the 2026-08 decision
+   that made COMMUNITY the default. It is still a product decision rather than a function of
+   how much data exists — the decision simply changed. Order stays Artists · Brands ·
+   Community · Venues. */
+let kind='artist',q='',sub=null; // sub={facet:'genre'|'type',val}
 function initials(n){return (n||'?').split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
 function desc(x){return x.genre||x.category||x.type||'';}
 function card(x){

@@ -46,6 +46,23 @@
    + '#vs-app .vs-card h3{font-size:1rem;font-weight:600;color:#fff;margin:0 0 3px;line-height:1.25}'
    + '#vs-app .vs-card .by{color:#9aa0b0;font-size:.78rem}'
    + '#vs-app .vs-card .vt{margin-top:8px;font:800 .74rem Inter,sans-serif;letter-spacing:.08em;color:var(--vsb)}'
+   /* ── MOBILE: DISCOVER'S RAIL, NOT A GRID (Founder 2026-09-03) ────────────────────────
+      .vs-grid is auto-fill minmax(230px,1fr), which collapses to a single column below
+      ~500px and stacks full-width cards with 4:3 covers - dense, and nothing like the
+      horizontal event rails the rest of KEEPITIL uses. Below 860px it becomes the same
+      component as DISCOVER: a one-row carousel of 220px 2:3 cards with a 10px gap, which
+      is ~1.5 cards at 375px. Desktop keeps its grid. */
+   + '@media(max-width:860px){'
+   +   '#vs-app .vs-grid{display:flex;grid-template-columns:none;gap:10px;overflow-x:auto;'
+   +     'overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;'
+   +     'scrollbar-width:none;-ms-overflow-style:none;padding:2px 0 8px;touch-action:pan-x;'
+   +     'overscroll-behavior-x:contain}'
+   +   '#vs-app .vs-grid::-webkit-scrollbar{display:none}'
+   +   '#vs-app .vs-card{flex:0 0 220px;scroll-snap-align:start}'
+   +   '#vs-app .vs-card .cov{aspect-ratio:2/3}'
+   +   '#vs-app .vs-card .bd{padding:9px 11px 11px}'
+   +   '#vs-app .vs-card h3{font-size:15px;line-height:1.05}'
+   + '}'
    /* COMMUNITIES FOR THIS CREATE — a compact strip on the competition detail. Suggestion
       only: it opens the community, it never joins and it never posts the entry anywhere. */
    + '#vs-app .cd-comm{display:flex;gap:9px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0 6px}'
@@ -1008,7 +1025,16 @@
     });
     var mKeys=Object.keys(months).sort();
     var tKeys=Object.keys(types).sort(function(a,b){ return types[b]-types[a] || a.localeCompare(b); });
-    var shown=rows.filter(ceMatch);
+    /* UPCOMING FIRST (Founder 2026-09-03). The rail took whatever order the query returned,
+       so the first card a phone shows was arbitrary. Soonest-closing first, and anything with
+       no close date sorts last rather than jumping the queue with an empty value. */
+    var shown=rows.filter(ceMatch).slice().sort(function(a,b){
+      var A=a.submissions_close_at||'', B=b.submissions_close_at||'';
+      if(!A && !B) return 0;
+      if(!A) return 1;
+      if(!B) return -1;
+      return A < B ? -1 : A > B ? 1 : 0;
+    });
 
     var html='<div class="ce-bar">'
       + '<div class="ce-row">'

@@ -345,7 +345,14 @@ body.cul-fs .feedcol{scroll-snap-type:y mandatory;overflow-y:auto}
 /* badge + play affordance, moved out of inline styles so the template stays readable */
 .kv-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.72);color:#fff;
   font:800 .58rem Inter,sans-serif;letter-spacing:.09em;padding:3px 9px;border-radius:6px}
-.kil-vid-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+/* ── A PLAY BUTTON MEANS THERE IS SOMETHING TO PLAY (Founder 2026-09-03) ─────────────
+   The affordance lives in the shared template, which every kind clones, and this rule
+   showed it unconditionally — so articles, events and written posts all rendered with a
+   play dot over a still image and read as video. It is now shown only on a card that
+   actually carries a player: kvRenderCard() adds .kil-vid when, and only when, the row has
+   an embed. Inline <video> cards get native controls and do not need it either. */
+.kil-vid-play{display:none}
+.fcard.kil-vid .kil-vid-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .kv-playdot{width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);
   border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center}
 .kv-tri{border-left:15px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
@@ -1203,6 +1210,24 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
             creatorHref:vd.creator_profile_url||vd.source_url||'#',
             meta:(r.source_platform||'')+(vwhen?' \u00b7 '+vwhen:''),
             provider:(vd.provider||'').toLowerCase(), embed:vd.embed_url||'', isShort:isShort };
+
+    } else if(r.kind==='article'){
+      /* ── ARTICLE CARD (Founder 2026-09-03) ────────────────────────────────────────────
+         Articles had no branch at all, so they fell through to the written-post case and
+         inherited a 1/1.02 `contain` frame plus the shared play affordance — which is why
+         they rendered as video with a play button rather than as an article cover.
+         The FEED cover is 2:3 portrait; the article's own hero stays 16:9 and is not
+         touched here. Artist articles are unaffected: they are not kind 'article'. */
+      var ad=r.data||{};
+      var awhen=''; try{var at=new Date(r.created_at); if(!isNaN(at)) awhen=at.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
+      var ahref = ad.url || (ad.slug?('/article/'+ad.slug+'/'):(ad.event_slug?('/event.html?e='+encodeURIComponent(ad.event_slug)):url));
+      n = { pid:r.id, href:ahref, external:false,
+            thumb:ad.cover||ad.img||'/assets/images/blog-default.jpg',
+            aspect:'2/3', fit:'cover',
+            badge:'ARTICLE', badgeBg:'rgba(160,107,255,.95)', badgeFg:'#150a24',
+            title:ad.t||r.title||'Untitled',
+            name:r.author_name||r.profile_slug, avatar:r.author_avatar, creatorHref:url,
+            meta:awhen, caption:ad.html||'' };
 
     } else {
       /* Written post / PIX. */
