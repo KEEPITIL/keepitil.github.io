@@ -4,7 +4,7 @@
  * Self-contained, zero dependencies.
  */
 // Auto-load KEEPITIL Radio Bar on every page
-(function(){if(!window.__kilRadioInit){var s=document.createElement('script');s.src='/assets/js/keepitil-radio.js?v=20260829a';document.head.appendChild(s);}})();
+(function(){if(!window.__kilRadioInit){var s=document.createElement('script');s.src='/assets/js/keepitil-radio.js?v=20260904a';document.head.appendChild(s);}})();
 // Swap nav logo PNGs to extracted transparent X marks + resize (keepitil-radio.js handles this on load; this is a fallback)
 (function(){
   function swapNavLogos(){

@@ -967,7 +967,7 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
 </script>
 <script src="/assets/js/vendor/supabase-js.min.js" defer></script>
 <script src="/kil-seasons.js?v=20260826a"></script>
-<script src="/assets/js/keepitil-radio.js?v=20260829a" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260904a" defer></script>
 <script src="/keepitil-pager.js?v=20260820e" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260902a" defer></script>
 <script>
@@ -1567,7 +1567,13 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
     width:100%!important;height:auto!important;max-height:none!important;flex:0 0 auto!important}
   body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well>img{
     position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-    object-fit:cover!important}
+    max-width:none!important;max-height:none!important;aspect-ratio:auto!important;
+    object-fit:cover!important;object-position:center center!important;margin:0!important}
+  /* No blurred filler behind an article cover. The ::before backdrop exists to dress the
+     letterbox around a landscape CLIP; a cover that fills its frame has no letterbox, and the
+     blur was the "half image, rest is a smear" the physical iPhone showed. */
+  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well::before{display:none!important}
+  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well{background:#0b0b12!important}
   body.cul-m #community-feed>.fcard .kv-body{
     position:absolute;left:0;right:0;bottom:0;z-index:3;background:none;
     background-image:linear-gradient(to top,rgba(0,0,0,.94) 0%,rgba(0,0,0,.74) 52%,rgba(0,0,0,0) 100%);
@@ -2062,6 +2068,17 @@ window.culFetchMedia = culFetchMedia;
     var d = ev.data;
     if(typeof d === 'string'){ try{ d = JSON.parse(d); }catch(e){ return; } }
     if(!d || (d.event !== 'onReady' && d.event !== 'infoDelivery' && d.event !== 'initialDelivery')) return;
+    /* The widget reports its own mute state here. This is the only honest confirmation that an
+       unMute actually took, so the retry ladder stops on it rather than on a guess. */
+    try{
+      if(d.info && typeof d.info.muted === 'boolean'){
+        for(var k=0;k<READY.length;k++){
+          if(READY[k].frame && READY[k].frame.contentWindow === ev.source){
+            READY[k].frame.__kvUnmuted = (d.info.muted === false);
+          }
+        }
+      }
+    }catch(e){}
     for(var i=0;i<READY.length;i++){
       var r = READY[i];
       if(r.frame.contentWindow === ev.source && !r.done){
@@ -2091,20 +2108,37 @@ window.culFetchMedia = culFetchMedia;
      in a cross-origin iframe — and set the volume so the level is already right if and when a
      gesture later makes sound legal. NO unMute here, ever: at this moment there has been no
      gesture in this document, and un-muting would revoke the autoplay grant we just used. */
+  /* ── UNMUTE IS ASSERTED UNTIL THE WIDGET CONFIRMS IT (Founder 2026-09-04) ──────────────
+     The previous version sent ONE unMute 600ms after ready and never checked whether it
+     landed. That is the same fire-and-forget the 'listening' handshake above already had to
+     abandon — the widget frequently ignores a command sent while it is still settling, and a
+     dropped unMute is invisible: the clip keeps playing, silently, forever.
+     This re-asserts on a short ladder and stops as soon as the player reports muted:false via
+     infoDelivery. Nothing about the autoplay contract changes: the player is still mounted
+     with mute=1 in the URL and still starts muted, because that is the only state WebKit will
+     autoplay in a cross-origin iframe. Only the un-muting afterwards is made reliable. */
+  var UNMUTE_AT = [250, 700, 1500, 3000, 5000];
+  function kvAssertSound(frame){
+    if(!frame || frame.__kilDead || !window.__kilSoundOK) return;
+    if(frame.__kvUnmuteRunning) return;
+    frame.__kvUnmuteRunning = 1;
+    UNMUTE_AT.forEach(function(ms){
+      setTimeout(function(){
+        if(frame.__kilDead || frame.__kvUnmuted || !document.contains(frame)) return;
+        ytCmd(frame,'playVideo',[]);
+        ytCmd(frame,'setVolume',[VOLUME]);
+        ytCmd(frame,'unMute',[]);
+      }, ms);
+    });
+  }
   function onReady(frame){
     ytCmd(frame,'mute',[]);
     ytCmd(frame,'playVideo',[]);
     ytCmd(frame,'setVolume',[VOLUME]);
-    /* If a gesture ALREADY happened earlier in this page load, sound is legal now — and
-       un-muting a player that is already running is permitted once the document has been
-       interacted with. Deferred one tick so the muted play is genuinely under way first. */
-    if(window.__kilSoundOK){
-      setTimeout(function(){
-        if(frame.__kilDead || !document.contains(frame)) return;
-        ytCmd(frame,'setVolume',[VOLUME]);
-        ytCmd(frame,'unMute',[]);
-      }, 600);
-    }
+    /* Armed already? Then this card — and every card after it — comes up audible on its own,
+       which is the behaviour that was missing: sound survived only for the clip that happened
+       to be playing when the visitor first touched the page. */
+    kvAssertSound(frame);
   }
 
   /* Sound becomes legal on the first real gesture. Record it, unmute whatever is playing, and
@@ -2125,6 +2159,7 @@ window.culFetchMedia = culFetchMedia;
       ytCmd(f,'playVideo',[]);
       ytCmd(f,'setVolume',[VOLUME]);
       ytCmd(f,'unMute',[]);
+      kvAssertSound(f);
     }
     /* Uploaded clips are plain <video>, not the YouTube widget, so they need unmuting directly. */
     document.querySelectorAll('.fcard video').forEach(function(v){
@@ -2400,6 +2435,15 @@ function culResolveFilters(){
 .fx a{color:var(--brand,#00b4ff)}
 .fx ul,.fx ol{margin:0 0 9px 18px}.fx li{margin:0 0 4px}
 /* inline comments inside the post */
+
+/* ── MOBILE SECTION RHYTHM (Founder 2026-09-04) ────────────────────────────────────────
+   Tighter vertical rhythm between stacked sections so scrolling is continuous. The gap is
+   reduced, not removed: a slice of backdrop still separates one section from the next. */
+@media(max-width:860px){
+  .merge{margin:10px auto 16px}
+  .feedhd{margin-bottom:8px}
+  .cul-typebar{padding-top:6px;padding-bottom:6px}
+}
 </style>
 <script>
 /* Culture feed — shared Supabase backend + login-gated interactions (look but can't touch). */

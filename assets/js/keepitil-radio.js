@@ -529,14 +529,39 @@
   function requestWakeLock(){if(!('wakeLock'in navigator))return;navigator.wakeLock.request('screen').then(function(l){wakeLock=l;l.addEventListener('release',function(){wakeLock=null;});}).catch(function(){});}
   requestWakeLock();
 
-  // ── 24/7 keepalive — resume if browser pauses ────────────────────────────
+  /* ── RADIO STOPS WHEN KEEPITIL LEAVES THE FOREGROUND (Founder 2026-09-04) ──────────────
+     This block used to be a "24/7 keepalive": a 30s interval that called play() whenever the
+     widget reported paused, plus an auto-resume on every return to visible. Between them the
+     radio was un-pausable from outside — backgrounding the app paused it and the interval
+     started it again seconds later, which is why audio kept going after the visitor left.
+
+     The policy is now: hidden means stop, and coming back does NOT resume. The station and
+     track are left exactly as they were, so resuming is one deliberate tap and lands where the
+     visitor was — but it takes that tap.
+
+     ⚠ pagehide, not unload: iOS Safari does not reliably fire unload, and on a bfcache restore
+     unload never runs at all. The keepalive is also gated on !document.hidden so a backgrounded
+     tab can never be restarted by the watchdog. */
+  function kilRadioSuspend(){
+    try{ if(widget && widgetReady) widget.pause(); }catch(e){}
+    goOff();
+    try{ if(wakeLock && wakeLock.release){ wakeLock.release(); wakeLock=null; } }catch(e){}
+  }
   document.addEventListener('visibilitychange',function(){
-    if(document.visibilityState==='visible'){
-      requestWakeLock();
-      if(widget&&widgetReady&&interacted&&!muted){setTimeout(function(){widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},500);}
-    }
+    if(document.hidden){ kilRadioSuspend(); return; }
+    /* Visible again: take the wake lock back for the screen, but do NOT call play(). Whether
+       music resumes is the visitor's decision, not the page's. */
+    requestWakeLock();
   });
-  setInterval(function(){if(!widget||!widgetReady||!interacted||muted)return;widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});},30000);
+  window.addEventListener('pagehide', kilRadioSuspend);
+  /* Watchdog for a widget that drops out WHILE the visitor is watching. Never in the
+     background — that is what made the radio unstoppable. */
+  setInterval(function(){
+    if(document.hidden) return;
+    if(!widget||!widgetReady||!interacted||muted)return;
+    if(!playing) return;   /* only nurse a session the visitor actually started */
+    widget.isPaused(function(p){if(p){widget.setVolume(getVol());widget.play();}});
+  },30000);
   // ── 10-second Supabase radio state poll ──────────────────────────────────
   setInterval(function(){if(widgetReady)fetchRadioState(applyRadioState);},10000);
 

@@ -388,6 +388,10 @@
    +     'touch-action:pan-x;overscroll-behavior-x:contain}'
    +   '#vs-app .ce-grid::-webkit-scrollbar{display:none}'
    +   '#vs-app .ce-grid > .ce-fly{flex:0 0 220px;scroll-snap-align:start}'
+   /* Less backdrop between hero, filter bar and rail (Founder 2026-09-04). The seam stays. */
+   +   '#vs-app .ce-hero{padding-bottom:8px}'
+   +   '#vs-app .ce-bar{margin:0 0 8px}'
+   +   '#vs-app .ce-stats{margin:6px 0}'
    + '}'
    + '#vs-app .ce-fly{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;cursor:pointer;'
    +   'background:#15131f center/cover no-repeat;border:1px solid rgba(255,255,255,.08);'

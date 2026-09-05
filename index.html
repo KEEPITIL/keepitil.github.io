@@ -2950,7 +2950,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
 </script>
 
 <script src="/kil-seasons.js?v=20260826a"></script>
-<script src="/assets/js/keepitil-radio.js?v=20260829a" defer></script>
+<script src="/assets/js/keepitil-radio.js?v=20260904a" defer></script>
 <script>
 /* Inline KEEPITIL-X save icon (staging preview self-contained; /keepitil-save.js not yet deployed) */
 (function(){
@@ -3257,7 +3257,31 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   #kilBgPick .kbp-item .chk{color:#00b4ff;font-weight:800;opacity:0}
   #kilBgPick .kbp-item.on .chk{opacity:1}
   #kilBgPick .kbp-item.alt{flex:1;justify-content:center;background:rgba(255,255,255,.09);font-weight:700}
-  </style>
+  
+/* ── MOBILE: MONTH RAIL STARTS AT THE LEFT EDGE (Founder 2026-09-04) ───────────────────
+   #evx-months lives inside .evx-locrow, to the RIGHT of the location dropdown, so the first
+   month chip began wherever that button ended — the offset the phone shows. On mobile the row
+   becomes a column: the dropdown keeps its own line and the month rail starts at the row's own
+   left padding, the same left edge as the genre and subfilter rows. The rail keeps its own
+   horizontal scroll, and no filter logic changes.
+   The chips also stop being flex:1 1 0 — distributing them across the width is what made a
+   short list read as centred. */
+@media(max-width:860px){
+  #evx .evx-locrow{flex-direction:column;align-items:stretch;gap:6px;overflow:visible;}
+  #evx .evx-locrow > .evx-catdd{align-self:flex-start;}
+  #evx .evx-monthwrap{width:100%;margin-left:0;padding-left:0;justify-content:flex-start;}
+  #evx #evx-months .evx-mo{flex:0 0 auto;min-width:0;}
+
+  /* ── TIGHTER AGAIN (Founder 2026-09-04): day groups were still showing too much backdrop. */
+  #evx .evx-day{margin-top:16px;}
+  #evx .evx-sec{padding:10px 0 0;}
+  #evx .evx-hd{margin:0 10px 8px;}
+  #evx .evx-row{padding:2px 10px 6px;}
+  #evx .evx-daycol .evx-row{padding:2px 0 5px;}
+  #evx .evx-daycol{padding-top:7px;}
+  #evx{padding:6px 0 54px;}
+}
+</style>
   <script>
   (function(){
     function isHome(){ var p=location.pathname; return p==='/'||p===''||/\/v31\/(index\.html)?$/.test(p); }
