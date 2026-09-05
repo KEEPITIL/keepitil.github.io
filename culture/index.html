@@ -2765,8 +2765,21 @@ function culResolveFilters(){
     }
     function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
-    function paint(){
+    /* ⚠ REPAINT ONLY ON REAL CHANGE (Founder 2026-09-05).
+       The rail used to rewrite its innerHTML on a 1.2s timer for 24s. Culture watches the
+       WHOLE document — `new MutationObserver(scan).observe(document.documentElement,
+       {childList:true, subtree:true})` — and scan() runs two full-document querySelectorAll
+       passes. So every rail repaint fired a batch of childList mutations across ~4000 nodes
+       and dragged the video scanner through the entire document with it, repeatedly. That is
+       what froze the desktop tab; it was not iframe count (measured: one iframe, the
+       one-player rule was already working).
+       The rail now rewrites only when the data or the search term actually changed. */
+    var lastSig='';
+    function paint(force){
       var term=(search&&search.value||'').trim().toLowerCase();
+      var sig=(window.__culAllRows||[]).length+':'+(window.__culMediaRows||[]).length+':'+term;
+      if(!force && sig===lastSig) return;
+      lastSig=sig;
       var all=rows().filter(function(r){
         if(!term) return true;
         return (titleOf(r)+' '+whoOf(r)+' '+kindOf(r)).toLowerCase().indexOf(term)!==-1;
@@ -2783,11 +2796,20 @@ function culResolveFilters(){
       }).join('');
     }
 
-    if(search) search.addEventListener('input', paint);
-    paint();
+    if(search) search.addEventListener('input', function(){ paint(true); });
+    paint(true);
     /* The feed paints twice (text, then media); repaint the rail when rows arrive. */
-    var tries=0;
-    var poll=setInterval(function(){ adoptTypebar(); paint(); if(++tries>20) clearInterval(poll); }, 1200);
+    /* Poll only until the data has arrived and settled, then stop entirely. paint() is a
+       no-op when nothing changed, so a quiet tick costs one string compare, not a repaint. */
+    var tries=0, settled=0;
+    var poll=setInterval(function(){
+      adoptTypebar();
+      var before=lastSig;
+      paint();
+      settled = (lastSig===before) ? settled+1 : 0;
+      var haveData=(window.__culAllRows||[]).length || (window.__culMediaRows||[]).length;
+      if((haveData && settled>=3) || ++tries>20) clearInterval(poll);
+    }, 1200);
   });
 })();
 </script>
