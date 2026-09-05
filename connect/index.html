@@ -356,6 +356,14 @@ body.comm-on .controls-row .search,body.comm-on #count{display:none}
 .card .loc{font-size:.7rem;color:var(--ink3);margin-top:7px;}
 .card .ig{margin-top:8px;font-size:.7rem;color:var(--cyan);}
 
+
+/* ⚠ THE GRID MUST NOT SIZE TO ITS CONTENT (regression fix, 2026-09-03).
+   Making the card's children absolute left #grid with zero in-flow content. body is
+   display:flex on mobile, so #grid is a flex item with min-width:auto — it shrank to that
+   content and computed to 32px wide, which made every track 2px and every card 2x3px.
+   Same trap the note at the top of this file describes. The grid takes its width from the
+   row, never from what is inside it. */
+#grid,.grid{width:100%;min-width:0;box-sizing:border-box}
 /* ── FULL-BLEED 2:3 CARDS (Founder 2026-09-03) ────────────────────────────────────────
    The card was image + a name strip below it, so the media only ever filled the part of the
    tile the strip left over — a partial-image layout with an empty band under it whenever the
