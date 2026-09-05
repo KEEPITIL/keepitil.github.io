@@ -2433,7 +2433,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260905a" defer></script>
+<script src="/keepitil-shell.js?v=20260905b" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
@@ -2460,6 +2460,50 @@ function culResolveFilters(){
   .merge{margin:10px auto 16px}
   .feedhd{margin-bottom:8px}
   .cul-typebar{padding-top:6px;padding-bottom:6px}
+}
+
+/* ── CULTURE DESKTOP: MAIN COLUMN + DISCOVERY RAIL (Founder 2026-09-05) ───────────────
+   Desktop was the mobile column centred at 600px with a full-width filter bar on top, so a
+   1440px screen showed one narrow strip of content and a lot of backdrop. The structure is
+   now a large primary content area with a discovery rail beside it: filters, search and a
+   scannable list of what else there is to watch or read.
+   Everything here is scoped to >=861px. The mobile card geometry, the snap pager and the
+   full-bleed frame are untouched — this rule set does not exist below 861px. */
+@media(min-width:861px){
+  .merge{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;
+    max-width:1360px;margin:20px auto 44px;padding:0 24px;align-items:start}
+  .feedcol{min-width:0}
+  #community-feed{max-width:none}
+
+  #culRail{position:sticky;top:88px;align-self:start;display:flex;flex-direction:column;gap:14px;
+    max-height:calc(100vh - 110px);min-width:0}
+  #culRail .cr-search{display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:12px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+  #culRail .cr-search input{flex:1;min-width:0;background:none;border:0;outline:none;color:#f1eefb;
+    font-size:.92rem}
+  #culRail .cr-search input::placeholder{color:#8c86a8}
+  /* The existing type filters are MOVED here, not rebuilt, so their handlers and the
+     ARTICLE/CREATE/VIDEO classification stay exactly as they are. */
+  #culRail .cul-typebar{flex-wrap:wrap;overflow:visible;padding:0;margin:0}
+  /* The moved control keeps its own look; only its box changes. */
+  #culRail #culTypeBar{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;position:static}
+  #culRail #culTypeBar button{flex:0 0 auto}
+  #culRail .cr-h{font:800 .7rem/1 var(--fh,Inter),sans-serif;letter-spacing:.16em;
+    text-transform:uppercase;color:#8c86a8;margin:2px 0 -4px}
+  #culRail .cr-list{overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:8px;
+    padding-right:4px;scrollbar-width:thin}
+  #culRail .cr-item{display:grid;grid-template-columns:104px minmax(0,1fr);gap:10px;
+    padding:7px;border-radius:11px;text-decoration:none;color:inherit;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+  #culRail .cr-item:hover{background:rgba(255,255,255,.08);border-color:rgba(160,107,255,.45)}
+  #culRail .cr-thumb{width:104px;aspect-ratio:16/9;border-radius:8px;object-fit:cover;
+    background:#0d0d16;display:block}
+  #culRail .cr-kind{font:800 .58rem/1 var(--fh,Inter),sans-serif;letter-spacing:.12em;
+    text-transform:uppercase;color:#a06bff}
+  #culRail .cr-title{font-size:.84rem;line-height:1.25;color:#f1eefb;margin:3px 0 2px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #culRail .cr-meta{font-size:.72rem;color:#8c86a8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #culRail .cr-empty{color:#8c86a8;font-size:.84rem;padding:10px 2px}
 }
 </style>
 <script>
@@ -2639,6 +2683,103 @@ function culResolveFilters(){
   tick();
   setInterval(tick,500);
   window.addEventListener('resize',tick);
+})();
+</script>
+
+<script>
+/* ── CULTURE DESKTOP DISCOVERY RAIL (Founder 2026-09-05) ────────────────────────────────
+   Desktop only, and it adds no data path: the list is built from the rows Culture has
+   already loaded (__culAllRows / __culMediaRows), and the type filters are the SAME nodes
+   moved into the rail, so ARTICLE / CREATE / VIDEO classification, voting, comments and
+   playback are untouched. Below 861px this never runs and the mobile pager is unchanged. */
+(function(){
+  function desktop(){ try{ return window.matchMedia('(min-width:861px)').matches; }catch(e){ return false; } }
+  if(!desktop()) return;
+
+  function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded',fn); }
+
+  ready(function(){
+    var merge=document.querySelector('.merge'); if(!merge) return;
+    if(document.getElementById('culRail')) return;
+
+    var rail=document.createElement('aside');
+    rail.id='culRail';
+    rail.innerHTML=
+      '<div class="cr-search">'
+      + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8c86a8" stroke-width="2">'
+      + '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
+      + '<input id="culSearch" type="search" placeholder="Search Culture…" autocomplete="off"/></div>'
+      + '<div class="cr-h">Browse</div>'
+      + '<div class="cr-h" id="cr-list-h">Up next</div>'
+      + '<div class="cr-list" id="culRailList"></div>';
+    merge.appendChild(rail);
+
+    /* MOVE the existing typebar in. A copy would need its own handlers and would drift.
+       It is rendered by Culture's own JS after DOMContentLoaded, so this keeps looking for it
+       rather than assuming it is already there — the first attempt found nothing. */
+    function adoptTypebar(){
+      /* #culTypeBar is the real ARTICLE / CREATE / VIDEO control — three markup buttons
+         already wired to setCulContentType(). Moving the node keeps that wiring and the
+         culContentType vocabulary exactly as they are; nothing is rebuilt. */
+      var bar=document.getElementById('culTypeBar');
+      if(!bar || bar.parentElement===rail) return !!bar;
+      rail.insertBefore(bar, document.getElementById('cr-list-h'));
+      return true;
+    }
+    adoptTypebar();
+
+    var listEl=document.getElementById('culRailList');
+    var search=document.getElementById('culSearch');
+
+    function rows(){
+      var a=(window.__culAllRows||[]).slice();
+      var m=(window.__culMediaRows||[]).slice();
+      return a.concat(m);
+    }
+    function kindOf(r){
+      if(r.kind==='article') return 'Article';
+      if(r.kind==='create'||r.kind==='create_entry') return 'Create';
+      if(r.kind==='video'||r.kind==='pixle'||r.media_kind==='video') return 'Video';
+      if(r.kind==='event') return 'Event';
+      return 'Post';
+    }
+    function titleOf(r){ var d=r.data||{}; return r.title||d.t||d.title||'Untitled'; }
+    function thumbOf(r){ var d=r.data||{}; return d.cover||d.img||r.thumbnail_url||d.thumbnail_url||'/assets/images/blog-default.jpg'; }
+    function whenOf(r){ try{ var t=new Date(r.published_at||r.created_at); if(!isNaN(t)) return t.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}); }catch(e){} return ''; }
+    function whoOf(r){ return r.author_name||r.creator_name||r.profile_slug||''; }
+    function hrefOf(r){
+      var d=r.data||{};
+      if(r.kind==='article') return d.url||(d.slug?('/article/'+d.slug+'/'):'#');
+      if(r.source_url||d.source_url) return r.source_url||d.source_url;
+      if(r.vs_entry_id) return '/create/?view=entry&e='+r.vs_entry_id;
+      return r.profile_slug?('/profile.html?slug='+encodeURIComponent(r.profile_slug)):'#';
+    }
+    function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+    function paint(){
+      var term=(search&&search.value||'').trim().toLowerCase();
+      var all=rows().filter(function(r){
+        if(!term) return true;
+        return (titleOf(r)+' '+whoOf(r)+' '+kindOf(r)).toLowerCase().indexOf(term)!==-1;
+      }).slice(0,40);
+      if(!all.length){ listEl.innerHTML='<div class="cr-empty">'+(term?'Nothing matches that yet.':'Loading…')+'</div>'; return; }
+      listEl.innerHTML=all.map(function(r){
+        var ext=/^https?:/.test(hrefOf(r));
+        return '<a class="cr-item" href="'+esc(hrefOf(r))+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'
+          + '<img class="cr-thumb" loading="lazy" alt="" src="'+esc(thumbOf(r))+'" '
+          + 'onerror="this.src=\'/assets/images/blog-default.jpg\'"/>'
+          + '<div><div class="cr-kind">'+esc(kindOf(r))+'</div>'
+          + '<div class="cr-title">'+esc(titleOf(r))+'</div>'
+          + '<div class="cr-meta">'+esc([whoOf(r),whenOf(r)].filter(Boolean).join(' · '))+'</div></div></a>';
+      }).join('');
+    }
+
+    if(search) search.addEventListener('input', paint);
+    paint();
+    /* The feed paints twice (text, then media); repaint the rail when rows arrive. */
+    var tries=0;
+    var poll=setInterval(function(){ adoptTypebar(); paint(); if(++tries>20) clearInterval(poll); }, 1200);
+  });
 })();
 </script>
 </body></html>

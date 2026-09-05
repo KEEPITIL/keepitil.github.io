@@ -3204,7 +3204,7 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   else setTimeout(run,500);
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260905a" defer></script>
+<script src="/keepitil-shell.js?v=20260905b" defer></script>
   <!-- Create FAB removed (Founder 2026-07-17): linked to a retired v3 create page (wrong page). Same fix as V3 home. -->
   <!-- Founder fixes 2026-07-12: (the old "force chat FAB above the Create FAB" rule is REMOVED — the Create FAB
        no longer exists, and its bottom:132px was overriding the chat-FAB placement below) + bulletproof hero typewriter -->
@@ -3298,6 +3298,29 @@ function boot(){fyLoad();initLocDD();buildMonths();buildGenres();buildForYou();b
   #evx .evx-daycol .evx-row{padding:2px 0 5px;}
   #evx .evx-daycol{padding-top:7px;}
   #evx{padding:6px 0 54px;}
+}
+
+/* ── DESKTOP SPACING SCALE (Founder 2026-09-05) ────────────────────────────────────────
+   One scale instead of per-page numbers. Sections were 30px top with 46px between day
+   groups, so a desktop scroll crossed wide bands of backdrop between every block. The
+   variables are the whole system; a page that needs to differ overrides the variable, not
+   the rule. Mobile is untouched — it has its own rhythm, already tuned. */
+:root{--kil-sec-gap:18px;--kil-group-gap:26px;--kil-head-gap:12px;}
+@media(min-width:861px){
+  #evx .evx-sec{padding:var(--kil-sec-gap) 0 0;}
+  #evx .evx-hd{margin:0 24px var(--kil-head-gap);}
+  #evx .evx-day{margin-top:var(--kil-group-gap);}
+  #evx .evx-row{padding:4px 24px 10px;}
+  #evx{padding:8px 0 48px;}
+
+  /* ── THE DATE READS AS ONE HEADING ON DESKTOP TOO ─────────────────────────────────
+     Same correction as mobile: the month was secondary-sized beside a large day number and
+     sat off the date's left axis. The column is left-aligned and the month matches the
+     day-of-week, so day / weekday / month read as one row. */
+  #evx .evx-datecol{text-align:left;}
+  #evx .evx-daynum{text-align:left;}
+  #evx .evx-daydow,#evx .evx-daymo{font-size:1.15rem;font-weight:800;letter-spacing:.12em;
+    color:var(--green);text-align:left;margin-top:2px;}
 }
 </style>
   <script>

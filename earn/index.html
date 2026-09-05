@@ -141,15 +141,21 @@ a{color:inherit;text-decoration:none}
 }
 /* section */
 section{padding:30px 0;border-top:1px solid var(--brd)}
-.sh{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+/* align-items:center, not baseline: INFO is a control, and baseline alignment against a
+   1.9rem heading pushed it off the row's optical centre (Founder 2026-09-05). */
+.sh{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 /* ── SECTION ABOUT (Founder 2026-08-31 §5-§7; corrected 2026-09-01) ──────────────────────
    Every section's explanation is folded behind that section's INFO button, at EVERY width and
    under every filter. There is no state in which the copy sits open on the page: INFO is the
    only way to read it, so it is never on screen twice. */
-.sh .hye-info{margin-left:auto;flex:0 0 auto;height:28px;padding:0 12px;display:inline-flex;
+/* INFO reads at the row's own text size and gets its touch target from PADDING, not from
+   type scale (Founder 2026-09-05). It was .66rem inside a fixed 28px pill, which is what made
+   a small label look like an oversized button. Far right via margin-left:auto, vertically
+   centred by the row above, identical on desktop and mobile. */
+.sh .hye-info{margin-left:auto;flex:0 0 auto;min-height:32px;padding:6px 12px;display:inline-flex;
   align-items:center;justify-content:center;border-radius:8px;cursor:pointer;
-  border:1px solid rgba(0,224,164,.38);background:rgba(0,224,164,.10);color:#7ff5d0;
-  font:800 .66rem/1 var(--fh,Inter),sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  border:1px solid rgba(0,224,164,.32);background:rgba(0,224,164,.08);color:#7ff5d0;
+  font:800 .88rem/1 var(--fh,Inter),sans-serif;letter-spacing:.1em;text-transform:uppercase;
   transition:background .15s,border-color .15s,color .15s;white-space:nowrap}
 .sh .hye-info:hover,.sh .hye-info:active{background:rgba(0,224,164,.2);border-color:rgba(0,224,164,.65);color:#eafff7}
 .sec-about{border:1px solid var(--brd);background:rgba(255,255,255,.035);border-radius:14px;
@@ -762,6 +768,12 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
     text-transform:uppercase;opacity:0;transition:opacity .9s ease;pointer-events:none}
   #radSwToast.on{opacity:1;transition:opacity .12s ease}
 }
+
+@media(min-width:861px){
+  /* Same desktop scale as DISCOVER and CREATE (Founder 2026-09-05). */
+  section{padding:var(--kil-sec-gap,18px) 0;}
+  .sh{margin-bottom:var(--kil-head-gap,12px);}
+}
 </style>
 <script>
 /* MOBILE RADIO enhancer — additive, ≤860px only; returns early above that. */
@@ -832,7 +844,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260905a" defer></script>
+<script src="/keepitil-shell.js?v=20260905b" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260826a"></script>
 <!-- persistent synchronized radio bar -->

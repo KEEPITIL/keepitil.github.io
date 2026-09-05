@@ -562,7 +562,7 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
              deliberately not repeated in the links row), so renaming the destination means
              renaming this text. It read KEEPITIL, which is why the footer said Discovery and the
              header still said KEEPITIL. The logo mark to its left still carries the brand. */
-          +'<a href="/" class="v3s-brandtext'+(/^\/((index|v31)(\.html)?)?$/.test(location.pathname)?' on':'')+'">DISCOVERY</a>'
+          +'<a href="/" class="v3s-brandtext'+(/^\/((index|v31)(\.html)?)?$/.test(location.pathname)?' on':'')+'">DISCOVER</a>'
           +'<div class="v3t-pop" id="v3t-pop">'+swatches+'</div>'
         +'</div>'
         +'<div class="v3s-links">'+links+'</div>'

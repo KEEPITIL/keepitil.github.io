@@ -136,7 +136,10 @@ body.comm-on .subfilters{display:none}
 /* Community brings its own search, scoped to communities. Leaving the directory's
    'name, city or genre' box above it puts two search fields on screen that do different
    things. The count belongs to the directory too. */
-body.comm-on .controls-row .search,body.comm-on #count{display:none}
+/* Community keeps the shared search (Founder 2026-09-05). It used to hide the one control
+   bar and render a second, differently-styled search inside the pane, so CONNECT had two
+   search experiences depending on which tab you were on. One bar, four filters. */
+body.comm-on #count{display:none}
 /* ⚠ body ON THIS PAGE IS display:flex, so a bare max-width leaves the pane sized by its
    CONTENT as a flex item — measured 722px inside a 375px viewport, which is horizontal
    overflow on every phone. width:100% and min-width:0 are what actually bind it to the
@@ -443,6 +446,29 @@ body>*{min-width:0}
   .subfilters::-webkit-scrollbar{display:none}
   .controls-row .count,#count{display:none;}
 }
+
+/* ── DESKTOP CONNECT (Founder 2026-09-05) ─────────────────────────────────────────────
+   ARTISTS has no separate GENRE band on desktop: the four tabs plus one search are the
+   control surface, and a second filter strip under them was a row that mostly repeated what
+   the cards already show. Other kinds keep their contextual chips. */
+@media(min-width:861px){
+  body[data-kind="artist"] .subfilters{display:none!important}
+
+  /* ── COMMUNITY CARDS ARE CARDS, NOT TEXT ON A BACKDROP ──────────────────────────────
+     Frosted translucent white over the green field: enough opacity to carry body text at
+     readable contrast, still clearly KEEPITIL rather than a light-theme panel. Grid rhythm,
+     one gutter, and a real hierarchy between title, description and meta. */
+  .comm-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+  .comm-card{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    padding:16px 18px;border-radius:16px;gap:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.28)}
+  .comm-card:hover{background:rgba(255,255,255,.13);border-color:rgba(0,224,164,.5)}
+  .comm-card .comm-nm{font-size:1.06rem;font-weight:800;letter-spacing:.01em;color:#fff}
+  .comm-card .comm-desc{color:rgba(255,255,255,.82);font-size:.86rem;line-height:1.45}
+  .comm-card .comm-meta{color:rgba(255,255,255,.66);font-size:.76rem}
+  #commPane{max-width:1120px;margin-left:auto;margin-right:auto}
+}
 </style>
 <link rel="canonical" href="https://keepitil.com/connect/"/>
   <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
@@ -601,6 +627,8 @@ function render(){
   /* COMMUNITY takes over the main area; the directory grid is not a fit for it and the two
      must not both be on screen. body.comm-on is the single switch. */
   document.body.classList.toggle('comm-on', kind==='community');
+  /* Published so CSS can scope per-filter rules without a second switch. */
+  try{ document.body.dataset.kind = kind; }catch(e){}
   if(kind==='community'){
     document.getElementById('count').textContent='';
     if(window.__commActivate) window.__commActivate();
@@ -635,7 +663,12 @@ document.getElementById('seg').addEventListener('click',e=>{const b=e.target.clo
    markup, so the two cannot drift apart. */
 [...document.getElementById('seg').children].forEach(c=>c.classList.toggle('on',c.dataset.k===kind));
 document.getElementById('subs').addEventListener('click',e=>{const c=e.target.closest('.chip');if(!c)return;const f=c.dataset.f,v=c.dataset.v;sub=(sub&&sub.facet===f&&sub.val===v)?null:{facet:f,val:v};renderSubs();render();});
-document.getElementById('q').addEventListener('input',e=>{q=e.target.value;render();});
+document.getElementById('q').addEventListener('input',e=>{
+  q=e.target.value;
+  /* One box, two lists: Community filters its own rows, everything else filters the grid. */
+  if(kind==='community' && window.__commSetQuery){ window.__commSetQuery(q); return; }
+  render();
+});
 renderSubs();render();
 /* ---- LIVE DIRECTORY: pull from Google Sheet master (1UU2). Founder edits sheet -> site reflects on refresh. Falls back to built-in roster if sheet unreachable. ---- */
 (function(){
@@ -722,7 +755,7 @@ renderSubs();render();
 <script src="/kil-seasons.js?v=20260826a"></script>
 <script src="/assets/js/keepitil-radio.js?v=20260904a" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260905a" defer></script>
-<script src="/keepitil-shell.js?v=20260905a" defer></script>
+<script src="/keepitil-shell.js?v=20260905b" defer></script>
 <!-- COMMUNITY: its own tag. The module was briefly placed INSIDE the shell's
      <script src> element, where inline content is ignored by the browser, so it
      silently never ran. -->
@@ -826,12 +859,8 @@ renderSubs();render();
       body='<div class="comm-cards">'+rows.map(cardHtml).join('')+'</div>';
     }
     pane.innerHTML=
-      '<div class="comm-search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b6588" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
-      +'<input id="commQ" type="text" placeholder="Search communities…" value="'+esc(S.q)+'"/></div>'
-      +chips+body;
-    var qi=document.getElementById('commQ');
-    if(qi) qi.addEventListener('input',function(){ S.q=this.value; var at=this.selectionStart; renderList();
-      var n=document.getElementById('commQ'); if(n){ n.focus(); try{n.setSelectionRange(at,at);}catch(e){} } });
+      chips+body;
+    /* The shared #q drives this list now; no second input to keep in sync. */
   }
   function cardHtml(c){
     var joined=!!S.mine[c.id];
@@ -1261,6 +1290,12 @@ renderSubs();render();
   }
   window.__commActivate=function(){
     if(S.view==='detail') renderDetail(); else renderList();
+  };
+  /* The single CONNECT search bar drives the community list (Founder 2026-09-05). Exposed
+     rather than duplicated, so there is one input and one source of the query. */
+  window.__commSetQuery=function(value){
+    S.q = value || '';
+    if(S.view!=='detail') renderList();
   };
   boot(0);
 })();

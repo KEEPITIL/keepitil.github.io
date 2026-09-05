@@ -375,6 +375,13 @@
       1px white-8% border, lift-on-hover, and the same four-stop bottom shade. Mobile drops
       to 220px / radius 15 exactly as #evx does at 860px. Kept in sync by hand — see ceCard(). */
    + '#vs-app .ce-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:15px}'
+   /* Desktop rhythm on the shared scale (Founder 2026-09-05). */
+   + '@media(min-width:861px){'
+   +   '#vs-app .ce-hero{padding:6px 0 18px}'
+   +   '#vs-app .ce-bar{margin:0 0 18px}'
+   +   '#vs-app .ce-stats{margin:10px 0}'
+   +   '#vs-app .ce-grid{gap:15px}'
+   + '}'
    /* ── MOBILE: DISCOVER'S RAIL (Founder 2026-09-03) ────────────────────────────────────
       .ce-grid is what CREATE actually renders. It was auto-fill minmax(160px,1fr), which at
       375-402px gives a TWO-COLUMN grid of 180px cards - the dense multi-column stack the
