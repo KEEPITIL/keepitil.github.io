@@ -1562,17 +1562,22 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
      0.493) instead of 2:3. .kv-profile already means "not a clip, take the house frame"; the
      plain .fcard.kv-profile rule loses to this body.cul-m chain, so it is restated with the
      specificity to win. Video and Short cards are untouched. */
-  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well{
+  body.cul-m #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well{
     position:relative!important;inset:auto!important;aspect-ratio:2/3!important;
     width:100%!important;height:auto!important;max-height:none!important;flex:0 0 auto!important}
-  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well>img{
+  /* ⚠ SPECIFICITY TIE, BROKEN DELIBERATELY. The :not(.kv-short) rule further down scores
+     exactly the same (1 id, 4 classes, 2 types) and, being later, was winning the tie and
+     putting object-fit:contain back on an article cover - image box full size, image content
+     letterboxed inside it. Repeating .kv-profile costs one class and settles it for good;
+     moving the rule below its rival would work today and break the next time either moves. */
+  body.cul-m #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well>img{
     position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
     max-width:none!important;max-height:none!important;aspect-ratio:auto!important;
     object-fit:cover!important;object-position:center center!important;margin:0!important}
   /* No blurred filler behind an article cover. The ::before backdrop exists to dress the
      letterbox around a landscape CLIP; a cover that fills its frame has no letterbox, and the
      blur was the "half image, rest is a smear" the physical iPhone showed. */
-  body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well::before{display:none!important}
+  body.cul-m #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well::before{display:none!important}
   body.cul-m #community-feed>.fcard.kv-profile .kil-vid-well{background:#0b0b12!important}
   body.cul-m #community-feed>.fcard .kv-body{
     position:absolute;left:0;right:0;bottom:0;z-index:3;background:none;
