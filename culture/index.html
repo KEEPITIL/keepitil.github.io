@@ -2952,7 +2952,9 @@ function culResolveFilters(){
     btn.setAttribute('aria-expanded','false');
     well.appendChild(btn);
 
-    var loaded=!!html;
+    /* The excerpt is a PLACEHOLDER, not the article, so its presence must not count as
+       loaded — that is why the first version never fetched anything. */
+    var loaded=false;
     btn.addEventListener('click', function(e){
       e.preventDefault(); e.stopPropagation();
       var open=card.classList.toggle('kv-open');

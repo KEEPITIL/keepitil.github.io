@@ -29,7 +29,7 @@
 var VERSION = 'kil-pwa-v75-20260905h';
 var PAGES = 'kil-pages-v42';
 var ASSETS = 'kil-assets-v41';
-var CODE = 'kil-code-v73';
+var CODE = 'kil-code-v74';
 var KEEP = [VERSION, PAGES, ASSETS, CODE];
 var PAGE_LIMIT = 40;
 var PRECACHE = [
