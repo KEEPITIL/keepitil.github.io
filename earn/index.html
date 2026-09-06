@@ -1638,11 +1638,21 @@ radStats();
 </script>
 
 <script>
-/* ── EARN MOBILE RADIO/SEARCH SWAP (Founder 2026-09-05) ─────────────────────────────────
+/* ── EARN MOBILE RADIO/SEARCH SWAP (Founder 2026-09-05, rebuilt) ───────────────────────
    Mobile only. Moves the ONE existing #krBar node between its section and the search slot;
    it never builds a second bar, so radio state and the single shell player are untouched.
-   Hysteresis on purpose: a single switch point makes the bar flip every frame while the
-   visitor rests near it. */
+
+   TRIGGER IS ELEMENT COLLISION, NOT scrollY. The previous version fired at a fixed
+   scrollY (in 260 / out 170), which had nothing to do with where the RADIO section
+   actually was: any change to the content above it moved the real collision point while
+   the trigger stayed put. The bar now swaps at the moment its own home position physically
+   reaches the search row.
+
+   THE SENTINEL IS LOAD-BEARING. When the bar leaves its section, that section collapses by
+   the bar's height, which pushes the home position back down past the trigger line and
+   swaps it straight back out - an oscillation every frame. A spacer of exactly the bar's
+   height holds the gap open, so the measured home position means the same thing in both
+   states. */
 (function(){
   if(!window.matchMedia || !window.matchMedia('(max-width:860px)').matches) return;
   function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded',fn); }
@@ -1651,24 +1661,50 @@ radStats();
     var row=document.querySelector('.controls-row');
     var home=bar&&bar.parentElement;
     if(!bar||!row||!home) return;
-    var IN=260, OUT=170, inRow=false;      /* 90px dead band */
+
+    /* The line the bar collides with is the bottom of the SEARCH control, not of the row:
+       the row itself grows once the bar is appended to it, so its own bottom would move
+       under us and change the very threshold we are testing. */
+    var searchEl=document.getElementById('radQ') || row.querySelector('input,select') || row;
+
+    var spacer=document.createElement('div');
+    spacer.setAttribute('data-krbar-slot','');
+    spacer.setAttribute('aria-hidden','true');
+    home.insertBefore(spacer, bar);
+
+    var inRow=false;
+    function syncSpacer(){
+      /* Only reserve space while the bar is away; at home the bar occupies its own gap. */
+      spacer.style.height = inRow ? (spacer._h||0)+'px' : '0px';
+    }
     function place(next){
       if(next===inRow) return;
+      if(next){ spacer._h=Math.round(bar.getBoundingClientRect().height)||0; }
       inRow=next;
       if(next){ row.appendChild(bar); document.body.classList.add('earn-radioswap'); }
-      else    { home.appendChild(bar); document.body.classList.remove('earn-radioswap'); }
+      else    { home.insertBefore(bar, spacer.nextSibling); document.body.classList.remove('earn-radioswap'); }
+      syncSpacer();
     }
+
+    var GAP=24;   /* hysteresis in pixels of geometry, so resting on the line cannot flutter */
     function check(){
-      var y=window.pageYOffset||document.documentElement.scrollTop||0;
-      if(!inRow && y>IN) place(true);
-      else if(inRow && y<OUT) place(false);
+      var line=searchEl.getBoundingClientRect().bottom;
+      var homeTop=spacer.getBoundingClientRect().top;
+      if(!inRow){ if(homeTop<=line) place(true); }
+      else      { if(homeTop>=line+GAP) place(false); }
     }
+
     /* While the visitor is typing, the row must not change under them. */
     var q=document.getElementById('radQ');
     var typing=false;
     if(q){ q.addEventListener('focus',function(){typing=true;});
            q.addEventListener('blur',function(){typing=false;check();}); }
-    window.addEventListener('scroll',function(){ if(!typing) check(); },{passive:true});
+
+    var tick=false;
+    function onScroll(){ if(typing||tick) return; tick=true;
+      requestAnimationFrame(function(){ tick=false; check(); }); }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    window.addEventListener('resize',onScroll,{passive:true});
     check();
   });
 })();

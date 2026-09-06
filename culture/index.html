@@ -1576,21 +1576,21 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
      0.493) instead of 2:3. .kv-profile already means "not a clip, take the house frame"; the
      plain .fcard.kv-profile rule loses to this body.cul-m chain, so it is restated with the
      specificity to win. Video and Short cards are untouched. */
-  /* ── AN ARTICLE CARD IS THE COVER, NOT A SCREEN WITH A COVER IN IT ────────────────
-     The defect the phone kept showing and the DOM kept hiding. .fcard on mobile is
-     height:calc(100dvh - …) — a full-screen snap card, correct for a clip. Giving the article
-     a 2:3 WELL inside that card left roughly 200px of black beneath it at 402x800, which is
-     the "image occupies only part of the frame / empty side region". Measuring the well said
-     2:3 and passed; the card was the thing with the hole in it.
-     An article card is now sized BY its cover, exactly like a CONNECT artist tile: the card is
-     2:3, the image fills the card, and there is nothing left over to be empty. Clips keep the
-     full-screen frame untouched. */
+  /* ── AN ARTICLE CARD IS A FULL-SCREEN SLIDE WHOSE COVER FILLS IT ──────────────────
+     Two wrong shapes preceded this one, and the difference matters.
+       1. A 2:3 WELL inside a full-screen card left ~200px of black beneath the image.
+       2. Sizing the CARD to the 2:3 cover removed the black but broke the format: a card
+          shorter than the viewport means two articles share a screen, so one swipe no
+          longer advances one item, and the cover no longer fills the view.
+     The approved behaviour is the clip's frame with an article's content: the card keeps the
+     full-screen snap slide every other card uses, the well fills that slide, and the cover
+     fills the well with object-fit:cover. Filling is what removes the dead space - there is
+     no leftover area to be black, and nothing is letterboxed. */
   body.cul-m #community-feed>.fcard.kv-profile.kv-profile{
-    height:auto!important;min-height:0!important;justify-content:flex-start!important;
-    scroll-snap-align:center;background:#0b0b12!important}
-  body.cul-m #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well{
-    position:relative!important;inset:auto!important;aspect-ratio:2/3!important;
-    width:100%!important;height:auto!important;max-height:none!important;flex:0 0 auto!important}
+    background:#0b0b12!important}
+  /* The well inherits the generic mobile rule (flex:1 1 auto; aspect-ratio:auto) that makes a
+     clip's frame fill the slide. The article deliberately does NOT opt out of it any more;
+     only the fill mode below differs from a clip. */
   /* ⚠ SPECIFICITY TIE, BROKEN DELIBERATELY. The :not(.kv-short) rule further down scores
      exactly the same (1 id, 4 classes, 2 types) and, being later, was winning the tie and
      putting object-fit:contain back on an article cover - image box full size, image content
@@ -2003,6 +2003,9 @@ window.culFetchMedia = culFetchMedia;
       ytCmd(f,'pauseVideo',[]);
       if(f.__kilReadyTimer){ clearTimeout(f.__kilReadyTimer); f.__kilReadyTimer=null; }
       f.__kilDead = 1;
+      /* Player replacement. If sound worked on this clip and dies on the next, the boundary
+         shows up here: the armed flag is global, but __kvUnmuted belongs to the frame. */
+      KVA.log('dead', f, {wasUnmuted: !!f.__kvUnmuted, armed: !!window.__kilSoundOK});
       f.remove();
     }
     var img = well.querySelector('img'); if(img) img.style.display='block';
@@ -2066,6 +2069,7 @@ window.culFetchMedia = culFetchMedia;
        hoped one of eight retries would land after the widget woke up.
        The widget announces itself: post {event:'listening'} and it replies with onReady, then
        infoDelivery messages. beginWhenReady() below drives commands from THAT signal. */
+    KVA.log('mount', f, {armedAtMount: !!window.__kilSoundOK});
     f.addEventListener('load', function(){ beginWhenReady(f); });
   }
 
@@ -2087,10 +2091,73 @@ window.culFetchMedia = culFetchMedia;
      A remembered gesture from an earlier page load is NOT a gesture in this one. __kilSoundOK
      is now set only by armSound(), from a real event in this document. The key is still
      WRITTEN so other surfaces can read it; it is deliberately never read back to gate unMute. */
+  /* ── AUDIO DIAGNOSTICS (Founder 2026-09-05) ───────────────────────────────────────────
+     Read-only. This records the sound lifecycle; it does not retry, reorder or "help"
+     anything, because a third blind retry layer on top of the ladder below would only make
+     the real failure harder to see. The phone reports video playing and no sound, and the
+     open question is WHICH link breaks: is the player ready, was a gesture seen in THIS
+     document, did unMute go out, did the widget ever acknowledge muted:false, and does the
+     armed state survive the next clip.
+     Off by default and costs nothing: entries are kept in a bounded array on window. Open any
+     Culture URL with ?kvaudio=1 to also print them and show the on-screen panel. */
+  var KVA = (function(){
+    var on = false;
+    try{ on = /[?&]kvaudio=1/.test(location.search); }catch(e){}
+    var LOG = [], MAX = 400, t0 = Date.now(), panel = null;
+    function fid(frame){
+      if(!frame) return '-';
+      if(!frame.__kvId) frame.__kvId = 'f'+(++fid._n||(fid._n=1));
+      return frame.__kvId;
+    }
+    function draw(){
+      if(!on) return;
+      if(!panel){
+        panel = document.createElement('div');
+        panel.setAttribute('data-kv-audio','');
+        panel.style.cssText='position:fixed;left:6px;bottom:6px;z-index:99999;max-height:42vh;'
+          +'width:min(94vw,430px);overflow:auto;background:rgba(0,0,0,.86);color:#7CFFB2;'
+          +'font:600 10px/1.35 ui-monospace,Menlo,monospace;padding:8px 10px;border-radius:8px;'
+          +'border:1px solid rgba(124,255,178,.35);white-space:pre-wrap;pointer-events:none';
+        (document.body||document.documentElement).appendChild(panel);
+      }
+      panel.textContent = LOG.slice(-26).map(function(e){
+        return (e.t/1000).toFixed(2)+'s '+e.frame+' '+e.ev+(e.d?' '+e.d:'');
+      }).join('\n');
+    }
+    function log(ev, frame, detail){
+      var e = { t: Date.now()-t0, ev: ev, frame: fid(frame),
+                d: detail==null ? '' : (typeof detail==='object' ? JSON.stringify(detail) : String(detail)),
+                armed: !!window.__kilSoundOK };
+      LOG.push(e);
+      if(LOG.length > MAX) LOG.splice(0, LOG.length - MAX);
+      if(on){ try{ console.log('[kv-audio]', e.t+'ms', e.frame, ev, e.d, 'armed='+e.armed); }catch(_){}
+              try{ draw(); }catch(_){} }
+      return e;
+    }
+    /* A compact answer to "where did it break", rather than a wall of lines. */
+    function summary(){
+      var byFrame = {};
+      LOG.forEach(function(e){
+        var f = byFrame[e.frame] || (byFrame[e.frame] = { frame:e.frame, mounted:0, ready:0,
+          unmuteSent:0, ackUnmuted:0, ackMuted:0, armedAtMount:null, replaced:0 });
+        if(e.ev==='mount'){ f.mounted++; f.armedAtMount = e.armed; }
+        if(e.ev==='ready') f.ready++;
+        if(e.ev==='cmd:unMute') f.unmuteSent++;
+        if(e.ev==='ack:muted=false') f.ackUnmuted++;
+        if(e.ev==='ack:muted=true') f.ackMuted++;
+        if(e.ev==='dead') f.replaced++;
+      });
+      return { armed: !!window.__kilSoundOK, frames: Object.keys(byFrame).map(function(k){ return byFrame[k]; }) };
+    }
+    return { log: log, summary: summary, dump: function(){ return LOG.slice(); }, enabled: function(){ return on; } };
+  })();
+  window.__kvAudio = KVA;
+
   function ytCmd(frame, func, args){
     try{
       frame.contentWindow.postMessage(JSON.stringify({event:'command', func:func, args:args||[]}), '*');
-    }catch(e){}
+      if(func!=='listening') KVA.log('cmd:'+func, frame, args&&args.length?args:null);
+    }catch(e){ KVA.log('cmd:'+func+':THREW', frame, e&&e.message); }
   }
   /* ── PLAYER-READY HANDSHAKE ────────────────────────────────────────────────────────────
      The YouTube widget answers {event:'listening'} with an onReady message on its own origin.
@@ -2109,7 +2176,11 @@ window.culFetchMedia = culFetchMedia;
       if(d.info && typeof d.info.muted === 'boolean'){
         for(var k=0;k<READY.length;k++){
           if(READY[k].frame && READY[k].frame.contentWindow === ev.source){
+            var was = READY[k].frame.__kvUnmuted;
             READY[k].frame.__kvUnmuted = (d.info.muted === false);
+            if(was !== READY[k].frame.__kvUnmuted)
+              KVA.log('ack:muted='+(d.info.muted?'true':'false'), READY[k].frame,
+                      {volume: d.info.volume});
           }
         }
       }
@@ -2167,6 +2238,7 @@ window.culFetchMedia = culFetchMedia;
     });
   }
   function onReady(frame){
+    KVA.log('ready', frame, {armed: !!window.__kilSoundOK});
     ytCmd(frame,'mute',[]);
     ytCmd(frame,'playVideo',[]);
     ytCmd(frame,'setVolume',[VOLUME]);
@@ -2181,6 +2253,7 @@ window.culFetchMedia = culFetchMedia;
   function armSound(){
     if(window.__kilSoundOK) return;
     window.__kilSoundOK = true;
+    KVA.log('gesture-armed', null, 'sound is now legal in THIS document');
     /* Still written for other surfaces; deliberately never read back to gate unMute — see the
        DO-NOT-PRE-ARM note above. */
     try{ sessionStorage.setItem('kil_sound_ok','1'); }catch(e){}
@@ -2592,6 +2665,43 @@ function culResolveFilters(){
 @media(min-width:861px){
   .kv-readlayer{padding:26px 30px 72px}
   .kv-readlayer p{font-size:1rem}
+}
+
+/* ── DESKTOP CLIP STAGE (Founder 2026-09-05) ──────────────────────────────────────────
+   The left column gave each clip whatever height its own ratio produced, so a landscape
+   video sat wherever it landed and a Short ran past the fold. Both now play on ONE stage of
+   a fixed height, and the difference between them is only which axis is pinned.
+
+   The axis rule is the same one the phone already proved, and it is not interchangeable:
+   an <iframe> is a replaced element with an intrinsic 300x150, so `width:auto;height:auto`
+   plus aspect-ratio renders at 300x150 rather than filling anything. Landscape pins WIDTH
+   and lets height follow; a Short pins HEIGHT and lets width follow. Pinning the wrong axis
+   overflows, gets clamped, and quietly breaks the ratio.
+   !important is load-bearing: mountVid() writes the iframe geometry as an inline cssText,
+   and an inline declaration outranks any selector without it. */
+@media(min-width:861px){
+  #community-feed>.fcard.kil-vid .kil-vid-well{
+    height:clamp(420px, calc(100vh - 240px), 780px);
+    aspect-ratio:auto!important;max-height:none!important;
+    position:relative;overflow:hidden;background:#000;
+    /* centring lives on the stage, so the leftover space is split evenly rather than
+       collecting under the player */
+    display:flex;align-items:center;justify-content:center}
+  /* LANDSCAPE — pin width; the stage centres the remaining height above and below. */
+  #community-feed>.fcard.kil-vid .kil-vid-well>iframe,
+  #community-feed>.fcard.kil-vid .kil-vid-well>video,
+  #community-feed>.fcard.kil-vid .kil-vid-well>img{
+    position:relative!important;z-index:1;inset:auto!important;
+    width:100%!important;height:auto!important;
+    max-width:100%!important;max-height:100%!important;
+    aspect-ratio:var(--kv-ar,16 / 9)!important;
+    border:0;display:block;object-fit:contain!important;margin:auto!important}
+  /* SHORTS — pin height so the portrait clip uses the whole stage, width follows the 9:16
+     ratio and the stage centres it horizontally. No top/bottom void by construction. */
+  #community-feed>.fcard.kil-vid.kv-short .kil-vid-well>iframe,
+  #community-feed>.fcard.kil-vid.kv-short .kil-vid-well>video,
+  #community-feed>.fcard.kil-vid.kv-short .kil-vid-well>img{
+    width:auto!important;height:100%!important;max-width:100%!important}
 }
 </style>
 <script>

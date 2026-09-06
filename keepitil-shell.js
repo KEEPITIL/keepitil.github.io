@@ -1170,6 +1170,17 @@ function namedDestinations(){ return DESTINATIONS.filter(function(d){ return !d.
        neighbours off-centre. min-width:0 stops a long word from widening its own slot. */
     +'#kil-bnav a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;color:rgba(255,255,255,.72);text-decoration:none;transition:color .15s,transform .1s}'
     +'#kil-bnav a svg{width:23px;height:23px;display:block}'
+    /* INVARIANT (Founder 2026-09-05): nothing from a page may render over the bottom nav.
+       Page-level sticky chrome kept raising its own z-index until it outranked the nav -
+       DISCOVER's filter reached 960 and its dropdown 970 against a nav at 950 - and each
+       fix chased one selector. The clamp lives here instead, in the one file that owns the
+       nav, so a future page-level bump cannot silently win. Real overlays (modals, gates,
+       toasts, the hamburger) live at 999+ and are deliberately left alone: those SHOULD
+       cover the nav. Page chrome keeps its order relative to page content, just under 980. */
+    +'@media(max-width:860px){'
+    +  '#evx .evx-nav{z-index:940!important}'
+    +  '#evx .evx-catdd-menu{z-index:945!important}'
+    +'}'
     +'#kil-bnav .kb-l{font-size:8px;line-height:1;letter-spacing:.06em;font-weight:700;text-transform:uppercase;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
     +'#kil-bnav a img{height:23px;width:auto;mix-blend-mode:screen;display:block}'
     +'#kil-bnav a#kb-home img.kb-logo{display:block;height:23px!important;width:auto!important;max-width:none!important;mix-blend-mode:screen}'
