@@ -2909,11 +2909,35 @@ function culResolveFilters(){
     var b=card.querySelector('.kv-badge');
     return !!b && /article/i.test(b.textContent||'');
   }
+  /* ── THE ARTICLE TEXT LIVES IN THE PAGE, NOT THE ROW ────────────────────────────────
+     blog_articles.body_html and .content are empty for every article — measured, all 13 — so
+     the row carries an excerpt and nothing more. The prose only exists in the static page at
+     the canonical route. Rather than duplicate it into the database, the sheet fetches that
+     same page on first open and lifts <article class="art"> out of it: same origin, no CORS,
+     no new data path, and /article/<slug>/ stays the single source of truth. Fetched once per
+     card and cached, and only when the visitor actually asks to read. */
+  function fetchBody(href){
+    return fetch(href, {credentials:'same-origin'})
+      .then(function(r){ return r.ok ? r.text() : ''; })
+      .then(function(html){
+        if(!html) return '';
+        var doc=new DOMParser().parseFromString(html,'text/html');
+        var art=doc.querySelector('article.art')||doc.querySelector('article');
+        if(!art) return '';
+        /* Strip anything that would fight the sheet or re-enter the page. */
+        art.querySelectorAll('script,style,iframe,nav,header,footer').forEach(function(n){n.remove();});
+        return art.innerHTML;
+      })
+      .catch(function(){ return ''; });
+  }
   function decorate(card){
     if(card.__kvReadWired) return;
     if(!isArticle(card)) return;
     var well=card.querySelector('.kil-vid-well'); if(!well) return;
-    var html=bodyFor(card); if(!html) return;
+    var html=bodyFor(card);
+    var titleEl=card.querySelector('.kv-title');
+    var href=titleEl?titleEl.getAttribute('href'):'';
+    if(!html && !/^\/article\//.test(href||'')) return;
     card.__kvReadWired=1;
 
     var layer=document.createElement('div');
@@ -2928,13 +2952,26 @@ function culResolveFilters(){
     btn.setAttribute('aria-expanded','false');
     well.appendChild(btn);
 
+    var loaded=!!html;
     btn.addEventListener('click', function(e){
       e.preventDefault(); e.stopPropagation();
       var open=card.classList.toggle('kv-open');
       btn.textContent=open?'Close':'More';
       btn.setAttribute('aria-expanded', open?'true':'false');
       /* Reading starts at the top of the piece, and the feed does not move underneath. */
-      if(open) layer.scrollTop=0;
+      if(open){
+        layer.scrollTop=0;
+        if(!loaded && href){
+          loaded=true;
+          fetchBody(href).then(function(body){
+            if(!body) return;
+            var h=layer.querySelector('.kv-read-h');
+            layer.innerHTML=''; if(h) layer.appendChild(h);
+            var wrap=document.createElement('div'); wrap.innerHTML=body;
+            layer.appendChild(wrap); layer.scrollTop=0;
+          });
+        }
+      }
     });
 
     /* The sheet owns its own scrolling; the feed must not advance while reading. */
