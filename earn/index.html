@@ -774,6 +774,25 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   section{padding:var(--kil-sec-gap,18px) 0;}
   .sh{margin-bottom:var(--kil-head-gap,12px);}
 }
+
+/* ── EARN MOBILE: RADIO TAKES THE SEARCH ROW, NEVER THE FILTER ROW (Founder 2026-09-05) ──
+   The category filter is the one thing that stays put. Search sits under it, and once the
+   visitor is deeper into the page the radio bar moves into the SEARCH slot — the search
+   transitions out, the filter never moves, and the two are never stacked.
+   There is exactly one radio bar on the page: #krBar is MOVED between its section and the
+   control row, never duplicated, so its state, handlers and the single shell player are
+   untouched. */
+@media(max-width:860px){
+  body.rad-m .controls-row{flex-direction:column;align-items:stretch;gap:8px}
+  body.rad-m .controls-row > .seg{order:1}
+  body.rad-m .controls-row > .search,
+  body.rad-m .controls-row > #krBar{order:2;width:100%}
+  /* Full usable width: the bar breaks the row's 14px inset and re-applies nothing. */
+  body.rad-m #krBar{margin:0;width:100%;max-width:none;box-sizing:border-box}
+  body.rad-m.earn-radioswap .controls-row > .search{display:none}
+  /* In its own section the bar is also full width rather than inset by the rail padding. */
+  body.rad-m #stations #krBar{width:100%;max-width:none;margin-left:0;margin-right:0}
+}
 </style>
 <script>
 /* MOBILE RADIO enhancer — additive, ≤860px only; returns early above that. */
@@ -844,7 +863,7 @@ document.addEventListener('click',function(e){ var dd=document.getElementById('v
   }, {passive:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260905e" defer></script>
+<script src="/keepitil-shell.js?v=20260905f" defer></script>
 <!-- seasonal background rotation (auto by date; ?season=<slug> to preview) -->
 <script src="/kil-seasons.js?v=20260826a"></script>
 <!-- persistent synchronized radio bar -->
@@ -1615,6 +1634,43 @@ radStats();
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ start(0); });
   else start(0);
+})();
+</script>
+
+<script>
+/* ── EARN MOBILE RADIO/SEARCH SWAP (Founder 2026-09-05) ─────────────────────────────────
+   Mobile only. Moves the ONE existing #krBar node between its section and the search slot;
+   it never builds a second bar, so radio state and the single shell player are untouched.
+   Hysteresis on purpose: a single switch point makes the bar flip every frame while the
+   visitor rests near it. */
+(function(){
+  if(!window.matchMedia || !window.matchMedia('(max-width:860px)').matches) return;
+  function ready(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded',fn); }
+  ready(function(){
+    var bar=document.getElementById('krBar');
+    var row=document.querySelector('.controls-row');
+    var home=bar&&bar.parentElement;
+    if(!bar||!row||!home) return;
+    var IN=260, OUT=170, inRow=false;      /* 90px dead band */
+    function place(next){
+      if(next===inRow) return;
+      inRow=next;
+      if(next){ row.appendChild(bar); document.body.classList.add('earn-radioswap'); }
+      else    { home.appendChild(bar); document.body.classList.remove('earn-radioswap'); }
+    }
+    function check(){
+      var y=window.pageYOffset||document.documentElement.scrollTop||0;
+      if(!inRow && y>IN) place(true);
+      else if(inRow && y<OUT) place(false);
+    }
+    /* While the visitor is typing, the row must not change under them. */
+    var q=document.getElementById('radQ');
+    var typing=false;
+    if(q){ q.addEventListener('focus',function(){typing=true;});
+           q.addEventListener('blur',function(){typing=false;check();}); }
+    window.addEventListener('scroll',function(){ if(!typing) check(); },{passive:true});
+    check();
+  });
 })();
 </script>
 </body>

@@ -1238,7 +1238,10 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
             badge:'ARTICLE', badgeBg:'rgba(160,107,255,.95)', badgeFg:'#150a24',
             title:ad.t||r.title||'Untitled',
             name:r.author_name||r.profile_slug, avatar:r.author_avatar, creatorHref:ahref||url,
-            meta:awhen, caption:ad.html||'' };
+            meta:awhen, caption:'', articleBody:(ad.body||ad.html||ad.caption||'') };
+      /* Stashed rather than rendered inline: the collapsed card is image + title, and the body
+         only appears inside the MORE overlay. */
+      try{ (window.__culArticleBodies=window.__culArticleBodies||{})[r.id]=(ad.body||ad.html||ad.caption||''); }catch(e){}
 
     } else {
       /* Written post / PIX. */
@@ -1919,6 +1922,10 @@ function culArticleToRow(a){
       cover: a.image_url || a.hero_image || '/assets/images/logo-bg.jpg',
       source_url: a.url,
       caption: a.excerpt || '',
+      /* The BODY, so the piece can be read inside Culture instead of on another page
+         (Founder 2026-09-05). The canonical /article/<slug>/ route stays live for direct
+         links and search engines; this is the in-feed reading copy. */
+      body: a.body_html || a.content || a.excerpt || '',
       category: a.category || ''
     }
   };
@@ -1927,7 +1934,7 @@ function culArticleToRow(a){
 function culFetchArticles(sb){
   window.__culArticlesLoaded = true;
   return sb.from('blog_articles')
-    .select('slug,title,excerpt,image_url,hero_image,category,author,artist_slug,url,published_at,created_at')
+    .select('slug,title,excerpt,image_url,hero_image,category,author,artist_slug,url,published_at,created_at,body_html,content')
     .eq('status','published').eq('published', true)
     .order('published_at',{ascending:false}).limit(60)
     .then(function(r){
@@ -2444,7 +2451,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260905e" defer></script>
+<script src="/keepitil-shell.js?v=20260905f" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
@@ -2485,7 +2492,10 @@ function culResolveFilters(){
 @media(min-width:861px){
   /* Gap tightened so the main column keeps as much width as possible while the two columns
      stay visually distinct. The page boundary itself comes from the shell's canonical grid. */
-  .merge{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;
+  /* The rail is secondary and stops growing; every extra pixel of viewport goes to the main
+     content. Narrower rail on tablet-width screens so the player is never a small box in a
+     large area (Founder 2026-09-05). */
+  .merge{display:grid;grid-template-columns:minmax(0,1fr) clamp(300px,26vw,380px);gap:16px;
     margin:16px auto 44px;align-items:start}
 
   /* ── ONE ITEM PER VIEW (Founder 2026-09-05) ───────────────────────────────────────────
@@ -2536,7 +2546,52 @@ function culResolveFilters(){
   #culRail .cr-meta{font-size:.73rem;color:#8c86a8;line-height:1.3;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #culRail .cr-empty{color:#8c86a8;font-size:.84rem;padding:10px 2px}
+
+  /* ── LANDSCAPE ARTICLE FRAME ON LARGER SCREENS (Founder 2026-09-05) ─────────────────
+     A portrait cover in a 16:9 frame leaves dead bars. The same image fills the frame as a
+     blurred backfill and the artwork sits over it, contained, so it is never cropped badly
+     or stretched — deliberate rather than letterboxed into black. */
+  #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well{
+    aspect-ratio:16/9!important;background:#0b0b12!important;overflow:hidden}
+  #community-feed>.fcard.kv-profile .kil-vid-well::after{
+    content:"";position:absolute;inset:-6%;z-index:0;
+    background:var(--kv-poster,none) center/cover no-repeat;
+    filter:blur(24px) brightness(.5) saturate(1.15)}
+  #community-feed>.fcard.kv-profile.kv-profile .kil-vid-well>img{
+    position:absolute!important;inset:0!important;z-index:1;
+    width:100%!important;height:100%!important;object-fit:contain!important}
 }
+}
+
+/* ── READ THE ARTICLE WHERE YOU FOUND IT (Founder 2026-09-05) ─────────────────────────
+   An article card is a locked frame: cover, title, the usual engagement controls, and MORE.
+   MORE does not navigate — it lays a translucent white sheet over the SAME image and lets the
+   text scroll inside that sheet. The card never grows, the image never moves, and the feed
+   keeps its place, so collapsing returns you exactly where you were.
+   The canonical /article/<slug>/ route stays live for direct links and search engines. */
+.kv-more{position:absolute;right:10px;bottom:10px;z-index:6;
+  display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:7px 14px;
+  border-radius:999px;cursor:pointer;border:1px solid rgba(255,255,255,.28);
+  background:rgba(12,12,20,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:#fff;font:800 .72rem/1 var(--fh,Inter),sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.kv-more:hover{background:rgba(12,12,20,.8);border-color:rgba(255,255,255,.45)}
+.kv-readlayer{position:absolute;inset:0;z-index:5;display:none;
+  /* Translucent, not opaque: the cover stays subtly present behind the words. */
+  background:rgba(255,255,255,.90);
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  padding:20px 18px 64px;color:#14121c}
+.fcard.kv-open .kv-readlayer{display:block}
+.kv-readlayer h1,.kv-readlayer h2,.kv-readlayer h3{color:#0d0b14;line-height:1.2;margin:16px 0 8px}
+.kv-readlayer p{color:#241f33;font-size:.95rem;line-height:1.62;margin:0 0 12px}
+.kv-readlayer a{color:#6b21d6;text-decoration:underline}
+.kv-readlayer img{max-width:100%;height:auto;border-radius:10px;margin:10px 0}
+.kv-readlayer .kv-read-h{font:900 1.15rem/1.2 var(--fs,Inter),sans-serif;color:#0d0b14;margin:0 0 12px}
+/* The well is the frame the sheet fills; both states share it. */
+.fcard.kv-profile .kil-vid-well{position:relative}
+@media(min-width:861px){
+  .kv-readlayer{padding:26px 30px 72px}
+  .kv-readlayer p{font-size:1rem}
 }
 </style>
 <script>
@@ -2835,6 +2890,69 @@ function culResolveFilters(){
       if((haveData && settled>=3) || ++tries>20) clearInterval(poll);
     }, 1200);
   });
+})();
+</script>
+
+<script>
+/* ── ARTICLE: MORE OPENS IN PLACE (Founder 2026-09-05) ──────────────────────────────────
+   Enhancer, not a renderer: it decorates article cards after the universal template has run,
+   so classification, voting, comments, the media pipeline and the card geometry are all
+   untouched. Works at every width — the interaction model is the same on mobile and desktop,
+   only the frame around it differs. */
+(function(){
+  function bodyFor(card){
+    var pid=card.getAttribute('data-pid')||'';
+    var map=window.__culArticleBodies||{};
+    return map[pid]||'';
+  }
+  function isArticle(card){
+    var b=card.querySelector('.kv-badge');
+    return !!b && /article/i.test(b.textContent||'');
+  }
+  function decorate(card){
+    if(card.__kvReadWired) return;
+    if(!isArticle(card)) return;
+    var well=card.querySelector('.kil-vid-well'); if(!well) return;
+    var html=bodyFor(card); if(!html) return;
+    card.__kvReadWired=1;
+
+    var layer=document.createElement('div');
+    layer.className='kv-readlayer';
+    var title=(card.querySelector('.kv-title')||{}).textContent||'';
+    layer.innerHTML='<div class="kv-read-h"></div>'+html;
+    layer.querySelector('.kv-read-h').textContent=title;
+    well.appendChild(layer);
+
+    var btn=document.createElement('button');
+    btn.type='button'; btn.className='kv-more'; btn.textContent='More';
+    btn.setAttribute('aria-expanded','false');
+    well.appendChild(btn);
+
+    btn.addEventListener('click', function(e){
+      e.preventDefault(); e.stopPropagation();
+      var open=card.classList.toggle('kv-open');
+      btn.textContent=open?'Close':'More';
+      btn.setAttribute('aria-expanded', open?'true':'false');
+      /* Reading starts at the top of the piece, and the feed does not move underneath. */
+      if(open) layer.scrollTop=0;
+    });
+
+    /* The sheet owns its own scrolling; the feed must not advance while reading. */
+    layer.addEventListener('wheel', function(e){ e.stopPropagation(); }, {passive:true});
+    layer.addEventListener('touchmove', function(e){ e.stopPropagation(); }, {passive:true});
+  }
+  function sweep(){
+    var cards=document.querySelectorAll('#community-feed .fcard');
+    for(var i=0;i<cards.length;i++) decorate(cards[i]);
+  }
+  function start(){
+    sweep();
+    /* Scoped to the feed, not the document: a document-wide observer is what made the
+       desktop tab unhappy last time. */
+    var box=document.getElementById('community-feed');
+    if(box) new MutationObserver(sweep).observe(box,{childList:true});
+  }
+  if(document.readyState!=='loading') start(); else document.addEventListener('DOMContentLoaded',start);
 })();
 </script>
 </body></html>

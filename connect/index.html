@@ -452,7 +452,6 @@ body>*{min-width:0}
    control surface, and a second filter strip under them was a row that mostly repeated what
    the cards already show. Other kinds keep their contextual chips. */
 @media(min-width:861px){
-  body[data-kind="artist"] .subfilters{display:none!important}
 
   /* ── COMMUNITY CARDS ARE CARDS, NOT TEXT ON A BACKDROP ──────────────────────────────
      Frosted translucent white over the green field: enough opacity to carry body text at
@@ -469,6 +468,12 @@ body>*{min-width:0}
   .comm-card .comm-meta{color:rgba(255,255,255,.66);font-size:.76rem}
   #commPane{max-width:1120px;margin-left:auto;margin-right:auto}
 }
+
+/* ── ARTISTS HAS NO GENRE ROW (Founder 2026-09-05) ────────────────────────────────────
+   Removed at every width, not just desktop: the Artists experience is the four category
+   tabs and one search, nothing else. Other kinds keep their contextual chips, and
+   renderSubs() is untouched — it simply has nothing to draw for artists. */
+body[data-kind="artist"] .subfilters{display:none!important}
 </style>
 <link rel="canonical" href="https://keepitil.com/connect/"/>
   <!-- PWA manifest — STATIC, deliberately (Founder 2026-08-15).
@@ -608,6 +613,9 @@ function card(x){
 function renderSubs(){
   const box=document.getElementById('subs');
   if(!kind){box.classList.remove('show');box.innerHTML='';return;}
+  /* ARTISTS HAS NO GENRE ROW (Founder 2026-09-05). Removed at the source as well as in CSS so
+     the row is never built, never measured, and can never wrap into a third control row. */
+  if(kind==='artist'){ box.classList.remove('show'); box.innerHTML=''; return; }
   const parts=[];
   if(kind==='artist'){
     const gb=artistBuckets();
@@ -755,7 +763,7 @@ renderSubs();render();
 <script src="/kil-seasons.js?v=20260826a"></script>
 <script src="/assets/js/keepitil-radio.js?v=20260904a" defer></script>
 <script src="/assets/js/keepitil-ai.js?v=20260905a" defer></script>
-<script src="/keepitil-shell.js?v=20260905e" defer></script>
+<script src="/keepitil-shell.js?v=20260905f" defer></script>
 <!-- COMMUNITY: its own tag. The module was briefly placed INSIDE the shell's
      <script src> element, where inline content is ignored by the browser, so it
      silently never ran. -->
