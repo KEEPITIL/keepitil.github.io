@@ -369,6 +369,11 @@
    +   'background:transparent;color:#8b95a3;border:1px solid rgba(255,255,255,.14);'
    +   'font:500 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase}'
    + '#vs-app .ce-chip i{font-style:normal;opacity:.55;margin-left:5px}'
+   /* The year leads its own row and reads as a label, not a peer of the months. */
+   + '#vs-app .ce-chip.ce-year{font-weight:700;letter-spacing:.1em;color:#c8d0da;'
+   +   'border-color:rgba(255,255,255,.26)}'
+   /* A month with nothing open still holds its place in the rolling window, just quieter. */
+   + '#vs-app .ce-chip.ce-empty{opacity:.42}'
    + '#vs-app .ce-chip.on{background:rgba(0,180,255,.14);color:var(--vsb);border-color:rgba(0,180,255,.5)}'
    /* ── COMPETITION FLYER — mirrors #evx .evx-flyer in index.html ────────────────────────────
       Values copied from the homepage rules, not re-invented: 240px wide, 2:3, radius 14,
@@ -399,21 +404,18 @@
    +   '#vs-app .ce-hero{padding-bottom:8px}'
    +   '#vs-app .ce-bar{margin:0 0 8px}'
    +   '#vs-app .ce-stats{margin:6px 0}'
-   /* FULL USABLE WIDTH (Founder 2026-09-05). The bar inherited a narrower centred container,
-      so it read as inset against the rails beside it. Full width with ordinary mobile side
-      padding; the chip rails keep their own horizontal scroll inside it, and nothing is
-      allowed to push the page wider than the device. */
+   /* ONE GUTTER (Founder 2026-09-05). This had grown two competing width rules: a padded
+      width:100% and a 100vw breakout with -16px margins that assumed .wrap's exact padding
+      and then re-added its own - the double gutter. The bar now simply fills #vs-app, the
+      same model the canonical desktop grid already uses, so .wrap's 16px is the only inset
+      on the page and the bar's left edge lands on the card edge by construction. */
    +   '#vs-app .ce-bar{width:100%;max-width:none;margin-left:0;margin-right:0;'
-   +     'padding-left:10px;padding-right:10px;box-sizing:border-box}'
+   +     'padding-left:0;padding-right:0;box-sizing:border-box}'
+   +   '#vs-app .ce-grid,#vs-app .ce-hero,#vs-app .ce-stats{padding-left:0;padding-right:0}'
    +   '#vs-app .ce-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;min-width:0}'
    +   '#vs-app .ce-row::-webkit-scrollbar{display:none}'
    +   '#vs-app .ce-chip{flex:0 0 auto}'
-   /* .wrap carries 16px side padding, so a width:100% bar only ever filled 370 of 402. The bar
-      breaks out of that inset to the full viewport and re-applies its own 10px, matching the
-      rails; the page itself is still clamped by the shell rule. */
-   +   '#vs-app{max-width:100vw;overflow-x:clip}'
-   +   '#vs-app .ce-bar{width:100vw;margin-left:-16px;margin-right:-16px;'
-   +     'padding-left:10px;padding-right:10px;box-sizing:border-box}'
+   +   '#vs-app{max-width:100%;min-width:0;overflow-x:clip}'
    + '}'
    + '#vs-app .ce-fly{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;cursor:pointer;'
    +   'background:#15131f center/cover no-repeat;border:1px solid rgba(255,255,255,.08);'
@@ -977,7 +979,20 @@
   function ceMonthKey(c){ return c.submissions_close_at ? String(c.submissions_close_at).slice(0,7) : ''; }
   function ceMonthLabel(mk){
     var M=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    return M[parseInt(mk.slice(5,7),10)-1] + ' ' + mk.slice(0,4);
+    return M[parseInt(mk.slice(5,7),10)-1];
+  }
+  /* Founder 2026-09-05: the row is a fixed rolling window - all twelve months starting with
+     the current one, running into next year - not the months that happen to have rows. A month
+     with nothing open still appears; it simply carries no count. The year lives on the DATE
+     button, which is why the chips are month names alone. */
+  function ceMonthWindow(){
+    var d=new Date(), out=[];
+    for(var i=0;i<12;i++){
+      var y=d.getFullYear(), m=d.getMonth()+i;
+      y += Math.floor(m/12); m = ((m%12)+12)%12;
+      out.push(y+'-'+String(m+1).padStart(2,'0'));
+    }
+    return out;
   }
   function ceMatch(c){
     if(CE_MONTH!=='all' && ceMonthKey(c)!==CE_MONTH) return false;
@@ -1045,7 +1060,7 @@
       var t=c.category||'';
       if(t && (CE_MONTH==='all' || ceMonthKey(c)===CE_MONTH)) types[t]=(types[t]||0)+1;
     });
-    var mKeys=Object.keys(months).sort();
+    var mKeys=ceMonthWindow();
     var tKeys=Object.keys(types).sort(function(a,b){ return types[b]-types[a] || a.localeCompare(b); });
     /* UPCOMING FIRST (Founder 2026-09-03). The rail took whatever order the query returned,
        so the first card a phone shows was arbitrary. Soonest-closing first, and anything with
@@ -1063,9 +1078,12 @@
         /* Founder 2026-08-20: "Remove ALL, just use DATE and TYPE." The reset chip keeps its
            job — it clears the filter — but it is labelled for the axis it controls, not with a
            second word that repeated what the row already was. */
-        + '<button class="ce-chip'+(CE_MONTH==='all'?' on':'')+'" data-m="all">DATE</button>'
-        + mKeys.map(function(mk){ return '<button class="ce-chip'+(CE_MONTH===mk?' on':'')+'" data-m="'+mk+'">'
-            + ceMonthLabel(mk)+' <i>'+months[mk]+'</i></button>'; }).join('')
+        + '<button class="ce-chip ce-year'+(CE_MONTH==='all'?' on':'')+'" data-m="all">'
+            + new Date().getFullYear() + '</button>'
+        + mKeys.map(function(mk){
+            var n=months[mk]||0;
+            return '<button class="ce-chip'+(CE_MONTH===mk?' on':'')+(n?'':' ce-empty')+'" data-m="'+mk+'">'
+              + ceMonthLabel(mk) + (n?' <i>'+n+'</i>':'') + '</button>'; }).join('')
       + '</div>'
       + '<div class="ce-row">'
         + '<button class="ce-chip'+(CE_TYPE==='all'?' on':'')+'" data-t="all">TYPE</button>'

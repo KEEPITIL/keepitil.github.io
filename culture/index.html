@@ -2792,12 +2792,14 @@ function culResolveFilters(){
 
     var rail=document.createElement('aside');
     rail.id='culRail';
+    /* Order is FILTERS -> SEARCH -> CONTENT (Founder 2026-09-05). "Browse" heads the
+       filter group, so it leads; the typebar is adopted directly beneath it. */
     rail.innerHTML=
-      '<div class="cr-search">'
+      '<div class="cr-h">Browse</div>'
+      + '<div class="cr-search">'
       + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8c86a8" stroke-width="2">'
       + '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>'
       + '<input id="culSearch" type="search" placeholder="Search Culture…" autocomplete="off"/></div>'
-      + '<div class="cr-h">Browse</div>'
       + '<div class="cr-h" id="cr-list-h">Up next</div>'
       + '<div class="cr-list" id="culRailList"></div>';
     merge.appendChild(rail);
@@ -2811,7 +2813,7 @@ function culResolveFilters(){
          culContentType vocabulary exactly as they are; nothing is rebuilt. */
       var bar=document.getElementById('culTypeBar');
       if(!bar || bar.parentElement===rail) return !!bar;
-      rail.insertBefore(bar, document.getElementById('cr-list-h'));
+      rail.insertBefore(bar, rail.querySelector('.cr-search'));
       return true;
     }
     adoptTypebar();
