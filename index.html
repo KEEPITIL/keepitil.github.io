@@ -2560,6 +2560,13 @@ function daysOf(mk){
    Past events are never eligible. If the whole future catalogue is under MIN we show what exists
    rather than padding — BROKEN != EMPTY, and a real shortage should look like one. */
 function buildMustSee(){
+  /* ⚠ THE SECTION IS GONE (Founder 2026-09-05), and this function is NOT self-guarding — the
+     comment in the markup said it was and I took that on trust. The write at the end of this
+     body threw on a missing #evx-mustsee, and because it is called before buildDays() in the
+     same statement, the ENTIRE events feed stopped rendering: EVENTS 0, no months, no days.
+     Returning here is the whole fix; the body is kept intact so restoring the markup restores
+     the section with no further change. */
+  if(!document.getElementById('evx-mustsee')) return;
   var MIN=8, MAX=12;
   var _msl=document.getElementById('evx-ms-label'); if(_msl) _msl.textContent='MUST-SEE EVENTS';
   var today=new Date().toISOString().slice(0,10);
