@@ -1220,13 +1220,24 @@ window.culPostMenu=function(e,slug,url){ try{e.preventDefault();e.stopPropagatio
          touched here. Artist articles are unaffected: they are not kind 'article'. */
       var ad=r.data||{};
       var awhen=''; try{var at=new Date(r.created_at); if(!isNaN(at)) awhen=at.toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'});}catch(x){}
-      var ahref = ad.url || (ad.slug?('/article/'+ad.slug+'/'):(ad.event_slug?('/event.html?e='+encodeURIComponent(ad.event_slug)):url));
-      n = { pid:r.id, href:ahref, external:false,
+      /* ── AN ARTICLE OPENS THE ARTICLE (Founder 2026-09-05) ────────────────────────────
+         culArticleToRow() puts the canonical route in data.source_url — /article/<slug>/ or
+         /article/artist/<slug>/. This branch was reading data.url, which those rows do not
+         carry, so every article fell through to the profile fallback and opened an artist's
+         (often unclaimed) profile instead of the editorial piece written about them. An
+         article about an artist is not that artist's profile.
+         There is no profile fallback any more: if a row has no article route it is not
+         linkable as an article, and a dead-end card is better than the wrong destination. */
+      var araw = ad.source_url || ad.url || (ad.slug?('/article/'+ad.slug+'/'):'')
+                 || (ad.event_slug?('/event.html?e='+encodeURIComponent(ad.event_slug)):'');
+      /* Pages serves /article/x as a 301 to /article/x/; ask for the destination directly. */
+      var ahref = araw && /^\/article\//.test(araw) && !/\/$/.test(araw) ? araw + '/' : araw;
+      n = { pid:r.id, href:ahref||'#', external:false,
             thumb:ad.cover||ad.img||'/assets/images/blog-default.jpg',
             aspect:'2/3', fit:'cover', profileCard:true,
             badge:'ARTICLE', badgeBg:'rgba(160,107,255,.95)', badgeFg:'#150a24',
             title:ad.t||r.title||'Untitled',
-            name:r.author_name||r.profile_slug, avatar:r.author_avatar, creatorHref:url,
+            name:r.author_name||r.profile_slug, avatar:r.author_avatar, creatorHref:ahref||url,
             meta:awhen, caption:ad.html||'' };
 
     } else {
@@ -2433,7 +2444,7 @@ function culResolveFilters(){
   new MutationObserver(enhance).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
-<script src="/keepitil-shell.js?v=20260905c" defer></script>
+<script src="/keepitil-shell.js?v=20260905e" defer></script>
 <style id="cul-int-css">
 .kil-modal-ov{position:fixed;inset:0;background:rgba(4,4,10,.72);backdrop-filter:blur(3px);z-index:12000;display:flex;align-items:center;justify-content:center;padding:16px}
 .kil-modal{width:100%;max-width:520px;max-height:88vh;max-height:88dvh;overflow:hidden;display:flex;flex-direction:column;background:var(--bg2,#12121c);border:1px solid var(--line,#242433);border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
@@ -2472,8 +2483,21 @@ function culResolveFilters(){
      - the main column dominates. ~2/3 of the page, not half.
    Scoped to >=861px. Mobile keeps its pager, card geometry and full-bleed frame. */
 @media(min-width:861px){
-  .merge{display:grid;grid-template-columns:minmax(0,1fr) 402px;gap:24px;
-    max-width:1500px;margin:16px auto 44px;padding:0 24px;align-items:start}
+  /* Gap tightened so the main column keeps as much width as possible while the two columns
+     stay visually distinct. The page boundary itself comes from the shell's canonical grid. */
+  .merge{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;
+    margin:16px auto 44px;align-items:start}
+
+  /* ── ONE ITEM PER VIEW (Founder 2026-09-05) ───────────────────────────────────────────
+     Native scroll-snap, no wheel hijacking: the feed is the snap container and each card is
+     a mandatory stop, so one scroll advances exactly one item in either direction and the
+     view never rests between two pieces of content. The rail is outside the container and
+     scrolls normally. */
+  .feedcol{max-height:calc(100vh - 104px);overflow-y:auto;scroll-snap-type:y mandatory;
+    scrollbar-width:none;overscroll-behavior-y:contain}
+  .feedcol::-webkit-scrollbar{display:none}
+  #community-feed>.fcard{scroll-snap-align:start;scroll-snap-stop:always;
+    min-height:calc(100vh - 128px)}
   .feedcol{min-width:0}
   #community-feed{max-width:none}
 

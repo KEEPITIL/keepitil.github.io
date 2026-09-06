@@ -71,6 +71,50 @@
         seven scattered per-page fixes it would otherwise take, and it encodes a platform
         constraint rather than a preference. */
   (function(){
+    /* ── ONE DESKTOP PAGE BOUNDARY FOR EVERY SURFACE (Founder 2026-09-05) ────────────────
+       Measured at 1440 before this existed: DISCOVER 1180, CONNECT 1360, CREATE 1088 (with a
+       filter bar overflowing to 1440 and a horizontally scrolling page), CULTURE 1308, EARN
+       1120 — five different systems, which is why nothing lined up between pages.
+       One box: max-width 1360 with a 40px gutter, so the content edge is 80px from the
+       viewport at 1440 on every page. Stated once, in the shell every page loads, rather than
+       five per-page numbers that drift apart again. Inner containers that carried their own
+       extra inset are zeroed so headings, filters and content share the same edge.
+       Desktop only — mobile keeps the rhythm already tuned for it. */
+    var g=document.createElement('style');
+    g.id='kil-desktop-grid';
+    g.textContent=':root{--kil-page-max:1360px;--kil-page-pad:40px}'
+      +'@media(min-width:861px){'
+      +  '.wrap,#evx .evx-sec,#evx .evx-nav-row,#evx .evx-days,'
+      +  '.controls-row,.subfilters,#grid{'
+      +    'max-width:var(--kil-page-max)!important;margin-left:auto!important;margin-right:auto!important;'
+      +    'padding-left:var(--kil-page-pad)!important;padding-right:var(--kil-page-pad)!important;'
+      +    'box-sizing:border-box!important}'
+      /* inner elements that added a second inset on top of their container */
+      +  '#evx .evx-hd{margin-left:0!important;margin-right:0!important}'
+      +  '#evx .evx-row{padding-left:0!important;padding-right:0!important}'
+      +  '#evx .evx-daycol .evx-row{padding-left:0!important;padding-right:0!important}'
+      /* .merge is BOTH the page boundary and the two-column grid, so giving it the gutter
+         pushed its columns to 120 while every other page's content sat at 80. It becomes the
+         content box itself: the canonical width minus both gutters, centred. */
+      +  '.merge{max-width:calc(var(--kil-page-max) - (2 * var(--kil-page-pad)))!important;'
+      +    'margin-left:auto!important;margin-right:auto!important;'
+      +    'padding-left:0!important;padding-right:0!important;box-sizing:border-box!important}'
+      /* #vs-app sits INSIDE .wrap, so giving it the gutter too double-inset CREATE to 120.
+         It fills its already-gridded parent instead. */
+      +  '#vs-app{max-width:none!important;padding-left:0!important;padding-right:0!important;'
+      +    'margin-left:0!important;margin-right:0!important}'
+      /* CREATE: the bar is a child of the already-gridded #vs-app, so it simply fills it.
+         This also removes the 100vw breakout that was overflowing the desktop page. */
+      +  '#vs-app .ce-bar{width:100%!important;max-width:none!important;'
+      +    'margin-left:0!important;margin-right:0!important;'
+      +    'padding-left:0!important;padding-right:0!important}'
+      +  '#vs-app .ce-hero,#vs-app .ce-stats,#vs-app .ce-grid{padding-left:0;padding-right:0}'
+      /* EARN: hero, metrics, filter and sections all sit on the same edge. */
+      +  'main.wrap>section,main.wrap>section .sh,main.wrap>section .grid{'
+      +    'padding-left:0;padding-right:0;margin-left:0;margin-right:0}'
+      +'}';
+    document.head.appendChild(g);
+
     var v=document.createElement('style');
     v.id='kil-mobile-viewport-rules';
     v.textContent='@media(max-width:860px){'
